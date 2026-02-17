@@ -14,7 +14,7 @@
                 "purchase_invoice": "Facture fournisseur",
                 "sale_invoice": "Facture client",
                 "fund_request": "Appel de fonds",
-                "expense_statement": "Relevé de charges",
+                "expense_statement": "Décompte de charges",
                 "misc": "Opération diverse",
                 "statement_line": "Ligne de relevé bancaire"
             }
@@ -75,8 +75,8 @@
             "help": ""
         },
         "expense_statement_id": {
-            "label": "Relevé de charges",
-            "description": "Relevé associé lorsqu'il s'agit d'un solde de charges.",
+            "label": "Décompte de charges",
+            "description": "Décompte associé lorsqu'il s'agit d'un solde de charges.",
             "help": ""
         },
         "purchase_invoice_id": {

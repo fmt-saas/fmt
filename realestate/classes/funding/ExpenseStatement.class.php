@@ -179,10 +179,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'validate' => [
                         'description' => 'Update the invoice status based on the `invoice` field. Assign invoice number, generate accounting entries and validate accounting entries.',
                         'policies'    => [
-                            'can_be_invoiced'
+                            'can_be_invoiced',
+                            'is_valid'
                         ],
                         'onbefore'  => 'onbeforeInvoice',
-                        'status'    => 'posted',
+                        'status'    => 'posted'
                     ]
                 ],
             ],
@@ -193,7 +194,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'cancel' => [
                         'description'   => 'Set the invoice and receivables statuses as cancelled.',
                         'onafter'       => 'onafterCancel',
-                        'status'        => 'cancelled',
+                        'status'        => 'cancelled'
                     ]
                 ],
             ],
@@ -254,6 +255,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'description' => 'Verifies that the allocation of a fund request can still be updated.',
                 'function'    => 'policyCanGenerateStatement'
             ],
+            'is_valid' => [
+                'description' => 'Verifies that the Expense Statement can be validated (is valid).',
+                'function'    => 'policyIsValid'
+            ],
             'is_balanced' => [
                 'description' => 'Verifies that request amount matches allocated amount.',
                 'function'    => 'policyIsBalanced'
@@ -261,7 +266,51 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         ]);
     }
 
-    public static function policyCanCancel($self): array {
+    // #todo
+    protected static function policyIsBalanced($self): array {
+        $result = [];
+        // common_total + assigned_delta = sum(expense_statement_owners.expense_amount)
+        $self->read(['common_total', 'assigned_delta', 'statement_owners_ids' => ['expense_amount']]);
+        foreach($self as $id => $expenseStatement) {
+        }
+        return $result;
+    }
+
+    protected static function policyIsValid($self): array {
+        $result = [];
+        // common_total + assigned_delta = sum(expense_statement_owners.expense_amount)
+        $self->read(['statement_bank_account_id', 'payment_terms_id', 'condo_id', 'fiscal_period_id', 'fiscal_year_id']);
+        foreach($self as $id => $expenseStatement) {
+            if(!$expenseStatement['condo_id']) {
+                $result[$id] = [
+                    'missing_condominium' => 'The condominium is mandatory.'
+                ];
+            }
+            if(!$expenseStatement['fiscal_year_id']) {
+                $result[$id] = [
+                    'missing_fiscal_year' => 'The fiscal year is mandatory.'
+                ];
+            }
+            if(!$expenseStatement['fiscal_period_id']) {
+                $result[$id] = [
+                    'missing_fiscal_period' => 'The fiscal period is mandatory.'
+                ];
+            }
+            if(!$expenseStatement['payment_terms_id']) {
+                $result[$id] = [
+                    'missing_payment_terms' => 'The payment terms are mandatory.'
+                ];
+            }
+            if(!$expenseStatement['statement_bank_account_id']) {
+                $result[$id] = [
+                    'missing_bank_account' => 'The Bank Account is mandatory.'
+                ];
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyCanCancel($self): array {
         $result = [];
         $self->read(['status']);
         foreach($self as $id => $expenseStatement) {
@@ -275,7 +324,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         return $result;
     }
 
-    public static function policyCanGenerateStatement($self): array {
+    protected static function policyCanGenerateStatement($self): array {
         $result = [];
         $self->read(['status']);
         foreach($self as $id => $expenseStatement) {
@@ -290,7 +339,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         return $result;
     }
 
-    public static function onupdateFiscalPeriodId($self) {
+    protected static function onupdateFiscalPeriodId($self) {
         $self->read(['fiscal_period_id' => ['date_from', 'date_to']]);
         foreach($self as $id => $expenseStatement) {
             if($expenseStatement['fiscal_period_id']) {
@@ -299,7 +348,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         }
     }
 
-    public static function policyHasMandatoryData($self): array {
+    protected static function policyHasMandatoryData($self): array {
         $result = [];
         $self->read(['condo_id', 'request_date', 'has_date_range', 'date_from', 'date_to', 'request_account_id', 'request_bank_account_id', 'payment_terms_id']);
         foreach($self as $id => $expenseStatement) {

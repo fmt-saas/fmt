@@ -1,11 +1,11 @@
 {
-    "name": "Relevé propriétaire",
-    "plural": "Relevés propriétaires",
-    "description": "Synthèse des charges imputées à un copropriétaire pour un relevé donné (période, lots, montant, clés).",
+    "name": "Décompte propriétaire",
+    "plural": "Décomptes propriétaires",
+    "description": "Synthèse des charges imputées à un copropriétaire pour un décompte donné (période, lots, montant, clés).",
     "model": {
         "expense_statement_id": {
-            "label": "Relevé parent",
-            "description": "Relevé de charges auquel ce sous-relevé est rattaché.",
+            "label": "Décompte parent",
+            "description": "Décompte de charges auquel ce sous-décompte est rattaché.",
             "help": ""
         },
         "fiscal_period_id": {

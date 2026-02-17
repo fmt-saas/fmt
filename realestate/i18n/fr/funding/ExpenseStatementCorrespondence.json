@@ -1,16 +1,16 @@
 {
-    "name": "Courrier de relevé de charges",
-    "plural": "Courriers de relevé de charges",
-    "description": "Envoi individuel d'un relevé de charges à un propriétaire ou son représentant.",
+    "name": "Courrier de décompte de charges",
+    "plural": "Courriers de décompte de charges",
+    "description": "Envoi individuel d'un décompte de charges à un propriétaire ou son représentant.",
     "model": {
         "name": {
             "label": "Libellé",
-            "description": "Libellé du courrier de relevé de charges.",
+            "description": "Libellé du courrier de décompte de charges.",
             "help": ""
         },
         "expense_statement_id": {
-            "label": "Relevé de charges",
-            "description": "Relevé de charges concerné par l'envoi.",
+            "label": "Décompte de charges",
+            "description": "Décompte de charges concerné par l'envoi.",
             "help": ""
         },
         "condo_id": {
@@ -77,8 +77,8 @@
     },
     "view": {
         "form.default": {
-            "name": "Courrier de relevé de charges",
-            "description": "Détail de l'envoi d'un relevé de charges.",
+            "name": "Courrier de décompte de charges",
+            "description": "Détail de l'envoi d'un décompte de charges.",
             "layout": {
                 "route.mails": {
                     "label": "Email"
@@ -86,8 +86,8 @@
             }
         },
         "list.default": {
-            "name": "Courriers de relevé de charges",
-            "description": "Suivi des relevés de charges envoyés aux copropriétaires.",
+            "name": "Courriers de décompte de charges",
+            "description": "Suivi des décomptes de charges envoyés aux copropriétaires.",
             "layout": {}
         }
     }

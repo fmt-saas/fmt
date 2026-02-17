@@ -4,12 +4,12 @@
     "description": "Ligne élémentaire d'un relevé (compte, clé, lot, montants propriétaire/locataire, type de dépense).",
     "model": {
         "invoice_id": {
-            "label": "Relevé",
-            "description": "Relevé de charges (facture) auquel la ligne appartient.",
+            "label": "Décompte",
+            "description": "Décompte de charges (facture) auquel la ligne appartient.",
             "help": ""
         },
         "statement_owner_id": {
-            "label": "Sous-relevé",
+            "label": "Sous-décompte",
             "description": "Relevé propriétaire regroupant cette ligne.",
             "help": ""
         },

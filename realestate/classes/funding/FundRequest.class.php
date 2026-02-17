@@ -395,7 +395,7 @@ class FundRequest extends \equal\orm\Model {
         return $result;
     }
 
-    public static function policyIsBalanced($self): array {
+    protected static function policyIsBalanced($self): array {
         $result = [];
         $self->read(['request_amount', 'allocated_amount']);
         foreach($self as $id => $fundRequest) {
