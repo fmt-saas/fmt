@@ -1133,10 +1133,10 @@ class AssemblyItem extends AssemblyItemTemplate {
     }
 
     protected static function canupdate($self, $values) {
-        $self->read(['has_vote_required', 'assembly_id' => ['status', 'is_second_session']]);
+        $self->read(['has_vote_required', 'apportionment_id', 'assembly_id' => ['status', 'is_second_session']]);
         foreach($self as $id => $assemblyItem) {
             if($assemblyItem['has_vote_required'] || (isset($values['has_vote_required']) && $values['has_vote_required'])) {
-                if(!isset($values['apportionment_id'])) {
+                if(!isset($values['apportionment_id']) && !isset($assemblyItem['apportionment_id'])) {
                     return ['apportionment_id' => ['apportionment_required' => 'If vote is required, an apportionment must be defined.']];
                 }
             }
