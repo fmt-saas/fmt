@@ -180,7 +180,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'description' => 'Update the invoice status based on the `invoice` field. Assign invoice number, generate accounting entries and validate accounting entries.',
                         'policies'    => [
                             'can_be_invoiced',
-                            'is_valid'
+                            'is_valid',
+                            'is_balanced'
                         ],
                         'onbefore'  => 'onbeforeInvoice',
                         'status'    => 'posted'
@@ -266,12 +267,21 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         ]);
     }
 
-    // #todo
     protected static function policyIsBalanced($self): array {
         $result = [];
-        // common_total + assigned_delta = sum(expense_statement_owners.expense_amount)
         $self->read(['common_total', 'assigned_delta', 'statement_owners_ids' => ['expense_amount']]);
         foreach($self as $id => $expenseStatement) {
+            $total_assigned = 0.0;
+            foreach($expenseStatement['statement_owners_ids'] as $expense_statement_owner_id => $expenseStatementOwner) {
+                $total_assigned += round($expenseStatementOwner['expense_amount'] ?? 0.0, 2);
+            }
+            $expected_total = round(($expenseStatement['common_total'] ?? 0.0) + ($expenseStatement['assigned_delta'] ?? 0.0), 2);
+            if(round($total_assigned - $expected_total, 2) != 0.0) {
+                $result[$id] = [
+                    'unbalanced_allocation' => 'The total assigned amount does not match the common total.'
+                ];
+                continue;
+            }
         }
         return $result;
     }
