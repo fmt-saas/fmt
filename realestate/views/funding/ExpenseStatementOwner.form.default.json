@@ -10,17 +10,17 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "property_lots_count",
-                                                "width": "100%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "expense_amount",
-                                                "width": "100%"
+                                                "width": "50%"
                                             }
                                         ]
                                     }
