@@ -469,7 +469,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 continue;
             }
 
-            // #memo - it is the invoice (and not the DocumentProcess) that is responsible for ensuring all required information is complete
+            // #memo - it is the invoice (and not the DocumentProcess) that is responsible for ensuring that all required information is complete
             // #todo - this should be called through a ValidationRule
             try {
                 // #memo - `assert-valid` controller is called at `MarkValidated` step
