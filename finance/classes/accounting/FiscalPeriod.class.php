@@ -176,15 +176,14 @@ class FiscalPeriod extends Model {
     }
 
     /**
-     * s'il existe déjà, on le laisse (proforma)
-     * sinon on le créé en brouillon
+     * Check expense statement: if one already exists, leave it (proforma); otherwise create it as a draft.
      */
     protected static function onafterPreclose($self) {
         $self->read(['condo_id', 'fiscal_year_id', 'date_from', 'date_to']);
         foreach($self as $id => $fiscalPeriod) {
             $existingExpenseStatement = ExpenseStatement::search([
                     ['condo_id', '=', $fiscalPeriod['condo_id']],
-                    ['fiscal_year_id', '=', $fiscalPeriod['fiscal_year_id']],
+                    ['fiscal_year_id', '=', $fiscalPeriod['fiscal_year_id']['id']],
                     ['fiscal_period_id', '=', $id],
                     ['invoice_type', '=', 'expense_statement']
                 ])
@@ -199,6 +198,7 @@ class FiscalPeriod extends Model {
             ExpenseStatement::create([
                     'condo_id'          => $fiscalPeriod['condo_id'],
                     'fiscal_period_id'  => $id,
+                    'fiscal_year_id'    => $fiscalPeriod['fiscal_year_id']['id'],
                     'request_date'      => time(),
                     'has_date_range'    => true,
                     'date_from'         => $fiscalPeriod['date_from'],
@@ -206,6 +206,11 @@ class FiscalPeriod extends Model {
                     'invoice_type'      => 'expense_statement'
                 ])
                 ->do('generate_statement');
+
+            // if last period of the fiscal year, transition fiscal year to preclose (must be 'open' as checked in policyCanPreclose)
+            if($fiscalPeriod['date_to'] === $fiscalPeriod['fiscal_year_id']['date_to']) {
+                FiscalYear::id($fiscalPeriod['fiscal_year_id']['id'])->transition('preclose');
+            }
         }
 
     }
@@ -299,9 +304,9 @@ class FiscalPeriod extends Model {
                 continue;
             }
 
-            if(!in_array($fiscalPeriod['fiscal_year_id']['status'], ['preopen', 'open'])) {
+            if($fiscalPeriod['fiscal_year_id']['status'] !== 'open') {
                 $result[$id] = [
-                    'invalid_fiscal_year_status' => 'Fiscal Year must be open or preopen for a period to be closed.'
+                    'invalid_fiscal_year_status' => 'Fiscal Year must be open for a period to be closed.'
                 ];
                 continue;
             }
