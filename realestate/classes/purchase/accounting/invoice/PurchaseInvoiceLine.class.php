@@ -77,14 +77,16 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 'type'              => 'integer',
                 'default'           => 100,
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
-                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed."
+                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
+                'onupdate'          => 'onupdateOwnerShare'
             ],
 
             'tenant_share'          => [
                 'type'              => 'integer',
                 'default'           => 0,
                 'description'       => "Default value, in percent, of the amount to be imputed to the tenant when using the account.",
-                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed."
+                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
+                'onupdate'          => 'onupdateTenantShare'
             ],
 
             'ownership_id' => [
@@ -115,6 +117,32 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             }
         }
         return $result;
+    }
+
+    protected static function onupdateTenantShare($self) {
+        $self->read(['tenant_share', 'owner_share']);
+        foreach($self as $id => $invoiceLine) {
+            if(!isset($invoiceLine['tenant_share'])) {
+                continue;
+            }
+            $owner_share = 100 - intval($invoiceLine['tenant_share']);
+            if($owner_share != $invoiceLine['owner_share']) {
+                self::id($id)->update(['owner_share' => $owner_share]);
+            }
+        }
+    }
+
+    protected static function onupdateOwnerShare($self) {
+        $self->read(['tenant_share', 'owner_share']);
+        foreach($self as $id => $invoiceLine) {
+            if(!isset($invoiceLine['owner_share'])) {
+                continue;
+            }
+            $tenant_share = 100 - intval($invoiceLine['owner_share']);
+            if($tenant_share != $invoiceLine['tenant_share']) {
+                self::id($id)->update(['tenant_share' => $tenant_share]);
+            }
+        }
     }
 
     protected static function onupdateIsPrivateExpense($self) {
