@@ -10,6 +10,7 @@ use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
 use finance\accounting\Account;
 use finance\accounting\FiscalPeriod;
+use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
 use finance\accounting\MiscOperationLine;
 use finance\bank\BankStatementLine;
@@ -181,7 +182,16 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'policies'    => [
                             'can_be_invoiced',
                             'is_valid',
-                            'is_balanced'
+                            'is_balanced',
+                            'can_generate_statement',
+                            'can_generate_accounting_entries',
+                            'can_generate_fundings',
+                            'can_assign_invoice_number',
+                            'can_clear_accounting_entry_lines',
+                            'can_validate_accounting_entries',
+                            'can_close_fiscal_period',
+                            'can_generate_expense_statement_correspondences',
+                            'can_send_expense_statements'
                         ],
                         'onbefore'  => 'onbeforeInvoice',
                         'status'    => 'posted'
@@ -191,9 +201,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             'posted' => [
                 'description' => 'Expense statement can no longer be modified and can be sent to the customer.',
                 'icon' => 'receipt_long',
+                // il faut valider qu'on puisse faire ca : periode concernée en preclosed (sinon message disant qu'il faut réouvrir)
                 'transitions' => [
                     'cancel' => [
                         'description'   => 'Set the invoice and receivables statuses as cancelled.',
+                        'policies'      => [],
                         'onafter'       => 'onafterCancel',
                         'status'        => 'cancelled'
                     ]
@@ -230,7 +242,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'function'      => 'doClearAccountingEntryLines'
             ],
             'close_fiscal_period' => [
-                'description'   => 'Mark related fiscal period as closed.',
+                'description'   => 'Mark related fiscal period as closed (and fiscal year if last period).',
                 'policies'      => [],
                 'function'      => 'doCloseFiscalPeriod'
             ],
@@ -256,6 +268,38 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'description' => 'Verifies that the allocation of a fund request can still be updated.',
                 'function'    => 'policyCanGenerateStatement'
             ],
+            'can_generate_accounting_entries' => [
+                'description' => 'Verifies that accounting entries can be generated for the statement.',
+                'function'    => 'policyCanGenerateAccountingEntries'
+            ],
+            'can_generate_fundings' => [
+                'description' => 'Verifies that fundings can be generated for the statement.',
+                'function'    => 'policyCanGenerateFundings'
+            ],
+            'can_assign_invoice_number' => [
+                'description' => 'Verifies that an invoice number can be assigned.',
+                'function'    => 'policyCanAssignInvoiceNumber'
+            ],
+            'can_clear_accounting_entry_lines' => [
+                'description' => 'Verifies that accounting entry lines can be cleared by the statement.',
+                'function'    => 'policyCanClearAccountingEntryLines'
+            ],
+            'can_validate_accounting_entries' => [
+                'description' => 'Verifies that generated accounting entries can be validated.',
+                'function'    => 'policyCanValidateAccountingEntries'
+            ],
+            'can_close_fiscal_period' => [
+                'description' => 'Verifies that the related fiscal period can be closed.',
+                'function'    => 'policyCanCloseFiscalPeriod'
+            ],
+            'can_generate_expense_statement_correspondences' => [
+                'description' => 'Verifies that expense statement correspondences can be generated.',
+                'function'    => 'policyCanGenerateExpenseStatementCorrespondences'
+            ],
+            'can_send_expense_statements' => [
+                'description' => 'Verifies that expense statements can be sent.',
+                'function'    => 'policyCanSendExpenseStatements'
+            ],
             'is_valid' => [
                 'description' => 'Verifies that the Expense Statement can be validated (is valid).',
                 'function'    => 'policyIsValid'
@@ -267,6 +311,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         ]);
     }
 
+    /**
+     * Check that the statement is balanced: common_total + assigned_delta = sum(expense_statement_owners.expense_amount)
+     */
     protected static function policyIsBalanced($self): array {
         $result = [];
         $self->read(['common_total', 'assigned_delta', 'statement_owners_ids' => ['expense_amount']]);
@@ -288,9 +335,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
     protected static function policyIsValid($self): array {
         $result = [];
-        // common_total + assigned_delta = sum(expense_statement_owners.expense_amount)
         $self->read(['statement_bank_account_id', 'payment_terms_id', 'condo_id', 'fiscal_period_id', 'fiscal_year_id']);
         foreach($self as $id => $expenseStatement) {
+            // 1) check completeness
             if(!$expenseStatement['condo_id']) {
                 $result[$id] = [
                     'missing_condominium' => 'The condominium is mandatory.'
@@ -347,6 +394,68 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             // #todo - check that ownerships are set and continuous for all involved property lots of the period
         }
         return $result;
+    }
+
+    protected static function policyCanGenerateAccountingEntries($self): array {
+        return [];
+    }
+
+    /**
+     * Ensure every ownership involved in the statement has the required working-fund account.
+     */
+    protected static function policyCanGenerateFundings($self): array {
+        $result = [];
+        $self->read(['condo_id', 'statement_owners_ids' => ['ownership_id']]);
+        foreach($self as $id => $expenseStatement) {
+            foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
+
+                if(!$statementOwner['ownership_id']) {
+                    $result[$id] = [
+                        'missing_ownership' => 'A statement owner is missing its ownership reference.'
+                    ];
+                    continue;
+                }
+
+                $account = Account::search([
+                        ['condo_id', '=', $expenseStatement['condo_id']],
+                        ['ownership_id', '=', $statementOwner['ownership_id']],
+                        ['operation_assignment', '=', 'co_owners_working_fund']
+                    ])
+                    ->first();
+
+                if(!$account) {
+                    trigger_error("APP::Missing working-fund account for ownership #{$statementOwner['ownership_id']} of statement #{$id}", EQ_REPORT_ERROR);
+                    $result[$id] = [
+                        "missing_working_fund_account" => "Missing working-fund account for one or more ownership."
+                    ];
+                }
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyCanAssignInvoiceNumber($self): array {
+        return [];
+    }
+
+    protected static function policyCanClearAccountingEntryLines($self): array {
+        return [];
+    }
+
+    protected static function policyCanValidateAccountingEntries($self): array {
+        return [];
+    }
+
+    protected static function policyCanCloseFiscalPeriod($self): array {
+        return [];
+    }
+
+    protected static function policyCanGenerateExpenseStatementCorrespondences($self): array {
+        return [];
+    }
+
+    protected static function policyCanSendExpenseStatements($self): array {
+        return [];
     }
 
     protected static function onupdateFiscalPeriodId($self) {
@@ -409,17 +518,60 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         return $result;
     }
 
-    public static function onbeforeInvoice($self) {
-        $self
-            ->do('generate_statement')
-            ->do('generate_accounting_entries')
-            ->do('generate_fundings')
-            ->do('assign_invoice_number')
-            ->do('clear_accounting_entry_lines')
-            ->do('validate_accounting_entries')
-            ->do('close_fiscal_period')
-            ->do('generate_expense_statement_correspondences')
-            ->do('send_expense_statements');
+    protected static function onbeforeInvoice($self) {
+        try {
+            try {
+                // generate subsequent data
+                $self
+                    ->do('generate_statement')
+                    ->do('generate_accounting_entries')
+                    ->do('generate_fundings');
+            }
+            catch(\Exception $e) {
+                trigger_error("APP::Error while generating expense statement data: {$e->getMessage()}", EQ_REPORT_ERROR);
+                throw $e;
+            }
+
+            try {
+                // create a unique invoice number for the statement (handled as a sale invoice), based on Condo sequence
+                $self->do('assign_invoice_number');
+            }
+            catch(\Exception $e) {
+                trigger_error("APP::Error while generating number for expense statement: {$e->getMessage()}", EQ_REPORT_ERROR);
+                throw $e;
+            }
+
+            try {
+                $self
+                    // mark involved accounting entries as cleared by the statement (to exclude them from future statements)
+                    ->do('clear_accounting_entry_lines')
+                    // validate accounting entries (to be considered in financial statements)
+                    ->do('validate_accounting_entries')
+                    // mark related fiscal period as closed (and fiscal year if last period)
+                    ->do('close_fiscal_period');
+            }
+            catch(\Exception $e) {
+                trigger_error("APP::Error while processing expense statement posting: {$e->getMessage()}", EQ_REPORT_ERROR);
+                throw $e;
+            }
+
+            try {
+                $self
+                    // generate correspondences for each ownership
+                    ->do('generate_expense_statement_correspondences')
+                    // send emails to representatives of involved ownerships according to their communication preferences
+                    ->do('send_expense_statements');
+            }
+            catch(\Exception $e) {
+                trigger_error("APP::Error while generating expense statement data: {$e->getMessage()}", EQ_REPORT_ERROR);
+                // #memo -do not relay exception here (non critical)
+                // throw $e;
+            }
+
+        }
+        catch(\Exception $e) {
+            throw new \Exception('unexpected_error_at_invoicing', EQ_ERROR_UNKNOWN, $e);
+        }
     }
 
     /**
@@ -880,10 +1032,16 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         }
     }
 
+    /**
+     * Mark related fiscal period as closed (and fiscal year if last period).
+     */
     protected static function doCloseFiscalPeriod($self) {
-        $self->read(['fiscal_period_id']);
+        $self->read(['fiscal_period_id' => ['date_to'], 'fiscal_year_id' => ['date_to']]);
         foreach($self as $id => $expenseStatement) {
-            FiscalPeriod::id($expenseStatement['fiscal_period_id'])->transition('close');
+            FiscalPeriod::id($expenseStatement['fiscal_period_id']['id'])->transition('close');
+            if($expenseStatement['fiscal_period_id']['date_to'] === $expenseStatement['fiscal_year_id']['date_to']) {
+                FiscalYear::id($expenseStatement['fiscal_year_id']['id'])->transition('close');
+            }
         }
     }
 

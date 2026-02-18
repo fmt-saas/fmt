@@ -330,7 +330,7 @@ class FiscalPeriod extends Model {
      *
      * - empty account expense_provisions with owners accounts
      *
-     *
+     * il y a une question en cours sur la pertinence de faire cela (a priori uniquement 1) par tradition et 2) pour faciliter les calculs pour des infos sur des intervalles de dates arbitraires)
      */
     public static function doGenerateAccountingEntries($self) {
         $self->read([

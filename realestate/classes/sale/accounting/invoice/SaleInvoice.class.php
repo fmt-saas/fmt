@@ -83,7 +83,7 @@ class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
         ];
     }
 
-    public static function onbeforeInvoice($self) {
+    protected static function onbeforeInvoice($self) {
         $self
             ->do('generate_accounting_entries')
             ->do('assign_invoice_number')

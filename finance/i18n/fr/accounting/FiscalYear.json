@@ -69,7 +69,7 @@
                     "description": "Créer les périodes fiscales selon la configuration."
                 },
                 "action.generate_sequences": {
-                    "label": "Assurer les séquences",
+                    "label": "Vérifier les séquences",
                     "description": "Vérifier et créer les séquences manquantes de l'exercice."
                 },
                 "action.preopen": {

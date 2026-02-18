@@ -307,7 +307,7 @@ class FiscalYear extends Model {
                         'onbefore' => 'onbeforeClose',
                         'onafter' => 'onafterClose',
                         'policies' => [
-                            'can_be_closed',
+                            'can_close',
                         ],
                         'status' => 'closed',
                     ],
@@ -323,7 +323,7 @@ class FiscalYear extends Model {
                         'onbefore' => 'onbeforeClose',
                         'onafter' => 'onafterClose',
                         'policies' => [
-                            'can_be_closed',
+                            'can_close',
                         ],
                         'status' => 'closed',
                     ],
@@ -359,9 +359,9 @@ class FiscalYear extends Model {
                 'description' => 'Verifies that a fiscal year can be set (or set back) to preclosed status.',
                 'function'    => 'policyCanBePreClosed'
             ],
-            'can_be_closed' => [
+            'can_close' => [
                 'description' => 'Verifies that a fiscal year can be closed according its configuration.',
-                'function'    => 'policyCanBeClosed'
+                'function'    => 'policyCanClose'
             ],
             'can_open_fiscal_year' => [
                 'description' => 'Verifies that a fiscal year can be opened according to user roles.',
@@ -381,7 +381,7 @@ class FiscalYear extends Model {
 
         foreach($self as $id => $fiscalYear) {
             if($fiscalYear['condo_id']['creator'] === $user_id) {
-                // #memo - this is to allow auto opening at Condo import from an XLS file
+                // #memo - this is necessary to allow auto opening at Condo import from an XLS file
                 continue;
             }
             if(!$access->userHasCondoRole($user_id, ['manager', 'accountant'], $fiscalYear['condo_id']['id'])) {
@@ -394,10 +394,18 @@ class FiscalYear extends Model {
         return $result;
     }
 
-    protected static function policyCanBeClosed($self): array {
+    protected static function policyCanClose($self): array {
         $result = [];
         $self->read(['status', 'condo_id', 'date_to']);
         foreach($self as $id => $fiscalYear) {
+            if(!in_array($fiscalYear['status'], ['open', 'preclosed'])) {
+                $result[$id] = [
+                    'invalid_status' => 'Fiscal year status must be open or preclosed.'
+                ];
+                continue;
+            }
+            // #todo
+            // en principe, ceci est toujours vrai - tester avec nouvelle approche
             $balance = CurrentBalance::search(['fiscal_year_id', '=', $id])->read(['is_balanced'])->first();
             if(!$balance) {
                 $result[$id] = [
