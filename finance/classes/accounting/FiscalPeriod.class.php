@@ -306,14 +306,13 @@ class FiscalPeriod extends Model {
                 continue;
             }
 
-            $nonClosedPreviousPeriods = self::search([
-                    ['fiscal_year_id', '=', $fiscalPeriod['fiscal_year_id']],
+            // check non closed previous periods
+            if(self::search([
+                    ['fiscal_year_id', '=', $fiscalPeriod['fiscal_year_id']['id']],
                     ['date_to', '<', $fiscalPeriod['date_from']],
                     ['status', '<>', 'closed']
-                ])
-                ->get();
-
-            if(count($nonClosedPreviousPeriods) > 0) {
+                ])->count() > 0
+            ) {
                 $result[$id] = [
                     'non_closed_previous_period' => 'All previous periods of the fiscal year must be closed before pre-closing this period.'
                 ];
