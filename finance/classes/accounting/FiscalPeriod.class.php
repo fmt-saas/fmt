@@ -42,6 +42,19 @@ class FiscalPeriod extends Model {
                 'ondelete'          => 'cascade'
             ],
 
+            'expense_statements_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\funding\ExpenseStatement',
+                'foreign_field'     => 'fiscal_period_id',
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['fiscal_year_id', '=', 'object.fiscal_year_id'],
+                    ['invoice_type', '=', 'expense_statement']
+                ],
+                'description'       => 'The expense statements relating to the fiscal period.',
+                'help'              => "Normally there is only one expense statement, except when cancellations (rollbacks) have occurred."
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -99,11 +112,26 @@ class FiscalPeriod extends Model {
                         'description' => 'Mark fiscal period as pre-closed.',
                         'help' => 'This transition creates a related expense statement draft (must still be validated).',
                         'policies' => [
-                            'can_be_preclose'
+                            'can_preclose'
                         ],
                         'onbefore' => 'onafterPreclose',
                         'status' => 'preclosed'
                     ],
+                    'close' => [
+                        'description' => 'Close the fiscal period.',
+                        'help' => 'A fiscal period is meant to be closed the sooner at the day matching date stored in `date_to` field.',
+                        'policies' => [
+                            'can_close'
+                        ],
+                        'onbefore' => 'onbeforeClose',
+                        'status' => 'closed'
+                    ]
+                ]
+            ],
+            'preclosed' => [
+                'description' => 'Preclosed fiscal period, having a proforma Expense statement, on which no new accounting entries can be recorded.',
+                'icon' => 'draw',
+                'transitions' => [
                     'close' => [
                         'description' => 'Close the fiscal period.',
                         'help' => 'A fiscal period is meant to be closed the sooner at the day matching date stored in `date_to` field.',
@@ -157,7 +185,8 @@ class FiscalPeriod extends Model {
             $existingExpenseStatement = ExpenseStatement::search([
                     ['condo_id', '=', $fiscalPeriod['condo_id']],
                     ['fiscal_year_id', '=', $fiscalPeriod['fiscal_year_id']],
-                    ['fiscal_period_id', '=', $id]
+                    ['fiscal_period_id', '=', $id],
+                    ['invoice_type', '=', 'expense_statement']
                 ])
                 ->read(['status'])
                 ->first();
@@ -166,15 +195,17 @@ class FiscalPeriod extends Model {
                 continue;
             }
 
-            // create a draft exepense statement if not exist
+            // create a draft expense statement if not exist
             ExpenseStatement::create([
                     'condo_id'          => $fiscalPeriod['condo_id'],
                     'fiscal_period_id'  => $id,
                     'request_date'      => time(),
                     'has_date_range'    => true,
                     'date_from'         => $fiscalPeriod['date_from'],
-                    'date_to'           => $fiscalPeriod['date_to']
-                ]);
+                    'date_to'           => $fiscalPeriod['date_to'],
+                    'invoice_type'      => 'expense_statement'
+                ])
+                ->do('generate_statement');
         }
 
     }
@@ -226,6 +257,7 @@ class FiscalPeriod extends Model {
     /**
      * If an ExpenseStatement already exists for the period, it must be in draft (proforma) to allow pre-closing.
      * Parent fiscal Year must be in  ['preopen', 'open'].
+     * All previous periods of the same fiscal Year must be closed
      */
     protected static function policyCanPreclose($self) {
         $result = [];
@@ -260,7 +292,7 @@ class FiscalPeriod extends Model {
                 continue;
             }
 
-            if($fiscalPeriod['status'] === 'open') {
+            if($fiscalPeriod['status'] !== 'open') {
                 $result[$id] = [
                     'invalid_status' => 'Period not open.'
                 ];
@@ -274,10 +306,25 @@ class FiscalPeriod extends Model {
                 continue;
             }
 
+            $nonClosedPreviousPeriods = self::search([
+                    ['fiscal_year_id', '=', $fiscalPeriod['fiscal_year_id']],
+                    ['date_to', '<', $fiscalPeriod['date_from']],
+                    ['status', '<>', 'closed']
+                ])
+                ->get();
+
+            if(count($nonClosedPreviousPeriods) > 0) {
+                $result[$id] = [
+                    'non_closed_previous_period' => 'All previous periods of the fiscal year must be closed before pre-closing this period.'
+                ];
+                continue;
+            }
+
             $existingExpenseStatement = ExpenseStatement::search([
                     ['condo_id', '=', $fiscalPeriod['condo_id']],
-                    ['fiscal_year_id', '=', $fiscalPeriod['fiscal_year_id']],
-                    ['fiscal_period_id', '=', $id]
+                    ['fiscal_year_id', '=', $fiscalPeriod['fiscal_year_id']['id']],
+                    ['fiscal_period_id', '=', $id],
+                    ['invoice_type', '=', 'expense_statement']
                 ])
                 ->read(['status'])
                 ->first();
@@ -320,7 +367,7 @@ class FiscalPeriod extends Model {
     }
 
     public static function onbeforeClose($self) {
-        // #todo #memo - on fait ca dans les décompte de charge et/ou dans la FiscalYear
+        // #todo #memo - nothing to do here: handled in expense statement and/or in FiscalYear
         // $self->do('generate_accounting_entries');
     }
 

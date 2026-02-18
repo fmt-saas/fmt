@@ -86,13 +86,6 @@
             },
             {
                 "type": "field",
-                "label": "owner",
-                "value": "owner_share",
-                "width": "10%",
-                "visible": false
-            },
-            {
-                "type": "field",
                 "label": "vat",
                 "value": "vat_rate",
                 "width": "8%"

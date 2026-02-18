@@ -31,7 +31,13 @@
         "fiscal_period_frequency": {
             "label": "Fréquence des périodes",
             "description": "Annuel / semestriel / trimestriel… déterminant la découpe.",
-            "help": ""
+            "help": "",
+            "selection": {
+                "A": "Annuel",
+                "S": "Semestre (6 mois)",
+                "T": "Quadrimestre (4 mois)",
+                "Q": "Trimestre (3 mois)"
+            }
         },
         "fiscal_periods_ids": {
             "label": "Périodes",
@@ -85,8 +91,8 @@
                     "description": "Pré-clôturer l'exercice."
                 },
                 "action.close": {
-                    "label": "Clore",
-                    "description": "Clore l'exercice (action irréversible)."
+                    "label": "Cloturer",
+                    "description": "Cloturer l'exercice (action irréversible)."
                 },
                 "action.delete": {
                     "label": "Supprimer",

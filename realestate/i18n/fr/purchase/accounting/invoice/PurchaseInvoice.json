@@ -159,9 +159,9 @@
             "help": "Permet de renseigner si un mandat SEPA est actif pour la copropriété auprès du fournisseur concerné, et pour ce type de factures."
         },
         "has_date_range": {
-            "label": "Imputation sur période",
+            "label": "Imputation sur intervalle",
             "description": "Indique que la prestation couvre une période.",
-            "help": "Permet de renseigner les dates de début et de fin d'une période arbitraire."
+            "help": "Permet de renseigner les dates de début et de fin d'un intervalle arbitraire."
         },
         "description": {
             "label": "Description",

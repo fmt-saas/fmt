@@ -107,17 +107,17 @@
             "help": ""
         },
         "has_date_range": {
-            "label": "Service sur periode",
+            "label": "Service sur intervalle",
             "description": "Indique si la facture couvre une periode de prestation.",
             "help": ""
         },
         "date_from": {
-            "label": "Debut de periode",
+            "label": "Début d'intervalle",
             "description": "Premiere date couverte par la facture.",
             "help": ""
         },
         "date_to": {
-            "label": "Fin de periode",
+            "label": "Fin d'intervalle",
             "description": "Derniere date couverte par la facture.",
             "help": ""
         },

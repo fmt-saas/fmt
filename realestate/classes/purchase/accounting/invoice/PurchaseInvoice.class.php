@@ -177,7 +177,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'foreign_object'    => 'finance\accounting\FiscalPeriod',
                 'description'       => "Period of the fiscal year the invoice relates to.",
                 'help'              => "Period is automatically assigned based on emission_date.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['fiscal_year_id', '=', 'object.fiscal_year_id']],
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['condo_id', '<>', null],
+                    ['fiscal_year_id', '=', 'object.fiscal_year_id'],
+                    ['status', '=', 'open']
+                ],
                 'function'          => 'calcFiscalPeriodId',
                 'store'             => true,
                 'instant'           => true,

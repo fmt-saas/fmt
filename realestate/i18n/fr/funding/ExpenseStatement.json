@@ -85,8 +85,8 @@
                     "description": "Générer les lignes du relevé."
                 },
                 "action.invoice": {
-                    "label": "Valider",
-                    "description": "À facturer."
+                    "label": "Intégrer",
+                    "description": "Émettre et intégrer à la comptabilité."
                 },
                 "action.print_pdf": {
                     "label": "Télécharger le relevé",

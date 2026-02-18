@@ -31,7 +31,17 @@
         "status": {
             "label": "Statut",
             "description": "open = utilisable pour enregistrer des écritures, closed = clôturé.",
-            "help": ""
+            "help": "",
+            "selection": {
+                "open": "Ouverte",
+                "preclosed": "Pré-clôturée",
+                "closed": "Clôturée"
+            }
+        },
+        "expense_statements_ids": {
+            "label": "Décomptes de charges",
+            "description": "Décomptes liés à la période fiscale.",
+            "help": "Normalement un seul décompte, sauf en cas d'annulation/reprise."
         },
         "condo_id": {
             "label": "Copropriété",

@@ -51,7 +51,7 @@ $purchaseInvoice = PurchaseInvoice::id($id)
         'supplier_invoice_number',
         'condo_bank_account_id',
         'suppliership_id' => ['status'],
-        'suppliership_bank_account_id',
+        'suppliership_bank_account_id' => ['bank_account_iban', 'bank_account_bic'],
         'payable_amount',
         'fiscal_year_id',
         'emission_date',
@@ -117,6 +117,25 @@ else {
     // symmetrical removal of the alert (if any)
     $dispatch->cancel('purchase.accounting.invoice.missing_suppliership_bank_account_id', $class, $id);
 }
+
+$iban = $purchaseInvoice['suppliership_bank_account_id']['bank_account_iban'] ?? '';
+if(strlen($iban) <= 0 || !preg_match('/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/', strtoupper($iban))) {
+    $dispatch->dispatch('purchase.accounting.invoice.invalid_suppliership_iban', $class, $id, 'important', $script, ['id' => $id]);
+    throw new Exception("invalid_suppliership_iban", EQ_ERROR_INVALID_PARAM);
+}
+else {
+    $dispatch->cancel('purchase.accounting.invoice.invalid_suppliership_iban', $class, $id);
+}
+
+$bic = $purchaseInvoice['suppliership_bank_account_id']['bank_account_bic'] ?? '';
+if(strlen($bic) <= 0 || !preg_match('/^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/', strtoupper($bic))) {
+    $dispatch->dispatch('purchase.accounting.invoice.invalid_suppliership_bic', $class, $id, 'important', $script, ['id' => $id]);
+    throw new Exception("invalid_suppliership_bic", EQ_ERROR_INVALID_PARAM);
+}
+else {
+    $dispatch->cancel('purchase.accounting.invoice.invalid_suppliership_bic', $class, $id);
+}
+
 
 if(strlen($purchaseInvoice['supplier_invoice_number']) <= 0) {
     $dispatch->dispatch('purchase.accounting.invoice.missing_supplier_invoice_number', $class, $id, 'important', $script, ['id' => $id]);

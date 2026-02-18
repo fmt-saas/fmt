@@ -1,5 +1,20 @@
 {
     "name": "Fiscal Period",
+    "actions": [
+        {
+            "id": "action.preclose",
+            "label": "Pre-close",
+            "description": "Pre-close the fiscal period. This will generate a proforma Expense Statement.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "open"],
+            "params": {
+                "entity": "finance\\accounting\\Fiscalperiod",
+                "transition": "preclose",
+                "ids": []
+            },
+            "confirm": true
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -52,6 +67,28 @@
                                                 "label": "Fiscal Year",
                                                 "value": "fiscal_year_id",
                                                 "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "expense_statements_ids",
+                                                "width": "100%"
                                             }
                                         ]
                                     }
