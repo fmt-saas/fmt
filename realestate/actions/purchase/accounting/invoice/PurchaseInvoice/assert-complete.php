@@ -50,6 +50,7 @@ $purchaseInvoice = PurchaseInvoice::id($id)
         'supplier_id',
         'supplier_invoice_number',
         'condo_bank_account_id',
+        'suppliership_id' => ['status'],
         'suppliership_bank_account_id',
         'payable_amount',
         'fiscal_year_id',
@@ -144,6 +145,9 @@ else {
     $dispatch->cancel('purchase.accounting.invoice.missing_emission_date', $class, $id);
 }
 
+if(!isset($purchaseInvoice['suppliership_id']) || $purchaseInvoice['suppliership_id']['status'] !== 'validated') {
+    throw new Exception("missing_valid_suppliership", EQ_ERROR_INVALID_PARAM);
+}
 
 $lines_total = 0.0;
 foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $purchaseInvoiceLine) {
