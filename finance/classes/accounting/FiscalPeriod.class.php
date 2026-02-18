@@ -6,6 +6,7 @@
 */
 namespace finance\accounting;
 use equal\orm\Model;
+use realestate\funding\ExpenseStatement;
 use realestate\funding\FundRequestExecution;
 use realestate\ownership\Ownership;
 
@@ -77,6 +78,7 @@ class FiscalPeriod extends Model {
                 'type'        => 'string',
                 'selection'   => [
                     'open',
+                    'preclosed',
                     'closed'
                 ],
                 'default'     => 'open',
@@ -93,11 +95,20 @@ class FiscalPeriod extends Model {
                 'description' => 'Pending fiscal period, that can be used for recording new accounting entries.',
                 'icon' => 'draw',
                 'transitions' => [
+                    'preclose' => [
+                        'description' => 'Mark fiscal period as pre-closed.',
+                        'help' => 'This transition creates a related expense statement draft (must still be validated).',
+                        'policies' => [
+                            'can_be_preclose'
+                        ],
+                        'onbefore' => 'onafterPreclose',
+                        'status' => 'preclosed'
+                    ],
                     'close' => [
                         'description' => 'Close the fiscal period.',
                         'help' => 'A fiscal period is meant to be closed the sooner at the day matching date stored in `date_to` field.',
                         'policies' => [
-                            'can_be_closed'
+                            'can_close'
                         ],
                         'onbefore' => 'onbeforeClose',
                         'status' => 'closed'
@@ -109,6 +120,12 @@ class FiscalPeriod extends Model {
 
     public static function getActions() {
         return [
+            'generate_expense_statement' => [
+                'description'   => 'Generate the accounting entries for closing the fiscal period.',
+                'policies'      => [],
+                'function'      => 'doGenerateExpenseStatement'
+            ],
+
             'generate_accounting_entries' => [
                 'description'   => 'Generate the accounting entries for closing the fiscal period.',
                 'policies'      => ['is_balanced', 'can_generate_executions'],
@@ -119,11 +136,50 @@ class FiscalPeriod extends Model {
 
     public static function getPolicies(): array {
         return [
-            'can_be_closed' => [
+            'can_close' => [
                 'description' => 'Verifies that a fiscal period can be closed according its configuration.',
-                'function'    => 'policyCanBeClosed'
+                'function'    => 'policyCanClose'
+            ],
+            'can_preclose' => [
+                'description' => 'Verifies that a fiscal period can be pre-closed according its configuration.',
+                'function'    => 'policyCanPreclose'
             ]
         ];
+    }
+
+    /**
+     * s'il existe déjà, on le laisse (proforma)
+     * sinon on le créé en brouillon
+     */
+    protected static function onafterPreclose($self) {
+        $self->read(['condo_id', 'fiscal_year_id', 'date_from', 'date_to']);
+        foreach($self as $id => $fiscalPeriod) {
+            $existingExpenseStatement = ExpenseStatement::search([
+                    ['condo_id', '=', $fiscalPeriod['condo_id']],
+                    ['fiscal_year_id', '=', $fiscalPeriod['fiscal_year_id']],
+                    ['fiscal_period_id', '=', $id]
+                ])
+                ->read(['status'])
+                ->first();
+
+            if($existingExpenseStatement) {
+                continue;
+            }
+
+            // create a draft exepense statement if not exist
+            ExpenseStatement::create([
+                    'condo_id'          => $fiscalPeriod['condo_id'],
+                    'fiscal_period_id'  => $id,
+                    'request_date'      => time(),
+                    'has_date_range'    => true,
+                    'date_from'         => $fiscalPeriod['date_from'],
+                    'date_to'           => $fiscalPeriod['date_to']
+                ]);
+        }
+
+    }
+
+    protected static function doGenerateExpenseStatement($self) {
     }
 
     protected static function calcName($self) {
@@ -167,17 +223,93 @@ class FiscalPeriod extends Model {
         return $result;
     }
 
-    protected static function policyCanBeClosed($self) {
+    /**
+     * If an ExpenseStatement already exists for the period, it must be in draft (proforma) to allow pre-closing.
+     * Parent fiscal Year must be in  ['preopen', 'open'].
+     */
+    protected static function policyCanPreclose($self) {
+        $result = [];
+        $self->read(['status', 'condo_id', 'date_from', 'date_to', 'fiscal_year_id' => ['status']]);
+
+        foreach($self as $id => $fiscalPeriod) {
+
+            if(!$fiscalPeriod['condo_id']) {
+                $result[$id] = [
+                    'missing_condo' => 'Condominium is mandatory.'
+                ];
+                continue;
+            }
+            if(!$fiscalPeriod['fiscal_year_id']) {
+                $result[$id] = [
+                    'missing_fiscal_year' => 'Fiscal Year is mandatory.'
+                ];
+                continue;
+            }
+
+            if(!$fiscalPeriod['date_from']) {
+                $result[$id] = [
+                    'missing_date_from' => 'Start date is mandatory.'
+                ];
+                continue;
+            }
+
+            if(!$fiscalPeriod['date_to']) {
+                $result[$id] = [
+                    'missing_date_to' => 'End date is mandatory.'
+                ];
+                continue;
+            }
+
+            if($fiscalPeriod['status'] === 'open') {
+                $result[$id] = [
+                    'invalid_status' => 'Period not open.'
+                ];
+                continue;
+            }
+
+            if(!in_array($fiscalPeriod['fiscal_year_id']['status'], ['preopen', 'open'])) {
+                $result[$id] = [
+                    'invalid_fiscal_year_status' => 'Fiscal Year must be open or preopen for a period to be closed.'
+                ];
+                continue;
+            }
+
+            $existingExpenseStatement = ExpenseStatement::search([
+                    ['condo_id', '=', $fiscalPeriod['condo_id']],
+                    ['fiscal_year_id', '=', $fiscalPeriod['fiscal_year_id']],
+                    ['fiscal_period_id', '=', $id]
+                ])
+                ->read(['status'])
+                ->first();
+
+            if($existingExpenseStatement && $existingExpenseStatement['status'] !== 'proforma') {
+                $result[$id] = [
+                    'invalid_expense_statement_status' => 'An expense statement already exist for this period and must be in "proforma" status to preclose the period.'
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyCanClose($self) {
         $result = [];
         $self->read(['status', 'fiscal_year_id' => ['status']]);
         foreach($self as $id => $fiscalPeriod) {
-            if($fiscalPeriod['status'] !== 'open') {
+            if(!$fiscalPeriod['fiscal_year_id']) {
+                $result[$id] = [
+                    'missing_fiscal_year' => 'Fiscal Year is mandatory.'
+                ];
+                continue;
+            }
+
+            if(!in_array($fiscalPeriod['status'], ['open', 'preclosed'])) {
                 $result[$id] = [
                     'invalid_status' => 'Period already closed.'
                 ];
                 continue;
             }
-            if(!in_array($fiscalPeriod['fiscal_year_id']['status'],  ['preopen', 'open'])) {
+            if(!in_array($fiscalPeriod['fiscal_year_id']['status'], ['preopen', 'open'])) {
                 $result[$id] = [
                     'invalid_fiscal_year_status' => 'Fiscal Year must be open or preopen for a period to be closed.'
                 ];
