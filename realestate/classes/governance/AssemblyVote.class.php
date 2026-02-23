@@ -7,7 +7,6 @@
 namespace realestate\governance;
 
 use realestate\ownership\Ownership;
-use realestate\property\Apportionment;
 use realestate\property\PropertyLotApportionmentShare;
 
 class AssemblyVote extends \equal\orm\Model {
@@ -34,7 +33,7 @@ class AssemblyVote extends \equal\orm\Model {
                 'description'       => "The assembly item this vote refers to.",
                 'foreign_object'    => 'realestate\governance\AssemblyItem',
                 'required'          => true,
-                'dependents'        => ['vote_weight', 'is_choice']
+                'dependents'        => ['vote_weight', 'is_choice', 'vote_shares', 'vote_effective_shares']
             ],
 
             'cast_by' => [
@@ -79,7 +78,8 @@ class AssemblyVote extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The ownership concerned by the vote, via one of its lots.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['vote_shares', 'vote_effective_shares']
             ],
 
             'vote_display' => [
@@ -230,7 +230,13 @@ class AssemblyVote extends \equal\orm\Model {
                 'description'   => 'Cast the vote. This action accepts an arg telling which user is casting the vote.',
                 'policies'      => ['can_cast'],
                 'function'      => 'doCast'
+            ],
+            'refresh_vote_calc' => [
+                'description'   => 'Force re-computing all fields relating to vote shares and weight calculations.',
+                'policies'      => [],
+                'function'      => 'doRefreshVoteCalc'
             ]
+
         ]);
     }
 
@@ -254,6 +260,31 @@ class AssemblyVote extends \equal\orm\Model {
                 continue;
             }
         }
+    }
+
+    protected static function doRefreshVoteCalc($self) {
+        $self->update([
+            'vote_display' => null,
+            'vote_weight' => null,
+            'vote_weight_for' => null,
+            'vote_weight_against' => null,
+            'vote_weight_abstain' => null,
+            'vote_shares_for' => null,
+            'vote_shares_against' => null,
+            'vote_shares_abstain' => null,
+            'vote_effective_shares' => null
+        ])
+        ->read([
+            'vote_effective_shares',
+            'vote_display',
+            'vote_weight',
+            'vote_weight_for',
+            'vote_weight_against',
+            'vote_weight_abstain',
+            'vote_shares_for',
+            'vote_shares_against',
+            'vote_shares_abstain'
+        ]);
     }
 
     protected static function doCast($self, $auth, $values) {
@@ -336,7 +367,7 @@ class AssemblyVote extends \equal\orm\Model {
      */
     protected static function calcVoteEffectiveShares($self) {
         $result = [];
-        $self->read(['ownership_id' => ['statutory_shares'], 'vote_shares', 'assembly_item_id' => ['count_represented_shares']]);
+        $self->read(['vote_shares', 'assembly_item_id' => ['count_represented_shares']]);
         foreach($self as $id => $assemblyVote) {
             // #memo - Art. 3.87 §7 - Nul ne peut prendre part au vote, même comme mandant ou mandataire, pour un nombre de voix supérieur à la somme des voix dont disposent les autres copropriétaires présents ou représentés
             $voter_shares = $assemblyVote['vote_shares'];

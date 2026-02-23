@@ -115,19 +115,23 @@
         },
         "arrival_time": {
             "label": "Heure d'arrivée",
-            "help": "L'heure d'arrivée du participant à l'assemblée."
+            "description": "L'heure d'arrivée du participant à l'assemblée.",
+            "help": ""
         },
         "has_late_arrival": {
             "label": "Arrivée après ouverture",
-            "help": "Le participant est arrivé après l’ouverture de l’assemblée."
+            "description": "Le participant est arrivé après l'ouverture de l'assemblée.",
+            "help": ""
         },
         "departure_time": {
             "label": "Heure de départ",
-            "help": "L'heure de départ du participant de l'assemblée."
+            "description": "L'heure de départ du participant de l'assemblée.",
+            "help": ""
         },
         "has_early_departure": {
             "label": "Départ avant clôture",
-            "help": "Le participant est parti avant la clôture de l'assemblée."
+            "description": "Le participant est parti avant la clôture de l'assemblée.",
+            "help": ""
         }
     },
     "view": {

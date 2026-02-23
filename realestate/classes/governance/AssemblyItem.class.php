@@ -294,6 +294,12 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'policies'      => [],
                 'function'      => 'doRefreshVoteResult'
             ],
+            'sync_votes' => [
+                'description'   => 'Sync votes and votes intention for all representations.',
+                'help'          => 'This action is idempotent and has only effects on open assembly items.',
+                'policies'      => [],
+                'function'      => 'doSyncVotes'
+            ],
             'cast_vote' => [
                 'description'   => 'Cast a vote for the assembly item (resolution).',
                 'policies'      => ['can_vote'],
@@ -376,6 +382,23 @@ class AssemblyItem extends AssemblyItemTemplate {
                 // discard resolutions not subject to a vote
                 continue;
             }
+            self::id($id)->do('sync_votes');
+            Assembly::id($assemblyItem['assembly_id'])->do('refresh_is_complete');
+        }
+    }
+
+
+    protected static function doSyncVotes($self, $values) {
+        $self->read(['status', 'has_vote_required', 'condo_id', 'assembly_id', 'involved_ownerships_ids']);
+
+        foreach($self as $id => $assemblyItem) {
+            if($assemblyItem['status'] !== 'open') {
+                continue;
+            }
+            if(!$assemblyItem['has_vote_required']) {
+                // discard resolutions not subject to a vote
+                continue;
+            }
             $map_ownerships_ids = array_fill_keys($assemblyItem['involved_ownerships_ids'], true);
 
             // #memo AssemblyRepresentation are created only for validated mandates or for attendees present in person
@@ -396,7 +419,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                     }
                 }
 
-                // #memo - do not delete votes when reopening: only create the missing ones (an attendee may have joined in the meantime)
+                // #memo - do not delete votes when reopening (or resync-ing): only create the missing ones (an attendee may have joined in the meantime)
                 $assemblyVote = AssemblyVote::search([
                         ['condo_id', '=', $assemblyItem['condo_id']],
                         ['assembly_id', '=', $assemblyItem['assembly_id']],
@@ -404,21 +427,24 @@ class AssemblyItem extends AssemblyItemTemplate {
                         ['ownership_id', '=', $ownership_id],
                         ['assembly_attendee_id', '=', $representation['attendee_id']['id']]
                     ])
-                    ->read(['status'])
+                    ->read(['status', 'cast_by'])
                     ->first();
 
+                // reset vote status (votes requires confirmation - except for votes already casted for which the attendee has left)
                 if($assemblyVote) {
-                    // reset vote status (votes requires confirmation - except for votes already casted for which the attendee has left)
-                    if($assemblyVote['status'] === 'casted' && $representation['attendee_id']['has_early_departure']) {
-                        // if vote is casted and attendee has left, leave it as is (must maintain 'cast_by')
-                    }
-                    else {
-                        // #memo - all non casted votes will be validated to their current vote_value at AssemblyItem closing
-                        AssemblyVote::id($assemblyVote['id'])
-                            ->update([
-                                'status'        => 'pending',
-                                'cast_by'       => null
-                            ]);
+                     $keep_votes = isset($values['keep_votes']) && $values['keep_votes'] === true;
+                    if(!$keep_votes) {
+                        if($assemblyVote['status'] === 'casted' && $representation['attendee_id']['has_early_departure']) {
+                            // if vote is casted and attendee has left, leave it as is (must maintain 'cast_by')
+                        }
+                        elseif($assemblyVote['status'] !== 'pending' || $assemblyVote['cast_by'] !== null) {
+                            // #memo - all non casted votes will be validated to their current vote_value at AssemblyItem closing
+                            AssemblyVote::id($assemblyVote['id'])
+                                ->update([
+                                    'status'        => 'pending',
+                                    'cast_by'       => null
+                                ]);
+                        }
                     }
                 }
                 else {
@@ -467,7 +493,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                         ->do('cast', ['user_id' => $representation['attendee_id']['user_id']]);
                 }
             }
-            Assembly::id($assemblyItem['assembly_id'])->do('refresh_is_complete');
+
         }
     }
 

@@ -10,7 +10,9 @@ use realestate\governance\Assembly;
 use realestate\ownership\Owner;
 use identity\Identity;
 use realestate\governance\AssemblyAttendee;
+use realestate\governance\AssemblyItem;
 use realestate\governance\AssemblyRepresentation;
+use realestate\governance\AssemblyVote;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Add an attendee to the target assembly.",
@@ -326,7 +328,7 @@ $attendee = AssemblyAttendee::create([
 
 // attendee arriving after the attendance closing - attempt to create instant representation
 if($assembly['step'] === 'agenda_processing') {
-    Assembly::id($assembly['id'])->do('generate_extra_representations', ['assembly_attendee_id', $attendee['id']]);
+    Assembly::id($assembly['id'])->do('generate_extra_representations', ['assembly_attendee_id' => $attendee['id']]);
 }
 
 
@@ -369,6 +371,31 @@ foreach($owners as $owner_id => $owner) {
 // 6) refresh assembly computed fields & alerts
 
 Assembly::id($params['id'])->update(['count_represented_shares' => null, 'count_represented_owners' => null]);
+
+// 6 bis) if an AssemblyItem is currently open, force instant recompute of fields depending on attendees/representations
+$currentAssemblyItem = AssemblyItem::search([
+        ['assembly_id', '=', $params['id']],
+        ['status', '=', 'open'],
+        ['has_vote_required', '=', true]
+    ])
+    // #memo - there can be only one opened assembly item requiring vote at a time
+    ->first();
+
+if($currentAssemblyItem) {
+    AssemblyItem::id($currentAssemblyItem['id'])
+        // reset count_represented_shares
+        ->update(['count_represented_shares' => null])
+        // create the corresponding empty votes
+        ->do('sync_votes', ['keep_votes' => true]);
+
+    // all votes depend on count_represented_shares : therefore reset all dependent fields
+    AssemblyVote::search([
+            ['condo_id', '=', $assembly['condo_id']],
+            ['assembly_id', '=', $params['id']],
+            ['assembly_item_id', '=', $currentAssemblyItem['id']]
+        ])
+        ->do('refresh_vote_calc');
+}
 
 // #memo checking quorum here might have no effect if one or more mandates are implied, since AttendeeMandates must be validated in order to be considered in the Quorum (generate an AssemblyRepresentation)
 try {
