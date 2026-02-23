@@ -2128,12 +2128,13 @@ class Assembly extends \equal\orm\Model {
             $represented_owners = $assembly['count_represented_owners'];
             $total_owners       = $assembly['count_owners'];
 
-            // If at least 75% of shares are represented: quorum reached automatically
-            if($represented_shares * 4 >= $total_shares * 3) {
+            // If at least 75% (more) of shares are represented: quorum reached automatically
+            // #memo - Art 3.87 §5 - l'assemblée générale délibère aussi valablement si les copropriétaires présents ou représentés au début de l'assemblée générale représentent plus de trois quarts des quotes-parts dans les parties communes.
+            if($represented_shares * 4 > $total_shares * 3) {
                 continue;
             }
 
-            // Otherwise (less than 3/4 of the shares are represented), double-quorum required
+            // Otherwise (less or equal to 3/4 of the shares are represented), double-quorum required
 
             // strictly more than 50% of the ownerships
             if($represented_owners * 2 <= $total_owners) {
