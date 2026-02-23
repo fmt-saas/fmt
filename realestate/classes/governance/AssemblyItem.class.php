@@ -689,13 +689,13 @@ class AssemblyItem extends AssemblyItemTemplate {
 
                 $epsilon = 1e-5;
 
-                if($majority === 'absolute' && $ratio > (0.5 - $epsilon)) {
+                if($majority === 'absolute' && ($ratio - $epsilon) > 0.5 ) {
                     $result = 'approved';
                 }
-                elseif($majority === '2_3' && $ratio >= ((2/3) - $epsilon)) {
+                elseif($majority === '2_3' && ($ratio + $epsilon) >= (2/3)) {
                     $result = 'approved';
                 }
-                elseif($majority === '4_5' && $ratio >= ((4/5) - $epsilon)) {
+                elseif($majority === '4_5' && ($ratio + $epsilon) >= (4/5)) {
                     $result = 'approved';
                 }
                 elseif($majority === 'unanimity'
