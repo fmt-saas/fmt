@@ -195,20 +195,28 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
         $result = [];
         $self->read(['fiscal_year_id' => ['status'], 'fiscal_period_id' => ['status'], 'invoice_type', 'invoice_lines_ids']);
         foreach($self as $id => $invoice) {
-            if(!in_array($invoice['fiscal_year_id']['status'],  ['preopen', 'open'])) {
-                $result[$id] = [
-                    'closed_fiscal_year' => 'Invoice cannot target a non-open or non-preopen fiscal year.'
-                ];
+            if(!in_array($invoice['fiscal_year_id']['status'], ['preopen', 'open'])) {
+                if($invoice['fiscal_year_id']['status'] === 'preclosed' && $invoice['invoice_type'] === 'expense_statement') {
+                    // the last period / year-closing expense_statement (treated as a sales invoice) must be allowed on a closed fiscal period.
+                }
+                else {
+                    $result[$id] = [
+                        'closed_fiscal_year' => 'Invoice cannot target a non-open or non-preopen fiscal year.'
+                    ];
+                }
             }
             if($invoice['fiscal_period_id']['status'] !== 'open') {
-                // #memo - there is an exception here: the period-closing expense_statement (treated as a sales invoice) must be allowed on a closed fiscal period.
-                if($invoice['invoice_type'] !== 'expense_statement') {
+                if($invoice['fiscal_period_id']['status'] === 'preclosed' && $invoice['invoice_type'] === 'expense_statement') {
+                    // the period-closing expense_statement (treated as a sales invoice) must be allowed on a closed fiscal period.
+                }
+                else {
                     $result[$id] = [
                         'closed_fiscal_period' => 'Invoice cannot target a closed fiscal period.'
                     ];
                 }
             }
             if(count($invoice['invoice_lines_ids']) === 0) {
+                // #memo - we assume that a period-closing expense_statement cannot be empty (in theory it could but this is not handled).
                 $result[$id] = [
                     'empty_invoice' => 'There are no lines attached to the invoice.'
                 ];
@@ -245,15 +253,10 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
                 'icon' => 'receipt_long',
                 'transitions' => [
                     'cancel' => [
-                        'description' => 'Set the invoice and receivables statuses as cancelled.',
+                        'description' => 'Set the invoice status as cancelled.',
                         'onafter' => 'onafterCancel',
                         'status' => 'cancelled',
-                    ],
-                    'cancel-keep-receivables' => [
-                        'description' => 'Set the invoice status as cancelled and set receivables statuses back to pending.',
-                        'onafter' => 'onafterCancelKeepReceivables',
-                        'status' => 'cancelled',
-                    ],
+                    ]
                 ],
             ],
             'cancelled' => [
@@ -379,57 +382,11 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
     public static function onafterCancelProforma($self) {
         $self->read(['id']);
         foreach($self as $invoice) {
-            $receivables_ids = Receivable::search([
-                    ['status', '=', 'invoiced'],
-                    ['invoice_id', '=', $invoice['id']],
-                ])
-                ->ids();
-
-            Receivable::ids($receivables_ids)
-                ->update([
-                    'status'          => 'pending',
-                    'invoice_id'      => null,
-                    'invoice_line_id' => null
-                ]);
-
-            self::id($invoice['id'])
-                ->delete();
+            self::id($invoice['id'])->delete();
         }
     }
 
     public static function onafterCancel($self) {
-        $self->read(['id']);
-        foreach($self as $invoice) {
-                $receivables_ids = Receivable::search([
-                    ['status', '=', 'invoiced'],
-                    ['invoice_id', '=', $invoice['id']],
-                ])
-                ->ids();
-
-            Receivable::ids($receivables_ids)
-                ->update(['status' => 'cancelled']);
-        }
-
-        $self->do('reverse');
-    }
-
-    public static function onafterCancelKeepReceivables($self) {
-        $self->read(['id']);
-        foreach($self as $invoice) {
-            $receivables_ids = Receivable::search([
-                    ['status', '=', 'invoiced'],
-                    ['invoice_id', '=', $invoice['id']],
-                ])
-                ->ids();
-
-            Receivable::ids($receivables_ids)
-                ->update([
-                    'status'          => 'pending',
-                    'invoice_id'      => null,
-                    'invoice_line_id' => null
-                ]);
-        }
-
         $self->do('reverse');
     }
 
@@ -451,7 +408,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
         return array_merge(parent::getActions(), [
             'reverse' => [
                 'description'   => 'Creates a new invoice of type credit note to reverse invoice.',
-                'help'          => 'Reversing an invoice can only be done when status is "invoice".',
+                'help'          => 'Reversing an invoice can only be done when status is `posted`.',
                 'policies'      => [],
                 'function'      => 'doReverseInvoice'
             ],
@@ -547,14 +504,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
                 }
             }
 
-            if(in_array($invoice['payment_status'], ['pending', 'debit_balance'])) {
-                // no payment was received yet : mark both invoices as balanced (no transaction required)
-                self::id($reversed_invoice['id'])->update(['payment_status' => 'balanced']);
-                self::id($invoice['id'])->update(['payment_status' => 'balanced']);
-            }
-            else {
-                // #todo: Alert finance_accounting - reimbursement needed
-            }
+            // #todo - handle payment status ?
 
             self::id($invoice['id'])
                 ->update(['reversed_invoice_id' => $reversed_invoice['id']]);

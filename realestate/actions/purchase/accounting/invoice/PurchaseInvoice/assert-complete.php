@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use documents\Document;
 use documents\processing\DocumentProcess;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
@@ -55,6 +56,7 @@ $purchaseInvoice = PurchaseInvoice::id($id)
         'payable_amount',
         'fiscal_year_id',
         'emission_date',
+        'document_id' => ['hash'],
         'price',
         'invoice_lines_ids' => [
             'expense_account_id' => ['account_class'], 'apportionment_id', 'is_private_expense', 'total', 'price', 'vat_rate', 'owner_share', 'tenant_share'
@@ -256,7 +258,30 @@ else {
     Additional test: check unicity of the invoice
 */
 
-// a) supplier_id & invoice_number & date & total amount -> blocking error (cancel processing)
+// a) document_id targets a document already linked to another imported document -> blocking error (cancel processing)
+if($purchaseInvoice['document_id']) {
+    $existingDocument = Document::search([
+            ['id', '<>', $purchaseInvoice['document_id']['id']],
+            ['condo_id', '=', $purchaseInvoice['condo_id']],
+            ['hash', '=', $purchaseInvoice['document_id']['hash']]
+        ])
+        ->read(['document_process_id' => ['status']])
+        ->first();
+
+    if($existingDocument
+        && isset($existingDocument['document_process_id']['status'])
+        && !in_array($existingDocument['document_process_id']['status'], ['cancelled', 'removed'])
+    ) {
+        $dispatch->dispatch('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $id, 'important', $script, ['id' => $id]);
+        DocumentProcess::id($purchaseInvoice['document_process_id'])->do('cancel');
+        throw new Exception("duplicate_document", EQ_ERROR_INVALID_PARAM);
+    }
+    else {
+        $dispatch->cancel('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $id);
+    }
+}
+
+// a bis) supplier_id & invoice_number & date & total amount -> blocking error (cancel processing)
 $previousPurchaseInvoice = PurchaseInvoice::search([
         ['id', '<>', $id],
         ['supplier_id', '=', $purchaseInvoice['supplier_id']],

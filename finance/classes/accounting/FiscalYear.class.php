@@ -256,10 +256,10 @@ class FiscalYear extends Model {
                     'preopen' => [
                         'description' => 'Update the fiscal year status to `preopen`.',
                         'policies' => [
-                            'can_be_preopened'
+                            'can_preopen'
                         ],
-                        'onbefore' => 'onbeforePreOpen',
-                        'onafter' => 'onafterPreOpen',
+                        'onbefore' => 'onbeforePreopen',
+                        'onafter' => 'onafterPreopen',
                         'status' => 'preopen'
                     ],
                     'open' => [
@@ -267,7 +267,7 @@ class FiscalYear extends Model {
                         'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
                         'onafter' => 'onafterOpen',
                         'policies' => [
-                            'can_be_opened'
+                            'can_open'
                         ],
                         'status' => 'open'
                     ],
@@ -282,7 +282,7 @@ class FiscalYear extends Model {
                         'help' => 'A fiscal year can be opened before the previous one is definitely closed (previous has to be preclosed).',
                         'onafter' => 'onafterOpen',
                         'policies' => [
-                            'can_be_opened',
+                            'can_open',
                         ],
                         'status' => 'open',
                     ],
@@ -297,7 +297,7 @@ class FiscalYear extends Model {
                         'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
                         'onafter' => 'onafterPreclose',
                         'policies' => [
-                            'can_be_preclosed',
+                            'can_preclose',
                         ],
                         'status' => 'preclosed',
                     ],
@@ -333,11 +333,13 @@ class FiscalYear extends Model {
                 'description' => 'Draft fiscal year, still waiting to be completed for validation.',
                 'icon' => 'lock',
                 'transitions' => [
-                    'unclose' => [
+                    'repreclose' => [
                         'description' => 'Handle actions related to fiscal year closing.',
                         'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
-                        // on ne peut pas décloturer s'il ya une plus récente cloturée
-                        'onafter' => 'onafterUnClose',
+                        'policies' => [
+                            'can_repreclose',
+                        ],
+                        'onafter' => 'onafterRePreclose',
                         'status' => 'preclosed',
                     ],
                 ],
@@ -347,21 +349,25 @@ class FiscalYear extends Model {
 
     public static function getPolicies(): array {
         return [
-            'can_be_preopened' => [
+            'can_preopen' => [
                 'description' => 'Verifies that a fiscal year can be opened according its configuration.',
-                'function'    => 'policyCanBePreOpened'
+                'function'    => 'policyCanPreopen'
             ],
-            'can_be_opened' => [
+            'can_open' => [
                 'description' => 'Verifies that a fiscal year can be opened according its configuration.',
                 'function'    => 'policyCanBeOpened'
             ],
-            'can_be_preclosed' => [
+            'can_preclose' => [
                 'description' => 'Verifies that a fiscal year can be set (or set back) to preclosed status.',
-                'function'    => 'policyCanBePreClosed'
+                'function'    => 'policyCanPreclose'
             ],
             'can_close' => [
                 'description' => 'Verifies that a fiscal year can be closed according its configuration.',
                 'function'    => 'policyCanClose'
+            ],
+            'can_repreclose' => [
+                'description' => 'Verifies that a fiscal year can be set back to preclosed status.',
+                'function'    => 'policyCanRePreclose'
             ],
             'can_open_fiscal_year' => [
                 'description' => 'Verifies that a fiscal year can be opened according to user roles.',
@@ -424,18 +430,19 @@ class FiscalYear extends Model {
         return $result;
     }
 
-    protected static function policyCanBePreOpened($self): array {
+    protected static function policyCanPreopen($self): array {
         $result = [];
         $self->read(['status', 'condo_id', 'date_to']);
 
         foreach($self as $id => $fiscalYear) {
             // status of fiscal year must be 'draft'
-            if(!in_array($fiscalYear['status'], ['draft', 'preopen'])) {
+            if($fiscalYear['status'] !== 'draft') {
                 $result[$id] = [
                     'invalid_status' => 'Fiscal year status must be draft.'
                 ];
                 continue;
             }
+
             // a preopen year cannot preceed an open year
             $fiscalYears = FiscalYear::search([
                     ['condo_id', '=', $fiscalYear['condo_id']],
@@ -496,7 +503,7 @@ class FiscalYear extends Model {
 
             /*
             if($fiscalYear['previous_fiscal_year_id']) {
-                if(!empty(self::policyCanBePreClosed(self::id($fiscalYear['previous_fiscal_year_id'])))) {
+                if(!empty(self::policyCanPreclose(self::id($fiscalYear['previous_fiscal_year_id'])))) {
                     $result[$id] = [
                         'invalid_previous_fiscal_year' => 'Previous fiscal year cannot be pre closed.'
                     ];
@@ -514,30 +521,75 @@ class FiscalYear extends Model {
         return $result;
     }
 
-    public static function policyCanBePreClosed($self): array {
+    public static function policyCanPreclose($self): array {
         $result = [];
-        $self->read(['status', 'condo_id', 'date_to', 'previous_fiscal_year_id' => ['status']]);
+        $self->read([
+            'status', 'condo_id', 'date_to',
+            'fiscal_periods_ids' => ['status'],
+            'previous_fiscal_year_id' => ['status']
+        ]);
 
         foreach($self as $id => $fiscalYear) {
-            // if we go back from 'closed' to 'preclosed', the fiscal year must be the latest closed one
-            if($fiscalYear['status'] == 'closed') {
-                $closedFiscalYears = self::search([['status', '=', 'closed'], ['date_from', '>', $fiscalYear['date_to']], ['condo_id', '=', $fiscalYear['condo_id']]]);
-                if(count($closedFiscalYears) > 0) {
-                    $result[$id] = [
-                        'cannot_be_unclosed' => 'Fiscal year cannot be unclosed while a more recent fiscal year is still closed.'
-                    ];
-                    continue;
-                }
-            }
-            if(!in_array($fiscalYear['status'], ['open', 'closed'])) {
+            if($fiscalYear['status'] !== 'open') {
                 $result[$id] = [
                     'invalid_status' => 'Fiscal year status must be open or closed.'
                 ];
                 continue;
             }
             if($fiscalYear['previous_fiscal_year_id']) {
-                // status of previous fiscal year, if any, must be 'closed' or 'preclosed'
-                if(!in_array($fiscalYear['previous_fiscal_year_id']['status'], ['preclosed', 'closed'])) {
+                // status of previous fiscal year, if any, must be 'closed'
+                if($fiscalYear['previous_fiscal_year_id']['status'] !== 'closed') {
+                    $result[$id] = [
+                        'invalid_previous_year_status' => 'Fiscal year status must be closed or preclosed.'
+                    ];
+                    continue;
+                }
+            }
+            // all periods of the fiscal year must be closed
+            foreach($fiscalYear['fiscal_periods_ids'] as $fiscalPeriod) {
+                if(!in_array($fiscalPeriod['status'], ['preclosed', 'closed'])) {
+                    $result[$id] = [
+                        'invalid_period_status' => 'All fiscal periods of the fiscal year must be closed.'
+                    ];
+                    continue 2;
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Check for reverting from Closed to Preclosed status.
+     * This is useful when the fiscal year is closed by mistake or when we need to reopen it for a short period of time (e.g. to make some adjustments after closing).
+     */
+    public static function policyCanRePreclose($self): array {
+        $result = [];
+        $self->read(['status', 'condo_id', 'date_to', 'previous_fiscal_year_id' => ['status']]);
+
+        foreach($self as $id => $fiscalYear) {
+            // if we go back from 'closed' to 'preclosed', the fiscal year must be the latest closed one
+            if($fiscalYear['status'] == 'closed') {
+                $closedFiscalYears = self::search([
+                    ['status', '=', 'closed'],
+                    ['date_from', '>', $fiscalYear['date_to']],
+                    ['condo_id', '=', $fiscalYear['condo_id']]
+                ]);
+                if(count($closedFiscalYears) > 0) {
+                    $result[$id] = [
+                        'cannot_be_reopen' => 'Fiscal year cannot be reopen while a more recent fiscal year is still closed.'
+                    ];
+                    continue;
+                }
+            }
+            if($fiscalYear['status'] !== 'closed') {
+                $result[$id] = [
+                    'invalid_status' => 'Fiscal year status must be open or closed.'
+                ];
+                continue;
+            }
+            if($fiscalYear['previous_fiscal_year_id']) {
+                // status of previous fiscal year, if any, must be 'closed'
+                if($fiscalYear['previous_fiscal_year_id']['status'] !== 'closed') {
                     $result[$id] = [
                         'invalid_previous_year_status' => 'Fiscal year status must be closed or preclosed.'
                     ];
@@ -575,7 +627,7 @@ class FiscalYear extends Model {
         }
     }
 
-    protected static function onbeforePreOpen($self) {
+    protected static function onbeforePreopen($self) {
         $self->read(['condo_id', 'fiscal_periods_ids']);
         foreach($self as $id => $fiscalYear) {
             if(count($fiscalYear['fiscal_periods_ids']) <= 0) {
@@ -590,7 +642,7 @@ class FiscalYear extends Model {
      * A preopened fiscal year cannot be removed anymore.
      *
      */
-    protected static function onafterPreOpen($self) {
+    protected static function onafterPreopen($self) {
         $self->read(['condo_id', 'date_to', 'fiscal_periods_ids' => ['date_from']]);
         foreach($self as $id => $fiscalYear) {
 
@@ -607,7 +659,8 @@ class FiscalYear extends Model {
                 FiscalYear::create([
                         'date_from' => $date_from,
                         'date_to'   => strtotime(date('Y-m-d 00:00:00', $date_from) . ' +1 year'),
-                        'condo_id'  => $fiscalYear['id']
+                        'condo_id'  => $fiscalYear['id'],
+                        'status'    => 'draft',
                     ]);
             }
 
@@ -636,6 +689,14 @@ class FiscalYear extends Model {
         // 3) generate sequences for the fiscal year
 
         $self->do('generate_sequences');
+    }
+
+    protected static function onafterRePreclose($self) {
+        $self->read(['condo_id', 'date_to', 'fiscal_periods_ids' => ['@sort' => ['date_to' => 'desc'], '@limit' => 1]]);
+        foreach($self as $id => $fiscalYear) {
+            // on remet la dernière période en status preclosed
+            $fiscalYear['fiscal_periods_ids']->transition('repreclose');
+        }
     }
 
     /*
@@ -799,17 +860,6 @@ class FiscalYear extends Model {
 
         foreach($self as $id => $fiscalYear) {
 
-            /*
-            // remove any previously created closing balance
-            ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
-
-            // generate a closing balance
-            ClosingBalance::create([
-                    'fiscal_year_id' => $id
-                ])
-                ->do('generate_balance_lines');
-            */
-
             $carryForwardJournal = Journal::search([
                     ['journal_type', '=', 'OPEN'], ['condo_id', '=', $fiscalYear['condo_id']]
                 ])
@@ -902,6 +952,17 @@ class FiscalYear extends Model {
                 AccountingEntry::id($currentAccountingEntry['id'])->transition('validate');
                 AccountingEntry::id($nextAccountingEntry['id'])->transition('validate');
             }
+
+            // 2) generate closing balance for the fiscal year
+
+            // remove any previously created closing balance
+            ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
+
+            // generate a closing balance
+            ClosingBalance::create([
+                    'fiscal_year_id' => $id
+                ])
+                ->do('generate_balance_lines');
         }
 
     }
@@ -941,10 +1002,12 @@ class FiscalYear extends Model {
                 ->read(['date_to'])
                 ->first();
 
-            if(!$nextFiscalYear) {
-                throw new \Exception('missing_mandatory_next_fiscal_year', EQ_ERROR_UNKNOWN);
+            if($nextFiscalYear) {
+                // attempt to transition following years according to logic (next to 'open' and post next to 'preopen')
+                self::id($nextFiscalYear['id'])->do('attempt_transition', ['status' => 'preopen']);
             }
 
+/*
             // remove all report accounting entries (y & y+1)
             AccountingEntry::search([
                     [
@@ -988,12 +1051,14 @@ class FiscalYear extends Model {
                             'matching_id'           => $matching['id']
                         ]);
 
-                    AccountingEntryLine::id($line['id'])->update(['matching_id' => $matching['id']]);
+                    // #todo - this is not correct : we don't have a ref to matching accountingEntryLine
+                    // AccountingEntryLine::id($line['id'])->update(['matching_id' => $matching['id']]);
                 }
 
                 AccountingEntry::id($accountingEntry['id'])->transition('validate');
             }
-
+*/
+            /*
             $postNextFiscalYear = self::search([
                     ['condo_id', '=', $fiscalYear['condo_id']],
                     ['date_from', '>', $nextFiscalYear['date_to']]
@@ -1001,13 +1066,10 @@ class FiscalYear extends Model {
                 ['sort' => ['date_from' => 'asc']])
                 ->first();
 
-            if(!$postNextFiscalYear) {
-                throw new \Exception('missing_mandatory_post_next_fiscal_year', EQ_ERROR_UNKNOWN);
+            if($postNextFiscalYear) {
+                self::id($postNextFiscalYear['id'])->do('attempt_transition', ['status' => 'preopen']);
             }
-
-            // attempt to transition following years according to logic (next to 'open' and post next to 'preopen')
-            self::id($nextFiscalYear['id'])->do('attempt_transition', ['status' => 'open']);
-            self::id($postNextFiscalYear['id'])->do('attempt_transition', ['status' => 'preopen']);
+            */
 
             self::id($id)->update(['name' => null]);
         }
@@ -1241,7 +1303,7 @@ class FiscalYear extends Model {
         }
 
 
-        // #memo - if missing, periods will be generated in onbeforePreOpen
+        // #memo - if missing, periods will be generated in onbeforePreopen
 
         if(count($fiscalYear['fiscal_periods_ids']) > 0) {
             // #memo - number of periods is not taken into account here, but dates must be contiguous

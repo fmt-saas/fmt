@@ -41,12 +41,12 @@
         "owner_share": {
             "label": "Part propriétaire",
             "description": "Pourcentage du montant imputé au propriétaire.",
-            "help": "Par défaut 100 % ; complète la part locataire."
+            "help": "Part propriétaire, exprimée en pourcentage (0-100). Complément de la part locataire. Par défaut 100%."
         },
         "tenant_share": {
             "label": "Part locataire",
             "description": "Pourcentage du montant imputé au locataire.",
-            "help": "Calcule le complément à la part propriétaire."
+            "help": "Part propriétaire, exprimée en pourcentage (0-100)."
         },
         "ownership_id": {
             "label": "Dossier de propriété",
@@ -121,7 +121,12 @@
         },
         "list.default": {
             "name": "Lignes de facture",
-            "description": "Liste des lignes groupées avec montants unitaires et totaux."
+            "description": "Liste des lignes groupées avec montants unitaires et totaux.",
+            "layout": {
+                "tenant_share": {
+                    "label": "Part Loc."
+                }
+            }
         }
     },
     "error": {}

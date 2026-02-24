@@ -104,7 +104,7 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
                 'foreign_field'     => 'purchase_invoice_id',
                 'description'       => 'Accounting entries relating to the invoice.',
-                'help'              => "Purchase invoices might be subject to several accounting entries."
+                'help'              => "Purchase invoices might be subject to several accounting entries (in case of reversal or correction)."
             ],
 
             'fiscal_year_id' => [
@@ -283,11 +283,6 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
                     'cancel' => [
                         'description' => 'Set the invoice and receivables statuses as cancelled.',
                         'onafter' => 'onafterCancel',
-                        'status' => 'cancelled',
-                    ],
-                    'cancel-keep-receivables' => [
-                        'description' => 'Set the invoice status as cancelled and set receivables statuses back to pending.',
-                        'onafter' => 'onafterCancelKeepReceivables',
                         'status' => 'cancelled',
                     ],
                 ],

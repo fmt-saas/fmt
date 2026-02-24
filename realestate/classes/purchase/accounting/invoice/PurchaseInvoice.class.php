@@ -16,13 +16,11 @@ use finance\accounting\Account;
 use finance\accounting\Journal;
 use finance\accounting\MiscOperation;
 use finance\accounting\MiscOperationLine;
-use finance\bank\BankAccount;
 use finance\bank\CondominiumBankAccount;
 use finance\bank\SuppliershipBankAccount;
 use fmt\setting\Setting;
 use identity\User;
 use purchase\supplier\Suppliership;
-use realestate\ownership\Ownership;
 use realestate\property\Condominium;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
@@ -164,7 +162,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => "Fiscal year the invoice relates to.",
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
-                'help'              => "Fiscal Year is automatically assigned based on emission_date.",
+                'help'              => "Fiscal Year is automatically assigned based on emission_date or posting_date.",
                 'function'          => 'calcFiscalYearId',
                 'store'             => true,
                 'instant'           => true,
@@ -176,7 +174,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalPeriod',
                 'description'       => "Period of the fiscal year the invoice relates to.",
-                'help'              => "Period is automatically assigned based on emission_date.",
+                'help'              => "Period is automatically assigned based on emission_date or posting_date.",
                 'domain'            => [
                     ['condo_id', '=', 'object.condo_id'],
                     ['condo_id', '<>', null],
@@ -906,7 +904,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             ->do('generate_accounting_entries')
             ->do('assign_invoice_number')
             ->do('validate_accounting_entries')
-            ->do('create_funding');
+            ->do('create_fundings');
     }
 
     protected static function onafterPost($self) {
@@ -1099,7 +1097,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'purchase_invoice_id'   => $id,
                     'fiscal_year_id'        => $invoice['fiscal_year_id'],
                     // #memo - if necessary, entry_date will be reassigned based on selected fiscal year and matching period (so that dates remain in ascending order)
-                    'entry_date'            => $invoice['emission_date'],
+                    'entry_date'            => $invoice['posting_date'],
                     'origin_object_class'   => self::getType(),
                     'origin_object_id'      => $id
                 ])
@@ -1498,9 +1496,14 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function calcFiscalYearId($self) {
         $result = [];
-        $self->read(['condo_id', 'emission_date']);
+        $self->read(['condo_id', 'posting_date']);
         foreach($self as $id => $invoice) {
-            $fiscalYear = FiscalYear::search([ ['condo_id', '=', $invoice['condo_id']], ['date_from', '<=', $invoice['emission_date']], ['date_to', '>=', $invoice['emission_date']] ])->first();
+            $fiscalYear = FiscalYear::search([
+                    ['condo_id', '=', $invoice['condo_id']],
+                    ['date_from', '<=', $invoice['posting_date']],
+                    ['date_to', '>=', $invoice['posting_date']]
+                ])
+                ->first();
             if($fiscalYear) {
                 $result[$id] = $fiscalYear['id'];
             }
@@ -1510,13 +1513,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function calcFiscalPeriodId($self) {
         $result = [];
-        $self->read(['emission_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
+        $self->read(['posting_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
         foreach($self as $id => $invoice) {
-            if(!$invoice['emission_date']) {
+            if(!$invoice['posting_date']) {
                 continue;
             }
             foreach($invoice['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
-                if($invoice['emission_date'] >= $period['date_from'] && $invoice['emission_date'] <= $period['date_to']) {
+                if($invoice['posting_date'] >= $period['date_from'] && $invoice['posting_date'] <= $period['date_to']) {
                     $result[$id] = $period_id;
                     break;
                 }

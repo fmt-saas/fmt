@@ -638,6 +638,7 @@ class DocumentProcess extends Model {
         $self->read(['condo_id', 'supplier_id', 'document_type_code', 'document_type_id', 'document_subtype_id', 'has_target_object']);
 
         foreach($self as $id => $documentProcess) {
+
             if($documentProcess['has_target_object']) {
                 $result[$id] = [
                     'existing_target' => 'Target document has already been created.'
@@ -696,14 +697,36 @@ class DocumentProcess extends Model {
         return $result;
     }
 
-    public static function policyIsUnique($self): array {
+    protected static function policyIsUnique($self, $dispatch): array {
         $result = [];
-        $self->read(['document_type_code']);
+        $self->read(['condo_id', 'document_id' => ['hash']]);
         foreach($self as $id => $documentProcess) {
-            if(!isset($documentProcess['document_type_code'])) {
+
+            if(!$documentProcess['condo_id']) {
                 continue;
             }
 
+            $has_duplicate = false;
+
+            $dispatch->cancel('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $id);
+
+            $existingDocument = Document::search([
+                    ['id', '<>', $documentProcess['document_id']['id']],
+                    ['condo_id', '=', $documentProcess['condo_id']],
+                    ['hash', '=', $documentProcess['document_id']['hash']]
+                ])
+                ->read(['document_process_id' => ['status']])
+                ->first();
+
+
+            if($existingDocument){
+                if(isset($existingDocument['document_process_id']['status']) && !in_array($existingDocument['document_process_id']['status'], ['cancelled', 'removed'])) {
+                    $has_duplicate = true;
+                }
+            }
+
+            // #memo - checks for specific document types are performed at marking complete and marking valid steps
+/*
             // #todo - handle other document types (apart from purchaseInvoice & BankStatement)
 
             // duplicate invoice amongst purchase invoice of the Condominium
@@ -746,7 +769,9 @@ class DocumentProcess extends Model {
                     }
                 }
             }
+*/
             if($has_duplicate) {
+                $dispatch->dispatch('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $id, 'important');
                 $result[$id] = [
                     'duplicate_document' => 'This document has already been imported'
                 ];
@@ -1102,6 +1127,14 @@ class DocumentProcess extends Model {
         }
 
         try {
+            foreach($self as $id => $documentProcess) {
+                $dispatch->cancel('documents.import.existing_target', 'documents\processing\DocumentProcess', $id);
+                $dispatch->cancel('documents.import.missing_condo_id', 'documents\processing\DocumentProcess', $id);
+                $dispatch->cancel('documents.import.missing_supplier_id', 'documents\processing\DocumentProcess', $id);
+                $dispatch->cancel('documents.import.missing_document_type_id', 'documents\processing\DocumentProcess', $id);
+                $dispatch->cancel('documents.import.missing_suppliership', 'documents\processing\DocumentProcess', $id);
+            }
+
             $self
                 ->do('perform_drafting');
         }
@@ -1133,6 +1166,7 @@ class DocumentProcess extends Model {
                             case 'missing_suppliership':
                                 $dispatch->dispatch('documents.import.missing_suppliership', 'documents\processing\DocumentProcess', $id, 'important');
                                 break;
+                                // compte bancaire fournisseur
                         }
                     }
                 }

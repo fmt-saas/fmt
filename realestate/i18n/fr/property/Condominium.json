@@ -278,6 +278,23 @@
         "form.config": {
             "name": "Configuration",
             "description": "Paramètres juridiques, clés de répartition et référentiels liés.",
+            "layout": {
+                "section.management_contracts": {
+                    "label": "Contrats de gestion"
+                },
+                "section.roles_assignments": {
+                    "label": "Affectations des rôles"
+                },
+                "section.sequences": {
+                    "label": "Séquences"
+                },
+                "section.settings": {
+                    "label": "Paramètres"
+                },
+                "label.current_managing_agent": {
+                    "label": "Syndic/agence actuel"
+                }
+            },
             "routes": {
                 "item.statutory_quotas": {
                     "label": "Quotes-parts légales",

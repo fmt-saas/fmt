@@ -1,0 +1,52 @@
+{
+    "name": "Contrat de syndic",
+    "plural": "Contrats de syndic",
+    "description": "Contrat par lequel un syndic administre une copropriété.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné par le contrat.",
+            "help": ""
+        },
+        "managing_agent_id": {
+            "label": "Syndic",
+            "description": "Syndic auquel le contrat se rapporte.",
+            "help": ""
+        },
+        "contract_document_id": {
+            "label": "Document du contrat",
+            "description": "Document signé par les deux parties.",
+            "help": "Doit correspondre à la copropriété."
+        },
+        "indexation_rate": {
+            "label": "Taux d'indexation",
+            "description": "Taux d'indexation annuel des honoraires de syndic.",
+            "help": ""
+        },
+        "date_from": {
+            "label": "Début de validité",
+            "description": "Date de début de prise d'effet du contrat.",
+            "help": ""
+        },
+        "date_to": {
+            "label": "Fin de validité",
+            "description": "Date théorique de fin du contrat (avant révocation éventuelle).",
+            "help": "Peut être rompue par l'assemblée générale."
+        },
+        "max_duration": {
+            "label": "Durée maximale (ans)",
+            "description": "Durée maximale autorisée du contrat en années.",
+            "help": "En Belgique, la durée ne peut excéder trois ans."
+        },
+        "mandates_ids": {
+            "label": "Mandats liés",
+            "description": "Mandats associés à ce contrat.",
+            "help": ""
+        },
+        "is_active": {
+            "label": "Actif",
+            "description": "Indique si le contrat est actuellement en vigueur.",
+            "help": ""
+        }
+    }
+}

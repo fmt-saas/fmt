@@ -125,9 +125,10 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "50%",
                                         "items": [
                                             {
+                                                "id": "label.current_managing_agent",
                                                 "type": "label",
                                                 "value": "Current Managing Agent",
                                                 "width": "50%"

@@ -44,6 +44,7 @@ class Account extends Model {
 
             'code' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:10',
                 'description'       => "A variable length string representing the number of the account.",
                 'dependents'        => ['name', 'level', 'account_class'],
                 'required'          => true

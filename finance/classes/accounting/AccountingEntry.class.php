@@ -172,7 +172,10 @@ class AccountingEntry extends Model {
                 'ondetach'          => 'delete'
             ],
 
+
+            // #memo - do not use this field
             'is_visible' => [
+                'deprecated'        => true,
                 'type'              => 'boolean',
                 'description'       => 'Flag marking the entry as visible.',
                 'help'              => 'In some situations, an accounting entry should not be shown or presented in some views or documents.
@@ -255,12 +258,20 @@ class AccountingEntry extends Model {
                 'visible'           => ['bank_statement_line_id', '<>', null]
             ],
 
+            'reversed_entry_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\AccountingEntry',
+                'description'       => 'Symmetric entry generated when reversing an entry.',
+                'visible'           => ['status', '=', 'reversed']
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
                     'pending',
                     'planned',
-                    'validated'
+                    'validated',
+                    'reversed'
                 ],
                 'default'           => 'pending',
                 'description'       => 'Status of the accounting entry.',
@@ -279,7 +290,7 @@ class AccountingEntry extends Model {
             'cancel' => [
                 'description'   => 'Delete the proforma and set receivables statuses back to pending.',
                 'help'          => 'A fiscal year can be opened before the previous one is definitely closed.',
-                'policies'      => ['can_be_cancelled'],
+                'policies'      => ['can_cancel'],
                 'function'      => 'doCancel'
             ],
             'attempt_match' => [
@@ -291,6 +302,11 @@ class AccountingEntry extends Model {
                 'description'   => 'Arbitrary link entry lines to a given Matching.',
                 'policies'      => [/* */],
                 'function'      => 'doMatchWithMatching'
+            ],
+            'update_balance_change' => [
+                'description'   => 'Update the AccountBalanceChange objects according to the entry.',
+                'policies'      => [/* */],
+                'function'      => 'doUpdateBalanceChange'
             ]
         ];
     }
@@ -336,6 +352,7 @@ class AccountingEntry extends Model {
                 'description' => 'Draft fiscal year, still waiting to be completed for validation.',
                 'icon'        => 'drive_file_rename_outline',
                 'transitions' => [
+                        // #memo - cancellation is done using action 'cancel'
                 ]
             ]
         ];
@@ -449,35 +466,64 @@ class AccountingEntry extends Model {
                 ]);
 
         }
+        $self->do('update_balance_change');
     }
 
+    /**
+     * Policy ensures: status == 'validated' AND reverse_entry_id is null AND fiscal year is not closed, etc.
+     */
     protected static function doCancel($self) {
-        // create and validate reverse entry
-        $self->read(['condo_id', 'status', 'fiscal_year_id', 'journal_id', 'entry_date', 'entry_lines_ids' => ['account_id', 'debit', 'credit']]);
-        foreach($self as $id => $accountingEntry) {
-            // #memo - we cannot update the Balance directly to avoid concurrent changes: always use BalanceUpdateRequest
-            $reverseAccountingEntry = self::create([
-                    'condo_id'              => $accountingEntry['condo_id'],
-                    'journal_id'            => $accountingEntry['journal_id'],
-                    'fiscal_year_id'        => $accountingEntry['fiscal_year_id'],
-                    'entry_date'            => time(),
-                    'reverse_entry_id'      => $id
-                ])
-                ->first(); 
 
-            foreach($accountingEntry['entry_lines_ids'] ?? [] as $entry_line_id => $entryLine) {
-                AccountingEntryLine::create([
-                    'condo_id'              => $accountingEntry['condo_id'],
-                    'accounting_entry_id'   => $reverseAccountingEntry['id'],
-                    'account_id'            => $entryLine['account_id'],
-                    'debit'                 => $entryLine['credit'],
-                    'credit'                => $entryLine['debit']
-                ]);
+        $self->read([
+            'condo_id',
+            'fiscal_year_id',
+            'journal_id',
+            'entry_date',
+            'entry_lines_ids' => ['account_id', 'debit', 'credit'],
+            'purchase_invoice_id',
+            'sale_invoice_id',
+            'misc_operation_id',
+            'bank_statement_line_id',
+        ]);
+
+        foreach ($self as $id => $entry) {
+
+            // 1) Create reversal entry (B)
+            $reversal = self::create([[
+                    'condo_id'                  => $entry['condo_id'],
+                    'journal_id'                => $entry['journal_id'],
+                    'fiscal_year_id'            => $entry['fiscal_year_id'],
+                    // #memo #important - same date for strict cancellation
+                    'entry_date'                => $entry['entry_date'],
+                    'reverse_entry_id'          => $id,
+                    'purchase_invoice_id'       => $entry['purchase_invoice_id'],
+                    'sale_invoice_id'           => $entry['sale_invoice_id'],
+                    'misc_operation_id'         => $entry['misc_operation_id'],
+                    'bank_statement_line_id'    => $entry['bank_statement_line_id'],
+                ]])
+                ->first();
+
+            // 2) Create reversal lines (swap debit/credit)
+            foreach ($entry['entry_lines_ids'] ?? [] as $line) {
+                AccountingEntryLine::create([[
+                    'condo_id'            => $entry['condo_id'],
+                    'accounting_entry_id' => $reversal['id'],
+                    'account_id'          => $line['account_id'],
+                    'debit'               => $line['credit'],
+                    'credit'              => $line['debit']
+                ]]);
             }
-            self::id($id)->update(['reverse_entry_id' => $reverseAccountingEntry['id']]);
-            if($accountingEntry['status'] === 'validated') {
-                self::id($reverseAccountingEntry['id'])->transition('validate');
-            }
+
+            // 3) Link original to reversal
+            self::id($id)->update([
+                'reverse_entry_id' => $reversal['id']
+            ]);
+
+            // 4) Validate reversal (will post lines once => update AccountBalanceChange)
+            self::id($reversal['id'])->transition('validate');
+
+            // 5) Mark both entries as reversed (audit state only)
+            self::ids([$id, $reversal['id']])->update(['status' => 'reversed']);
         }
     }
 
@@ -487,9 +533,9 @@ class AccountingEntry extends Model {
                 'description' => 'Verifies that an accounting entry is balanced.',
                 'function'    => 'policyIsValid'
             ],
-            'can_be_cancelled' => [
+            'can_cancel' => [
                 'description' => 'Verifies that an accounting entry can be cancelled (validated and not already cancelled).',
-                'function'    => 'policyCanBeCancelled'
+                'function'    => 'policyCanCancel'
             ]
         ];
     }
@@ -514,17 +560,51 @@ class AccountingEntry extends Model {
         return $result;
     }
 
-    public static function policyCanBeCancelled($self): array {
+    protected static function policyCanCancel($self): array {
         $result = [];
-        $self->read(['status']);
-        foreach($self as $id => $accountingEntry) {
-            if($accountingEntry['status'] !== 'validated') {
-                $result[$id] = [
-                        'invalid_status' => 'Accounting entry must be validated.'
-                    ];
-                continue;
+
+        $self->read([
+            'status',
+            'reverse_entry_id',
+            'fiscal_year_id' => ['status'],
+            'fiscal_period_id' => ['status'],
+            'entry_lines_ids'
+        ]);
+
+        foreach ($self as $id => $entry) {
+
+            $errors = [];
+
+            // 1) Must be validated
+            if(($entry['status'] ?? null) !== 'validated') {
+                $errors['invalid_status'] = 'Accounting entry must be validated.';
+            }
+
+            // 2) Must not already be cancelled / linked to a reversal
+            if(!empty($entry['reverse_entry_id'])) {
+                $errors['already_cancelled'] = 'Accounting entry has already been cancelled (reversal entry exists).';
+            }
+
+            // 3) Fiscal year must allow changes
+            if(in_array($entry['fiscal_year_id']['status'], ['closed', 'preclosed'], true)) {
+                $errors['closed_fiscal_year'] = 'Fiscal year is closed; cancellation is not allowed.';
+            }
+
+            // 4) Fiscal period must allow changes
+            if(in_array($entry['fiscal_period_id']['status'], ['closed', 'preclosed'], true)) {
+                $errors['fiscal_period_id'] = 'Fiscal period is closed; cancellation is not allowed.';
+            }
+
+            // 5) Optional: entry must contain at least one line
+            if(empty($entry['entry_lines_ids']) || count($entry['entry_lines_ids']) === 0) {
+                $errors['no_lines'] = 'Accounting entry has no lines.';
+            }
+
+            if(!empty($errors)) {
+                $result[$id] = $errors;
             }
         }
+
         return $result;
     }
 
@@ -705,6 +785,145 @@ class AccountingEntry extends Model {
             ]);
 
         return $result;
+    }
+
+
+    protected static function doUpdateBalanceChange($self) {
+        $self->read([
+            'condo_id',
+            'entry_date',
+            'status',
+            'entry_lines_ids' => ['id', 'account_id', 'debit', 'credit', 'is_posted']
+        ]);
+
+        foreach($self as $entry) {
+
+            // #memo - when an entry goes from validated to reversed, this method has no effect since all lines have already been posted
+            if(!in_array($entry['status'], ['validated', 'reversed'])) {
+                continue;
+            }
+
+            $condo_id = $entry['condo_id'];
+            $date     = $entry['entry_date'];
+
+            /*
+            * Aggregate deltas per account
+            */
+            $account_deltas = [];
+            $posted_lines_ids  = [];
+
+            foreach($entry['entry_lines_ids'] as $line) {
+
+                if($line['is_posted']) {
+                    continue;
+                }
+
+                $account_id = $line['account_id'];
+
+                if(!isset($account_deltas[$account_id])) {
+                    $account_deltas[$account_id] = [
+                        'debit'  => 0.0,
+                        'credit' => 0.0
+                    ];
+                }
+
+                $account_deltas[$account_id]['debit']  += (float) $line['debit'];
+                $account_deltas[$account_id]['credit'] += (float) $line['credit'];
+
+                $posted_lines_ids[] = $line['id'];
+            }
+
+            /*
+            * Apply one delta per account
+            */
+            foreach($account_deltas as $account_id => $delta) {
+
+                $delta_debit  = $delta['debit'];
+                $delta_credit = $delta['credit'];
+
+                /*
+                * Get previous balance (< date)
+                */
+                $previous = AccountBalanceChange::search([
+                            ['account_id', '=', $account_id],
+                            ['condo_id', '=', $condo_id],
+                            ['date', '<', $date]
+                        ],
+                        ['sort' => ['date' => 'desc'], 'limit' => 1]
+                    )
+                    ->read(['debit_balance', 'credit_balance'])
+                    ->first();
+
+                $previous_debit  = $previous ? (float) $previous['debit_balance']  : 0.0;
+                $previous_credit = $previous ? (float) $previous['credit_balance'] : 0.0;
+
+                /*
+                * Get current balance (= date)
+                */
+                $current = AccountBalanceChange::search([
+                            ['account_id', '=', $account_id],
+                            ['condo_id', '=', $condo_id],
+                            ['date', '=', $date]
+                        ],
+                        ['limit' => 1]
+                    )
+                    ->read(['id', 'debit_balance', 'credit_balance'])
+                    ->first();
+
+                if($current) {
+
+                    $new_debit  = (float) $current['debit_balance']  + $delta_debit;
+                    $new_credit = (float) $current['credit_balance'] + $delta_credit;
+
+                    AccountBalanceChange::update($current['id'], [
+                        'debit_balance'  => round($new_debit, 2),
+                        'credit_balance' => round($new_credit, 2)
+                    ]);
+
+                }
+                else {
+
+                    $new_debit  = $previous_debit  + $delta_debit;
+                    $new_credit = $previous_credit + $delta_credit;
+
+                    AccountBalanceChange::create([[
+                        'condo_id'       => $condo_id,
+                        'account_id'     => $account_id,
+                        'date'           => $date,
+                        'debit_balance'  => round($new_debit, 2),
+                        'credit_balance' => round($new_credit, 2)
+                    ]]);
+                }
+
+                /*
+                * Adjust following rows (backdating case)
+                */
+                $nextChanges = AccountBalanceChange::search([
+                            ['account_id', '=', $account_id],
+                            ['condo_id', '=', $condo_id],
+                            ['date', '>', $date]
+                        ],
+                        ['sort' => ['date' => 'asc']]
+                    )
+                    ->read(['id', 'debit_balance', 'credit_balance']);
+
+                foreach($nextChanges as $change_id => $change) {
+                    AccountBalanceChange::update($change_id, [
+                        'debit_balance'  => round((float) $change['debit_balance']  + $delta_debit, 2),
+                        'credit_balance' => round((float) $change['credit_balance'] + $delta_credit, 2)
+                    ]);
+                }
+            }
+
+            /*
+            * Mark lines as posted (idempotence)
+            */
+            if(!empty($posted_lines_ids)) {
+                AccountingEntryLine::update($posted_lines_ids, [
+                    'is_posted' => true
+                ]);
+            }
+        }
     }
 
     public static function candelete($self) {

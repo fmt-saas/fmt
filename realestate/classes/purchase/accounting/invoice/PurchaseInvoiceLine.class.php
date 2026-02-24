@@ -75,7 +75,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
 
             'owner_share'           => [
                 'type'              => 'integer',
-                'default'           => 0,
+                'default'           => 100,
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
                 'onupdate'          => 'onupdateOwnerShare'
@@ -83,7 +83,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
 
             'tenant_share'          => [
                 'type'              => 'integer',
-                'default'           => 100,
+                'default'           => 0,
                 'description'       => "Default value, in percent, of the amount to be imputed to the tenant when using the account.",
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
                 'onupdate'          => 'onupdateTenantShare'

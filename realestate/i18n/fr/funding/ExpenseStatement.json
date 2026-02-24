@@ -81,7 +81,7 @@
             },
             "actions": {
                 "action.generate_statement": {
-                    "label": "Générer le relevé",
+                    "label": "(Re)Générer le relevé",
                     "description": "Générer les lignes du relevé."
                 },
                 "action.invoice": {

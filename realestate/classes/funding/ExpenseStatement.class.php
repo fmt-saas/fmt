@@ -684,7 +684,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 // schedule generation of a zip archive containing printable documents
                 $exportingTask = ExportingTask::create([
-                        'name'          => "{$expenseStatement['name']} - Export des courriers de l'appel de fonds",
+                        'name'          => "{$expenseStatement['name']} - Export des courriers du décompte de charges",
                         'condo_id'      => $expenseStatement['condo_id'],
                         'object_class'  => static::class,
                         'object_id'     => $id
@@ -1093,15 +1093,17 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         //    * marquer les écritures comme "décomptées"
         $accountingEntryLines = AccountingEntryLine::search([
                 ['fiscal_period_id', '=', $fiscal_period_id],
+                // #memo - reversed entries are ignored since they are symmetrical (both entries are linked through reversed_entry_id field and sum to 0)
                 ['status', '=', 'validated'],
                 ['is_cleared', '=', false],
-                ['is_visible', '=', true],
+                // #memo - deprecated
+                // ['is_visible', '=', true],
                 ['is_carry_forward', '=', false],
                 ['account_class', 'in', [6, 7]]
             ])
             ->read([
                 'accounting_entry_id',
-                'account_id', 'account_code', 'debit', 'credit',
+                'account_id', 'account_code', 'debit', 'credit', 'ownership_id',
                 'sale_invoice_line_id',
                 // #memo - we need this to retrieve details for private expenses
                 'purchase_invoice_line_id',
@@ -1324,12 +1326,12 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         ->first();
                     // retrieve date_from and date_to from purchase invoice line, to determine nb_days
                     if($sourceLine['invoice_id']['has_date_range']) {
-                        $start = max($sourceLine['invoice_id']['date_from'], $ownerships[$ownership_id]['date_from'] ?? $sourceLine['invoice_id']['date_from']);
-                        $end   = min($sourceLine['invoice_id']['date_to'], $ownerships[$ownership_id]['date_to'] ?? $sourceLine['invoice_id']['date_to']);
+                        $start = max($sourceLine['invoice_id']['date_from'], $ownerships[$sourceLine['ownership_id']]['date_from'] ?? $sourceLine['invoice_id']['date_from']);
+                        $end   = min($sourceLine['invoice_id']['date_to'], $ownerships[$sourceLine['ownership_id']]['date_to'] ?? $sourceLine['invoice_id']['date_to']);
                     }
                     else {
-                        $start = max($sourceLine['invoice_id']['posting_date'], $ownerships[$ownership_id]['date_from'] ?? $sourceLine['invoice_id']['posting_date']);
-                        $end   = min($sourceLine['invoice_id']['posting_date'], $ownerships[$ownership_id]['date_to'] ?? $sourceLine['invoice_id']['posting_date']);
+                        $start = max($sourceLine['invoice_id']['posting_date'], $ownerships[$sourceLine['ownership_id']]['date_from'] ?? $sourceLine['invoice_id']['posting_date']);
+                        $end   = min($sourceLine['invoice_id']['posting_date'], $ownerships[$sourceLine['ownership_id']]['date_to'] ?? $sourceLine['invoice_id']['posting_date']);
                     }
 
                     $posting_date = $sourceLine['invoice_id']['posting_date'] ?? null;
@@ -1364,12 +1366,12 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                     // retrieve date_from and date_to from purchase invoice line, to determine nb_days
                     if($sourceLine['misc_operation_id']['has_date_range']) {
-                        $start = max($sourceLine['misc_operation_id']['date_from'], $ownerships[$ownership_id]['date_from'] ?? $sourceLine['misc_operation_id']['date_from']);
-                        $end   = min($sourceLine['misc_operation_id']['date_to'], $ownerships[$ownership_id]['date_to'] ?? $sourceLine['misc_operation_id']['date_to']);
+                        $start = max($sourceLine['misc_operation_id']['date_from'], $ownerships[$sourceLine['ownership_id']]['date_from'] ?? $sourceLine['misc_operation_id']['date_from']);
+                        $end   = min($sourceLine['misc_operation_id']['date_to'], $ownerships[$sourceLine['ownership_id']]['date_to'] ?? $sourceLine['misc_operation_id']['date_to']);
                     }
                     else {
-                        $start = max($sourceLine['misc_operation_id']['posting_date'], $ownerships[$ownership_id]['date_from'] ?? $sourceLine['misc_operation_id']['posting_date']);
-                        $end   = min($sourceLine['misc_operation_id']['posting_date'], $ownerships[$ownership_id]['date_to'] ?? $sourceLine['misc_operation_id']['posting_date']);
+                        $start = max($sourceLine['misc_operation_id']['posting_date'], $ownerships[$sourceLine['ownership_id']]['date_from'] ?? $sourceLine['misc_operation_id']['posting_date']);
+                        $end   = min($sourceLine['misc_operation_id']['posting_date'], $ownerships[$sourceLine['ownership_id']]['date_to'] ?? $sourceLine['misc_operation_id']['posting_date']);
                     }
 
                     $posting_date = $sourceLine['misc_operation_id']['posting_date'] ?? null;

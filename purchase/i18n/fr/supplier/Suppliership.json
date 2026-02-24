@@ -79,7 +79,7 @@
                     "description": "Générer la configuration obligatoire."
                 },
                 "action.sync_bank_accounts": {
-                    "label": "Synchroniser les comptes bancaires",
+                    "label": "Synchro des comptes bancaires",
                     "description": "Importer/Synchroniser les comptes bancaires du fournisseur."
                 }
             }

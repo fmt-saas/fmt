@@ -7,9 +7,8 @@
 namespace realestate\sale\accounting\invoice;
 
 use fmt\setting\Setting;
-use finance\accounting\AccountingEntry;
+use realestate\finance\accounting\AccountingEntry;
 use finance\accounting\Journal;
-use sale\receivable\Receivable;
 
 class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
 
@@ -38,7 +37,21 @@ class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
     }
 
     public static function getActions() {
-        return array_merge(parent::getActions(), []);
+        return array_merge(parent::getActions(), [
+            'cancel' => [
+                'description'   => 'Cancel the sale invoice. No further change will be possible.',
+                'help'          => 'Void the accounting entry and set status to `cancelled`. By default (optional), a credit note can be create.',
+                'policies'      => [],
+                'function'      => 'doCancel'
+            ],
+            'unlock' => [
+                'description'   => 'Unlock the sale invoice, to allow re-posting after modifications.',
+                'help'          => 'Self voiding accounting entries will be left as `reversed`, and invoice will be set back to `proforma`.',
+                'policies'      => [],
+                'function'      => 'doUnlock'
+            ],
+
+        ]);
     }
 
     public static function getWorkflow() {
@@ -77,8 +90,7 @@ class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
             'cancelled' => [
                 'description' => 'The invoice was cancelled.',
                 'icon' => 'cancel',
-                'transitions' => [
-                ],
+                'transitions' => []
             ],
         ];
     }
@@ -107,26 +119,36 @@ class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
     public static function onafterCancelProforma($self) {
         $self->read(['id']);
         foreach($self as $invoice) {
-            $receivables_ids = Receivable::search([
-                    ['status', '=', 'invoiced'],
-                    ['invoice_id', '=', $invoice['id']],
-                ])
-                ->ids();
-
-            Receivable::ids($receivables_ids)
-                ->update([
-                    'status'          => 'pending',
-                    'invoice_id'      => null,
-                    'invoice_line_id' => null
-                ]);
-
-            self::id($invoice['id'])
-                ->delete();
+            self::id($invoice['id'])->delete();
         }
     }
 
     public static function onafterCancel($self) {
-        $self->do('reverse');
+        // $self->do('reverse');
+    }
+
+    protected static function doCancel($self) {
+        $self->read(['status', 'accounting_entry_id']);
+        foreach($self as $id => $saleInvoice) {
+            if($saleInvoice['status'] !== 'posted') {
+                continue;
+            }
+            AccountingEntry::id($saleInvoice['accounting_entry_id'])->do('cancel');
+            self::id($id)->update(['status' => 'cancelled']);
+        }
+    }
+
+    protected static function doUnlock($self) {
+        $self->read(['status', 'accounting_entry_id']);
+        foreach($self as $id => $saleInvoice) {
+            if($saleInvoice['status'] !== 'posted') {
+                continue;
+            }
+            AccountingEntry::id($saleInvoice['accounting_entry_id'])->do('cancel');
+            self::id($id)
+                ->update(['status' => 'proforma'])
+                ->update(['accounting_entry_id' => null]);
+        }
     }
 
     /**

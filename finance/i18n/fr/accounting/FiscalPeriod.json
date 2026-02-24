@@ -57,7 +57,13 @@
     "view": {
         "form.default": {
             "name": "Période comptable",
-            "description": "Formulaire pour ajuster les dates et visualiser l'exercice/copropriété."
+            "description": "Formulaire pour ajuster les dates et visualiser l'exercice/copropriété.",
+            "actions": {
+                "action.preclose": {
+                    "label": "Pré-clôturer",
+                    "description": "Pré-clôturer la période fiscale et générer un décompte de charges proforma."
+                }
+            }
         }
     }
 }

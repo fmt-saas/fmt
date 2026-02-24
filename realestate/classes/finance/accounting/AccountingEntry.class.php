@@ -39,6 +39,14 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'sale_invoice_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\sale\accounting\invoice\SaleInvoice',
+                'description'       => 'Invoice the accounting entry is related to.',
+                'ondelete'          => 'null',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
             'fund_request_execution_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\FundRequestExecution',
@@ -65,5 +73,78 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             ]
 
         ];
+    }
+
+    public static function getActions() {
+        return array_merge(parent::getActions(), [
+            'cancel' => [
+                'description'   => 'Delete the proforma and set receivables statuses back to pending.',
+                'help'          => 'A fiscal year can be opened before the previous one is definitely closed.',
+                'policies'      => ['can_cancel'],
+                'function'      => 'doCancel'
+            ]
+        ]);
+    }
+
+    /**
+     * Policy ensures: status == 'validated' AND reverse_entry_id is null AND fiscal year is not closed, etc.
+     */
+    protected static function doCancel($self) {
+
+        $self->read([
+            'condo_id',
+            'fiscal_year_id',
+            'journal_id',
+            'entry_date',
+            'entry_lines_ids' => ['account_id', 'debit', 'credit'],
+            'purchase_invoice_id',
+            'sale_invoice_id',
+            'misc_operation_id',
+            'bank_statement_line_id',
+            'fund_request_execution_id',
+            'expense_statement_id'
+        ]);
+
+        foreach ($self as $id => $entry) {
+
+            // 1) Create reversal entry (B)
+            $reversal = self::create([[
+                    'condo_id'                  => $entry['condo_id'],
+                    'journal_id'                => $entry['journal_id'],
+                    'fiscal_year_id'            => $entry['fiscal_year_id'],
+                    // #memo #important - same date for strict cancellation
+                    'entry_date'                => $entry['entry_date'],
+                    'reverse_entry_id'          => $id,
+                    'purchase_invoice_id'       => $entry['purchase_invoice_id'],
+                    'sale_invoice_id'           => $entry['sale_invoice_id'],
+                    'misc_operation_id'         => $entry['misc_operation_id'],
+                    'bank_statement_line_id'    => $entry['bank_statement_line_id'],
+                    'fund_request_execution_id' => $entry['fund_request_execution_id'],
+                    'expense_statement_id'      => $entry['expense_statement_id']
+                ]])
+                ->first();
+
+            // 2) Create reversal lines (swap debit/credit)
+            foreach ($entry['entry_lines_ids'] ?? [] as $line) {
+                AccountingEntryLine::create([[
+                    'condo_id'            => $entry['condo_id'],
+                    'accounting_entry_id' => $reversal['id'],
+                    'account_id'          => $line['account_id'],
+                    'debit'               => $line['credit'],
+                    'credit'              => $line['debit']
+                ]]);
+            }
+
+            // 3) Link original to reversal
+            self::id($id)->update([
+                'reverse_entry_id' => $reversal['id']
+            ]);
+
+            // 4) Validate reversal (will post lines once => update AccountBalanceChange)
+            self::id($reversal['id'])->transition('validate');
+
+            // 5) Mark both entries as reversed (audit state only)
+            self::ids([$id, $reversal['id']])->update(['status' => 'reversed']);
+        }
     }
 }

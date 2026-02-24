@@ -30,6 +30,7 @@
             "icon": "edit_calendar",
             "description": "Check and create missing sequences for fiscal Year.",
             "controller": "core_model_do",
+            "visible": ["status", "=", "draft"],
             "params": {
                 "entity": "finance\\accounting\\FiscalYear",
                 "action": "generate_sequences",
@@ -69,7 +70,7 @@
             "description": "Pre-close the fiscal year.",
             "controller": "core_model_transition",
             "visible": false,
-            "visible_help": "This status has been removed",
+            "visible_help": "This status is set automatically.",
             "visible1": ["status", "=", "open"],
             "params": {
                 "entity": "finance\\accounting\\FiscalYear",
@@ -81,7 +82,7 @@
         {
             "id": "action.close",
             "label": "Close",
-            "description": "Close the fiscal year (this cannot be undone).",
+            "description": "Close the fiscal year.",
             "controller": "core_model_transition",
             "visible": ["status", "=", "open"],
             "visible1": false,
@@ -90,6 +91,19 @@
             "params": {
                 "entity": "finance\\accounting\\FiscalYear",
                 "transition": "close",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.reopen",
+            "label": "Reopen",
+            "description": "Set fiscal year back to pre-close.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "closed"],
+            "params": {
+                "entity": "finance\\accounting\\FiscalYear",
+                "transition": "repreclose",
                 "ids": []
             },
             "confirm": true

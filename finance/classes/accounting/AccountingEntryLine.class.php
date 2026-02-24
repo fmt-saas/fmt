@@ -240,6 +240,13 @@ class AccountingEntryLine extends Model {
                 'default'           => false
             ],
 
+            'is_posted' => [
+                'type'              => 'boolean',
+                'description'       => 'Indicates whether the line has been applied to the cumulative account balance projection.',
+                'help'              => 'Technical flag used by the accounting engine to ensure idempotent posting of balance changes. It allows distinguishing between entries that have already impacted AccountBalanceChange and those that have not, independently of the entry status.',
+                'default'           => false
+            ],
+
             // #memo - this field is only changed by parent Accounting Entry and should remain synced
             'status' => [
                 'type'              => 'string',

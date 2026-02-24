@@ -15,7 +15,7 @@
         },
         "condo_id": {
             "label": "Copropriété",
-            "description": "Immeuble auquel l'exercice est rattaché.",
+            "description": "Copropriété à laquelle correspond l'exercice.",
             "help": ""
         },
         "date_from": {

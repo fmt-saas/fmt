@@ -59,13 +59,13 @@
             "help": ""
         },
         "is_primary": {
-            "label": "Compte principal",
-            "description": "Indique si ce compte est le compte courant principal de la copropriété.",
+            "label": "Principal",
+            "description": "Indique si ce compte est le compte courant principal.",
             "help": ""
         },
         "is_primary_reserve": {
-            "label": "Compte de réserve principal",
-            "description": "Indique si ce compte est utilisé pour les fonds de réserve.",
+            "label": "Réserve",
+            "description": "Indique si ce compte est le compte principal pour les fonds de réserve.",
             "help": ""
         },
         "owner_identity_id": {

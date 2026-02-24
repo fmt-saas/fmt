@@ -439,9 +439,9 @@ $tests = [
             }
 
             $communication_preferences = OwnershipCommunicationPreference::search([
-                ['condo_id', '=', $condominium['id']],
-                ['ownership_id', 'in', $com_pref_ownerships_ids]
-            ])
+                    ['condo_id', '=', $condominium['id']],
+                    ['ownership_id', 'in', $com_pref_ownerships_ids]
+                ])
                 ->read(['id'])
                 ->get(true);
             $preferences = ['general_assembly_call', 'general_assembly_minutes', 'expense_statement', 'fund_request', 'technical_communication'];
