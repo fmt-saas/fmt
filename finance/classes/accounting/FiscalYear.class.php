@@ -486,7 +486,7 @@ class FiscalYear extends Model {
                 continue;
             }
 
-            if(!empty(self::policyCanBePreOpened($nextFiscalYear))) {
+            if(!empty(self::policyCanPreopen($nextFiscalYear))) {
                 $result[$id] = [
                     'invalid_next_fiscal_year' => 'Next fiscal year cannot be pre opened.'
                 ];
