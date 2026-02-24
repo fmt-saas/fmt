@@ -355,7 +355,7 @@ class FiscalYear extends Model {
             ],
             'can_open' => [
                 'description' => 'Verifies that a fiscal year can be opened according its configuration.',
-                'function'    => 'policyCanBeOpened'
+                'function'    => 'policyCanOpen'
             ],
             'can_preclose' => [
                 'description' => 'Verifies that a fiscal year can be set (or set back) to preclosed status.',
@@ -466,7 +466,7 @@ class FiscalYear extends Model {
         return $result;
     }
 
-    public static function policyCanBeOpened($self): array {
+    protected static function policyCanOpen($self): array {
         $result = [];
         $self->read(['status', 'previous_fiscal_year_id', 'date_from', 'date_to', 'condo_id']);
 
@@ -659,7 +659,7 @@ class FiscalYear extends Model {
                 FiscalYear::create([
                         'date_from' => $date_from,
                         'date_to'   => strtotime(date('Y-m-d 00:00:00', $date_from) . ' +1 year'),
-                        'condo_id'  => $fiscalYear['id'],
+                        'condo_id'  => $fiscalYear['condo_id'],
                         'status'    => 'draft',
                     ]);
             }
@@ -726,7 +726,7 @@ class FiscalYear extends Model {
 
         foreach($self as $id => $fiscalYear) {
 
-            // 1 - transition previous fiscal year to 'preclosed' (transition has been checked in `policyCanBeOpened()`)
+            // 1 - transition previous fiscal year to 'preclosed' (transition has been checked in `policyCanOpen()`)
             /*
             NO
             if($fiscalYear['previous_fiscal_year_id'] && $fiscalYear['previous_fiscal_year_id']['status'] === 'open') {
@@ -734,7 +734,7 @@ class FiscalYear extends Model {
             }
             */
 
-            // 2 - transition next fiscal year to 'preopen' (existence and transition have been checked in `policyCanBeOpened()`)
+            // 2 - transition next fiscal year to 'preopen' (existence and transition have been checked in `policyCanOpen()`)
 
             // retrieve next fiscal year (take the year that immediately succeeds the current one, whatever its status)
             $nextFiscalYear = self::search([
