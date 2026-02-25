@@ -123,7 +123,7 @@ class AccountingEntry extends Model {
                 'type'              => 'string',
                 'description'       => 'Unique code for entry identification.',
                 'dependents'        => ['name', 'debit', 'credit'],
-                'description'       => 'Entry number is automatically assigned after validation, and cannot be changed afterwards.',
+                'help'              => 'Entry number is automatically assigned after validation, and cannot be changed afterwards.',
                 'onupdate'          => 'onupdateEntryNumber'
             ],
 
@@ -753,9 +753,9 @@ class AccountingEntry extends Model {
     }
 
     private static function computeEntryNumber($id) {
-        $result = '';
+        $result = null;
         $entry = self::id($id)
-            ->read(['status', 'is_temp',
+            ->read(['status', 'is_temp', 'entry_number',
                 'condo_id'          => ['id', 'code'],
                 'journal_id'        => ['code'],
                 'sub_journal_id'    => ['code'],
@@ -764,7 +764,11 @@ class AccountingEntry extends Model {
             ])
             ->first();
 
-        if($entry['status'] == 'pending' || $entry['is_temp']) {
+        if($entry['entry_number'] && strlen($entry['entry_number']) > 0) {
+            return $entry['entry_number'];
+        }
+
+        if($entry['is_temp']) {
             return $result;
         }
 
@@ -816,7 +820,6 @@ class AccountingEntry extends Model {
 
         return $result;
     }
-
 
     protected static function doUpdateBalanceChange($self) {
         $self->read([

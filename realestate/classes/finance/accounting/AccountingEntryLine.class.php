@@ -121,7 +121,7 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
         if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
             foreach($self as $id => $accountingEntryLine) {
                 if($accountingEntryLine['accounting_entry_id']['status'] == 'validated') {
-                    return ['accounting_entry_id' => ['not_allowed' => 'Accounting entry cannot be modified once validated.']];
+                    return ['accounting_entry_id' => ['not_allowed' => 'Accounting entry line cannot be modified once entry is validated.']];
                 }
             }
         }
