@@ -36,7 +36,7 @@ $tests = [
 
                     $miscOperation = AccountingEntry::create([
                             'condo_id'          => 1,
-                            'description'       => 'reprise de compte epargne',
+                            'description'       => 'reprise de compte épargne',
                             'entry_date'        => strtotime('2024-01-01T00:00:00Z'),
                             'journal_id'        => $journal['id']
                         ])

@@ -7,6 +7,7 @@
 namespace finance\bank;
 
 use finance\accounting\Account;
+use finance\accounting\AccountBalanceChange;
 use finance\accounting\CurrentBalanceLine;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
@@ -289,30 +290,46 @@ class CondominiumBankAccount extends BankAccount {
 
     protected static function calcCurrentBalance($self) {
         $result = [];
-        $self->read(['accounting_account_id', 'bank_account_type', 'condo_id' => ['id', 'current_fiscal_year_id']]);
-        foreach($self as $id => $bankAccount) {
+
+        $self->read([
+            'accounting_account_id',
+            'condo_id'
+        ]);
+
+        $today = date('Y-m-d');
+
+        foreach ($self as $id => $bankAccount) {
+
             $balance = 0.0;
 
-            $balanceLines = CurrentBalanceLine::search([
-                    ['condo_id', '=', $bankAccount['condo_id']['id']],
-                    ['fiscal_year_id', '=', $bankAccount['condo_id']['current_fiscal_year_id']],
-                    ['account_id', '=', $bankAccount['accounting_account_id']]
-                ])
-                ->read(['debit', 'credit']);
-
-            foreach($balanceLines as $balanceLine) {
-                $balance += $balanceLine['debit'];
-                $balance -= $balanceLine['credit'];
+            if (!$bankAccount['accounting_account_id'] || !$bankAccount['condo_id']) {
+                $result[$id] = 0.0;
+                continue;
             }
 
-            $result[$id] = $balance;
+            $change = AccountBalanceChange::search([
+                    ['condo_id', '=', $bankAccount['condo_id']],
+                    ['account_id', '=', $bankAccount['accounting_account_id']],
+                    ['date', '<=', $today]
+                ],
+                ['sort' => ['date' => 'desc'], 'limit' => 1]
+            )
+            ->read(['debit_balance', 'credit_balance'])
+            ->first();
+
+            if ($change) {
+                $balance = (float)$change['debit_balance'] - (float)$change['credit_balance'];
+            }
+
+            $result[$id] = round($balance, 2);
         }
+
         return $result;
     }
 
 
     /**
-     * utilisé pour donner une idée des capacités de paiement
+     * Used to provide an indication of payment capacity.
      */
     protected static function calcAvailableBalance($self) {
         $result = [];
