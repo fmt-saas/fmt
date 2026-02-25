@@ -49,6 +49,7 @@ class SyncPolicyLine extends Model {
 
             'object_field' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:128',
                 'description'       => 'Targeted Entity.',
                 'required'          => true,
                 'dependents'        => ['name']

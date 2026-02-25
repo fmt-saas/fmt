@@ -44,6 +44,7 @@ class DocumentAssignmentRule extends Model {
 
             'process_step' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:128',
                 'selection'         => [
                     'created',
                     'assigned',

@@ -20,6 +20,7 @@ class Option extends Model {
 
             'name' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:128',
                 'description'       => 'Name of the option.',
                 'multilang'         => true,
                 'required'          => true

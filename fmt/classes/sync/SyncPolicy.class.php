@@ -22,6 +22,7 @@ class SyncPolicy extends Model {
 
             'object_class' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:128',
                 'description'       => 'Targeted Entity.',
                 'unique'            => true,
                 'required'          => true,
@@ -36,6 +37,7 @@ class SyncPolicy extends Model {
 
             'sync_direction' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:30',
                 'selection'         => [
                     // Local > Global
                     'ascending',

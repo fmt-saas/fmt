@@ -886,13 +886,13 @@ class AccountingEntry extends Model {
                     $new_debit  = $previous_debit  + $delta_debit;
                     $new_credit = $previous_credit + $delta_credit;
 
-                    AccountBalanceChange::create([[
+                    AccountBalanceChange::create([
                         'condo_id'       => $condo_id,
                         'account_id'     => $account_id,
                         'date'           => $date,
                         'debit_balance'  => round($new_debit, 2),
                         'credit_balance' => round($new_credit, 2)
-                    ]]);
+                    ]);
                 }
 
                 /*
