@@ -875,7 +875,7 @@ class AccountingEntry extends Model {
                     $new_debit  = (float) $current['debit_balance']  + $delta_debit;
                     $new_credit = (float) $current['credit_balance'] + $delta_credit;
 
-                    AccountBalanceChange::update($current['id'], [
+                    AccountBalanceChange::id($current['id'])->update([
                         'debit_balance'  => round($new_debit, 2),
                         'credit_balance' => round($new_credit, 2)
                     ]);
@@ -908,7 +908,7 @@ class AccountingEntry extends Model {
                     ->read(['id', 'debit_balance', 'credit_balance']);
 
                 foreach($nextChanges as $change_id => $change) {
-                    AccountBalanceChange::update($change_id, [
+                    AccountBalanceChange::id($change_id)->update([
                         'debit_balance'  => round((float) $change['debit_balance']  + $delta_debit, 2),
                         'credit_balance' => round((float) $change['credit_balance'] + $delta_credit, 2)
                     ]);
@@ -919,7 +919,7 @@ class AccountingEntry extends Model {
             * Mark lines as posted (idempotence)
             */
             if(!empty($posted_lines_ids)) {
-                AccountingEntryLine::update($posted_lines_ids, [
+                AccountingEntryLine::ids($posted_lines_ids)->update([
                     'is_posted' => true
                 ]);
             }
