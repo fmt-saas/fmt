@@ -320,8 +320,10 @@ class AccountingEntry extends Model {
                     'validate' => [
                         'description' => 'Update the accounting entry status to `validated`.',
                         'policies'    => [
-                            'is_valid'
+                            'is_valid',
+                            'can_validate'
                         ],
+                        'onbefore'  => 'onbeforeValidate',
                         'onafter'   => 'onafterValidate',
                         'status'    => 'validated'
                     ],
@@ -412,6 +414,20 @@ class AccountingEntry extends Model {
         }
     }
 
+    protected static function onbeforeValidate($self) {
+        $self->read(['condo_id', 'entry_date']);
+
+        foreach($self as $id => $accountingEntry) {
+            // #memo - the encoding of the purchase invoices is non chronological
+            // - we must maintain the sequence, but cannot force dates sequence without losing information
+
+            self::id($id)
+                ->update([
+                    'entry_number'  => self::computeEntryNumber($id)
+                ]);
+        }
+    }
+
     /**
      * The entry has been validated (irreversible transition).
      * This method triggers the update of the related current balance and the fiscal period (based on the entry date).
@@ -429,9 +445,6 @@ class AccountingEntry extends Model {
             ]);
 
         foreach($self as $id => $accountingEntry) {
-            if( !($accountingEntry['fiscal_year_id']['current_balance_id'] ?? false) ) {
-                throw new \Exception('missing_balance', EQ_ERROR_INVALID_PARAM);
-            }
 
             $accountingEntry['entry_lines_ids']->update(['status' => 'validated']);
 
@@ -445,6 +458,8 @@ class AccountingEntry extends Model {
             */
 
             // #todo - temporary for testing - to remove once cron handling balanceupdate request will be running
+            /*
+            // #memo - this has been replaced with AccountBalanceChange mechanism
             foreach($accountingEntry['entry_lines_ids'] ?? [] as $entry_line_id => $entryLine) {
                 CurrentBalance::id($accountingEntry['fiscal_year_id']['current_balance_id'])
                     ->do('update_account', [
@@ -453,18 +468,7 @@ class AccountingEntry extends Model {
                         'credit'     => $entryLine['credit']
                     ]);
             }
-
-            $entry_date = $accountingEntry['entry_date'];
-
-            // #memo - the encoding of the purchase invoices is non chronological
-            // - we must maintain the sequence, but cannot force dates sequence without losing information
-
-            self::id($id)
-                ->update([
-                    'entry_number'  => self::computeEntryNumber($id),
-                    'entry_date'    => $entry_date
-                ]);
-
+            */
         }
         $self->do('update_balance_change');
     }
@@ -533,11 +537,37 @@ class AccountingEntry extends Model {
                 'description' => 'Verifies that an accounting entry is balanced.',
                 'function'    => 'policyIsValid'
             ],
+            'can_validate' => [
+                'description' => 'Verifies that an accounting entry can be validated.',
+                'function'    => 'policyCanValidate'
+            ],
             'can_cancel' => [
                 'description' => 'Verifies that an accounting entry can be cancelled (validated and not already cancelled).',
                 'function'    => 'policyCanCancel'
             ]
         ];
+    }
+
+    public static function policyCanValidate($self): array {
+        $result = [];
+        $self->read(['status', 'entry_lines_ids' => ['status']]);
+        foreach($self as $id => $accountingEntry) {
+            if(!in_array($accountingEntry['status'], ['pending', 'planned'])) {
+                $result[$id] = [
+                        'invalid_entry_status' => 'Accounting entry cannot be validated.'
+                    ];
+                continue;
+            }
+            foreach($accountingEntry['entry_lines_ids'] as $entry_line_id => $accountingEntryLine) {
+                if($accountingEntryLine['status'] !== 'pending') {
+                    $result[$id] = [
+                            'invalid_entry_lines' => 'At least one accounting entry line already posted.'
+                        ];
+                    continue 2;
+                }
+            }
+        }
+        return $result;
     }
 
     public static function policyIsValid($self): array {
@@ -919,9 +949,10 @@ class AccountingEntry extends Model {
             * Mark lines as posted (idempotence)
             */
             if(!empty($posted_lines_ids)) {
-                AccountingEntryLine::ids($posted_lines_ids)->update([
-                    'is_posted' => true
-                ]);
+                AccountingEntryLine::ids($posted_lines_ids)
+                    ->update([
+                        'is_posted' => true
+                    ]);
             }
         }
     }
@@ -978,15 +1009,14 @@ class AccountingEntry extends Model {
     }
 
     /**
-     * on ne check pas sur le status mais sur le entry_number (il ne peut être assigné qu'une seule fois)
-     * pour éviter un blocage au moment de la transition 'validate'
+     * Once validated (or reversed) an accounting entry can no longer be modified.
      */
     public static function canupdate($self, $values) {
-        $self->read(['entry_number']);
+        $self->read(['status']);
         $allowed_fields = ['status', 'description'];
         foreach($self as $id => $accountingEntry) {
-            if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
-                if($accountingEntry['entry_number']) {
+            if(in_array($accountingEntry['status'], ['reversed', 'validated'])) {
+                if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
                     return ['status' => ['not_allowed' => 'Accounting entry cannot be modified once validated.']];
                 }
             }
