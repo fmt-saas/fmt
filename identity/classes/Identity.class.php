@@ -1718,7 +1718,8 @@ class Identity extends Model {
             $identities = $om->read(Identity::getType(), $ids, [ 'type', 'firstname', 'lastname', 'legal_name', 'registration_number' ], $lang);
             foreach($identities as $id => $identity) {
                 // si type == 'CO', le registration_number est obligatoire
-                if($identity['type'] === 'CO') {
+                $type = $values['type'] ?? $identity['type'];
+                if($type === 'CO') {
                     if(!$identity['registration_number'] || strlen($identity['registration_number']) <= 0) {
                         return ['registration_number' => ['missing_registration_number' => 'Registration number is mandatory for companies.']];
                     }
