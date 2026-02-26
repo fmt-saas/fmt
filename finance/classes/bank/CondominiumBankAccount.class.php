@@ -298,11 +298,11 @@ class CondominiumBankAccount extends BankAccount {
 
         $today = date('Y-m-d');
 
-        foreach ($self as $id => $bankAccount) {
+        foreach($self as $id => $bankAccount) {
 
             $balance = 0.0;
 
-            if (!$bankAccount['accounting_account_id'] || !$bankAccount['condo_id']) {
+            if(!$bankAccount['accounting_account_id'] || !$bankAccount['condo_id']) {
                 $result[$id] = 0.0;
                 continue;
             }
@@ -317,8 +317,8 @@ class CondominiumBankAccount extends BankAccount {
             ->read(['debit_balance', 'credit_balance'])
             ->first();
 
-            if ($change) {
-                $balance = (float)$change['debit_balance'] - (float)$change['credit_balance'];
+            if($change) {
+                $balance = (float) $change['debit_balance'] - (float) $change['credit_balance'];
             }
 
             $result[$id] = round($balance, 2);
