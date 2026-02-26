@@ -243,7 +243,9 @@ class AccountingEntryLine extends Model {
             'is_posted' => [
                 'type'              => 'boolean',
                 'description'       => 'Indicates whether the line has been applied to the cumulative account balance projection.',
-                'help'              => 'Technical flag used by the accounting engine to ensure idempotent posting of balance changes. It allows distinguishing between entries that have already impacted AccountBalanceChange and those that have not, independently of the entry status.',
+                'help'              => 'Technical flag used by the accounting engine to ensure idempotent posting of balance changes.
+                    It allows distinguishing between entries that have already impacted AccountBalanceChange and those that have not, independently of the entry status.
+                    This distinction is necessary when having symmetrical `reversed` entries on an accounting document.',
                 'default'           => false
             ],
 
