@@ -153,7 +153,6 @@ class AssemblyVoteIntention extends \equal\orm\Model {
         return $result;
     }
 
-
     /**
      * Calculate the vote weight based on the shares of the property lots of the ownership,
      * for the the related apportionment at the moment of the assembly.
@@ -177,4 +176,9 @@ class AssemblyVoteIntention extends \equal\orm\Model {
         return $result;
     }
 
+    public function getUnique(): array {
+        return [
+            ['assembly_item_id', 'ownership_id']
+        ];
+    }
 }
