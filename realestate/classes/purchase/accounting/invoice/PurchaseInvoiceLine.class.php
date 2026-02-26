@@ -294,9 +294,11 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 }
                 if($expenseAccount['tenant_share']) {
                     $result['tenant_share'] = $expenseAccount['tenant_share'];
+                    $result['owner_share'] = 100 - intval($expenseAccount['tenant_share']);
                 }
-                if($expenseAccount['owner_share']) {
+                elseif($expenseAccount['owner_share']) {
                     $result['owner_share'] = $expenseAccount['owner_share'];
+                    $result['tenant_share'] = 100 - intval($expenseAccount['owner_share']);
                 }
             }
         }
