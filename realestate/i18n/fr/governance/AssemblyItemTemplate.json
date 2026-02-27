@@ -2,6 +2,94 @@
     "name": "Modèle de point",
     "plural": "Modèles de points",
     "description": "Structure réutilisable pour générer des points d'ordre du jour.",
+    "model": {
+        "name": {
+            "label": "Intitulé",
+            "description": "Description courte du point.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Code spécifique d'identification du point.",
+            "help": ""
+        },
+        "helper": {
+            "label": "Aide",
+            "description": "Informations ou base légale liées au point.",
+            "help": ""
+        },
+        "order": {
+            "label": "Ordre",
+            "description": "Position de la résolution dans l'ordre du jour.",
+            "help": ""
+        },
+        "items_count": {
+            "label": "Sous-points",
+            "description": "Nombre de sous-points contenus dans le groupe.",
+            "help": ""
+        },
+        "assembly_template_id": {
+            "label": "Modèle d'assemblée",
+            "description": "Modèle d'assemblée auquel la résolution se rapporte.",
+            "help": ""
+        },
+        "is_group": {
+            "label": "Groupe",
+            "description": "Marque le point comme un groupe de sous-points.",
+            "help": "Les groupes organisent les sous-points mais ne sont pas soumis au vote."
+        },
+        "has_parent_group": {
+            "label": "Sous-groupe",
+            "description": "Indique si le point dépend d'un groupe parent.",
+            "help": ""
+        },
+        "parent_group_id": {
+            "label": "Groupe parent",
+            "description": "Groupe parent auquel le point est rattaché.",
+            "help": ""
+        },
+        "children_items_ids": {
+            "label": "Sous-points",
+            "description": "Sous-points appartenant au groupe.",
+            "help": ""
+        },
+        "description_call": {
+            "label": "Texte de convocation",
+            "description": "Description affichée dans la convocation.",
+            "help": ""
+        },
+        "description_minutes": {
+            "label": "Texte du procès-verbal",
+            "description": "Description affichée dans le procès-verbal.",
+            "help": ""
+        },
+        "description_ballot": {
+            "label": "Texte de vote",
+            "description": "Description affichée lors du vote.",
+            "help": ""
+        },
+        "has_vote_required": {
+            "label": "Vote requis",
+            "description": "Indique si un vote est requis pour ce point.",
+            "help": ""
+        },
+        "majority": {
+            "label": "Majorité requise",
+            "description": "Type de majorité nécessaire pour le vote.",
+            "help": "",
+            "selection": {
+                "unanimity": "Unanimité",
+                "absolute": "Absolue",
+                "2_3": "2/3",
+                "4_5": "4/5"
+            }
+        },
+        "apportionment_code": {
+            "label": "Code de clé de répartition",
+            "description": "Code de la clé de répartition par défaut.",
+            "help": "Obligatoire pour retrouver la clé de répartition applicable."
+        }
+    },
     "view": {
         "form.default": {
             "name": "Modèle de point",
