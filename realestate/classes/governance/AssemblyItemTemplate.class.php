@@ -83,7 +83,7 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
             'order' => [
                 'type'              => 'integer',
                 'description'       => "Order of the item in the assembly agenda.",
-                'default'           => 1
+                'default'           => 'defaultOrder'
             ],
 
             'items_count' => [
@@ -318,6 +318,25 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
         }
         if(isset($event['has_parent_group']) && $event['has_parent_group'] === false) {
             $result['parent_group_id'] = null;
+        }
+        return $result;
+    }
+
+    protected static function defaultOrder($values) {
+        $result = null;
+        if(isset($values['assembly_template_id'])) {
+            if(isset($values['parent_group_id'])) {
+                $assemblyItemTemplate = AssemblyItemTemplate::id($values['parent_group_id'])->read(['children_items_ids'])->first();
+                if($assemblyItemTemplate) {
+                    $result = count($assemblyItemTemplate['children_items_ids']) + 1;
+                }
+            }
+            else {
+                $assemblyItemTemplate = AssemblyTemplate::id($values['assembly_template_id'])->read(['assembly_item_templates_ids'])->first();
+                if($assemblyItemTemplate) {
+                    $result = count($assemblyItemTemplate['assembly_item_templates_ids']) + 1;
+                }
+            }
         }
         return $result;
     }
