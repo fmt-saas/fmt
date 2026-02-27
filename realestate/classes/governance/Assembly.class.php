@@ -320,7 +320,8 @@ class Assembly extends \equal\orm\Model {
                 'type'           => 'many2one',
                 'description'    => "Reference to the parent assembly if this is a second session.",
                 'foreign_object' => 'realestate\governance\Assembly',
-                'visible'        => ['is_second_session', '=', true]
+                'visible'        => ['is_second_session', '=', true],
+                'readonly'       => true
             ],
 
             'second_session_assembly_id' => [
@@ -1779,7 +1780,7 @@ class Assembly extends \equal\orm\Model {
     }
 
     protected static function canupdate($self, $values) {
-        $self->read(['status', 'assembly_template_id', 'assembly_date', 'session_time_start']);
+        $self->read(['status', 'assembly_template_id', 'assembly_date', 'session_time_start', 'is_second_session']);
         foreach($self as $id => $assembly) {
             if($assembly['assembly_template_id'] && isset($values['assembly_template_id'])) {
                 return ['assembly_template_id' => ['template_cannot_be_changed' => 'Once set, assembly template cannot be changed.']];
@@ -1789,6 +1790,12 @@ class Assembly extends \equal\orm\Model {
             }
             if($assembly['session_time_start'] && isset($values['session_time_start'])) {
                 // return ['session_time_start' => ['time_cannot_be_changed' => 'Once set, assembly session start time cannot be changed.']];
+            }
+            if($assembly['is_second_session']) {
+                $not_allowed_fields = ['condo_id', 'assembly_type'];
+                if(count(array_intersect(array_keys($values), $not_allowed_fields)) > 0) {
+                    return ['status' => ['not_allowed' => 'Published assembly cannot be modified.']];
+                }
             }
             $allowed_fields = [];
             switch($assembly['status']) {
@@ -2287,7 +2294,8 @@ class Assembly extends \equal\orm\Model {
                         'code'                  => $assemblyItem['code'],
                         'order'                 => $assemblyItem['order'],
                         'assembly_template_id'  => $assemblyItem['assembly_template_id'],
-                        'is_group'              => true
+                        'is_group'              => true,
+                        'has_parent_group'      => false
                     ])
                     ->first();
 
