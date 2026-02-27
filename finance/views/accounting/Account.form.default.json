@@ -61,11 +61,17 @@
                                                 "width": "25%"
                                             },
                                             {
+                                                "id": "item.is_apportionment_possible",
+                                                "type": "field",
+                                                "value": "is_apportionment_possible",
+                                                "width": "33%"
+                                            },
+                                            {
                                                 "id": "item.apportionment_id",
                                                 "type": "field",
                                                 "label": "Apportionment",
                                                 "value": "apportionment_id",
-                                                "width": "50%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "id": "item.tenant_share",
