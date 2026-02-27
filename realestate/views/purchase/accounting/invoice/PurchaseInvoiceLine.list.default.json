@@ -46,6 +46,12 @@
             },
             {
                 "type": "field",
+                "value": "is_apportionment_possible",
+                "width": "20%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "label": "Account",
                 "value": "expense_account_id",
                 "width": "30%",
