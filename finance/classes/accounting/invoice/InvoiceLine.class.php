@@ -122,7 +122,7 @@ class InvoiceLine extends Model {
         ];
     }
 
-    public static function calcTotal($self) {
+    protected static function calcTotal($self) {
         $result = [];
         $self->read(['qty', 'unit_price', 'free_qty', 'discount']);
         foreach($self as $id => $line) {

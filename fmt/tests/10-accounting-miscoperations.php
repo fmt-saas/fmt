@@ -34,7 +34,7 @@ $tests = [
 
                     $journal = Journal::search([['condo_id', '=', 1],['journal_type', '=', 'MISC']])->first();
 
-                    $miscOperation = AccountingEntry::create([
+                    $accountingEntry = AccountingEntry::create([
                             'condo_id'          => 1,
                             'description'       => 'reprise de compte épargne',
                             'entry_date'        => strtotime('2024-01-01T00:00:00Z'),
@@ -44,22 +44,22 @@ $tests = [
 
                     AccountingEntryLine::create([
                             'condo_id'              => 1,
-                            'accounting_entry_id'   => $miscOperation['id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
                             'account_id'            => 676,
                             'credit'                => 5000
                         ]);
 
                     AccountingEntryLine::create([
                             'condo_id'              => 1,
-                            'accounting_entry_id'   => $miscOperation['id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
                             'account_id'            => $bankAccount['accounting_account_id'],
                             'debit'                 => 5000
                         ]);
 
-                    return $miscOperation;
+                    return $accountingEntry;
                 },
-            'act'               => function($miscOperation) use($providers) {
-                    AccountingEntry::id($miscOperation['id'])
+            'act'               => function($accountingEntry) use($providers) {
+                    AccountingEntry::id($accountingEntry['id'])
                         ->transition('validate');
                 },
             'assert'            => function() use($providers) {

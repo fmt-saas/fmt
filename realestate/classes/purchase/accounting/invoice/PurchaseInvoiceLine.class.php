@@ -105,6 +105,23 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'price' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => 'Final tax-included price of the line.',
+                'help'              => "For realestate purchase invoice (manually encoded), price is always provided at creation. It is the only amount used for generating the accounting entries.",
+                'store'             => true
+            ],
+
+            'total' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:4',
+                'function'          => 'calcTotal',
+                'description'       => 'Total tax-excluded price of the line.',
+                'help'              => "For realestate purchase invoice (manually encoded), total is computed based on vat rate an VAT incl price. Only price is used for generating the accounting entries.",
+            ],
+
         ];
     }
 
@@ -182,7 +199,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
         }
 
         if($purchaseInvoiceLine['invoice_id']['status'] === 'posted') {
-            // update price
+            // update total
             if(array_key_exists('vat_rate', $event)) {
                 $result['total'] = round($purchaseInvoiceLine['price'] / (1 + $event['vat_rate']), 4);
             }
@@ -352,7 +369,6 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
         PurchaseInvoice::ids(array_keys($map_invoices_ids))->do('update_document_json');
     }
 
-
     protected static function oncreate($self, $values, $lang) {
         if(isset($values['invoice_id'])) {
             $invoice = PurchaseInvoice::id($values['invoice_id'])
@@ -360,6 +376,20 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 ->first();
             $self->update(['description' => $invoice['description']], $lang);
         }
+    }
+
+    protected static function calcTotal($self) {
+        $result = [];
+        $self->read(['price', 'vat_rate']);
+        foreach($self as $id => $purchaseInvoiceLine) {
+            $vat_rate = (float) $purchaseInvoiceLine['vat_rate'];
+            if((1 + $vat_rate) == 0 || $vat_rate < 0) {
+                $result[$id] = null;
+                continue;
+            }
+            $result[$id] = round($purchaseInvoiceLine['price'] / (1 + $purchaseInvoiceLine['vat_rate']), 4);
+        }
+        return $result;
     }
 }
 

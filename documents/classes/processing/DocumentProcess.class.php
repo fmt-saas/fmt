@@ -1730,7 +1730,7 @@ class DocumentProcess extends Model {
                                     'apportionment_id'      => $recordingRuleLine['apportionment_id'],
                                     'owner_share'           => $recordingRuleLine['owner_share'],
                                     'tenant_share'          => $recordingRuleLine['tenant_share'],
-                                    'total'                 => round(floatval($line['amount']) * $recordingRuleLine['share'], 2),
+                                    'price'                 => round(floatval($line['amount']) * $recordingRuleLine['share'] * (1 + $vat_rate), 2),
                                     'vat_rate'              => $vat_rate
                                 ]);
                         }

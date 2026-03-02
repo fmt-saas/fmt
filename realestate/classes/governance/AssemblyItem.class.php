@@ -599,7 +599,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'has_choices',
                 'majority',
                 'count_represented_shares',
-                'assembly_id' => ['count_owners', 'count_represented_owners'],
+                'assembly_id' => ['count_owners', 'count_represented_owners', 'is_second_session'],
                 'assembly_votes_ids' => ['status', 'vote_weight', 'vote_value', 'assembly_item_choice_id' => ['name']]
             ]);
 
@@ -613,13 +613,13 @@ class AssemblyItem extends AssemblyItemTemplate {
                 $counts = [];
                 $map_assembly_items = [];
                 //#memo - multiple choices are not allowed for a voter attendee, and casting a vote implies that the choice is 'for'
-                $total_votes = 0;
+                $count_votes = 0;
                 foreach($item['assembly_votes_ids'] as $vote) {
                     if($vote['status'] === 'casted') {
-                        ++$total_votes;
+                        ++$count_votes;
                     }
                 }
-                $logs[] = "Total ballots received: {$total_votes}";
+                $logs[] = "Total ballots received: {$count_votes}";
                 foreach($item['assembly_votes_ids'] as $vote) {
                     if($vote['status'] !== 'casted') {
                         // discard non casted votes
@@ -657,15 +657,20 @@ class AssemblyItem extends AssemblyItemTemplate {
                 $weights = ['for' => 0.0, 'against' => 0.0, 'abstain' => 0.0];
                 $counts = ['for' => 0, 'against' => 0, 'abstain' => 0];
 
-                $count_votes = $item['assembly_votes_ids']->count();
-                $unanimity = true;
+                $count_votes = 0;
+                foreach($item['assembly_votes_ids'] as $vote) {
+                    if($vote['status'] === 'casted') {
+                        ++$count_votes;
+                    }
+                }
+                $has_unanimity = true;
 
                 foreach($item['assembly_votes_ids'] as $vote) {
                     if(!isset($vote['vote_value'], $vote['vote_weight'])) {
                         continue;
                     }
                     if($vote['vote_value'] !== 'for') {
-                        $unanimity = false;
+                        $has_unanimity = false;
                     }
                     $weights[$vote['vote_value']] += $vote['vote_weight'];
                     ++$counts[$vote['vote_value']];
@@ -698,15 +703,28 @@ class AssemblyItem extends AssemblyItemTemplate {
                 elseif($majority === '4_5' && ($ratio + $epsilon) >= (4/5)) {
                     $result = 'approved';
                 }
-                elseif($majority === 'unanimity'
-                    // no vote against, nor abstention
-                    && $unanimity
-                    // all owners are presents or represented
-                    && $item['assembly_id']['count_owners'] == $item['assembly_id']['count_represented_owners']
-                    // a vote have been cast for each owner
-                    && $count_votes == $item['assembly_id']['count_owners']
-                ) {
-                    $result = 'approved';
+                // no vote against, nor abstention
+                elseif($majority === 'unanimity' && $has_unanimity) {
+                    // #memo - Art. 3.88 §4 Lorsque la loi exige l'unanimité de tous les copropriétaires et que celle-ci n'est pas atteinte à l'assemblée générale pour cause d'absence d'un ou plusieurs copropriétaires, une nouvelle assemblée générale sera réunie après un délai de trente jours au moins, lors de laquelle la décision en question pourra être prise à l'unanimité de tous les copropriétaires présents ou représentés.
+                    if(
+                        // assembly is a second session
+                        $item['assembly_id']['is_second_session']
+                        // a vote have been cast for each owner present or represented
+                        && $count_votes == $item['assembly_id']['count_represented_owners']
+                    ) {
+                        $result = 'approved';
+                    }
+                    elseif(
+                        // all owners are presents or represented
+                        $item['assembly_id']['count_owners'] == $item['assembly_id']['count_represented_owners']
+                        // a vote have been cast for each owner
+                        && $count_votes == $item['assembly_id']['count_owners']
+                    ) {
+                        $result = 'approved';
+                    }
+                    else {
+                        $result = 'rejected';
+                    }
                 }
                 else {
                     $result = 'rejected';
