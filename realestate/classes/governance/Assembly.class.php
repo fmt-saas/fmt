@@ -1613,7 +1613,8 @@ class Assembly extends \equal\orm\Model {
             }
 
             $attendee = AssemblyAttendee::id($attendee_id)
-                ->read(['identity_id']);
+                ->read(['identity_id'])
+                ->first();
 
             // 1) add the ownerships corresponding to the identity of the attendee
             $owners = Owner::search([['condo_id', '=', $assembly['condo_id']], ['identity_id', '=', $attendee['identity_id']]])
