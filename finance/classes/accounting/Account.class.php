@@ -199,16 +199,17 @@ class Account extends Model {
                     'bank_tier',
                     'bank_transfer',
                     'co_owners',
+                    'co_owners_former',
+                    'co_owners_repayment',
                     'co_owners_reserve_fund',           // used for FundRequestExecution
                     'co_owners_working_fund',           // used for FundRequestExecution
+                    'consumption_statement',
                     'deferred_expenses',                // used for purchase invoice over a date range
                     'deferred_income',
                     'expense_provisions',               // used for FundRequest
-                    'installment_intermediate_account',
-                    'manager_fees',
                     'pending_creditor_import',
                     'pending_debtor_import',
-                    'pending_work_balance',
+                    'manager_fees',
                     'private_expenses',                 // used for purchase invoice
                     'reinvoiced_private_expenses',      // used for purchase invoice
                     'reserve_fund',                     // used for FundRequest
@@ -220,8 +221,8 @@ class Account extends Model {
                     'work_expenses',
                     'work_provisions',                  // used for FundRequest
                     'working_fund',                     // used for FundRequest
-                    'working_fund_variation',
-                    'consumption_statement'
+                    'working_fund_call',
+                    'working_fund_variation'
                 ]
             ],
 
@@ -230,6 +231,13 @@ class Account extends Model {
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'description'       => "Default apportionment to use when creating accounting entries on this account.",
                 'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'vat_rate' => [
+                'type'              => 'float',
+                'usage'             => 'amount/rate',
+                'description'       => 'VAT rate to be applied.',
+                'default'           => 0.0
             ],
 
             'tenant_share' => [
@@ -242,30 +250,19 @@ class Account extends Model {
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account."
             ],
 
-            'vat_rate' => [
-                'type'              => 'float',
-                'usage'             => 'amount/rate',
-                'description'       => 'VAT rate to be applied.',
-                'default'           => 0.0
-            ],
-
-// #todo
+            // #todo - this field is not handled yet
             'usufruct_owner_share' => [
                 'type'              => 'integer',
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
                 'default'           => 0
             ],
 
+            // #todo - this field is not handled yet
             'bare_owner_share' => [
                 'type'              => 'integer',
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
                 'default'           => 100
             ],
-
-
-            /*
-
-            */
 
             'matchings_ids' => [
                 'type'              => 'one2many',

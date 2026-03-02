@@ -26,17 +26,6 @@
                 "owner_share": null
             },
             {
-                "id": 3,
-                "code": "12",
-                "is_control_account": true,
-                "description": "OUTSTANDING BALANCE FOR WORKS",
-                "account_chart_id": 1,
-                "parent_account_id": 1,
-                "operation_assignment": "pending_work_balance",
-                "tenant_share": null,
-                "owner_share": null
-            },
-            {
                 "id": 4,
                 "code": "13",
                 "is_control_account": true,
@@ -48,34 +37,12 @@
                 "owner_share": null
             },
             {
-                "id": 5,
-                "code": "14",
-                "is_control_account": true,
-                "description": "PROFIT OF THE FINANCIAL YEAR",
-                "account_chart_id": 1,
-                "parent_account_id": 1,
-                "operation_assignment": "",
-                "tenant_share": null,
-                "owner_share": null
-            },
-            {
                 "id": 6,
                 "code": "16",
                 "is_control_account": true,
                 "description": "DEDICATED RESERVE FUNDS",
                 "account_chart_id": 1,
                 "parent_account_id": 1,
-                "operation_assignment": "special_reserve_fund",
-                "tenant_share": null,
-                "owner_share": null
-            },
-            {
-                "id": 7,
-                "code": "161",
-                "is_control_account": true,
-                "description": "SPECIAL RESERVE FUND",
-                "account_chart_id": 1,
-                "parent_account_id": null,
                 "operation_assignment": "special_reserve_fund",
                 "tenant_share": null,
                 "owner_share": null
@@ -554,17 +521,6 @@
                 "owner_share": null
             },
             {
-                "id": 51,
-                "code": "415",
-                "is_control_account": false,
-                "description": "Former co-owners",
-                "account_chart_id": 1,
-                "parent_account_id": 43,
-                "operation_assignment": "",
-                "tenant_share": null,
-                "owner_share": null
-            },
-            {
                 "id": 52,
                 "code": "416",
                 "is_control_account": false,
@@ -906,17 +862,6 @@
                 "owner_share": null
             },
             {
-                "id": 83,
-                "code": "481",
-                "is_control_account": false,
-                "description": "Intermediate monthly account",
-                "account_chart_id": 1,
-                "parent_account_id": 82,
-                "operation_assignment": "installment_intermediate_account",
-                "tenant_share": null,
-                "owner_share": null
-            },
-            {
                 "id": 84,
                 "code": "489",
                 "is_control_account": false,
@@ -990,17 +935,6 @@
                 "account_chart_id": 1,
                 "parent_account_id": 85,
                 "operation_assignment": "deferred_income",
-                "tenant_share": null,
-                "owner_share": null
-            },
-            {
-                "id": 91,
-                "code": "494",
-                "is_control_account": false,
-                "description": "Expenses and income to be allocated",
-                "account_chart_id": 1,
-                "parent_account_id": 85,
-                "operation_assignment": "adjustment_account",
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2771,7 +2705,7 @@
                 "description": "Water and\/or heating settlement",
                 "account_chart_id": 1,
                 "parent_account_id": 251,
-                "operation_assignment": "",
+                "operation_assignment": "consumption_statement",
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -4239,16 +4173,8 @@
                 "description": "FONDS DE RÉSERVE"
             },
             {
-                "id": 5,
-                "description": "RÉSULTAT EXERCICE"
-            },
-            {
                 "id": 6,
                 "description": "FONDS DE RÉSERVE DÉDIÉS"
-            },
-            {
-                "id": 7,
-                "description": "FONDS DE RÉSERVE PARTICULIERS"
             },
             {
                 "id": 8,
@@ -4423,10 +4349,6 @@
                 "description": "Notes de crédit à recevoir"
             },
             {
-                "id": 51,
-                "description": "Anciens copropriétaires"
-            },
-            {
                 "id": 52,
                 "description": "Créances diverses"
             },
@@ -4551,10 +4473,6 @@
                 "description": "DETTES DIVERSES"
             },
             {
-                "id": 83,
-                "description": "Compte intermédiaire de mensualisation"
-            },
-            {
                 "id": 84,
                 "description": "Dettes : valeurs reportées"
             },
@@ -4581,10 +4499,6 @@
             {
                 "id": 90,
                 "description": "Produits à reporter"
-            },
-            {
-                "id": 91,
-                "description": "Charges et produits à répartir"
             },
             {
                 "id": 92,
@@ -5777,16 +5691,8 @@
                 "description": "RESERVEFONDS"
             },
             {
-                "id": 5,
-                "description": "BOEKJAARRESULTAAT"
-            },
-            {
                 "id": 6,
                 "description": "BESTEMDE RESERVEFONDSEN"
-            },
-            {
-                "id": 7,
-                "description": "BIJZONDERE RESERVEFONDS"
             },
             {
                 "id": 8,
@@ -5961,10 +5867,6 @@
                 "description": "Te ontvangen creditnota's"
             },
             {
-                "id": 51,
-                "description": "Vorige mede-eigenaars"
-            },
-            {
                 "id": 52,
                 "description": "Diverse vorderingen"
             },
@@ -6089,10 +5991,6 @@
                 "description": "DIVERSE SCHULDEN"
             },
             {
-                "id": 83,
-                "description": "Intermediaire maandelijkse rekening"
-            },
-            {
                 "id": 84,
                 "description": "Schulden : Overgedragen middelen"
             },
@@ -6119,10 +6017,6 @@
             {
                 "id": 90,
                 "description": "Over te dragen opbrengsten"
-            },
-            {
-                "id": 91,
-                "description": "Te verdelen kosten en opbrengsten"
             },
             {
                 "id": 92,
@@ -7307,24 +7201,12 @@
                 "description": "BETRIEBSMITTELFONDS"
             },
             {
-                "id": 3,
-                "description": "OFFENER SALDO FÜR ARBEITEN"
-            },
-            {
                 "id": 4,
                 "description": "RÜCKLAGENFONDS"
             },
             {
-                "id": 5,
-                "description": "JAHRESERGEBNIS"
-            },
-            {
                 "id": 6,
                 "description": "ZWECKGEBUNDENEN RÜCKLAGEN"
-            },
-            {
-                "id": 7,
-                "description": "BESONDERER RÜCKLAGENFONDS"
             },
             {
                 "id": 8,
@@ -7499,10 +7381,6 @@
                 "description": "Zu erhaltende Gutschriften"
             },
             {
-                "id": 51,
-                "description": "Ehemalige Miteigentümer"
-            },
-            {
                 "id": 52,
                 "description": "Sonstige Forderungen"
             },
@@ -7627,10 +7505,6 @@
                 "description": "SONSTIGE VERBINDLICHKEITEN"
             },
             {
-                "id": 83,
-                "description": "Zwischenkonto Monatsabrechnung"
-            },
-            {
                 "id": 84,
                 "description": "Schulden : übertragene Mittel"
             },
@@ -7657,10 +7531,6 @@
             {
                 "id": 90,
                 "description": "Vorzutragende Erträge"
-            },
-            {
-                "id": 91,
-                "description": "Umzulegende aufwendungen und erträge"
             },
             {
                 "id": 92,
@@ -8845,24 +8715,12 @@
                 "description": "FONDI DI ESERCIZIO"
             },
             {
-                "id": 3,
-                "description": "SALDO IN SOSPESO PER LAVORI"
-            },
-            {
                 "id": 4,
                 "description": "FONDI DI RISERVA"
             },
             {
-                "id": 5,
-                "description": "RISULTATO D’ESERCIZIO"
-            },
-            {
                 "id": 6,
                 "description": "FONDI DI RISERVA DEDICATI"
-            },
-            {
-                "id": 7,
-                "description": "FONDI DI RISERVA PARTICOLARI"
             },
             {
                 "id": 8,
@@ -9037,10 +8895,6 @@
                 "description": "Note di credito da ricevere"
             },
             {
-                "id": 51,
-                "description": "Ex condomini"
-            },
-            {
                 "id": 52,
                 "description": "Crediti diversi"
             },
@@ -9165,10 +9019,6 @@
                 "description": "DEBITI DIVERSI"
             },
             {
-                "id": 83,
-                "description": "Conto intermedio di mensilizzazione"
-            },
-            {
                 "id": 84,
                 "description": "Debiti: valori da riportare"
             },
@@ -9195,10 +9045,6 @@
             {
                 "id": 90,
                 "description": "Ricavi da rinviare"
-            },
-            {
-                "id": 91,
-                "description": "Costi e ricavi da ripartire"
             },
             {
                 "id": 92,
@@ -10383,24 +10229,12 @@
                 "description": "FONDOS DE FUNCIONAMIENTO"
             },
             {
-                "id": 3,
-                "description": "SALDO PENDIENTE POR OBRAS"
-            },
-            {
                 "id": 4,
                 "description": "FONDOS DE RESERVA"
             },
             {
-                "id": 5,
-                "description": "RISULTATO D’ESERCIZIO"
-            },
-            {
                 "id": 6,
                 "description": "FONDOS DE RESERVA DEDICADOS"
-            },
-            {
-                "id": 7,
-                "description": "FONDOS DE RESERVA ESPECIALES"
             },
             {
                 "id": 8,
@@ -10575,10 +10409,6 @@
                 "description": "Notas de crédito por recibir"
             },
             {
-                "id": 51,
-                "description": "Antiguos copropietarios"
-            },
-            {
                 "id": 52,
                 "description": "Créditos diversos"
             },
@@ -10703,10 +10533,6 @@
                 "description": "DEUDAS DIVERSAS"
             },
             {
-                "id": 83,
-                "description": "Cuenta intermedia de mensualización"
-            },
-            {
                 "id": 84,
                 "description": "Debiti: valori da riportare"
             },
@@ -10733,10 +10559,6 @@
             {
                 "id": 90,
                 "description": "Ingresos diferidos"
-            },
-            {
-                "id": 91,
-                "description": "Gastos e ingresos a repartir"
             },
             {
                 "id": 92,
