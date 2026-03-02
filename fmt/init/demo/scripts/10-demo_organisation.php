@@ -45,8 +45,10 @@ Organisation::create([
     ->first();
 */
 
+$organisation = Organisation::id(1)->read(['identity_id'])->first();
+
 BankAccount::create([
-        "owner_identity_id" => $identity['id'],
+        "owner_identity_id" => $organisation['identity_id'],
         "description"   =>  "Compte à vue",
         "bank_account_iban" =>  "BE23510349013565"
     ]);
@@ -73,7 +75,7 @@ $identity = Identity::create([
     ->first();
 
 $user = User::create([
-        'identity_id'   => $identity['id'],
+        'identity_id'   => $organisation['identity_id'],
         'login'         => 'admin@fmt.yb.run',
         'language'      => 'fr',
         'validated'     => true,
@@ -82,11 +84,11 @@ $user = User::create([
     ->first();
 
 $employee = Employee::create([
-        'identity_id'   => $identity['id'],
+        'identity_id'   => $organisation['identity_id'],
     ])
     ->first();
 
-Identity::id($identity['id'])
+Identity::id($organisation['identity_id'])
     ->update([
         'employee_id'   => $employee['id'],
         'user_id'       => $user['id']

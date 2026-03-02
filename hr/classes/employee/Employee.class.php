@@ -131,13 +131,13 @@ class Employee extends Identity {
     }
 
     public static function getActions() {
-        return [
+        return array_merge(parent::getActions(), [
             'sync_from_teams' => [
                 'description'   => "Sync role assignments from Teams and subsequent roles.",
                 'policies'      => [],
                 'function'      => 'doSyncFromTeams'
             ]
-        ];
+        ]);
     }
 
     protected static function oncreate($self, $orm) {
