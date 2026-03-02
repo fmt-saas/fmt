@@ -200,12 +200,27 @@ class CondominiumBankAccount extends BankAccount {
 
     protected static function policyIsValid($self) {
         $result = [];
-        $self->read(['condo_id', 'managing_agent_id']);
-        foreach($self as $id => $condominium) {
+        $self->read(['condo_id', 'bank_account_type', 'managing_agent_id']);
+        foreach($self as $id => $condominiumBankAccount) {
 
-            if(!$condominium['condo_id']) {
+            if(!$condominiumBankAccount['condo_id']) {
                 $result[$id] = [
-                    'missing_cond_id' => 'The condominium must be provided.'
+                    'missing_condo_id' => 'The condominium must be provided.'
+                ];
+            }
+
+            // find the account based on operation_assignment to use it as "template"
+            $assignmentAccount = Account::search([
+                    ['condo_id', '=', $condominiumBankAccount['condo_id']],
+                    ['operation_assignment', '=', $condominiumBankAccount['bank_account_type']],
+                    ['condo_bank_account_id', '=', null]
+                ])
+                ->first();
+
+            if(!$assignmentAccount) {
+                trigger_error("APP::Could not find account candidate for condominium {$condominiumBankAccount['condo_id']} for operation assignment {$condominiumBankAccount['bank_account_type']}", EQ_REPORT_ERROR);
+                $result[$id] = [
+                    'missing_accounting_account_id' => 'No matching accounting account template for bank account type.'
                 ];
             }
 
@@ -237,7 +252,7 @@ class CondominiumBankAccount extends BankAccount {
 
             if(!$assignmentAccount) {
                 trigger_error("APP::Could not find account candidate for condominium {$bankAccount['condo_id']} for operation assignment {$bankAccount['bank_account_type']}", EQ_REPORT_ERROR);
-                throw new \Exception("missing_mandatory_account", EQ_ERROR_INVALID_CONFIG);
+                throw new \Exception("condo_bank_account_missing_mandatory_account", EQ_ERROR_INVALID_CONFIG);
             }
 
             $account_exists = (bool) count(Account::search([['condo_bank_account_id', '=', $id], ['condo_id', '=', $bankAccount['condo_id'] ]])->ids());
@@ -370,7 +385,7 @@ class CondominiumBankAccount extends BankAccount {
         return null;
     }
 
-    // #todo -to complete
+    // #todo - to complete
     public static function candelete($self) {
         $self->read(['is_primary']);
         foreach($self as $bankAccount) {
