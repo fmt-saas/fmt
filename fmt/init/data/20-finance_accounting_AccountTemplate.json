@@ -1,5 +1,5 @@
-{
-    "en": {
+[
+    {
         "name": "finance\\accounting\\AccountTemplate",
         "lang": "en",
         "data": [
@@ -4152,7 +4152,7 @@
             }
         ]
     },
-    "fr": {
+    {
         "name": "finance\\accounting\\AccountTemplate",
         "lang": "fr",
         "data": [
@@ -5670,7 +5670,7 @@
             }
         ]
     },
-    "nl": {
+    {
         "name": "finance\\accounting\\AccountTemplate",
         "lang": "nl",
         "data": [
@@ -7188,7 +7188,7 @@
             }
         ]
     },
-    "de": {
+    {
         "name": "finance\\accounting\\AccountTemplate",
         "lang": "de",
         "data": [
@@ -8702,7 +8702,7 @@
             }
         ]
     },
-    "it": {
+    {
         "name": "finance\\accounting\\AccountTemplate",
         "lang": "it",
         "data": [
@@ -10216,7 +10216,7 @@
             }
         ]
     },
-    "es": {
+    {
         "name": "finance\\accounting\\AccountTemplate",
         "lang": "es",
         "data": [
@@ -11730,4 +11730,4 @@
             }
         ]
     }
-}
+]

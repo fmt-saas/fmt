@@ -204,24 +204,26 @@ class Account extends Model {
                     'co_owners_reserve_fund',           // used for FundRequestExecution
                     'co_owners_working_fund',           // used for FundRequestExecution
                     'consumption_statement',
-                    'deferred_expenses',                // used for purchase invoice over a date range
+                    'deferred_expenses',                // used for PurchaseInvoice over a date range
                     'deferred_income',
                     'expense_provisions',               // used for FundRequest
                     'pending_creditor_import',
                     'pending_debtor_import',
                     'manager_fees',
-                    'private_expenses',                 // used for purchase invoice
-                    'reinvoiced_private_expenses',      // used for purchase invoice
-                    'reserve_fund',                     // used for FundRequest
+                    'private_expenses',                 // used for PurchaseInvoice
+                    'reinvoiced_private_expenses',      // used for PurchaseInvoice
+                    'reserve_fund',                     // used for CondoFund
+                    'reserve_fund_call',                // used for FundRequest
                     'reserve_fund_variation',
                     'rounding_adjustment',
                     'suppliers',
-                    'special_reserve_fund',             // used for FundRequest
+                    'special_reserve_fund',             // used for CondoFund
+                    'special_reserve_fund_call',        // used for FundRequest
                     'special_reserve_fund_variation',
                     'work_expenses',
                     'work_provisions',                  // used for FundRequest
-                    'working_fund',                     // used for FundRequest
-                    'working_fund_call',
+                    'working_fund',                     // used for CondoFund
+                    'working_fund_call',                // used for FundRequest
                     'working_fund_variation'
                 ]
             ],

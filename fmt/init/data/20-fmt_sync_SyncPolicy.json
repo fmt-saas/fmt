@@ -68,7 +68,6 @@
             },
             {
                 "id": 10,
-                "id": 2,
                 "object_class": "documents\\DocumentType",
                 "field_unique": "code",
                 "sync_direction": "descending",
