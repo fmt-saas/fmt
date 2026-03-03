@@ -177,28 +177,33 @@ class Suppliership extends \equal\orm\Model {
                 $result[$id] = [
                     'missing_cond_id' => 'The condominium must be provided.'
                 ];
+                continue;
             }
 
             if(!$suppliership['supplier_id']) {
                 $result[$id] = [
                     'missing_supplier_id' => "The supplier must be provided [{$id}]."
                 ];
+                continue;
             }
             if($suppliership['supplier_id']['type'] == 'CO') {
                 if(strlen($suppliership['supplier_id']['registration_number'] ?? '') <= 0) {
                     $result[$id] = [
                         'missing_supplier_registration_number' => "The supplier registration number must be provided [{$id}]."
                     ];
+                    continue;
                 }
                 if(!($suppliership['supplier_id']['has_vat'] ?? false)) {
                     $result[$id] = [
                         'supplier_not_marked_for_vat' => "The supplier must be marked as subject to VAT [{$id}]."
                     ];
+                    continue;
                 }
                 if(strlen($suppliership['supplier_id']['vat_number'] ?? '') <= 0) {
                     $result[$id] = [
                         'missing_supplier_vat_number' => "The supplier VAT number must be provided [{$id}]."
                     ];
+                    continue;
                 }
             }
         }

@@ -458,6 +458,15 @@ elseif($dataImport['import_type'] == 'suppliers_import') {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing mandatory `country` in suppliers sheet at row " . ($index + 2);
         }
+
+        // attempt to find existing identity by registration number
+        $identity = Identity::search(['registration_number', '=', $supplier['registration_number']])->first();
+
+        if($identity) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - duplicated `{$registration_number}` already assigned to identity id {$identity['id']} in suppliers sheet at row " . ($index + 2);
+        }
+
     }
 }
 elseif($dataImport['import_type'] == 'banks_import') {
