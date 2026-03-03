@@ -28,6 +28,7 @@ $identity = Identity::create([
         'address_city'          => 'Bruxelles',
         'address_country'       => 'BE',
         'has_vat'               => true,
+        "vat_number"            => "BE0755885564",
         'is_active'             => true
     ])
     ->first();
