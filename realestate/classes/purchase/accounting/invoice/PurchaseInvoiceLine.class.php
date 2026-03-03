@@ -110,7 +110,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 'usage'             => 'amount/money:2',
                 'description'       => 'Final tax-included price of the line.',
                 'help'              => "For realestate purchase invoice (manually encoded), price is always provided at creation. It is the only amount used for generating the accounting entries.",
-                'store'             => true
+                'dependents'        => ['total']
             ],
 
             'total' => [
@@ -118,8 +118,11 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 'result_type'       => 'float',
                 'usage'             => 'amount/money:4',
                 'function'          => 'calcTotal',
+                'store'             => true,
                 'description'       => 'Total tax-excluded price of the line.',
-                'help'              => "For realestate purchase invoice (manually encoded), total is computed based on vat rate an VAT incl price. Only price is used for generating the accounting entries.",
+                'help'              => "For realestate purchase invoice (manually encoded), total is computed based on vat rate an VAT incl price.
+                    Only price is used for generating the accounting entries.
+                    To maintain SUM lines = invoice payable_amount, this field needs a precision of 4 digits.",
             ],
 
         ];
