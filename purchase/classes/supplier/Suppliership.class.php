@@ -97,7 +97,7 @@ class Suppliership extends \equal\orm\Model {
 
             'status' => [
                 'type'              => 'string',
-                'description'       => 'Current status of the Ownership.',
+                'description'       => 'Current status of the Suppliership.',
                 'selection'         => [
                     'pending',
                     'validated'
@@ -170,7 +170,7 @@ class Suppliership extends \equal\orm\Model {
     protected static function policyIsValid($self) {
         $result = [];
 
-        $self->read(['condo_id', 'supplier_id']);
+        $self->read(['condo_id', 'supplier_id' => ['type', 'has_vat', 'vat_number', 'registration_number']]);
         foreach($self as $id => $suppliership) {
 
             if(!$suppliership['condo_id']) {
@@ -183,6 +183,23 @@ class Suppliership extends \equal\orm\Model {
                 $result[$id] = [
                     'missing_supplier_id' => "The supplier must be provided [{$id}]."
                 ];
+            }
+            if($suppliership['supplier_id']['type'] == 'CO') {
+                if(strlen($suppliership['supplier_id']['registration_number'] ?? '') <= 0) {
+                    $result[$id] = [
+                        'missing_supplier_registration_number' => "The supplier registration number must be provided [{$id}]."
+                    ];
+                }
+                if(!($suppliership['supplier_id']['has_vat'] ?? false)) {
+                    $result[$id] = [
+                        'supplier_not_marked_for_vat' => "The supplier must be marked as subject to VAT [{$id}]."
+                    ];
+                }
+                if(strlen($suppliership['supplier_id']['vat_number'] ?? '') <= 0) {
+                    $result[$id] = [
+                        'missing_supplier_vat_number' => "The supplier VAT number must be provided [{$id}]."
+                    ];
+                }
             }
         }
         return $result;
