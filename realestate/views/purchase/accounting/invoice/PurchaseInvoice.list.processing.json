@@ -40,6 +40,12 @@
         "items": [
             {
                 "type": "field",
+                "value": "id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "name",
                 "width": "15%",
                 "sortable": true
