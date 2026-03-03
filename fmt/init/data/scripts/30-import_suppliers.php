@@ -77,6 +77,30 @@ Identity::create([
         "website" => null,
         "is_active" => true
       ]);
+Identity::create([
+        "id" => 1131,
+        "supplier_id" => 1131,
+        "type_id" => 3,
+        "bank_account_iban" => "BE52096011784309",
+        "bank_account_bic" => "GKCCBEBB",
+        "legal_name" => "VIVAQUA",
+        "short_name" => "VIVAQUA",
+        "has_vat" => true,
+        "vat_number" => "BE0202962701",
+        "registration_number" => "0202962701",
+        "nationality" => "BE",
+        "lang_id" => 2,
+        "address_street" => "Boulevard de l'Impératrice, 17-19",
+        "address_city" => "Bruxelles",
+        "address_zip" => "1000",
+        "address_country" => "BE",
+        "email" => null,
+        "phone" => null,
+        "mobile" => null,
+        "website" => null,
+        "is_active" => true
+    ]);
+
 /*
     Identity::create([
             "id" => 1004,
@@ -3132,7 +3156,7 @@ Supplier::create([
         "address_street" => "Rue de l'Entreprise, 15",
         "address_city" => "Villers-le-Bouillet",
         "address_zip" => "4530",
-        "address_country" => "BE",
+        "address_country" => "BE"
       ]);
 Supplier::create([
         "id" => 1003,
@@ -3141,8 +3165,18 @@ Supplier::create([
         "address_street" => "Esplanade Heysel BP 65",
         "address_city" => "Laeken",
         "address_zip" => "1020",
-        "address_country" => "BE",
+        "address_country" => "BE"
       ]);
+Supplier::create([
+        "id" => 1131,
+        "identity_id" => 1131,
+        "is_active" => true,
+        "address_street" => "Boulevard de l'Impératrice, 17-19",
+        "address_city" => "Bruxelles",
+        "address_zip" => "1000",
+        "address_country" => "BE"
+    ]);
+
 /*
     Supplier::create([
             "id" => 1004,
