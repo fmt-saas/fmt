@@ -303,7 +303,13 @@
                                                 "width": "25%",
                                                 "visible": true
                                             },
-
+                                            {
+                                                "type": "field",
+                                                "value": "total_vat",
+                                                "description": "#todo - should be displayed be the Condo subject to VAT",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "price",

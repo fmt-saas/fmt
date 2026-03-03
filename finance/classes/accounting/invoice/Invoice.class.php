@@ -330,6 +330,7 @@ class Invoice extends Model {
             $subtotals_vat = [];
             foreach($invoice['invoice_lines_ids'] as $line) {
                 $vat_rate_index = number_format($line['vat_rate'] * 100, 2, '.', '');
+
                 if(!isset($subtotals_vat[$vat_rate_index])) {
                     $subtotals_vat[$vat_rate_index] = 0.0;
                 }
@@ -337,7 +338,7 @@ class Invoice extends Model {
                 $subtotals_vat[$vat_rate_index] = round($subtotals_vat[$vat_rate_index] + $line['total_vat'], 4);
             }
 
-            // #memo - as to be rounded on 2 decimals here and not on each line
+            // #memo - has to be rounded on 2 decimals here and not on each line
             $result[$id] = array_map(fn($subtotal) => round($subtotal, 2), $subtotals_vat);
         }
 
@@ -349,7 +350,7 @@ class Invoice extends Model {
         $self->read(['subtotals_vat']);
         foreach($self as $id => $invoice) {
             $total_vat = 0.0;
-            foreach($invoice['subtotals_vat'] as $subtotal) {
+            foreach($invoice['subtotals_vat'] as $vat_rate_index => $subtotal) {
                 $total_vat = round($total_vat + $subtotal, 2);
             }
 

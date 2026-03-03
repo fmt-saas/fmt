@@ -256,6 +256,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'help'              => 'This field is used to compare with sum of invoice lines prices.'
             ],
 
+            'total_vat' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => 'Total tax amount included in invoiced amount.',
+                'help'              => 'This field may be required for an ACP subject to VAT.'
+            ],
+
             'has_payment_on_hold' => [
                 'type'              => 'boolean',
                 'description'       => 'Payment should not be made for now.',
