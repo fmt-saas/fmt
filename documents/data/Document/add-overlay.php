@@ -35,7 +35,7 @@ use equal\text\TextTransformer;
             'type'              => 'float',
             'usage'             => 'amount/rate',
             'description'       => "Resize percentage value.",
-            'min'               => 0.80,
+            'min'               => 0.8,
             'max'               => 1,
             'default'           => 1
         ],
@@ -165,34 +165,13 @@ $addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) use
 %!PS
 <<
   /BeginPage {
+    gsave
+    /$font findfont $font_size scalefont setfont
+    0 setgray
 
-        gsave
-        /$font findfont $font_size scalefont setfont
-        0 setgray
-
-        % Get current page size (in points)
-        currentpagedevice /PageSize get aload pop
-        /page_h exch def
-        /page_w exch def
-
-        % Map A4 portrait coordinates (595x842) to current page size
-        /x $pos_x page_w 595 div mul def
-        /y $pos_y page_h 842 div mul def
-
-        % Handle common rotated scan case: MediaBox is landscape and /Rotate 270
-        % When rotated, swap axes and mirror X to keep a portrait-based positioning.
-        page_w page_h gt {
-            % landscape page: assume Rotate 270 (typical watermark/scanner output)
-            /tx y def
-            /ty page_w x sub def
-        }{
-            /tx x def
-            /ty y def
-        } ifelse
-
-        tx ty moveto
-        ($overlay_text) show
-        grestore
+    $pos_x $pos_y moveto
+    ($overlay_text) show
+    grestore
   }
 >> setpagedevice
 PS;
