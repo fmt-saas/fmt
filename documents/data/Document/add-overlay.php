@@ -166,13 +166,20 @@ $addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) use
 %%Pages: 0
 %%EndComments
 <<
-  /EndPage {
+/EndPage {
     2 eq {
       gsave
         /$font findfont $font_size scalefont setfont
         0 setgray
 
-        $pos_x $pos_y moveto
+        % Map A4 coordinates (595x842) to current page size
+        currentpagedevice /PageSize get aload pop
+        /page_h exch def
+        /page_w exch def
+        /x $pos_x page_w 595 div mul def
+        /y $pos_y page_h 842 div mul def
+
+        x y moveto
         ($overlay_text) show
       grestore
     } if
