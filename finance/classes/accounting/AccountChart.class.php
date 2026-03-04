@@ -168,23 +168,23 @@ class AccountChart extends Model {
 
             foreach($template['accounts_ids'] as $account_id => $account) {
                 $item = [
-                        'condo_id'                  => $accountChart['condo_id'],
-                        'account_chart_id'          => $id,
-                        'name'                      => $account['name'],
-                        'code'                      => $account['code'],
-                        'description'               => $account['description'],
-                        'level'                     => $account['level'],
-                        'account_class'             => $account['account_class'],
-                        'account_type'              => $account['account_type'],
-                        'account_nature'            => $account['account_nature'],
-                        'account_category'          => $account['account_category'],
-                        'is_visible'                => $account['is_visible'],
-                        'is_control_account'        => $account['is_control_account'],
-                        'is_tier_balance'           => $account['is_tier_balance'],
-                        'operation_assignment'      => $account['operation_assignment'],
-                        'is_apportionable'          => $account['is_apportionable'],
-                        'tenant_share'              => $account['tenant_share'],
-                        'owner_share'               => $account['owner_share']
+                        'condo_id'              => $accountChart['condo_id'],
+                        'account_chart_id'      => $id,
+                        'name'                  => $account['name'],
+                        'code'                  => $account['code'],
+                        'description'           => $account['description'],
+                        'level'                 => $account['level'],
+                        'account_class'         => $account['account_class'],
+                        'account_type'          => $account['account_type'],
+                        'account_nature'        => $account['account_nature'],
+                        'account_category'      => $account['account_category'],
+                        'is_visible'            => $account['is_visible'],
+                        'is_control_account'    => $account['is_control_account'],
+                        'is_tier_balance'       => $account['is_tier_balance'],
+                        'operation_assignment'  => $account['operation_assignment'],
+                        'is_apportionable'      => $account['is_apportionable'],
+                        'tenant_share'          => $account['tenant_share'],
+                        'owner_share'           => $account['owner_share']
                     ];
 
                 if(isset($map_apportionments[$account['apportionment_code']])) {
