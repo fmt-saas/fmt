@@ -228,11 +228,18 @@ class Account extends Model {
                 ]
             ],
 
+            'is_apportionable' => [
+                'type'              => 'boolean',
+                'description'       => "Is an apportionment possible?",
+                'default'           => false
+            ],
+
             'apportionment_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'description'       => "Default apportionment to use when creating accounting entries on this account.",
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'visible'           => ['is_apportionable', '=', true]
             ],
 
             'vat_rate' => [
@@ -245,11 +252,13 @@ class Account extends Model {
             'tenant_share' => [
                 'type'              => 'integer',
                 'description'       => "Default value, in percent, of the amount to be imputed to the tenant when using the account.",
+                'visible'           => ['is_apportionable', '=', true]
             ],
 
             'owner_share' => [
                 'type'              => 'integer',
-                'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account."
+                'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
+                'visible'           => ['is_apportionable', '=', true]
             ],
 
             // #todo - this field is not handled yet

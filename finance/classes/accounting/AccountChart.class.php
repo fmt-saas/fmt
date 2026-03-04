@@ -143,6 +143,7 @@ class AccountChart extends Model {
                         'is_control_account',
                         'is_tier_balance',
                         'operation_assignment',
+                        'is_apportionable',
                         'tenant_share',
                         'owner_share',
                         'apportionment_code'
@@ -181,6 +182,7 @@ class AccountChart extends Model {
                         'is_control_account'    => $account['is_control_account'],
                         'is_tier_balance'       => $account['is_tier_balance'],
                         'operation_assignment'  => $account['operation_assignment'],
+                        'is_apportionable'      => $account['is_apportionable'],
                         'tenant_share'          => $account['tenant_share'],
                         'owner_share'           => $account['owner_share']
                     ];
