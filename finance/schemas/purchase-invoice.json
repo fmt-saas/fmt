@@ -53,7 +53,7 @@
             "type": "object",
             "required": [
                 "name",
-                "vat_id",
+                "company_id",
                 "address"
             ],
             "properties": {
@@ -61,9 +61,6 @@
                     "type": "string"
                 },
                 "vat_id": {
-                    "type": "string"
-                },
-                "company_id": {
                     "anyOf": [
                         {
                             "type": "string"
@@ -72,6 +69,9 @@
                             "type": "null"
                         }
                     ]
+                },
+                "company_id": {
+                    "type": "string"
                 },
                 "address": {
                     "type": "object",

@@ -170,7 +170,7 @@ class Suppliership extends \equal\orm\Model {
     protected static function policyIsValid($self) {
         $result = [];
 
-        $self->read(['condo_id', 'supplier_id' => ['type', 'has_vat', 'vat_number', 'registration_number']]);
+        $self->read(['condo_id', 'supplier_id' => ['type', 'registration_number', 'bank_account_iban', 'has_vat', 'vat_number']]);
         foreach($self as $id => $suppliership) {
 
             if(!$suppliership['condo_id']) {
@@ -186,6 +186,13 @@ class Suppliership extends \equal\orm\Model {
                 ];
                 continue;
             }
+            if(strlen($suppliership['supplier_id']['bank_account_iban'] ?? '') <= 0) {
+                $result[$id] = [
+                    'missing_supplier_bank_account' => "The supplier bank account must be provided [{$id}]."
+                ];
+                continue;
+            }
+
             if($suppliership['supplier_id']['type'] == 'CO') {
                 if(strlen($suppliership['supplier_id']['registration_number'] ?? '') <= 0) {
                     $result[$id] = [
@@ -193,6 +200,8 @@ class Suppliership extends \equal\orm\Model {
                     ];
                     continue;
                 }
+                /*
+                // #memo - non VAT subject companies/organizations are allowed to emit invoices without VAT number (C2C or C2B for managing agents)
                 if(!($suppliership['supplier_id']['has_vat'] ?? false)) {
                     $result[$id] = [
                         'supplier_not_marked_for_vat' => "The supplier must be marked as subject to VAT [{$id}]."
@@ -205,6 +214,7 @@ class Suppliership extends \equal\orm\Model {
                     ];
                     continue;
                 }
+                */
             }
         }
         return $result;
