@@ -248,6 +248,7 @@ class AssemblyAttendee extends \equal\orm\Model {
                         'description' => 'Update the Attendee to `validated`.',
                         'help'        => 'Validity check of mandates is performed at the Assembly level.',
                         'policies'    => ['is_attendee_valid'],
+                        'onafter'     => 'onafterValidate',
                         'status'      => 'validated'
                     ]
                 ]
@@ -304,6 +305,18 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'has_early_departure'   => true,
                 'departure_time'        => (fn($now) => $now - strtotime('today', $now))(time())
             ]);
+    }
+
+    protected static function onafterValidate($self) {
+        foreach($self as $id => $assemblyAttendee) {
+            try {
+                \eQual::run('do', 'realestate_governance_Assembly_check-quorum', ['id' => $id]);
+            }
+            catch(\Exception $e) {
+                // ignore in case of error (non critical)
+                trigger_error("APP::Failed to check assembly quorum after validating an attendee: " . $e->getMessage(), EQ_REPORT_WARNING);
+            }
+        }
     }
 
     protected static function policyCanPromotePresident($self) {

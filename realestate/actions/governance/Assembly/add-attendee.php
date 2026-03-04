@@ -397,7 +397,8 @@ if($currentAssemblyItem) {
         ->do('refresh_vote_calc');
 }
 
-// #memo checking quorum here might have no effect if one or more mandates are implied, since AttendeeMandates must be validated in order to be considered in the Quorum (generate an AssemblyRepresentation)
+// #memo - checking quorum here might have no effect if one or more mandates are implied, since AttendeeMandates must be validated in order to be considered in the Quorum (generate an AssemblyRepresentation)
+// #memo - check is also performed `in AssemblyAttendee::onafterValidate()`
 try {
     eQual::run('do', 'realestate_governance_Assembly_check-quorum', ['id' => $params['id']]);
 }
