@@ -162,38 +162,45 @@ $addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) use
     ][$params['font']] ?? 'Helvetica';
 
     $ps_content = <<<PS
-%!PS-Adobe-3.0
-%%Pages: 0
-%%EndComments
+%!PS
 <<
-/EndPage {
-    2 eq {
-      gsave
-        /$font findfont $font_size scalefont setfont
-        0 setgray
+  /BeginPage {
+    gsave
+      /$font findfont $font_size scalefont setfont
+      0 setgray
 
-        % Map A4 coordinates (595x842) to current page size
-        currentpagedevice /PageSize get aload pop
-        /page_h exch def
-        /page_w exch def
-        /x $pos_x page_w 595 div mul def
-        /y $pos_y page_h 842 div mul def
+      % Get current page size (in points)
+      currentpagedevice /PageSize get aload pop
+      /page_h exch def
+      /page_w exch def
 
-        x y moveto
-        ($overlay_text) show
-      grestore
-    } if
-    true
+      % Map A4 portrait coordinates (595x842) to current page size
+      /x $pos_x page_w 595 div mul def
+      /y $pos_y page_h 842 div mul def
+
+      % Handle common rotated scan case: MediaBox is landscape and /Rotate 270
+      % When rotated, swap axes and mirror X to keep a portrait-based positioning.
+      page_w page_h gt {
+        % landscape page: assume Rotate 270 (typical watermark/scanner output)
+        /tx y def
+        /ty page_w x sub def
+      }{
+        /tx x def
+        /ty y def
+      } ifelse
+
+      $pos_x $pos_y moveto
+      ($overlay_text) show
+    grestore
   }
 >> setpagedevice
-%%EOF
 PS;
 
     $ps_file = tempnam(sys_get_temp_dir(), 'overlay_ps_');
     file_put_contents($ps_file, $ps_content);
 
     $gs_cmd = sprintf(
-        'gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=%s -f %s -f %s',
+        'gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=%s %s %s',
         escapeshellarg($output_file),
         escapeshellarg($ps_file),
         escapeshellarg($pdf_file)
