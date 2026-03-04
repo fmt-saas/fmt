@@ -190,7 +190,7 @@ $addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) use
             /ty y def
         } ifelse
 
-        $pos_x $pos_y moveto
+        tx ty moveto
         ($overlay_text) show
         grestore
     } if
@@ -203,7 +203,7 @@ PS;
     file_put_contents($ps_file, $ps_content);
 
     $gs_cmd = sprintf(
-        'gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=%s %s %s',
+        'gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=%s -c "(%s) run" -f %s',
         escapeshellarg($output_file),
         escapeshellarg($ps_file),
         escapeshellarg($pdf_file)

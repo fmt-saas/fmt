@@ -115,22 +115,28 @@ switch($document['document_visibility']) {
 $doc_info = [];
 
 if($document['purchase_invoice_id']) {
-    $purchaseInvoice = PurchaseInvoice::id($document['purchase_invoice_id'])->read(['invoice_number', 'posting_date'])->first();
-    $doc_info[] = date('Y-m-d', $purchaseInvoice['posting_date']);
-    $doc_info[] = $purchaseInvoice['invoice_number'];
+    $purchaseInvoice = PurchaseInvoice::id($document['purchase_invoice_id'])->read(['status', 'invoice_number', 'posting_date'])->first();
+    if($purchaseInvoice['status'] === 'posted') {
+        $doc_info[] = date('Y-m-d', $purchaseInvoice['posting_date']);
+        $doc_info[] = $purchaseInvoice['invoice_number'];
+    }
 }
 elseif($document['expense_statement_id']) {
-    $expenseStatement = ExpenseStatement::id($document['expense_statement_id'])->read(['invoice_number', 'posting_date'])->first();
-    $doc_info[] = date('Y-m-d', $expenseStatement['posting_date']);
-    $doc_info[] = $expenseStatement['invoice_number'];
+    $expenseStatement = ExpenseStatement::id($document['expense_statement_id'])->read(['status', 'invoice_number', 'posting_date'])->first();
+    if($expenseStatement['status'] === 'posted') {
+        $doc_info[] = date('Y-m-d', $expenseStatement['posting_date']);
+        $doc_info[] = $expenseStatement['invoice_number'];
+    }
 }
 elseif($document['fund_request_execution_id']) {
-    $fundRequestExecution = FundRequestExecution::id($document['fund_request_execution_id'])->read(['invoice_number', 'posting_date'])->first();
-    $doc_info[] = date('Y-m-d', $fundRequestExecution['posting_date']);
-    $doc_info[] = $fundRequestExecution['invoice_number'];
+    $fundRequestExecution = FundRequestExecution::id($document['fund_request_execution_id'])->read(['status', 'invoice_number', 'posting_date'])->first();
+    if($fundRequestExecution['status'] === 'posted') {
+        $doc_info[] = date('Y-m-d', $fundRequestExecution['posting_date']);
+        $doc_info[] = $fundRequestExecution['invoice_number'];
+    }
 }
 elseif($document['bank_statement_id']) {
-    $bankStatement = BankStatement::id($document['bank_statement_id'])->read(['name', 'date'])->first();
+    $bankStatement = BankStatement::id($document['bank_statement_id'])->read(['status', 'name', 'date'])->first();
     $doc_info[] = date('Y-m-d', $bankStatement['date']);
     $doc_info[] = $bankStatement['name'];
 }
