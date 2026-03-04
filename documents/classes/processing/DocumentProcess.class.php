@@ -1701,6 +1701,8 @@ class DocumentProcess extends Model {
                         ])
                         ->first();
 
+                    Document::id($documentProcess['document_id']['id'])->update(['purchase_invoice_id' => $invoice['id']]);
+
                     if(isset($data['invoice_period'], $data['invoice_period']['start_date'], $data['invoice_period']['end_date'])) {
                         PurchaseInvoice::id($invoice['id'])
                             ->update([
@@ -1760,6 +1762,8 @@ class DocumentProcess extends Model {
                             'document_id'           => $documentProcess['document_id']['id']
                         ])
                         ->first();
+
+                    Document::id($documentProcess['document_id']['id'])->update(['bank_statement_id' => $bankStatement['id']]);
 
                     // create statement lines
                     foreach($data['transactions'] as $txn) {

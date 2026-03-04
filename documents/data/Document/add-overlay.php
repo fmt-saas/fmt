@@ -22,6 +22,15 @@ use equal\text\TextTransformer;
             'required'          => true
         ],
 
+        'disposition' => [
+            'type'              => 'string',
+            'selection'         => [
+                'inline',
+                'attachment'
+            ],
+            'default'           => 'inline'
+        ],
+
         'resize' => [
             'type'              => 'float',
             'usage'             => 'amount/rate',
@@ -193,7 +202,7 @@ PS;
  */
 
 $document = Document::id($params['id'])
-    ->read(['content_type', 'data'])
+    ->read(['content_type', 'data', 'name'])
     ->first();
 
 if(!$document) {
@@ -203,6 +212,9 @@ if(!$document) {
 if($document['content_type'] !== 'application/pdf') {
     throw new Exception("not_pdf_document", EQ_ERROR_INVALID_PARAM);
 }
+
+$content_type = $document['content_type'];
+$filename = $document['name'];
 
 $scale = round($params['resize'], 2);
 
@@ -223,5 +235,7 @@ $output = file_get_contents($tmp_file_with_overlay);
 @unlink($tmp_file_with_overlay);
 
 $context->httpResponse()
-        ->body($output)
+        ->header('Content-Disposition', $params['disposition'] . '; filename="' . $filename . '"')
+        ->header('Content-Type', $content_type)
+        ->body($output, true)
         ->send();

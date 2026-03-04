@@ -5,8 +5,12 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 use documents\Document;
+use finance\bank\BankStatement;
 use identity\User;
+use realestate\funding\ExpenseStatement;
+use realestate\funding\FundRequestExecution;
 use realestate\ownership\Owner;
+use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Return raw data (with original MIME) of a document identified by given identifier.',
@@ -41,67 +45,16 @@ use realestate\ownership\Owner;
 
 $user_id = $auth->userId();
 
-/*
-// #memo - logic change, see @sync
-// search for documents matching given hash code (should be only one match)
-$collection = Document::id($params['id']);
-$document = $collection->read(['uuid'])->first();
-
-if(!$document) {
-    throw new Exception("document_unknown", EQ_ERROR_UNKNOWN_OBJECT);
-}
-
-if(constant('FMT_INSTANCE_TYPE') === 'edms' && !$document['uuid']) {
-    throw new Exception("invalid_document", EQ_ERROR_UNKNOWN_OBJECT);
-}
-
-// pull document data from EDMS server
-if($document['uuid']) {
-    // #todo - inject APP_TOKEN in header
-    $url = constant('FMT_API_URL_EDMS');
-    $request = new HttpRequest('GET '.$url.'?get=documents_pull&uuid=' . $document['uuid']);
-    $response = $request->send();
-
-    $result = $response->body();
-
-    if(!isset($result['data'], $result['name'], $result['content_type'])) {
-        throw new Exception('invalid_response', EQ_ERROR_UNKNOWN);
-    }
-
-    if(strlen($result['data']) <= 0) {
-        throw new Exception('empty_response', EQ_ERROR_UNKNOWN);
-    }
-
-    $adapter = $adapt->get('json');
-
-    $content_type = $result['content_type'];
-    $filename = $result['name'];
-    $output = $adapter->adaptIn($result['data'], 'binary');
-}
-// no UUID, fallback to data (this can occur when condo_id is still missing)
-else {
-    $document = $collection->read(['name', 'data', 'content_type'])->first();
-    $content_type = $document['content_type'];
-    $filename = $document['name'];
-    $output = $document['data'];
-}
-*/
-
-
 $document = Document::id($params['id'])
     ->read([
-        'document_visibility', 'condo_id', 'ownership_id', 'name', 'data', 'content_type'
+        'document_visibility', 'condo_id', 'ownership_id', 'name', 'data', 'content_type',
+        'purchase_invoice_id', 'expense_statement_id', 'fund_request_execution_id', 'bank_statement_id'
     ])
     ->first();
 
 $content_type = $document['content_type'];
 $filename = $document['name'];
 $output = $document['data'];
-
-
-
-
-
 
 // #todo - restore - make sure to test with user relating to employee, and add extra rights for admins & ROOT users
 /*
@@ -157,8 +110,38 @@ switch($document['document_visibility']) {
 }
 */
 
+
+// for accounting documents, relay to `add-overlay` to force output with additional information
+$doc_info = [];
+
+if($document['purchase_invoice_id']) {
+    $purchaseInvoice = PurchaseInvoice::id($document['purchase_invoice_id'])->read(['invoice_number', 'posting_date'])->first();
+    $doc_info[] = date('Y-m-d', $purchaseInvoice['posting_date']);
+    $doc_info[] = $purchaseInvoice['invoice_number'];
+}
+elseif($document['expense_statement_id']) {
+    $expenseStatement = ExpenseStatement::id($document['expense_statement_id'])->read(['invoice_number', 'posting_date'])->first();
+    $doc_info[] = date('Y-m-d', $expenseStatement['posting_date']);
+    $doc_info[] = $expenseStatement['invoice_number'];
+}
+elseif($document['fund_request_execution_id']) {
+    $fundRequestExecution = FundRequestExecution::id($document['fund_request_execution_id'])->read(['invoice_number', 'posting_date'])->first();
+    $doc_info[] = date('Y-m-d', $fundRequestExecution['posting_date']);
+    $doc_info[] = $fundRequestExecution['invoice_number'];
+}
+elseif($document['bank_statement_id']) {
+    $bankStatement = BankStatement::id($document['bank_statement_id'])->read(['name', 'date'])->first();
+    $doc_info[] = date('Y-m-d', $bankStatement['date']);
+    $doc_info[] = $bankStatement['name'];
+}
+
+if(count($doc_info)) {
+    eQual::run('get', 'documents_Document_add-overlay', ['id' => $params['id'], 'overlay_text' => implode(' | ', $doc_info)]);
+    exit(0);
+}
+
 $context->httpResponse()
-        ->header('Content-Disposition', $params['disposition'].'; filename="'.$filename.'"')
+        ->header('Content-Disposition', $params['disposition'] . '; filename="' . $filename . '"')
         ->header('Content-Type', $content_type)
         ->body($output, true)
         ->send();

@@ -118,6 +118,28 @@ class Document extends Model {
                 'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and might remain empty (depending on the feeding strategy associated to the document type).'
             ],
 
+            /*
+            // #memo - non exhaustive document types codes
+                invoice
+                bank_statement
+                fund_request
+                expense_statement
+                quote
+                purchase_order
+                delivery_note
+                incident_report
+                maintenance_report
+                contract
+                certificate
+                terms_and_conditions
+                reconciliation_report
+                legal_document
+                ownership_transfer_correspondence
+                supporting_document
+                internal_memo
+                suppliers_import
+                condominium_import
+            */
             'document_type_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentType',
@@ -323,8 +345,6 @@ class Document extends Model {
                 'description'       => 'Optional link to the received Email the document is an attachment of, if any.'
             ],
 
-            /*
-            // #memo - those info can be retrieved through document_process_id if necessary
             'purchase_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
@@ -338,14 +358,13 @@ class Document extends Model {
                 'description'       => 'Optional link to the related bank statement.',
                 'visible'           => ['document_type_code', '=', 'bank_statement']
             ],
-            */
 
             'expense_statement_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\ExpenseStatement',
                 'description'       => 'The fund request execution targeted by the funding, if any.',
                 'help'              => 'As a convention, this field is set when a funding relates to a fund request. Fund request executions are sale invoices (with invoice_type set to fund_request).',
-                'visible'           => ['funding_type', '=', 'expense_statement'],
+                'visible'           => ['document_type_code', '=', 'expense_statement'],
                 'readonly'          => true
             ],
 
@@ -354,7 +373,7 @@ class Document extends Model {
                 'foreign_object'    => 'realestate\funding\FundRequest',
                 'description'       => 'The fund request targeted by the funding, if any.',
                 'help'              => 'As a convention, this field is set when a funding relates to a fund request. Fund request executions are sale invoices (with invoice_type set to fund_request).',
-                'visible'           => ['funding_type', '=', 'fund_request'],
+                'visible'           => ['document_type_code', '=', 'fund_request'],
                 'readonly'          => true
             ],
 
@@ -363,7 +382,7 @@ class Document extends Model {
                 'foreign_object'    => 'realestate\funding\FundRequestExecution',
                 'description'       => 'The fund request execution targeted by the funding, if any.',
                 'help'              => 'As a convention, this field is set when a funding relates to a fund request. Fund request executions are sale invoices (with invoice_type set to fund_request).',
-                'visible'           => ['funding_type', '=', 'fund_request'],
+                'visible'           => ['document_type_code', '=', 'fund_request'],
                 'readonly'          => true
             ],
 
@@ -373,7 +392,7 @@ class Document extends Model {
                 'description'       => 'Miscellaneous operation targeted by the funding, if any.',
                 'help'              => 'This is for the unexpected movements, for which the Funding was created at bank statement line reconcile.',
                 'readonly'          => true,
-                'visible'           => ['funding_type', '=', 'misc'],
+                'visible'           => ['document_type_code', '=', 'misc'],
             ],
 
             'ownership_transfer_id' => [
@@ -386,7 +405,7 @@ class Document extends Model {
             'assembly_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\governance\Assembly',
-                'description'       => 'Optional link to the related assembly item.',
+                'description'       => 'Optional link to the related assembly.',
                 'visible'           => ['assembly_id', '<>', null]
             ],
 

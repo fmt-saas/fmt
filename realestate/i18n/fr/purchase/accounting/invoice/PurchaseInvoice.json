@@ -203,6 +203,9 @@
                 },
                 "section.fundings": {
                     "label": "Suivi paiements"
+                },
+                "section.invoice_lines": {
+                    "label": "Lignes de facture"
                 }
             },
             "actions": {
