@@ -11,7 +11,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": null,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -23,7 +23,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 1,
                 "operation_assignment": "working_fund",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -35,7 +35,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 1,
                 "operation_assignment": "reserve_fund",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -47,7 +47,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 1,
                 "operation_assignment": "special_reserve_fund",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -59,7 +59,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 1,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -71,7 +71,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 8,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -83,7 +83,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 8,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -95,7 +95,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 8,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -107,7 +107,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 8,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -119,7 +119,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 12,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -131,7 +131,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 12,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -143,7 +143,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 12,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -155,7 +155,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 8,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -167,7 +167,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 8,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -179,7 +179,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 8,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -191,7 +191,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": null,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -203,7 +203,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 19,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -215,7 +215,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 20,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -227,7 +227,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 20,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -239,7 +239,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 19,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -251,7 +251,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 23,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -263,7 +263,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 23,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -275,7 +275,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 23,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -287,7 +287,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 23,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -299,7 +299,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 19,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -311,7 +311,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 19,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -323,7 +323,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 19,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -335,7 +335,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 30,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -347,7 +347,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 30,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -359,7 +359,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 30,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -371,7 +371,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 19,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -383,7 +383,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 19,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -395,7 +395,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 19,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -407,7 +407,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": null,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -419,7 +419,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 37,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -431,7 +431,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 37,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -443,7 +443,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 37,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -455,7 +455,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 37,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -467,7 +467,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": null,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -479,7 +479,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 42,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -491,7 +491,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 43,
                 "operation_assignment": "co_owners",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -503,7 +503,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 44,
                 "operation_assignment": "co_owners_reserve_fund",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -515,7 +515,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 44,
                 "operation_assignment": "co_owners_working_fund",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -527,7 +527,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 44,
                 "operation_assignment": "co_owners_former",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -539,7 +539,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 44,
                 "operation_assignment": "co_owners_repayment",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -551,7 +551,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 43,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -563,7 +563,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 43,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -575,7 +575,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 43,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -587,7 +587,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 43,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -599,7 +599,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 43,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -611,7 +611,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 43,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -623,7 +623,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 42,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -635,7 +635,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 56,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -647,7 +647,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 56,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -659,7 +659,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 56,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -671,7 +671,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 56,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -683,7 +683,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 56,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -695,7 +695,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 56,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -707,7 +707,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 56,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -719,7 +719,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 42,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -731,7 +731,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 64,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -743,7 +743,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 64,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -755,7 +755,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 64,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -767,7 +767,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 64,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -779,7 +779,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 64,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -791,7 +791,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 42,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -803,7 +803,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 70,
                 "operation_assignment": "suppliers",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -815,7 +815,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 70,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -827,7 +827,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 42,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -839,7 +839,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 73,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -851,7 +851,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 73,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -863,7 +863,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 73,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -875,7 +875,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 73,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -887,7 +887,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 73,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -899,7 +899,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 73,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -911,7 +911,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 73,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -923,7 +923,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 73,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -935,7 +935,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 42,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -947,7 +947,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 82,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -959,7 +959,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 42,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -971,7 +971,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 85,
                 "operation_assignment": "deferred_expenses",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -983,7 +983,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 85,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -995,7 +995,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 85,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1007,7 +1007,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 88,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1019,7 +1019,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 85,
                 "operation_assignment": "deferred_income",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1031,7 +1031,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 85,
                 "operation_assignment": "adjustment_account",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1043,7 +1043,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 85,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1055,7 +1055,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 93,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1067,7 +1067,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 93,
                 "operation_assignment": "rounding_adjustment",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1079,7 +1079,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 93,
                 "operation_assignment": "pending_debtor_import",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1091,7 +1091,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 93,
                 "operation_assignment": "pending_creditor_import",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1103,7 +1103,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 93,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1115,7 +1115,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 93,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1127,7 +1127,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 99,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1139,7 +1139,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": null,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1151,7 +1151,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 101,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1163,7 +1163,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 102,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1175,7 +1175,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 102,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1187,7 +1187,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 102,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1199,7 +1199,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 102,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1211,7 +1211,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 101,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1223,7 +1223,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 107,
                 "operation_assignment": "bank_savings",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1235,7 +1235,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 107,
                 "operation_assignment": "bank_current",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1247,7 +1247,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 107,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1259,7 +1259,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 110,
                 "operation_assignment": "bank_tier",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1271,7 +1271,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 101,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1283,7 +1283,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 101,
                 "operation_assignment": "bank_transfer",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1295,7 +1295,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": null,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1307,7 +1307,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 114,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1319,7 +1319,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 115,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1331,7 +1331,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 116,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1343,7 +1343,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 117,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1355,7 +1355,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 117,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1367,7 +1367,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 117,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1379,7 +1379,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 117,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1391,7 +1391,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 117,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1403,7 +1403,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 117,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1415,7 +1415,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 117,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1427,7 +1427,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 117,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1439,7 +1439,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 117,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1451,7 +1451,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 117,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1463,7 +1463,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 116,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1475,7 +1475,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 128,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1487,7 +1487,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 128,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1499,7 +1499,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 128,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1511,7 +1511,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 128,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1523,7 +1523,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 128,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1535,7 +1535,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 128,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1547,7 +1547,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 128,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1559,7 +1559,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 128,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1571,7 +1571,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 116,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1583,7 +1583,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 137,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1595,7 +1595,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 137,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1607,7 +1607,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 137,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1619,7 +1619,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 137,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1631,7 +1631,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 137,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1643,7 +1643,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 137,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1655,7 +1655,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 137,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1667,7 +1667,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 137,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1679,7 +1679,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 137,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1691,7 +1691,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 137,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1703,7 +1703,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 116,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1715,7 +1715,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 148,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1727,7 +1727,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 148,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1739,7 +1739,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 148,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1751,7 +1751,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 148,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1763,7 +1763,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 148,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1775,7 +1775,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 148,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1787,7 +1787,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 148,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1799,7 +1799,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 148,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1811,7 +1811,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 148,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1823,7 +1823,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 148,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1835,7 +1835,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 116,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1847,7 +1847,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 159,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1859,7 +1859,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 160,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1871,7 +1871,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 160,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1883,7 +1883,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 160,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1895,7 +1895,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 159,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1907,7 +1907,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 164,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1919,7 +1919,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 164,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1931,7 +1931,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 164,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1943,7 +1943,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 164,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -1955,7 +1955,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 164,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1967,7 +1967,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 116,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -1979,7 +1979,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 170,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -1991,7 +1991,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 170,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2003,7 +2003,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 170,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2015,7 +2015,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 170,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2027,7 +2027,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 170,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2039,7 +2039,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 170,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2051,7 +2051,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 170,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2063,7 +2063,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 116,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2075,7 +2075,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 178,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2087,7 +2087,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 179,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2099,7 +2099,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 179,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2111,7 +2111,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 179,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2123,7 +2123,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 179,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2135,7 +2135,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 178,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2147,7 +2147,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 184,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2159,7 +2159,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 184,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2171,7 +2171,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 184,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2183,7 +2183,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 184,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2195,7 +2195,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 184,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2207,7 +2207,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 184,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2219,7 +2219,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 116,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2231,7 +2231,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 191,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2243,7 +2243,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 191,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2255,7 +2255,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 191,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2267,7 +2267,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 191,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2279,7 +2279,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 191,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2291,7 +2291,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 191,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2303,7 +2303,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 191,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2315,7 +2315,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 191,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2327,7 +2327,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 191,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2339,7 +2339,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 191,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2351,7 +2351,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 116,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2363,7 +2363,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 202,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2375,7 +2375,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 202,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2387,7 +2387,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 202,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2399,7 +2399,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 202,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2411,7 +2411,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 202,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2423,7 +2423,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 202,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2435,7 +2435,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 202,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2447,7 +2447,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 116,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2459,7 +2459,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 210,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2471,7 +2471,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 210,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2483,7 +2483,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 210,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2495,7 +2495,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 210,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2507,7 +2507,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 210,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2519,7 +2519,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 210,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2531,7 +2531,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 210,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2543,7 +2543,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 210,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2555,7 +2555,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 210,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2567,7 +2567,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 115,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2579,7 +2579,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 220,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2591,7 +2591,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 221,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2603,7 +2603,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 221,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2615,7 +2615,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 221,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2627,7 +2627,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 221,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2639,7 +2639,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 221,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2651,7 +2651,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 115,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2663,7 +2663,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 227,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2675,7 +2675,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 228,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2687,7 +2687,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 228,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2699,7 +2699,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 228,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2711,7 +2711,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 228,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2723,7 +2723,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 228,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2735,7 +2735,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 228,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2747,7 +2747,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 227,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2759,7 +2759,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 235,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2771,7 +2771,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 235,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2783,7 +2783,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 235,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2795,7 +2795,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 235,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2807,7 +2807,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 227,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2819,7 +2819,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 240,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2831,7 +2831,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 227,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2843,7 +2843,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 242,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2855,7 +2855,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 242,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2867,7 +2867,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 242,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2879,7 +2879,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 227,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2891,7 +2891,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 246,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2903,7 +2903,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 246,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2915,7 +2915,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 246,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2927,7 +2927,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 246,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2939,7 +2939,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 227,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2951,7 +2951,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 251,
                 "operation_assignment": "consumption_statement",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -2963,7 +2963,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 227,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -2975,7 +2975,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 253,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2987,7 +2987,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 253,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -2999,7 +2999,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 253,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3011,7 +3011,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 253,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3023,7 +3023,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 115,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3035,7 +3035,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 258,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3047,7 +3047,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 259,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 50,
                 "owner_share": 50
             },
@@ -3059,7 +3059,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 258,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3071,7 +3071,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 261,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3083,7 +3083,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 261,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3095,7 +3095,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 261,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3107,7 +3107,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 261,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3119,7 +3119,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 261,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3131,7 +3131,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 261,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3143,7 +3143,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 261,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3155,7 +3155,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 258,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3167,7 +3167,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 269,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3179,7 +3179,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 269,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3191,7 +3191,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 269,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3203,7 +3203,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 115,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3215,7 +3215,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 273,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3227,7 +3227,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 273,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3239,7 +3239,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 273,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3251,7 +3251,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 273,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3263,7 +3263,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 273,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3275,7 +3275,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 273,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3287,7 +3287,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 273,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3299,7 +3299,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 273,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3311,7 +3311,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 115,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3323,7 +3323,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 282,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3335,7 +3335,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 282,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3347,7 +3347,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 282,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3359,7 +3359,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 282,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3371,7 +3371,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 282,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3383,7 +3383,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 282,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3395,7 +3395,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 282,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3407,7 +3407,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 115,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3419,7 +3419,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 290,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3431,7 +3431,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 291,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3443,7 +3443,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 291,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3455,7 +3455,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 291,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3467,7 +3467,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 291,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3479,7 +3479,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 291,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3491,7 +3491,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 290,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3503,7 +3503,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 297,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3515,7 +3515,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 297,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3527,7 +3527,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 297,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3539,7 +3539,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 290,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3551,7 +3551,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 301,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3563,7 +3563,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 301,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3575,7 +3575,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 290,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3587,7 +3587,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 304,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3599,7 +3599,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 304,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3611,7 +3611,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 290,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3623,7 +3623,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 307,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3635,7 +3635,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 307,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3647,7 +3647,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 290,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3659,7 +3659,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 310,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3671,7 +3671,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 310,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3683,7 +3683,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 310,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3695,7 +3695,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 310,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3707,7 +3707,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 114,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3719,7 +3719,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 315,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3731,7 +3731,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 316,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3743,7 +3743,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 316,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3755,7 +3755,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 316,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3767,7 +3767,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 316,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 100,
                 "owner_share": 0
             },
@@ -3779,7 +3779,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 114,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3791,7 +3791,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 321,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3803,7 +3803,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 322,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3815,7 +3815,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 322,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3827,7 +3827,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 322,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3839,7 +3839,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 322,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3851,7 +3851,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 321,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3863,7 +3863,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 327,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3875,7 +3875,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 327,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3887,7 +3887,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 114,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3899,7 +3899,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 330,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3911,7 +3911,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 331,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3923,7 +3923,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 330,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3935,7 +3935,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 330,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3947,7 +3947,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 334,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -3959,7 +3959,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 335,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3971,7 +3971,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 335,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3983,7 +3983,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 335,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -3995,7 +3995,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 335,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4007,7 +4007,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 330,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4019,7 +4019,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 340,
                 "operation_assignment": "private_expenses",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4031,7 +4031,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 340,
                 "operation_assignment": "reinvoiced_private_expenses",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4043,7 +4043,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 114,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4055,7 +4055,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 343,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4067,7 +4067,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 344,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4079,7 +4079,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 344,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4091,7 +4091,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 343,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4103,7 +4103,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 347,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4115,7 +4115,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 347,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4127,7 +4127,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 114,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4139,7 +4139,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 114,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4151,7 +4151,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 351,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4163,7 +4163,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 351,
                 "operation_assignment": "working_fund_variation",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4175,7 +4175,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 351,
                 "operation_assignment": "reserve_fund_variation",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4187,7 +4187,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 351,
                 "operation_assignment": "special_reserve_fund_variation",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4199,7 +4199,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 114,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4211,7 +4211,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 356,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4223,7 +4223,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": null,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4235,7 +4235,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 358,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4247,7 +4247,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 359,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4259,7 +4259,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 360,
                 "operation_assignment": "expense_provisions",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4271,7 +4271,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 360,
                 "operation_assignment": "work_provisions",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4283,7 +4283,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 359,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4295,7 +4295,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 363,
                 "operation_assignment": "working_fund_call",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4307,7 +4307,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 363,
                 "operation_assignment": "reserve_fund_call",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4319,7 +4319,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 363,
                 "operation_assignment": "special_reserve_fund_call",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4331,7 +4331,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 358,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4343,7 +4343,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 367,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4355,7 +4355,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 368,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4367,7 +4367,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 369,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4379,7 +4379,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 369,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4391,7 +4391,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 369,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4403,7 +4403,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 369,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4415,7 +4415,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 369,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4427,7 +4427,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 369,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4439,7 +4439,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 367,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4451,7 +4451,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 376,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4463,7 +4463,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 377,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4475,7 +4475,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 377,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4487,7 +4487,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 358,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4499,7 +4499,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 380,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -4511,7 +4511,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 381,
                 "operation_assignment": "",
-                "is_apportionment_possible": true,
+                "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100
             },
@@ -4523,7 +4523,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 358,
                 "operation_assignment": "",
-                "is_apportionment_possible": false,
+                "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
             }

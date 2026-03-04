@@ -46,7 +46,7 @@
             },
             {
                 "type": "field",
-                "value": "is_apportionment_possible",
+                "value": "is_apportionable",
                 "width": "20%",
                 "visible": false
             },

@@ -62,15 +62,15 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                     ['ownership_id', 'is', null],
                     ['suppliership_id', 'is', null]
                 ],
-                'dependents'        => ['is_apportionment_possible']
+                'dependents'        => ['is_apportionable']
             ],
 
-            'is_apportionment_possible' => [
+            'is_apportionable' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
                 'description'       => 'Is an apportionment possible for this expense account?',
                 'store'             => true,
-                'relation'          => ['expense_account_id' => 'is_apportionment_possible']
+                'relation'          => ['expense_account_id' => 'is_apportionable']
             ],
 
             'apportionment_id' => [
@@ -81,7 +81,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
                 'visible'           => [
                     ['is_private_expense', '=', false],
-                    ['is_apportionment_possible', '=', true]
+                    ['is_apportionable', '=', true]
                 ]
             ],
 
@@ -91,7 +91,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
                 'onupdate'          => 'onupdateOwnerShare',
-                'visible'           => ['is_apportionment_possible', '=', true]
+                'visible'           => ['is_apportionable', '=', true]
             ],
 
             'tenant_share'          => [
@@ -100,7 +100,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 'description'       => "Default value, in percent, of the amount to be imputed to the tenant when using the account.",
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
                 'onupdate'          => 'onupdateTenantShare',
-                'visible'           => ['is_apportionment_possible', '=', true]
+                'visible'           => ['is_apportionable', '=', true]
             ],
 
             'ownership_id' => [
@@ -264,7 +264,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 }
                 else {
                     // #memo - visibility might be impacted
-                    $result['is_apportionment_possible'] = false;
+                    $result['is_apportionable'] = false;
                     $result['apportionment_id'] = null;
                     $result['expense_account_id'] = null;
                 }
@@ -272,12 +272,12 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
 
             if(isset($event['expense_account_id'])) {
                 $account = Account::id($event['expense_account_id'])
-                    ->read(['is_apportionment_possible'])
+                    ->read(['is_apportionable'])
                     ->first();
 
                 if($account) {
                     // #memo - visibility might be impacted
-                    $result['is_apportionment_possible'] = $account['is_apportionment_possible'];
+                    $result['is_apportionable'] = $account['is_apportionable'];
                 }
             }
         }

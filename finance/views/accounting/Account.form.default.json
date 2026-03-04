@@ -61,9 +61,9 @@
                                                 "width": "25%"
                                             },
                                             {
-                                                "id": "item.is_apportionment_possible",
+                                                "id": "item.is_apportionable",
                                                 "type": "field",
-                                                "value": "is_apportionment_possible",
+                                                "value": "is_apportionable",
                                                 "width": "33%"
                                             },
                                             {
