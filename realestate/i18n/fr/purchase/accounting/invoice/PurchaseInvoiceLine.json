@@ -112,6 +112,11 @@
             "label": "Refacturation immédiate",
             "description": "Refacture automatiquement la dépense privée dès son enregistrement.",
             "help": "Crée sans délai les écritures de refacturation."
+        },
+        "is_apportionable": {
+            "label": "A répartir",
+            "description": "Indique si le compte sélectionné implique la répartition.",
+            "help": "Seuls les dépenses sur les comptes de classe 6 ou 7 peuvent être répartis."
         }
     },
     "view": {

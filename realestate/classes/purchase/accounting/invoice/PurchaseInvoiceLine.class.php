@@ -270,14 +270,19 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 }
             }
 
-            if(isset($event['expense_account_id'])) {
-                $account = Account::id($event['expense_account_id'])
-                    ->read(['is_apportionable'])
-                    ->first();
+            if(array_key_exists('expense_account_id', $event)) {
+                if(is_null($event['expense_account_id'])) {
+                    $result['is_apportionable'] = false;
+                }
+                else {
+                    $account = Account::id($event['expense_account_id'])
+                        ->read(['is_apportionable'])
+                        ->first();
 
-                if($account) {
-                    // #memo - visibility might be impacted
-                    $result['is_apportionable'] = $account['is_apportionable'];
+                    if($account) {
+                        // #memo - visibility might be impacted
+                        $result['is_apportionable'] = $account['is_apportionable'];
+                    }
                 }
             }
         }
