@@ -31,7 +31,7 @@
             "visible": [
                 ["is_group", "=", true],
                 ["items_count", ">=", 0],
-                [["pending", "open"], "contains", "object.status"],
+                ["open", "=", "object.status"],
                 ["in_progress", "=", "object.assembly_status"],
                 ["agenda_processing", "=", "object.assembly_step"]
             ]
