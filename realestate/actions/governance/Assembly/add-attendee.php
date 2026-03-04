@@ -398,7 +398,8 @@ if($currentAssemblyItem) {
 }
 
 // #memo - checking quorum here might have no effect if one or more mandates are implied, since AttendeeMandates must be validated in order to be considered in the Quorum (generate an AssemblyRepresentation)
-// #memo - check is also performed `in AssemblyAttendee::onafterValidate()`
+// #memo - check is called through frontend/UI
+/*
 try {
     eQual::run('do', 'realestate_governance_Assembly_check-quorum', ['id' => $params['id']]);
 }
@@ -406,6 +407,7 @@ catch(Exception $e) {
     // ignore in case of error (non critical)
     trigger_error("APP::Failed to check assembly quorum after adding an attendee: " . $e->getMessage(), EQ_REPORT_WARNING);
 }
+*/
 
 $context->httpResponse()
         ->body($attendee)
