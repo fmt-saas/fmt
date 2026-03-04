@@ -176,6 +176,24 @@ $addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) use
 >> setpagedevice
 PS;
 
+    $ps_content = <<<PS
+%!PS
+<<
+  /EndPage {
+    2 eq {
+      gsave
+        /$font findfont $font_size scalefont setfont
+        0 setgray
+
+        $pos_x $pos_y moveto
+        ($overlay_text) show
+      grestore
+    } if
+    true
+  }
+>> setpagedevice
+PS;
+
     $ps_file = tempnam(sys_get_temp_dir(), 'overlay_ps_');
     file_put_contents($ps_file, $ps_content);
 
