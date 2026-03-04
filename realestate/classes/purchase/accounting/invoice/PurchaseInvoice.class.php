@@ -131,6 +131,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'accounting_entry_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\finance\accounting\AccountingEntry',
+                'description'       => "Accounting entry of the invoice."
+            ],
+
             'accounting_entries_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\finance\accounting\AccountingEntry',
@@ -388,17 +394,17 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'policies'      => [],
                 'function'      => 'doAssignInvoiceNumber'
             ],
-            'unlock_invoice' => [
+            'unlock' => [
                 'description'   => 'Unlocks the invoice for editing.',
                 'help'          => 'Reverts posted accounting entries, preserves the original sequence number, deletes the entries from the invoice, and returns the invoice to a proforma state while keeping its invoice_number. Allowed only if no entry has been cleared.',
                 'policies'      => ['can_unlock'],
-                'function'      => 'doUnlockInvoice'
+                'function'      => 'doUnlock'
             ],
-            'cancel_invoice' => [
+            'cancel' => [
                 'description'   => 'Cancels the invoice permanently (non-reversible).',
                 'help'          => 'Creates invisible reversal entries for all posted accounting entries and marks both the invoice and its entries as invisible. The invoice is permanently voided without creating a credit note and cannot be edited again.',
                 'policies'      => ['can_cancel'],
-                'function'      => 'doCancelInvoice'
+                'function'      => 'doCancel'
             ],
             'mark_completed' => [
                 'description'   => 'Mark the (proforma) invoice as complete and ready to be validated.',
@@ -432,33 +438,28 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         ]);
     }
 
-    protected static function doUnlockInvoice($self, $orm) {
-        $self->read(['accounting_entries_ids']);
+    protected static function doCancel($self) {
+        $self->read(['status', 'accounting_entry_id']);
         foreach($self as $id => $purchaseInvoice) {
-            // force deletion of non-cleared accounting entries
-            $orm->delete(AccountingEntry::getType(), $purchaseInvoice, false);
+            if($purchaseInvoice['status'] !== 'posted') {
+                continue;
+            }
+            AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');
+            self::id($id)->update(['status' => 'cancelled']);
         }
-        // #memo - upon next posting, the invoice_number will be kept (not regenerated) and a new accounting entry will be created
-        $self->update([
-                'status'    => 'proforma'
-            ]);
-
     }
 
-    protected static function doCancelInvoice($self) {
-        $self->read(['accounting_entries_ids']);
+    protected static function doUnlock($self) {
+        $self->read(['status', 'accounting_entry_id']);
         foreach($self as $id => $purchaseInvoice) {
-            AccountingEntry::ids($purchaseInvoice['accounting_entries_ids'])
-                ->do('cancel')
-                ->update([
-                    'purchase_invoice_id' => $id,
-                    'is_visible'          => false
-                ]);
+            if($purchaseInvoice['status'] !== 'posted') {
+                continue;
+            }
+            AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');
+            self::id($id)
+                ->update(['status' => 'proforma'])
+                ->update(['accounting_entry_id' => null]);
         }
-        $self->update([
-                'status'    => 'cancelled',
-                'visible'   => false
-            ]);
     }
 
     protected static function policyCanMarkCancelled($self) {
@@ -677,8 +678,14 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function policyCanCancel($self) {
         $result = [];
-        $self->read(['accounting_entries_ids']);
+        $self->read(['status', 'accounting_entries_ids']);
         foreach($self as $id => $purchaseInvoice) {
+            if($purchaseInvoice['status'] !== 'posted') {
+                $result[$id] = [
+                        'non_posted_invoice' => 'Only posted invoice can be unlocked.'
+                    ];
+                continue;
+            }
             try {
                 AccountingEntry::ids($purchaseInvoice['accounting_entries_ids'])->assert(['can_be_cancelled']);
             }
