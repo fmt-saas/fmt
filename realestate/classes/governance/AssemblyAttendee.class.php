@@ -308,9 +308,10 @@ class AssemblyAttendee extends \equal\orm\Model {
     }
 
     protected static function onafterValidate($self) {
+        $self->read(['assembly_id']);
         foreach($self as $id => $assemblyAttendee) {
             try {
-                \eQual::run('do', 'realestate_governance_Assembly_check-quorum', ['id' => $id]);
+                \eQual::run('do', 'realestate_governance_Assembly_check-quorum', ['id' => $assemblyAttendee['assembly_id']]);
             }
             catch(\Exception $e) {
                 // ignore in case of error (non critical)
