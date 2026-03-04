@@ -9,6 +9,7 @@
     "supplier": {
         "name": "VIVAQUA",
         "vat_id": "BE0202962701",
+        "company_id": "0202962701",
         "address": {
             "street": "boulevard de l'Impératrice 17-19",
             "city": "Bruxelles",

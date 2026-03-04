@@ -10,8 +10,8 @@ $providers = eQual::inject(['context', 'orm', 'auth', 'access']);
 $tests = [
 
         '1101' => [
-            'description'       => "Validate CODA import.",
-            'help'              => "Convert a CODA bank statement to standardized JSON and validate result against `purchase-invoice` schema.",
+            'description'       => "Validate purchase invoice import.",
+            'help'              => "Convert a purchase invoice to standardized JSON and validate result against `purchase-invoice` schema.",
             'arrange'           => function() use($providers) {
                 },
             'act'               => function() use($providers) {
