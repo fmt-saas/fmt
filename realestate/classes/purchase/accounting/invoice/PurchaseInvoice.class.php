@@ -488,7 +488,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             catch(\Exception $e) {
                 trigger_error("APP::PurchaseInvoice [{$id}] cannot be marked as completed: " . $e->getMessage(), EQ_REPORT_WARNING);
 
-                // resulting JSON violates the purchase-invoice schema in a way that is not covered by ValidationRule (shouldn't occur)
+                // resulting JSON violates the purchase-invoice JSON Schema in a way that is not covered by ValidationRule (shouldn't occur)
                 $errors = unserialize($e->getMessage());
 
                 // logs specific errors to ease debugging

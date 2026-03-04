@@ -186,13 +186,15 @@ class Suppliership extends \equal\orm\Model {
                 ];
                 continue;
             }
+            /*
+            #memo - some suppliership are not meant to handle purchase invoices (e.g. banks) - and do not provide a bank account
             if(strlen($suppliership['supplier_id']['bank_account_iban'] ?? '') <= 0) {
                 $result[$id] = [
                     'missing_supplier_bank_account' => "The supplier bank account must be provided [{$id}]."
                 ];
                 continue;
             }
-
+            */
             if($suppliership['supplier_id']['type'] == 'CO') {
                 if(strlen($suppliership['supplier_id']['registration_number'] ?? '') <= 0) {
                     $result[$id] = [
