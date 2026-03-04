@@ -164,8 +164,8 @@ $addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) use
     $ps_content = <<<PS
 %!PS
 <<
-  /EndPage {
-    2 eq {
+  /BeginPage {
+
         gsave
         /$font findfont $font_size scalefont setfont
         0 setgray
@@ -193,8 +193,6 @@ $addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) use
         tx ty moveto
         ($overlay_text) show
         grestore
-    } if
-    true
   }
 >> setpagedevice
 PS;
@@ -202,13 +200,10 @@ PS;
     $ps_file = tempnam(sys_get_temp_dir(), 'overlay_ps_');
     file_put_contents($ps_file, $ps_content);
 
-    $ps_file_ps = str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $ps_file);
-
     $gs_cmd = sprintf(
-        'gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=%s -c "(%s) run" -f %s',
+        'gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=%s %s %s',
         escapeshellarg($output_file),
-        // escapeshellarg($ps_file),
-        $ps_file_ps,
+        escapeshellarg($ps_file),
         escapeshellarg($pdf_file)
     );
 
