@@ -166,14 +166,17 @@ $addOverlay = function($pdf_file, $overlay_text, $font_size, $pos_x, $pos_y) use
 %%Pages: 0
 %%EndComments
 <<
-  /BeginPage {
-    gsave
-      /$font findfont $font_size scalefont setfont
-      0 setgray
+  /EndPage {
+    2 eq {
+      gsave
+        /$font findfont $font_size scalefont setfont
+        0 setgray
 
-      $pos_x $pos_y moveto
-      ($overlay_text) show
-    grestore
+        $pos_x $pos_y moveto
+        ($overlay_text) show
+      grestore
+    } if
+    true
   }
 >> setpagedevice
 %%EOF
