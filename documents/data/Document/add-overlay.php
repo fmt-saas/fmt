@@ -202,10 +202,13 @@ PS;
     $ps_file = tempnam(sys_get_temp_dir(), 'overlay_ps_');
     file_put_contents($ps_file, $ps_content);
 
+    $ps_file_ps = str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $ps_file);
+
     $gs_cmd = sprintf(
         'gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=%s -c "(%s) run" -f %s',
         escapeshellarg($output_file),
-        escapeshellarg($ps_file),
+        // escapeshellarg($ps_file),
+        $ps_file_ps,
         escapeshellarg($pdf_file)
     );
 
