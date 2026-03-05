@@ -252,7 +252,7 @@ $subject = 'Dépenses courantes du {date_from} au {date_to}';
 $introduction = '';
 
 $map_values = [
-    'condo'             => $assembly['condo_id']['name'],
+    'condo'             => $condominium['name'],
     'date_from'         => $getFormattedDate($date_from),
     'date_to'           => $getFormattedDate($date_to)
 ];
