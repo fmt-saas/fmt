@@ -250,6 +250,18 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'description'   => 'Send expense statement correspondences.',
                 'policies'      => [],
                 'function'      => 'doSendExpenseStatements'
+            ],
+            'cancel' => [
+                'description'   => 'Cancel the sale invoice. No further change will be possible.',
+                'help'          => 'Void the accounting entry and set status to `cancelled`. By default (optional), a credit note can be create.',
+                'policies'      => [],
+                'function'      => 'doCancel'
+            ],
+            'unlock' => [
+                'description'   => 'Unlock the sale invoice, to allow re-posting after modifications.',
+                'help'          => 'Self voiding accounting entries will be left as `reversed`, and invoice will be set back to `proforma`.',
+                'policies'      => [],
+                'function'      => 'doUnlock'
             ]
         ]);
     }
@@ -309,6 +321,37 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'function'    => 'policyIsBalanced'
             ]
         ]);
+    }
+
+    protected static function doCancel($self) {
+        $self->read(['status', 'accounting_entry_id']);
+        foreach($self as $id => $expenseStatement) {
+            if($expenseStatement['status'] !== 'posted') {
+                continue;
+            }
+            AccountingEntry::id($expenseStatement['accounting_entry_id'])->do('cancel');
+            self::id($id)
+                ->update(['status' => 'cancelled']);
+
+            AccountingEntryLine::search(['clearing_expense_statement_id', '=', $id])
+                ->update(['is_cleared' => false]);
+        }
+    }
+
+    protected static function doUnlock($self) {
+        $self->read(['status', 'accounting_entry_id']);
+        foreach($self as $id => $expenseStatement) {
+            if($expenseStatement['status'] !== 'posted') {
+                continue;
+            }
+            AccountingEntry::id($expenseStatement['accounting_entry_id'])->do('cancel');
+            self::id($id)
+                ->update(['status' => 'proforma'])
+                ->update(['accounting_entry_id' => null]);
+
+            AccountingEntryLine::search(['clearing_expense_statement_id', '=', $id])
+                ->update(['is_cleared' => false]);
+        }
     }
 
     /**

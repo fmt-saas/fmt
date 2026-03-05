@@ -49,8 +49,7 @@ class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
                 'help'          => 'Self voiding accounting entries will be left as `reversed`, and invoice will be set back to `proforma`.',
                 'policies'      => [],
                 'function'      => 'doUnlock'
-            ],
-
+            ]
         ]);
     }
 
