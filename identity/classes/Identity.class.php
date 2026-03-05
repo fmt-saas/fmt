@@ -1675,6 +1675,9 @@ class Identity extends Model {
 
         // sync name, addresses & bank accounts (if required)
 
+        // force re-reading identity_id in case of assignation in current cycle
+        $self->read(['identity_id']);
+
         $name_dependencies = ['legal_name', 'short_name', 'firstname', 'lastname', 'type_id'];
         if(array_intersect_key($values, array_flip($name_dependencies))) {
             self::updateField($self, 'name');
