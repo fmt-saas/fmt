@@ -1685,7 +1685,7 @@ class Identity extends Model {
 
             if(count($bank_updates)) {
                 $mainBankAccount = BankAccount::search([['owner_identity_id', '=', $identity_id], ['is_primary', '=', true]]);
-                if($mainBankAccount->count() <= 0 && isset($identity['bank_account_iban'])) {
+                if($mainBankAccount->count() <= 0 /*&& isset($identity['bank_account_iban'])*/) {
                     $identity = self::id($identity_id)->read($bank_fields)->first();
                     $mainBankAccount = BankAccount::create([
                         'owner_identity_id' => $identity_id,
@@ -1696,7 +1696,9 @@ class Identity extends Model {
                         'bank_country'      => $identity['bank_country']
                     ]);
                 }
-                $mainBankAccount->update($bank_updates);
+                else {
+                    $mainBankAccount->update($bank_updates);
+                }
             }
 
         }
