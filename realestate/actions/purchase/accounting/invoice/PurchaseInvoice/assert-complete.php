@@ -170,7 +170,7 @@ if(!isset($purchaseInvoice['suppliership_id']) || $purchaseInvoice['suppliership
     throw new Exception("missing_valid_suppliership", EQ_ERROR_INVALID_PARAM);
 }
 
-$lines_total = 0.0;
+$lines_price_sum = 0.0;
 foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $purchaseInvoiceLine) {
     if(in_array($purchaseInvoiceLine['expense_account_id']['account_class'], [6, 7])) {
         if(($purchaseInvoiceLine['owner_share'] + $purchaseInvoiceLine['tenant_share']) != 100) {
@@ -183,12 +183,15 @@ foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $purchaseInvoiceLin
             throw new Exception("missing_mandatory_line_apportionment", EQ_ERROR_INVALID_PARAM);
         }
     }
+    /*
+    // #memo - total is never manually encoded, but always computed based on given price (VAT), therefore not relevant for checks
     if(abs(round($purchaseInvoiceLine['total'] * (1 + $purchaseInvoiceLine['vat_rate']), 2)) - abs(round($purchaseInvoiceLine['price'], 2)) > 0.01) {
         // error : Non matching price from vat excl amount & applicable vat rate
         $dispatch->dispatch('purchase.accounting.invoice.non_matching_price', $class, $id, 'important', $script, ['id' => $id]);
         throw new Exception("non_matching_price", EQ_ERROR_INVALID_PARAM);
     }
-    $lines_total += $purchaseInvoiceLine['price'];
+    */
+    $lines_price_sum += $purchaseInvoiceLine['price'];
 }
 
 // symmetrical removal of the alerts (if any)
@@ -196,7 +199,7 @@ $dispatch->cancel('purchase.accounting.invoice.invalid_owner_tenant_ratio', $cla
 $dispatch->cancel('purchase.accounting.invoice.non_matching_price', $class, $id);
 
 
-if(round($purchaseInvoice['price'], 2) != round($lines_total, 2) || round($purchaseInvoice['payable_amount'], 2) != round($lines_total, 2)) {
+if(round($purchaseInvoice['price'], 2) != round($lines_price_sum, 2) || round($purchaseInvoice['payable_amount'], 2) != round($lines_price_sum, 2)) {
     // error : Invoice total and lines total do not match
     $dispatch->dispatch('purchase.accounting.invoice.non_matching_lines_total', $class, $id, 'important', $script, ['id' => $id]);
     throw new Exception("non_matching_lines_total", EQ_ERROR_INVALID_PARAM);

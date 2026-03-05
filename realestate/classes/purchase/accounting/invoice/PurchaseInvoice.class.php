@@ -259,7 +259,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
                 'description'       => 'Expected Final tax-included invoiced amount.',
-                'help'              => 'This field is used to compare with sum of invoice lines prices.'
+                'help'              => 'This field is used to compare with sum of invoice lines prices.',
+                'dependents'        => ['price']
             ],
 
             'total_vat' => [
