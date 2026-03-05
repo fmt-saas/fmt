@@ -396,11 +396,15 @@ class Invoice extends Model {
         if($invoice) {
             $currency_decimal_precision = Setting::get_value('core', 'locale', 'currency.decimal_precision', 2);
 
-            $price = array_reduce($invoice['invoice_lines_ids']->get(true), function ($c, $a) {
+            $lines = $invoice['invoice_lines_ids']->get(true);
+
+            $price = array_reduce($lines, function ($c, $a) {
                 return $c + $a['price'];
             }, 0.0);
 
-            $result = round($price, $currency_decimal_precision);
+            if(count($lines)) {
+                $result = round($price, $currency_decimal_precision);
+            }
         }
 
         return $result;
