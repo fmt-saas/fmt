@@ -1095,7 +1095,9 @@ class Identity extends Model {
             /* update from derived class to Identity */
 
             if($identity['identity_id']) {
-                $orm->update(Identity::getType(), $identity['identity_id'], [$field => $identity[$field]]);
+                if(!empty($identity[$field])) {
+                    $orm->update(Identity::getType(), $identity['identity_id'], [$field => $identity[$field]]);
+                }
                 continue;
             }
 
