@@ -102,7 +102,8 @@ $mapSupplierRowToJson = function (array $row): array {
         "email"               => $row['email_1'] ?? null,
         "email_alt"           => $row['email_2'] ?? null,
         "phone"               => isset($row['phone_1']) ? str_replace(' ', '', $row['phone_1']) : null,
-        "phone_alt"           => isset($row['phone_2']) ? str_replace(' ', '', $row['phone_2']) : null
+        "phone_alt"           => isset($row['phone_2']) ? str_replace(' ', '', $row['phone_2']) : null,
+        "mobile"              => isset($row['mobile']) ? str_replace(' ', '', $row['mobile']) : null
     ];
 };
 
@@ -217,6 +218,26 @@ try {
                         ->do('refresh_bank_accounts')
                         ->do('refresh_addresses')
                         ->first();
+
+                    try {
+
+                        if($supplier['iban_2'] ?? false) {
+                            BankAccount::create([
+                                'owner_identity_id' => $identity['id'],
+                                'iban'              => $supplier['iban_2'],
+                            ]);
+                        }
+                        if($supplier['iban_3'] ?? false) {
+                            BankAccount::create([
+                                'owner_identity_id' => $identity['id'],
+                                'iban'              => $supplier['iban_3'],
+                            ]);
+                        }
+
+                    }
+                    catch(Exception $e) {
+                        // do nothing
+                    }
 
                     $result['logs'][] = "INFO- created identity id {$identity['id']} for supplier with registration number `{$values['registration_number']}`";
                 }

@@ -177,7 +177,7 @@ $map = [
         'Supplierships'             => ['supplier_code']
     ],
     'suppliers_import' => [
-        'suppliers' => ['legal_name', 'short_name', 'street', 'zip', 'city', 'country', 'phone_1', 'phone_2', 'phone_3', 'email_1', 'email_2', 'email_3', 'bic_1', 'iban_1', 'bic_2', 'iban_2', 'vat_number', 'registration_number']
+        'suppliers' => ['legal_name', 'short_name', 'street', 'zip', 'city', 'country', 'phone_1', 'phone_2', 'mobile_1', 'email_1', 'email_2', 'iban_1', 'iban_2', 'iban_3', 'vat_number', 'registration_number']
     ],
     'banks_import' => [
         'bank'      => ['legal_name', 'short_name', 'street', 'zip', 'city', 'country', 'phone_1', 'phone_2', 'email_1', 'email_2', 'website', 'vat_number', 'registration_number', 'bic']
