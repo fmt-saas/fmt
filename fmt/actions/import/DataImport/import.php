@@ -83,27 +83,27 @@ $mapBankRowToJson = function (array $row): array {
 
 $mapSupplierRowToJson = function (array $row): array {
     return [
-        "source"              => "manual",
-        "source_type"         => "manual",
-        "type_id"             => 3,
-        "type"                => "CO",
-        "bank_account_iban"   => isset($row['iban_1']) ? preg_replace('/[^A-Z0-9]/i', '', $row['iban_1']) : null,
-        "vat_number"          => isset($row['vat_number']) ? preg_replace('/[^A-Z0-9]/i', '', $row['vat_number']) : null,
-        "registration_number" => isset($row['registration_number']) ? preg_replace('/[^0-9]/i', '', $row['registration_number']) : null,
-        "legal_name"          => $row['legal_name'] ?? '',
-        "short_name"          => $row['short_name'] ?? '',
-        "has_vat"             => !empty($row['vat_number']),
-        "nationality"         => strtoupper($row['country'] ?? 'BE'),
-        "lang_id"             => 2,
-        "address_street"      => $row['street'] ?? null,
-        "address_city"        => $row['city'] ?? null,
-        "address_zip"         => $row['zip'] ?? null,
-        "address_country"     => $row['country'] ?? 'BE',
-        "email"               => $row['email_1'] ?? null,
-        "email_alt"           => $row['email_2'] ?? null,
-        "phone"               => isset($row['phone_1']) ? str_replace(' ', '', $row['phone_1']) : null,
-        "phone_alt"           => isset($row['phone_2']) ? str_replace(' ', '', $row['phone_2']) : null,
-        "mobile"              => isset($row['mobile']) ? str_replace(' ', '', $row['mobile']) : null
+        'source'              => "manual",
+        'source_type'         => "manual",
+        'type_id'             => 3,
+        'type'                => "CO",
+        'bank_account_iban'   => isset($row['iban_1']) ? preg_replace('/[^A-Z0-9]/i', '', $row['iban_1']) : null,
+        'vat_number'          => isset($row['vat_number']) ? preg_replace('/[^A-Z0-9]/i', '', $row['vat_number']) : null,
+        'registration_number' => isset($row['registration_number']) ? preg_replace('/[^0-9]/i', '', $row['registration_number']) : null,
+        'legal_name'          => $row['legal_name'] ?? '',
+        'short_name'          => $row['short_name'] ?? '',
+        'has_vat'             => !empty($row['vat_number']),
+        'nationality'         => strtoupper($row['country'] ?? 'BE'),
+        'lang_id'             => 2,
+        'address_street'      => $row['street'] ?? null,
+        'address_city'        => $row['city'] ?? null,
+        'address_zip'         => $row['zip'] ?? null,
+        'address_country'     => $row['country'] ?? 'BE',
+        'email'               => $row['email_1'] ?? null,
+        'email_alt'           => $row['email_2'] ?? null,
+        'phone'               => isset($row['phone_1']) ? str_replace(' ', '', $row['phone_1']) : null,
+        'phone_alt'           => isset($row['phone_2']) ? str_replace(' ', '', $row['phone_2']) : null,
+        'mobile'              => isset($row['mobile_1']) ? str_replace(' ', '', $row['mobile_1']) : null
     ];
 };
 
@@ -224,13 +224,13 @@ try {
                         if($supplier['iban_2'] ?? false) {
                             BankAccount::create([
                                 'owner_identity_id' => $identity['id'],
-                                'iban'              => $supplier['iban_2'],
+                                'bank_account_iban' => $supplier['iban_2'],
                             ]);
                         }
                         if($supplier['iban_3'] ?? false) {
                             BankAccount::create([
                                 'owner_identity_id' => $identity['id'],
-                                'iban'              => $supplier['iban_3'],
+                                'bank_account_iban' => $supplier['iban_3'],
                             ]);
                         }
 
@@ -516,16 +516,16 @@ try {
 
                 try {
 
-                    if($external_representative['iban_2']) {
+                    if($external_representative['iban_2'] ?? false) {
                         BankAccount::create([
                             'owner_identity_id' => $identity['id'],
-                            'iban'              => $external_representative['iban_2'],
+                            'bank_account_iban' => $external_representative['iban_2'],
                         ]);
                     }
-                    if($external_representative['iban_3']) {
+                    if($external_representative['iban_3'] ?? false) {
                         BankAccount::create([
                             'owner_identity_id' => $identity['id'],
-                            'iban'              => $external_representative['iban_3'],
+                            'bank_account_iban' => $external_representative['iban_3'],
                         ]);
                     }
 
@@ -638,16 +638,16 @@ try {
 
                 try {
 
-                    if($owner['iban_2']) {
+                    if($owner['iban_2'] ?? false) {
                         BankAccount::create([
                             'owner_identity_id' => $identity['id'],
-                            'iban'              => $owner['iban_2'],
+                            'bank_account_iban' => $owner['iban_2'],
                         ]);
                     }
-                    if($owner['iban_3']) {
+                    if($owner['iban_3'] ?? false) {
                         BankAccount::create([
                             'owner_identity_id' => $identity['id'],
-                            'iban'              => $owner['iban_3'],
+                            'bank_account_iban' => $owner['iban_3'],
                         ]);
                     }
 
