@@ -1663,6 +1663,7 @@ class Identity extends Model {
 
                     // create if none found
                     if(!$identity_id) {
+                        // #memo - do not use Identity::create
                         $identity_id = $orm->create(Identity::getType(), $identity_values);
                     }
 
@@ -1689,6 +1690,11 @@ class Identity extends Model {
                 self::id($id)->update(['registration_number' => self::computeVirtualCitizenIdentification()]);
             }
 
+            $identity_id = $id;
+            if(isset($identity['identity_id'])) {
+                $identity_id = $identity['identity_id'];
+            }
+
             // sync primary address
             $address_fields = ['address_street', 'address_dispatch', 'address_zip', 'address_city', 'address_state', 'address_country'];
             $address_updates = [];
@@ -1698,27 +1704,27 @@ class Identity extends Model {
                 }
             }
 
-            $identity_id = $id;
-            if(isset($identity['identity_id'])) {
-                $identity_id = $identity['identity_id'];
-            }
-
             if(count($address_updates)) {
                 $mainAddress = Address::search([['owner_identity_id', '=', $identity_id], ['is_primary', '=', true]]);
                 if($mainAddress->count() <= 0) {
                     $identity = self::id($identity_id)->read($address_fields)->first();
-                    $mainAddress = Address::create([
-                        'owner_identity_id' => $identity_id,
-                        'is_primary'        => true,
-                        'address_street'    => $identity['address_street'],
-                        'address_dispatch'  => $identity['address_dispatch'],
-                        'address_zip'       => $identity['address_zip'],
-                        'address_city'      => $identity['address_city'],
-                        'address_state'     => $identity['address_state'],
-                        'address_country'   => $identity['address_country']
-                    ]);
+                    // prevent creation attempt if no iban is resolved
+                    if($values['address_street'] ?? $identity['address_street']) {
+                        $mainAddress = Address::create([
+                            'owner_identity_id' => $identity_id,
+                            'is_primary'        => true,
+                            'address_street'    => $values['address_street'] ?? $identity['address_street'],
+                            'address_dispatch'  => $values['address_dispatch'] ?? $identity['address_dispatch'],
+                            'address_zip'       => $values['address_zip'] ?? $identity['address_zip'],
+                            'address_city'      => $values['address_city'] ?? $identity['address_city'],
+                            'address_state'     => $values['address_state'] ?? $identity['address_state'],
+                            'address_country'   => $values['address_country'] ?? $identity['address_country']
+                        ]);
+                    }
                 }
-                $mainAddress->update($address_updates);
+                else {
+                    $mainAddress->update($address_updates);
+                }
             }
 
             // sync primary bank account
