@@ -934,7 +934,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 // reset computed relation fields
                 self::id($id)->update([
                         'document_process_status' => null,
-                        'alert' => null
+                        'alert' => null,
+                        'name'  => null
                     ]);
             }
         }
