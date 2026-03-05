@@ -194,6 +194,14 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'readonly'          => true
             ],
 
+            'documents_count' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => 'Number of documents attached to the item.',
+                'store'             => false,
+                'function'          => 'calcDocumentsCount'
+            ],
+
             'documents_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\Document',
@@ -1130,6 +1138,15 @@ class AssemblyItem extends AssemblyItemTemplate {
             }
 
             $result[$id] = $shares;
+        }
+        return $result;
+    }
+
+    protected static function calcDocumentsCount($self) {
+        $result = [];
+        $self->read(['documents_ids']);
+        foreach($self as $id => $item) {
+            $result[$id] = count($item['documents_ids']);
         }
         return $result;
     }

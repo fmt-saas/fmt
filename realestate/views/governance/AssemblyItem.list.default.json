@@ -271,6 +271,25 @@
                 "value": "status",
                 "width": "10%",
                 "visible": ["assembly_status", "=", "in_progress"]
+            },
+            {
+                "type": "field",
+                "label": "Documents",
+                "value": "documents_count",
+                "width": "10%",
+                "widget": {
+                    "align": "center",
+                    "margin": "auto",
+                    "styles": {
+                        "text_align": "center",
+                        "text_width": "40px",
+                        "text_weight": "bold",
+                        "text_color": "white",
+                        "background_color": "#3f51b5",
+                        "border_radius": "40px"
+                    }
+                },
+                "visible": [ ["documents_count", ">", 0] ]
             }
         ]
     }
