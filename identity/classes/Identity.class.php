@@ -1285,9 +1285,11 @@ class Identity extends Model {
     protected static function onupdateCitizenIdentification($self) {
         self::updateField($self, 'citizen_identification');
         // #memo - for convenience, citizen_identification (individuals only) is copied into registration_number
-        $self->read(['citizen_identification', 'object_class']);
+        $self->read(['type', 'citizen_identification', 'object_class']);
         foreach($self as $id => $object) {
-            $object['object_class']::id($id)->update(['registration_number' => $object['citizen_identification']]);
+            if($object['type'] === 'IN') {
+                $object['object_class']::id($id)->update(['registration_number' => $object['citizen_identification']]);
+            }
         }
     }
 
@@ -1720,7 +1722,8 @@ class Identity extends Model {
                 // si type == 'CO', le registration_number est obligatoire
                 $type = $values['type'] ?? $identity['type'];
                 if($type === 'CO') {
-                    if(!$identity['registration_number'] || strlen($identity['registration_number']) <= 0) {
+                    $registration_number = $values['registration_number'] ?? $identity['registration_number'];
+                    if(!$registration_number || strlen($registration_number) <= 0) {
                         return ['registration_number' => ['missing_registration_number' => 'Registration number is mandatory for companies.']];
                     }
                 }
