@@ -1619,7 +1619,52 @@ class Identity extends Model {
                         }
                     }
 
-                    $identity_id = $orm->create(Identity::getType(), $identity_values);
+                    /*
+                        attempt to retrieve existing identity
+                    */
+
+                    $identity_id = null;
+
+                    // VAT number (strong identifier)
+                    if(!$identity_id && !empty($identity_values['vat_number'])) {
+                        $existing = Identity::search([
+                            ['vat_number', '=', $identity_values['vat_number']]
+                        ])
+                        ->first();
+
+                        if($existing) {
+                            $identity_id = $existing['id'];
+                        }
+                    }
+
+                    // registration number
+                    if(!$identity_id && !empty($identity_values['registration_number'])) {
+                        $existing = Identity::search([
+                            ['registration_number', '=', $identity_values['registration_number']]
+                        ])
+                        ->first();
+
+                        if($existing) {
+                            $identity_id = $existing['id'];
+                        }
+                    }
+
+                    // citizen identification
+                    if(!$identity_id && !empty($identity_values['citizen_identification'])) {
+                        $existing = Identity::search([
+                            ['citizen_identification', '=', $identity_values['citizen_identification']]
+                        ])
+                        ->first();
+
+                        if($existing) {
+                            $identity_id = $existing['id'];
+                        }
+                    }
+
+                    // create if none found
+                    if(!$identity_id) {
+                        $identity_id = $orm->create(Identity::getType(), $identity_values);
+                    }
 
                     // #memo - classes that inherit from Identity should have a callback onupdateIdentityId (in order to assign back the right field: 'user_id', 'customer_id', 'supplier_id', 'employee_id', ...)
                     $orm->update(self::getType(), $id, ['identity_id' => $identity_id]);
