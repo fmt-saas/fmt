@@ -22,9 +22,9 @@
             "description": "Cancel invoice.",
             "controller": "core_model_do",
             "confirm": true,
-            "visible": false,
+            "visible1": false,
             "visible_help": "A purchase invoice should always be cancelled through its parent DocumentProcess.",
-            "visible1": ["status", "=", "posted"],
+            "visible": ["status", "=", "posted"],
             "params": {
                 "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                 "action": "cancel",
@@ -37,9 +37,9 @@
             "description": "Unlock invoice.",
             "controller": "core_model_do",
             "confirm": true,
-            "visible": false,
+            "visible1": false,
             "visible_help": "A purchase invoice should always be cancelled through its parent DocumentProcess.",
-            "visible1": ["status", "=", "posted"],
+            "visible": ["status", "=", "posted"],
             "params": {
                 "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                 "action": "unlock",
