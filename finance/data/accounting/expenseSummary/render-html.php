@@ -166,12 +166,21 @@ $data = eQual::run('get', 'finance_accounting_expenseSummary_collect', [
     ]);
 
 
-$fiscalYear = FiscalYear::search([
-        ['status', '=', 'open'],
-        ['condo_id', '=', $condo_id],
-    ],  ['sort' => ['date_from' => 'desc']])
-    ->read(['date_from', 'date_to'])
-    ->first();
+
+if(isset($params['params']['fiscal_year_id'])) {
+    $fiscalYear = FiscalYear::id($params['params']['fiscal_year_id'])
+        ->read(['date_from', 'date_to'])
+        ->first();
+}
+
+if(!$fiscalYear) {
+    $fiscalYear = FiscalYear::search([
+            ['status', '=', 'open'],
+            ['condo_id', '=', $condo_id],
+        ],  ['sort' => ['date_from' => 'desc']])
+        ->read(['date_from', 'date_to'])
+        ->first();
+}
 
 if(!$fiscalYear) {
     $fiscalYear = FiscalYear::search([
