@@ -1588,7 +1588,8 @@ class Identity extends Model {
         if(static::getType() !== 'identity\\Identity') {
             $common_fields = [
                     'source',
-                    'type_id','has_vat','vat_number','legal_name','firstname','lastname','lang_id',
+                    'type_id','legal_name','firstname','lastname','lang_id',
+                    'has_vat','vat_number','citizen_identification', 'registration_number',
                     'email','phone','mobile',
                     'address_street','address_dispatch','address_zip',
                     'address_city','address_state','address_country'
