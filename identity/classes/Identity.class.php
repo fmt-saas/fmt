@@ -1689,14 +1689,17 @@ class Identity extends Model {
                 $mainBankAccount = BankAccount::search([['owner_identity_id', '=', $identity_id], ['is_primary', '=', true]]);
                 if($mainBankAccount->count() <= 0 /*&& isset($identity['bank_account_iban'])*/) {
                     $identity = self::id($identity_id)->read($bank_fields)->first();
-                    $mainBankAccount = BankAccount::create([
-                        'owner_identity_id' => $identity_id,
-                        'is_primary'        => true,
-                        'bank_account_iban' => $identity['bank_account_iban'],
-                        'bank_account_bic'  => $identity['bank_account_bic'],
-                        'bank_name'         => $identity['bank_name'],
-                        'bank_country'      => $identity['bank_country']
-                    ]);
+                    // prevent creation attempt if no iban is resolved
+                    if($values['bank_account_iban'] ?? $identity['bank_account_iban']) {
+                        $mainBankAccount = BankAccount::create([
+                            'owner_identity_id' => $identity_id,
+                            'is_primary'        => true,
+                            'bank_account_iban' => $values['bank_account_iban'] ?? $identity['bank_account_iban'],
+                            'bank_account_bic'  => $values['bank_account_bic'] ?? $identity['bank_account_bic'],
+                            'bank_name'         => $values['bank_name'] ?? $identity['bank_name'],
+                            'bank_country'      => $values['bank_country'] ?? $identity['bank_country']
+                        ]);
+                    }
                 }
                 else {
                     $mainBankAccount->update($bank_updates);
