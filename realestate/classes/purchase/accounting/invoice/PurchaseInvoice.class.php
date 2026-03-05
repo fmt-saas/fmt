@@ -1699,9 +1699,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
 
             if(isset($invoice['suppliership_id'])) {
-                $suppliership = Suppliership::id($invoice['suppliership_id'])->read(['supplier_id' => ['name', 'vat_number', 'address_street', 'address_city', 'address_zip', 'address_country']])->first();
+                $suppliership = Suppliership::id($invoice['suppliership_id'])->read(['supplier_id' => ['name', 'vat_number', 'registration_number', 'address_street', 'address_city', 'address_zip', 'address_country']])->first();
                 $fields['supplier']['name'] = $suppliership['supplier_id']['name'];
                 $fields['supplier']['vat_id'] = $suppliership['supplier_id']['vat_number'];
+                $fields['supplier']['company_id'] = $suppliership['supplier_id']['registration_number'];
                 $fields['supplier']['address']['street'] = $suppliership['supplier_id']['address_street'];
                 $fields['supplier']['address']['city'] = $suppliership['supplier_id']['address_city'];
                 $fields['supplier']['address']['postal_code'] = $suppliership['supplier_id']['address_zip'];

@@ -224,13 +224,13 @@ try {
                         if($supplier['iban_2'] ?? false) {
                             BankAccount::create([
                                 'owner_identity_id' => $identity['id'],
-                                'bank_account_iban' => $supplier['iban_2'],
+                                'bank_account_iban' => $supplier['iban_2']
                             ]);
                         }
                         if($supplier['iban_3'] ?? false) {
                             BankAccount::create([
                                 'owner_identity_id' => $identity['id'],
-                                'bank_account_iban' => $supplier['iban_3'],
+                                'bank_account_iban' => $supplier['iban_3']
                             ]);
                         }
 
