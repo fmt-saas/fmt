@@ -235,6 +235,8 @@ try {
                         ->do('sync_from_identity')
                         ->first();
 
+                    Identity::id($identity['id'])->update(['supplier_id' => $supplier['id']]);
+
                     $result['logs'][] = "INFO- created new supplier with id {$supplier['id']} with registration number `{$values['registration_number']}`";
                 }
             }
@@ -313,6 +315,7 @@ try {
                     'address_zip'               => $condominium_data['zip'],
                     'address_country'           => $condominium_data['country'],
                 ])
+                ->do('refresh_bank_accounts')
                 ->do('refresh_addresses')
                 ->first();
 
@@ -482,6 +485,7 @@ try {
                     ])
                     // #memo - events are deactivated
                     ->do('refresh_legal_name')
+                    ->do('refresh_bank_accounts')
                     ->do('refresh_addresses')
                     ->do('refresh_registration_number')
                     ->read(['slug_hash'])
@@ -603,6 +607,7 @@ try {
                     ])
                     // #memo - events are deactivated
                     ->do('refresh_legal_name')
+                    ->do('refresh_bank_accounts')
                     ->do('refresh_addresses')
                     ->do('refresh_registration_number')
                     ->read(['slug_hash'])

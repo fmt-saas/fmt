@@ -953,7 +953,7 @@ class Identity extends Model {
                 continue;
             }
             $identity_id = $identity['identity_id'] ?? $id;
-            $mainAddress = Address::search([['owner_identity_id', '=', $identity_id], ['is_primary', '=', true]]);
+            $mainAddress = Address::search([['owner_identity_id', '=', $identity_id], ['is_primary', '=', true]])->first();
             if(!$mainAddress) {
                 $mainAddress = Address::create([
                     'owner_identity_id' => $identity_id,
