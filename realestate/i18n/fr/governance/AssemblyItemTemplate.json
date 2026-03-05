@@ -28,6 +28,11 @@
             "description": "Nombre de sous-points contenus dans le groupe.",
             "help": ""
         },
+        "documents_count": {
+            "label": "Documents",
+            "description": "Nombre de documents liés à la résolution.",
+            "help": ""
+        },
         "assembly_template_id": {
             "label": "Modèle d'assemblée",
             "description": "Modèle d'assemblée auquel la résolution se rapporte.",
