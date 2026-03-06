@@ -8,11 +8,6 @@
             "description": "Date à laquelle la balance a été calculée (devrait correspondre à la fin de période).",
             "help": ""
         },
-        "balance_type": {
-            "label": "Type de balance",
-            "description": "Indique si la balance porte sur l'exercice complet ou une période (`fiscal_year` / `fiscal_period`).",
-            "help": ""
-        },
         "fiscal_year_id": {
             "label": "Exercice",
             "description": "Exercice fiscal référencé.",

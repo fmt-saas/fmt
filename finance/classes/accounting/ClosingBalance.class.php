@@ -23,22 +23,6 @@ class ClosingBalance extends Balance {
     public static function getColumns() {
         return [
 
-            'date' => [
-                'type'              => 'string',
-                'usage'             => 'date/plain',
-                'description'       => 'Date at which the balance was generated.',
-                'help'              => 'If closing balance is validated, the date should match the `date_to` of the related fiscal period.'
-            ],
-
-            'balance_type' => [
-                'type'              => 'string',
-                'selection'         => [
-                    'fiscal_year',
-                    'fiscal_period'
-                ],
-                'description'       => 'Type of balance.',
-            ],
-
             'balance_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\ClosingBalanceLine',
@@ -94,7 +78,7 @@ class ClosingBalance extends Balance {
      *
      */
     protected static function doGenerateBalanceLines($self) {
-        $self->read(['condo_id', 'status', 'fiscal_year_id', 'is_period_balance', 'fiscal_period_id', 'accounting_entry_id' => ['entry_lines_ids' => ['account_id', 'debit', 'credit']]]);
+        $self->read(['condo_id', 'status', 'fiscal_year_id', 'is_period_balance', 'fiscal_period_id']);
         foreach($self as $id => $balance) {
             // ignore non-draft
             if($balance['status'] != 'pending') {
@@ -103,13 +87,21 @@ class ClosingBalance extends Balance {
             // if some lines already exist, remove them
             ClosingBalanceLine::search(['balance_id', '=', $id])->delete(true);
 
+            $domain = [
+                ['is_closing', '=', false],
+                ['is_carry_forward', '=', false],
+                ['status', 'in', ['validated','reversed']]
+            ];
+
             // fetch all accounting entries for considered period
             if($balance['is_period_balance']) {
-                $accounting_entries_ids = AccountingEntry::search([['fiscal_period_id', '=', $balance['fiscal_period_id']]])->ids();
+                $domain[] = ['fiscal_period_id', '=', $balance['fiscal_period_id']];
             }
             else {
-                $accounting_entries_ids = AccountingEntry::search([['fiscal_year_id', '=', $balance['fiscal_year_id']]])->ids();
+                $domain[] = ['fiscal_year_id', '=', $balance['fiscal_year_id']];
             }
+
+            $accounting_entries_ids = AccountingEntry::search($domain)->ids();
 
             $map_accounts_values = [];
 
@@ -159,14 +151,13 @@ class ClosingBalance extends Balance {
                     ], $values));
             }
 
-            self::id($id)->update(['status' => 'closed']);
         }
     }
 
     protected static function candelete($self) {
         $self->read(['fiscal_year_id' => ['status']]);
         foreach($self as $id => $closingBalance) {
-            if($closingBalance['fiscal_year_id']['status'] == 'closed') {
+            if($closingBalance['fiscal_year_id']['status'] === 'closed') {
                 return ['status' => ['non_removable' => 'Closing balance from a closed fiscal year cannot be deleted.']];
             }
         }

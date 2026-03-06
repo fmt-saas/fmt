@@ -15,7 +15,7 @@ class Balance extends Model {
 
     public static function getDescription() {
         return "Accounting Balances provide an overview of the accounts at a specific date.
-        This class in an abstraction for the CurrentBalance and ClosingBalance entities.";
+        This class in an abstraction for the OpeningBalance and ClosingBalance snapshots.";
     }
 
     public static function getColumns() {
@@ -43,26 +43,18 @@ class Balance extends Model {
                 'dependents'        => ['name']
             ],
 
-            'is_period_balance' => [
-                'type'              => 'boolean',
-                'description'       => "Does the balance relate to a specific fiscal period.",
-                'default'           => false
-            ],
-
-            'is_balanced' => [
-                'type'              => 'computed',
-                'result_type'       => 'boolean',
-                'description'       => "Does the balance relate to a specific fiscal period.",
-                'function'          => 'calcIsBalanced',
-                'store'             => false
-            ],
-
             'fiscal_period_id' => [
                 'type'              => 'many2one',
                 'description'       => "The fiscal period the balance refers to.",
                 'foreign_object'    => 'finance\accounting\FiscalPeriod',
                 'readonly'          => true,
                 'visible'           => ['is_period_balance', '=', true]
+            ],
+
+            'is_period_balance' => [
+                'type'              => 'boolean',
+                'description'       => "Does the balance relate to a specific fiscal period.",
+                'default'           => false
             ],
 
             'balance_lines_ids' => [
@@ -84,45 +76,5 @@ class Balance extends Model {
             ]
 
         ];
-    }
-
-    public static function getWorkflow() {
-        return [
-            'pending' => [
-                'description' => 'Balance being completed, waiting to be validated.',
-                'icon'        => 'edit',
-                'transitions' => [
-                    'validate' => [
-                        'description' => 'Update the Balance to `validated`.',
-                        'status'      => 'validated'
-                    ]
-                ]
-            ],
-            'validated' => [
-                'description' => 'Validated Ownership, ready to be used.',
-                'icon'        => 'done',
-                'transitions' => [
-                    'revert' => [
-                        'description' => 'Revert to `pending` to allow changes.',
-                        'status'      => 'pending'
-                    ]
-                ]
-            ]
-        ];
-    }
-
-    protected static function calcIsBalanced($self) {
-        $result = [];
-        $self->read(['balance_lines_ids' => ['debit', 'credit']]);
-        foreach($self as $id => $balance) {
-            $total_debit = 0.0;
-            $total_credit = 0.0;
-            foreach($balance['balance_lines_ids'] as $balanceLine) {
-                $total_debit += $balanceLine['debit'];
-                $total_credit += $balanceLine['credit'];
-            }
-            $result[$id] = abs($total_debit - $total_credit) < 0.01;
-        }
-        return $result;
     }
 }
