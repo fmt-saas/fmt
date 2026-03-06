@@ -52,7 +52,7 @@
             "description": "",
             "icon": "edit_note",
             "context": {
-                "entity": "finance\\accounting\\AccountingEntry",
+                "entity": "realestate\\finance\\accounting\\AccountingEntry",
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }
