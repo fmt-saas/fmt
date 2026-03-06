@@ -197,8 +197,8 @@ if($fiscalYear) {
 }
 
 if(isset($params['params']['date_from'], $params['params']['date_to']) && $params['params']['date_from'] && $params['params']['date_to']) {
-    $date_from = $params['params']['date_from'];
-    $date_to = $params['params']['date_to'];
+    $date_from = strtotime($params['params']['date_from']);
+    $date_to = strtotime($params['params']['date_to']);
 }
 
 $groups = [];
