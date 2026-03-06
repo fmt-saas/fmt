@@ -377,9 +377,9 @@ class AssemblyVote extends \equal\orm\Model {
             if($assemblyVote['assembly_id']['is_second_session'] && $total_shares == $voter_shares) {
                 $result[$id] = $voter_shares;
             }
-            // else do not allow attendee to vote for more shares than the sum of the other attendees (e.g., if two attendees -> always 50/50)
+            // otherwise do not allow attendee to vote for more shares than the sum of the other attendees
             else {
-                $max = $total_shares - $voter_shares;
+                $max = max(0, $total_shares - $voter_shares);
                 $result[$id] = min($voter_shares, $max);
             }
         }
