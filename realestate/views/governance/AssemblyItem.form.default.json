@@ -10,7 +10,11 @@
                 "entity": "realestate\\governance\\AssemblyItem",
                 "transition": "open"
             },
-            "visible": [["assembly_status", "=", "in_progress"], ["status", "=", "pending"]]
+            "visible": [
+                ["assembly_status", "=", "in_progress"],
+                ["assembly_step", "=", "agenda_processing"],
+                ["status", "=", "pending"]
+            ]
         },
         {
             "id": "action.revert",
@@ -60,6 +64,7 @@
             },
             "visible": [
                 ["assembly_status", "=", "in_progress"],
+                ["assembly_step", "=", "agenda_processing"],
                 ["status", "in", ["adjourned", "closed"]]
             ]
         }

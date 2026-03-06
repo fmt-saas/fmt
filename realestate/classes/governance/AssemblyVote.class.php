@@ -367,21 +367,28 @@ class AssemblyVote extends \equal\orm\Model {
      */
     protected static function calcVoteEffectiveShares($self) {
         $result = [];
-        $self->read(['vote_shares', 'assembly_item_id' => ['count_represented_shares']]);
+        $self->read(['vote_shares', 'assembly_id' => ['is_second_session'], 'assembly_item_id' => ['count_represented_shares']]);
         foreach($self as $id => $assemblyVote) {
             // #memo - Art. 3.87 §7 - Nul ne peut prendre part au vote, même comme mandant ou mandataire, pour un nombre de voix supérieur à la somme des voix dont disposent les autres copropriétaires présents ou représentés
             $voter_shares = $assemblyVote['vote_shares'];
             $total_shares = $assemblyVote['assembly_item_id']['count_represented_shares'];
-            $max = $total_shares - $voter_shares;
-            $result[$id] = min($voter_shares, $max);
+
+            // if second session we allow one person to vote alone
+            if($assemblyVote['assembly_id']['is_second_session'] && $total_shares == $voter_shares) {
+                $result[$id] = $voter_shares;
+            }
+            // else do not allow attendee to vote for more shares than the sum of the other attendees (e.g., if two attendees -> always 50/50)
+            else {
+                $max = $total_shares - $voter_shares;
+                $result[$id] = min($voter_shares, $max);
+            }
         }
         return $result;
     }
 
     /**
      * Calculate the vote weight based on the shares of the property lots of the ownership,
-     * for the the related apportionment at the moment of the assembly.
-     *
+     * for the related apportionment at the moment of the assembly.
      */
     protected static function calcVoteWeight($self) {
         $result = [];
