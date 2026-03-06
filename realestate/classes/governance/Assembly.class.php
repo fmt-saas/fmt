@@ -2253,7 +2253,6 @@ class Assembly extends \equal\orm\Model {
                 'condo_id'              => $assembly['condo_id'],
                 'name'                  => $assembly['name'],
                 'assembly_type'         => $assembly['assembly_type'],
-                'assembly_date'         => $assembly['assembly_date'] + (15 * 86400),
                 'assembly_template_id'  => $assembly['assembly_template_id'],
                 'is_second_session'     => true,
                 'related_assembly_id'   => $id,
