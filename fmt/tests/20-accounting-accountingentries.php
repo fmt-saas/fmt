@@ -127,5 +127,100 @@ $tests = [
                     $orm->delete(FiscalYear::getType(), $fiscal_years_ids, true);
                     $orm->delete(Condominium::getType(), $condo['id'], true);
                 }
+        ],
+
+        '1103' => [
+            'description'       => "Accounting entry cancelation creates a linked reversal entry.",
+            'help'              => "Create an accounting entry, validate it, cancel it, and verify both entries are linked through reverse_entry_id with status reversed.",
+            'return'            => ['boolean'],
+            'arrange'           => function() use($providers) {
+                    $condo = Condominium::create(['name' => 'test condo reversal', 'managing_agent_id' => 1])
+                        ->do('generate_journals')
+                        ->first(true);
+
+                    $fiscalYear = FiscalYear::create([
+                            'date_from' => strtotime(date('Y-01-01')),
+                            'date_to'   => strtotime(date('Y-12-31')),
+                            'condo_id'  => $condo['id']
+                        ])
+                        ->first(true);
+
+                    $accountingEntry = AccountingEntry::create([
+                            'condo_id'          => $condo['id'],
+                            'status'            => 'pending',
+                            'journal_id'        => current(Journal::search([['journal_type', '=', 'PURC'], ['condo_id', '=', $condo['id']]])->ids()),
+                            'fiscal_year_id'    => $fiscalYear['id'],
+                            'entry_date'        => time(),
+                        ])
+                        ->first(true);
+
+                    AccountingEntryLine::create([
+                        'accounting_entry_id'   => $accountingEntry['id'],
+                        'account_id'            => current(Account::search(['code', '=', '6100003'])->ids()),
+                        'debit'                 => 1000.0,
+                        'credit'                => 0.0,
+                    ]);
+
+                    AccountingEntryLine::create([
+                        'accounting_entry_id'   => $accountingEntry['id'],
+                        'account_id'            => current(Account::search(['code', '=', '440'])->ids()),
+                        'debit'                 => 0.0,
+                        'credit'                => 1000.0,
+                    ]);
+
+                    return $accountingEntry['id'];
+                },
+            'act'               => function($accounting_entry_id) use($providers) {
+                    AccountingEntry::id($accounting_entry_id)->transition('validate');
+                    AccountingEntry::id($accounting_entry_id)->do('cancel');
+                    return $accounting_entry_id;
+                },
+            'assert'            => function($accounting_entry_id) use($providers) {
+                    $entry = AccountingEntry::id($accounting_entry_id)
+                        ->read(['id', 'status', 'reverse_entry_id'])
+                        ->first();
+
+                    if(!$entry || $entry['status'] !== 'reversed' || !$entry['reverse_entry_id']) {
+                        return false;
+                    }
+
+                    $reverseEntry = AccountingEntry::id($entry['reverse_entry_id'])
+                        ->read(['id', 'status', 'reverse_entry_id'])
+                        ->first();
+
+                    if(!$reverseEntry || $reverseEntry['status'] !== 'reversed') {
+                        return false;
+                    }
+
+                    if((int) $reverseEntry['reverse_entry_id'] !== (int) $accounting_entry_id) {
+                        return false;
+                    }
+
+                    $reversedEntries = AccountingEntry::search([
+                            ['id', 'in', [$accounting_entry_id, $reverseEntry['id']]],
+                            ['status', '=', 'reversed']
+                        ])
+                        ->ids();
+
+                    return count($reversedEntries) === 2;
+                },
+            'rollback'          => function() use($providers) {
+                    ['orm' => $orm] = $providers;
+
+                    $condos_ids = Condominium::search(['name', '=', 'test condo reversal'])->ids();
+                    foreach($condos_ids as $condo_id) {
+                        $accounting_entries_ids = AccountingEntry::search(['condo_id', '=', $condo_id])->ids();
+                        if(count($accounting_entries_ids)) {
+                            $orm->delete(AccountingEntry::getType(), $accounting_entries_ids, true);
+                        }
+
+                        $fiscal_years_ids = FiscalYear::search(['condo_id', '=', $condo_id])->ids();
+                        if(count($fiscal_years_ids)) {
+                            $orm->delete(FiscalYear::getType(), $fiscal_years_ids, true);
+                        }
+
+                        $orm->delete(Condominium::getType(), $condo_id, true);
+                    }
+                }
         ]
 ];

@@ -499,7 +499,6 @@ class AccountingEntry extends Model {
                     'fiscal_year_id'            => $entry['fiscal_year_id'],
                     // #memo #important - same date for strict cancellation
                     'entry_date'                => $entry['entry_date'],
-                    'reverse_entry_id'          => $id,
                     'purchase_invoice_id'       => $entry['purchase_invoice_id'],
                     'sale_invoice_id'           => $entry['sale_invoice_id'],
                     'misc_operation_id'         => $entry['misc_operation_id'],
@@ -518,16 +517,23 @@ class AccountingEntry extends Model {
                 ]]);
             }
 
-            // 3) Link original to reversal
-            self::id($id)->update([
-                'reverse_entry_id' => $reversal['id']
-            ]);
+            // 3) Validate reversal (will post lines once => update AccountBalanceChange)
+            self::id($reversal['id'])
+                ->transition('validate');
 
-            // 4) Validate reversal (will post lines once => update AccountBalanceChange)
-            self::id($reversal['id'])->transition('validate');
+            // 4) Link original to reversal
+            self::id($id)
+                ->update([
+                    'reverse_entry_id'  => $reversal['id'],
+                    'status'            => 'reversed'
+                ]);
 
-            // 5) Mark both entries as reversed (audit state only)
-            self::ids([$id, $reversal['id']])->update(['status' => 'reversed']);
+            // 5) Link reversal to original
+            self::id($reversal['id'])
+                ->update([
+                    'reverse_entry_id'  => $id,
+                    'status'            => 'reversed'
+                ]);
         }
     }
 
