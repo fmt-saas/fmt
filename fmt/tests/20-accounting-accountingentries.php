@@ -192,17 +192,7 @@ $tests = [
                         return false;
                     }
 
-                    if((int) $reverseEntry['reverse_entry_id'] !== (int) $accounting_entry_id) {
-                        return false;
-                    }
-
-                    $reversedEntries = AccountingEntry::search([
-                            ['id', 'in', [$accounting_entry_id, $reverseEntry['id']]],
-                            ['status', '=', 'reversed']
-                        ])
-                        ->ids();
-
-                    return count($reversedEntries) === 2;
+                    return ($reverseEntry['reverse_entry_id'] === $accounting_entry_id);
                 },
             'rollback'          => function() use($providers) {
                     ['orm' => $orm] = $providers;

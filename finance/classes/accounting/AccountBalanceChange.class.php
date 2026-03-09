@@ -104,13 +104,13 @@ class AccountBalanceChange extends Model {
         if ($anchor_date) {
             $closing_lines = ClosingBalance::getBalancesAtDate($condo_id, $anchor_date);
             foreach ($closing_lines as $line) {
-                self::create([[
+                self::create([
                     'condo_id' => $condo_id,
                     'account_id' => $line['account_id'],
                     'date' => $anchor_date,
                     'debit_balance' => $line['debit_balance'],
                     'credit_balance' => $line['credit_balance']
-                ]]);
+                ]);
             }
         }
 

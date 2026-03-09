@@ -493,7 +493,7 @@ class AccountingEntry extends Model {
         foreach ($self as $id => $entry) {
 
             // 1) Create reversal entry (B)
-            $reversal = self::create([[
+            $reversal = self::create([
                     'condo_id'                  => $entry['condo_id'],
                     'journal_id'                => $entry['journal_id'],
                     'fiscal_year_id'            => $entry['fiscal_year_id'],
@@ -503,18 +503,18 @@ class AccountingEntry extends Model {
                     'sale_invoice_id'           => $entry['sale_invoice_id'],
                     'misc_operation_id'         => $entry['misc_operation_id'],
                     'bank_statement_line_id'    => $entry['bank_statement_line_id'],
-                ]])
+                ])
                 ->first();
 
             // 2) Create reversal lines (swap debit/credit)
             foreach ($entry['entry_lines_ids'] ?? [] as $line) {
-                AccountingEntryLine::create([[
+                AccountingEntryLine::create([
                     'condo_id'            => $entry['condo_id'],
                     'accounting_entry_id' => $reversal['id'],
                     'account_id'          => $line['account_id'],
                     'debit'               => $line['credit'],
                     'credit'              => $line['debit']
-                ]]);
+                ]);
             }
 
             // 3) Validate reversal (will post lines once => update AccountBalanceChange)
