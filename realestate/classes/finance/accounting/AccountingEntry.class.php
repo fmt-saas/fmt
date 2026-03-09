@@ -105,7 +105,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             'expense_statement_id'
         ]);
 
-        foreach ($self as $id => $entry) {
+        foreach($self as $id => $entry) {
 
             // 1) Create reversal entry (B)
             $reversal = self::create([[
@@ -125,7 +125,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 ->first();
 
             // 2) Create reversal lines (swap debit/credit)
-            foreach ($entry['entry_lines_ids'] ?? [] as $line) {
+            foreach($entry['entry_lines_ids'] ?? [] as $line) {
                 AccountingEntryLine::create([[
                     'condo_id'            => $entry['condo_id'],
                     'accounting_entry_id' => $reversal['id'],
@@ -143,7 +143,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             // 4) Validate reversal (will post lines once => update AccountBalanceChange)
             self::id($reversal['id'])->transition('validate');
 
-            // 5) Mark both entries as reversed (audit state only)
+            // 5) Mark both entries as reversed (audit status only)
             self::ids([$id, $reversal['id']])->update(['status' => 'reversed']);
         }
     }

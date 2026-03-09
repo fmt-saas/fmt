@@ -1,0 +1,72 @@
+{
+    "name": "Ligne de balance d'ouverture",
+    "plural": "Lignes de balance d'ouverture",
+    "description": "Etat initial d'un compte en debut d'exercice avec les montants debit, credit et soldes reportes.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriete",
+            "description": "Copropriete concernee par la ligne d'ouverture.",
+            "help": ""
+        },
+        "name": {
+            "label": "Libelle",
+            "description": "Libelle calcule a partir du compte comptable.",
+            "help": ""
+        },
+        "balance_id": {
+            "label": "Balance d'ouverture",
+            "description": "Balance parent a laquelle appartient la ligne.",
+            "help": ""
+        },
+        "fiscal_year_id": {
+            "label": "Exercice",
+            "description": "Exercice fiscal lie a la ligne de balance d'ouverture.",
+            "help": ""
+        },
+        "account_id": {
+            "label": "Compte",
+            "description": "Compte comptable auquel la ligne d'ouverture se rapporte.",
+            "help": ""
+        },
+        "debit": {
+            "label": "Debit",
+            "description": "Montant total en debit pour le compte.",
+            "help": ""
+        },
+        "credit": {
+            "label": "Credit",
+            "description": "Montant total en credit pour le compte.",
+            "help": ""
+        },
+        "debit_balance": {
+            "label": "Solde debiteur",
+            "description": "Solde restant lorsque le debit est superieur au credit.",
+            "help": ""
+        },
+        "credit_balance": {
+            "label": "Solde crediteur",
+            "description": "Solde restant lorsque le credit est superieur au debit.",
+            "help": ""
+        },
+        "entry_lines_ids": {
+            "label": "Ecritures liees",
+            "description": "Lignes d'ecriture comptable impactant ce compte dans l'exercice.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Ligne de balance d'ouverture",
+            "description": "Formulaire de detail d'une ligne d'ouverture avec ses ecritures associees.",
+            "layout": {
+                "section.entry_lines": {
+                    "label": "Lignes d'ecriture comptable"
+                }
+            }
+        },
+        "list.default": {
+            "name": "Lignes de balance d'ouverture",
+            "description": "Liste des lignes d'ouverture avec montants debit, credit et soldes."
+        }
+    }
+}

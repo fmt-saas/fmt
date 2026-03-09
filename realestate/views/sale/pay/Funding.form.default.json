@@ -96,6 +96,11 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "free_payment_reference",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "payment_reference",
                                                 "width": "50%"
                                             },

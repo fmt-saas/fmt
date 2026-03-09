@@ -1,0 +1,30 @@
+{
+    "name": "Opening Balance",
+    "operations": {
+        "total": {
+            "credit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "debit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "limit": 100,
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "fiscal_year_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "25%"
+            }
+        ]
+    }
+}

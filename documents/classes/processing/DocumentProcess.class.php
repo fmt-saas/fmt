@@ -327,7 +327,12 @@ class DocumentProcess extends Model {
             'integrated' => [
                 'description' => 'Finalized document.',
                 'icon'        => 'check_circle',
-                'transitions' => []
+                'transitions' => [
+                    'revert' => [
+                        'description' => 'Revert the document to `validated`.',
+                        'status'      => 'validated'
+                    ]
+                ]
             ],
             'cancelled' => [
                 'description' => 'Document processing has been cancelled (manually or auto-analysis).',

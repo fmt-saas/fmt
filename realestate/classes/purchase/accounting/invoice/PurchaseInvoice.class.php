@@ -451,11 +451,22 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     protected static function doUnlock($self) {
-        $self->read(['status', 'accounting_entry_id']);
+        $self->read(['status', 'accounting_entry_id', 'document_process_id']);
         foreach($self as $id => $purchaseInvoice) {
             if($purchaseInvoice['status'] !== 'posted') {
                 continue;
             }
+
+            if($purchaseInvoice['document_process_id']) {
+                DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('revert');
+                // reset computed relation fields
+                self::id($id)
+                    ->update([
+                        'document_process_status' => null,
+                        'alert' => null
+                    ]);
+            }
+
             AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');
             self::id($id)
                 ->update(['status' => 'proforma'])

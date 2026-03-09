@@ -1016,7 +1016,7 @@ class AccountingEntry extends Model {
      */
     public static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['status', 'description'];
+        $allowed_fields = ['status', 'description', 'reverse_entry_id'];
         foreach($self as $id => $accountingEntry) {
             if(in_array($accountingEntry['status'], ['reversed', 'validated'])) {
                 if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
