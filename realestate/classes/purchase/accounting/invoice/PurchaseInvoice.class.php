@@ -1656,7 +1656,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 if($invoice['status'] !== 'proforma') {
                     return ['status' => ['non_editable' => 'Purchase Invoice cannot be updated after recording.']];
                 }
-                if($invoice['document_process_id'] && !in_array($invoice['document_process_id']['status'], ['created', 'assigned'])) {
+                if($invoice['document_process_id'] && $invoice['document_process_id']['status'] === 'integrated') {
                     return ['status' => ['non_editable' => 'Purchase Invoice cannot be updated after Document processing.']];
                 }
             }
