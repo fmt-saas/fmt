@@ -67,13 +67,12 @@ class FiscalYear extends Model {
                 'ondetach'          => 'delete'
             ],
 
-            'current_balance_id' => [
+            'opening_balance_id' => [
                 'type'              => 'many2one',
-                'description'       => "The balance of the fiscal year.",
-                'foreign_object'    => 'finance\accounting\CurrentBalance',
+                'description'       => "The opening balance of the fiscal year.",
+                'foreign_object'    => 'finance\accounting\OpeningBalance',
             ],
 
-            // #deprecated
             'closing_balance_id' => [
                 'type'              => 'many2one',
                 'description'       => "The closing (final) balance of the whole fiscal year.",
@@ -86,13 +85,6 @@ class FiscalYear extends Model {
                 'foreign_object'    => 'finance\accounting\ClosingBalance',
                 'foreign_field'     => 'fiscal_year_id',
                 'description'       => "The closing balance that refer to the fiscal year."
-            ],
-
-            'current_balance_lines_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'finance\accounting\CurrentBalanceLine',
-                'foreign_field'     => 'fiscal_year_id',
-                'description'       => "The balance lines that refer to the fiscal year."
             ],
 
             'name' => [
@@ -410,21 +402,6 @@ class FiscalYear extends Model {
                 ];
                 continue;
             }
-            // #todo
-            // en principe, ceci est toujours vrai - tester avec nouvelle approche
-            $balance = CurrentBalance::search(['fiscal_year_id', '=', $id])->read(['is_balanced'])->first();
-            if(!$balance) {
-                $result[$id] = [
-                    'missing_current_balance' => 'Missing mandatory current balance.'
-                ];
-                continue;
-            }
-            if(!$balance['is_balanced']) {
-                $result[$id] = [
-                    'non_balanced' => 'Current balance is not balanced.'
-                ];
-                continue;
-            }
         }
 
         return $result;
@@ -664,30 +641,15 @@ class FiscalYear extends Model {
                     ]);
             }
 
-            // 1) finalize periods order
+            // finalize periods order
             FiscalPeriod::ids($fiscalYear['fiscal_periods_ids'])
                 ->update(['code' => null])
                 ->read(['code']);
 
-            // 2) create a dedicated balance for the fiscal year
-            $currentBalance = CurrentBalance::search([
-                    ['condo_id', '=', $fiscalYear['condo_id']],
-                    ['fiscal_year_id', '=', $id]
-                ])
-                ->first();
-
-            if(!$currentBalance) {
-                $currentBalance = CurrentBalance::create([
-                        'condo_id'          => $fiscalYear['condo_id'],
-                        'fiscal_year_id'    => $id
-                    ])
-                    ->first();
-            }
-            self::id($id)->update(['name' => null, 'current_balance_id' => $currentBalance['id']]);
+            self::id($id)->update(['name' => null]);
         }
 
-        // 3) generate sequences for the fiscal year
-
+        // generate sequences for the fiscal year
         $self->do('generate_sequences');
     }
 
@@ -860,218 +822,19 @@ class FiscalYear extends Model {
 
         foreach($self as $id => $fiscalYear) {
 
-            $carryForwardJournal = Journal::search([
-                    ['journal_type', '=', 'OPEN'], ['condo_id', '=', $fiscalYear['condo_id']]
-                ])
-                ->first();
-
-            if(!$carryForwardJournal) {
-                throw new \Exception('missing_opening_balance_journal', EQ_ERROR_INVALID_CONFIG);
-            }
-
-            // retrieve next fiscal year (take the year that immediately succeeds the current one, whatever its status)
-            $nextFiscalYear = self::search([
-                    ['condo_id', '=', $fiscalYear['condo_id']],
-                    ['date_from', '>', $fiscalYear['date_to']]
-                ],
-                ['sort' => ['date_from' => 'asc']])
-                ->read(['date_from'])
-                ->first();
-
-            if(!$nextFiscalYear) {
-                throw new \Exception('missing_mandatory_next_fiscal_year', EQ_ERROR_UNKNOWN);
-            }
-
-            // remove all report accounting entries (y & y+1)
-            AccountingEntry::search([
-                    [
-                        ['fiscal_year_id', '=', $id],
-                        ['is_carry_forward', '=', true]
-                    ],
-                    [
-                        ['fiscal_year_id', '=', $nextFiscalYear['id']],
-                        ['is_carry_forward', '=', true]
-                    ]
-                ])
-                ->delete(true);
-
-            // generate carry-forward entries (y+1) and match them with reversal entries (y)
-            $entry_lines = self::computeCarryForwardEntryLines($id);
-
-            if(count($entry_lines) > 0) {
-                $currentAccountingEntry = AccountingEntry::create([
-                        'condo_id'          => $fiscalYear['condo_id'],
-                        'journal_id'        => $carryForwardJournal['id'],
-                        'description'       => "Ecritures de report",
-                        'is_closing'        => true,
-                        'fiscal_year_id'    => $id,
-                        'entry_date'        => $fiscalYear['date_to']
-                    ])
-                    ->first();
-
-                $nextAccountingEntry = AccountingEntry::create([
-                        'condo_id'          => $fiscalYear['condo_id'],
-                        'journal_id'        => $carryForwardJournal['id'],
-                        'description'       => "Ecritures de report",
-                        'is_carry_forward'  => true,
-                        'fiscal_year_id'    => $nextFiscalYear['id'],
-                        'entry_date'        => $nextFiscalYear['date_from']
-                    ])
-                    ->first();
-
-                foreach($entry_lines as $line) {
-
-                    $matching = Matching::create([
-                            'condo_id'              => $fiscalYear['condo_id'],
-                            'accounting_account_id' => $line['account_id']
-                        ])
-                        ->first();
-
-                    AccountingEntryLine::create([
-                            'condo_id'              => $fiscalYear['condo_id'],
-                            'accounting_entry_id'   => $currentAccountingEntry['id'],
-                            'account_id'            => $line['account_id'],
-                            'debit'                 => $line['debit'],
-                            'credit'                => $line['credit'],
-                            'is_closing'            => true,
-                            'matching_id'           => $matching['id']
-                        ]);
-
-                    AccountingEntryLine::create([
-                            'condo_id'              => $fiscalYear['condo_id'],
-                            'accounting_entry_id'   => $nextAccountingEntry['id'],
-                            'account_id'            => $line['account_id'],
-                            'debit'                 => $line['credit'],
-                            'credit'                => $line['debit'],
-                            'is_carry_forward'      => true,
-                            'matching_id'           => $matching['id']
-                        ]);
-
-                }
-
-                AccountingEntry::id($currentAccountingEntry['id'])->transition('validate');
-                AccountingEntry::id($nextAccountingEntry['id'])->transition('validate');
-            }
-
             // 2) generate closing balance for the fiscal year
 
             // remove any previously created closing balance
             ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
 
             // generate a closing balance
-            ClosingBalance::create([
+            $closingBalance = ClosingBalance::create([
                     'fiscal_year_id' => $id
                 ])
-                ->do('generate_balance_lines');
-        }
-
-    }
-
-    /**
-     * Generate final report of accounting entries.
-     * Create temporary carry-forward / opening-balance accounting entries in next fiscal year OPB journal.
-     *
-     *  #deprecated - preclose status has been removed
-     */
-    protected static function onafterPreclose($self) {
-        $self->read(['condo_id', 'date_from', 'date_to']);
-
-        foreach($self as $id => $fiscalYear) {
-
-            // remove any previously created closing balance
-            ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
-
-            // generate a closing balance
-            ClosingBalance::create([
-                    'fiscal_year_id' => $id
-                ])
-                ->do('generate_balance_lines');
-
-            $carryForwardJournal = Journal::search([['journal_type', '=', 'OPEN'], ['condo_id', '=', $fiscalYear['condo_id']]])->first();
-            if(!$carryForwardJournal) {
-                throw new \Exception('missing_opening_balance_journal', EQ_ERROR_INVALID_CONFIG);
-            }
-
-            // retrieve next fiscal year
-            // take the year that immediately succeeds the current one, whatever its status
-            $nextFiscalYear = self::search([
-                    ['condo_id', '=', $fiscalYear['condo_id']],
-                    ['date_from', '>', $fiscalYear['date_to']]
-                ],
-                ['sort' => ['date_from' => 'asc']])
-                ->read(['date_to'])
+                ->transition('validate')
                 ->first();
 
-            if($nextFiscalYear) {
-                // attempt to transition following years according to logic (next to 'open' and post next to 'preopen')
-                self::id($nextFiscalYear['id'])->do('attempt_transition', ['status' => 'preopen']);
-            }
-
-/*
-            // remove all report accounting entries (y & y+1)
-            AccountingEntry::search([
-                    [
-                        ['fiscal_year_id', '=', $id],
-                        ['is_carry_forward', '=', true]
-                    ],
-                    [
-                        ['fiscal_year_id', '=', $nextFiscalYear['id']],
-                        ['is_carry_forward', '=', true]
-                    ]
-                ])
-                ->delete(true);
-
-            // if necessary, generate carry-forward entries (y+1) and match them with reversal entries (y)
-            $entry_lines = self::computeCarryForwardEntryLines($id);
-            if(count($entry_lines)) {
-                $accountingEntry = AccountingEntry::create([
-                        'condo_id'          => $fiscalYear['condo_id'],
-                        'journal_id'        => $carryForwardJournal['id'],
-                        'description'       => "Ecritures de report (temp)",
-                        'is_temp'           => true,
-                        'is_carry_forward'  => true,
-                        'fiscal_year_id'    => $nextFiscalYear['id'],
-                        'entry_date'        => time()
-                    ])
-                    ->first();
-
-                foreach($entry_lines as $line) {
-                    $matching = Matching::create([
-                            'condo_id'              => $fiscalYear['condo_id'],
-                            'accounting_account_id' => $line['account_id']
-                        ])
-                        ->first();
-
-                    AccountingEntryLine::create([
-                            'condo_id'              => $fiscalYear['condo_id'],
-                            'accounting_entry_id'   => $accountingEntry['id'],
-                            'account_id'            => $line['account_id'],
-                            'debit'                 => $line['debit'],
-                            'credit'                => $line['credit'],
-                            'matching_id'           => $matching['id']
-                        ]);
-
-                    // #todo - this is not correct : we don't have a ref to matching accountingEntryLine
-                    // AccountingEntryLine::id($line['id'])->update(['matching_id' => $matching['id']]);
-                }
-
-                AccountingEntry::id($accountingEntry['id'])->transition('validate');
-            }
-*/
-            /*
-            $postNextFiscalYear = self::search([
-                    ['condo_id', '=', $fiscalYear['condo_id']],
-                    ['date_from', '>', $nextFiscalYear['date_to']]
-                ],
-                ['sort' => ['date_from' => 'asc']])
-                ->first();
-
-            if($postNextFiscalYear) {
-                self::id($postNextFiscalYear['id'])->do('attempt_transition', ['status' => 'preopen']);
-            }
-            */
-
-            self::id($id)->update(['name' => null]);
+            self::id($id)->update(['closing_balance_id' => $closingBalance['id']]);
         }
     }
 
@@ -1083,14 +846,15 @@ class FiscalYear extends Model {
 
         foreach($self as $id => $fiscalYear) {
 
-            // retrieve next fiscal year
+            // retrieve next fiscal year and attempt to open it
             try {
                 // take the year that immediately succeeds the current one, whatever its status
                 $nextFiscalYear = self::search([
-                        ['condo_id', '=', $fiscalYear['condo_id']],
-                        ['date_from', '>', $fiscalYear['date_to']]
-                    ],
-                    ['sort' => ['date_from' => 'asc']])
+                            ['condo_id', '=', $fiscalYear['condo_id']],
+                            ['date_from', '>', $fiscalYear['date_to']]
+                        ],
+                        ['sort' => ['date_from' => 'asc']]
+                    )
                     ->read(['status'])
                     ->first();
 
@@ -1099,8 +863,24 @@ class FiscalYear extends Model {
                 }
 
                 if($nextFiscalYear['status'] !== 'preopen') {
-                    throw new \Exception('invalid_status_for__next_fiscal_year', EQ_ERROR_UNKNOWN);
+                    throw new \Exception('invalid_status_for_next_fiscal_year', EQ_ERROR_UNKNOWN);
                 }
+
+                // remove any previously created opening balance
+                OpeningBalance::search([
+                        ['condo_id', '=', $fiscalYear['condo_id']],
+                        ['fiscal_year_id', '=', $nextFiscalYear['id']]
+                    ])
+                    ->delete(true);
+
+                $openingBalance = OpeningBalance::create([
+                        'condo_id'       => $fiscalYear['condo_id'],
+                        'fiscal_year_id' => $nextFiscalYear['id']
+                    ])
+                    ->transition('validate')
+                    ->first();
+
+                self::id($nextFiscalYear['id'])->update(['opening_balance_id' => $openingBalance['id']]);
 
                 // transition following year according to logic
                 // this will cascade on all future fiscal years (next to 'open' and post next to 'preopen')
@@ -1109,6 +889,29 @@ class FiscalYear extends Model {
             catch(\Exception $e) {
                 trigger_error("APP::unexpected inconsistency with following fiscal years" . $e->getMessage(), EQ_REPORT_ERROR);
             }
+
+            self::id($id)->update(['name' => null]);
+        }
+    }
+
+    /**
+     * Generate a temporary Closing Balance.
+     *
+     */
+    protected static function onafterPreclose($self) {
+        $self->read(['condo_id', 'date_from', 'date_to']);
+
+        foreach($self as $id => $fiscalYear) {
+
+            // remove any previously created closing balance
+            ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
+
+            // generate a draft/preview (pending) closing balance
+            ClosingBalance::create([
+                    'condo_id'       => $fiscalYear['condo_id'],
+                    'fiscal_year_id' => $id
+                ])
+                ->do('generate_balance_lines');
 
             self::id($id)->update(['name' => null]);
         }
@@ -1214,54 +1017,55 @@ class FiscalYear extends Model {
      * Build an array with carry forward entries.
      *
      */
+    /*
     private static function computeCarryForwardEntryLines($id): array {
         $result = [];
 
-        $fiscalYear = self::id($id)->read(['current_balance_id'])->first();
-
-        if(!$fiscalYear['current_balance_id']) {
-            // this should not occur
-            return [];
-        }
-
-        // #memo - closing balance is generated at close and preclose
-        $currentBalance = CurrentBalance::id($fiscalYear['current_balance_id'])
+        $closingBalance = ClosingBalance::search([
+                ['fiscal_year_id', '=', $id]
+            ])
             ->read([
                 'balance_lines_ids' => [
-                    'account_id', 'credit', 'debit'
+                    'account_id',
+                    'debit_balance',
+                    'credit_balance'
                 ]
             ])
             ->first();
 
-        if(!$currentBalance || count($currentBalance['balance_lines_ids'] ?? []) <= 0) {
-            trigger_error("APP::Closing balance not found or no balance lines", EQ_REPORT_ERROR);
+        if(!$closingBalance) {
             return [];
         }
 
-        $accounts_ids = [];
-        foreach($currentBalance['balance_lines_ids'] as $balance_line_id => $balanceLine) {
-            $accounts_ids[] = $balanceLine['account_id'];
+        $map_accounts_ids = [];
+
+        foreach($closingBalance['balance_lines_ids'] as $line) {
+            $map_accounts_ids[$line['account_id']] = true;
         }
 
-        $map_accounts = [];
-        $accounts = Account::ids($accounts_ids)->read(['account_type']);
+        $accounts = Account::ids(array_keys($map_accounts_ids))->read(['account_type']);
+
+        $map_account_types = [];
         foreach($accounts as $id => $account) {
-            $map_accounts[$id] = $account['account_type'];
+            $map_account_types[$id] = $account['account_type'];
         }
 
-        // #memo - we expect the balance lines to be consistent with the chart of accounts of the related condominium
-        foreach($currentBalance['balance_lines_ids'] as $id => $line) {
-            if($map_accounts[$line['account_id']] != 'B') {
+        foreach($closingBalance['balance_lines_ids'] as $line) {
+
+            if($map_account_types[$line['account_id']] !== 'B') {
                 continue;
             }
+
             $result[] = [
-                    'account_id'    => $line['account_id'],
-                    'debit'         => $line['credit'],
-                    'credit'        => $line['debit']
-                ];
+                'account_id' => $line['account_id'],
+                'debit'      => $line['credit_balance'],
+                'credit'     => $line['debit_balance']
+            ];
         }
+
         return $result;
     }
+    */
 
     /**
      * Check fiscal year and periods dates consistency.

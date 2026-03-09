@@ -44,16 +44,6 @@ class ClosingBalance extends Balance {
                         'status'      => 'validated'
                     ]
                 ]
-            ],
-            'validated' => [
-                'description' => 'Validated Ownership, ready to be used.',
-                'icon'        => 'done',
-                'transitions' => [
-                    'revert' => [
-                        'description' => 'Revert to `pending` to allow changes.',
-                        'status'      => 'pending'
-                    ]
-                ]
             ]
         ];
     }

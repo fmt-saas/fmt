@@ -8,7 +8,6 @@ namespace finance\bank;
 
 use finance\accounting\Account;
 use finance\accounting\AccountBalanceChange;
-use finance\accounting\CurrentBalanceLine;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
 use realestate\property\Condominium;

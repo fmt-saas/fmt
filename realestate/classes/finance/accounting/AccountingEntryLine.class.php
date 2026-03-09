@@ -115,11 +115,16 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
     }
 
     public static function canupdate($self, $values) {
-        $self->read(['accounting_entry_id' => ['status']]);
+        $self->read(['is_cleared', 'accounting_entry_id' => ['status']]);
         $allowed_fields = ['status', 'description', 'matching_id', 'matching_level', 'clearing_expense_statement_id', 'is_cleared'];
 
-        if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
-            foreach($self as $id => $accountingEntryLine) {
+        foreach($self as $id => $accountingEntryLine) {
+            $self_allowed_fields = $allowed_fields;
+            // special case: if the corresponding period has not yet been closed (i.e. no expense statement has been issued yet, i.e. not yet "cleared"), then modification of the account is allowed
+            if(!$accountingEntryLine['is_cleared']) {
+                $self_allowed_fields = array_merge($allowed_fields, ['account_id' ]);
+            }
+            if(count(array_diff(array_keys($values), $self_allowed_fields)) > 0) {
                 if(in_array($accountingEntryLine['accounting_entry_id']['status'], ['reversed', 'validated'])) {
                     return ['accounting_entry_id' => ['not_allowed' => 'Accounting entry line cannot be modified once entry is validated.']];
                 }

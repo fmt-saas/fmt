@@ -4,10 +4,12 @@ use documents\Document;
 use documents\navigation\Node;
 use finance\accounting\Account;
 use finance\accounting\AccountChart;
+use finance\accounting\ClosingBalance;
 use finance\accounting\CurrentBalance;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
+use finance\accounting\OpeningBalance;
 use finance\bank\Bank;
 use finance\bank\BankAccount;
 use finance\bank\SuppliershipBankAccount;
@@ -536,7 +538,8 @@ $tests = [
                 Node::getType(),
                 Account::getType(),
                 AccountChart::getType(),
-                CurrentBalance::getType(),
+                OpeningBalance::getType(),
+                ClosingBalance::getType(),
                 FiscalPeriod::getType(),
                 FiscalYear::getType(),
                 Journal::getType(),

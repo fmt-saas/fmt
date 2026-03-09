@@ -23,7 +23,7 @@ use realestate\property\Condominium;
             'description'       => 'name',
             'type'              => 'string',
             'default'           => 'finance\accounting\BalanceLine',
-            'help'              => 'This value should be relayed from view and be either CurrentBalanceLine or ClosingBalanceLine.'
+            'help'              => 'This value should be relayed from view and be either OpeningBalanceLine or ClosingBalanceLine.'
         ],
 
         'nolimit' => [
