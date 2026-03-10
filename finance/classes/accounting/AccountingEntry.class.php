@@ -390,7 +390,7 @@ class AccountingEntry extends Model {
         }
     }
 
-    // #memo - matching is performed at AccountingEntryLne (records) level
+    // #memo - matching is performed at AccountingEntryLine (records) level
     protected static function doMatchWithMatching($self, $values) {
         if(!isset($values['matching_id'])) {
             throw new \Exception('missing_mandatory_matching_id', EQ_ERROR_INVALID_PARAM);

@@ -25,7 +25,7 @@
             "label": "Cancel",
             "controller": "core_model_do",
             "visible": false,
-            "visible1": [["status", "=", "validated"], ["is_cancelled", "=", false]],
+            "description": "#memo - Accounting Entry can only be cancelled through its origin accounting document.",
             "params": {
                 "entity": "finance\\accounting\\AccountingEntry",
                 "action": "cancel",
@@ -45,6 +45,20 @@
                                     {
                                         "width": "50%",
                                         "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Code",
+                                                "value": "entry_number",
+                                                "width": "33%",
+                                                "visible": ["status", "in", ["validated", "reversed"]]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Status",
+                                                "value": "status",
+                                                "width": "33%",
+                                                "visible": ["status", "not in", ["validated", "reversed"]]
+                                            },
                                             {
                                                 "type": "field",
                                                 "label": "Fiscal year",
@@ -79,42 +93,30 @@
                                                 "width": "100%"
                                             },
                                             {
-                                                "type": "field",
-                                                "value": "matching_id",
-                                                "width": "50%"
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%",
+                                                "visible": ["status", "not in", ["validated", "reversed"]]
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "is_balanced",
                                                 "width": "50%",
-                                                "visible": ["status", "<>", "validated"]
+                                                "visible": ["status", "not in", ["validated", "reversed"]]
                                             },
                                             {
-                                                "type": "field",
-                                                "label": "Code",
-                                                "value": "entry_number",
+                                                "type": "label",
+                                                "value": "",
                                                 "width": "50%",
-                                                "visible": ["status", "=", "validated"]
+                                                "visible": ["status", "=", "reversed"]
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Reverse accounting entry",
                                                 "value": "reverse_entry_id",
                                                 "width": "50%",
-                                                "visible": ["status", "=", "cancelled"]
+                                                "visible": ["status", "=", "reversed"]
                                             },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "origin_object_class",
-                                                "width": "0%",
-                                                "visible": false
-                                            },
-
                                             {
                                                 "type": "field",
                                                 "label": "Purchase Invoice",
@@ -169,6 +171,12 @@
                                                 "visible": [
                                                     [ ["origin_object_class", "=", "finance\\bank\\BankStatementLine"] ]
                                                 ]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "origin_object_class",
+                                                "width": "0%",
+                                                "visible": false
                                             }
                                         ]
                                     }
