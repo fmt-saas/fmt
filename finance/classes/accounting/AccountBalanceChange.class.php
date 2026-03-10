@@ -66,7 +66,7 @@ class AccountBalanceChange extends Model {
 
     public function getUnique() {
         return [
-            ['account_id', 'condo_id', 'date']
+            ['condo_id', 'account_id', 'date']
         ];
     }
 

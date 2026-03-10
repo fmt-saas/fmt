@@ -96,6 +96,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             'fiscal_year_id',
             'journal_id',
             'entry_date',
+            'description',
             'entry_lines_ids' => ['account_id', 'debit', 'credit'],
             'origin_object_class',
             'origin_object_id',
@@ -114,6 +115,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                     'condo_id'                  => $entry['condo_id'],
                     'journal_id'                => $entry['journal_id'],
                     'fiscal_year_id'            => $entry['fiscal_year_id'],
+                    'description'               => 'reverse - ' . $entry['description'],
                     // #memo #important - same date for strict cancellation
                     'entry_date'                => $entry['entry_date'],
                     'origin_object_class'       => $entry['origin_object_class'],

@@ -20,8 +20,9 @@
                         "icon": "pending_actions",
                         "description": "",
                         "context": {
-                            "entity": "fmt\\processing\\collect-summary",
-                            "view": "list.default"
+                            "entity": "documents\\processing\\DocumentProcess",
+                            "view": "list.default",
+                            "domain": ["status", "not in", ["integrated", "cancelled","removed"]]
                         }
                     },
                     {

@@ -165,12 +165,6 @@ class FiscalPeriod extends Model {
 
     public static function getActions() {
         return [
-            'generate_expense_statement' => [
-                'description'   => 'Generate the accounting entries for closing the fiscal period.',
-                'policies'      => [],
-                'function'      => 'doGenerateExpenseStatement'
-            ],
-
             'generate_accounting_entries' => [
                 'description'   => 'Generate the accounting entries for closing the fiscal period.',
                 'policies'      => ['is_balanced', 'can_generate_executions'],
