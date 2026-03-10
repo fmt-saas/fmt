@@ -50,14 +50,16 @@
                                                 "label": "Code",
                                                 "value": "entry_number",
                                                 "width": "33%",
-                                                "visible": ["status", "in", ["validated", "reversed"]]
+                                                "visible": ["status", "in", ["validated", "reversed"]],
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Status",
                                                 "value": "status",
                                                 "width": "33%",
-                                                "visible": ["status", "not in", ["validated", "reversed"]]
+                                                "visible": ["status", "not in", ["validated", "reversed"]],
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
@@ -93,12 +95,6 @@
                                                 "width": "100%"
                                             },
                                             {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%",
-                                                "visible": ["status", "not in", ["validated", "reversed"]]
-                                            },
-                                            {
                                                 "type": "field",
                                                 "value": "is_balanced",
                                                 "width": "50%",
@@ -108,7 +104,7 @@
                                                 "type": "label",
                                                 "value": "",
                                                 "width": "50%",
-                                                "visible": ["status", "=", "reversed"]
+                                                "visible": ["status", "=", "validated"]
                                             },
                                             {
                                                 "type": "field",
