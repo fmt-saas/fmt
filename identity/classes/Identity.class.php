@@ -910,7 +910,7 @@ class Identity extends Model {
         }
     }
 
-    // #memo - this is also done in onupdate handler
+    // #memo - this is also done in onafterupdate handler
     protected static function doRefreshBankAccounts($self) {
         $self->read(['bank_account_iban', 'bank_account_bic', 'bank_name', 'bank_country']);
 
@@ -943,7 +943,7 @@ class Identity extends Model {
         }
     }
 
-    // #memo - this is also done in onupdate handler
+    // #memo - this is also done in onafterupdate handler
     protected static function doRefreshAddresses($self) {
         // sync primary address
         $self->read(['identity_id', 'address_street', 'address_dispatch', 'address_zip', 'address_city', 'address_state', 'address_country']);
@@ -1737,7 +1737,7 @@ class Identity extends Model {
             $bank_fields = ['bank_account_iban', 'bank_account_bic', 'bank_name', 'bank_country'];
             $bank_updates = [];
             foreach($bank_fields as $bank_field) {
-                if(isset($values[$bank_field])) {
+                if(isset($values[$bank_field]) && $values[$bank_field] !== '') {
                     $bank_updates[$bank_field] = $values[$bank_field];
                 }
             }
@@ -1751,10 +1751,18 @@ class Identity extends Model {
                         $mainBankAccount = BankAccount::create([
                             'owner_identity_id' => $identity_id,
                             'is_primary'        => true,
-                            'bank_account_iban' => $values['bank_account_iban'] ?? $identity['bank_account_iban'],
-                            'bank_account_bic'  => $values['bank_account_bic'] ?? $identity['bank_account_bic'],
-                            'bank_name'         => $values['bank_name'] ?? $identity['bank_name'],
-                            'bank_country'      => $values['bank_country'] ?? $identity['bank_country']
+                            'bank_account_iban' => ($values['bank_account_iban'] ?? '') !== ''
+                                ? $values['bank_account_iban']
+                                : $identity['bank_account_iban'],
+                            'bank_account_bic'  => ($values['bank_account_bic'] ?? '') !== ''
+                                ? $values['bank_account_bic']
+                                : $identity['bank_account_bic'],
+                            'bank_name'         => ($values['bank_name'] ?? '') !== ''
+                                ? $values['bank_name']
+                                : $identity['bank_name'],
+                            'bank_country'      => ($values['bank_country'] ?? '') !== ''
+                                ? $values['bank_country']
+                                : $identity['bank_country']
                         ]);
                     }
                 }
