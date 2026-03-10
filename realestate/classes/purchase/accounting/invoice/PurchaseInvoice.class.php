@@ -397,7 +397,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             'unlock' => [
                 'description'   => 'Unlocks the invoice for editing.',
                 'help'          => 'Reverts posted accounting entries, preserves the original sequence number, deletes the entries from the invoice, and returns the invoice to a proforma state while keeping its invoice_number. Allowed only if no entry has been cleared.',
-                'policies'      => ['can_unlock'],
+                'policies'      => [
+                    // not going to cancel but we use can_cancel to check the status and whether there are any "cleared" lines
+                    'can_cancel'
+                ],
                 'function'      => 'doUnlock'
             ],
             'cancel' => [
@@ -684,10 +687,16 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     /**
-     * We are not going to cancel but we use can_be_cancelled to check the status and whether there are any "cleared" lines.
+     * Check whether purchase invoices can be cancelled.
      *
+     * Rules:
+     * - Invoice must be in "posted" status.
+     * - At least one related accounting entry must be validated.
+     * - No accounting entry may contain cleared lines.
+     *
+     * Returns an array of policy violations indexed by invoice id.
      */
-    protected static function policyCanUnlock($self) {
+    protected static function policyCanCancel($self) {
         $result = [];
         $self->read(['status', 'accounting_entries_ids' => ['status', 'has_cleared_lines']]);
         foreach($self as $id => $purchaseInvoice) {
@@ -722,30 +731,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         return $result;
     }
 
-    protected static function policyCanCancel($self) {
-        $result = [];
-        $self->read(['status', 'accounting_entries_ids']);
-        foreach($self as $id => $purchaseInvoice) {
-            if($purchaseInvoice['status'] !== 'posted') {
-                $result[$id] = [
-                        'non_posted_invoice' => 'Only posted invoice can be unlocked.'
-                    ];
-                continue;
-            }
-            try {
-                AccountingEntry::ids($purchaseInvoice['accounting_entries_ids'])->assert(['can_be_cancelled']);
-            }
-            catch(\Exception $e) {
-                $result[$id] = [
-                    'non_cancellable_entry' => 'At least one accounting entry is non-cancellable.'
-                ];
-                continue;
-            }
-        }
-        return $result;
-    }
-
-
     public static function getPolicies(): array {
 
         // #todo - make sure VCS ['payment_reference'] is valid
@@ -753,11 +738,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             'can_be_allocated' => [
                 'description' => 'Verifies that an invoice can be allocated of the posting date(s).',
                 'function'    => 'policyCanBeAllocated'
-            ],
-            'can_unlock' => [
-                'description' => 'Checks if the invoice can be unlocked.',
-                'help'        => 'Ensures the invoice can be unlocked: all accounting entries must be not cleared, the invoice must be posted/finalised, and it must not already be in proforma state.',
-                'function'    => 'policyCanUnlock'
             ],
             'can_cancel' => [
                 'description' => 'Checks if the invoice can be cancelled.',

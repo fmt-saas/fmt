@@ -32,7 +32,8 @@ class DocumentProcess extends Model {
     }
 
     public static function getDescription() {
-        return "A Document Process keeps info about the processing of a single document and the result of each step.";
+        return "Represents the lifecycle of a document processed through an Intelligent Document Processing (IDP) pipeline,
+            managing steps such as identification, extraction, matching, drafting of target objects, validation, and integration.";
     }
 
     public static function getColumns() {
