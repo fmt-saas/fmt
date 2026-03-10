@@ -702,7 +702,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         foreach($self as $id => $purchaseInvoice) {
             if($purchaseInvoice['status'] !== 'posted') {
                 $result[$id] = [
-                        'non_posted_invoice' => 'Only posted invoice can be unlocked.'
+                        'non_posted_invoice' => 'Only posted invoice can be cancelled or unlocked.'
                     ];
                 continue;
             }
@@ -719,7 +719,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
             if(!$has_validated) {
                 $result[$id] = [
-                        'non_validated_entry' => 'Only invoice with validated entry can be unlocked.'
+                        'non_validated_entry' => 'Only invoice with validated entry can be cancelled or unlocked.'
                     ];
             }
             if($has_cleared_lines) {

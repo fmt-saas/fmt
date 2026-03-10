@@ -215,7 +215,11 @@
                 },
                 "action.cancel": {
                     "label": "Annuler",
-                    "description": "Annuler la facture."
+                    "description": "Annuler la facture (irréversible)."
+                },
+                "action.unlock": {
+                    "label": "Débloquer",
+                    "description": "Déboquer la facture (permettre de nouvelles modifications)."
                 },
                 "action.complete": {
                     "label": "Marquer completée",

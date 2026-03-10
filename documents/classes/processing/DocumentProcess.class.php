@@ -303,6 +303,11 @@ class DocumentProcess extends Model {
                         'policies'    => ['is_valid', 'can_validate'],
                         'onafter'     => 'onafterValidateFromCompleted',
                         'status'      => 'validated'
+                    ],
+                    'cancel' => [
+                        'description' => 'Cancel the processing (duplicate, invalid, complaint, ...).',
+                        'policies'    => ['can_cancel'],
+                        'status'      => 'cancelled'
                     ]
                 ]
             ],
@@ -314,6 +319,11 @@ class DocumentProcess extends Model {
                         'description' => 'Revert the document to `completed`.',
                         'onafter'     => 'onafterRevertFromValidated',
                         'status'      => 'completed'
+                    ],
+                    'cancel' => [
+                        'description' => 'Cancel the processing (duplicate, invalid, complaint, ...).',
+                        'policies'    => ['can_cancel'],
+                        'status'      => 'cancelled'
                     ],
                     'integrate' => [
                         'description' => 'Update the document to `integrated`.',
@@ -534,6 +544,9 @@ class DocumentProcess extends Model {
         return $result;
     }
 
+    /**
+     * #memo - target accounting document must always be cancelled first
+     */
     protected static function policyCanCancel($self): array {
         $result = [];
 
