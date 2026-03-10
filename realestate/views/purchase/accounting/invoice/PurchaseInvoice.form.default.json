@@ -498,7 +498,7 @@
                     {
                         "id": "section.accounting_entries",
                         "label": "Accounting Entries",
-                        "visible": ["status", "=", "posted"],
+                        "visible": ["status", "in", ["posted", "cancelled"]],
                         "rows": [
                             {
                                 "columns": [
