@@ -606,6 +606,53 @@
             {% endfor %}
         {% endif %}
 
+        <!-- payment information -->
+        {% if funding.remaining_amount > 0.0 %}
+            <div class="page-break"></div>
+
+            <div style="position: relative; margin-top: 20px; border: solid 2px black; height: 215px; page-break-inside: avoid;">
+                <div style="font-size: 15px; padding-left: 15px; padding-top: 15px;">
+                    Le montant de <b>{{ funding.remaining_amount | format_money() }}</b> doit être réglé avant le <b>{{ funding.due_date | date('d/m/Y') }}</b>
+                </div>
+                <div style="padding-top: 20px; padding-left: 15px; font-size: 15px;">
+                    <b style="text-transform: uppercase;">Communication</b><b> : {{ funding.payment_reference }}</b><br />
+                    IBAN : {{ organisation.bank_account_iban }}<br />
+                    BIC : {{ organisation.bank_account_bic }}<br />
+                    <br />
+                    {{ organisation.legal_name }}<br />
+                    {{ organisation.address_street }}<br />
+                    {{ organisation.address_zip }} {{ organisation.address_city }}<br />
+                    {{ organisation.address_country }}
+                </div>
+                <div style="position: absolute; right: 10px; top: 35px;">
+                    <img src="{{ payment_qr_code_uri }}" width= "150" height="150" />
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- reimbursement information -->
+        {% if funding.remaining_amount < 0.0 %}
+            <div class="page-break"></div>
+
+            <div style="position: relative; margin-top: 20px; border: solid 2px black; page-break-inside: avoid;">
+                <div style="font-size: 1rem; line-height: 1.4rem; padding: 15px;">
+                    Votre compte présente un solde créditeur de <b>{{ funding.remaining_amount | abs | format_money() }}</b> en votre faveur.
+                    Ce montant sera automatiquement déduit de votre prochain décompte de charges, ou pourra vous être remboursé sur simple demande écrite adressée au syndic.
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- no payment nor reimbursement needed information -->
+        {% if funding.remaining_amount == 0.0 %}
+            <div class="page-break"></div>
+
+            <div style="position: relative; margin-top: 20px; border: solid 2px black; page-break-inside: avoid;">
+                <div style="font-size: 1rem; line-height: 1.4rem; padding: 15px;">
+                    La situation de votre compte fait apparaître un solde nul. Les provisions versées couvrent intégralement le montant du décompte.
+                    <b>Aucune action de votre part n'est requise.</b>
+                </div>
+            </div>
+        {% endif %}
 
     {% endfor %}
 
