@@ -284,7 +284,7 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
         }
     }
 
-    public static function canupdate($self, $values) {
+    protected static function canupdate($self, $values) {
         if(isset($values['is_group']) && !$values['is_group']) {
             $self->read(['children_items_ids']);
             foreach($self as $assembly_item_template) {
