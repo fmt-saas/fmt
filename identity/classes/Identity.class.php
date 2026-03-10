@@ -1096,7 +1096,11 @@ class Identity extends Model {
 
             if($identity['identity_id']) {
                 if(!empty($identity[$field])) {
-                    $orm->update(Identity::getType(), $identity['identity_id'], [$field => $identity[$field]]);
+                    $orm->update(Identity::getType(), $identity['identity_id'], [
+                            // since we use the ORM, field dependencies are ignored; to work around this we force recalculation of 'name'
+                            'name' => null,
+                            $field => $identity[$field]
+                        ]);
                 }
                 continue;
             }

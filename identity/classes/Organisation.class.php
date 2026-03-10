@@ -62,11 +62,9 @@ class Organisation extends Identity {
             'bank_account_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\bank\BankAccount',
-                'foreign_field'     => 'organisation_id',
                 'description'       => 'List of the bank account of the organisation',
-                'ondetach'          => 'delete',
-                'order'             => 'id',
-                'sort'              => 'asc'
+                // #memo - foreign_field cannot be used here, since it should be identity_id, which points back to current object's `id` instead of `identity_id`
+                'domain'            => ['owner_identity_id', '=', 'object.identity_id']
             ],
 
             'bank_account_iban' => [
