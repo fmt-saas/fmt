@@ -309,16 +309,6 @@ try {
 
         foreach($data['Condominium'] as $condominium_data) {
 
-            $fiscal_year_start = null;
-            if($condominium_data['fiscal_year_start']) {
-                $fiscal_year_start = strtotime($condominium_data['fiscal_year_start']);
-            }
-
-            $fiscal_year_end = null;
-            if($condominium_data['fiscal_year_end']) {
-                $fiscal_year_end = strtotime($condominium_data['fiscal_year_end']);
-            }
-
             $condominiumIdentity = Identity::create([
                     'type_id'                   => 3,
                     'type'                      => "CO",
@@ -345,6 +335,20 @@ try {
                 $condo_code = str_pad((string) $condominium_data['code'], 6, '0', STR_PAD_LEFT);
             }
 
+            $fiscal_year_start = null;
+            if($condominium_data['fiscal_year_start']) {
+                $fiscal_year_start = strtotime($condominium_data['fiscal_year_start']);
+            }
+
+            $fiscal_year_end = null;
+            if($condominium_data['fiscal_year_end']) {
+                $fiscal_year_end = strtotime($condominium_data['fiscal_year_end']);
+            }
+
+            $fiscal_period = strtoupper($condominium_data['fiscal_period'] ?? '');
+
+            $expense_mode = strtolower($condominium_data['expense_mode'] ?? '');
+
             $condominium = Condominium::create([
                     'code'                      => $condo_code,
                     'legal_name'                => $condominium_data['name'],
@@ -352,8 +356,17 @@ try {
                     'cadastral_number'          => $condominium_data['cadastral_number'],
                     'fiscal_year_start'         => $fiscal_year_start,
                     'fiscal_year_end'           => $fiscal_year_end,
-                    'fiscal_period_frequency'   => ['quarterly' => 'Q', 'tertially' => 'T', 'semi-annually' => 'S', 'annually' => 'A'][strtolower($condominium_data['fiscal_period'] ?? '')] ?? 'A',
-                    'expense_management_mode'   => strtolower($condominium_data['expense_mode']),
+                    'fiscal_period_frequency'   => in_array($fiscal_period, ['Q','T','S','A'], true)
+                        ? $fiscal_period
+                        : [
+                            'quarterly'      => 'Q',
+                            'tertially'      => 'T',
+                            'semi-annually'  => 'S',
+                            'annually'       => 'A'
+                        ][strtolower($fiscal_period)] ?? 'A',
+                    'expense_management_mode'   => in_array($expense_mode, ['real_expenses', 'provisions'], true)
+                        ? $expense_mode
+                        : 'provisions',
                     'identity_id'               => $condominiumIdentity['id']
                 ])
                 ->first();
