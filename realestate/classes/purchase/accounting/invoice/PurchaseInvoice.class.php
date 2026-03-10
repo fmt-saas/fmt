@@ -365,7 +365,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'transitions' => [
                     'cancel' => [
                         'description' => 'Set the invoice and receivables statuses as cancelled.',
-                        'onafter' => 'onafterCancel',
                         'status' => 'cancelled',
                     ]
                 ],
@@ -440,13 +439,40 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     protected static function doCancel($self) {
-        $self->read(['status', 'accounting_entry_id']);
+        $self->read(['status', 'accounting_entry_id', 'document_process_id']);
+
         foreach($self as $id => $purchaseInvoice) {
+
             if($purchaseInvoice['status'] !== 'posted') {
                 continue;
             }
-            AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');
-            self::id($id)->update(['status' => 'cancelled']);
+
+            // revert document workflow if any
+            if($purchaseInvoice['document_process_id']) {
+                DocumentProcess::id($purchaseInvoice['document_process_id'])
+                    // revert back to 'validated'
+                    ->transition('revert');
+            }
+
+            // cancel accounting entry
+            if($purchaseInvoice['accounting_entry_id']) {
+                AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');
+            }
+
+            // update invoice status
+            self::id($id)->update([
+                'status' => 'cancelled',
+                'accounting_entry_id' => null,
+                'document_process_status' => null,
+                'alert' => null
+            ]);
+
+            // revert document workflow if any
+            if($purchaseInvoice['document_process_id']) {
+                DocumentProcess::id($purchaseInvoice['document_process_id'])
+                    ->transition('cancel');
+            }
+
         }
     }
 

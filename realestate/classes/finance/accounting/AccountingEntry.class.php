@@ -97,6 +97,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             'journal_id',
             'entry_date',
             'entry_lines_ids' => ['account_id', 'debit', 'credit'],
+            'origin_object_class',
             'purchase_invoice_id',
             'sale_invoice_id',
             'misc_operation_id',
@@ -114,6 +115,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                     'fiscal_year_id'            => $entry['fiscal_year_id'],
                     // #memo #important - same date for strict cancellation
                     'entry_date'                => $entry['entry_date'],
+                    'origin_object_class'       => $entry['origin_object_class'],
                     'purchase_invoice_id'       => $entry['purchase_invoice_id'],
                     'sale_invoice_id'           => $entry['sale_invoice_id'],
                     'misc_operation_id'         => $entry['misc_operation_id'],

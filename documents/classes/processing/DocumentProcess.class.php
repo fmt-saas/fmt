@@ -283,7 +283,7 @@ class DocumentProcess extends Model {
                     ],
                     'cancel' => [
                         'description' => 'Cancel the processing (duplicate, invalid, complaint, ...).',
-                        'policies'    => [],
+                        'policies'    => ['can_cancel'],
                         'status'      => 'cancelled'
                     ]
                 ]
@@ -387,8 +387,11 @@ class DocumentProcess extends Model {
             'can_remove' => [
                 'description' => 'Checks if processing can be removed and if the current user is permitted to do it, based on their roles.',
                 'function'    => 'policyCanRemove'
+            ],
+            'can_cancel' => [
+                'description' => 'Checks if processing can be cancelled according to related accounting document.',
+                'function'    => 'policyCanCancel'
             ]
-
         ];
     }
 
@@ -529,6 +532,70 @@ class DocumentProcess extends Model {
         }
         return $result;
     }
+
+    protected static function policyCanCancel($self): array {
+        $result = [];
+
+        $self->read([
+            'has_target_object',
+            'document_type_code',
+            'document_invoice_id' => ['status'],
+            'document_bank_statement_id' => ['status']
+        ]);
+
+        foreach($self as $id => $documentProcess) {
+
+            // no target object → cancellation always allowed
+            if(!$documentProcess['has_target_object']) {
+                continue;
+            }
+
+            switch($documentProcess['document_type_code']) {
+
+                case 'invoice':
+                case 'credit_note':
+
+                    if(
+                        !$documentProcess['document_invoice_id']
+                        || $documentProcess['document_invoice_id']['status'] !== 'cancelled'
+                    ) {
+                        $result[$id] = [
+                            'invalid_target_status' =>
+                            'Processing cannot be cancelled while linked invoice is not cancelled.'
+                        ];
+                    }
+
+                    break;
+
+                case 'bank_statement':
+
+                    if(
+                        !$documentProcess['document_bank_statement_id']
+                        || $documentProcess['document_bank_statement_id']['status'] !== 'cancelled'
+                    ) {
+                        $result[$id] = [
+                            'invalid_target_status' =>
+                            'Processing cannot be cancelled while linked bank statement is not cancelled.'
+                        ];
+                    }
+
+                    break;
+
+                default:
+                    // other document types → safe fallback
+                    if($documentProcess['has_target_object']) {
+                        $result[$id] = [
+                            'unsupported_document_type' =>
+                            "Document type '{$documentProcess['document_type_code']}' does not support cancellation yet."
+                        ];
+                    }
+
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * #todo - vérifier que l'utilisateur a le rôle requis, basé sur les rôles définis pour le DocumentType sur l'étape "validation"
      *

@@ -359,8 +359,9 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
 
     public static function canupdate($self, $values) {
         $self->read(['invoice_id' => ['status', 'document_process_id' => ['status']]]);
-        $allowed_fields = ['apportionment_id', 'description', 'total', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id'];
+        $allowed_fields = ['name', 'description'];
         foreach($self as $id => $invoiceLine) {
+            $self_allowed_fields = $allowed_fields;
             if($invoiceLine['invoice_id']['status'] === 'posted') {
                 // check if related accounting records has been cleared or not
                 $accountingEntryLine = AccountingEntryLine::search(['purchase_invoice_line_id', '=', $id])
@@ -368,6 +369,11 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                     ->first();
 
                 if($accountingEntryLine) {
+                    // special case: if the corresponding period has not yet been closed (i.e. no expense statement has been issued yet, i.e. related accounting entry not yet "cleared"), then modification of the account is allowed
+                    if(!$accountingEntryLine['is_cleared']) {
+                        $self_allowed_fields = array_merge($allowed_fields, ['apportionment_id', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id']);
+                    }
+
                     // no change allowed, on any field
                     if($accountingEntryLine['is_cleared']) {
                         return ['status' => ['non_editable' => "Invoice can only be updated while its status is proforma ({$id})."]];
@@ -375,11 +381,12 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 }
 
                 // in other cases, only allow editable fields
-                if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
+                if(count(array_diff(array_keys($values), $self_allowed_fields)) > 0) {
                     return ['invoice_id' => ['non_editable' => "Line can only be updated while parent invoice hasn't been posted ({$id})."]];
                 }
             }
             if(!$invoiceLine['invoice_id']['document_process_id']) {
+                // #memo - statuses of invoice and related document processing are linked
                 continue;
             }
         }
