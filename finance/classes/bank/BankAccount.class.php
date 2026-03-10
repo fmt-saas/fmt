@@ -280,8 +280,8 @@ class BankAccount extends Model {
     }
 
     private static function computeCountryFromIban($iban) {
-        $country = '';
-        if($iban && strlen($iban) > 0) {
+        $country = null;
+        if($iban && strlen($iban) > 2) {
             $country = substr($iban, 0, 2);
         }
         return $country;
@@ -293,7 +293,6 @@ class BankAccount extends Model {
         $normalized_iban = strtoupper(str_replace(' ', '', trim($iban)));
 
         if(!preg_match('/^[A-Z]{2}\d{2}[A-Z0-9]+$/', $normalized_iban)) {
-
             return null;
         }
 
