@@ -1135,12 +1135,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             $accountingEntry = AccountingEntry::create([
                     'condo_id'              => $invoice['condo_id'],
                     'journal_id'            => $journal['id'],
-                    'purchase_invoice_id'   => $id,
                     'fiscal_year_id'        => $invoice['fiscal_year_id'],
                     // #memo - if necessary, entry_date will be reassigned based on selected fiscal year and matching period (so that dates remain in ascending order)
                     'entry_date'            => $invoice['posting_date'],
                     'origin_object_class'   => self::getType(),
-                    'origin_object_id'      => $id
+                    'origin_object_id'      => $id,
+                    'purchase_invoice_id'   => $id
                 ])
                 ->first();
 
@@ -1391,11 +1391,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 $map_planned_accounting_entries[$period_date_from] = AccountingEntry::create([
                                         'condo_id'              => $invoice['condo_id'],
                                         'journal_id'            => $journal['id'],
-                                        'purchase_invoice_id'   => $id,
                                         'fiscal_year_id'        => $plannedFiscalYear['id'],
                                         'entry_date'            => $period_date_from,
                                         'origin_object_class'   => self::getType(),
-                                        'origin_object_id'      => $id
+                                        'origin_object_id'      => $id,
+                                        'purchase_invoice_id'   => $id
                                     ])
                                     ->first();
                             }

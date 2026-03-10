@@ -417,6 +417,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                         'entry_date'            => $moneyRefund['posting_date'],
                         'origin_object_class'   => self::getType(),
                         'origin_object_id'      => $id,
+                        'misc_operation_id'     => $id,
                         'journal_id'            => $moneyRefund['journal_id'],
                         'fiscal_year_id'        => $moneyRefund['fiscal_year_id'],
                         'fiscal_period_id'      => $moneyRefund['fiscal_period_id']
