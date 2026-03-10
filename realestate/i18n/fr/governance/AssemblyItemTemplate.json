@@ -105,5 +105,10 @@
                 }
             }
         }
+    },
+    "errors": {
+        "is_group": {
+            "has_children": "Le groupe a des sous-points."
+        }
     }
 }

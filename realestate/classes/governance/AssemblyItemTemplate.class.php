@@ -284,6 +284,19 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
         }
     }
 
+    protected static function canupdate($self, $values) {
+        if(isset($values['is_group']) && !$values['is_group']) {
+            $self->read(['children_items_ids']);
+            foreach($self as $assembly_item_template) {
+                if(count($assembly_item_template['children_items_ids']) > 0) {
+                    return ['is_group' => ['has_children' => 'The item still has some children.']];
+                }
+            }
+        }
+
+        return parent::canupdate($self, $values);
+    }
+
     protected static function onupdateAssemblyTemplateId($self) {
         $self->do('refresh_order');
     }

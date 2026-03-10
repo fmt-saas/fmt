@@ -18,12 +18,12 @@
             {
                 "type": "field",
                 "value": "order",
-                "width": "10%"
+                "width": "8%"
             },
             {
                 "type": "field",
                 "value": "name",
-                "width": "40%"
+                "width": "20%"
             },
             {
                 "type": "field",
@@ -42,7 +42,26 @@
             {
                 "type": "field",
                 "value": "code",
-                "width": "25"
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Items",
+                "value": "items_count",
+                "width": "10%",
+                "widget": {
+                    "align": "center",
+                    "margin": "auto",
+                    "styles": {
+                        "text_align": "center",
+                        "text_width": "40px",
+                        "text_weight": "bold",
+                        "text_color": "white",
+                        "background_color": "#3f51b5",
+                        "border_radius": "40px"
+                    }
+                },
+                "visible": [ ["is_group", "=", true], ["items_count", ">=", 0] ]
             },
             {
                 "type": "field",
