@@ -198,6 +198,22 @@ if($dataImport['import_type'] == 'condominium_import') {
             $result['logs'][] = "ERR - missing `code` in Owner sheet at row " . ($index + 2);
         }
 
+        // #todo - perform checks based on target schema constraints and fields types
+
+        // allow letters (Unicode), space, apostrophe, hyphen
+        if(!preg_match('/^[\p{L}\'\- ]+$/u', $owner['firstname'])) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid chars for `firstname` ({$owner['firstname']}) in Owner sheet at row " . ($index + 2);
+
+        }
+
+        // allow letters (Unicode), space, apostrophe, hyphen
+        if(!preg_match('/^[\p{L}\'\- ]+$/u', $owner['lastname'])) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid chars for `lastname` ({$owner['lastname']}) in Owner sheet at row " . ($index + 2);
+
+        }
+
         if(!preg_match('/^[a-z]{2}$/', $owner['lang'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - invalid `lang` ({$owner['lang']}) in Owner sheet at row " . ($index + 2);
