@@ -697,19 +697,26 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     ];
                 continue;
             }
+            $has_validated = false;
+            $has_cleared_lines = false;
             foreach($purchaseInvoice['accounting_entries_ids'] as $accounting_entry_id => $accountingEntry) {
-                if($accountingEntry['status'] !== 'validated') {
-                    $result[$id] = [
-                            'non_validated_entry' => 'Only invoice with validated entry can be unlocked.'
-                        ];
-                    continue 2;
+                if($accountingEntry['status'] === 'validated') {
+                    $has_validated = true;
                 }
                 if($accountingEntry['has_cleared_lines']) {
-                    $result[$id] = [
-                            'has_cleared_lines' => 'Accounting entry has already been cleared.'
-                        ];
-                    continue 2;
+                    $has_cleared_lines = true;
+                    break;
                 }
+            }
+            if(!$has_validated) {
+                $result[$id] = [
+                        'non_validated_entry' => 'Only invoice with validated entry can be unlocked.'
+                    ];
+            }
+            if($has_cleared_lines) {
+                $result[$id] = [
+                        'has_cleared_lines' => 'Accounting entry has already been cleared.'
+                    ];
             }
         }
         return $result;
