@@ -7,6 +7,7 @@
 
 use communication\template\Template;
 use core\setting\Setting;
+use realestate\sale\pay\Funding;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
@@ -222,6 +223,28 @@ $getLabels = function($lang) {
     ];
 };
 
+$getPaymentQrCodeUri = function($legal_name, $bank_account_iban, $bank_account_bic, $payment_reference, $amount) {
+    // default to blank image (empty 1x1)
+    $result = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAoMBgDTD2qgAAAAASUVORK5CYII=';
+    try {
+        $image = eQual::run('get', 'finance_payment_generate-qr-code', [
+            'recipient_name'    => $legal_name,
+            'recipient_iban'    => $bank_account_iban,
+            'recipient_bic'     => $bank_account_bic,
+            'payment_reference' => $payment_reference,
+            'payment_amount'    => $amount
+        ]);
+        $result = sprintf('data:%s;base64,%s',
+            'image/png',
+            base64_encode($image)
+        );
+    }
+    catch(Exception $e) {
+        trigger_error("APP::unable to generate QR code for $bank_account_iban: " . $e->getMessage(), EQ_REPORT_WARNING);
+    }
+    return $result;
+};
+
 
 $fiscalPeriod = FiscalPeriod::id($params['fiscal_period_id'])
     ->read([
@@ -330,6 +353,17 @@ if(!$owner) {
 
 $lang = $owner['identity_id']['lang_id']['code'];
 
+$funding = Funding::search([
+    ['expense_statement_id', '=', $statement['id']],
+    ['ownership_id', '=', $params['ownership_id']]
+])
+    ->read(['payment_reference', 'remaining_amount', 'due_date'])
+    ->first();
+
+if(!$funding) {
+    throw new Exception('no_funding', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
 // retrieve template (subject & body)
 $subject = 'Décompte Propriétaire';
 $introduction = '';
@@ -391,8 +425,8 @@ $values = array_merge($values, [
     // #todo - base this on ownership options
     'has_details'         => true,
 
-
-//    'payment_qr_code_uri' => $getPaymentQrCodeUri($invoice),
+    'funding'             => $funding,
+    'payment_qr_code_uri' => $getPaymentQrCodeUri($organisation['legal_name'], $organisation['bank_account_iban'], $organisation['bank_account_bic'], $funding['payment_reference'], $funding['remaining_amount']),
 
     'date'                => time(),
     'timezone'            => constant('L10N_TIMEZONE'),
