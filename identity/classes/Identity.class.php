@@ -1879,6 +1879,14 @@ class Identity extends Model {
                     'message'       => 'Firstname must be 2 chars long at minimum.',
                     'function'      => function ($firstname, $values) {
                         $type_id = $values['type_id'] ?? null;
+                        // skip char check for non-individuals
+                        if($type_id != 1) {
+                            return true;
+                        }
+                        // firstname is nullable
+                        if($firstname === null || trim($firstname) === '') {
+                            return true;
+                        }
                         return $type_id != 1 || strlen(trim($firstname)) >= 2;
                     }
                 ],
@@ -1886,8 +1894,12 @@ class Identity extends Model {
                     'message'       => 'Firstname must contain only naming glyphs.',
                     'function'      => function ($firstname, $values) {
                         $type_id = $values['type_id'] ?? null;
-                        if ($type_id != 1) {
-                            // skip char check for non-individuals
+                        // skip char check for non-individuals
+                        if($type_id != 1) {
+                            return true;
+                        }
+                        // firstname is nullable
+                        if($firstname === null || trim($firstname) === '') {
                             return true;
                         }
                         // allow letters (Unicode), space, apostrophe, hyphen
@@ -1907,7 +1919,7 @@ class Identity extends Model {
                     'message'       => 'Lastname must contain only naming glyphs.',
                     'function'      => function ($lastname, $values) {
                         $type_id = $values['type_id'] ?? null;
-                        if ($type_id != 1) {
+                        if($type_id != 1) {
                             // skip check if not individual
                             return true;
                         }

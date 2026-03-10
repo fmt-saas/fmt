@@ -201,17 +201,16 @@ if($dataImport['import_type'] == 'condominium_import') {
         // #todo - perform checks based on target schema constraints and fields types
 
         // allow letters (Unicode), space, apostrophe, hyphen
-        if(!preg_match('/^[\p{L}\'\- ]+$/u', $owner['firstname'])) {
+        $owner_firstname = trim($owner['firstname'] ?? '');
+        if($owner_firstname !== '' && !preg_match('/^[\p{L}\'\- ]+$/u', $owner_firstname)) {
             ++$result['errors'];
             $result['logs'][] = "ERR - invalid chars for `firstname` ({$owner['firstname']}) in Owner sheet at row " . ($index + 2);
-
         }
 
         // allow letters (Unicode), space, apostrophe, hyphen
         if(!preg_match('/^[\p{L}\'\- ]+$/u', $owner['lastname'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - invalid chars for `lastname` ({$owner['lastname']}) in Owner sheet at row " . ($index + 2);
-
         }
 
         if(!preg_match('/^[a-z]{2}$/', $owner['lang'])) {
