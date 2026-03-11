@@ -220,7 +220,6 @@
 
             <!-- payment information -->
             {% if funding.remaining_amount > 0.0 %}
-                <div class="page-break"></div>
 
                 <div style="position: relative; margin-top: 20px; border: solid 2px black; height: 215px; page-break-inside: avoid;">
                     <div style="font-size: 15px; padding-left: 15px; padding-top: 15px;">
@@ -244,7 +243,6 @@
 
             <!-- reimbursement information -->
             {% if funding.remaining_amount < 0.0 %}
-                <div class="page-break"></div>
 
                 <div style="position: relative; margin-top: 20px; border: solid 2px black; page-break-inside: avoid;">
                     <div style="font-size: 1rem; line-height: 1.4rem; padding: 15px;">
@@ -256,7 +254,6 @@
 
             <!-- no payment nor reimbursement needed information -->
             {% if funding.remaining_amount == 0.0 %}
-                <div class="page-break"></div>
 
                 <div style="position: relative; margin-top: 20px; border: solid 2px black; page-break-inside: avoid;">
                     <div style="font-size: 1rem; line-height: 1.4rem; padding: 15px;">
