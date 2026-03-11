@@ -229,9 +229,11 @@ class Account extends Model {
             ],
 
             'is_apportionable' => [
-                'type'              => 'boolean',
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
                 'description'       => "Is an apportionment possible?",
-                'default'           => false
+                'function'          => 'calcIsApportionable',
+                'store'             => true
             ],
 
             'apportionment_id' => [
@@ -380,6 +382,18 @@ class Account extends Model {
             }
         }
 
+        return $result;
+    }
+
+    protected static function calcIsApportionable($self) {
+        $result = [];
+        $self->read(['account_class']);
+        foreach($self as $id => $account) {
+            if(!$account['account_class']) {
+                continue;
+            }
+            $result[$id] = ($account['account_class'] === 6 || $account['account_class'] === 7);
+        }
         return $result;
     }
 
