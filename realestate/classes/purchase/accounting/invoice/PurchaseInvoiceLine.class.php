@@ -37,7 +37,10 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 'type'              => 'boolean',
                 'description'       => 'Enable to apply charge to a single owner.',
                 'default'           => false,
-                'onupdate'          => 'onupdateIsPrivateExpense'
+                'onupdate'          => 'onupdateIsPrivateExpense',
+                'visible'           => [
+                    ['is_apportionable', '=', true]
+                ]
             ],
 
             'has_instant_reinvoice' => [
