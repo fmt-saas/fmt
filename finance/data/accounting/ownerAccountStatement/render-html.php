@@ -56,6 +56,13 @@ use Twig\Extension\ExtensionInterface;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
+$getFormattedDate = function($timestamp) {
+    $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
+    $tz_offset = $tz->getOffset(new DateTime('@' . $timestamp));
+    $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
+    return date($date_format, $timestamp + $tz_offset);
+};
+
 $getTwigCurrency = function($equal_currency) {
     $equal_twig_currency_map = [
         '€'   => 'EUR',
