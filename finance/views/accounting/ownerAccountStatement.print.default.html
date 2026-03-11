@@ -149,7 +149,7 @@
                 <tr style="font-size: 10px;">
                     <!-- #memo - this is the given date_from -->
                     <td>{{ line.entry_date | date('d/m/Y') }}</td>
-                    <td>Ancien solde</td>
+                    <td style="text-align: right; font-weight: bold;">Ancien solde</td>
                     <td></td>
                     <td></td>
                     <td>{{ line.balance | format_money() }}</td>
@@ -157,7 +157,7 @@
             {% else %}
                 <tr style="font-size: 10px;">
                     <td>{{ line.entry_date | date('d/m/Y') }}</td>
-                    <td>{{ line.description }}</td>
+                    <td style="text-align: left; font-weight: bold;">{{ line.description }}</td>
                     <td>{{ line.debit | format_money() }}</td>
                     <td>{{ line.credit | format_money() }}</td>
                     <td>{{ line.balance | format_money() }}</td>

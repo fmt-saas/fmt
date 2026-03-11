@@ -178,8 +178,25 @@ foreach($data as $line) {
 
 $closing_balance = end($data)['balance'] ?? 0;
 
+$subject = 'Détail de votre compte propriétaire au {date_to}';
+$introduction = '';
+
+$map_values = [
+    'condo'             => $condominium['name'],
+    'date_from'         => $getFormattedDate($date_from),
+    'date_to'           => $getFormattedDate($date_to)
+];
+
+// Replace {var} items with corresponding values, set in $map_values
+$subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+    $key = $matches[1];
+    return $map_values[$key] ?? '';
+}, $subject);
+
+$subject = strip_tags($subject);
+
 $values = [
-    'title'               => 'Détail de votre compte propriétaire',
+    'title'               => $subject,
 
     'organisation'        => $organisation,
     'organisation_logo'   => $getOrganisationLogo($organisation['id']),

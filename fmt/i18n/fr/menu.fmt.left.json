@@ -154,8 +154,8 @@
             "description": "Gérer les appels de fonds des immeubles."
         },
         "item.accounting.expense_statements": {
-            "label": "États de dépenses",
-            "description": "Consulter et approuver les états de dépenses."
+            "label": "Décomptes de charges",
+            "description": "Consulter et approuver les décomptes de charges."
         },
         "purchase_invoices": {
             "label": "Factures d'achat",
