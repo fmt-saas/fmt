@@ -25,10 +25,16 @@ use Twig\Extension\ExtensionInterface;
             'type'              => 'array',
             'required'          => true
         ],
+
         'domain' => [
             'description'   => 'Criterias that results have to match (series of conjunctions)',
             'type'          => 'array',
             'default'       => []
+        ],
+
+        'debug' => [
+            'type'        => 'boolean',
+            'default'     => false
         ]
     ],
     'access'        => [

@@ -35,6 +35,11 @@ use Twig\Extension\ExtensionInterface;
             'type'              => 'date',
             'description'       => "Last date of the time interval.",
             'required'          => true
+        ],
+
+        'debug' => [
+            'type'        => 'boolean',
+            'default'     => false
         ]
     ],
     'access'        => [

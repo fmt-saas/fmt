@@ -44,11 +44,6 @@ use Dompdf\Options as DompdfOptions;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-
-if(!isset($params['params']['condo_id'])) {
-    throw new \Exception('missing_mandatory_condo_id', EQ_ERROR_MISSING_PARAM);
-}
-
 $html = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-html', $params);
 
 try {
