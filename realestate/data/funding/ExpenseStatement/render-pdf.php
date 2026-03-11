@@ -10,6 +10,8 @@ use finance\accounting\FiscalPeriod;
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate an html view of given fund request.',
     'help'          => 'This action generates a preview of the Expense Statement, with a PDF file merging all individual expense statements for all ownerships in the given fiscal period.',
+    // #memo - this controller can take up a long time to generate document and should not be calle
+    // in addition concurrent might infer with temporary files
     'params'        => [
 
         'id' => [
@@ -59,7 +61,7 @@ if(!$statement) {
 }
 
 $fiscalPeriod = FiscalPeriod::id($statement['fiscal_period_id'])
-    ->read(['condo_id' => ['ownerships_ids' => ['date_to']]])
+    ->read(['date_from', 'date_to', 'condo_id' => ['ownerships_ids' => ['date_to']]])
     ->first();
 
 if(!$fiscalPeriod) {
@@ -91,6 +93,19 @@ try {
             }
             catch(Exception $e) {
                 // ignore (ownership with no expense ?)
+            }
+            try {
+                $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
+                        'date_from'         => $fiscalPeriod['date_from'],
+                        'date_to'           => $fiscalPeriod['date_to'],
+                        'ownership_id'      => $ownership_id
+                    ]);
+                $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+                file_put_contents($temp, $pdf);
+                $temp_files[] = $temp;
+            }
+            catch(Exception $e) {
+                // ignore (unexpected error while generation account statement)
             }
         }
     }

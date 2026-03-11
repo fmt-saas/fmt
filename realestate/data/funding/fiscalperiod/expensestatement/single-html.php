@@ -23,12 +23,18 @@ use realestate\ownership\Owner;
     'help' => 'This action is a variation of the expense statement generation, producing a preview PDF for a single ownership within a specified fiscal period.',
     'params'        => [
 
+        'expense_statement_id' => [
+            'type'              => 'many2one',
+            'foreign_object'    => 'realestate\funding\ExpenseStatement',
+            'description'       => "Identifier of the Expense statement to render.",
+            'domain'            => ['condo_id', '=', 'object.condo_id']
+        ],
+
         'fiscal_period_id' => [
             'label'             => 'Fiscal Period',
             'description'       => 'Identifier of the targeted Fiscal Period.',
             'type'              => 'many2one',
-            'foreign_object'    => 'finance\accounting\FiscalPeriod',
-            'required'          => true
+            'foreign_object'    => 'finance\accounting\FiscalPeriod'
         ],
 
         'ownership_id' => [
@@ -150,7 +156,6 @@ $buildOwnerExpenses = function (array $owner): array {
     return $expenses;
 };
 
-
 $getFormattedDate = function($timestamp) {
     $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
     $tz_offset = $tz->getOffset(new DateTime('@' . $timestamp));
@@ -245,9 +250,11 @@ $getPaymentQrCodeUri = function($legal_name, $bank_account_iban, $bank_account_b
     return $result;
 };
 
+if(!isset($params['expense_statement_id']) && !isset($params['fiscal_period_id'])) {
+    throw new Exception('missing_mandatory_fiscal_period_or_statement', EQ_ERROR_MISSING_PARAM);
+}
 
-$fiscalPeriod = FiscalPeriod::id($params['fiscal_period_id'])
-    ->read([
+$fiscal_period_fields = [
         'date_from',
         'date_to',
         'name',
@@ -264,20 +271,11 @@ $fiscalPeriod = FiscalPeriod::id($params['fiscal_period_id'])
                 ]
             ]
         ]
-    ])
-    ->first();
+    ];
 
-if(!$fiscalPeriod) {
-    throw new Exception('unknown_fiscal_period', EQ_ERROR_UNKNOWN_OBJECT);
-}
-
-$statement = ExpenseStatement::search([
-        ['fiscal_period_id', '=', $fiscalPeriod['id']],
-        ['status', '<>', 'cancelled'],
-        ['invoice_type', '=', 'expense_statement']
-    ])
-    ->read([
+$expense_statement_fields = [
         'condo_id' => ['name', 'total_shares'],
+        'fiscal_period_id',
         'invoice_number',
         'common_total',
         'private_total',
@@ -286,11 +284,45 @@ $statement = ExpenseStatement::search([
             '@domain' => ['ownership_id', '=', $params['ownership_id']],
             'schema'
         ]
-    ])
-    ->first();
+    ];
 
-if(!$statement) {
-    throw new Exception('no_matching_statement', EQ_ERROR_UNKNOWN_OBJECT);
+if(isset($params['expense_statement_id'])) {
+    $statement = ExpenseStatement::id($params['expense_statement_id'])
+        ->read($expense_statement_fields)
+        ->first();
+
+    if(!$statement) {
+        throw new Exception('no_matching_statement', EQ_ERROR_UNKNOWN_OBJECT);
+    }
+
+    $fiscalPeriod = FiscalPeriod::id($statement['fiscal_period_id'])
+        ->read($fiscal_period_fields)
+        ->first();
+
+    if(!$fiscalPeriod) {
+        throw new Exception('unknown_fiscal_period', EQ_ERROR_UNKNOWN_OBJECT);
+    }
+}
+else {
+    $fiscalPeriod = FiscalPeriod::id($params['fiscal_period_id'])
+        ->read($fiscal_period_fields)
+        ->first();
+
+    if(!$fiscalPeriod) {
+        throw new Exception('unknown_fiscal_period', EQ_ERROR_UNKNOWN_OBJECT);
+    }
+
+    $statement = ExpenseStatement::search([
+            ['fiscal_period_id', '=', $fiscalPeriod['id']],
+            ['status', '<>', 'cancelled'],
+            ['invoice_type', '=', 'expense_statement']
+        ])
+        ->read($expense_statement_fields)
+        ->first();
+    if(!$statement) {
+        throw new Exception('no_matching_statement', EQ_ERROR_UNKNOWN_OBJECT);
+    }
+
 }
 
 $organisation = Organisation::id(1)
@@ -354,9 +386,9 @@ if(!$owner) {
 $lang = $owner['identity_id']['lang_id']['code'];
 
 $funding = Funding::search([
-    ['expense_statement_id', '=', $statement['id']],
-    ['ownership_id', '=', $params['ownership_id']]
-])
+        ['expense_statement_id', '=', $statement['id']],
+        ['ownership_id', '=', $params['ownership_id']]
+    ])
     ->read(['payment_reference', 'remaining_amount', 'due_date'])
     ->first();
 
