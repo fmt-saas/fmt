@@ -209,17 +209,21 @@ class Account extends Model {
                     'expense_provisions',               // used for FundRequest
                     'pending_creditor_import',
                     'pending_debtor_import',
+                    // not in imported Chart of Accounts
                     'manager_fees',
+                    // not in imported Chart of Accounts
+                    'pending_work_balance',
                     'private_expenses',                 // used for PurchaseInvoice
                     'reinvoiced_private_expenses',      // used for PurchaseInvoice
                     'reserve_fund',                     // used for CondoFund
                     'reserve_fund_call',                // used for FundRequest
                     'reserve_fund_variation',
                     'rounding_adjustment',
-                    'suppliers',
                     'special_reserve_fund',             // used for CondoFund
                     'special_reserve_fund_call',        // used for FundRequest
                     'special_reserve_fund_variation',
+                    'suppliers',
+                    // not in imported Chart of Accounts
                     'work_expenses',
                     'work_provisions',                  // used for FundRequest
                     'working_fund',                     // used for CondoFund
