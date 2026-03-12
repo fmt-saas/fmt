@@ -70,64 +70,6 @@ class AccountBalanceChange extends Model {
         ];
     }
 
-
-// #todo
-    protected static function doRebuildBalanceProjection($values) {
-
-        $condo_id = $values['condo_id'];
-        $mode = $params['mode'] ?? 'from_closing';
-
-        // 1) Resolve anchor date
-        $anchor_date = null;
-
-        if ($mode === 'from_closing') {
-            $anchor_date = ClosingBalance::getLastClosingDate($condo_id); // method to implement
-            if (!$anchor_date) {
-                $mode = 'full';
-            }
-        }
-        if ($mode === 'from_date') {
-            $anchor_date = $params['date_from'] ?? null;
-        }
-
-        // 2) Purge projection after anchor
-        if ($anchor_date) {
-            self::deleteWhere([
-                ['condo_id', '=', $condo_id],
-                ['date', '>', $anchor_date]
-            ]);
-        } else {
-            self::deleteWhere([['condo_id', '=', $condo_id]]);
-        }
-
-        // 3) Inject anchor balances
-        if ($anchor_date) {
-            $closing_lines = ClosingBalance::getBalancesAtDate($condo_id, $anchor_date);
-            foreach ($closing_lines as $line) {
-                self::create([
-                    'condo_id' => $condo_id,
-                    'account_id' => $line['account_id'],
-                    'date' => $anchor_date,
-                    'debit_balance' => $line['debit_balance'],
-                    'credit_balance' => $line['credit_balance']
-                ]);
-            }
-        }
-
-        // 4) Replay validated postings after anchor
-        $domain = [
-            ['condo_id', '=', $condo_id],
-            ['status', '=', 'validated'],
-        ];
-        if ($anchor_date) {
-            $domain[] = ['entry_date', '>', $anchor_date];
-        }
-
-        // Stream lines ordered by date, aggregate (account_id, entry_date)
-        // Update / create ABC cumulatively.
-
-        return ['status' => 'ok', 'anchor_date' => $anchor_date];
-    }
 // #todo
     protected static function doAuditBalanceProjection($values) {
 
