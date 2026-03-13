@@ -6,6 +6,30 @@
             "ACTION.EDIT": false
         }
     },
+    "routes": [
+        {
+            "id": "item.opening_balances",
+            "label": "Opening Balances",
+            "description": "",
+            "icon": "start",
+            "context": {
+                "entity": "finance\\accounting\\OpeningBalance",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        },
+        {
+            "id": "item.closing_balances",
+            "label": "Closing Balances",
+            "description": "",
+            "icon": "keyboard_tab",
+            "context": {
+                "entity": "finance\\accounting\\ClosingBalance",
+                "view": "list.default",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
+        }
+    ],
     "actions": [
         {
             "id": "action.create_fiscal_year",
