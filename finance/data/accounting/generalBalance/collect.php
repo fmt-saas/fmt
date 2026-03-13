@@ -7,6 +7,7 @@
 
 use equal\orm\Domain;
 use equal\orm\DomainCondition;
+use finance\accounting\AccountBalanceChange;
 use realestate\finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
@@ -170,25 +171,31 @@ use finance\accounting\Journal;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context']
+    'providers'     => ['context', 'orm']
 ]);
 
-/** @var \equal\php\Context $context */
-['context' => $context] = $providers;
+/** @var \equal\php\Context $context **/
+/** @var \equal\orm\ObjectManager $orm **/
+['context' => $context, 'orm' => $orm] = $providers;
+
+
+$map_accounts_ids = [];
+$map_journals_ids = [];
+$map_entries_ids = [];
 
 //   Add conditions to the domain to consider advanced parameters
 $domain = new Domain($params['domain']);
 
-if(isset($params['condo_id']) && $params['condo_id'] > 0) {
-    $domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
+if(!isset($params['condo_id'])) {
+    throw new Exception('missing_mandatory_condo', EQ_ERROR_MISSING_PARAM);
 }
+
+// index-1 condition on condominium
+$domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
 
 if(isset($params['date_from'], $params['date_to'])) {
     $date_from = $params['date_from'];
     $date_to = $params['date_to'];
-
-    $domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
-    $domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 }
 elseif(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
     $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
@@ -197,10 +204,38 @@ elseif(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
 
     $date_from = $fiscalYear['date_from'];
     $date_to = $fiscalYear['date_to'];
-
-    $domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
-    $domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 }
+else {
+    $fiscalYear = FiscalYear::search([
+            ['status', '=', 'open'],
+            ['condo_id', '=', $params['condo_id']],
+        ], ['sort' => ['date_from' => 'desc'], 'limit' => 1])
+        ->read(['date_from', 'date_to'])
+        ->first();
+
+    if(!$fiscalYear) {
+        throw new Exception('missing_fiscal_year_or_dates', EQ_ERROR_MISSING_PARAM);
+    }
+
+    $date_from = $fiscalYear['date_from'];
+    $date_to = $fiscalYear['date_to'];
+}
+
+// index-2 condition on account
+if(isset($params['account_id']) && $params['account_id'] > 0) {
+    $domain->addCondition(new DomainCondition('account_id', '=', $params['account_id']));
+}
+else {
+    $changes = AccountBalanceChange::search([['condo_id', '=', $params['condo_id']], ['date', '>=', $date_from], ['date', '<=', $date_to]])->read(['account_id']);
+    foreach($changes as $change) {
+        $map_accounts_ids[$change['account_id']] = true;
+    }
+    $domain->addCondition(new DomainCondition('account_id', 'in', array_keys($map_accounts_ids)));
+}
+
+// index-3 add condition on dates
+$domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
+$domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 
 if($params['suppliers_only']) {
     $domain->addCondition(new DomainCondition('suppliership_id', '<>', null));
@@ -216,13 +251,10 @@ if(isset($params['journal_id']) && $params['journal_id'] > 0) {
     }
 }
 
-if(isset($params['account_id']) && $params['account_id'] > 0) {
-    $domain->addCondition(new DomainCondition('account_id', '=', $params['account_id']));
-}
-
 // consider only validated entries
 $domain->addCondition(new DomainCondition('status', '=', 'validated'));
 
+/*
 $result = AccountingEntryLine::search($domain->toArray())
     ->read([
         'condo_id' => ['name'],
@@ -237,18 +269,80 @@ $result = AccountingEntryLine::search($domain->toArray())
     ])
     ->adapt('json')
     ->get(true);
+*/
 
-foreach($result as &$line) {
-    /*
-    // #memo - name of the target is already in the Account name
-    if($line['account_id']['ownership_id']) {
-        $line['account_id']['name'] .= ' (' . $line['account_id']['ownership_id']['name'] . ')';
+$accounting_entry_lines_ids = $orm->search(
+        AccountingEntryLine::getType(),
+        $domain->toArray(),
+        [
+            'account_id' => 'asc',
+            'entry_date' => 'asc',
+            'id' => 'asc'
+        ]
+    );
+
+$lines = $orm->read(AccountingEntryLine::getType(), $accounting_entry_lines_ids,
+    [
+        'condo_id',
+        'account_id',
+        'journal_id',
+        'accounting_entry_id',
+        'entry_date',
+        'description',
+        'debit',
+        'credit',
+        'status'
+    ]
+);
+
+foreach($lines as $line) {
+    $map_accounts_ids[$line['account_id']] = true;
+    $map_journals_ids[$line['journal_id']] = true;
+    $map_entries_ids[$line['accounting_entry_id']] = true;
+}
+
+$accounts = $orm->read(
+    'finance\\accounting\\Account',
+    array_keys($map_accounts_ids),
+    ['name']
+);
+
+$journals = $orm->read(
+    'finance\\accounting\\Journal',
+    array_keys($map_journals_ids),
+    ['name','mnemo']
+);
+
+$entries = $orm->read(
+    'realestate\\finance\\accounting\\AccountingEntry',
+    array_keys($map_entries_ids),
+    ['name']
+);
+
+$result = [];
+
+foreach($lines as &$line) {
+    // #memo - name of the target (ownership/suppliership) is already in the Account name
+    $account_id = $line['account_id'];
+    $journal_id = $line['journal_id'];
+    $entry_id   = $line['accounting_entry_id'];
+
+    $row = $line->toArray();
+
+    if(isset($accounts[$account_id])) {
+        $row['account_id'] = $accounts[$account_id]->toArray();
     }
-    elseif($line['account_id']['suppliership_id']) {
-        $line['account_id']['name'] .= ' (' . $line['account_id']['suppliership_id']['name'] . ')';
+    if(isset($journals[$journal_id])) {
+        $row['journal_id'] = $journals[$journal_id]->toArray();
     }
-    */
-    $line['balance'] = floatval($line['debit']) - floatval($line['credit']);
+    if(isset($entries[$entry_id])) {
+        $row['accounting_entry_id'] = $entries[$entry_id]->toArray();
+    }
+
+    $row['entry_date'] = date('c', $line['entry_date']);
+    $row['balance'] = $line['debit'] - $line['credit'];
+
+    $result[] = $row;
 }
 
 $context->httpResponse()
