@@ -7,6 +7,7 @@
 
 use equal\orm\Domain;
 use equal\orm\DomainCondition;
+use finance\accounting\AccountBalanceChange;
 use realestate\finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
@@ -177,19 +178,24 @@ use finance\accounting\Journal;
 /** @var \equal\orm\ObjectManager $orm **/
 ['context' => $context, 'orm' => $orm] = $providers;
 
+
+$map_accounts_ids = [];
+$map_journals_ids = [];
+$map_entries_ids = [];
+
 //   Add conditions to the domain to consider advanced parameters
 $domain = new Domain($params['domain']);
 
-if(isset($params['condo_id']) && $params['condo_id'] > 0) {
-    $domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
+if(!isset($params['condo_id'])) {
+    throw new Exception('missing_mandatory_condo', EQ_ERROR_MISSING_PARAM);
 }
+
+// index-1 condition on condominium
+$domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
 
 if(isset($params['date_from'], $params['date_to'])) {
     $date_from = $params['date_from'];
     $date_to = $params['date_to'];
-
-    $domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
-    $domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 }
 elseif(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
     $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
@@ -198,10 +204,38 @@ elseif(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
 
     $date_from = $fiscalYear['date_from'];
     $date_to = $fiscalYear['date_to'];
-
-    $domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
-    $domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 }
+else {
+    $fiscalYear = FiscalYear::search([
+            ['status', '=', 'open'],
+            ['condo_id', '=', $params['condo_id']],
+        ], ['sort' => ['date_from' => 'desc'], 'limit' => 1])
+        ->read(['date_from', 'date_to'])
+        ->first();
+
+    if(!$fiscalYear) {
+        throw new Exception('missing_fiscal_year_or_dates', EQ_ERROR_MISSING_PARAM);
+    }
+
+    $date_from = $fiscalYear['date_from'];
+    $date_to = $fiscalYear['date_to'];
+}
+
+// index-2 condition on account
+if(isset($params['account_id']) && $params['account_id'] > 0) {
+    $domain->addCondition(new DomainCondition('account_id', '=', $params['account_id']));
+}
+else {
+    $changes = AccountBalanceChange::search([['condo_id', '=', $params['condo_id']], ['date', '>=', $date_from], ['date', '<=', $date_to]])->read(['account_id']);
+    foreach($changes as $change) {
+        $map_accounts_ids[$change['account_id']] = true;
+    }
+    $domain->addCondition(new DomainCondition('account_id', 'in', array_keys($map_accounts_ids)));
+}
+
+// index-3 add condition on dates
+$domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
+$domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 
 if($params['suppliers_only']) {
     $domain->addCondition(new DomainCondition('suppliership_id', '<>', null));
@@ -215,10 +249,6 @@ if(isset($params['journal_id']) && $params['journal_id'] > 0) {
     if($journal && $journal['journal_type'] !== 'LEDG') {
         $domain->addCondition(new DomainCondition('journal_id', '=', $params['journal_id']));
     }
-}
-
-if(isset($params['account_id']) && $params['account_id'] > 0) {
-    $domain->addCondition(new DomainCondition('account_id', '=', $params['account_id']));
 }
 
 // consider only validated entries
@@ -265,31 +295,27 @@ $lines = $orm->read(AccountingEntryLine::getType(), $accounting_entry_lines_ids,
     ]
 );
 
-$account_ids = [];
-$journal_ids = [];
-$entry_ids = [];
-
 foreach($lines as $line) {
-    $account_ids[$line['account_id']] = true;
-    $journal_ids[$line['journal_id']] = true;
-    $entry_ids[$line['accounting_entry_id']] = true;
+    $map_accounts_ids[$line['account_id']] = true;
+    $map_journals_ids[$line['journal_id']] = true;
+    $map_entries_ids[$line['accounting_entry_id']] = true;
 }
 
 $accounts = $orm->read(
     'finance\\accounting\\Account',
-    array_keys($account_ids),
+    array_keys($map_accounts_ids),
     ['name']
 );
 
 $journals = $orm->read(
     'finance\\accounting\\Journal',
-    array_keys($journal_ids),
+    array_keys($map_journals_ids),
     ['name','mnemo']
 );
 
 $entries = $orm->read(
     'realestate\\finance\\accounting\\AccountingEntry',
-    array_keys($entry_ids),
+    array_keys($map_entries_ids),
     ['name']
 );
 
@@ -312,5 +338,5 @@ foreach($lines as &$line) {
 }
 
 $context->httpResponse()
-        ->body($lines)
+        ->body(array_values($lines))
         ->send();
