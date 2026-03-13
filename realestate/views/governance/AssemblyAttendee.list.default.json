@@ -1,6 +1,11 @@
 {
     "name": "Model",
     "description": "Represents an attendee at a condominium assembly, which can be an owner or a proxy (not necessarily an owner), or an owner with proxy from other owners.",
+    "header": {
+        "actions": {
+            "ACTION.CREATE": false
+        }
+    },
     "layout": {
         "items": [
             {
