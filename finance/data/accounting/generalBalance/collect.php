@@ -304,19 +304,19 @@ foreach($lines as $line) {
 $accounts = $orm->read(
     'finance\\accounting\\Account',
     array_keys($map_accounts_ids),
-    ['name']
+    ['id', 'name']
 );
 
 $journals = $orm->read(
     'finance\\accounting\\Journal',
     array_keys($map_journals_ids),
-    ['name','mnemo']
+    ['id', 'name', 'mnemo']
 );
 
 $entries = $orm->read(
     'realestate\\finance\\accounting\\AccountingEntry',
     array_keys($map_entries_ids),
-    ['name']
+    ['id', 'name']
 );
 
 $result = [];
