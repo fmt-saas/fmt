@@ -183,6 +183,7 @@ use finance\accounting\OpeningBalanceLine;
 $map_accounts_ids = [];
 $map_journals_ids = [];
 $map_entries_ids = [];
+$map_opening_balances = [];
 
 if(!isset($params['condo_id'])) {
     throw new Exception('missing_mandatory_condo', EQ_ERROR_MISSING_PARAM);
@@ -192,9 +193,7 @@ if(!isset($params['condo_id'])) {
 
 $domain = new Domain();
 
-// index-1 condition on condominium
-$domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
-
+// retrieve dates and fiscal year
 if(isset($params['date_from'], $params['date_to'])) {
     $fiscalYear = FiscalYear::search([
             ['condo_id', '=', $params['condo_id']],
@@ -230,6 +229,10 @@ else {
     $date_to = $fiscalYear['date_to'];
 }
 
+// index-1 condition on condominium
+$domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
+
+
 // index-2 condition on account
 if(isset($params['account_id']) && $params['account_id'] > 0) {
     $map_accounts_ids[$params['account_id']] = true;
@@ -242,22 +245,23 @@ else {
     }
 }
 
-
-
-$opening_lines = OpeningBalanceLine::search([
+$openingLines = OpeningBalanceLine::search([
         ['condo_id','=', $params['condo_id']],
         ['fiscal_year_id','=', $fiscalYear['id']]
     ])
-    ->read(['account_id']);
+    ->read(['account_id', 'debit', 'credit']);
 
-foreach($opening_lines as $line) {
+foreach($openingLines as $line) {
     $map_accounts_ids[$line['account_id']] = true;
+    $map_opening_balances[$line['account_id']] = $line['debit'] - $line['credit'];
 }
 
-$changes = AccountBalanceChange::search([['condo_id', '=', $params['condo_id']], ['date', '>=', $fiscalYear['date_from']], ['date', '<', $date_from]])->read(['account_id']);
+$changes = AccountBalanceChange::search([['condo_id', '=', $params['condo_id']], ['date', '>=', $fiscalYear['date_from']], ['date', '<', $date_from]], ['sort' => ['date' => 'asc', 'id' => 'asc']])
+    ->read(['account_id', 'debit_balance', 'credit_balance']);
 
 foreach($changes as $change) {
     $map_accounts_ids[$change['account_id']] = true;
+    $map_opening_balances[$change['account_id']] = $change['debit_balance'] - $change['credit_balance'];
 }
 
 $domain->addCondition(new DomainCondition('account_id', 'in', array_keys($map_accounts_ids)));
@@ -341,6 +345,12 @@ $entries = $orm->read(
 
 $result = [];
 
+$current_balance = [];
+
+foreach($map_accounts_ids as $account_id => $_) {
+    $current_balance[$account_id] = $map_opening_balances[$account_id] ?? 0;
+}
+
 foreach($lines as &$line) {
     // #memo - name of the target (ownership/suppliership) is already in the Account name
     $account_id = $line['account_id'];
@@ -360,7 +370,9 @@ foreach($lines as &$line) {
     }
 
     $row['entry_date'] = date('c', $line['entry_date']);
-    $row['balance'] = $line['debit'] - $line['credit'];
+
+    $current_balance[$account_id] += $line['debit'] - $line['credit'];
+    $row['balance'] = $current_balance[$account_id];
 
     $result[] = $row;
 }
