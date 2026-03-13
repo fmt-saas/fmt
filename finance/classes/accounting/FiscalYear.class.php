@@ -656,8 +656,29 @@ class FiscalYear extends Model {
     protected static function onafterRePreclose($self) {
         $self->read(['condo_id', 'date_to', 'fiscal_periods_ids' => ['@sort' => ['date_to' => 'desc'], '@limit' => 1]]);
         foreach($self as $id => $fiscalYear) {
-            // on remet la dernière période en status preclosed
+            // set back last period to preclosed status
             $fiscalYear['fiscal_periods_ids']->transition('repreclose');
+            // take the year that immediately succeeds the current one, whatever its status
+            $nextFiscalYear = self::search([
+                        ['condo_id', '=', $fiscalYear['condo_id']],
+                        ['date_from', '>', $fiscalYear['date_to']]
+                    ],
+                    ['sort' => ['date_from' => 'asc']]
+                )
+                ->read(['status'])
+                ->first();
+
+            if(!$nextFiscalYear) {
+                throw new \Exception('missing_mandatory_next_fiscal_year', EQ_ERROR_UNKNOWN);
+            }
+
+            if($nextFiscalYear['status'] !== 'preopen') {
+                throw new \Exception('invalid_status_for_next_fiscal_year', EQ_ERROR_UNKNOWN);
+            }
+            // remove OpeningBalance of Year+1
+            OpeningBalance::search(['fiscal_year_id', '=', $nextFiscalYear['id']])->delete(true);
+            // remove ClosingBalance
+            ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
         }
     }
 
@@ -835,6 +856,8 @@ class FiscalYear extends Model {
                 ->first();
 
             self::id($id)->update(['closing_balance_id' => $closingBalance['id']]);
+
+            // #memo - OpeningBalance for next fiscal year is created in µ onafterClose`
         }
     }
 
