@@ -170,11 +170,12 @@ use finance\accounting\Journal;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context']
+    'providers'     => ['context', 'orm']
 ]);
 
-/** @var \equal\php\Context $context */
-['context' => $context] = $providers;
+/** @var \equal\php\Context $context **/
+/** @var \equal\orm\ObjectManager $orm **/
+['context' => $context, 'orm' => $orm] = $providers;
 
 //   Add conditions to the domain to consider advanced parameters
 $domain = new Domain($params['domain']);
@@ -223,6 +224,7 @@ if(isset($params['account_id']) && $params['account_id'] > 0) {
 // consider only validated entries
 $domain->addCondition(new DomainCondition('status', '=', 'validated'));
 
+/*
 $result = AccountingEntryLine::search($domain->toArray())
     ->read([
         'condo_id' => ['name'],
@@ -237,20 +239,78 @@ $result = AccountingEntryLine::search($domain->toArray())
     ])
     ->adapt('json')
     ->get(true);
+*/
 
-foreach($result as &$line) {
-    /*
-    // #memo - name of the target is already in the Account name
-    if($line['account_id']['ownership_id']) {
-        $line['account_id']['name'] .= ' (' . $line['account_id']['ownership_id']['name'] . ')';
+$accounting_entry_lines_ids = $orm->search(
+        AccountingEntryLine::getType(),
+        $domain->toArray(),
+        [
+            'account_id' => 'asc',
+            'entry_date' => 'asc',
+            'id' => 'asc'
+        ]
+    );
+
+$lines = $orm->read(AccountingEntryLine::getType(), $accounting_entry_lines_ids,
+    [
+        'condo_id',
+        'account_id',
+        'journal_id',
+        'accounting_entry_id',
+        'entry_date',
+        'description',
+        'debit',
+        'credit',
+        'status'
+    ]
+);
+
+$account_ids = [];
+$journal_ids = [];
+$entry_ids = [];
+
+foreach($lines as $line) {
+    $account_ids[$line['account_id']] = true;
+    $journal_ids[$line['journal_id']] = true;
+    $entry_ids[$line['accounting_entry_id']] = true;
+}
+
+$accounts = $orm->read(
+    'finance\\accounting\\Account',
+    array_keys($account_ids),
+    ['name']
+);
+
+$journals = $orm->read(
+    'finance\\accounting\\Journal',
+    array_keys($journal_ids),
+    ['name','mnemo']
+);
+
+$entries = $orm->read(
+    'realestate\\finance\\accounting\\AccountingEntry',
+    array_keys($entry_ids),
+    ['name']
+);
+
+foreach($lines as &$line) {
+    // #memo - name of the target (ownership/suppliership) is already in the Account name
+    $account_id = $line['account_id'];
+    $journal_id = $line['journal_id'];
+    $entry_id   = $line['accounting_entry_id'];
+
+    if(isset($accounts[$account_id])) {
+        $line['account_id'] = $accounts[$account_id];
     }
-    elseif($line['account_id']['suppliership_id']) {
-        $line['account_id']['name'] .= ' (' . $line['account_id']['suppliership_id']['name'] . ')';
+    if(isset($journals[$journal_id])) {
+        $line['journal_id'] = $journals[$journal_id];
     }
-    */
-    $line['balance'] = floatval($line['debit']) - floatval($line['credit']);
+    if(isset($entries[$entry_id])) {
+        $line['accounting_entry_id'] = $entries[$entry_id];
+    }
+    $line['balance'] = $line['debit'] - $line['credit'];
 }
 
 $context->httpResponse()
-        ->body($result)
+        ->body($lines)
         ->send();
