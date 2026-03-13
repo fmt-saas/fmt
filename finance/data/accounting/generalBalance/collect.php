@@ -330,15 +330,17 @@ foreach($lines as &$line) {
     $row = $line->toArray();
 
     if(isset($accounts[$account_id])) {
-        $line['account_id'] = $accounts[$account_id]->toArray();
+        $row['account_id'] = $accounts[$account_id]->toArray();
     }
     if(isset($journals[$journal_id])) {
-        $line['journal_id'] = $journals[$journal_id]->toArray();
+        $row['journal_id'] = $journals[$journal_id]->toArray();
     }
     if(isset($entries[$entry_id])) {
-        $line['accounting_entry_id'] = $entries[$entry_id]->toArray();
+        $row['accounting_entry_id'] = $entries[$entry_id]->toArray();
     }
-    $line['balance'] = $line['debit'] - $line['credit'];
+
+    $row['entry_date'] = date('c', $line['entry_date']);
+    $row['balance'] = $line['debit'] - $line['credit'];
 
     $result[] = $row;
 }
