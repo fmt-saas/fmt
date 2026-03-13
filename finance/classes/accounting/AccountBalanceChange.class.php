@@ -70,6 +70,13 @@ class AccountBalanceChange extends Model {
         ];
     }
 
+    public function getIndexes(): array {
+        return [
+            // ledger_index
+            ['condo_id', 'account_id', 'date', 'id']
+        ];
+    }
+
 // #todo
     protected static function doAuditBalanceProjection($values) {
 

@@ -11,6 +11,7 @@ use finance\accounting\AccountBalanceChange;
 use realestate\finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
+use finance\accounting\OpeningBalanceLine;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Advanced search for General Balance.',
@@ -183,17 +184,25 @@ $map_accounts_ids = [];
 $map_journals_ids = [];
 $map_entries_ids = [];
 
-//   Add conditions to the domain to consider advanced parameters
-$domain = new Domain($params['domain']);
-
 if(!isset($params['condo_id'])) {
     throw new Exception('missing_mandatory_condo', EQ_ERROR_MISSING_PARAM);
 }
+
+// 1) BUILD CONDITIONAL DOMAIN
+
+$domain = new Domain();
 
 // index-1 condition on condominium
 $domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
 
 if(isset($params['date_from'], $params['date_to'])) {
+    $fiscalYear = FiscalYear::search([
+            ['condo_id', '=', $params['condo_id']],
+            ['date_from', '<=', $params['date_from']],
+        ], ['sort' => ['date_from' => 'desc'], 'limit' => 1])
+        ->read(['id','date_from','date_to'])
+        ->first();
+
     $date_from = $params['date_from'];
     $date_to = $params['date_to'];
 }
@@ -223,15 +232,36 @@ else {
 
 // index-2 condition on account
 if(isset($params['account_id']) && $params['account_id'] > 0) {
-    $domain->addCondition(new DomainCondition('account_id', '=', $params['account_id']));
+    $map_accounts_ids[$params['account_id']] = true;
 }
 else {
     $changes = AccountBalanceChange::search([['condo_id', '=', $params['condo_id']], ['date', '>=', $date_from], ['date', '<=', $date_to]])->read(['account_id']);
+
     foreach($changes as $change) {
         $map_accounts_ids[$change['account_id']] = true;
     }
-    $domain->addCondition(new DomainCondition('account_id', 'in', array_keys($map_accounts_ids)));
 }
+
+
+
+$opening_lines = OpeningBalanceLine::search([
+        ['condo_id','=', $params['condo_id']],
+        ['fiscal_year_id','=', $fiscalYear['id']]
+    ])
+    ->read(['account_id']);
+
+foreach($opening_lines as $line) {
+    $map_accounts_ids[$line['account_id']] = true;
+}
+
+$changes = AccountBalanceChange::search([['condo_id', '=', $params['condo_id']], ['date', '>=', $fiscalYear['date_from']], ['date', '<', $date_from]])->read(['account_id']);
+
+foreach($changes as $change) {
+    $map_accounts_ids[$change['account_id']] = true;
+}
+
+$domain->addCondition(new DomainCondition('account_id', 'in', array_keys($map_accounts_ids)));
+
 
 // index-3 add condition on dates
 $domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
@@ -254,22 +284,12 @@ if(isset($params['journal_id']) && $params['journal_id'] > 0) {
 // consider only validated entries
 $domain->addCondition(new DomainCondition('status', '=', 'validated'));
 
-/*
-$result = AccountingEntryLine::search($domain->toArray())
-    ->read([
-        'condo_id' => ['name'],
-        'account_id' => ['name', 'ownership_id' => ['name'], 'suppliership_id' => ['name']],
-        'journal_id' => ['name', 'mnemo'],
-        'accounting_entry_id' => ['name'],
-        'entry_date',
-        'description',
-        'debit',
-        'credit',
-        'status'
-    ])
-    ->adapt('json')
-    ->get(true);
-*/
+// Add conditions to the domain to consider advanced parameters
+// #memo #disabled for now to prevent modifying domain sent to DBMS (request involving AccountingEntryLine heavily rely on indexes for performances)
+// $params_domain = new Domain($params['domain']);
+
+
+// 2) BUILD RESULT
 
 $accounting_entry_lines_ids = $orm->search(
         AccountingEntryLine::getType(),

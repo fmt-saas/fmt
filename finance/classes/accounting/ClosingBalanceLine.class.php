@@ -24,7 +24,7 @@ class ClosingBalanceLine extends BalanceLine {
         return [
             'balance_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\ClosingBalanceLine',
+                'foreign_object'    => 'finance\accounting\ClosingBalance',
                 'required'          => true,
                 'ondelete'          => 'cascade'
             ],

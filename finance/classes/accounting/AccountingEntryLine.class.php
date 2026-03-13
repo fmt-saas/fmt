@@ -458,4 +458,17 @@ class AccountingEntryLine extends Model {
         }
         return $result;
     }
+
+    public function getIndexes(): array {
+        return [
+            // ledger_index
+            ['condo_id','account_id','entry_date','id'],
+            // `journal_index`
+            ['condo_id','journal_id','entry_date'],
+            // `supplier_index`
+            ['condo_id', 'suppliership_id', 'entry_date'],
+            // `ownership_index`
+            ['condo_id', 'ownership_id', 'entry_date']
+        ];
+    }
 }
