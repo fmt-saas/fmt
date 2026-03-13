@@ -7,11 +7,13 @@
 
 use equal\orm\Domain;
 use equal\orm\DomainCondition;
+use finance\accounting\Account;
 use finance\accounting\AccountBalanceChange;
-use realestate\finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
 use finance\accounting\OpeningBalanceLine;
+use realestate\finance\accounting\AccountingEntry;
+use realestate\finance\accounting\AccountingEntryLine;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Advanced search for General Balance.',
@@ -295,6 +297,9 @@ $domain->addCondition(new DomainCondition('status', '=', 'validated'));
 
 // 2) BUILD RESULT
 
+$result = [];
+
+// retrieve Accounting Entry Lines using ORM to prevent unecessary permission checks
 $accounting_entry_lines_ids = $orm->search(
         AccountingEntryLine::getType(),
         $domain->toArray(),
@@ -319,34 +324,22 @@ $lines = $orm->read(AccountingEntryLine::getType(), $accounting_entry_lines_ids,
     ]
 );
 
+// use maps to load related objects only once
+
 foreach($lines as $line) {
     $map_accounts_ids[$line['account_id']] = true;
     $map_journals_ids[$line['journal_id']] = true;
     $map_entries_ids[$line['accounting_entry_id']] = true;
 }
 
-$accounts = $orm->read(
-    'finance\\accounting\\Account',
-    array_keys($map_accounts_ids),
-    ['id', 'name']
-);
+$accounts = $orm->read(Account::gettype(), array_keys($map_accounts_ids), ['id', 'name']);
 
-$journals = $orm->read(
-    'finance\\accounting\\Journal',
-    array_keys($map_journals_ids),
-    ['id', 'name', 'mnemo']
-);
+$journals = $orm->read(Journal::gettype(), array_keys($map_journals_ids), ['id', 'name', 'mnemo']);
 
-$entries = $orm->read(
-    'realestate\\finance\\accounting\\AccountingEntry',
-    array_keys($map_entries_ids),
-    ['id', 'name']
-);
+$entries = $orm->read(AccountingEntry::getType(), array_keys($map_entries_ids), ['id', 'name']);
 
-$result = [];
-
+// init iterative account balances based on "opening" balances (either from OpeningBalance or from AccountBalanceChange)
 $current_balance = [];
-
 foreach($map_accounts_ids as $account_id => $_) {
     $current_balance[$account_id] = $map_opening_balances[$account_id] ?? 0;
 }
