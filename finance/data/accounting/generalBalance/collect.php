@@ -319,24 +319,30 @@ $entries = $orm->read(
     ['name']
 );
 
+$result = [];
+
 foreach($lines as &$line) {
     // #memo - name of the target (ownership/suppliership) is already in the Account name
     $account_id = $line['account_id'];
     $journal_id = $line['journal_id'];
     $entry_id   = $line['accounting_entry_id'];
 
+    $row = $line->toArray();
+
     if(isset($accounts[$account_id])) {
-        $line['account_id'] = $accounts[$account_id];
+        $line['account_id'] = $accounts[$account_id]->toArray();
     }
     if(isset($journals[$journal_id])) {
-        $line['journal_id'] = $journals[$journal_id];
+        $line['journal_id'] = $journals[$journal_id]->toArray();
     }
     if(isset($entries[$entry_id])) {
-        $line['accounting_entry_id'] = $entries[$entry_id];
+        $line['accounting_entry_id'] = $entries[$entry_id]->toArray();
     }
     $line['balance'] = $line['debit'] - $line['credit'];
+
+    $result[] = $row;
 }
 
 $context->httpResponse()
-        ->body(array_values($lines))
+        ->body($result)
         ->send();
