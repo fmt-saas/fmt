@@ -87,7 +87,10 @@ class BankStatementImport extends Model {
 
                     if($documentProcess && $documentProcess['document_id']) {
                         // attach original document to the one being processed
-                        Document::id($documentProcess['document_id'])->update(['origin_document_id' => $document['id']]);
+                        Document::id($documentProcess['document_id'])->update([
+                            'origin_document_id'    => $document['id'],
+                            'document_process_id'   => $documentProcess['id']
+                        ]);
                     }
                 }
                 catch(\Exception $e) {
