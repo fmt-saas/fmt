@@ -4,6 +4,6 @@ use identity\Group;
 
 
 Group::create([
-        'name'          => 'super_admins',
-        'display_name'  => 'Super administrateurs'
+        'name'          => 'operators',
+        'display_name'  => 'Users with advanced rights to operate the App.'
     ]);

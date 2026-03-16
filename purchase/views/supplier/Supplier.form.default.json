@@ -15,7 +15,7 @@
                 "action": "sync_from_identity",
                 "ids": []
             },
-            "visible": ["admins", "in", "user.groups"],
+            "visible": ["operators", "in", "user.groups"],
             "confirm": false
         }
     ],

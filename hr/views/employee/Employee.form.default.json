@@ -16,7 +16,7 @@
             "description": "Create a user account relating to the Employee.",
             "controller": "hr_employee_Employee_create-user",
             "confirm": false,
-            "visible": ["admins", "in", "user.groups"]
+            "visible": ["operators", "in", "user.groups"]
         }
     ],
     "layout": {

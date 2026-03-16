@@ -9,7 +9,7 @@
                     "label": "Create a User account",
                     "icon": "play_arrow",
                     "controller": "realestate_ownership_Owner_create-user",
-                    "visible": ["admins", "in", "user.groups"]
+                    "visible": ["operators", "in", "user.groups"]
                 }
             ]
         }

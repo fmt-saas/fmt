@@ -1000,7 +1000,7 @@
                         "label": "Mandates",
                         "#memo": "super-admins since there is a task on hold FMT-175",
                         "visible": [
-                            ["super_admins", "in", "user.groups"],
+                            ["admins", "in", "user.groups"],
                             [
                                 "status",
                                 "not in",
@@ -1054,7 +1054,7 @@
                                     "sent"
                                 ]
                             ],
-                            ["admins", "in", "user.groups"]
+                            ["operators", "in", "user.groups"]
                         ],
                         "rows": [
                             {
