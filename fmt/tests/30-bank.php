@@ -37,7 +37,7 @@ $tests = [
 
     '3002' => [
         'description' => "Validate ISABEL XLSX import.",
-        'help'        => "Convert a CODA bank statement to standardized JSON and validate result against `bank-statement` schema.",
+        'help'        => "Convert a XLSX bank statement to standardized JSON and validate result against `bank-statement` schema.",
         'arrange'     => function () use ($providers) {
         },
         'act'         => function () use ($providers) {
