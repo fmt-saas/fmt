@@ -104,7 +104,7 @@ Employee::id($employee['id'])
     ->update(['identity_id' => $identity['id']])
     ->do('sync_from_identity');
 
-User::id($employee['id'])
+User::id($user['id'])
     ->update([
         'identity_id'   => $identity['id'],
         'password'      => $password
