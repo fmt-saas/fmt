@@ -312,6 +312,68 @@ $tests = [
                 $orm->delete(DocumentProcess::getType(), $accountsBankStatementXlsxDocument['document_process_id'], true);
             }
         }
+    ],
+
+    '3007' => [
+        'description' => "Test document processing of CODA documents.",
+        'help'        => "Create BankStatementImport with coda txt to test the creation of two DocumentProcess.",
+        'arrange'     => function () use ($providers) {
+            $bankStatementImport = BankStatementImport::create([
+                'name' => 'Test document processing of CODA documents'
+            ])
+                ->read(['id'])
+                ->first();
+
+            return $bankStatementImport;
+        },
+        'act'         => function ($bankStatementImport) use ($providers) {
+            $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_coda_multi_accounts.txt');
+
+            BankStatementImport::id($bankStatementImport['id'])->update(['data' => $data]);
+
+            return $bankStatementImport;
+        },
+        'assert'      => function ($bankStatementImport) use ($providers) {
+            $bankStatementDocument = Document::search(['name', '=', 'Test document processing of CODA documents'])
+                ->read(['name'])
+                ->first();
+
+            $xlsxDocuments = Document::search(['origin_document_id', '=', $bankStatementDocument['id']])
+                ->read(['document_process_id'])
+                ->get();
+
+            $document_processes_ids = [];
+            foreach($xlsxDocuments as $xlsxDocument) {
+                $document_processes_ids[] = $xlsxDocument['document_process_id'];
+            }
+
+            $documentProcesses = DocumentProcess::ids($document_processes_ids)
+                ->read(['name', 'status', 'document_origin_code', 'document_origin'])
+                ->get(true);
+
+            return $bankStatementDocument['name'] === 'Test document processing of CODA documents'
+                && count($xlsxDocuments) === 2
+                && count($documentProcesses) === 2 && $documentProcesses[0]['status'] === 'created' && $documentProcesses[1]['status'] === 'created';
+        },
+        'rollback'    => function () use ($providers) {
+            $bankStatementDocument = Document::search(['name', '=', 'Test document processing of CODA documents'])
+                ->read(['id'])
+                ->first();
+
+            $accountsBankStatementXlsxDocuments = Document::search(['origin_document_id', '=', $bankStatementDocument['id']])
+                ->read(['document_process_id'])
+                ->get();
+
+            /* @var \equal\orm\ObjectManager $orm */
+            $orm = $providers['orm'];
+
+            $orm->delete(Document::getType(), $bankStatementDocument['id'], true);
+
+            foreach($accountsBankStatementXlsxDocuments as $id => $accountsBankStatementXlsxDocument) {
+                $orm->delete(Document::getType(), $id, true);
+                $orm->delete(DocumentProcess::getType(), $accountsBankStatementXlsxDocument['document_process_id'], true);
+            }
+        }
     ]
 
 ];
