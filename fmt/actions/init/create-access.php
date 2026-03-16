@@ -106,12 +106,16 @@ Employee::id($employee['id'])
 
 User::id($user['id'])
     ->update([
-        'identity_id'   => $identity['id'],
-        'password'      => $password
+        'identity_id'   => $identity['id']
     ])
     ->do('sync_from_identity');
 
 $orm->enableEvents($events);
+
+User::id($user['id'])
+    ->update([
+        'password'      => $password
+    ]);
 
 $context
     ->httpResponse()
