@@ -59,6 +59,9 @@ $host = preg_replace('/^www\./', '', $host);
 $username = 'admin@' . $host;
 $password = $generateRandomPassword();
 
+// create user and employee without triggering cascade events
+$events = $orm->disableEvents();
+
 $user = User::search(['login', '=', $username])
     ->read(['id', 'identity_id'])
     ->first(true);
@@ -68,6 +71,15 @@ if($user) {
 }
 
 $employee = Employee::create()
+    ->first();
+
+$user = User::create([
+        'login'         => $username,
+        'language'      => 'fr',
+        'validated'     => true,
+        'allow_auth'    => true,
+        'groups_ids'    => [3]
+    ])
     ->first();
 
 $identity = Identity::create([
@@ -82,6 +94,7 @@ $identity = Identity::create([
         'address_country'   => 'BE',
         'has_vat'           => false,
         'is_active'         => true,
+        'user_id'           => $user['id'],
         'employee_id'       => $employee['id']
     ])
     ->read(['name', 'email'])
@@ -91,16 +104,14 @@ Employee::id($employee['id'])
     ->update(['identity_id' => $identity['id']])
     ->do('sync_from_identity');
 
-User::create([
-        'login'         => $username,
-        'password'      => $password,
-        'language'      => 'fr',
-        'validated'     => true,
-        'allow_auth'    => true,
-        'groups_ids'    => [3]
+User::id($employee['id'])
+    ->update([
+        'identity_id'   => $identity['id'],
+        'password'      => $password
     ])
-    ->update(['identity_id' => $identity['id']])
     ->do('sync_from_identity');
+
+$orm->enableEvents($events);
 
 $context
     ->httpResponse()
