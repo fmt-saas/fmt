@@ -232,6 +232,86 @@ $tests = [
                 $orm->delete(DocumentProcess::getType(), $accountsBankStatementXlsxDocument['document_process_id'], true);
             }
         }
+    ],
+
+    '3006' => [
+        'description' => "Test document assignment during a processing of CODA document.",
+        'help'        => "Create BankStatementImport with coda txt and use assign transition to test assignment.",
+        'arrange'     => function () use ($providers) {
+            $condo = Condominium::create(['name' => 'Test condo'])
+                ->first(true);
+
+            $bankStatementImport = BankStatementImport::create([
+                'name' => 'Test document assignment during processing of CODA document'
+            ])
+                ->read(['id'])
+                ->first();
+
+            $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_coda.txt');
+
+            BankStatementImport::id($bankStatementImport['id'])->update(['data' => $data]);
+
+            $bankStatementDocument = Document::search(['name', '=', 'Test document assignment during processing of CODA document'])
+                ->read(['name'])
+                ->first();
+
+            $xlsxDocument = Document::search(['origin_document_id', '=', $bankStatementDocument['id']])
+                ->read(['document_process_id'])
+                ->first();
+
+            $documentProcess = DocumentProcess::id($xlsxDocument['document_process_id'])
+                ->read(['id'])
+                ->first();
+
+            return compact('condo', 'documentProcess');
+        },
+        'act'         => function ($data) use ($providers) {
+            ['condo' => $condo, 'documentProcess' => $documentProcess] = $data;
+
+            /* @var \equal\orm\ObjectManager $orm */
+            $orm = $providers['orm'];
+
+            // Update condo_id without triggering assign
+            $events = $orm->disableEvents();
+            $orm->update(DocumentProcess::getType(), $documentProcess['id'], ['condo_id' => $condo['id']]);
+            $orm->enableEvents($events);
+
+            DocumentProcess::id($documentProcess['id'])->transition('assign');
+
+            return $documentProcess['id'];
+        },
+        'assert'      => function ($document_process_id) use ($providers) {
+            $documentProcess = DocumentProcess::id($document_process_id)
+                ->read(['status'])
+                ->first();
+
+            return $documentProcess['status'] === 'assigned';
+        },
+        'rollback'    => function () use ($providers) {
+            $condo = Condominium::search(['name', '=', 'Test condo'])
+                ->read(['id'])
+                ->first();
+
+            $bankStatementDocument = Document::search(['name', '=', 'Test document assignment during processing of CODA document'])
+                ->read(['id'])
+                ->first();
+
+            $accountsBankStatementXlsxDocuments = Document::search(['origin_document_id', '=', $bankStatementDocument['id']])
+                ->read(['document_process_id'])
+                ->get();
+
+            /* @var \equal\orm\ObjectManager $orm */
+            $orm = $providers['orm'];
+
+            $orm->delete(Condominium::getType(), $condo['id'], true);
+
+            $orm->delete(Document::getType(), $bankStatementDocument['id'], true);
+
+            foreach($accountsBankStatementXlsxDocuments as $id => $accountsBankStatementXlsxDocument) {
+                $orm->delete(Document::getType(), $id, true);
+                $orm->delete(DocumentProcess::getType(), $accountsBankStatementXlsxDocument['document_process_id'], true);
+            }
+        }
     ]
 
 ];
