@@ -55,6 +55,7 @@ $host = parse_url(constant('BACKEND_URL'), PHP_URL_HOST) ? : 'fmtsolutions.be';
 $host = preg_replace('/^www\./', '', $host);
 
 $username = 'admin@' . $host;
+$password = $generateRandomPassword();
 
 $user = User::search(['login', '=', $username])
     ->read(['id', 'identity_id'])
