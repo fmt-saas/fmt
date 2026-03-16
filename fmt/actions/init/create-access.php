@@ -5,6 +5,8 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use hr\employee\Employee;
+use identity\Identity;
 use identity\User;
 
 
@@ -65,6 +67,30 @@ if($user) {
     throw new Exception('user_already_exists', EQ_ERROR_CONFLICT_OBJECT);
 }
 
+$employee = Employee::create()
+    ->first();
+
+$identity = Identity::create([
+        'type_id'           => 1,
+        'type'              => 'IN',
+        'firstname'         => 'App',
+        'lastname'          => 'Admin',
+        'email'             => $username,
+        'has_parent'        => false,
+        'nationality'       => 'BE',
+        'lang_id'           => 2,
+        'address_country'   => 'BE',
+        'has_vat'           => false,
+        'is_active'         => true,
+        'employee_id'       => $employee['id']
+    ])
+    ->read(['name', 'email'])
+    ->first();
+
+Employee::id($employee['id'])
+    ->update(['identity_id' => $identity['id']])
+    ->do('sync_from_identity');
+
 User::create([
         'login'         => $username,
         'password'      => $password,
@@ -73,14 +99,13 @@ User::create([
         'allow_auth'    => true,
         'groups_ids'    => [3]
     ])
-    ->first();
-
-$result = [
-    'username' => $username,
-    'password' => $password
-];
+    ->update(['identity_id' => $identity['id']])
+    ->do('sync_from_identity');
 
 $context
     ->httpResponse()
-    ->body($result)
+    ->body([
+        'username' => $username,
+        'password' => $password
+    ])
     ->send();
