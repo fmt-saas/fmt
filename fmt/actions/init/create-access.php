@@ -70,7 +70,7 @@ User::create([
         'language'      => 'fr',
         'validated'     => true,
         'allow_auth'    => true,
-        'groups_ids'    => [2]
+        'groups_ids'    => [3]
     ])
     ->first();
 
