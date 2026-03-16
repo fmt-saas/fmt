@@ -501,7 +501,7 @@ class DocumentProcess extends Model {
             }
 
             // assign back document to the process
-            Document::id($documentProcess['document_id']['id'])->update(['document_process_id' => $id]);
+            Document::id($documentProcess['document_id'])->update(['document_process_id' => $id]);
 
             // attempt to auto complete the processing
             $self
