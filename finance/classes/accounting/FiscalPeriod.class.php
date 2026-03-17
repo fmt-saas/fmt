@@ -319,10 +319,16 @@ class FiscalPeriod extends Model {
         $result = [];
         $self->read(['date_to', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from']]]);
         foreach($self as $id => $fiscalPeriod) {
-            $periods = $fiscalPeriod['fiscal_year_id']['fiscal_periods_ids'] ?? [];
 
-            if(!is_array($periods) || !count($periods) || !$fiscalPeriod['date_to']) {
+            if(!$fiscalPeriod['date_to']) {
                 continue;
+            }
+
+            if(!$fiscalPeriod['fiscal_year_id']['fiscal_periods_ids'] || !$fiscalPeriod['fiscal_year_id']['fiscal_periods_ids']->count()) {
+                $periods = [];
+            }
+            else {
+                $periods = $fiscalPeriod['fiscal_year_id']['fiscal_periods_ids']->get(true);
             }
 
             $nb_greater = 0;
