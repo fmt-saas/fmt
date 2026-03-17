@@ -979,7 +979,8 @@ class FiscalYear extends Model {
                     'condo_id'       => $fiscalYear['condo_id'],
                     'fiscal_year_id' => $id
                 ])
-                ->do('generate_balance_lines');
+                ->do('generate_balance_lines')
+                ->first();
 
             self::id($id)->update([
                     'name' => null,

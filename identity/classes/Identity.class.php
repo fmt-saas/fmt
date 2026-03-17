@@ -874,13 +874,13 @@ class Identity extends Model {
 
         $self->read(['object_class', 'identity_id']);
         foreach($self as $id => $object) {
-            trigger_error("APP::checking identity " . $object['identity_id'], EQ_REPORT_ERROR);
+            // trigger_error("APP::checking identity " . $object['identity_id'], EQ_REPORT_ERROR);
             if(!$object['identity_id']) {
                 continue;
             }
-            trigger_error("APP::checking class " . $object['object_class'], EQ_REPORT_ERROR);
+            // trigger_error("APP::checking class " . $object['object_class'], EQ_REPORT_ERROR);
             if($object['object_class'] !== 'identity\\Identity') {
-                trigger_error("APP::loading parent", EQ_REPORT_ERROR);
+                // trigger_error("APP::loading parent", EQ_REPORT_ERROR);
                 $parentIdentity = Identity::id($object['identity_id'])
                     ->read($common_fields)
                     ->first(true);
@@ -897,14 +897,14 @@ class Identity extends Model {
                 }
                 try {
                     $orm_events = $orm->disableEvents();
-                    trigger_error("APP::updating values to target object", EQ_REPORT_ERROR);
+                    // trigger_error("APP::updating values to target object", EQ_REPORT_ERROR);
                     $object['object_class']::id($id)->update($values);
                 }
                 finally {
                     $orm->enableEvents($orm_events);
                 }
             }
-            trigger_error("APP::updating backlink ref to identity", EQ_REPORT_ERROR);
+            // trigger_error("APP::updating backlink ref to identity", EQ_REPORT_ERROR);
             // force sync backlink from target Identity
             $object['object_class']::id($id)->update(['identity_id' => $object['identity_id']]);
         }
