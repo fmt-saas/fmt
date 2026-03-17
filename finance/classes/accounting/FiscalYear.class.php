@@ -879,17 +879,20 @@ class FiscalYear extends Model {
 
     protected static function onbeforeClose($self) {
 
-        $self->read(['condo_id', 'date_from', 'date_to']);
+        $self->read(['condo_id', 'closing_balance_id', 'date_from', 'date_to']);
 
         foreach($self as $id => $fiscalYear) {
 
             // 2) generate closing balance for the fiscal year
 
             // remove any previously created closing balance
-            ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
+            if($fiscalYear['closing_balance_id']) {
+                ClosingBalance::id($fiscalYear['closing_balance_id'])->delete(true);
+            }
 
             // generate a closing balance
             $closingBalance = ClosingBalance::create([
+                    'condo_id'       => $fiscalYear['condo_id'],
                     'fiscal_year_id' => $id
                 ])
                 ->transition('validate')
@@ -897,7 +900,7 @@ class FiscalYear extends Model {
 
             self::id($id)->update(['closing_balance_id' => $closingBalance['id']]);
 
-            // #memo - OpeningBalance for next fiscal year is created in µ onafterClose`
+            // #memo - OpeningBalance for next fiscal year is created in `onafterClose`
         }
     }
 
@@ -962,21 +965,26 @@ class FiscalYear extends Model {
      *
      */
     protected static function onafterPreclose($self) {
-        $self->read(['condo_id', 'date_from', 'date_to']);
+        $self->read(['condo_id', 'closing_balance_id', 'date_from', 'date_to']);
 
         foreach($self as $id => $fiscalYear) {
 
             // remove any previously created closing balance
-            ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
+            if($fiscalYear['closing_balance_id']) {
+                ClosingBalance::id($fiscalYear['closing_balance_id'])->delete(true);
+            }
 
             // generate a draft/preview (pending) closing balance
-            ClosingBalance::create([
+            $closingBalance = ClosingBalance::create([
                     'condo_id'       => $fiscalYear['condo_id'],
                     'fiscal_year_id' => $id
                 ])
                 ->do('generate_balance_lines');
 
-            self::id($id)->update(['name' => null]);
+            self::id($id)->update([
+                    'name' => null,
+                    'closing_balance_id' => $closingBalance['id']
+                ]);
         }
     }
 
