@@ -156,7 +156,11 @@ class BankAccount extends Model {
             if(!$bankAccount['bank_account_bic']) {
                 continue;
             }
-            $bank = Bank::search(['bic', '=', $bankAccount['bank_account_bic']])->first();
+            $bank = Bank::search([
+                    ['object_class', '=', 'finance\bank\Bank'],
+                    ['bic', '=', $bankAccount['bank_account_bic']]
+                ])
+                ->first();
             if($bank) {
                 $result[$id] = $bank['id'];
             }
