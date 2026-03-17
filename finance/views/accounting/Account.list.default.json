@@ -30,7 +30,7 @@
             },
             {
                 "type": "field",
-                "label": "Apportionment",
+                "label": "Apportionable",
                 "value": "is_apportionable",
                 "width": "15%",
                 "visible": false

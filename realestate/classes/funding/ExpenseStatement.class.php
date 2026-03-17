@@ -359,16 +359,16 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
      */
     protected static function policyIsBalanced($self): array {
         $result = [];
-        $self->read(['common_total', 'assigned_delta', 'statement_owners_ids' => ['expense_amount']]);
+        $self->read(['common_total', 'private_total', 'provisions_total', 'assigned_delta', 'statement_owners_ids' => ['expense_amount']]);
         foreach($self as $id => $expenseStatement) {
             $total_assigned = 0.0;
             foreach($expenseStatement['statement_owners_ids'] as $expense_statement_owner_id => $expenseStatementOwner) {
                 $total_assigned += round($expenseStatementOwner['expense_amount'] ?? 0.0, 2);
             }
-            $expected_total = round(($expenseStatement['common_total'] ?? 0.0) + ($expenseStatement['assigned_delta'] ?? 0.0), 2);
+            $expected_total = round(($expenseStatement['common_total'] ?? 0.0) + ($expenseStatement['private_total'] ?? 0.0) + ($expenseStatement['provisions_total'] ?? 0.0) - ($expenseStatement['assigned_delta'] ?? 0.0), 2);
             if(round($total_assigned - $expected_total, 2) != 0.0) {
                 $result[$id] = [
-                    'unbalanced_allocation' => 'The total assigned amount does not match the common total.'
+                    'unbalanced_allocation' => "The total assigned amount ({$total_assigned}) does not match the common total ({$expected_total})."
                 ];
                 continue;
             }
