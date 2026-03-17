@@ -839,7 +839,7 @@ class FiscalYear extends Model {
 
             // init mandatory sequences
             foreach($fiscalYear['fiscal_periods_ids'] as $period_id => $fiscalPeriod) {
-                $fiscal_period_code = $fiscalPeriod['code'];
+                $fiscal_period_code = $fiscalPeriod['code'] ?? '1';
 
                 // sale invoices
                 Setting::assert_sequence('sale', 'accounting', "invoice.sequence.{$fiscal_year_code}.{$fiscal_period_code}", 1, ['condo_id' => $fiscalYear['condo_id']]);
