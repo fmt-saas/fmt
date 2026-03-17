@@ -244,7 +244,7 @@ class FiscalPeriod extends Model {
     }
 
     protected static function onafterRePreclose($self) {
-        $self->read(['date_to', 'fiscal_year_id' => ['date_to']]);
+        $self->read(['condo_id', 'fiscal_year_id']);
         foreach($self as $id => $fiscalPeriod) {
             // Cancel ExpenseStatement:
             // - void accounting entry relating to the ExpenseStatement
