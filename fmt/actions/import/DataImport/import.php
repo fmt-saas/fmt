@@ -1000,6 +1000,7 @@ try {
         // Supplierships
         foreach($data['Supplierships'] as $suppliership) {
 
+            // #todo - use UUID (global) instead of id (local)
             $supplier = Supplier::id((int) $suppliership['supplier_code'])->first();
 
             if(!$supplier) {

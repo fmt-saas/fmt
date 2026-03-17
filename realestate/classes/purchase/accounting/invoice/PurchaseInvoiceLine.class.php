@@ -277,12 +277,18 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 }
                 else {
                     $account = Account::id($event['expense_account_id'])
-                        ->read(['is_apportionable'])
+                        ->read(['operation_assignment', 'is_apportionable'])
                         ->first();
 
                     if($account) {
-                        // #memo - visibility might be impacted
-                        $result['is_apportionable'] = $account['is_apportionable'];
+                        if($account['operation_assignment'] !== 'private_expenses') {
+                            $result['is_private_expense'] = false;
+                            // #memo - visibility might be impacted
+                            $result['is_apportionable'] = $account['is_apportionable'];
+                        }
+                        else {
+                            $result['is_apportionable'] = false;
+                        }
                     }
                 }
             }
