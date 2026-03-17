@@ -646,7 +646,7 @@ class FiscalYear extends Model {
 
             // finalize periods order
             FiscalPeriod::ids($fiscalYear['fiscal_periods_ids'])
-                ->update(['code' => null])
+                ->update(['code' => null, 'name' => null])
                 ->read(['code']);
 
             self::id($id)->update(['name' => null]);

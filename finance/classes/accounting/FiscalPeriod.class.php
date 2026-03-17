@@ -68,14 +68,14 @@ class FiscalPeriod extends Model {
                 'type'              => 'date',
                 'description'       => 'First day (included) of the fiscal year.',
                 'required'          => true,
-                'dependents'        => ['name']
+                'dependents'        => ['name', 'code']
             ],
 
             'date_to' => [
                 'type'              => 'date',
                 'description'       => 'Last day (included) of the period.',
                 'required'          => true,
-                'dependents'        => ['name']
+                'dependents'        => ['name', 'code']
             ],
 
             'code' => [
@@ -83,7 +83,6 @@ class FiscalPeriod extends Model {
                 'result_type'       => 'integer',
                 'description'       => 'Order of the period, based on its date within the fiscal year.',
                 'help'              => 'This value is assigned by parent Fiscal Year, and is needed for purchase invoice sequence numbering.',
-                'dependents'        => ['name'],
                 'store'             => true,
                 'function'          => 'calcCode'
             ],
