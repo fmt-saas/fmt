@@ -260,7 +260,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             'unlock' => [
                 'description'   => 'Unlock the sale invoice, to allow re-posting after modifications.',
                 'help'          => 'Self voiding accounting entries will be left as `reversed`, and invoice will be set back to `proforma`.',
-                'policies'      => [],
+                // #todo
+                'policies'      => [/*can_unlock*/],
                 'function'      => 'doUnlock'
             ]
         ]);

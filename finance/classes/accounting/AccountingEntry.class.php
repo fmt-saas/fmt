@@ -622,12 +622,14 @@ class AccountingEntry extends Model {
             }
 
             // 3) Fiscal year must allow changes
-            if(in_array($entry['fiscal_year_id']['status'], ['closed', 'preclosed'], true)) {
+            // #memo - we do not test preclosed status here
+            if(in_array($entry['fiscal_year_id']['status'], ['closed'], true)) {
                 $errors['closed_fiscal_year'] = 'Fiscal year is closed; cancellation is not allowed.';
             }
 
             // 4) Fiscal period must allow changes
-            if(in_array($entry['fiscal_period_id']['status'], ['closed', 'preclosed'], true)) {
+            // #memo - we do not test preclosed status here
+            if(in_array($entry['fiscal_period_id']['status'], ['closed'], true)) {
                 $errors['fiscal_period_id'] = 'Fiscal period is closed; cancellation is not allowed.';
             }
 
