@@ -287,6 +287,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                             $result['is_apportionable'] = $account['is_apportionable'];
                         }
                         else {
+                            $result['is_private_expense'] = true;
                             $result['is_apportionable'] = false;
                         }
                     }
@@ -348,6 +349,9 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             if($expenseAccount) {
                 if($expenseAccount['operation_assignment'] !== 'private_expenses')  {
                     $result['is_private_expense'] = false;
+                }
+                else {
+                    $result['is_private_expense'] = true;
                 }
                 if($expenseAccount['apportionment_id']) {
                     $result['apportionment_id'] = [
@@ -419,7 +423,9 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
         foreach($self as $id => $invoiceLine) {
             $map_invoices_ids[$invoiceLine['invoice_id']] = true;
         }
-        PurchaseInvoice::ids(array_keys($map_invoices_ids))->do('update_document_json');
+        PurchaseInvoice::ids(array_keys($map_invoices_ids))
+            ->update(['total' => null, 'price' => null])
+            ->do('update_document_json');
     }
 
     protected static function oncreate($self, $values, $lang) {
