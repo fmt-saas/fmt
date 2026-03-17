@@ -14,8 +14,8 @@
             "help": "Lorsque ce champ est sélectionné, seules les entrées relatives à ce compte seront montrées."
         },
         "fiscal_year_id": {
-            "label": "Exercice fiscal",
-            "description": "Exercice fiscal associé aux écritures recherchées.",
+            "label": "Exercice comptable",
+            "description": "Exercice comptable associé aux écritures recherchées.",
             "help": "Permet d'appliquer automatiquement les dates de début et de fin de l'exercice."
         },
         "journal_id": {
@@ -26,7 +26,7 @@
         "date_from": {
             "label": "Date de début",
             "description": "Première date de l'intervalle à analyser.",
-            "help": "Utilisée avec date_to lorsqu'aucun exercice fiscal n'est fourni."
+            "help": "Utilisée avec date_to lorsqu'aucun exercice comptable n'est fourni."
         },
         "date_to": {
             "label": "Date de fin",

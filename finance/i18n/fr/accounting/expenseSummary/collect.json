@@ -89,7 +89,7 @@
             "help": "Obligatoire; determine comptes, journaux et periode fiscale."
         },
         "fiscal_year_id": {
-            "label": "Exercice fiscal",
+            "label": "Exercice comptable",
             "description": "Exercice utilise pour borner les dates des ecritures.",
             "help": "Par defaut l'exercice ouvert le plus recent est selectionne."
         }

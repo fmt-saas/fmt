@@ -81,16 +81,16 @@
         "emission_date": {
             "label": "Date d'émission",
             "description": "Date d'émission fournie par le fournisseur.",
-            "help": "Utilisée pour déterminer l'exercice et la période fiscale."
+            "help": "Utilisée pour déterminer l'exercice et la période comptable."
         },
         "fiscal_year_id": {
-            "label": "Exercice fiscal",
-            "description": "Exercice fiscal associé.",
+            "label": "Exercice comptable",
+            "description": "Exercice comptable associé.",
             "help": "Calculé automatiquement à partir de la date d'émission."
         },
         "fiscal_period_id": {
-            "label": "Période fiscale",
-            "description": "Période de l'exercice fiscal associée.",
+            "label": "période comptable",
+            "description": "Période de l'exercice comptable associée.",
             "help": "Calculée automatiquement à partir de la date d'émission."
         },
         "posting_date": {

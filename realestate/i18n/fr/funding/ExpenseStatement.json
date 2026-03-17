@@ -1,7 +1,7 @@
 {
     "name": "Décomptes de charges",
     "plural": "Décomptes de charges",
-    "description": "Document émis en fin de période fiscale pour répartir les dépenses communes/privatives entre copropriétaires et générer les appels correspondants.",
+    "description": "Document émis en fin de période comptable pour répartir les dépenses communes/privatives entre copropriétaires et générer les appels correspondants.",
     "model": {
         "name": {
             "label": "Libellé",
@@ -9,7 +9,7 @@
             "help": ""
         },
         "fiscal_period_id": {
-            "label": "Période fiscale",
+            "label": "période comptable",
             "description": "Période couverte par le relevé (détermine la date de comptabilisation).",
             "help": ""
         },

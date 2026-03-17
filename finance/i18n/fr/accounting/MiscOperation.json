@@ -70,7 +70,7 @@
         },
         "fiscal_period_id": {
             "label": "Période",
-            "description": "Période fiscale calculée pour la date de comptabilisation.",
+            "description": "période comptable calculée pour la date de comptabilisation.",
             "help": ""
         },
         "journal_id": {

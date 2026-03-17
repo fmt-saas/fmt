@@ -20,7 +20,7 @@
         },
         "fiscal_year_id": {
             "label": "Exercice",
-            "description": "Exercice fiscal lie a la ligne de balance d'ouverture.",
+            "description": "Exercice comptable lie a la ligne de balance d'ouverture.",
             "help": ""
         },
         "account_id": {

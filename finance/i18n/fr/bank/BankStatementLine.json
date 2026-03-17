@@ -31,10 +31,10 @@
         "date": {
             "label": "Date d'opération",
             "description": "Date fournie par la banque pour la transaction.",
-            "help": "Utilisée pour l'exercice fiscal et le rapprochement."
+            "help": "Utilisée pour l'exercice comptable et le rapprochement."
         },
         "fiscal_year_id": {
-            "label": "Exercice fiscal",
+            "label": "Exercice comptable",
             "description": "Exercice comptable correspondant à la date de la ligne.",
             "help": "Calculé automatiquement en fonction de la date."
         },
@@ -272,7 +272,7 @@
             "invalid_status": "Seules les lignes non comptabilisées peuvent être modifiées ou postées.",
             "incomplete_bank_statement": "Le relevé parent n'est pas équilibré.",
             "invalid_reconcile_state": "Seules les lignes rapprochées peuvent être comptabilisées.",
-            "incompatible_fiscal_year": "L'exercice fiscal de la ligne doit correspondre à celui du relevé.",
+            "incompatible_fiscal_year": "L'exercice comptable de la ligne doit correspondre à celui du relevé.",
             "posted_line": "La ligne est comptabilisée et ne peut plus être modifiée."
         },
         "errors": {

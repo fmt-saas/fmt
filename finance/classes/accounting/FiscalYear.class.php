@@ -71,6 +71,7 @@ class FiscalYear extends Model {
                 'type'              => 'many2one',
                 'description'       => "The opening balance of the fiscal year.",
                 'foreign_object'    => 'finance\accounting\OpeningBalance',
+                'ondelete'          => 'null'
             ],
 
             'closing_balance_id' => [
@@ -78,6 +79,7 @@ class FiscalYear extends Model {
                 'description'       => "The closing (final) balance of the whole fiscal year.",
                 'help'              => "The closing balance is generated once, when the fiscal year reaches the 'closed' status. Distinct closing balances can be generated for the periods of the fiscal year.",
                 'foreign_object'    => 'finance\accounting\ClosingBalance',
+                'ondelete'          => 'null'
             ],
 
             'closing_balances_ids' => [
@@ -599,6 +601,22 @@ class FiscalYear extends Model {
                     continue;
                 }
             }
+            // find the year that immediately succeeds the current one, whatever its status
+            $nextFiscalYear = self::search([
+                        ['condo_id', '=', $fiscalYear['condo_id']],
+                        ['date_from', '>', $fiscalYear['date_to']]
+                    ],
+                    ['sort' => ['date_from' => 'asc']]
+                )
+                ->read(['status'])
+                ->first();
+
+            if(!$nextFiscalYear) {
+                $result[$id] = [
+                    'missing_next_year' => 'A next fiscal year must exist.'
+                ];
+                continue;
+            }
         }
         return $result;
     }
@@ -697,13 +715,6 @@ class FiscalYear extends Model {
                 ->read(['status'])
                 ->first();
 
-            if(!$nextFiscalYear) {
-                throw new \Exception('missing_mandatory_next_fiscal_year', EQ_ERROR_UNKNOWN);
-            }
-
-            if($nextFiscalYear['status'] !== 'preopen') {
-                throw new \Exception('invalid_status_for_next_fiscal_year', EQ_ERROR_UNKNOWN);
-            }
             // remove OpeningBalance of Year+1
             OpeningBalance::search(['fiscal_year_id', '=', $nextFiscalYear['id']])->delete(true);
             // remove ClosingBalance

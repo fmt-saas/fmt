@@ -9,7 +9,7 @@
             "help": ""
         },
         "fiscal_period_id": {
-            "label": "Période fiscale",
+            "label": "période comptable",
             "description": "Période couverte pour ce propriétaire (utile en cas de mutation en cours d'exercice).",
             "help": ""
         },
@@ -45,7 +45,7 @@
         },
         "nb_days": {
             "label": "Nombre de jours",
-            "description": "Durée couverte sur la période fiscale.",
+            "description": "Durée couverte sur la période comptable.",
             "help": ""
         },
         "schema": {

@@ -10,7 +10,7 @@
         },
         "fiscal_year_id": {
             "label": "Exercice",
-            "description": "Exercice fiscal auquel la balance se rapporte.",
+            "description": "Exercice comptable auquel la balance se rapporte.",
             "help": ""
         },
         "fiscal_period_id": {

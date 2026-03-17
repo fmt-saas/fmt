@@ -55,7 +55,7 @@
         },
         "fiscal_period_id": {
             "label": "Période",
-            "description": "Période fiscale calculée automatiquement.",
+            "description": "période comptable calculée automatiquement.",
             "help": ""
         },
         "status": {

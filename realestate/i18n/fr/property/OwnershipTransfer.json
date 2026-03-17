@@ -79,7 +79,7 @@
             "help": "Assigné automatiquement sur base des dates encodées."
         },
         "fiscal_period_id": {
-            "label": "Période fiscale",
+            "label": "période comptable",
             "description": "Période de l'exercice concernée par le transfert.",
             "help": "Sélectionnée automatiquement en fonction des dates fournies."
         },

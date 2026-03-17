@@ -20,7 +20,7 @@
         },
         "entry_date": {
             "label": "Date d'écriture",
-            "description": "Date comptable déterminant la période fiscale.",
+            "description": "Date comptable déterminant la période comptable.",
             "help": ""
         },
         "entry_number": {
@@ -55,7 +55,7 @@
         },
         "fiscal_period_id": {
             "label": "Période",
-            "description": "Période fiscale calculée à partir de la date.",
+            "description": "période comptable calculée à partir de la date.",
             "help": ""
         },
         "matching_id": {

@@ -63,7 +63,7 @@
             "help": "Determine les journaux, comptes et exercices proposes."
         },
         "fiscal_year_id": {
-            "label": "Exercice fiscal",
+            "label": "Exercice comptable",
             "description": "Exercice utilise pour borner les dates des ecritures.",
             "help": "Par defaut l'exercice ouvert ou preouvert le plus recent de la copropriete."
         },

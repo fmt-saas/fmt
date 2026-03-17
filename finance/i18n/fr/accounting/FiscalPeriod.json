@@ -40,7 +40,7 @@
         },
         "expense_statements_ids": {
             "label": "Décomptes de charges",
-            "description": "Décomptes liés à la période fiscale.",
+            "description": "Décomptes liés à la période comptable.",
             "help": "Normalement un seul décompte, sauf en cas d'annulation/reprise."
         },
         "condo_id": {
@@ -61,7 +61,7 @@
             "actions": {
                 "action.preclose": {
                     "label": "Pré-clôturer",
-                    "description": "Pré-clôturer la période fiscale et générer un décompte de charges proforma."
+                    "description": "Pré-clôturer la période comptable et générer un décompte de charges proforma."
                 }
             }
         }

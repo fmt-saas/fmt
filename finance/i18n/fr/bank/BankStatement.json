@@ -36,7 +36,7 @@
         "opening_date": {
             "label": "Date d'ouverture",
             "description": "Première date couverte par le relevé.",
-            "help": "Utilisée pour associer l'extrait à l'exercice et à la période fiscale."
+            "help": "Utilisée pour associer l'extrait à l'exercice et à la période comptable."
         },
         "closing_date": {
             "label": "Date de clôture",
@@ -84,12 +84,12 @@
             "help": "Doit être marqué comme document d'origine ou généré lors de l'encodage."
         },
         "fiscal_year_id": {
-            "label": "Exercice fiscal",
+            "label": "Exercice comptable",
             "description": "Exercice comptable auquel se rattache le relevé.",
             "help": "Calculé automatiquement selon la date d'ouverture."
         },
         "fiscal_period_id": {
-            "label": "Période fiscale",
+            "label": "période comptable",
             "description": "Période de l'exercice correspondant au relevé.",
             "help": "Calculée automatiquement à partir de la date d'ouverture."
         },

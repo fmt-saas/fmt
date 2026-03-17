@@ -10,12 +10,12 @@
         },
         "name": {
             "label": "Libelle",
-            "description": "Libelle calcule a partir de l'exercice fiscal.",
+            "description": "Libelle calcule a partir de l'exercice comptable.",
             "help": ""
         },
         "fiscal_year_id": {
             "label": "Exercice",
-            "description": "Exercice fiscal auquel la balance d'ouverture se rapporte.",
+            "description": "Exercice comptable auquel la balance d'ouverture se rapporte.",
             "help": ""
         },
         "fiscal_period_id": {
