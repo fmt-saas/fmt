@@ -620,8 +620,10 @@ class FiscalYear extends Model {
      *
      */
     protected static function onafterPreopen($self) {
-        $self->read(['condo_id', 'date_to', 'fiscal_periods_ids' => ['date_from']]);
+        $self->read(['condo_id', 'date_to', 'fiscal_period_frequency', 'fiscal_periods_ids' => ['date_from']]);
         foreach($self as $id => $fiscalYear) {
+
+            // #todo - use Condo::do('create_draft_fiscal_year')
 
             // retrieve next fiscal year (take the year that immediately succeeds the current one, whatever its status)
             $nextFiscalYear = self::search([
@@ -634,10 +636,11 @@ class FiscalYear extends Model {
             if(!$nextFiscalYear) {
                 $date_from = strtotime(date('Y-m-d 00:00:00', $fiscalYear['date_to']) . ' +1 day');
                 FiscalYear::create([
-                        'date_from' => $date_from,
-                        'date_to'   => strtotime(date('Y-m-d 00:00:00', $date_from) . ' +1 year'),
-                        'condo_id'  => $fiscalYear['condo_id'],
-                        'status'    => 'draft',
+                        'date_from'                 => $date_from,
+                        'date_to'                   => strtotime('-1 day', strtotime(date('Y-m-d 00:00:00', $date_from) . ' +1 year')),
+                        'condo_id'                  => $fiscalYear['condo_id'],
+                        'fiscal_period_frequency'   => $fiscalYear['fiscal_period_frequency'],
+                        'status'                    => 'draft',
                     ]);
             }
 
