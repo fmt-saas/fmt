@@ -59,7 +59,9 @@ $purchaseInvoice = PurchaseInvoice::id($id)
         'document_id' => ['hash'],
         'price',
         'invoice_lines_ids' => [
-            'expense_account_id' => ['account_class'], 'apportionment_id', 'is_private_expense', 'total', 'price', 'vat_rate', 'owner_share', 'tenant_share'
+            'apportionment_id', 'total', 'price', 'vat_rate', 'owner_share', 'tenant_share',
+            'is_private_expense', 'ownership_id', 'property_lot_id',
+            'expense_account_id' => ['account_class'],
         ],
         'fund_usage_lines_ids' => [
             'fund_account_id', 'amount', 'apportionment_id', 'expense_account_id'
@@ -254,7 +256,18 @@ else {
     pour le trouver il faut prendre la dernière balance périodique, et ajouter tous les mouvements jusqu'à la date de facture
 */
 
+// check that private_expenses
+foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $purchaseInvoiceLine) {
+    if($purchaseInvoiceLine['is_private_expense']) {
+        if(!$purchaseInvoiceLine['ownership_id'] || !$purchaseInvoiceLine['property_lot_id']) {
+            // error: Fund usage cannot exceed invoice total
+            $dispatch->dispatch('purchase.accounting.invoice.missing_private_expense_data', $class, $id, 'important', $script, ['id' => $id]);
+            throw new Exception("missing_private_expense_data", EQ_ERROR_INVALID_PARAM);
+        }
+    }
+}
 
+$dispatch->cancel('purchase.accounting.invoice.missing_private_expense_data', $class, $id);
 
 /*
     Invoice successfully validated
