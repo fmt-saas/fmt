@@ -342,8 +342,13 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             }
         }
         if(isset($event['expense_account_id'])) {
-            $expenseAccount = Account::id($event['expense_account_id'])->read(['id', 'apportionment_id' => ['id', 'name'], 'tenant_share', 'owner_share'])->first();
+            $expenseAccount = Account::id($event['expense_account_id'])
+                ->read(['id', 'operation_assignment', 'apportionment_id' => ['id', 'name'], 'tenant_share', 'owner_share'])
+                ->first();
             if($expenseAccount) {
+                if($expenseAccount['operation_assignment'] !== 'private_expenses')  {
+                    $result['is_private_expense'] = false;
+                }
                 if($expenseAccount['apportionment_id']) {
                     $result['apportionment_id'] = [
                         'id'    => $expenseAccount['apportionment_id']['id'],
