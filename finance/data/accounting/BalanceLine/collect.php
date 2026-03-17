@@ -16,6 +16,7 @@ use realestate\property\Condominium;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Advanced search for Balance Lines: returns a collection of Reports according to extra parameters.',
+    'deprecated'    =>  'Opening and Closing Balances are now directly linked to a Fiscal Year.',
     'extends'       => 'core_model_collect',
     'params'        => [
 
