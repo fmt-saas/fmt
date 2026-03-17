@@ -40,7 +40,7 @@ class ClosingBalance extends Balance {
                 'transitions' => [
                     'validate' => [
                         'description' => 'Update the Balance to `validated`.',
-                        'onafter'     => 'onafterValidate',
+                        'onbefore'    => 'onbeforeValidate',
                         'status'      => 'validated'
                     ]
                 ]
@@ -48,7 +48,7 @@ class ClosingBalance extends Balance {
         ];
     }
 
-    protected static function onafterValidate($self) {
+    protected static function onbeforeValidate($self) {
         $self->do('generate_balance_lines');
     }
 

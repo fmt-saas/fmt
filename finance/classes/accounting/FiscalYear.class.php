@@ -974,10 +974,12 @@ class FiscalYear extends Model {
 
                 // transition following year according to logic
                 // this will cascade on all future fiscal years (next to 'open' and post next to 'preopen')
-                self::id($nextFiscalYear['id'])->transition('open');
+                if($nextFiscalYear['status'] === 'preopen') {
+                    self::id($nextFiscalYear['id'])->transition('open');
+                }
             }
             catch(\Exception $e) {
-                trigger_error("APP::unexpected inconsistency with following fiscal years" . $e->getMessage(), EQ_REPORT_ERROR);
+                trigger_error("APP::unexpected inconsistency with next fiscal years" . $e->getMessage(), EQ_REPORT_ERROR);
             }
 
             self::id($id)->update(['name' => null]);
