@@ -228,7 +228,7 @@ class FiscalYear extends Model {
             ],
             'generate_sequences' => [
                 'description'   => 'Generate the mandatory sequences for the fiscal year.',
-                'policies'      => [],
+                'policies'      => ['can_generate_sequences'],
                 'function'      => 'doGenerateSequences'
             ],
             'attempt_transition' => [
@@ -365,9 +365,35 @@ class FiscalYear extends Model {
                 'description' => 'Verifies that a fiscal year can be opened according to user roles.',
                 'function'    => 'policyCanOpenFiscalYear'
             ],
+            'can_generate_sequences' => [
+                'description' => 'Verifies that a sequences can be generated.',
+                'function'    => 'policyCanGenerateSequence'
+            ]
         ];
     }
 
+    protected static function policyCanGenerateSequence($self) {
+        $result = [];
+        $self->read(['condo_id', 'code', 'fiscal_periods_ids' => ['code']]);
+        foreach($self as $id => $fiscalYear) {
+
+            if(!isset($fiscalYear['code'])) {
+                $result[$id] = [
+                    'missing_fiscal_year_code' => 'Fiscal year without code.'
+                ];
+            }
+
+            // init mandatory sequences
+            foreach($fiscalYear['fiscal_periods_ids'] as $period_id => $fiscalPeriod) {
+                if(!isset($fiscalPeriod['code'])) {
+                    $result[$id] = [
+                        'missing_fiscal_period_code' => 'Fiscal period without code.'
+                    ];
+                }
+            }
+        }
+        return $result;
+    }
 
     /**
      * @param   \fmt\access\AccessController $access
