@@ -430,6 +430,30 @@ class FiscalYear extends Model {
                 ];
                 continue;
             }
+            // take the year that immediately succeeds the current one, whatever its status
+            $nextFiscalYear = self::search([
+                        ['condo_id', '=', $fiscalYear['condo_id']],
+                        ['date_from', '>', $fiscalYear['date_to']]
+                    ],
+                    ['sort' => ['date_from' => 'asc']]
+                )
+                ->read(['status'])
+                ->first();
+
+            if(!$nextFiscalYear) {
+                $result[$id] = [
+                    'missing_mandatory_next_fiscal_year' => 'Next fiscal year must exist.'
+                ];
+                continue;
+            }
+
+            if(!in_array($nextFiscalYear['status'], ['open', 'preopen'], true)) {
+                $result[$id] = [
+                    'invalid_status_for_next_fiscal_year' => 'Next fiscal year status must be open or preopen.'
+                ];
+                continue;
+            }
+
         }
 
         return $result;
@@ -928,7 +952,7 @@ class FiscalYear extends Model {
                     throw new \Exception('missing_mandatory_next_fiscal_year', EQ_ERROR_UNKNOWN);
                 }
 
-                if($nextFiscalYear['status'] !== 'preopen') {
+                if(!in_array($nextFiscalYear['status'], ['open', 'preopen'], true)) {
                     throw new \Exception('invalid_status_for_next_fiscal_year', EQ_ERROR_UNKNOWN);
                 }
 
