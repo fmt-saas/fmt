@@ -39,6 +39,7 @@ class Bank extends \purchase\supplier\Supplier {
             'bic' => [
                 'type'              => 'string',
                 'description'       => 'Official BIC/Swift code of the Bank.',
+                'onupdate'          => 'onupdateBic',
                 'required'          => true
             ],
 
@@ -48,6 +49,14 @@ class Bank extends \purchase\supplier\Supplier {
             ]
 
         ];
+    }
+
+    protected static function onupdateBic($self) {
+        foreach($self as $id => $bank) {
+            if($bank['bic']) {
+                self::id($id)->update(['bank_account_bic' => $bank['bic']]);
+            }
+        }
     }
 
     /**

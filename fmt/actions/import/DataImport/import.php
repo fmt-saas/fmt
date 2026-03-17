@@ -173,7 +173,8 @@ try {
                             'address_city'      => $values['address_city'],
                             'address_zip'       => $values['address_zip'],
                             'address_country'   => $values['address_country'],
-                            'bic'               => $values['bic']
+                            'bic'               => $values['bic'],
+                            'bank_account_bic'  => $values['bic']
                         ])
                         ->do('sync_from_identity')
                         ->first();

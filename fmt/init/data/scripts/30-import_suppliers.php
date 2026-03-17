@@ -30,7 +30,10 @@ Identity::create([
         "mobile" => null,
         "website" => null,
         "is_active" => true
-      ]);
+      ])
+    ->do('refresh_bank_accounts')
+    ->do('refresh_addresses');
+
 Identity::create([
         "id" => 1002,
         "supplier_id" => 1002,
@@ -53,7 +56,10 @@ Identity::create([
         "mobile" => "+32486842330",
         "website" => null,
         "is_active" => true
-      ]);
+    ])
+    ->do('refresh_bank_accounts')
+    ->do('refresh_addresses');
+
 Identity::create([
         "id" => 1003,
         "supplier_id" => 1003,
@@ -76,7 +82,10 @@ Identity::create([
         "mobile" => null,
         "website" => null,
         "is_active" => true
-      ]);
+    ])
+    ->do('refresh_bank_accounts')
+    ->do('refresh_addresses');
+
 Identity::create([
         "id" => 1131,
         "supplier_id" => 1131,
@@ -99,7 +108,9 @@ Identity::create([
         "mobile" => null,
         "website" => null,
         "is_active" => true
-    ]);
+    ])
+    ->do('refresh_bank_accounts')
+    ->do('refresh_addresses');
 
 /*
     Identity::create([
@@ -3847,4 +3858,5 @@ Identity::search()->do('refresh_bank_accounts');
 $orm->enableEvents($events);
 
 // sync values from Identities to Suppliers
-Supplier::search(['object_class', '=', 'purchase\supplier\Supplier'])->do('sync_from_identity');
+Supplier::search(['object_class', '=', 'purchase\supplier\Supplier'])
+    ->do('sync_from_identity');
