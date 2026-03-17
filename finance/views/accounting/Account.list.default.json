@@ -18,6 +18,25 @@
         "items": [
             {
                 "type": "field",
+                "value": "id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "level",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Apportionment",
+                "value": "is_apportionable",
+                "width": "15%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "code",
                 "width": "10%",
                 "align": "left",
@@ -28,12 +47,6 @@
                 "value": "description",
                 "width": "25%",
                 "sortable": true
-            },
-            {
-                "type": "field",
-                "value": "level",
-                "width": "0%",
-                "visible": false
             },
             {
                 "type": "field",
