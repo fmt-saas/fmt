@@ -501,7 +501,7 @@ class DocumentProcess extends Model {
             }
 
             // assign back document to the process
-            Document::id($documentProcess['document_id']['id'])->update(['document_process_id' => $id]);
+            Document::id($documentProcess['document_id'])->update(['document_process_id' => $id]);
 
             // attempt to auto complete the processing
             $self
@@ -709,7 +709,7 @@ class DocumentProcess extends Model {
         $result = [];
         $self->read(['status']);
         foreach($self as $id => $documentProcess) {
-            if($documentProcess['status'] != 'created') {
+            if(!in_array($documentProcess['status'], ['created', 'assigned'])) {
                 $result[$id] = [
                     'invalid_status' => 'Document has cannot be automatically modified anymore.'
                 ];
@@ -1690,7 +1690,7 @@ class DocumentProcess extends Model {
                 'document_type_code',
                 'document_type_id',
                 'document_subtype_id',
-                'supplier_id' => ['supplier_type_id'],
+                'supplier_id' => ['supplier_types_ids'],
                 'document_id' => ['name', 'document_json']
             ]);
         foreach($self as $id => $documentProcess) {
@@ -1729,7 +1729,7 @@ class DocumentProcess extends Model {
                         ['condo_id', '=', $documentProcess['condo_id']],
                         ['document_type_id', '=', $documentProcess['document_type_id']],
                         ['document_subtype_id', '=', $documentProcess['document_subtype_id']],
-                        ['supplier_type_id', '=', $documentProcess['supplier_id']['supplier_type_id']]
+                        ['supplier_type_id', 'in', $documentProcess['supplier_id']['supplier_types_ids']]
                     ])
                     ->first();
 
@@ -1737,7 +1737,7 @@ class DocumentProcess extends Model {
                     $recordingRule = RecordingRule::search([
                             ['condo_id', '=', $documentProcess['condo_id']],
                             ['document_type_id', '=', $documentProcess['document_type_id']],
-                            ['supplier_type_id', '=', $documentProcess['supplier_id']['supplier_type_id']]
+                            ['supplier_type_id', 'in', $documentProcess['supplier_id']['supplier_types_ids']]
                         ])
                         ->first();
                 }

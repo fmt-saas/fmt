@@ -3185,7 +3185,8 @@ Supplier::create([
         "address_street" => "Boulevard de l'Impératrice, 17-19",
         "address_city" => "Bruxelles",
         "address_zip" => "1000",
-        "address_country" => "BE"
+        "address_country" => "BE",
+        "supplier_type_code" => "water"
     ]);
 
 /*

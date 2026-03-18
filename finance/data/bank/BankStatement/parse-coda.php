@@ -175,31 +175,219 @@ $getTransactionType = function($family, $operation) {
     // CAMT.053 uses domain, family, subfamily
 
     /*
-    #memo - this list is incomplete and is only meant for CODA format extraction (from ISABEL XLSX)
-    */
+     * #memo - this list is incomplete, but there is a fallback on family (first 2 digits)
+     */
     static $coda_transaction_codes = [
-        // incoming transfers
-        '01'   => 'credit',
-        '0101' => 'credit_out',
-        '0150' => 'credit_in',
-        '0250' => 'credit_in',    // instant
-        // payments
-        '05'   => 'debit',
-        '0501' => 'debit_out',
-        '0505' => 'debit_in',
-        // account closure
+
+        // --------------------------------------------------
+        // 01 — SEPA transfers
+        // --------------------------------------------------
+        '01'   => 'credit_transfer',
+
+        '0101' => 'credit_transfer_out',
+        '0102' => 'credit_transfer_out_bank',
+        '0103' => 'standing_order_out',
+        '0105' => 'salary_payment',
+        '0107' => 'bulk_transfer_out',
+        '0113' => 'internal_transfer_out',
+        '0117' => 'financial_centralisation_out',
+        '0137' => 'transfer_fee',
+
+        '0150' => 'credit_transfer_in',
+        '0151' => 'credit_transfer_in_bank',
+        '0152' => 'third_party_payment',
+        '0154' => 'rejected_transfer',
+        '0164' => 'internal_transfer_in',
+        '0166' => 'financial_centralisation_in',
+        '0187' => 'fee_reimbursement',
+
+        // --------------------------------------------------
+        // 02 — Instant SEPA transfers
+        // --------------------------------------------------
+        '02'   => 'instant_credit_transfer',
+
+        '0201' => 'instant_transfer_out',
+        '0203' => 'instant_standing_order_out',
+        '0205' => 'instant_salary_payment',
+        '0213' => 'instant_internal_transfer_out',
+        '0237' => 'instant_transfer_fee',
+
+        '0250' => 'instant_transfer_in',
+        '0251' => 'instant_transfer_in_bank',
+        '0252' => 'instant_third_party_payment',
+        '0264' => 'instant_internal_transfer_in',
+        '0266' => 'instant_financial_centralisation_in',
+        '0287' => 'instant_fee_reimbursement',
+
+        // --------------------------------------------------
+        // 03 — Cheques
+        // --------------------------------------------------
+        '03'   => 'cheque',
+
+        '0301' => 'cheque_payment',
+        '0305' => 'voucher_payment',
+        '0311' => 'store_cheque',
+        '0315' => 'bank_cheque_issue',
+        '0317' => 'certified_cheque',
+        '0337' => 'cheque_fee',
+        '0338' => 'cheque_unpaid',
+
+        '0352' => 'cheque_credit_pending',
+        '0358' => 'cheque_credit',
+        '0362' => 'cheque_reversal',
+        '0363' => 'cheque_second_credit',
+        '0387' => 'cheque_fee_reimbursement',
+
+        // --------------------------------------------------
+        // 04 — Cards
+        // --------------------------------------------------
+        '04'   => 'card',
+
+        '0402' => 'card_payment_eu',
+        '0403' => 'credit_card_settlement',
+        '0404' => 'atm_withdrawal',
+        '0406' => 'fuel_card_payment',
+        '0408' => 'card_payment_foreign',
+        '0437' => 'card_fee',
+
+        '0450' => 'card_payment_received',
+        '0453' => 'atm_deposit',
+        '0487' => 'card_fee_reimbursement',
+
+        // --------------------------------------------------
+        // 05 — Direct debit
+        // --------------------------------------------------
+        '05'   => 'direct_debit',
+
+        '0501' => 'direct_debit_payment',
+        '0503' => 'direct_debit_unpaid',
+        '0505' => 'direct_debit_refund',
+        '0537' => 'direct_debit_fee',
+
+        '0550' => 'direct_debit_credit',
+        '0552' => 'direct_debit_credit_pending',
+        '0554' => 'direct_debit_refund_credit',
+        '0558' => 'direct_debit_reversal',
+        '0587' => 'direct_debit_fee_reimbursement',
+
+        // --------------------------------------------------
+        // 07 — Bills of exchange
+        // --------------------------------------------------
+        '07'   => 'bill_of_exchange',
+
+        '0701' => 'bill_payment',
+        '0707' => 'bill_unpaid',
+        '0737' => 'bill_fee',
+
+        '0750' => 'bill_credit_after_collection',
+        '0752' => 'bill_credit_pending',
+        '0754' => 'bill_discount',
+        '0787' => 'bill_fee_reimbursement',
+
+        // --------------------------------------------------
+        // 09 — Cash operations
+        // --------------------------------------------------
+        '09'   => 'cash',
+
+        '0901' => 'cash_withdrawal',
+        '0913' => 'branch_cash_withdrawal',
+        '0937' => 'cash_fee',
+
+        '0950' => 'cash_deposit',
+        '0952' => 'night_safe_deposit',
+        '0958' => 'branch_cash_deposit',
+        '0987' => 'cash_fee_reimbursement',
+
+        // --------------------------------------------------
+        // 11 — Securities
+        // --------------------------------------------------
+        '11'   => 'securities',
+
+        '1101' => 'securities_purchase',
+        '1103' => 'securities_subscription',
+        '1117' => 'securities_management_fee',
+        '1137' => 'securities_fee',
+
+        '1150' => 'securities_sale',
+        '1152' => 'coupon_payment',
+        '1168' => 'missing_coupon_compensation',
+        '1187' => 'securities_fee_reimbursement',
+
+        // --------------------------------------------------
+        // 13 — Loans
+        // --------------------------------------------------
+        '13'   => 'loan',
+
+        '1301' => 'loan_repayment_short_term',
+        '1302' => 'loan_repayment_long_term',
+        '1311' => 'mortgage_repayment',
+        '1337' => 'loan_fee',
+
+        '1350' => 'loan_payment_received',
+        '1360' => 'mortgage_payment_received',
+        '1362' => 'term_loan',
+        '1387' => 'loan_fee_reimbursement',
+
+        // --------------------------------------------------
+        // 30 — Miscellaneous
+        // --------------------------------------------------
+        '30'   => 'misc',
+
+        '3001' => 'fx_purchase_spot',
+        '3003' => 'fx_purchase_forward',
+        '3005' => 'term_deposit_payment',
+        '3037' => 'misc_fee',
+
+        '3050' => 'fx_sale_spot',
+        '3052' => 'fx_sale_forward',
+        '3054' => 'term_deposit_credit',
+        '3087' => 'misc_fee_reimbursement',
+
+        // --------------------------------------------------
+        // 35 — Account closing / periodic settlement
+        // --------------------------------------------------
+        '35'   => 'account_closure',
+
         '3501' => 'account_closure',
         '3537' => 'closing_fee',
         '3550' => 'account_closure_credit',
-        // fees
+        '3587' => 'closing_fee_reimbursement',
+
+        // --------------------------------------------------
+        // 41 — International transfers
+        // --------------------------------------------------
+        '41'   => 'international_transfer',
+
+        '4101' => 'international_transfer_out',
+        '4103' => 'international_standing_order',
+        '4113' => 'international_internal_transfer',
+        '4137' => 'international_transfer_fee',
+
+        '4150' => 'international_transfer_in',
+        '4164' => 'international_internal_transfer_in',
+        '4166' => 'international_centralisation',
+        '4187' => 'international_fee_reimbursement',
+
+        // --------------------------------------------------
+        // 80 — Fees
+        // --------------------------------------------------
+        '80'   => 'bank_fee',
+
         '8002' => 'electronic_fee',
+        '8007' => 'insurance_fee',
+        '8009' => 'postage_fee',
+        '8013' => 'safe_deposit_fee',
+        '8023' => 'research_fee',
+        '8033' => 'bank_commission',
         '8035' => 'tax_fee',
         '8037' => 'database_access_fee',
         '8039' => 'guarantee_fee',
         '8041' => 'research_fee',
         '8043' => 'printing_fee',
         '8045' => 'documentary_credit_fee',
-        '8087' => 'fee_reimbursement'
+        '8049' => 'fee_correction_debit',
+
+        '8099' => 'fee_correction_credit',
     ];
 
     // CODA format

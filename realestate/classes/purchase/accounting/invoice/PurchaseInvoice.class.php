@@ -948,14 +948,15 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     protected static function onafterPost($self) {
-        $self->read(['document_process_id']);
+        $self->read(['document_process_id' => ['status']]);
         foreach($self as $id => $invoice) {
-            if($invoice['document_process_id']) {
+            if($invoice['document_process_id'] && !in_array($invoice['document_process_id']['status'], ['validated', 'integrated'])) {
                 DocumentProcess::id($invoice['document_process_id'])
                     // bypass all stages
                     ->update(['status' => 'validated'])
                     // mark DocumentProcess as integrated
                     ->transition('integrate');
+
                 // reset computed relation fields
                 self::id($id)->update([
                         'document_process_status' => null,
