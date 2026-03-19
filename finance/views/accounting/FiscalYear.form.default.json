@@ -177,6 +177,16 @@
                                                 "type": "field",
                                                 "value": "fiscal_period_frequency",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "opening_balance_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "closing_balance_id",
+                                                "width": "50%"
                                             }
                                         ]
                                     }
@@ -200,91 +210,6 @@
                                             {
                                                 "type": "field",
                                                 "value": "fiscal_periods_ids",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "header": {
-                                                        "actions": {
-                                                            "ACTION.CREATE": false
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "id": "section.balance_lines",
-                        "label": "Balance",
-                        "visible": ["status", "<>", "draft"],
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "current_balance_lines_ids",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "header": {
-                                                        "actions": {
-                                                            "ACTION.CREATE": false
-                                                        }
-                                                    },
-                                                    "view": "list.condo"
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "id": "section.closing_balances",
-                        "label": "Closing Balances",
-                        "visible": ["status", "<>", "draft"],
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "closing_balances_ids",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "header": {
-                                                        "actions": {
-                                                            "ACTION.CREATE": false
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "id": "section.opening_balances",
-                        "label": "Opening Balances",
-                        "visible": ["status", "<>", "draft"],
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "opening_balances_ids",
                                                 "width": "100%",
                                                 "widget": {
                                                     "header": {
