@@ -120,6 +120,8 @@ $data = eQual::run('get', 'finance_accounting_generalBalance_collect', [
         'journal_id'        => $params['params']['journal_id'] ?? null,
         'fiscal_year_id'    => $params['params']['fiscal_year_id'] ?? null,
         'account_id'        => $params['params']['account_id'] ?? null,
+        'suppliers_only'    => $params['params']['suppliers_only'] ?? null,
+        'ownerships_only'   => $params['params']['ownerships_only'] ?? null
     ]);
 
 
