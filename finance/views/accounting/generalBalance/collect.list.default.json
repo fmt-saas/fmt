@@ -32,7 +32,7 @@
                 "usage": "amount/money:2"
             },
             "balance": {
-                "operation": "SUM",
+                "operation": ["DIFF", ["SUM", "debit"], ["SUM", "credit"]],
                 "usage": "amount/money:2"
             }
         }
