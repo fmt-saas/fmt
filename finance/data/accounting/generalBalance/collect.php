@@ -186,6 +186,7 @@ $map_accounts_ids = [];
 $map_journals_ids = [];
 $map_entries_ids = [];
 $map_opening_balances = [];
+$map_opening_lines = [];
 
 if(!isset($params['condo_id'])) {
     throw new Exception('missing_mandatory_condo', EQ_ERROR_MISSING_PARAM);
@@ -341,14 +342,48 @@ $entries = $orm->read(AccountingEntry::getType(), array_keys($map_entries_ids), 
 // init iterative account balances based on "opening" balances (either from OpeningBalance or from AccountBalanceChange)
 $current_balance = [];
 foreach($map_accounts_ids as $account_id => $_) {
-    $current_balance[$account_id] = $map_opening_balances[$account_id] ?? 0;
+    $balance = $map_opening_balances[$account_id] ?? 0;
+    $current_balance[$account_id] = $balance;
+
+   // create virtual opening line
+    if(abs($balance) > 0.01) {
+        $map_opening_lines[$account_id] = [
+            'account_id'            => $account_id,
+            'journal_id'            => null,
+            'accounting_entry_id'   => null,
+            'entry_date'            => strtotime($date_from),
+            'description'           => 'Solde au ' . date('d/m/Y', strtotime($date_from)),
+            'debit'                 => $balance > 0 ? $balance : 0,
+            'credit'                => $balance < 0 ? abs($balance) : 0,
+            'balance'               => $balance,
+            'is_virtual'            => true
+        ];
+    }
 }
+
+$last_account_id = null;
 
 foreach($lines as &$line) {
     // #memo - name of the target (ownership/suppliership) is already in the Account name
     $account_id = $line['account_id'];
     $journal_id = $line['journal_id'];
     $entry_id   = $line['accounting_entry_id'];
+
+    // inject opening line when account changes
+    if($account_id !== $last_account_id) {
+        if(isset($map_opening_lines[$account_id])) {
+            $row = $map_opening_lines[$account_id];
+
+            if(isset($accounts[$account_id])) {
+                $row['account_id'] = $accounts[$account_id]->toArray();
+            }
+
+            $row['entry_date'] = date('c', $row['entry_date']);
+
+            $result[] = $row;
+        }
+        $last_account_id = $account_id;
+    }
 
     $row = $line->toArray();
 
@@ -368,6 +403,17 @@ foreach($lines as &$line) {
     $row['balance'] = $current_balance[$account_id];
 
     $result[] = $row;
+}
+
+// add opening-only accounts (no movements)
+foreach($map_opening_lines as $account_id => $row) {
+    if(!in_array($account_id, array_column($result, 'account_id.id'))) {
+        if(isset($accounts[$account_id])) {
+            $row['account_id'] = $accounts[$account_id]->toArray();
+        }
+        $row['entry_date'] = date('c', $row['entry_date']);
+        $result[] = $row;
+    }
 }
 
 $context->httpResponse()
