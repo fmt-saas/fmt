@@ -30,6 +30,12 @@
         "items": [
             {
                 "type": "field",
+                "value": "fiscal_year_id",
+                "width": "15%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "label": "Account",
                 "value": "account_id",
                 "width": "40%"
@@ -52,11 +58,6 @@
             {
                 "type": "field",
                 "value": "credit_balance",
-                "width": "15%"
-            },
-            {
-                "type": "field",
-                "value": "fiscal_year_id",
                 "width": "15%"
             }
         ]
