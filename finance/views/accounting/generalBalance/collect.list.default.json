@@ -53,7 +53,7 @@
                     "usage": "amount/money:2"
                 },
                 "balance": {
-                    "operation": ["DIFF", ["SUM", "object.debit"], ["SUM", "object.credit"]],
+                    "operation": ["DIFF", ["SUM", "debit"], ["SUM", "credit"]],
                     "usage": "amount/money:2"
                 }
             }
