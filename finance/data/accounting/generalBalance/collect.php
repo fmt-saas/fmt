@@ -345,14 +345,14 @@ foreach($map_accounts_ids as $account_id => $_) {
     $balance = $map_opening_balances[$account_id] ?? 0;
     $current_balance[$account_id] = $balance;
 
-   // create virtual opening line
+    // create virtual opening line
     if(abs($balance) > 0.01) {
         $map_opening_lines[$account_id] = [
-            'account_id'            => $account_id,
+            'account_id'            => ['id' => $account_id],
             'journal_id'            => null,
             'accounting_entry_id'   => null,
-            'entry_date'            => strtotime($date_from),
-            'description'           => 'Solde au ' . date('d/m/Y', strtotime($date_from)),
+            'entry_date'            => $date_from,
+            'description'           => 'Solde au ' . date('d/m/Y', $date_from),
             'debit'                 => $balance > 0 ? $balance : 0,
             'credit'                => $balance < 0 ? abs($balance) : 0,
             'balance'               => $balance,
