@@ -241,7 +241,12 @@ if(isset($params['account_id']) && $params['account_id'] > 0) {
     $map_accounts_ids[$params['account_id']] = true;
 }
 else {
-    $changes = AccountBalanceChange::search([['condo_id', '=', $params['condo_id']], ['date', '>=', $date_from], ['date', '<=', $date_to]])->read(['account_id']);
+    $changes = AccountBalanceChange::search([
+            ['condo_id', '=', $params['condo_id']],
+            ['date', '>=', $date_from],
+            ['date', '<=', $date_to]
+        ])
+        ->read(['account_id']);
 
     foreach($changes as $change) {
         $map_accounts_ids[$change['account_id']] = true;
@@ -259,7 +264,14 @@ foreach($openingLines as $line) {
     $map_opening_balances[$line['account_id']] = $line['debit'] - $line['credit'];
 }
 
-$changes = AccountBalanceChange::search([['condo_id', '=', $params['condo_id']], ['date', '>=', $fiscalYear['date_from']], ['date', '<', $date_from]], ['sort' => ['date' => 'asc', 'id' => 'asc']])
+$changes = AccountBalanceChange::search([
+            ['condo_id', '=', $params['condo_id']], ['date', '>=', $fiscalYear['date_from']], ['date', '<', $date_from]
+        ],
+        [
+            'sort'  => ['date' => 'desc', 'id' => 'asc'],
+            'limit' => 1
+        ]
+    )
     ->read(['account_id', 'debit_balance', 'credit_balance']);
 
 foreach($changes as $change) {
@@ -346,12 +358,12 @@ foreach($map_accounts_ids as $account_id => $_) {
     $current_balance[$account_id] = $balance;
 
     // create virtual opening line
-    if(abs($balance) > 0.01) {
+    if(abs($balance) > 0.0001) {
         $map_opening_lines[$account_id] = [
             'account_id'            => ['id' => $account_id],
             'journal_id'            => null,
             'accounting_entry_id'   => null,
-            'entry_date'            => $date_from,
+            'entry_date'            => date('c', $date_from),
             'description'           => 'Solde au ' . date('d/m/Y', $date_from),
             'debit'                 => $balance > 0 ? $balance : 0,
             'credit'                => $balance < 0 ? abs($balance) : 0,
@@ -362,6 +374,7 @@ foreach($map_accounts_ids as $account_id => $_) {
 }
 
 $last_account_id = null;
+$map_resulting_accounts_ids = [];
 
 foreach($lines as &$line) {
     // #memo - name of the target (ownership/suppliership) is already in the Account name
@@ -377,8 +390,6 @@ foreach($lines as &$line) {
             if(isset($accounts[$account_id])) {
                 $row['account_id'] = $accounts[$account_id]->toArray();
             }
-
-            $row['entry_date'] = date('c', $row['entry_date']);
 
             $result[] = $row;
         }
@@ -402,12 +413,14 @@ foreach($lines as &$line) {
     $current_balance[$account_id] += $line['debit'] - $line['credit'];
     $row['balance'] = $current_balance[$account_id];
 
+    $map_resulting_accounts_ids[$account_id] = true;
+
     $result[] = $row;
 }
 
 // add opening-only accounts (no movements)
 foreach($map_opening_lines as $account_id => $row) {
-    if(!in_array($account_id, array_column($result, 'account_id.id'))) {
+    if(!isset($map_resulting_accounts_ids[$account_id])) {
         if(isset($accounts[$account_id])) {
             $row['account_id'] = $accounts[$account_id]->toArray();
         }
