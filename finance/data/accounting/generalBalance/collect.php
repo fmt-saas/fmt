@@ -362,7 +362,7 @@ foreach($map_accounts_ids as $account_id => $_) {
     // create virtual opening line
     if(abs($balance) > 0.0001) {
         $map_opening_lines[$account_id] = [
-            'account_id'            => ['id' => $account_id],
+            'account_id'            => $accounts[$account_id]->toArray(),
             'journal_id'            => null,
             'accounting_entry_id'   => null,
             'entry_date'            => date('c', $date_from),
@@ -376,7 +376,6 @@ foreach($map_accounts_ids as $account_id => $_) {
 }
 
 $last_account_id = null;
-$map_resulting_accounts_ids = [];
 
 foreach($lines as &$line) {
     // #memo - name of the target (ownership/suppliership) is already in the Account name
@@ -388,13 +387,21 @@ foreach($lines as &$line) {
     if($account_id !== $last_account_id) {
         if(isset($map_opening_lines[$account_id])) {
             $row = $map_opening_lines[$account_id];
-
-            if(isset($accounts[$account_id])) {
-                $row['account_id'] = $accounts[$account_id]->toArray();
-            }
-
-            $result[] = $row;
         }
+        else {
+            $row = [
+                'account_id'            => $accounts[$account_id]->toArray(),
+                'journal_id'            => null,
+                'accounting_entry_id'   => null,
+                'entry_date'            => date('c', $date_from),
+                'description'           => 'Solde au ' . date('d/m/Y', $date_from),
+                'balance'               => $current_balance[$account_id],
+                'debit'                 => $current_balance[$account_id] > 0 ? $current_balance[$account_id] : 0,
+                'credit'                => $current_balance[$account_id] < 0 ? abs($current_balance[$account_id]) : 0,
+                'is_virtual'            => true
+            ];
+        }
+        $result[] = $row;
         $last_account_id = $account_id;
     }
 
@@ -415,20 +422,9 @@ foreach($lines as &$line) {
     $current_balance[$account_id] += $line['debit'] - $line['credit'];
     $row['balance'] = $current_balance[$account_id];
 
-    $map_resulting_accounts_ids[$account_id] = true;
-
     $result[] = $row;
 }
 
-// add opening-only accounts (no movements)
-foreach($map_opening_lines as $account_id => $row) {
-    if(!isset($map_resulting_accounts_ids[$account_id])) {
-        if(isset($accounts[$account_id])) {
-            $row['account_id'] = $accounts[$account_id]->toArray();
-        }
-        $result[] = $row;
-    }
-}
 
 $context->httpResponse()
         ->body($result)
