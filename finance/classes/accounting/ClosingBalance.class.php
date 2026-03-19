@@ -131,6 +131,11 @@ class ClosingBalance extends Balance {
 
                 $delta = round($debit - $credit, 4);
 
+                // skip zero balance accounts
+                if(abs($delta) < 0.0001) {
+                    continue;
+                }
+
                 $debit_balance = ($delta > 0.0) ? $delta : 0.0;
                 $credit_balance = ($delta < 0.0) ? abs($delta) : 0.0;
 
