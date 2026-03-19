@@ -179,6 +179,11 @@
                                                 "width": "50%"
                                             },
                                             {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
                                                 "type": "field",
                                                 "value": "opening_balance_id",
                                                 "width": "50%"
