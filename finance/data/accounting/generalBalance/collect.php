@@ -261,19 +261,21 @@ $openingLines = OpeningBalanceLine::search([
 
 foreach($openingLines as $line) {
     $map_accounts_ids[$line['account_id']] = true;
-    $map_opening_balances[$line['account_id']] = $line['debit'] - $line['credit'];
+    $map_opening_balances[$line['account_id']] =
+        ($map_opening_balances[$line['account_id']] ?? 0)
+        + ($line['debit'] - $line['credit']);
 }
 
 $changes = AccountBalanceChange::search([
             ['condo_id', '=', $params['condo_id']], ['date', '>=', $fiscalYear['date_from']], ['date', '<', $date_from]
         ],
         [
-            'sort'  => ['date' => 'desc', 'id' => 'asc'],
-            'limit' => 1
+            'sort'  => ['date' => 'asc', 'id' => 'asc']
         ]
     )
     ->read(['account_id', 'debit_balance', 'credit_balance']);
 
+// compute opening balances : latest change overwrites previous ones
 foreach($changes as $change) {
     $map_accounts_ids[$change['account_id']] = true;
     $map_opening_balances[$change['account_id']] = $change['debit_balance'] - $change['credit_balance'];
@@ -424,7 +426,6 @@ foreach($map_opening_lines as $account_id => $row) {
         if(isset($accounts[$account_id])) {
             $row['account_id'] = $accounts[$account_id]->toArray();
         }
-        $row['entry_date'] = date('c', $row['entry_date']);
         $result[] = $row;
     }
 }
