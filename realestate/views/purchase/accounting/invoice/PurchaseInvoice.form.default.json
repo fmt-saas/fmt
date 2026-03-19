@@ -102,6 +102,21 @@
             }
         },
         {
+            "id": "action.reverse_validate",
+            "label": "Revert",
+            "description": "Undo marking the invoice as valid.",
+            "controller": "core_model_do",
+            "confirm": true,
+            "visible": [
+                ["document_process_status", "in", ["validated"]]
+            ],
+            "params": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
+                "action": "reverse_validated",
+                "ids": []
+            }
+        },
+        {
             "id": "action.remove",
             "label": "Remove",
             "description": "Remove the invoice and the processing. Use this action when the import was a mistake or the invoice is a duplicate. This action cannot be undone.",

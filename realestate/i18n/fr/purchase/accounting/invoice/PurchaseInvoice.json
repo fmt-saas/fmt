@@ -235,7 +235,11 @@
                 },
                 "action.reverse_completed": {
                     "label": "Marquer non complété",
-                    "description": "Repasser à l'étape précédent."
+                    "description": "Repasser à l'étape précédente."
+                },
+                "action.reverse_validated": {
+                    "label": "Marquer non validé",
+                    "description": "Repasser à l'étape précédente."
                 },
                 "action.post": {
                     "label": "Intégrer",
