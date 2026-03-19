@@ -12,12 +12,12 @@
     "routes": [
         {
             "id": "item.import",
-            "label": "Import an Invoice",
-            "description": "",
+            "label": "Invoice",
             "icon": "receipt_long",
+            "description": "Import supplier/expense invoices.",
             "context": {
-                "entity": "documents\\processing\\DocumentProcess",
                 "view": "form.import",
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoiceImport",
                 "purpose": "create"
             }
         },

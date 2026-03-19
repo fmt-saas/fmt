@@ -35,11 +35,11 @@
         {
             "id": "item.import",
             "label": "Import an Invoice",
-            "description": "",
             "icon": "receipt_long",
+            "description": "Import supplier/expense invoices.",
             "context": {
-                "entity": "documents\\processing\\DocumentProcess",
                 "view": "form.import",
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoiceImport",
                 "purpose": "create"
             }
         }
