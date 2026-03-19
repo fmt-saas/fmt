@@ -11,6 +11,7 @@ use finance\accounting\Account;
 use finance\accounting\AccountBalanceChange;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
+use finance\accounting\OpeningBalance;
 use finance\accounting\OpeningBalanceLine;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
@@ -202,7 +203,7 @@ if(isset($params['date_from'], $params['date_to'])) {
             ['condo_id', '=', $params['condo_id']],
             ['date_from', '<=', $params['date_from']],
         ], ['sort' => ['date_from' => 'desc'], 'limit' => 1])
-        ->read(['id','date_from','date_to'])
+        ->read(['id', 'date_from', 'date_to', 'opening_balance_id'])
         ->first();
 
     $date_from = $params['date_from'];
@@ -210,7 +211,7 @@ if(isset($params['date_from'], $params['date_to'])) {
 }
 elseif(isset($params['fiscal_year_id']) && $params['fiscal_year_id'] > 0) {
     $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
-        ->read(['date_from', 'date_to'])
+        ->read(['id', 'date_from', 'date_to', 'opening_balance_id'])
         ->first();
 
     $date_from = $fiscalYear['date_from'];
@@ -221,7 +222,7 @@ else {
             ['status', '=', 'open'],
             ['condo_id', '=', $params['condo_id']],
         ], ['sort' => ['date_from' => 'desc'], 'limit' => 1])
-        ->read(['date_from', 'date_to'])
+        ->read(['id', 'date_from', 'date_to', 'opening_balance_id'])
         ->first();
 
     if(!$fiscalYear) {
@@ -253,21 +254,53 @@ else {
     }
 }
 
-$openingLines = OpeningBalanceLine::search([
-        ['condo_id','=', $params['condo_id']],
-        ['fiscal_year_id','=', $fiscalYear['id']]
-    ])
-    ->read(['account_id', 'debit', 'credit']);
+$opening_date_from = $fiscalYear['date_from'];
 
-foreach($openingLines as $line) {
-    $map_accounts_ids[$line['account_id']] = true;
-    $map_opening_balances[$line['account_id']] =
-        ($map_opening_balances[$line['account_id']] ?? 0)
-        + ($line['debit'] - $line['credit']);
+if(isset($fiscalYear['opening_balance_id'])) {
+    $opening_balance_id = $fiscalYear['opening_balance_id'];
+}
+else {
+    // find first available opening balance (last validated for given condominium)
+    $openingBalance = OpeningBalance::search([
+                ['condo_id', '=', $params['condo_id']],
+                ['status', '=', 'validated']
+            ],
+            [
+                'sort'  => ['created' => 'desc'],
+                'limit' => 1
+            ]
+        )
+        ->first();
+
+    $opening_balance_id = $openingBalance['id'];
 }
 
+if($opening_balance_id) {
+    $openingBalance = OpeningBalance::id($opening_balance_id)
+        ->read(['fiscal_year_id' => ['date_from']])
+        ->first();
+
+    if($openingBalance) {
+        $opening_date_from = $openingBalance['fiscal_year_id']['date_from'];
+
+        $openingLines = OpeningBalanceLine::search([
+                ['condo_id','=', $params['condo_id']],
+                ['balance_id','=', $opening_balance_id]
+            ])
+            ->read(['account_id', 'debit', 'credit']);
+
+        foreach($openingLines as $line) {
+            $map_accounts_ids[$line['account_id']] = true;
+            $map_opening_balances[$line['account_id']] =
+                ($map_opening_balances[$line['account_id']] ?? 0)
+                + ($line['debit'] - $line['credit']);
+        }
+    }
+}
+
+
 $changes = AccountBalanceChange::search([
-            ['condo_id', '=', $params['condo_id']], ['date', '>=', $fiscalYear['date_from']], ['date', '<', $date_from]
+            ['condo_id', '=', $params['condo_id']], ['date', '>=', $opening_date_from], ['date', '<', $date_from]
         ],
         [
             'sort'  => ['date' => 'asc', 'id' => 'asc']
