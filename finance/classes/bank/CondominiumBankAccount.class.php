@@ -267,7 +267,6 @@ class CondominiumBankAccount extends BankAccount {
                 $account = Account::create([
                         'code'                  => $assignmentAccount['code'] . sprintf("%02d", $index + 1),
                         'condo_id'              => $bankAccount['condo_id'],
-                        'ownership_id'          => $id,
                         'parent_account_id'     => $assignmentAccount['id'],
                         'account_chart_id'      => $assignmentAccount['account_chart_id'],
                         'account_category'      => $assignmentAccount['account_category'],
