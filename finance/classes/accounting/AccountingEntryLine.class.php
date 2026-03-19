@@ -254,7 +254,8 @@ class AccountingEntryLine extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'pending',
-                    'validated'
+                    'validated',
+                    'reversed'
                 ],
                 'default'           => 'pending'
             ]

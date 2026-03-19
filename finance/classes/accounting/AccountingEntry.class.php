@@ -534,6 +534,10 @@ class AccountingEntry extends Model {
                     'reverse_entry_id'  => $id,
                     'status'            => 'reversed'
                 ]);
+
+            AccountingEntryLine::search(['accounting_entry_id', 'in', [$id, $reversal['id']]])
+                ->update(['status'=> 'reversed']);
+
         }
     }
 
