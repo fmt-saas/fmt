@@ -425,6 +425,12 @@ foreach($lines as &$line) {
     $result[] = $row;
 }
 */
+$lines_by_account = [];
+
+foreach($lines as $line) {
+    $lines_by_account[$line['account_id']][] = $line;
+}
+
 foreach($map_accounts_ids as $account_id => $_) {
 
     // 1. Opening balance
@@ -436,7 +442,7 @@ foreach($map_accounts_ids as $account_id => $_) {
         'journal_id'            => null,
         'accounting_entry_id'   => null,
         'entry_date'            => date('c', $date_from),
-        'description'           => 'Solde au ' . date('d/m/Y', $date_from),
+        'description'           => 'Solde au ' . date('d/m/Y', $params['date_from'] ?? $date_from),
         'debit'                 => $opening_balance > 0 ? $opening_balance : 0,
         'credit'                => $opening_balance < 0 ? abs($opening_balance) : 0,
         'balance'               => $opening_balance,
