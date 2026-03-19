@@ -376,7 +376,7 @@ foreach($map_accounts_ids as $account_id => $_) {
 }
 
 $last_account_id = null;
-
+/*
 foreach($lines as &$line) {
     // #memo - name of the target (ownership/suppliership) is already in the Account name
     $account_id = $line['account_id'];
@@ -423,6 +423,53 @@ foreach($lines as &$line) {
     $row['balance'] = $current_balance[$account_id];
 
     $result[] = $row;
+}
+*/
+foreach($map_accounts_ids as $account_id => $_) {
+
+    // 1. Opening balance
+    $opening_balance = $map_opening_balances[$account_id] ?? 0;
+    $current_balance[$account_id] = $opening_balance;
+
+    $result[] = [
+        'account_id'            => $accounts[$account_id]->toArray(),
+        'journal_id'            => null,
+        'accounting_entry_id'   => null,
+        'entry_date'            => date('c', $date_from),
+        'description'           => 'Solde au ' . date('d/m/Y', $date_from),
+        'debit'                 => $opening_balance > 0 ? $opening_balance : 0,
+        'credit'                => $opening_balance < 0 ? abs($opening_balance) : 0,
+        'balance'               => $opening_balance,
+        'is_virtual'            => true
+    ];
+
+    // 2. Lines (if any)
+    if(isset($lines_by_account[$account_id])) {
+        foreach($lines_by_account[$account_id] as $line) {
+
+            $row = $line->toArray();
+
+            $journal_id = $line['journal_id'];
+            $entry_id   = $line['accounting_entry_id'];
+
+            if(isset($accounts[$account_id])) {
+                $row['account_id'] = $accounts[$account_id]->toArray();
+            }
+            if(isset($journals[$journal_id])) {
+                $row['journal_id'] = $journals[$journal_id]->toArray();
+            }
+            if(isset($entries[$entry_id])) {
+                $row['accounting_entry_id'] = $entries[$entry_id]->toArray();
+            }
+
+            $row['entry_date'] = date('c', $line['entry_date']);
+
+            $current_balance[$account_id] += $line['debit'] - $line['credit'];
+            $row['balance'] = $current_balance[$account_id];
+
+            $result[] = $row;
+        }
+    }
 }
 
 
