@@ -347,7 +347,7 @@ foreach($lines as $line) {
     $map_entries_ids[$line['accounting_entry_id']] = true;
 }
 
-$accounts = $orm->read(Account::gettype(), array_keys($map_accounts_ids), ['id', 'name']);
+$accounts = $orm->read(Account::gettype(), array_keys($map_accounts_ids), ['id', 'name', 'ownership_id', 'suppliership_id']);
 
 $journals = $orm->read(Journal::gettype(), array_keys($map_journals_ids), ['id', 'name', 'mnemo']);
 
@@ -376,69 +376,31 @@ foreach($map_accounts_ids as $account_id => $_) {
 }
 
 $last_account_id = null;
-/*
-foreach($lines as &$line) {
-    // #memo - name of the target (ownership/suppliership) is already in the Account name
-    $account_id = $line['account_id'];
-    $journal_id = $line['journal_id'];
-    $entry_id   = $line['accounting_entry_id'];
 
-    // inject opening line when account changes
-    if($account_id !== $last_account_id) {
-        if(isset($map_opening_lines[$account_id])) {
-            $row = $map_opening_lines[$account_id];
-        }
-        else {
-            $row = [
-                'account_id'            => $accounts[$account_id]->toArray(),
-                'journal_id'            => null,
-                'accounting_entry_id'   => null,
-                'entry_date'            => date('c', $date_from),
-                'description'           => 'Solde au ' . date('d/m/Y', $date_from),
-                'balance'               => $current_balance[$account_id],
-                'debit'                 => $current_balance[$account_id] > 0 ? $current_balance[$account_id] : 0,
-                'credit'                => $current_balance[$account_id] < 0 ? abs($current_balance[$account_id]) : 0,
-                'is_virtual'            => true
-            ];
-        }
-        $result[] = $row;
-        $last_account_id = $account_id;
-    }
-
-    $row = $line->toArray();
-
-    if(isset($accounts[$account_id])) {
-        $row['account_id'] = $accounts[$account_id]->toArray();
-    }
-    if(isset($journals[$journal_id])) {
-        $row['journal_id'] = $journals[$journal_id]->toArray();
-    }
-    if(isset($entries[$entry_id])) {
-        $row['accounting_entry_id'] = $entries[$entry_id]->toArray();
-    }
-
-    $row['entry_date'] = date('c', $line['entry_date']);
-
-    $current_balance[$account_id] += $line['debit'] - $line['credit'];
-    $row['balance'] = $current_balance[$account_id];
-
-    $result[] = $row;
-}
-*/
-$lines_by_account = [];
+$map_account_lines = [];
 
 foreach($lines as $line) {
-    $lines_by_account[$line['account_id']][] = $line;
+    $map_account_lines[$line['account_id']][] = $line;
 }
 
 foreach($map_accounts_ids as $account_id => $_) {
+
+    $account = $accounts[$account_id]->toArray();
+
+    if($params['suppliers_only'] && !isset($account['suppliership_id'])) {
+        continue;
+    }
+
+    elseif($params['ownerships_only'] && !isset($account['ownership_id'])) {
+        continue;
+    }
 
     // 1. Opening balance
     $opening_balance = $map_opening_balances[$account_id] ?? 0;
     $current_balance[$account_id] = $opening_balance;
 
     $result[] = [
-        'account_id'            => $accounts[$account_id]->toArray(),
+        'account_id'            => $account,
         'journal_id'            => null,
         'accounting_entry_id'   => null,
         'entry_date'            => date('c', $date_from),
@@ -450,8 +412,8 @@ foreach($map_accounts_ids as $account_id => $_) {
     ];
 
     // 2. Lines (if any)
-    if(isset($lines_by_account[$account_id])) {
-        foreach($lines_by_account[$account_id] as $line) {
+    if(isset($map_account_lines[$account_id])) {
+        foreach($map_account_lines[$account_id] as $line) {
 
             $row = $line->toArray();
 
@@ -459,7 +421,7 @@ foreach($map_accounts_ids as $account_id => $_) {
             $entry_id   = $line['accounting_entry_id'];
 
             if(isset($accounts[$account_id])) {
-                $row['account_id'] = $accounts[$account_id]->toArray();
+                $row['account_id'] = $account;
             }
             if(isset($journals[$journal_id])) {
                 $row['journal_id'] = $journals[$journal_id]->toArray();
