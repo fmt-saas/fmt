@@ -75,6 +75,21 @@ use realestate\ownership\Owner;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
+/**
+ * @param string|float|integer $value
+ * @param bool $currency
+ * @return string
+ */
+$formatMoney = function ($value, $currency=true) {
+    if(is_null($value)) {
+        return '';
+    }
+    if($currency) {
+        return number_format((float) $value, 2, ",", ".") . ' €';
+    }
+    return number_format((float) $value, 2, ",", ".");
+};
+
 $buildOwnerExpenses = function (array $owner): array {
 
     $expenses = [];
@@ -399,6 +414,12 @@ if(!$funding) {
 // retrieve template (subject & body)
 $subject = 'Décompte Propriétaire';
 $introduction = '';
+$communication = [
+    'payment_amount'        => '',
+    'payment_reference'     => '',
+    'reimbursement'         => '',
+    'no_action_required'    => ''
+];
 
 $template = Template::search([
         ['code', '=', 'expense_statement_correspondence'],
@@ -442,11 +463,61 @@ foreach($template['parts_ids'] as $part_id => $part) {
             return $map_values[$key] ?? '';
         }, $introduction);
     }
+    elseif($part['name'] == 'communication_payment_amount') {
+        $communication['payment_amount'] = $part['value'];
+
+        $map_values = [
+            'remaining_amount'  => $formatMoney($funding['remaining_amount']),
+            'due_date'          => date('d/m/Y', $funding['due_date'])
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $communication['payment_amount'] = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $communication['payment_amount']);
+    }
+    elseif($part['name'] == 'communication_payment_reference') {
+        $communication['payment_reference'] = $part['value'];
+
+        $map_values = [
+            'payment_reference' => $funding['payment_reference']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $communication['payment_reference'] = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $communication['payment_reference']);
+    }
+    elseif($part['name'] == 'communication_reimbursement') {
+        $communication['reimbursement'] = $part['value'];
+
+        $map_values = [
+            'remaining_amount_abs' => $formatMoney(abs($funding['remaining_amount']))
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $communication['reimbursement'] = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $communication['reimbursement']);
+    }
+    elseif($part['name'] == 'communication_no_action_required') {
+        $communication['no_action_required'] = $part['value'];
+    }
 }
+
+$labels_json = file_get_contents(
+    sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'ExpenseStatement.'.$params['view_id'])
+);
+
+$labels = json_decode($labels_json, true);
 
 $values = array_merge($values, [
     'title'               => $subject,
     'introduction'        => $introduction,
+    'communication'       => $communication,
 
     'organisation'        => $organisation,
     'organisation_logo'   => $getOrganisationLogo($organisation['id']),
@@ -465,7 +536,7 @@ $values = array_merge($values, [
     'locale'              => constant('L10N_LOCALE'),
     'date_format'         => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
     'currency'            => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
-    'labels'              => $getLabels($lang),
+    'labels'              => $labels,
     'debug'               => $params['debug'],
 
     'fiscal_period'       => [
@@ -490,15 +561,7 @@ try {
 
     // #todo - temp workaround against LOCALE mixups
     $twig->addFilter(
-            new TwigFilter('format_money', function ($value, $currency=true) {
-                if(is_null($value)) {
-                    return '';
-                }
-                if($currency) {
-                    return number_format((float) $value, 2, ",", ".") . ' €';
-                }
-                return number_format((float) $value, 2, ",", ".");
-            })
+            new TwigFilter('format_money', $formatMoney)
         );
 
     $template = $twig->load('ExpenseStatement.'.$params['view_id'].'.html');
