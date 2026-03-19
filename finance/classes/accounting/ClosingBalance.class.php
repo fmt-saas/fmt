@@ -27,7 +27,9 @@ class ClosingBalance extends Balance {
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\ClosingBalanceLine',
                 'foreign_field'     => 'balance_id',
-                'description'       => "Lines of the balance."
+                'description'       => "Lines of the balance.",
+                'order'             => 'name',
+                'sort'              => 'asc'
             ]
         ];
     }
