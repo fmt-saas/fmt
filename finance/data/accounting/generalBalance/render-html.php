@@ -6,6 +6,7 @@
 */
 
 use core\setting\Setting;
+use finance\accounting\FiscalYear;
 use identity\Organisation;
 use realestate\property\Condominium;
 use Twig\TwigFilter;
@@ -49,6 +50,13 @@ use Twig\Extension\ExtensionInterface;
 
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
+
+$getFormattedDate = function($timestamp) {
+    $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
+    $tz_offset = $tz->getOffset(new DateTime('@' . $timestamp));
+    $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
+    return date($date_format, $timestamp + $tz_offset);
+};
 
 $getTwigCurrency = function($equal_currency) {
     $equal_twig_currency_map = [
@@ -125,6 +133,15 @@ $data = eQual::run('get', 'finance_accounting_generalBalance_collect', [
     ]);
 
 
+$date_from = ($params['params']['date_from']) ? strtotime($params['params']['date_from']) : null;
+
+if(!$date_from) {
+    if($params['params']['fiscal_year_id']) {
+        $fiscalYear = FiscalYear::id($params['params']['fiscal_year_id'])->read(['date_from'])->first();
+        $date_from = $fiscalYear['date_from'];
+    }
+}
+
 $groups = [];
 
 // 1) Group by account_id
@@ -132,8 +149,6 @@ foreach($data as $line) {
 
     $account_id    = $line['account_id']['id'];
     $account_name  = $line['account_id']['name']; // "7420005 - Loyers ..."
-    $journal_name  = $line['journal_id']['name'];
-    $entry_number  = $line['accounting_entry_id']['name'];
 
     // Extract account code + label (split at first " - ")
     $parts = explode(' - ', $account_name, 2);
@@ -155,10 +170,6 @@ foreach($data as $line) {
     }
 
     $groups[$account_id]['entries'][] = [
-        'entry_date'    => $line['entry_date'],
-        'journal_name'  => $journal_name,
-        'entry_number'  => $entry_number,
-        'description'   => $line['description'],
         'debit'         => floatval($line['debit']),
         'credit'        => floatval($line['credit']),
     ];
@@ -189,15 +200,12 @@ foreach($groups as $account_id => &$group) {
     $totalDebit  = 0;
     $totalCredit = 0;
 
-    foreach($group['entries'] as &$entry) {
-
+    foreach($group['entries'] as $entry) {
         $totalDebit  += $entry['debit'];
         $totalCredit += $entry['credit'];
 
         // Increase balance: debit = +, credit = -
         $runningBalance += ($entry['debit'] - $entry['credit']);
-
-        $entry['balance_after'] = $runningBalance;
     }
 
     $group['totals']['debit']  = $totalDebit;
@@ -209,8 +217,11 @@ foreach($groups as $account_id => &$group) {
     $grand_totals['balance'] += $runningBalance;
 }
 
+$subject = sprintf("Balance Générale au %s", $getFormattedDate($date_from));
+
+
 $values = [
-    'title'               => 'Balance Générale',
+    'title'               => $subject,
 
     'organisation'        => $organisation,
     'organisation_logo'   => $getOrganisationLogo($organisation['id']),

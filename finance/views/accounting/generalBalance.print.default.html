@@ -135,47 +135,23 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 10%;">Date</th>
-                <th style="width: 15%;">Journal</th>
-                <th style="width: 20%;">Pièce</th>
-                <th style="width: 25%;">Description</th>
+                <th style="width: 55%;">Compte</th>
                 <th style="width: 15%;">Débit</th>
                 <th style="width: 15%;">Crédit</th>
-                <!-- <th style="width: 10%;">Solde</th> -->
+                <th style="width: 15%;">Solde</th>
             </tr>
         </thead>
 
         <tbody>
 
         {% for group in accounts %}
-            <!-- Ligne d’en-tête du groupe -->
-            <tr class="group-header">
-                <!--<td colspan="7">-->
-                <td colspan="6">
-                    {{ group.account_code }} – {{ group.account_label }}
-                </td>
-            </tr>
-
-            {% for entry in group.entries %}
-                <tr style="font-size: 10px;">
-                    <td>{{ entry.entry_date | date('d/m/Y') }}</td>
-                    <td>{{ entry.journal_name }}</td>
-                    <td>{{ entry.entry_number }}</td>
-                    <td>{{ entry.description }}</td>
-                    <td>{{ entry.debit | format_money() }}</td>
-                    <td>{{ entry.credit | format_money() }}</td>
-                    <!-- <td>{{ entry.balance_after | format_money() }}</td> -->
-                </tr>
-            {% endfor %}
-
-            <!-- Totaux du compte -->
-            <tr class="total-footer">
-                <td colspan="4" style="text-align: right;">Total compte {{ group.account_code }}</td>
+            <!-- Ligne du groupe / compte -->
+            <tr >
+                <td>{{ group.account_code }} – {{ group.account_label }}</td>
                 <td>{{ group.totals.debit | format_money() }}</td>
                 <td>{{ group.totals.credit | format_money() }}</td>
-                <!-- <td>{{ group.totals.balance | format_money() }}</td> -->
+                <td>{{ group.totals.balance | format_money() }}</td>
             </tr>
-
         {% endfor %}
 
         </tbody>
