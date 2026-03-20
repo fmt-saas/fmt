@@ -106,24 +106,6 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
     return $result;
 };
 
-$getLabels = function($lang) {
-    return [
-        'registration_number'            => Setting::get_value('sale', 'locale', 'label_registration-number', 'Registration n°', [], $lang),
-        'vat_number'                     => Setting::get_value('sale', 'locale', 'label_vat-number', 'VAT n°', [], $lang),
-        'number'                         => Setting::get_value('sale', 'locale', 'label_number', 'N°', [], $lang),
-        'date'                           => Setting::get_value('sale', 'locale', 'label_date', 'Date', [], $lang),
-        'status'                         => Setting::get_value('sale', 'locale', 'label_status', 'Status', [], $lang),
-        'communication'                  => Setting::get_value('sale', 'locale', 'label_communication', 'Communication', [], $lang),
-        'footer' => [
-            'registration_number'        => Setting::get_value('sale', 'locale', 'label_footer-registration-number', 'Registration number', [], $lang),
-            'iban'                       => Setting::get_value('sale', 'locale', 'label_footer-iban', 'IBAN', [], $lang),
-            'email'                      => Setting::get_value('sale', 'locale', 'label_footer-email', 'Email', [], $lang),
-            'web'                        => Setting::get_value('sale', 'locale', 'label_footer-web', 'Web', [], $lang),
-            'tel'                        => Setting::get_value('sale', 'locale', 'label_footer-tel', 'Tel', [], $lang)
-        ]
-    ];
-};
-
 
 $assembly = Assembly::id($params['id'])
     ->read([
@@ -320,10 +302,37 @@ foreach($template['parts_ids'] as $part_id => $part) {
             return $map_values[$key] ?? '';
         }, $introduction);
     }
-    elseif($part['name'] == 'conclusion') {
-        $conclusion = $part['value'];
+    elseif($part['name'] == 'certification_full') {
+        $certification_full = $part['value'];
+
+        $map_values = [
+            'count_owners' => $assembly['count_owners'],
+            'count_shares' => $assembly['count_shares'],
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $certification_full = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $certification_full);
+    }
+    elseif($part['name'] == 'certification_signed') {
+        $certification_signed = $part['value'];
+
+        $map_values = [
+            'count_representations'     => count($map_ownership_representations),
+            'count_owners'              => $assembly['count_owners'],
+            'count_represented_shares'  => $assembly['count_represented_shares'],
+            'count_shares'              => $assembly['count_shares']
+        ];
     }
 }
+
+$labels_json = file_get_contents(
+    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $lang, 'Assembly.'.$params['view_id'])
+);
+
+$labels = json_decode($labels_json, true);
 
 $values = [
     'title'                     => $subject,
@@ -348,7 +357,7 @@ $values = [
     'locale'                    => constant('L10N_LOCALE'),
     'date_format'               => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
 
-    'labels'                    => $getLabels($lang),
+    'labels'                    => $labels,
     'debug'                     => $params['debug']
 ];
 

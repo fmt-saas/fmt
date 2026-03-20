@@ -102,11 +102,11 @@
     <table class="attendance-table">
 
         <tr class="first">
-            <td style="width: 25%;"><b>Copropriétaire</b></td>
-            <td style="width: 20%;"><b>Lots</b></td>
-            <td style="width: 10%;"><b>Quotités statutaires</b></td>
-            <td style="width: 20%;"><b>Présence / Représentation</b></td>
-            <td style="width: 25%;"><b>Signature</b></td>
+            <td style="width: 25%;"><b>{{ labels['attendance.table.th.owner'] }}</b></td>
+            <td style="width: 20%;"><b>{{ labels['attendance.table.th.lots'] }}</b></td>
+            <td style="width: 10%;"><b>{{ labels['attendance.table.th.statutory_quotas'] }}</b></td>
+            <td style="width: 20%;"><b>{{ labels['attendance.table.th.presence_representation'] }}</b></td>
+            <td style="width: 25%;"><b>{{ labels['attendance.table.th.signature'] }}</b></td>
         </tr>
         {% for ownership_id, ownership in ownerships %}
             {% set representation = representations[ownership_id] ?? null %}
@@ -169,10 +169,10 @@
                             {% if attendee.register_document_signature_id.sig_method == 'ses' %}
                                 <img style="max-width: 250px; height: auto;" src="data:image/png;base64,{{ attendee.register_document_signature_id.sig_drawn }}" />
                             {% else %}
-                                Digitally signed by {{ attendee.name }} <br />
-                                Signature: {{ attendee.register_document_signature_id.sig_hash | slice(0, 40) }} ...<br />
-                                Timestamp: {{ attendee.register_document_signature_id.sig_timestamp }}<br />
-                                Algorithm: {{ attendee.register_document_signature_id.sig_algo }}
+                                {{ labels['digital_signature.signed_by'] }} {{ attendee.name }} <br />
+                                {{ labels['digital_signature.signature'] }} {{ attendee.register_document_signature_id.sig_hash | slice(0, 40) }} ...<br />
+                                {{ labels['digital_signature.timestamp'] }} {{ attendee.register_document_signature_id.sig_timestamp }}<br />
+                                {{ labels['digital_signature.algorithm'] }} {{ attendee.register_document_signature_id.sig_algo }}
                             {% endif %}
                         {% endif %}
                     {% endif %}

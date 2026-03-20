@@ -261,6 +261,18 @@ TemplatePart::create([
     'template_id'   => $template['id'],
     'variables'     => '["condo", "assembly", "date", "location", "type", "time_start"]'
 ]);
+TemplatePart::create([
+    'name'          => 'certification_full',
+    'value'         => "<p>Certifiée sincère et véritable, la feuille de présence est arrêtée à ........ copropriétaires présents ou représentés sur {count_owners}, totalisant ensemble .......... quotités sur {count_shares}.</p>",
+    'template_id'   => $template['id'],
+    'variables'     => '["count_owners", "count_shares"]'
+]);
+TemplatePart::create([
+    'name'          => 'certification_signed',
+    'value'         => "<p>Certifiée sincère et véritable, la feuille de présence est arrêtée à {count_representations} copropriétaires présents ou représentés sur {count_owners}, totalisant ensemble {count_represented_shares} quotités sur {count_shares}.</p>",
+    'template_id'   => $template['id'],
+    'variables'     => '["count_representations", "count_owners", "count_represented_shares", "count_shares"]'
+]);
 
 
 /* General Assembly - Minutes */
