@@ -133,7 +133,9 @@ $data = eQual::run('get', 'finance_accounting_generalBalance_collect', [
     ]);
 
 
-$date_from = ($params['params']['date_from']) ? strtotime($params['params']['date_from']) : null;
+$date_from = !empty($params['params']['date_from'])
+    ? strtotime($params['params']['date_from'])
+    : null;
 
 if(!$date_from) {
     if($params['params']['fiscal_year_id']) {
@@ -225,7 +227,9 @@ $values = [
 
     'organisation'        => $organisation,
     'organisation_logo'   => $getOrganisationLogo($organisation['id']),
-    'document_number'     => $statement['invoice_number'],
+
+    // 'document_number'     => $statement['invoice_number'],
+
     'condominium'         => $condominium,
 
     'accounts'            => array_values($groups),
