@@ -545,7 +545,9 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         foreach($self as $id => $requestExecution) {
             $logs = [];
 
-            AccountingEntry::id($requestExecution['accounting_entry_id'])->delete(true);
+            if($requestExecution['accounting_entry_id'] !== null) {
+                AccountingEntry::id($requestExecution['accounting_entry_id'])->delete(true);
+            }
 
             $journal = Journal::search([['condo_id', '=', $requestExecution['condo_id']], ['journal_type', '=', 'SALE']])->first();
 
