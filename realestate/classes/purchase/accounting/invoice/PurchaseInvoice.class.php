@@ -965,24 +965,32 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     protected static function onafterPost($self) {
-        $self->read(['document_process_id' => ['status']]);
+        $self->read(['document_process_id']);
         foreach($self as $id => $invoice) {
-            if($invoice['document_process_id'] && !in_array($invoice['document_process_id']['status'], ['validated', 'integrated'])) {
-                DocumentProcess::id($invoice['document_process_id'])
-                    // bypass all stages
-                    ->update(['status' => 'validated'])
-                    // mark DocumentProcess as integrated
-                    ->transition('integrate');
 
-                // reset computed relation fields
-                self::id($id)->update([
-                        'document_process_status' => null,
-                        'alert' => null,
-                        'name'  => null
-                    ]);
+            if($invoice['document_process_id']) {
+                $dp = DocumentProcess::id($invoice['document_process_id']);
+
+                $documentProcess = $dp->read(['status'])->first();
+                $status = $documentProcess['status'];
+
+                if($status !== 'integrated') {
+
+                    if($status !== 'validated') {
+                        $dp->update(['status' => 'validated']);
+                    }
+
+                    $dp->transition('integrate');
+                }
             }
+
+            // reset computed relation fields
+            self::id($id)->update([
+                    'document_process_status' => null,
+                    'alert' => null,
+                    'name'  => null
+                ]);
         }
-        $self->do('create_fundings');
     }
 
     protected static function onrevertAlert($self) {
