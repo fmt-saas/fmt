@@ -1,0 +1,16 @@
+{
+    "owner_undersign.give_mandate_to": "Donne procuration à :",
+    "owner_undersign.linving_in": "Demeurant à :",
+
+    "representation.without_voting_instructions": "Sans consignes de vote.",
+    "representation.with_voting_instructions": "Avec les consignes de vote telles que définies ci-dessous.",
+
+    "mandate_goal": "Fait pour servir et valoir comme procuration.",
+
+    "signature.done_at": "Fait à",
+    "signature.done_on": "le",
+    "signature.signature": "Signature du mandant :",
+
+    "voting_instructions.table.th.order": "Numéro de résolution (voir ordre du jour)",
+    "voting_instructions.table.th.choice": "Choix (pour / contre)"
+}

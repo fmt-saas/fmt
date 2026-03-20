@@ -4,6 +4,8 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use communication\template\Template;
 use core\setting\Setting;
 use identity\Organisation;
 use realestate\governance\Assembly;
@@ -79,25 +81,6 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
 };
 
 
-$getLabels = function($lang) {
-    return [
-        'registration_number'            => Setting::get_value('sale', 'locale', 'label_registration-number', 'Registration n°', [], $lang),
-        'vat_number'                     => Setting::get_value('sale', 'locale', 'label_vat-number', 'VAT n°', [], $lang),
-        'number'                         => Setting::get_value('sale', 'locale', 'label_number', 'N°', [], $lang),
-        'date'                           => Setting::get_value('sale', 'locale', 'label_date', 'Date', [], $lang),
-        'status'                         => Setting::get_value('sale', 'locale', 'label_status', 'Status', [], $lang),
-        'communication'                  => Setting::get_value('sale', 'locale', 'label_communication', 'Communication', [], $lang),
-        'footer' => [
-            'registration_number'        => Setting::get_value('sale', 'locale', 'label_footer-registration-number', 'Registration number', [], $lang),
-            'iban'                       => Setting::get_value('sale', 'locale', 'label_footer-iban', 'IBAN', [], $lang),
-            'email'                      => Setting::get_value('sale', 'locale', 'label_footer-email', 'Email', [], $lang),
-            'web'                        => Setting::get_value('sale', 'locale', 'label_footer-web', 'Web', [], $lang),
-            'tel'                        => Setting::get_value('sale', 'locale', 'label_footer-tel', 'Tel', [], $lang)
-        ]
-    ];
-};
-
-
 $assembly = Assembly::id($params['id'])
     ->read([
         'name',
@@ -168,11 +151,64 @@ foreach($propertyLotOwnerships as $propertyLotOwnership) {
     }
 }
 
+$owner_undersign = '';
+$owner_representation = '';
+$notice = '';
 
-$lang = $params['lang'];
+$template = Template::search([
+    ['code', '=', 'mandate_form'],
+    ['type', '=', 'document']
+])
+    ->read(['id','parts_ids' => ['name', 'value']])
+    ->first(true); // owner_undersign ["representative_owner", "representative_owner_address", "condo"], owner_representation ["assembly_date", "assembly_location"], notice
+
+foreach($template['parts_ids'] as $part_id => $part) {
+    if($part['name'] == 'owner_undersign') {
+        $owner_undersign = $part['value'];
+
+        $map_values = [
+            'representative_owner'          => $ownership['representative_owner_id']['name'],
+            'representative_owner_address'  => $ownership['representative_owner_id']['address'],
+            'condo'                         => $assembly['condo_id']['name']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $owner_undersign = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $owner_undersign);
+    }
+    elseif($part['name'] == 'owner_representation') {
+        $owner_representation = $part['value'];
+
+        $map_values = [
+            'assembly_date'     => date('d/m/Y', $assembly['assembly_date']),
+            'assembly_location' => $assembly['assembly_location']
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $owner_representation = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $owner_representation);
+    }
+    elseif($part['name'] == 'notice') {
+        $notice = $part['value'];
+    }
+}
+
+$labels_json = file_get_contents(
+    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $params['lang'], 'AssemblyMandate.'.$params['view_id'])
+);
+
+$labels = json_decode($labels_json, true);
 
 $values = [
     'title'                     => 'Procuration',
+    'owner_undersign'           => $owner_undersign,
+    'owner_representation'      => $owner_representation,
+    'notice'                    => $notice,
+
     'assembly'                  => $assembly,
     'condominium'               => $assembly['condo_id'],
 
@@ -187,7 +223,7 @@ $values = [
     'locale'                    => constant('L10N_LOCALE'),
     'date_format'               => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
 
-    'labels'                    => $getLabels($lang),
+    'labels'                    => $labels,
     'debug'                     => $params['debug']
 ];
 

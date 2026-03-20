@@ -3,7 +3,6 @@
 use communication\template\Template;
 use communication\template\TemplatePart;
 
-/*
 $template = Template::search([
     ['code', '=', 'expense_statement_correspondence'],
     ['type', '=', 'document']
@@ -60,4 +59,37 @@ TemplatePart::create([
     'template_id'   => $template['id'],
     'variables'     => '["count_representations", "count_owners", "count_represented_shares", "count_shares"]'
 ]);
-*/
+
+$template = Template::create([
+    'code'          => 'mandate_form',
+    'description'   => "Formulaire de procuration",
+    'category_id'   => 5,
+    'type_id'       => 5
+])
+    ->read(['id'])
+    ->first();
+
+TemplatePart::create([
+    'name'          => 'owner_undersign',
+    'value'         => implode('', [
+        "<p>Je soussigné(e), <strong>{representative_owner}</strong>,</p>",
+        "<p>Demeurant à l'adresse : <strong>{representative_owner_address}</strong>,</p>",
+        "<p>Propriétaire du/des lot(s) suivant(s) au sein de la copropriété <strong>{condo}</strong></p>"
+    ]),
+    'template_id'   => $template['id'],
+    'variables'     => '["representative_owner", "representative_owner_address", "condo"]'
+]);
+
+TemplatePart::create([
+    'name'          => 'owner_representation',
+    'value'         => "<p>Pour me représenter à l'Assemblée Générale des copropriétaires qui se tiendra le <strong>{{ assembly.assembly_date | date(date_format, timezone) }}</strong>, à <strong>{{ assembly.assembly_location }}</strong>,<br />et pour voter en mon nom sur toutes les résolutions inscrites à l'ordre du jour, ainsi que sur toutes questions pouvant être soumises à l'assemblée.</p>",
+    'template_id'   => $template['id'],
+    'variables'     => '["assembly_date", "assembly_location"]'
+]);
+
+TemplatePart::create([
+    'name'          => 'notice',
+    'value'         => "<p>IMPORTANT: Rappel de l'article 3-87 §7 du code civil. <br />« Nul ne peut accepter plus de trois procurations. Toutefois, un mandataire peut recevoir plus de trois procurations de vote si le total des voix dont il dispose lui-même et de celles de ses mandants n'excède pas 10% du total des voix affectées à l'ensemble des lots de la copropriété. »</p>",
+    'template_id'   => $template['id'],
+    'variables'     => '[]'
+]);
