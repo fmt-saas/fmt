@@ -123,20 +123,19 @@
                 <thead>
                     <tr>
                         <th style="text-align: center; padding-left: 7px; width: 20%;">
-                            Nature des opérations
-                            <!-- {{ labels.columns['product'] }} -->
+                            {{ labels['operations.table.th.nature'] }}
                         </th>
                         <th style="text-align: center; padding-right: 7px; width: 30%;">
-                            Clé de répartition
+                            {{ labels['operations.table.th.apportionment_key'] }}
                         </th>
                         <th style="text-align: center; padding-right: 7px; width: 15%;">
-                            Montants
+                            {{ labels['operations.table.th.amounts'] }}
                         </th>
                         <th style="text-align: center; padding-right: 7px; width: 20%;">
-                            Quotités
+                            {{ labels['operations.table.th.quotas'] }}
                         </th>
                         <th style="text-align: center; padding-right: 7px; width: 15%;">
-                            Quote part
+                            {{ labels['operations.table.th.quote_share'] }}
                         </th>
                     </tr>
                 </thead>
@@ -176,7 +175,7 @@
                     <tr>
                         <td style="border-top: solid 1px black !important;"></td>
                         <td colspan="3" style="border-top: solid 1px black !important; text-align: right;">
-                            <strong>Total de l'appel</strong>
+                            <strong>{{ labels['operations.table.footer.th.total'] }}</strong>
                         </td>
                         <td style="border-top: solid 1px black !important; text-align: right;"><strong>{{ fund_request.total | format_money() }}</strong></td>
                     </tr>
@@ -222,7 +221,7 @@
         </div>
 
         <div style="margin: 20px 0; font-weight: bold;">
-            Planification des versements attendus :
+            {{ labels['payments-planning.title'] }}
         </div>
 
         <div class="fiscal_year-lines">
@@ -230,16 +229,16 @@
                 <thead>
                     <tr>
                         <th style="text-align: center; padding-left: 7px; width: 15%;">
-                            Date
+                            {{ labels['payments-planning.table.th.date'] }}
                         </th>
                         <th style="text-align: center; padding-left: 7px; width: 15%;">
-                            Échéance
+                            {{ labels['payments-planning.table.th.deadline'] }}
                         </th>
                         <th style="text-align: center; padding-right: 7px; width: 55%;">
-                            Appel
+                            {{ labels['payments-planning.table.th.appeal'] }}
                         </th>
                         <th style="text-align: center; padding-right: 7px; width: 15%;">
-                            Montant
+                            {{ labels['payments-planning.table.th.amount'] }}
                         </th>
                     </tr>
                 </thead>
