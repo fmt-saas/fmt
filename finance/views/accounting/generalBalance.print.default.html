@@ -158,12 +158,12 @@
 
         <tfoot>
             <tr class="total-footer">
-                <td colspan="4" style="text-align: right;">
+                <td colspan="1" style="text-align: right;">
                     TOTAL GÉNÉRAL
                 </td>
                 <td>{{ grand_totals.debit | format_money() }}</td>
                 <td>{{ grand_totals.credit | format_money() }}</td>
-                {# <td>{{ grand_totals.balance | format_money() }}</td> #}
+                <td>{{ grand_totals.balance | format_money() }}</td>
             </tr>
         </tfoot>
 

@@ -271,7 +271,7 @@ try {
     $html = $template->render($values);
 
 }
-catch(Exception $e) {
+catch(\Throwable  $e) {
     trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
