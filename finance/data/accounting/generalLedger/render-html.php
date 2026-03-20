@@ -16,7 +16,7 @@ use Twig\Extension\ExtensionInterface;
 
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate a PDF file of the given fund request.',
+    'description'   => 'Generate a PDF file of the given general ledger.',
     'params'        => [
         'params' => [
             'description'       => 'Optional identifier of a specific targeted Ownership to limit to rendering to.',
@@ -26,7 +26,7 @@ use Twig\Extension\ExtensionInterface;
         ],
 
         'domain' => [
-            'description'   => 'Criterias that results have to match (series of conjunctions)',
+            'description'   => 'Criteria that results have to match (series of conjunctions)',
             'type'          => 'array',
             'default'       => []
         ],
@@ -34,6 +34,18 @@ use Twig\Extension\ExtensionInterface;
         'debug' => [
             'type'        => 'boolean',
             'default'     => false
+        ],
+
+        'view_id' => [
+            'description' => 'View id of the template to use.',
+            'type'        => 'string',
+            'default'     => 'print.default'
+        ],
+
+        'lang' =>  [
+            'description' => 'Language in which labels and multilang field have to be returned (2 letters ISO 639-1).',
+            'type'        => 'string',
+            'default'     => 'fr'
         ]
     ],
     'access'        => [
@@ -76,44 +88,25 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
 };
 
 
-$getLabels = function($lang) {
-    return [
-        'invoice'                        => Setting::get_value('sale', 'locale', 'label_invoice', 'Invoice', [], $lang),
-        'credit_note'                    => Setting::get_value('sale', 'locale', 'label_credit-note', 'Credit note', [], $lang),
-        'customer_name'                  => Setting::get_value('sale', 'locale', 'label_customer-name', 'Name', [], $lang),
-        'customer_address'               => Setting::get_value('sale', 'locale', 'label_customer-address', 'Address', [], $lang),
-        'registration_number'            => Setting::get_value('sale', 'locale', 'label_registration-number', 'Registration n°', [], $lang),
-        'vat_number'                     => Setting::get_value('sale', 'locale', 'label_vat-number', 'VAT n°', [], $lang),
-        'number'                         => Setting::get_value('sale', 'locale', 'label_number', 'N°', [], $lang),
-        'date'                           => Setting::get_value('sale', 'locale', 'label_date', 'Date', [], $lang),
-        'status'                         => Setting::get_value('sale', 'locale', 'label_status', 'Status', [], $lang),
-        'status_paid'                    => Setting::get_value('sale', 'locale', 'label_status-paid', 'Paid', [], $lang),
-        'status_to_pay'                  => Setting::get_value('sale', 'locale', 'label_status-to-pay', 'To pay', [], $lang),
-        'status_to_refund'               => Setting::get_value('sale', 'locale', 'label_status-to-refund', 'To refund', [], $lang),
-        'proforma_notice'                => Setting::get_value('sale', 'locale', 'label_proforma-notice', 'This is a proforma and must not be paid.', [], $lang),
-        'total_excl_vat'                 => Setting::get_value('sale', 'locale', 'label_total-ex-vat', 'Total VAT excl.', [], $lang),
-        'total_incl_vat'                 => Setting::get_value('sale', 'locale', 'label_total-inc-vat', 'Total VAT incl.', [], $lang),
-        'balance_of_must_be_paid_before' => Setting::get_value('sale', 'locale', 'label_balance-of-must-be-paid-before', 'Balance of %price% to be paid before %due_date%', [], $lang),
-        'communication'                  => Setting::get_value('sale', 'locale', 'label_communication', 'Communication', [], $lang),
-        'columns' => [
-            'product'                    => Setting::get_value('sale', 'locale', 'label_product-column', 'Product label', [], $lang),
-            'qty'                        => Setting::get_value('sale', 'locale', 'label_qty-column', 'Qty', [], $lang),
-            'free'                       => Setting::get_value('sale', 'locale', 'label_free-column', 'Free', [], $lang),
-            'unit_price'                 => Setting::get_value('sale', 'locale', 'label_unit-price-column', 'U. price', [], $lang),
-            'discount'                   => Setting::get_value('sale', 'locale', 'label_discount-column', 'Disc.', [], $lang),
-            'vat'                        => Setting::get_value('sale', 'locale', 'label_vat-column', 'VAT', [], $lang),
-            'taxes'                      => Setting::get_value('sale', 'locale', 'label_taxes-column', 'Taxes', [], $lang),
-            'price_ex_vat'               => Setting::get_value('sale', 'locale', 'label_price-ex-vat-column', 'Price ex. VAT', [], $lang),
-            'price'                      => Setting::get_value('sale', 'locale', 'label_price-column', 'Price', [], $lang)
-        ],
-        'footer' => [
-            'registration_number'        => Setting::get_value('sale', 'locale', 'label_footer-registration-number', 'Registration number', [], $lang),
-            'iban'                       => Setting::get_value('sale', 'locale', 'label_footer-iban', 'IBAN', [], $lang),
-            'email'                      => Setting::get_value('sale', 'locale', 'label_footer-email', 'Email', [], $lang),
-            'web'                        => Setting::get_value('sale', 'locale', 'label_footer-web', 'Web', [], $lang),
-            'tel'                        => Setting::get_value('sale', 'locale', 'label_footer-tel', 'Tel', [], $lang)
-        ]
-    ];
+$getLabels = function ($lang, $view_i18n_file_path) {
+    $header_labels_json = file_get_contents(
+        sprintf('%s/packages/realestate/i18n/%s/_parts/header.json', EQ_BASEDIR, $lang)
+    );
+    $header_labels = json_decode($header_labels_json, true);
+
+    $footer_labels_json = file_get_contents(
+        sprintf('%s/packages/realestate/i18n/%s/_parts/footer.json', EQ_BASEDIR, $lang)
+    );
+    $footer_labels = json_decode($footer_labels_json, true);
+
+    $labels_json = file_get_contents($view_i18n_file_path);
+    $labels = json_decode($labels_json, true);
+
+    return array_merge(
+        $header_labels,
+        $footer_labels,
+        $labels
+    );
 };
 
 
@@ -248,25 +241,24 @@ foreach($groups as $account_id => &$group) {
     $grand_totals['balance'] += $runningBalance;
 }
 
+$labels = $getLabels($params['lang'], sprintf('%s/packages/finance/i18n/%s/accounting/%s.json', EQ_BASEDIR, $params['lang'], 'generalLedger.'.$params['view_id']));
+
 $values = [
     'title'               => 'Grand Livre',
 
     'organisation'        => $organisation,
     'organisation_logo'   => $getOrganisationLogo($organisation['id']),
-    'document_number'     => $statement['invoice_number'],
     'condominium'         => $condominium,
 
     'accounts'            => array_values($groups),
     'grand_totals'        => $grand_totals,
-
-
 
     'date'                => time(),
     'timezone'            => constant('L10N_TIMEZONE'),
     'locale'              => constant('L10N_LOCALE'),
     'date_format'         => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
     'currency'            => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
-    'labels'              => $getLabels($lang),
+    'labels'              => $labels,
     'debug'               => $params['debug']
 ];
 
@@ -297,7 +289,7 @@ try {
             })
         );
 
-    $template = $twig->load('generalLedger.print.default.html');
+    $template = $twig->load('generalLedger.'.$params['view_id'].'.html');
     $html = $template->render($values);
 
 }

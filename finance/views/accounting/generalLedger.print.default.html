@@ -135,13 +135,13 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 10%;">Date</th>
-                <th style="width: 15%;">Journal</th>
-                <th style="width: 20%;">Pièce</th>
-                <th style="width: 25%;">Description</th>
-                <th style="width: 15%;">Débit</th>
-                <th style="width: 15%;">Crédit</th>
-                <!-- <th style="width: 10%;">Solde</th> -->
+                <th style="width: 10%;">{{ labels['accounting.table.th.date'] }}</th>
+                <th style="width: 15%;">{{ labels['accounting.table.th.journal'] }}</th>
+                <th style="width: 20%;">{{ labels['accounting.table.th.entity_number'] }}</th>
+                <th style="width: 25%;">{{ labels['accounting.table.th.description'] }}</th>
+                <th style="width: 15%;">{{ labels['accounting.table.th.debit'] }}</th>
+                <th style="width: 15%;">{{ labels['accounting.table.th.credit'] }}</th>
+                <!-- <th style="width: 10%;">{{ labels['accounting.table.th.balance'] }}</th> -->
             </tr>
         </thead>
 
@@ -170,7 +170,7 @@
 
             <!-- Totaux du compte -->
             <tr class="total-footer">
-                <td colspan="4" style="text-align: right;">Total compte {{ group.account_code }}</td>
+                <td colspan="4" style="text-align: right;">{{ labels['accounting.table.account_footer.td.total'] }} {{ group.account_code }}</td>
                 <td>{{ group.totals.debit | format_money() }}</td>
                 <td>{{ group.totals.credit | format_money() }}</td>
                 <!-- <td>{{ group.totals.balance | format_money() }}</td> -->
@@ -183,7 +183,7 @@
         <tfoot>
             <tr class="total-footer">
                 <td colspan="4" style="text-align: right;">
-                    TOTAL GÉNÉRAL
+                    {{ labels['accounting.table.footer.td.total'] }}
                 </td>
                 <td>{{ grand_totals.debit | format_money() }}</td>
                 <td>{{ grand_totals.credit | format_money() }}</td>

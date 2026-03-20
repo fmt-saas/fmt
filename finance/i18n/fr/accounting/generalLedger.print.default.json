@@ -1,0 +1,11 @@
+{
+    "accounting.table.th.date": "Date",
+    "accounting.table.th.journal": "Journal",
+    "accounting.table.th.entity_number": "Pièce",
+    "accounting.table.th.description": "Description",
+    "accounting.table.th.debit": "Débit",
+    "accounting.table.th.credit": "Crédit",
+    "accounting.table.th.balance": "Solde",
+    "accounting.table.account_footer.td.total": "Total compte",
+    "accounting.table.footer.td.total": "TOTAL GÉNÉRAL"
+}
