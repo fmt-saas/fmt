@@ -96,6 +96,27 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
     return $result;
 };
 
+$getLabels = function ($lang, $view_i18n_file_path) {
+    $header_labels_json = file_get_contents(
+        sprintf('%s/packages/realestate/i18n/%s/_parts/header.json', EQ_BASEDIR, $lang)
+    );
+    $header_labels = json_decode($header_labels_json, true);
+
+    $footer_labels_json = file_get_contents(
+        sprintf('%s/packages/realestate/i18n/%s/_parts/footer.json', EQ_BASEDIR, $lang)
+    );
+    $footer_labels = json_decode($footer_labels_json, true);
+
+    $labels_json = file_get_contents($view_i18n_file_path);
+    $labels = json_decode($labels_json, true);
+
+    return array_merge(
+        $header_labels,
+        $footer_labels,
+        $labels
+    );
+};
+
 
 $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params['id'])
     ->read([
@@ -245,11 +266,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
     }
 }
 
-$labels_json = file_get_contents(
-    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $lang, 'AssemblyInvitationCorrespondence.'.$params['view_id'])
-);
-
-$labels = json_decode($labels_json, true);
+$labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $lang, 'AssemblyInvitationCorrespondence.'.$params['view_id']));
 
 $values = [
     'title'                     => $subject,
