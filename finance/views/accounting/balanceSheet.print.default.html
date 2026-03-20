@@ -135,8 +135,8 @@
     <table>
         <thead>
             <tr>
-                <th colspan="3" style="text-align: center">ACTIF</th>
-                <th colspan="3" style="text-align: center">PASSIF</th>
+                <th colspan="3" style="text-align: center">{{ labels['balance_sheet.table.th.assets'] }}</th>
+                <th colspan="3" style="text-align: center">{{ labels['balance_sheet.table.th.liabilities'] }}</th>
             </tr>
         </thead>
 
@@ -168,9 +168,9 @@
 
         <tfoot>
             <tr class="total-footer">
-                <td colspan="2" style="width: 40%; text-align: center;">Total actif</td>
+                <td colspan="2" style="width: 40%; text-align: center;">{{ labels['balance_sheet.table.footer.td.total_assets'] }}</td>
                 <td style="width: 10%">{{ total_asset | format_money(false) }}</td>
-                <td colspan="2" style="width: 40%; text-align: center;">Total passif</td>
+                <td colspan="2" style="width: 40%; text-align: center;">{{ labels['balance_sheet.table.footer.td.total_liabilities'] }}</td>
                 <td style="width: 10%">{{ total_liability | format_money(false) }}</td>
             </tr>
         </tfoot>
