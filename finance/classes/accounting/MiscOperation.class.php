@@ -140,6 +140,35 @@ class MiscOperation extends Model {
                 'domain'            => [['origin_object_class', '=', 'finance\accounting\MiscOperation'], ['origin_object_id', '=', 'object.id']]
             ],
 
+            /**
+             * // #todo - temporary flag indicating that this journal entry is used as an "opening journal".
+             *
+             * IMPORTANT:
+             * When this flag is enabled, this document DOES NOT generate any AccountingEntry.
+             * Instead, it is used as a source to build an OpeningBalance snapshot.
+             *
+             * This is a temporary mechanism introduced for practical reasons to allow
+             * detailed input of opening balances (multiple lines per account, with descriptions),
+             * similar to traditional opening journal entries.
+             *
+             * Architectural note:
+             * In the target accounting model, OpeningBalance is a snapshot and should NOT rely
+             * on journal entries. This flag introduces an exception by using a journal-like
+             * structure purely as a data input for the snapshot.
+             *
+             * Consequences:
+             * - This object must NOT be considered as a valid accounting entry.
+             * - It must NOT appear in accounting exports or journals.
+             * - It does NOT impact the ledger or AccountBalanceChange.
+             * - It is only linked to OpeningBalance / OpeningBalanceLine for traceability.
+             *
+             * WARNING:
+             * This is a transitional workaround. A dedicated OpeningBalanceDocument (or equivalent)
+             * should eventually replace this mechanism to restore full separation between:
+             * - accounting truth (AccountingEntry)
+             * - snapshots (OpeningBalance / ClosingBalance)
+             * - business input documents
+             */
             'has_opening_journal' => [
                 'type'              => 'boolean',
                 'default'           => false,
@@ -251,6 +280,11 @@ class MiscOperation extends Model {
 
     public static function getActions() {
         return [
+            'generate_opening_balance' => [
+                'description'   => 'Creates an opening balance according to operation lines.',
+                'policies'      => [/* 'can_generate_accounting_entry' */],
+                'function'      => 'doGenerateOpeningBalance'
+            ],
             'generate_accounting_entry' => [
                 'description'   => 'Creates accounting entries according to operation lines.',
                 'policies'      => [/* 'can_generate_accounting_entry' */],
@@ -301,14 +335,96 @@ class MiscOperation extends Model {
 
     }
 
+    protected static function doGenerateOpeningBalance($self) {
+        $self->read([
+                'condo_id',
+                'fiscal_year_id',
+                'has_opening_journal',
+                'misc_operation_lines_ids'
+            ]);
+
+        foreach($self as $id => $miscOperation) {
+            if(!$miscOperation['has_opening_journal']) {
+                continue;
+            }
+
+            if(!$miscOperation['fiscal_year_id']) {
+                throw new \Exception('missing_fiscal_year', EQ_ERROR_INVALID_PARAM);
+            }
+
+            if(!self::computeIsBalanced($miscOperation['misc_operation_lines_ids'])) {
+                throw new \Exception('non_balanced', EQ_ERROR_INVALID_PARAM);
+            }
+
+            $existingOpeningBalance = OpeningBalance::search([
+                    ['condo_id', '=', $miscOperation['condo_id']],
+                    ['fiscal_year_id', '=', $miscOperation['fiscal_year_id']]
+                ])
+                ->read(['status'])
+                ->first();
+
+            if($existingOpeningBalance) {
+                if($existingOpeningBalance['status'] === 'validated') {
+                    throw new \Exception('existing_validated_opening_balance', EQ_ERROR_INVALID_PARAM);
+                }
+                OpeningBalance::id($existingOpeningBalance['id'])->delete(true);
+            }
+
+            $openingBalance = OpeningBalance::create([
+                    'condo_id'          => $miscOperation['condo_id'],
+                    'fiscal_year_id'    => $miscOperation['fiscal_year_id'],
+                    'misc_operation_id' => $id
+                ])
+                ->first();
+
+            $miscOperationLines = MiscOperationLine::ids($miscOperation['misc_operation_lines_ids'])
+                ->read(['account_id', 'debit', 'credit']);
+
+            $lines_by_account = [];
+            foreach($miscOperationLines as $line) {
+                $account_id = $line['account_id'];
+
+                if(!isset($lines_by_account[$account_id])) {
+                    $lines_by_account[$account_id] = ['debit' => 0.0, 'credit' => 0.0];
+                }
+
+                $lines_by_account[$account_id]['debit'] += (float) $line['debit'];
+                $lines_by_account[$account_id]['credit'] += (float) $line['credit'];
+            }
+
+            foreach($lines_by_account as $account_id => $totals) {
+                OpeningBalanceLine::create([
+                        'condo_id'       => $miscOperation['condo_id'],
+                        'balance_id'     => $openingBalance['id'],
+                        'fiscal_year_id' => $miscOperation['fiscal_year_id'],
+                        'account_id'     => $account_id,
+                        'debit'          => $totals['debit'],
+                        'credit'         => $totals['credit'],
+                        'debit_balance'  => max(0, $totals['debit'] - $totals['credit']),
+                        'credit_balance' => max(0, $totals['credit'] - $totals['debit'])
+                    ]);
+            }
+
+            FiscalYear::id($miscOperation['fiscal_year_id'])
+                ->update(['opening_balance_id' => $openingBalance['id']]);
+
+            OpeningBalance::id($openingBalance['id'])->update(['status' => 'validated']);
+        }
+    }
+
     protected static function doGenerateAccountingEntry($self) {
         $self->read([
                 'condo_id', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
-                'description',
+                'description', 'has_opening_journal',
                 'misc_operation_lines_ids' => ['account_id', 'debit', 'credit', 'description']
             ]);
 
         foreach ($self as $id => $miscOperation) {
+
+            // ignore MiscOperation that relate to an opening balance
+            if($miscOperation['has_opening_journal']) {
+                continue;
+            }
 
             // remove any previously created accounting entry (resulting from an incomplete operation)
             AccountingEntry::search([
@@ -474,8 +590,14 @@ class MiscOperation extends Model {
     }
 
     protected static function doValidateAccountingEntry($self) {
-        $self->read(['accounting_entry_id' => ['status']]);
+        $self->read(['has_opening_journal', 'accounting_entry_id' => ['status']]);
+
         foreach($self as $id => $miscOperation) {
+            // ignore MiscOperation that relate to an opening balance
+            if($miscOperation['has_opening_journal']) {
+                continue;
+            }
+
             if($miscOperation['accounting_entry_id']['status'] == 'pending') {
                 AccountingEntry::id($miscOperation['accounting_entry_id']['id'])->transition('validate');
             }
@@ -496,6 +618,7 @@ class MiscOperation extends Model {
         $self->read([
                 'name',
                 'posting_date',
+                'has_opening_journal',
                 'fiscal_year_id' => ['date_from'],
                 'fiscal_period_id' => ['date_from'],
                 'condo_id' => ['code'],
@@ -509,6 +632,10 @@ class MiscOperation extends Model {
             ]);
 
         foreach($self as $id => $miscOperation) {
+            // ignore MiscOperation that relate to an opening balance
+            if($miscOperation['has_opening_journal']) {
+                continue;
+            }
             foreach($miscOperation['misc_operation_lines_ids'] as $misc_operation_line_id => $miscOperationLine) {
                 if(!$miscOperationLine['is_owner']) {
                     continue;
@@ -555,9 +682,13 @@ class MiscOperation extends Model {
 
     protected static function onbeforePost($self) {
         $self
+            // impacts only MiscOp with flag `has_opening_journal` set to true
+            ->do('generate_opening_balance')
+            // impacts only MiscOp with flag `has_opening_journal` set to false
             ->do('generate_accounting_entry')
             ->do('validate_accounting_entry')
             ->do('generate_fundings')
+            // all MiscOp
             ->update(['name' => null]);
     }
 

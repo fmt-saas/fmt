@@ -30,7 +30,16 @@ class OpeningBalance extends Balance {
                 'description'       => "Lines of the balance.",
                 'order'             => 'name',
                 'sort'              => 'asc'
+            ],
+
+            'misc_operation_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\MiscOperation',
+                'description'       => 'Miscellaneous operation the opening balance originates from, if any.',
+                'help'              => 'This is an optional link to an opening journal Misc Operation holding details about accounting accounts movements.',
+                'readonly'          => true
             ]
+
         ];
     }
 
