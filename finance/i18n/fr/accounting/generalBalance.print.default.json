@@ -1,0 +1,7 @@
+{
+    "general_balance.table.th.account": "Compte",
+    "general_balance.table.th.debit": "Débit",
+    "general_balance.table.th.credit": "Crédit",
+    "general_balance.table.th.balance": "Solde",
+    "general_balance.table.footer.td.general_total": "TOTAL GÉNÉRAL"
+}

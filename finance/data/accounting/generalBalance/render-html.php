@@ -35,6 +35,18 @@ use Twig\Extension\ExtensionInterface;
         'debug' => [
             'type'        => 'boolean',
             'default'     => false
+        ],
+
+        'view_id' => [
+            'description' => 'View id of the template to use.',
+            'type'        => 'string',
+            'default'     => 'print.default'
+        ],
+
+        'lang' =>  [
+            'description' => 'Language in which labels and multilang field have to be returned (2 letters ISO 639-1).',
+            'type'        => 'string',
+            'default'     => 'fr'
         ]
     ],
     'access'        => [
@@ -81,6 +93,27 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
         );
     }
     return $result;
+};
+
+$getLabels = function ($lang, $view_i18n_file_path) {
+    $header_labels_json = file_get_contents(
+        sprintf('%s/packages/realestate/i18n/%s/_parts/header.json', EQ_BASEDIR, $lang)
+    );
+    $header_labels = json_decode($header_labels_json, true);
+
+    $footer_labels_json = file_get_contents(
+        sprintf('%s/packages/realestate/i18n/%s/_parts/footer.json', EQ_BASEDIR, $lang)
+    );
+    $footer_labels = json_decode($footer_labels_json, true);
+
+    $labels_json = file_get_contents($view_i18n_file_path);
+    $labels = json_decode($labels_json, true);
+
+    return array_merge(
+        $header_labels,
+        $footer_labels,
+        $labels
+    );
 };
 
 
@@ -252,6 +285,8 @@ foreach($groups as $account_id => &$group) {
 $subject = sprintf("Balance Générale au %s", $getFormattedDate($date_to));
 
 
+$labels = $getLabels($params['lang'], sprintf('%s/packages/finance/i18n/%s/accounting/%s.json', EQ_BASEDIR, $params['lang'], 'generalBalance.'.$params['view_id']));
+
 $values = [
     'title'               => $subject,
 
@@ -266,6 +301,7 @@ $values = [
     'grand_totals'        => $grand_totals,
 
     'currency'            => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
+    'labels'              => $labels,
     'debug'               => $params['debug']
 ];
 
@@ -297,7 +333,7 @@ try {
         );
 
 
-    $template = $twig->load('generalBalance.print.default.html');
+    $template = $twig->load('generalBalance.'.$params['view_id'].'.html');
     $html = $template->render($values);
 
 }
