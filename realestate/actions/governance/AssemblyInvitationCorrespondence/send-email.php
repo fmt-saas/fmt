@@ -100,7 +100,7 @@ $template = Template::search([
 
 foreach($template['parts_ids'] as $part_id => $part) {
     if($part['name'] == 'subject') {
-        $subject = $part['value'];
+        $subject = strip_tags($part['value']);
 
         $map_values = [
             'assembly'  => $assemblyInvitationCorrespondence['assembly_id']['name'],

@@ -186,7 +186,7 @@ $template = Template::search([
 
 foreach($template['parts_ids'] as $part_id => $part) {
     if($part['name'] == 'subject') {
-        $subject = $part['value'];
+        $subject = strip_tags($part['value']);
     }
     elseif($part['name'] == 'owner_undersign') {
         $owner_undersign = $part['value'];
