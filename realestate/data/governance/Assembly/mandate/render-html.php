@@ -172,6 +172,7 @@ foreach($propertyLotOwnerships as $propertyLotOwnership) {
     }
 }
 
+$subject = 'Procuration';
 $owner_undersign = '';
 $owner_representation = '';
 $notice = '';
@@ -184,7 +185,10 @@ $template = Template::search([
     ->first(true); // owner_undersign ["representative_owner", "representative_owner_address", "condo"], owner_representation ["assembly_date", "assembly_location"], notice
 
 foreach($template['parts_ids'] as $part_id => $part) {
-    if($part['name'] == 'owner_undersign') {
+    if($part['name'] == 'subject') {
+        $subject = $part['value'];
+    }
+    elseif($part['name'] == 'owner_undersign') {
         $owner_undersign = $part['value'];
 
         $map_values = [
@@ -224,7 +228,7 @@ $labels = $getLabels(
 );
 
 $values = [
-    'title'                     => 'Procuration',
+    'title'                     => $subject,
     'owner_undersign'           => $owner_undersign,
     'owner_representation'      => $owner_representation,
     'notice'                    => $notice,

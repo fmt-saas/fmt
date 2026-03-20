@@ -70,6 +70,13 @@ $template = Template::create([
     ->first();
 
 TemplatePart::create([
+    'name'          => 'subject',
+    'value'         => "Procuration",
+    'template_id'   => $template['id'],
+    'variables'     => '[]'
+]);
+
+TemplatePart::create([
     'name'          => 'owner_undersign',
     'value'         => implode('', [
         "<p>Je soussigné(e), <strong>{representative_owner}</strong>,</p>",
