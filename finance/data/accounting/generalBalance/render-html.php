@@ -133,22 +133,22 @@ $data = eQual::run('get', 'finance_accounting_generalBalance_collect', [
     ]);
 
 
-// retrieve date_from (same logic as in `collect.php`)
-$date_from = null;
+// retrieve latest date the data originate from (same logic as in `collect.php`)
+$date_to = null;
 
-if(!empty($params['params']['date_from'])) {
-    $date_from = strtotime($params['params']['date_from']);
+if(!empty($params['params']['date_to'])) {
+    $date_to = strtotime($params['params']['date_to']);
 }
 elseif(!empty($params['params']['fiscal_year_id'])) {
     $fiscalYear = FiscalYear::id($params['params']['fiscal_year_id'])
-        ->read(['date_from'])
+        ->read(['date_to'])
         ->first();
 
     if(!$fiscalYear) {
         throw new Exception('invalid_fiscal_year_id', EQ_ERROR_INVALID_PARAM);
     }
 
-    $date_from = $fiscalYear['date_from'];
+    $date_to = $fiscalYear['date_to'];
 }
 elseif(!empty($params['params']['condo_id'])) {
     $fiscalYear = FiscalYear::search(
@@ -161,14 +161,14 @@ elseif(!empty($params['params']['condo_id'])) {
             'limit' => 1
         ]
     )
-    ->read(['id', 'date_from'])
+    ->read(['id', 'date_to'])
     ->first();
 
     if(!$fiscalYear) {
         throw new Exception('missing_open_fiscal_year', EQ_ERROR_MISSING_PARAM);
     }
 
-    $date_from = $fiscalYear['date_from'];
+    $date_to = $fiscalYear['date_to'];
 }
 else {
     throw new Exception('missing_date_context', EQ_ERROR_MISSING_PARAM);
@@ -249,7 +249,7 @@ foreach($groups as $account_id => &$group) {
     $grand_totals['balance'] += $runningBalance;
 }
 
-$subject = sprintf("Balance Générale au %s", $getFormattedDate($date_from));
+$subject = sprintf("Balance Générale au %s", $getFormattedDate($date_to));
 
 
 $values = [
