@@ -135,11 +135,11 @@
     <table>
         <thead>
             <tr>
-                <th style="width:12%">Date</th>
-                <th style="width:48%">Description</th>
-                <th style="width:13%">Débit</th>
-                <th style="width:13%">Crédit</th>
-                <th style="width:14%">Balance</th>
+                <th style="width:12%">{{ labels['account_statement.table.th.date'] }}</th>
+                <th style="width:48%">{{ labels['account_statement.table.th.description'] }}</th>
+                <th style="width:13%">{{ labels['account_statement.table.th.debit'] }}</th>
+                <th style="width:13%">{{ labels['account_statement.table.th.credit'] }}</th>
+                <th style="width:14%">{{ labels['account_statement.table.th.balance'] }}</th>
             </tr>
         </thead>
 
@@ -149,7 +149,7 @@
                 <tr style="font-size: 10px;">
                     <!-- #memo - this is the given date_from -->
                     <td>{{ line.entry_date | date('d/m/Y') }}</td>
-                    <td style="text-align: right; font-weight: bold;">Ancien solde</td>
+                    <td style="text-align: right; font-weight: bold;">{{ labels['account_statement.table.td.previous_balance'] }}</td>
                     <td></td>
                     <td></td>
                     <td>{{ line.balance | format_money() }}</td>
@@ -168,7 +168,7 @@
 
         <tfoot>
             <tr class="total-footer">
-                <td colspan="2" style="text-align:right;">Total</td>
+                <td colspan="2" style="text-align:right;">{{ labels['account_statement.table.footer.td.total'] }}</td>
                 <td>{{ total_debit|format_money() }}</td>
                 <td>{{ total_credit|format_money() }}</td>
                 <td>{{ closing_balance|format_money() }}</td>

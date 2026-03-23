@@ -18,14 +18,12 @@
             "fax": "string (optional)"
         },
         "labels": {
-            "footer": {
-            "registration_number": "string (e.g. 'Company Number')",
-            "iban": "string (e.g. 'IBAN')",
-            "email": "string (e.g. 'Email')",
-            "web": "string (e.g. 'Website')",
-            "tel": "string (e.g. 'Phone')",
-            "fax": "string (e.g. 'Fax')"
-            }
+            "footer.registration_number": "string (e.g. 'Company Number')",
+            "footer.iban": "string (e.g. 'IBAN')",
+            "footer.email": "string (e.g. 'Email')",
+            "footer.web": "string (e.g. 'Website')",
+            "footer.tel": "string (e.g. 'Phone')",
+            "footer.fax": "string (e.g. 'Fax')"
         }
     }
     ```
@@ -49,30 +47,30 @@
         {# Line 2 : registration number + IBAN #}
         <div>
             {% if organisation.registration_number %}
-                {{ labels.footer.registration_number }}: {{ organisation.registration_number }}
+                {{ labels['footer.registration_number'] }}: {{ organisation.registration_number }}
             {% endif %}
             {% if organisation.registration_number and organisation.bank_account_iban %} - {% endif %}
             {% if organisation.bank_account_iban %}
-                {{ labels.footer.iban }}: {{ organisation.bank_account_iban }}
+                {{ labels['footer.iban'] }}: {{ organisation.bank_account_iban }}
             {% endif %}
         </div>
 
         {# Line 3 : Email + website + phone + fax #}
         <div>
             {% if organisation.email %}
-                {{ labels.footer.email }}: {{ organisation.email }}
+                {{ labels['footer.email'] }}: {{ organisation.email }}
             {% endif %}
             {% if organisation.email and organisation.website %} - {% endif %}
             {% if organisation.website %}
-                {{ labels.footer.web }}: {{ organisation.website }}
+                {{ labels['footer.web'] }}: {{ organisation.website }}
             {% endif %}
             {% if (organisation.email or organisation.website) and organisation.phone %} - {% endif %}
             {% if organisation.phone %}
-                {{ labels.footer.tel }}: {{ organisation.phone }}
+                {{ labels['footer.tel'] }}: {{ organisation.phone }}
             {% endif %}
             {% if (organisation.email or organisation.website or organisation.phone) and organisation.fax %} - {% endif %}
             {% if organisation.fax %}
-                {{ labels.footer.fax }}: {{ organisation.fax }}
+                {{ labels['footer.fax'] }}: {{ organisation.fax }}
             {% endif %}
         </div>
     </div>

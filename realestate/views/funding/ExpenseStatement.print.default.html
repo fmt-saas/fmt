@@ -184,10 +184,10 @@
             {% if funding.remaining_amount > 0.0 %}
             <div style="position: relative; margin-top: 20px; border: solid 1px black; height: 215px; page-break-inside: avoid;">
                 <div style="font-size: 15px; padding-left: 15px; padding-top: 15px;">
-                    Le montant de <b>{{ funding.remaining_amount | format_money() }}</b> doit être réglé avant le <b>{{ funding.due_date | date('d/m/Y') }}</b>
+                    {{ communication.payment_amount | raw }}
                 </div>
                 <div style="padding-top: 20px; padding-left: 15px; font-size: 15px;">
-                    <b style="text-transform: uppercase;">Communication</b><b> : {{ funding.payment_reference }}</b><br />
+                    {{ communication.payment_reference | raw }}
                     IBAN : {{ condominium.bank_account_iban }}<br />
                     BIC : {{ condominium.bank_account_bic }}<br />
                     <br />
@@ -204,9 +204,8 @@
             <!-- reimbursement information -->
             {% if funding.remaining_amount < 0.0 %}
             <div style="position: relative; margin-top: 20px; border: solid 1px black; page-break-inside: avoid;">
-                <div style="font-size: 1rem; line-height: 1.4rem; padding: 15px;">
-                    Votre compte présente un solde créditeur de <b>{{ funding.remaining_amount | abs | format_money() }}</b> en votre faveur.
-                    Ce montant sera automatiquement déduit de votre prochain décompte de charges, ou pourra vous être remboursé sur simple demande écrite adressée au syndic.
+                <div style="font-size: 1rem; line-height: 1.4rem;">
+                    {{ communication.reimbursement | raw }}
                 </div>
             </div>
             {% endif %}
@@ -215,8 +214,7 @@
             {% if funding.remaining_amount == 0.0 %}
             <div style="position: relative; margin-top: 20px; border: solid 1px black; page-break-inside: avoid;">
                 <div style="font-size: 1rem; line-height: 1.4rem; padding: 15px;">
-                    La situation de votre compte fait apparaître un solde nul. Les provisions versées couvrent intégralement le montant du décompte.
-                    <b>Aucune action de votre part n'est requise.</b>
+                    {{ communication.no_action_required | raw }}
                 </div>
             </div>
             {% endif %}
@@ -226,15 +224,15 @@
 
         <!-- first part : recap -->
         <div style="page-break-inside: avoid; margin-bottom: 20px;">
-            <h2>Récapitulatif</h2>
+            <h2>{{ labels['summary.h2'] }}</h2>
 
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 50%;">Références</th>
-                        <th style="width: 19%;">Nature</th>
-                        <th style="width: 13%;">Quotités</th>
-                        <th style="width: 18%;">Jours</th>
+                        <th style="width: 50%;">{{ labels['summary.table.th.references'] }}</th>
+                        <th style="width: 19%;">{{ labels['summary.table.th.nature'] }}</th>
+                        <th style="width: 13%;">{{ labels['summary.table.th.quotas'] }}</th>
+                        <th style="width: 18%;">{{ labels['summary.table.th.days'] }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -271,13 +269,13 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 33%;">Charges communes</th>
-                        <th style="width: 12%; text-align: center;">Quotités</th>
-                        <th style="width: 11%;">Copro</th>
-                        <th style="width: 11%;">Lot</th>
-                        <th style="width: 11%;">TVA</th>
-                        <th style="width: 11%;">Prop</th>
-                        <th style="width: 11%;">Loc</th>
+                        <th style="width: 33%;">{{ labels['global_summary.table.th.common_expenses'] }}</th>
+                        <th style="width: 12%; text-align: center;">{{ labels['global_summary.table.th.quotas'] }}</th>
+                        <th style="width: 11%;">{{ labels['global_summary.table.th.condo'] }}</th>
+                        <th style="width: 11%;">{{ labels['global_summary.table.th.lot'] }}</th>
+                        <th style="width: 11%;">{{ labels['global_summary.table.th.vat'] }}</th>
+                        <th style="width: 11%;">{{ labels['global_summary.table.th.owner'] }}</th>
+                        <th style="width: 11%;">{{ labels['global_summary.table.th.tenant'] }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -322,7 +320,7 @@
                 </tbody>
                 <tfoot>
                     <tr class="total-footer">
-                            <td style="text-align: right;">Totaux généraux</td>
+                            <td style="text-align: right;">{{ labels['global_summary.table.footer.td.grand_totals'] }}</td>
                             <td></td>
                             <td>{{ common_total | format_money() }}</td>
                             <td><strong>{{ (common_total_owner + common_total_tenant) | format_money() }}</strong></td>
@@ -337,13 +335,13 @@
             <table style="border-top: 0px;">
                 <thead>
                     <tr>
-                        <th style="width: 33%;">Frais privatifs</th>
-                        <th style="width: 12%;"><!--Quotités--></th>
-                        <th style="width: 11%;"><!--Copro--></th>
-                        <th style="width: 11%;"><!--Lot--></th>
-                        <th style="width: 11%;"><!--TVA--></th>
-                        <th style="width: 11%;"><!--Prop--></th>
-                        <th style="width: 11%;"><!--Loc--></th>
+                        <th style="width: 33%;">{{ labels['private_expenses.table.th.private_expenses'] }}</th>
+                        <th style="width: 12%;">{{ labels['private_expenses.table.th.quotas'] }}</th>
+                        <th style="width: 11%;">{{ labels['private_expenses.table.th.condo'] }}</th>
+                        <th style="width: 11%;">{{ labels['private_expenses.table.th.lot'] }}</th>
+                        <th style="width: 11%;">{{ labels['private_expenses.table.th.vat'] }}</th>
+                        <th style="width: 11%;">{{ labels['private_expenses.table.th.owner'] }}</th>
+                        <th style="width: 11%;">{{ labels['private_expenses.table.th.tenant'] }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -381,7 +379,7 @@
                 </tbody>
                 <tfoot>
                     <tr class="total-footer">
-                            <td style="text-align: right;">Totaux généraux</td>
+                            <td style="text-align: right;">{{ labels['private_expenses.table.footer.td.grand_totals'] }}</td>
                             <td></td>
                             <td>{{ private_total | format_money() }}</td>
                             <td><strong>{{ (private_total_owner + private_total_tenant) | format_money() }}</strong></td>
@@ -397,13 +395,13 @@
             <table style="border-top: 0px;">
                 <thead>
                     <tr>
-                        <th style="width: 33%;">Provisions</th>
-                        <th style="width: 12%;"><!--Quotités--></th>
-                        <th style="width: 11%;"><!--Copro--></th>
-                        <th style="width: 11%;"><!--Lot--></th>
-                        <th style="width: 11%;"><!--TVA--></th>
-                        <th style="width: 11%;"><!--Prop--></th>
-                        <th style="width: 11%;"><!--Loc--></th>
+                        <th style="width: 33%;">{{ labels['provisions.table.th.provisions'] }}</th>
+                        <th style="width: 12%;">{{ labels['provisions.table.th.quotas'] }}</th>
+                        <th style="width: 11%;">{{ labels['provisions.table.th.condo'] }}</th>
+                        <th style="width: 11%;">{{ labels['provisions.table.th.lot'] }}</th>
+                        <th style="width: 11%;">{{ labels['provisions.table.th.vat'] }}</th>
+                        <th style="width: 11%;">{{ labels['provisions.table.th.owner'] }}</th>
+                        <th style="width: 11%;">{{ labels['provisions.table.th.tenant'] }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -416,7 +414,7 @@
                         {% for account in apport.accounts %}
 
                             <tr>
-                                <td><div style="padding-left: 20px;">Provisions appelées</div></td>
+                                <td><div style="padding-left: 20px;">{{ labels['provisions.table.td.provisions_called'] }}</div></td>
                                 <td>/</td>
                                 <td>{{ provisions_total | format_money(false) }}</td>
                                 <td>{{ account.owner | format_money(false) }}</td>
@@ -441,7 +439,7 @@
             <table style="border-top: 0px;">
                 <tbody>
                     <tr class="total-footer">
-                        <td style="width: 33%; text-align: right;">Totaux généraux</td>
+                        <td style="width: 33%; text-align: right;">{{ labels['provisions.table.footer.td.grand_totals'] }}</td>
                         <td style="width: 12%;"></td>
                         <td style="width: 11%;">{{ (common_total + private_total + provisions_total) | format_money() }}</td>
                         <td style="width: 11%;">{{ (provisions_total_owner + common_total_owner + private_total_owner + common_total_tenant + private_total_tenant) | format_money() }}</td>
@@ -467,18 +465,18 @@
                 <!-- pass-1 common expenses -->
                 {% if owner.has_common_expense or owner.has_reserve_fund %}
                 <div style="page-break-inside: avoid;">
-                    <h2>Charges communes</h2>
+                    <h2>{{ labels['detailed_statements.common_expenses.h2'] }}</h2>
 
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 33%;">Désignation</th>
-                                <th style="width: 12%; text-align: center;">Quotités</th>
-                                <th style="width: 11%;">Copro</th>
-                                <th style="width: 11%;">Lot</th>
-                                <th style="width: 11%;">TVA</th>
-                                <th style="width: 11%;">Prop</th>
-                                <th style="width: 11%;">Loc</th>
+                                <th style="width: 33%;">{{ labels['detailed_statements.common_expenses.table.th.designation'] }}</th>
+                                <th style="width: 12%; text-align: center;">{{ labels['detailed_statements.common_expenses.table.th.quotas'] }}</th>
+                                <th style="width: 11%;">{{ labels['detailed_statements.common_expenses.table.th.condo'] }}</th>
+                                <th style="width: 11%;">{{ labels['detailed_statements.common_expenses.table.th.lot'] }}</th>
+                                <th style="width: 11%;">{{ labels['detailed_statements.common_expenses.table.th.vat'] }}</th>
+                                <th style="width: 11%;">{{ labels['detailed_statements.common_expenses.table.th.owner'] }}</th>
+                                <th style="width: 11%;">{{ labels['detailed_statements.common_expenses.table.th.tenant'] }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -529,7 +527,7 @@
                             {% endfor %}
 
                             <tr class="total-footer">
-                                <td style="text-align: right;">Total {{ lot.code }} - {{ lot.ref }}</td>
+                                <td style="text-align: right;">{{ labels['detailed_statements.common_expenses.table.footer.td.total'] }} {{ lot.code }} - {{ lot.ref }}</td>
                                 <td></td>
                                 <td>{{ total_apport | format_money() }}</td>
                                 <td>{{ (total_owner + total_tenant) | format_money() }}</td>
@@ -546,18 +544,18 @@
                 <!-- pass-2 provisions -->
                 {% if lot.has_provisions %}
                 <div style="page-break-inside: avoid; margin-top: 10px;">
-                    <h2>Provisions</h2>
+                    <h2>{{ labels['detailed_statements.provisions.h2'] }}</h2>
 
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 35%;">Désignation</th>
-                                <th style="width: 15%;">Quotités</th>
-                                <th style="width: 12%;">Copro</th>
-                                <th style="width: 12%;">Lot</th>
-                                <th style="width: 12%;">TVA</th>
-                                <th style="width: 13%;">Prop</th>
-                                <th style="width: 13%;">Loc</th>
+                                <th style="width: 35%;">{{ labels['detailed_statements.provisions.table.th.designation'] }}</th>
+                                <th style="width: 15%;">{{ labels['detailed_statements.provisions.table.th.quotas'] }}</th>
+                                <th style="width: 12%;">{{ labels['detailed_statements.provisions.table.th.condo'] }}</th>
+                                <th style="width: 12%;">{{ labels['detailed_statements.provisions.table.th.lot'] }}</th>
+                                <th style="width: 12%;">{{ labels['detailed_statements.provisions.table.th.vat'] }}</th>
+                                <th style="width: 13%;">{{ labels['detailed_statements.provisions.table.th.owner'] }}</th>
+                                <th style="width: 13%;">{{ labels['detailed_statements.provisions.table.th.tenant'] }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -569,7 +567,7 @@
                                     {% for apport in expense.apportionments %}
                                         {% for account in apport.accounts %}
                                             <tr>
-                                                <td>Provisions appelées</td>
+                                                <td>{{ labels['detailed_statements.provisions.table.td.provisions_called'] }}</td>
                                                 <td>/</td>
                                                 <td></td>
                                                 <td>{{ account.owner | format_money(false) }}</td>
@@ -592,18 +590,18 @@
                 <!-- pass-3 private expenses -->
                 {% if lot.has_private_expense %}
                 <div style="page-break-inside: avoid; margin-top: 10px;">
-                    <h2>Frais privatifs</h2>
+                    <h2>{{ labels['detailed_statements.private_expenses.h2'] }}</h2>
 
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 35%;">Désignation</th>
-                                <th style="width: 15%;">Quotités</th>
-                                <th style="width: 12%;">Copro</th>
-                                <th style="width: 12%;">Lot</th>
-                                <th style="width: 12%;">TVA</th>
-                                <th style="width: 13%;">Prop</th>
-                                <th style="width: 13%;">Loc</th>
+                                <th style="width: 35%;">{{ labels['detailed_statements.private_expenses.table.th.designation'] }}</th>
+                                <th style="width: 15%;">{{ labels['detailed_statements.private_expenses.table.th.quotas'] }}</th>
+                                <th style="width: 12%;">{{ labels['detailed_statements.private_expenses.table.th.condo'] }}</th>
+                                <th style="width: 12%;">{{ labels['detailed_statements.private_expenses.table.th.lot'] }}</th>
+                                <th style="width: 12%;">{{ labels['detailed_statements.private_expenses.table.th.vat'] }}</th>
+                                <th style="width: 13%;">{{ labels['detailed_statements.private_expenses.table.th.owner'] }}</th>
+                                <th style="width: 13%;">{{ labels['detailed_statements.private_expenses.table.th.tenant'] }}</th>
                             </tr>
                         </thead>
                         <tbody>

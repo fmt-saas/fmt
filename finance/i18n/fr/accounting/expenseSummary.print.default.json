@@ -1,0 +1,10 @@
+{
+    "summary.table.th.provider": "Fournisseur",
+    "summary.table.th.journal": "JNL",
+    "summary.table.th.ref": "Référence",
+    "summary.table.th.date": "Date",
+    "summary.table.th.description": "Description",
+    "summary.table.th.tenant": "Loc",
+    "summary.table.th.amount": "Montant",
+    "summary.table.footer.td.total": "Total :"
+}

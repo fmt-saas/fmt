@@ -161,6 +161,27 @@ $getPaymentQrCodeUri = function($legal_name, $bank_account_iban, $bank_account_b
     return $result;
 };
 
+$getLabels = function ($lang, $view_i18n_file_path) {
+    $header_labels_json = file_get_contents(
+        sprintf('%s/packages/realestate/i18n/%s/_parts/header.json', EQ_BASEDIR, $lang)
+    );
+    $header_labels = json_decode($header_labels_json, true);
+
+    $footer_labels_json = file_get_contents(
+        sprintf('%s/packages/realestate/i18n/%s/_parts/footer.json', EQ_BASEDIR, $lang)
+    );
+    $footer_labels = json_decode($footer_labels_json, true);
+
+    $labels_json = file_get_contents($view_i18n_file_path);
+    $labels = json_decode($labels_json, true);
+
+    return array_merge(
+        $header_labels,
+        $footer_labels,
+        $labels
+    );
+};
+
 
 $executions = [];
 
@@ -368,6 +389,8 @@ $invoice['organisation_id']['bank_account_iban'] = DataFormatter::format($invoic
 $invoice['organisation_id']['phone'] = DataFormatter::format($invoice['organisation_id']['phone'], 'phone');
 */
 
+$labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'FundRequest.'.$params['view_id']));
+
 $values = [
     'title'               => $subject,
     'introduction'        => $introduction,
@@ -392,7 +415,7 @@ $values = [
     'locale'              => constant('L10N_LOCALE'),
     'date_format'         => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
     'currency'            => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
-    'labels'              => $getLabels($lang),
+    'labels'              => $labels,
     'debug'               => $params['debug']
 ];
 

@@ -1,0 +1,16 @@
+{
+    "assembly_type.statutory": "Assemblée Générale Statutaire",
+    "assembly_type.takeover": "Assemblée Générale de Reprise de gestion",
+    "assembly_type.extraordinary": "Assemblée Générale Extraordinaire",
+    "assembly_type.constitutive": "Assemblée Générale Constitutive",
+
+    "assembly_details.assembly": "Assemblée",
+    "assembly_details.date": "Date",
+    "assembly_details.owner": "Propriétaire",
+
+    "vote_form.table.th.order": "N°",
+    "vote_form.table.th.item": "Point",
+    "vote_form.table.td.checkbox.for": "Pour",
+    "vote_form.table.td.checkbox.against": "Contre",
+    "vote_form.table.td.checkbox.abstain": "Abstention"
+}
