@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use communication\template\Template;
 use core\setting\Setting;
 use identity\Organisation;
 use realestate\ownership\Ownership;
@@ -178,22 +179,32 @@ foreach($data as $line) {
 
 $closing_balance = end($data)['balance'] ?? 0;
 
-$subject = 'Détail de votre compte propriétaire au {date_to}';
-$introduction = '';
+$subject = 'Détail de votre compte propriétaire';
 
-$map_values = [
-    'condo'             => $condominium['name'],
-    'date_from'         => $getFormattedDate($params['date_from']),
-    'date_to'           => $getFormattedDate($params['date_to'])
-];
+$template = Template::search([
+    ['code', '=', 'owner_account_statement'],
+    ['type', '=', 'document']
+])
+    ->read(['parts_ids' => ['name', 'value']])
+    ->first(true);
 
-// Replace {var} items with corresponding values, set in $map_values
-$subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
-    $key = $matches[1];
-    return $map_values[$key] ?? '';
-}, $subject);
+foreach($template['parts_ids'] as $part_id => $part) {
+    if($part['name'] == 'subject') {
+        $subject = strip_tags($part['value']);
 
-$subject = strip_tags($subject);
+        $map_values = [
+            'condo'     => $condominium['name'],
+            'date_from' => $getFormattedDate($params['date_from']),
+            'date_to'   => $getFormattedDate($params['date_to'])
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $subject);
+    }
+}
 
 $labels = $getLabels($params['lang'], sprintf('%s/packages/finance/i18n/%s/accounting/%s.json', EQ_BASEDIR, $params['lang'], 'ownerAccountStatement.'.$params['view_id']));
 

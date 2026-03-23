@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use communication\template\Template;
 use core\setting\Setting;
 use identity\Organisation;
 use realestate\property\Condominium;
@@ -241,10 +242,25 @@ foreach($groups as $account_id => &$group) {
     $grand_totals['balance'] += $runningBalance;
 }
 
+$subject = 'Grand Livre';
+
+$template = Template::search([
+    ['code', '=', 'general_ledger'],
+    ['type', '=', 'document']
+])
+    ->read(['parts_ids' => ['name', 'value']])
+    ->first();
+
+foreach($template['parts_ids'] as $part_id => $part) {
+    if($part['name'] == 'subject') {
+        $subject = strip_tags($part['value']);
+    }
+}
+
 $labels = $getLabels($params['lang'], sprintf('%s/packages/finance/i18n/%s/accounting/%s.json', EQ_BASEDIR, $params['lang'], 'generalLedger.'.$params['view_id']));
 
 $values = [
-    'title'               => 'Grand Livre',
+    'title'               => $subject,
 
     'organisation'        => $organisation,
     'organisation_logo'   => $getOrganisationLogo($organisation['id']),

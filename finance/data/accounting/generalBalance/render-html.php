@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use communication\template\Template;
 use core\setting\Setting;
 use finance\accounting\FiscalYear;
 use identity\Organisation;
@@ -282,7 +283,30 @@ foreach($groups as $account_id => &$group) {
     $grand_totals['balance'] += $runningBalance;
 }
 
-$subject = sprintf("Balance Générale au %s", $getFormattedDate($date_to));
+$subject = 'Balance Générale';
+
+$template = Template::search([
+    ['code', '=', 'general_balance'],
+    ['type', '=', 'document']
+])
+    ->read(['parts_ids' => ['name', 'value']])
+    ->first();
+
+foreach($template['parts_ids'] as $part_id => $part) {
+    if($part['name'] == 'subject') {
+        $subject = strip_tags($part['value']);
+
+        $map_values = [
+            'date_to' => $getFormattedDate($date_to)
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $subject);
+    }
+}
 
 
 $labels = $getLabels($params['lang'], sprintf('%s/packages/finance/i18n/%s/accounting/%s.json', EQ_BASEDIR, $params['lang'], 'generalBalance.'.$params['view_id']));

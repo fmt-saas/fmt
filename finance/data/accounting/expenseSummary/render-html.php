@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use communication\template\Template;
 use core\setting\Setting;
 use finance\accounting\FiscalYear;
 use identity\Organisation;
@@ -164,7 +165,7 @@ $data = eQual::run('get', 'finance_accounting_expenseSummary_collect', [
         'account_id'        => $params['params']['account_id'] ?? null,
     ]);
 
-
+$fiscalYear = null;
 
 if(isset($params['params']['fiscal_year_id'])) {
     $fiscalYear = FiscalYear::id($params['params']['fiscal_year_id'])
@@ -247,22 +248,32 @@ foreach($data as $line) {
     $grand_total += $amount;
 }
 
-$subject = 'Dépenses courantes du {date_from} au {date_to}';
-$introduction = '';
+$subject = 'Dépenses courantes';
 
-$map_values = [
-    'condo'             => $condominium['name'],
-    'date_from'         => $getFormattedDate($date_from),
-    'date_to'           => $getFormattedDate($date_to)
-];
+$template = Template::search([
+    ['code', '=', 'expense_summary'],
+    ['type', '=', 'document']
+])
+    ->read(['parts_ids' => ['name', 'value']])
+    ->first(true);
 
-// Replace {var} items with corresponding values, set in $map_values
-$subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
-    $key = $matches[1];
-    return $map_values[$key] ?? '';
-}, $subject);
+foreach($template['parts_ids'] as $part_id => $part) {
+    if($part['name'] == 'subject') {
+        $subject = strip_tags($part['value']);
 
-$subject = strip_tags($subject);
+        $map_values = [
+            'condo'     => $condominium['name'],
+            'date_from' => $getFormattedDate($date_from),
+            'date_to'   => $getFormattedDate($date_to)
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $subject);
+    }
+}
 
 $labels = $getLabels($params['lang'], sprintf('%s/packages/finance/i18n/%s/accounting/%s.json', EQ_BASEDIR, $params['lang'], 'expenseSummary.'.$params['view_id']));
 

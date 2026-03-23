@@ -100,3 +100,83 @@ TemplatePart::create([
     'template_id'   => $template['id'],
     'variables'     => '[]'
 ]);
+
+$template = Template::create([
+    'code'          => 'general_ledger',
+    'description'   => "Grand Livre",
+    'category_id'   => 5,
+    'type_id'       => 5
+])
+    ->read(['id'])
+    ->first();
+
+TemplatePart::create([
+    'name'          => 'subject',
+    'value'         => "<p>Grand Livre</p>",
+    'template_id'   => $template['id'],
+    'variables'     => '[]'
+]);
+
+$template = Template::create([
+    'code'          => 'general_balance',
+    'description'   => "Balance Générale",
+    'category_id'   => 5,
+    'type_id'       => 5
+])
+    ->read(['id'])
+    ->first();
+
+TemplatePart::create([
+    'name'          => 'subject',
+    'value'         => "<p>Balance Générale au {date_to}</p>",
+    'template_id'   => $template['id'],
+    'variables'     => '["date_to"]'
+]);
+
+$template = Template::create([
+    'code'          => 'balance_sheet',
+    'description'   => "Bilan comptable",
+    'category_id'   => 5,
+    'type_id'       => 5
+])
+    ->read(['id'])
+    ->first();
+
+TemplatePart::create([
+    'name'          => 'subject',
+    'value'         => "<p>Bilan comptable</p>",
+    'template_id'   => $template['id'],
+    'variables'     => '[]'
+]);
+
+$template = Template::create([
+    'code'          => 'expense_summary',
+    'description'   => "Dépenses courantes",
+    'category_id'   => 5,
+    'type_id'       => 5
+])
+    ->read(['id'])
+    ->first();
+
+TemplatePart::create([
+    'name'          => 'subject',
+    'value'         => "<p>Dépenses courantes du {date_from} au {date_to}</p>",
+    'template_id'   => $template['id'],
+    'variables'     => '["condo", "date_from", "date_to"]'
+]);
+
+$template = Template::create([
+    'code'          => 'owner_account_statement',
+    'description'   => "Détail de votre compte propriétaire",
+    'category_id'   => 5,
+    'type_id'       => 5
+])
+    ->read(['id'])
+    ->first();
+
+TemplatePart::create([
+    'name'          => 'subject',
+    'value'         => "<p>Détail de votre compte propriétaire au {date_to}</p>",
+    'template_id'   => $template['id'],
+    'variables'     => '["condo", "date_from", "date_to"]'
+]);

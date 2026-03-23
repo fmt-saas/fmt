@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use communication\template\Template;
 use core\setting\Setting;
 use identity\Organisation;
 use realestate\property\Condominium;
@@ -191,10 +192,25 @@ foreach($data as $line) {
     $lines[] = $line;
 }
 
+$subject = 'Bilan comptable';
+
+$template = Template::search([
+    ['code', '=', 'balance_sheet'],
+    ['type', '=', 'document']
+])
+    ->read(['parts_ids' => ['name', 'value']])
+    ->first(true);
+
+foreach($template['parts_ids'] as $part_id => $part) {
+    if($part['name'] == 'subject') {
+        $subject = strip_tags($part['value']);
+    }
+}
+
 $labels = $getLabels($params['lang'], sprintf('%s/packages/finance/i18n/%s/accounting/%s.json', EQ_BASEDIR, $params['lang'], 'balanceSheet.'.$params['view_id']));
 
 $values = [
-    'title'               => 'Bilan comptable',
+    'title'               => $subject,
 
     'organisation'        => $organisation,
     'organisation_logo'   => $getOrganisationLogo($organisation['id']),
