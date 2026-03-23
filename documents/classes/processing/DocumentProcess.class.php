@@ -218,6 +218,7 @@ class DocumentProcess extends Model {
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
                 'visible'           => [['has_target_object', '=', true], ['document_type_code', '=', 'invoice']],
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['supplier_id', '=', 'object.supplier_id']],
+                'ondelete'          => 'null',
                 'onupdate'          => 'onupdateDocumentInvoiceId'
             ],
 
@@ -226,6 +227,7 @@ class DocumentProcess extends Model {
                 'foreign_object'    => 'finance\bank\BankStatement',
                 'visible'           => [['has_target_object', '=', true], ['document_type_code', '=', 'bank_statement']],
                 'domain'            => [['condo_id', '=', 'object.condo_id']],
+                'ondelete'          => 'null',
                 'onupdate'          => 'onupdateDocumentBankStatementId'
             ],
 
@@ -532,12 +534,51 @@ class DocumentProcess extends Model {
 
     protected static function policyCanRemove($self, $auth): array {
         $result = [];
-        $self->read(['has_target_object']);
+        $self->read([
+            'has_target_object',
+            'document_type_code',
+            'document_invoice_id' => ['status'],
+            'document_bank_statement_id' => ['status']
+        ]);
         foreach($self as $id => $documentProcess) {
-            if($documentProcess['has_target_object']) {
-                $result[$id] = [
-                    'not_allowed' => 'Processing cannot be removed while a target is still attached.'
-                ];
+
+            // no target object: removal always allowed
+            if(!$documentProcess['has_target_object']) {
+                continue;
+            }
+
+            switch($documentProcess['document_type_code']) {
+
+                case 'invoice':
+                case 'credit_note':
+
+                    if($documentProcess['document_invoice_id']) {
+                        $result[$id] = [
+                            'existing_target_invoice' =>
+                            'Processing cannot be cancelled while linked invoice still exists.'
+                        ];
+                    }
+
+                    break;
+
+                case 'bank_statement':
+
+                    if($documentProcess['document_bank_statement_id']) {
+                        $result[$id] = [
+                            'existing_target_statement' =>
+                            'Processing cannot be cancelled while linked bank statement still exists.'
+                        ];
+                    }
+
+                    break;
+
+                default:
+                    // other document types: safe fallback
+                    $result[$id] = [
+                        'existing_target_unknown' =>
+                        "Document type '{$documentProcess['document_type_code']}' does not support removal yet."
+                    ];
+
             }
 
         }
@@ -559,7 +600,7 @@ class DocumentProcess extends Model {
 
         foreach($self as $id => $documentProcess) {
 
-            // no target object → cancellation always allowed
+            // no target object: cancellation always allowed
             if(!$documentProcess['has_target_object']) {
                 continue;
             }
@@ -596,13 +637,11 @@ class DocumentProcess extends Model {
                     break;
 
                 default:
-                    // other document types → safe fallback
-                    if($documentProcess['has_target_object']) {
-                        $result[$id] = [
-                            'unsupported_document_type' =>
-                            "Document type '{$documentProcess['document_type_code']}' does not support cancellation yet."
-                        ];
-                    }
+                    // other document types: safe fallback
+                    $result[$id] = [
+                        'unsupported_document_type' =>
+                        "Document type '{$documentProcess['document_type_code']}' does not support cancellation yet."
+                    ];
 
             }
         }
