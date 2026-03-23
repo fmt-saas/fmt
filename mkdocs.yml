@@ -5,78 +5,77 @@ repo_url: https://github.com/fmt-saas/fmt-doc
 edit_uri: ""
 docs_dir: docs
 nav:
-  - 'Welcome': index.md
-  - 'Modèles de données': modeles-de-donnees.md
-  - 'Budget':
-      - 'Appels de fonds': budget/appels-de-fonds.md
-      - 'Suivi des appels': budget/suivi-des-appels.md
-  - 'Comptabilité':
-      - 'Balances comptables': comptabilite/balances-comptables.md
+  - 'Accueil': index.md
+  - 'Copropriété':
+      - 'Création nouvelle Copropriété': copropriete/creation-nouvelle-copropriete.md
+      - 'Configuration & paramétrage': copropriete/configuration.md
+      - 'Propriétaires (`Ownership`)': copropriete/proprietaires-ownership.md
+      - 'Mutations / Transferts de propriété': copropriete/mutations-transferts-de-propriete.md
+      - 'Fournisseur (`Supplier`)': copropriete/fournisseur-supplier.md
+      - 'Syndic / Agence (`ManagingAgent`)': copropriete/syndic-agence-managingagent.md
+      - 'Comptes bancaires': copropriete/comptes-bancaires.md
+      - 'Gestion des charges communes': copropriete/gestion-des-charges-communes.md
+      - 'Gestion des consommations (eau/gaz/élec)': copropriete/gestion-des-consommations-eau-gaz-elec.md
+      - 'Gouverance':
+          - 'Assemblées':
+              - 'Suivi & Prise de votes': copropriete/gouvernance/assemblee/suivi-et-prise-de-votes.md
+  - 'Comptabilité & finances':
+      - 'Plan comptable': comptabilite/plan-comptable.md
+      - 'Exercices comptables': comptabilite/exercices-comptables.md
       - 'Clés de répartition': comptabilite/cles-de-repartition.md
       - 'Ecritures comptables': comptabilite/ecritures-comptables.md
       - 'Pièces et écritures comptables': comptabilite/pieces-et-ecritures-comptables.md
-      - 'Exercices comptables': comptabilite/exercices-comptables.md
-      - 'Plan comptable': comptabilite/plan-comptable.md
       - 'Lettrage des écritures': comptabilite/lettrage.md
-      - 'Etats comptables': 
-        - 'Balance Générale': comptabilite/etats-comptables/balance-generale.md
-        - 'Grand livre': comptabilite/etats-comptables/grand-livre.md
+      - 'Balances comptables': comptabilite/balances-comptables.md
+      - 'Etats comptables':
+          - 'Balance Générale': comptabilite/etats-comptables/balance-generale.md
+          - 'Grand livre': comptabilite/etats-comptables/grand-livre.md
       - 'Encodage pièces comptables':
           - 'Factures d''achat': comptabilite/pieces-comptables/facture-achat.md
           - 'Décompte copropriétaires': comptabilite/pieces-comptables/decompte-coproprietaires.md
           - 'Appels de fonds': comptabilite/pieces-comptables/appel-de-fonds.md
           - 'Situation de compte copropriétaire': comptabilite/pieces-comptables/situation-de-compte-coproprietaire.md
-  - 'Copropriété':
-      - 'Création nouvelle Copropriété': copropriete/creation-nouvelle-copropriete.md
-      - 'Configuration & paramétrage': copropriete/configuration.md
-      - 'Fournisseur (`Supplier`)': copropriete/fournisseur-supplier.md
-      - 'Gestion des charges communes': copropriete/gestion-des-charges-communes.md
-      - 'Gestion des consommations (eau/gaz/élec)': copropriete/gestion-des-consommations-eau-gaz-elec.md
-      - 'Propriétaires (`Ownership`)': copropriete/proprietaires-ownership.md
-      - 'Mutations / Transferts de propriété': copropriete/mutations-transferts-de-propriete.md
-      - 'Syndic / Agence (`ManagingAgent`)': copropriete/syndic-agence-managingagent.md
-      - 'Comptes bancaires': copropriete/comptes-bancaires.md
-      - 'Gouverance': 
-          - 'Assemblées': 
-              - 'Suivi & Prise de votes': copropriete/gouvernance/assemblee/suivi-et-prise-de-votes.md
-  - 'Documents':
+  - 'Budget & appels de fonds':
+      - 'Appels de fonds': budget/appels-de-fonds.md
+      - 'Suivi des appels': budget/suivi-des-appels.md
+  - 'Documents & automatisation':
       - 'Aperçu': documents/documents.md
       - 'Organisation des documents':
           - 'Organisation des documents': documents/organisation-des-documents/organisation-des-documents.md
           - 'Types de documents': documents/organisation-des-documents/types-de-documents.md
           - 'Factures d''achat': documents/organisation-des-documents/purchase-invoice.md
           - 'Extraits bancaires': documents/organisation-des-documents/bank-statement.md
-      - 'Document Processing':
+      - 'Traitement des documents':
           - 'Document Processing': documents/document-processing/document-processing.md
           - 'Document Analysis': documents/document-processing/document-analysis.md
           - 'Document Identification': documents/document-processing/document-identification.md
           - 'Document Validation': documents/document-processing/document-validation.md
           - 'Intégration comptable': documents/document-processing/document-integration.md
       - 'Email Digestor': documents/email-digestor/email-digestor.md
-      - 'Envoi Emails & Documents': 
+      - 'Envoi Emails & Documents':
           - 'Modèles de documents & logique d''emission': documents/envoi-emails-et-documents/modeles-de-documents-et-logique-d-emission.md
       - 'Signatures électroniques': documents/signatures-electroniques.md
-  - 'Suivis':
+  - 'Suivi & opérations':
+      - 'Suivis de paiement':
+          - 'Suivis de paiement': suivis/suivis-de-paiement/suivis-de-paiement.md
+          - 'Extraits bancaires': suivis/suivis-de-paiement/extraits-bancaires.md
+          - 'Réconciliation CODA': suivis/suivis-de-paiement/reconciliation-coda.md
       - 'Envois & Rappels': suivis/envois-et-rappels/envois-et-rappels.md
       - 'Suivis de dossiers': suivis/suivis-de-dossiers/suivis-de-dossiers.md
-      - 'Suivis de paiement': suivis/suivis-de-paiement/suivis-de-paiement.md
-      - 'Extraits bancaires': suivis/suivis-de-paiement/extraits-bancaires.md
-      - 'Réconciliation CODA': suivis/suivis-de-paiement/reconciliation-coda.md
   - 'Utilisateurs':
       - 'Copropriétaire': utilisateurs/coproprietaire.md
       - 'Employé': utilisateurs/employe.md
-  - 'Prise en main et fonctionnement':
+  - 'Prise en main':
       - 'Navigation':
           - 'Adresses directes': prise-en-main-et-fonctionnement/navigation/adresses-directes.md
       - 'Consultation et édition des informations':
           - 'Edition de textes': prise-en-main-et-fonctionnement/consultation-et-edition-des-informations/edition-de-textes.md
-  - 'Infra':
-      - 'Authentification': infra/authentification.md
-      - 'Synchronisation': infra/synchronisation.md      
-      - 'Imports': infra/imports/imports.md
-  - 'Permissions & Autorisations':
+  - 'Configuration & technique':
+      - 'Modèles de données': modeles-de-donnees.md
       - 'Permissions & Autorisations': permissions-autorisations/permissions-autorisations.md
-
+      - 'Authentification': infra/authentification.md
+      - 'Synchronisation': infra/synchronisation.md
+      - 'Imports': infra/imports/imports.md
       
 
 theme:
