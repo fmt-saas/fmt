@@ -126,11 +126,16 @@ class MiscOperation extends Model {
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['status', '<>', 'closed'] ]
             ],
 
+            /**
+             * // #memo - behavior has been changed
+             * journal_id is no longer used for "opening journal" Misc, since these are handled with auto creation of an opening balance
+            */
             'journal_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => 'Accounting journal used for this miscellaneous operation.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['journal_type', '=', 'MISC']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['journal_type', '=', 'MISC']],
+                'visible'           => ['has_opening_journal', '=', false]
             ],
 
             'accounting_entry_id' => [

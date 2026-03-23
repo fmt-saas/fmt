@@ -78,7 +78,7 @@
             "confirm": true,
             "visible": false,
             "visible1": [
-                ["document_process_status", "in", ["assigned", "completed"]]
+                ["document_process_status", "in", ["assigned", "completed", "validated"]]
             ],
             "params": {
                 "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
@@ -123,7 +123,7 @@
             "controller": "core_model_do",
             "confirm": true,
             "visible": [
-                ["document_process_status", "in", ["created", "assigned", "completed"]]
+                ["document_process_status", "in", ["created", "assigned", "completed", "validated"]]
             ],
             "params": {
                 "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",

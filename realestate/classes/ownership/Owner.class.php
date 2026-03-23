@@ -185,7 +185,9 @@ class Owner extends Identity {
     public static function onrevertName($self) {
         $self->read(['ownership_id']);
         foreach($self as $id => $owner) {
-            Ownership::id($owner['ownership_id'])->update(['name' => null]);
+            if($owner['ownership_id']) {
+                Ownership::id($owner['ownership_id'])->update(['name' => null]);
+            }
         }
     }
 

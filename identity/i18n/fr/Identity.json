@@ -223,6 +223,11 @@
             "label": "Fournisseur",
             "description": "Fournisseur associé à cette identité.",
             "help": ""
+        },
+        "condominium_id": {
+            "label": "Copropriété",
+            "description": "Copropriété associée à cette identité.",
+            "help": ""
         }
     },
     "view": {
