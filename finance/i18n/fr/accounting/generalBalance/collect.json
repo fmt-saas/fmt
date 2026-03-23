@@ -1,6 +1,6 @@
 {
-    "name": "Balance generale",
-    "plural": "Balances generales",
+    "name": "Balance générale",
+    "plural": "Balance générale",
     "description": "Collecteur avance des ecritures validees pour la balance generale.",
     "model": {
         "entry_date": {
