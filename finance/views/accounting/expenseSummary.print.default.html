@@ -163,13 +163,13 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 20%;">Fournisseur</th>
-                <th style="width:  4%; text-align: center;">JNL</th>
-                <th style="width:  9%; text-align: center;">Référence</th>
-                <th style="width:  9%; text-align: center;">Date</th>
-                <th style="width: 36%; text-align: left;">Description</th>
-                <th style="width: 6%; text-align: center;">%<span style="font-size: 4px;">&nbsp;</span>Loc</th>
-                <th style="width: 16%;">Montant</th>
+                <th style="width: 20%;">{{ labels['summary.table.th.provider'] }}</th>
+                <th style="width:  4%; text-align: center;">{{ labels['summary.table.th.journal'] }}</th>
+                <th style="width:  9%; text-align: center;">{{ labels['summary.table.th.ref'] }}</th>
+                <th style="width:  9%; text-align: center;">{{ labels['summary.table.th.date'] }}</th>
+                <th style="width: 36%; text-align: left;">{{ labels['summary.table.th.description'] }}</th>
+                <th style="width: 6%; text-align: center;">%<span style="font-size: 4px;">&nbsp;</span>{{ labels['summary.table.th.tenant'] }}</th>
+                <th style="width: 16%;">{{ labels['summary.table.th.amount'] }}</th>
             </tr>
         </thead>
 
@@ -258,7 +258,7 @@
         <tfoot>
             <tr class="total-footer">
                 <td colspan="6" style="text-align: right; text-transform: uppercase;">
-                    Total :
+                    {{ labels['summary.table.footer.td.total'] }}
                 </td>
                 <td>
                     {{ grand_total | format_money(true) }}

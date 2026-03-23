@@ -37,7 +37,7 @@ $assembly = Assembly::id($params['id'])
     ->read([
         'ownerships_ids' => ['name']
     ])
-    ->first();
+    ->first(true);
 
 if(!$assembly) {
     throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);

@@ -135,10 +135,10 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 55%;">Compte</th>
-                <th style="width: 15%;">Débit</th>
-                <th style="width: 15%;">Crédit</th>
-                <th style="width: 15%;">Solde</th>
+                <th style="width: 55%;">{{ labels['general_balance.table.th.account'] }}</th>
+                <th style="width: 15%;">{{ labels['general_balance.table.th.debit'] }}</th>
+                <th style="width: 15%;">{{ labels['general_balance.table.th.credit'] }}</th>
+                <th style="width: 15%;">{{ labels['general_balance.table.th.balance'] }}</th>
             </tr>
         </thead>
 
@@ -159,7 +159,7 @@
         <tfoot>
             <tr class="total-footer">
                 <td colspan="1" style="text-align: right;">
-                    TOTAL GÉNÉRAL
+                    {{ labels['general_balance.table.footer.td.general_total'] }}
                 </td>
                 <td>{{ grand_totals.debit | format_money() }}</td>
                 <td>{{ grand_totals.credit | format_money() }}</td>

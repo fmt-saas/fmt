@@ -108,26 +108,6 @@
 
     {% include 'header.html.twig' %}
 
-    {% set assemblyTypes = {
-        'statutory': 'Assemblée Générale Statutaire',
-        'takeover': 'Assemblée Générale de Reprise de gestion',
-        'extraordinary': 'Assemblée Générale Extraordinaire',
-        'constitutive': 'Assemblée Générale Constitutive'
-    } %}
-
-    {% set majorityLabels = {
-        'unanimity': 'Unanimité (100% des quotités)',
-        'absolute': 'Majorité absolue (> 50% des quotités)',
-        '2_3': 'Majorité des 2/3',
-        '4_5': 'Majorité des 4/5'
-    } %}
-
-    {% set voteResultLabels = {
-        'approved': 'Approuvé',
-        'rejected': 'Rejeté',
-    } %}
-
-
     <!-- <p>{{ assembly.heading_text_minutes }}</p> -->
 
     <div class="introduction" style="margin-top: 30px; margin-bottom: 30px;">
@@ -141,12 +121,12 @@
         <div style="text-decoration: underline; font-weight: bold;">
             {{ assemblyItem.order }}. {{ assemblyItem.name }}
             {% if assemblyItem.status == 'adjourned' %}
-                &nbsp;-&nbsp;Reporté
+                &nbsp;-&nbsp;{{ labels['result.adjourned'] }}
             {% else %}
                 {% if assemblyItem.has_vote_required %}
-                    &nbsp;-&nbsp;{{ voteResultLabels[assemblyItem.vote_result] }}
+                    &nbsp;-&nbsp;{{ labels["result.#{assemblyItem.vote_result}"] }}
                 {% else %}
-                    &nbsp;-&nbsp;Présenté & Examiné
+                    &nbsp;-&nbsp;{{ labels["result.done"] }}
                 {% endif %}
             {% endif %}
         </div>
@@ -175,12 +155,12 @@
             {% set ratio = sum_votes > 0 ? (weights_for / sum_votes) : 0.0 %}
 
             {% if assemblyItem.has_vote_required and assemblyItem.status == 'closed' %}
-                {{ majorityLabels[assemblyItem.majority] }}
+                {{ labels["majority.#{assemblyItem.majority}"] }}
                 {% if assemblyItem.assembly_votes_ids is not empty and sum_votes > 0 %}
                     &nbsp;-&nbsp;
-                    Pour: {{ (weights_for / sum_votes * 100) | number_format(1, ',', ' ') }}%
+                    {{ labels['vote.for'] }} {{ (weights_for / sum_votes * 100) | number_format(1, ',', ' ') }}%
                     &nbsp;&nbsp;
-                    Contre: {{ (weights_against / sum_votes * 100) | number_format(1, ',', ' ') }}%
+                    {{ labels['vote.against'] }} {{ (weights_against / sum_votes * 100) | number_format(1, ',', ' ') }}%
                 {% endif %}
                 <br /><br />
             {% endif %}
@@ -220,13 +200,13 @@
             {% endif %}
 
             {% if ownerships_against is not empty and assemblyItem.status == 'closed' %}
-                <p><strong>Contre :</strong>
+                <p><strong>{{ labels['vote.list.against'] }}</strong>
                     <span style="font-size: 10px;">{{ ownerships_against|join(', ') }}</span>
                 </p>
             {% endif %}
 
             {% if ownerships_abstain is not empty and assemblyItem.status == 'closed' %}
-                <p><strong>Abstention :</strong>
+                <p><strong>{{ labels['vote.list.abstain'] }}</strong>
                     <span style="font-size: 10px;">{{ ownerships_abstain|join(', ') }}</span>
                 </p>
             {% endif %}
@@ -245,12 +225,12 @@
                             <u>
                                 {{ item.order }}. {{ assemblySubItem.order }}. {{ assemblySubItem.name }}
                                 {% if assemblySubItem.status == 'adjourned' %}
-                                    &nbsp;-&nbsp;Reporté
+                                    &nbsp;-&nbsp;{{ labels['result.adjourned'] }}
                                 {% else %}
                                     {% if assemblySubItem.has_vote_required %}
-                                        &nbsp;-&nbsp;{{ voteResultLabels[assemblySubItem.vote_result] }}
+                                        &nbsp;-&nbsp;{{ labels["result.#{assemblySubItem.vote_result}"] }}
                                     {% else %}
-                                        &nbsp;-&nbsp;Présenté & Examiné
+                                        &nbsp;-&nbsp;{{ labels["result.done"] }}
                                     {% endif %}
                                 {% endif %}
                             </u>
@@ -282,12 +262,12 @@
                                         {% set ratio = sum_votes > 0 ? (weights_for / sum_votes) : 0.0 %}
 
                                         {% if assemblySubItem.has_vote_required and assemblySubItem.status == 'closed' %}
-                                            {{ majorityLabels[assemblySubItem.majority] }}
+                                            {{ labels["majority.#{assemblySubItem.majority}"] }}
                                             {% if assemblySubItem.assembly_votes_ids is not empty and sum_votes > 0 %}
                                                 &nbsp;-&nbsp;
-                                                Pour: {{ (weights_for / sum_votes * 100) | number_format(1, ',', ' ') }}%
+                                                {{ labels['vote.for'] }} {{ (weights_for / sum_votes * 100) | number_format(1, ',', ' ') }}%
                                                 &nbsp;&nbsp;
-                                                Contre: {{ (weights_against / sum_votes * 100) | number_format(1, ',', ' ') }}%
+                                                {{ labels['vote.against'] }} {{ (weights_against / sum_votes * 100) | number_format(1, ',', ' ') }}%
                                             {% endif %}
                                             <br /><br />
                                         {% endif %}
@@ -295,13 +275,13 @@
                                         {{ assemblySubItem.description_minutes | raw }}
 
                                         {% if ownerships_against is not empty and assemblySubItem.status == 'closed' %}
-                                            <p><strong>Contre :</strong>
+                                            <p><strong>{{ labels['vote.list.against'] }}</strong>
                                                 <span style="font-size: 10px;">{{ ownerships_against|join(', ') }}</span>
                                             </p>
                                         {% endif %}
 
                                         {% if ownerships_abstain is not empty and assemblySubItem.status == 'closed' %}
-                                            <p><strong>Abstention :</strong>
+                                            <p><strong>{{ labels['vote.list.abstain'] }}</strong>
                                                 <span style="font-size: 10px;">{{ ownerships_abstain|join(', ') }}</span>
                                             </p>
                                         {% endif %}
@@ -344,9 +324,9 @@
         <table class="attendance-table">
 
             <tr class="first">
-                <td style="width: 55%;"><b>Participant</b></td>
-                <td style="width: 20%;"><b>Role</b></td>
-                <td style="width: 25%;"><b>Signature</b></td>
+                <td style="width: 55%;"><b>{{ labels['attendance.table.th.attendee'] }}</b></td>
+                <td style="width: 20%;"><b>{{ labels['attendance.table.th.role'] }}</b></td>
+                <td style="width: 25%;"><b>{{ labels['attendance.table.th.signature'] }}</b></td>
             </tr>
             {% for attendee_id, attendee in map_attendees %}
             <tr>
@@ -360,10 +340,10 @@
                     {% if attendee.minutes_document_signature_id.sig_method == 'ses' %}
                         <img style="max-width: 250px; height: auto;" src="data:image/png;base64,{{ attendee.minutes_document_signature_id.sig_drawn }}" />
                     {% else %}
-                        Digitally signed by {{ attendee.name }} <br />
-                        Signature: {{ attendee.minutes_document_signature_id.sig_hash | slice(0, 40) }} ...<br />
-                        Timestamp: {{ attendee.minutes_document_signature_id.sig_timestamp }}<br />
-                        Algorithm: {{ attendee.minutes_document_signature_id.sig_algo }}
+                        {{ labels['digital_signature.signed_by'] }} {{ attendee.name }} <br />
+                        {{ labels['digital_signature.signature'] }} {{ attendee.minutes_document_signature_id.sig_hash | slice(0, 40) }} ...<br />
+                        {{ labels['digital_signature.timestamp'] }} {{ attendee.minutes_document_signature_id.sig_timestamp }}<br />
+                        {{ labels['digital_signature.algorithm'] }} {{ attendee.minutes_document_signature_id.sig_algo }}
                     {% endif %}
                 </td>
             </tr>

@@ -113,22 +113,15 @@
 <body>
     {% include 'header.html.twig' %}
 
-    {% set assemblyTypes = {
-        'statutory': 'Assemblée Générale Statutaire',
-        'takeover': 'Assemblée Générale de Reprise de gestion',
-        'extraordinary': 'Assemblée Générale Extraordinaire',
-        'constitutive': 'Assemblée Générale Constitutive'
-    } %}
-
     <div class="ownership-wrapper">
         <table class="details-table">
             <tr>
                 <td class="col-assembly">
-                    <div><strong>Assemblée</strong> : {{ assemblyTypes[assembly.assembly_type] }}</div>
-                    <div><strong>Date</strong> : {{ assembly.assembly_date | date(date_format, timezone) }}</div>
+                    <div><strong>{{ labels['assembly_details.assembly'] }}</strong> : {{ labels["assembly_type.#{assembly.assembly_type}"] }}</div>
+                    <div><strong>{{ labels['assembly_details.date'] }}</strong> : {{ assembly.assembly_date | date(date_format, timezone) }}</div>
                 </td>
                 <td>
-                    <div style="text-align: right;"><strong>Propriétaire</strong> : {{ ownership.name }}</div>
+                    <div style="text-align: right;"><strong>{{ labels['assembly_details.owner'] }}</strong> : {{ ownership.name }}</div>
                 </td>
             </tr>
         </table>
@@ -145,15 +138,15 @@
                     <td>{{ vote_item.order }}</td>
                     <td class="col-name-td"><strong>{{ vote_item.name }}</strong></td>
                     <td class="col-vote">
-                        <span>Pour</span>
+                        <span>{{ labels['vote_form.table.td.checkbox.for'] }}</span>
                         <div class="checkbox"></div>
                     </td>
                     <td class="col-vote">
-                        <span>Contre</span>
+                        <span>{{ labels['vote_form.table.td.checkbox.against'] }}</span>
                         <div class="checkbox"></div>
                     </td>
                     <td class="col-vote">
-                        <span>Abstention</span>
+                        <span>{{ labels['vote_form.table.td.checkbox.abstain'] }}</span>
                         <div class="checkbox"></div>
                     </td>
                 </tr>
@@ -173,15 +166,15 @@
                             <td class="col-order-child">{{ vote_item.order }}.{{ child_vote_item.order }}</td>
                             <td>{{ child_vote_item.name }}</td>
                             <td class="col-vote">
-                                <span>Pour</span>
+                                <span>{{ labels['vote_form.table.td.checkbox.for'] }}</span>
                                 <div class="checkbox"></div>
                             </td>
                             <td class="col-vote">
-                                <span>Contre</span>
+                                <span>{{ labels['vote_form.table.td.checkbox.against'] }}</span>
                                 <div class="checkbox"></div>
                             </td>
                             <td class="col-vote">
-                                <span>Abstention</span>
+                                <span>{{ labels['vote_form.table.td.checkbox.abstain'] }}</span>
                                 <div class="checkbox"></div>
                             </td>
                         </tr>

@@ -1,0 +1,26 @@
+{
+    "majority.unanimity": "Unanimité (100% des quotités)",
+    "majority.absolute": "Majorité absolue (> 50% des quotités)",
+    "majority.2_3": "Majorité des 2/3",
+    "majority.4_5": "Majorité des 4/5",
+
+    "result.adjourned": "Reporté",
+    "result.vote.approved": "Approuvé",
+    "result.vote.rejected": "Rejeté",
+    "result.done": "Présenté & Examiné",
+
+    "vote.for": "Pour:",
+    "vote.against": "Contre:",
+
+    "vote.list.against": "Contre :",
+    "vote.list.abstain": "Abstention :",
+
+    "attendance.table.th.attendee": "Participant",
+    "attendance.table.th.role": "Role",
+    "attendance.table.th.signature": "Signature",
+
+    "digital_signature.signed_by": "Digitally signed by",
+    "digital_signature.signature": "Signature:",
+    "digital_signature.timestamp": "Timestamp:",
+    "digital_signature.algorithm": "Algorithm:"
+}

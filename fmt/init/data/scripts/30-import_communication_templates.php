@@ -261,6 +261,18 @@ TemplatePart::create([
     'template_id'   => $template['id'],
     'variables'     => '["condo", "assembly", "date", "location", "type", "time_start"]'
 ]);
+TemplatePart::create([
+    'name'          => 'certification_full',
+    'value'         => "<p>Certifiée sincère et véritable, la feuille de présence est arrêtée à ........ copropriétaires présents ou représentés sur {count_owners}, totalisant ensemble .......... quotités sur {count_shares}.</p>",
+    'template_id'   => $template['id'],
+    'variables'     => '["count_owners", "count_shares"]'
+]);
+TemplatePart::create([
+    'name'          => 'certification_signed',
+    'value'         => "<p>Certifiée sincère et véritable, la feuille de présence est arrêtée à {count_representations} copropriétaires présents ou représentés sur {count_owners}, totalisant ensemble {count_represented_shares} quotités sur {count_shares}.</p>",
+    'template_id'   => $template['id'],
+    'variables'     => '["count_representations", "count_owners", "count_represented_shares", "count_shares"]'
+]);
 
 
 /* General Assembly - Minutes */
@@ -452,6 +464,30 @@ TemplatePart::create([
     'value'         => "<p><small><big>Madame, Monsieur,</big></small></p><p><small><big>Nous vous prions de trouver ci-joint le détail de votre participation dans le décompte de charges de a copropriété dénommée {condo} pour la période du {period}, et en particulier les documents suivants :</big></small></p><ol><li><small><big>Votre décompte de charges ;</big></small></li><li><small><big>Le détail de votre situation de compte copropriétaire ;</big></small></li><li><small><big>Le bilan comptable de la copropriété à la date de clôture ;</big></small></li><li><small><big>La liste des dépenses faisant partie du décompte ;</big></small></li></ol><p><small><big>Le montant total à payer ainsi que les modalités de paiement se trouvent dans le tableau ci-dessous.</big></small></p><p><small><big>Le montant tient compte d'un éventuel ancien solde, qu'il soit en votre faveur ou en faveur de la copropriété.</big></small></p><p><small><big>Nous restons à votre disposition pour toute question.</big></small></p><p><small><big>Cordialement,</big></small></p><p><small><big>Le syndic</big></small></p>",
     'template_id'   => $template['id'],
     'variables'     => '["condo", "firstname", "lastname", "period", "period_from", "period_to"]'
+]);
+TemplatePart::create([
+    'name'          => 'communication_payment_amount',
+    'value'         => '<p>Le montant de <b>{remaining_amount}</b> doit être réglé avant le <b>{due_date}</b></p>',
+    'template_id'   => $template['id'],
+    'variables'     => '["remaining_amount", "due_date"]'
+]);
+TemplatePart::create([
+    'name'          => 'communication_payment_reference',
+    'value'         => '<b>Communication</b><b> : {payment_reference}</b>',
+    'template_id'   => $template['id'],
+    'variables'     => '["payment_reference"]'
+]);
+TemplatePart::create([
+    'name'          => 'communication_reimbursement',
+    'value'         => '<p>Votre compte présente un solde créditeur de <b>{remaining_amount_abs}</b> en votre faveur. Ce montant sera automatiquement déduit de votre prochain décompte de charges, ou pourra vous être remboursé sur simple demande écrite adressée au syndic.</p>',
+    'template_id'   => $template['id'],
+    'variables'     => '["remaining_amount_abs"]'
+]);
+TemplatePart::create([
+    'name'          => 'communication_no_action_required',
+    'value'         => '<p>La situation de votre compte fait apparaître un solde nul. Les provisions versées couvrent intégralement le montant du décompte. <b>Aucune action de votre part n\'est requise.</b></p>',
+    'template_id'   => $template['id'],
+    'variables'     => '[]'
 ]);
 
 
