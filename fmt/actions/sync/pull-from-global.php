@@ -155,7 +155,7 @@ foreach($policies as $id => $policy) {
                     $is_empty = false;
                 }
 
-                $result['logs'][] = "Requested update of object of entity {$entity} with id {$localObject['id']}: ";
+                $result['logs'][] = "Requested update of object of entity {$entity} with id {$localObject['id']}";
                 ++$result['updated'];
             }
             elseif($policy['scope'] === 'private') {

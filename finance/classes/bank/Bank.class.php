@@ -31,7 +31,7 @@ class Bank extends \purchase\supplier\Supplier {
 
             'object_class' => [
                 'type'              => 'string',
-                'description'       => 'Class of the current Identity.',
+                'description'       => 'Class of the current Supplier.',
                 'help'              => 'This is required in order to display the relational fields accordingly.',
                 'default'           => 'finance\bank\Bank'
             ],

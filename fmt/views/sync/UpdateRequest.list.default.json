@@ -24,7 +24,7 @@
             "controller": "model_do",
             "params": {
                 "entity": "fmt\\sync\\UpdateRequest",
-                "action": "accept",
+                "action": "reject",
                 "ids": []
             },
             "visible": ["pending", "=", "object.status"]
