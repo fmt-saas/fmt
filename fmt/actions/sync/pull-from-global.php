@@ -4,6 +4,7 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
 use equal\http\HttpRequest;
 use fmt\setting\Setting;
 use fmt\sync\SyncPolicy;
@@ -16,16 +17,14 @@ use infra\server\Instance;
     'help'          => 'This action connects to the GLOBAL instance and pulls all changed data since last sync.',
     'params'        => [],
     'access' => [
-        'visibility'        => 'protected'
-        // #todo #temp - reverse to private after tests
-        // 'visibility'        => 'private'
+        'visibility'    => 'protected'
     ],
     'response'      => [
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
     'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_INTERNAL_TOKEN', 'FMT_API_URL_GLOBAL'],
-    'providers'     => ['context', 'orm', 'auth']
+    'providers'     => ['context', 'orm']
 ]);
 
 ['context' => $context, 'orm' => $orm] = $providers;
@@ -49,6 +48,7 @@ $policies = SyncPolicy::search([
 $result = [
     'created'   => 0,
     'updated'   => 0,
+    'requested' => 0,
     'ignored'   => 0,
     'errors'    => 0,
     'processed' => 0,
@@ -63,7 +63,7 @@ $date_from = date('c', $timestamp);
 // #memo - on local instances there is a single Instance object
 $instance = Instance::search()->read(['uuid'])->first();
 
-if(!$instance || !isset($instance['uuid']) || empty($instance['uuid'])) {
+if(!$instance || empty($instance['uuid'])) {
     throw new Exception('unknown_instance_uuid', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
@@ -89,20 +89,11 @@ foreach($policies as $id => $policy) {
             ->header('Content-Type', 'application/json')
             ->header('Authorization', 'Bearer ' . constant('FMT_API_INTERNAL_TOKEN'));
 
-        /** @var HttpResponse */
+        /** @var \equal\http\HttpResponse $response */
         $response = $request->send();
         $data = $response->body();
 
         foreach($data as $values) {
-
-            $updateRequest = UpdateRequest::create([
-                    'object_class'  => $policy['object_class'],
-                    'request_date'  => time(),
-                    'source_type'   => 'global',
-                    'source_origin' => 'sync'
-                ])
-                ->first();
-
             // local search
             $localObject = null;
             $is_empty = true;
@@ -129,10 +120,7 @@ foreach($policies as $id => $policy) {
             }
 
             if($localObject) {
-                // update
-                UpdateRequest::id($updateRequest['id'])
-                    ->update(['object_id' => $localObject['id']]);
-
+                $values_to_update = [];
                 foreach($values as $field => $value) {
                     // #memo - if uuid has been received we need it to be part of the update
                     if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
@@ -146,22 +134,64 @@ foreach($policies as $id => $policy) {
                     if((string) $localObject[$field] === (string) $value) {
                         continue;
                     }
-                    UpdateRequestLine::create([
-                        'update_request_id'         => $updateRequest['id'],
-                        'object_field'              => $field,
-                        'old_value'                 => (string) $localObject[$field],
-                        'new_value'                 => (string) $value
-                    ]);
-                    $is_empty = false;
+
+                    $values_to_update[$field] = $value;
                 }
 
-                $result['logs'][] = "Requested update of object of entity {$entity} with id {$localObject['id']}";
-                ++$result['updated'];
+                if(!empty($values_to_update)) {
+                    $updateRequest = UpdateRequest::create([
+                        'object_class'  => $policy['object_class'],
+                        'request_date'  => time(),
+                        'source_type'   => 'global',
+                        'source_origin' => 'sync',
+                        'object_id'     => $localObject['id']
+                    ])
+                        ->first();
+
+                    foreach($values_to_update as $field => $value) {
+                        UpdateRequestLine::create([
+                            'update_request_id'         => $updateRequest['id'],
+                            'object_field'              => $field,
+                            'old_value'                 => (string) $localObject[$field],
+                            'new_value'                 => (string) $value
+                        ]);
+                    }
+
+                    if($policy['scope'] === 'private') {
+                        // automatically accept private policy
+                        UpdateRequest::id($updateRequest['id'])->do('accept');
+
+                        $result['logs'][] = "Updated object of entity {$entity} with id {$localObject['id']}";
+                        ++$result['updated'];
+                    }
+                    else {
+                        $result['logs'][] = "Requested update of object of entity {$entity} with id {$localObject['id']}";
+                        ++$result['requested'];
+                    }
+                }
             }
-            elseif($policy['scope'] === 'private') {
-                // create requests fot private objects
-                UpdateRequest::id($updateRequest['id'])
-                    ->update(['is_new' => true]);
+            else {
+                $values_to_update = [];
+                foreach($values as $field => $value) {
+                    if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                        continue;
+                    }
+                    // ignore empty fields
+                    if($value === null || $value === '') {
+                        continue;
+                    }
+
+                    $values_to_update[$field] = $value;
+                }
+
+                $updateRequest = UpdateRequest::create([
+                    'object_class'  => $policy['object_class'],
+                    'request_date'  => time(),
+                    'source_type'   => 'global',
+                    'source_origin' => 'sync',
+                    'is_new'        => true
+                ])
+                    ->first();
 
                 foreach($values as $field => $value) {
                     if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
@@ -171,28 +201,27 @@ foreach($policies as $id => $policy) {
                     if($value === null || $value === '') {
                         continue;
                     }
+
                     UpdateRequestLine::create([
                         'update_request_id'         => $updateRequest['id'],
                         'object_field'              => $field,
                         'new_value'                 => (string) $value
                     ]);
-                    $is_empty = false;
                 }
 
-                $result['logs'][] = "Requested creation of new object of entity {$entity}";
-                ++$result['created'];
-            }
-            else {
-                // no creation for entities marked as protected (not existing on local instance)
-            }
+                if($policy['scope'] === 'private') {
+                    // automatically accept private policy
+                    UpdateRequest::id($updateRequest['id'])->do('accept');
 
-            // remove update request if empty
-            if($is_empty) {
-                UpdateRequest::id($updateRequest['id'])->delete(true);
+                    $result['logs'][] = "Created new object of entity {$entity}";
+                    ++$result['created'];
+                }
+                else {
+                    $result['logs'][] = "Requested creation of new object of entity {$entity}";
+                    ++$result['requested'];
+                }
             }
-
         }
-
     }
     catch(Exception $e) {
         ++$result['errors'];
