@@ -155,10 +155,10 @@ foreach($policies as $id => $policy) {
 
                     foreach($values_to_update as $field => $value) {
                         UpdateRequestLine::create([
-                            'update_request_id'         => $updateRequest['id'],
-                            'object_field'              => $field,
-                            'old_value'                 => (string) $localObject[$field],
-                            'new_value'                 => (string) $value
+                            'update_request_id' => $updateRequest['id'],
+                            'object_field'      => $field,
+                            'old_value'         => (string) $localObject[$field],
+                            'new_value'         => (string) $value
                         ]);
                     }
 
@@ -209,9 +209,9 @@ foreach($policies as $id => $policy) {
                     }
 
                     UpdateRequestLine::create([
-                        'update_request_id'         => $updateRequest['id'],
-                        'object_field'              => $field,
-                        'new_value'                 => (string) $value
+                        'update_request_id' => $updateRequest['id'],
+                        'object_field'      => $field,
+                        'new_value'         => (string) $value
                     ]);
                 }
 
