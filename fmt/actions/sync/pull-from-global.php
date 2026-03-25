@@ -27,6 +27,10 @@ use infra\server\Instance;
     'providers'     => ['context', 'orm']
 ]);
 
+/**
+ * @var \equal\php\Context          $context
+ * @var \equal\orm\ObjectManager    $orm
+ */
 ['context' => $context, 'orm' => $orm] = $providers;
 
 if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
@@ -119,6 +123,7 @@ foreach($policies as $id => $policy) {
                     ->first();
             }
 
+            // a match was found with an existing object
             if($localObject) {
                 $values_to_update = [];
                 foreach($values as $field => $value) {
@@ -170,6 +175,7 @@ foreach($policies as $id => $policy) {
                     }
                 }
             }
+            // new object (existing object could not be retrieved), create a new one
             else {
                 $values_to_update = [];
                 foreach($values as $field => $value) {

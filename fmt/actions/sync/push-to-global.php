@@ -4,28 +4,31 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
 use equal\http\HttpRequest;
 use fmt\setting\Setting;
 use fmt\sync\SyncPolicy;
 use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Request a pull of changed data from GLOBAL instance to local FMT instance.',
-    'help'          => 'This action connects to the GLOBAL instance and pulls all changed data since last sync.',
+    'description'   => 'Push data from AGENCY instance to GLOBAL instance, depending on ascending sync policies.',
+    'help'          => 'This action connects to the GLOBAL instance and push all changed data since last sync.',
     'params'        => [],
     'access' => [
-        'visibility'        => 'protected'
-        // #todo #temp - reverse to private after tests
-        // 'visibility'        => 'private'
+        'visibility'    => 'private'
     ],
     'response'      => [
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
     'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_URL_GLOBAL', 'FMT_API_INTERNAL_TOKEN'],
-    'providers'     => ['context', 'orm', 'auth']
+    'providers'     => ['context', 'orm']
 ]);
 
+/**
+ * @var \equal\php\Context          $context
+ * @var \equal\orm\ObjectManager    $orm
+ */
 ['context' => $context, 'orm' => $orm] = $providers;
 
 if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
@@ -39,7 +42,7 @@ if(!$instance) {
     throw new Exception('no_instance_id', EQ_ERROR_INVALID_CONFIG);
 }
 
-// retrieve SyncPolicy related to 'protected' entities ('private' are descending only and 'public' are local only)
+// retrieve SyncPolicy related to 'protected' entities ('private' are descending only)
 $policies = SyncPolicy::search([
         ['scope', '=', 'protected'],
         ['sync_direction', '=', 'ascending']
@@ -69,9 +72,8 @@ foreach($policies as $id => $policy) {
 
     // discard private fields
     $map_fields = [];
-
     foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
-        $map_fields[$policyLine['object_field']] = $policyLine['object_field'];
+        $map_fields[$policyLine['object_field']] = $policyLine['scope'];
     }
 
     // retrieve all fields of the requested entity
@@ -130,7 +132,7 @@ foreach($policies as $id => $policy) {
                 ->header('Content-Type', 'application/json')
                 ->header('Authorization', 'Bearer ' . constant('FMT_API_INTERNAL_TOKEN'));
 
-            /** @var HttpResponse */
+            /** @var \equal\http\HttpResponse $response */
             $response = $request->send();
             $data = $response->body();
             $status = $response->getStatusCode();
@@ -143,6 +145,7 @@ foreach($policies as $id => $policy) {
         catch(Exception $e) {
             // force arbitrary update of `modified` field so that failing object is included in next sync loop
             $orm->update($entity, $object['id'], ['modified' => time()]);
+
             ++$result['errors'];
             $result['logs'][] = "Unable to push protected entity {$entity} ({$object['id']}) to Global instance: " . $e->getMessage();
         }

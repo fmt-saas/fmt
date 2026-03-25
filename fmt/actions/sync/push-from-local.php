@@ -29,16 +29,20 @@ use infra\server\Instance;
         ]
     ],
     'access' => [
-        'visibility'        => 'protected'
+        'visibility'    => 'protected'
     ],
     'response'      => [
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
     'constants'     => ['FMT_INSTANCE_TYPE'],
-    'providers'     => ['context', 'orm', 'auth']
+    'providers'     => ['context', 'orm']
 ]);
 
+/**
+ * @var \equal\php\Context          $context
+ * @var \equal\orm\ObjectManager    $orm
+ */
 ['context' => $context, 'orm' => $orm] = $providers;
 
 if(constant('FMT_INSTANCE_TYPE') !== 'global') {
@@ -60,8 +64,6 @@ if(!$model) {
 }
 
 $schema = $model->getSchema();
-
-// #memo - 'public' entities are local-only and are not synchronized
 
 // retrieve SyncPolicy related to 'protected' entities
 // #memo - we expect SyncPolicies to remain identical across all instances
@@ -124,16 +126,6 @@ foreach($schema as $field => $def) {
     }
 }
 
-// create a new update request (will be removed is empty)
-$updateRequest = UpdateRequest::create([
-        'object_class'  => $policy['object_class'],
-        'request_date'  => time(),
-        'instance_id'   => $instance['id'],
-        'source_type'   => 'local',
-        'source_origin' => 'sync'
-    ])
-    ->first();
-
 $localObject = null;
 $is_empty = true;
 
@@ -151,13 +143,13 @@ if($uuid) {
     }
 }
 
-if(!$localObject && isset($policy['field_unique']) && isset($values[$policy['field_unique']]) && !empty($values[$policy['field_unique']])) {
+if(!$localObject && isset($policy['field_unique']) && !empty($values[$policy['field_unique']])) {
     $localObject = $entity::search([$policy['field_unique'], '=', $values[$policy['field_unique']]])
         ->read($fields)
         ->first();
 }
 
-if(!$localObject && $policy['object_class'] === 'identity\Identity' && isset($values['slug_hash']) && !empty($values['slug_hash'])) {
+if(!$localObject && $policy['object_class'] === 'identity\Identity' && !empty($values['slug_hash'])) {
     $localObject = $entity::search(['slug_hash', '=', $values['slug_hash']])
         ->read($fields)
         ->first();
@@ -165,8 +157,7 @@ if(!$localObject && $policy['object_class'] === 'identity\Identity' && isset($va
 
 // a match was found with an existing object
 if($localObject) {
-    UpdateRequest::id($updateRequest['id'])->update(['object_id' => $localObject['id']]);
-
+    $values_to_update = [];
     foreach($values as $field => $value) {
         // #memo - uuid is always set on global and cannot be changed by local instances
         if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
@@ -177,50 +168,69 @@ if($localObject) {
             continue;
         }
         // ignore unchanged fields
-        if((string) $localObject[$field] === (string) $value) {
+        if((string)$localObject[$field] === (string)$value) {
             continue;
         }
-        UpdateRequestLine::create([
-            'update_request_id'         => $updateRequest['id'],
-            'object_field'              => $field,
-            'old_value'                 => (string) $localObject[$field],
-            'new_value'                 => (string) $value
-        ]);
-        $is_empty = false;
+
+        $values_to_update[$field] = $values;
+    }
+
+    if(!empty($values_to_update)) {
+        $updateRequest = UpdateRequest::create([
+            'object_class'  => $policy['object_class'],
+            'request_date'  => time(),
+            'instance_id'   => $instance['id'],
+            'source_type'   => 'local',
+            'source_origin' => 'sync',
+            'object_id'     => $localObject['id']
+        ])
+            ->first();
+
+        foreach($values_to_update as $field => $value) {
+            UpdateRequestLine::create([
+                'update_request_id' => $updateRequest['id'],
+                'object_field'      => $field,
+                'old_value'         => (string) $localObject[$field],
+                'new_value'         => (string) $value
+            ]);
+        }
     }
 }
 // new object (existing object could not be retrieved), create a new one
 else {
-    try {
-        UpdateRequest::id($updateRequest['id'])
-            ->update(['is_new' => true]);
+    $values_to_update = [];
+    foreach($values as $field => $value) {
+        // #memo - uuid is always set on global and cannot be changed by local instances
+        if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+            continue;
+        }
+        // ignore empty fields
+        if($value === null || $value === '') {
+            continue;
+        }
 
-        foreach($values as $field => $value) {
-            // #memo - uuid is always set on global and cannot be changed by local instances
-            if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
-                continue;
-            }
-            // ignore empty fields
-            if($value === null || $value === '') {
-                continue;
-            }
+        $values_to_update[$field] = $value;
+    }
+
+    if(!empty($values_to_update)) {
+        $updateRequest = UpdateRequest::create([
+            'object_class'  => $policy['object_class'],
+            'request_date'  => time(),
+            'instance_id'   => $instance['id'],
+            'source_type'   => 'local',
+            'source_origin' => 'sync',
+            'is_new'        => true
+        ])
+            ->first();
+
+        foreach($values_to_update as $field => $value) {
             UpdateRequestLine::create([
-                'update_request_id'         => $updateRequest['id'],
-                'object_field'              => $field,
-                'new_value'                 => (string) $value
+                'update_request_id' => $updateRequest['id'],
+                'object_field'      => $field,
+                'new_value'         => (string) $value
             ]);
-            $is_empty = false;
         }
     }
-    catch(Exception $e) {
-        trigger_error("APP::error while creating or updating object: " . $e->getMessage(), EQ_REPORT_ERROR);
-        throw new Exception('unable_to_create_object', EQ_ERROR_UNKNOWN);
-    }
-}
-
-// remove update request if empty
-if($is_empty) {
-    UpdateRequest::id($updateRequest['id'])->delete(true);
 }
 
 $context
