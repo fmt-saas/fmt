@@ -12,7 +12,13 @@ use fmt\sync\SyncPolicyLine;
 [$params, $providers] = eQual::announce([
     'description'   => 'Pull the all the SyncPolicy from GLOBAL instance to local FMT instance.',
     'help'          => 'This action connects to the GLOBAL instance and pulls all SyncPolicy.',
-    'params'        => [],
+    'params'        => [
+        'reset' => [
+            'type'              => 'boolean',
+            'description'       => 'Remove existing SyncPolicies.',
+            'default'           => false
+        ]
+    ],
     'access' => [
         'visibility'    => 'private'
     ],
@@ -34,9 +40,15 @@ if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-$sync_policies_ids = SyncPolicy::search()->ids();
-if(!empty($sync_policies_ids)) {
-    throw new Exception('sync_policies_already_exist', EQ_ERROR_INVALID_PARAM);
+if($params['reset']) {
+    SyncPolicy::search()->delete(true);
+    SyncPolicyLine::search()->delete(true);
+}
+else {
+    $sync_policies_ids = SyncPolicy::search()->ids();
+    if(!empty($sync_policies_ids)) {
+        throw new Exception('sync_policies_already_exist', EQ_ERROR_INVALID_PARAM);
+    }
 }
 
 try {
