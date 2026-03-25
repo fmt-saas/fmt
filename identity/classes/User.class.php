@@ -40,12 +40,6 @@ class User extends \core\User {
                 'description'       => 'Unique identifier from the Master instance.'
             ],
 
-            'instance_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'infra\server\Instance',
-                'description'       => "The instance the User relates to."
-            ],
-
             /*
                 Following `source_*` fields apply to imported protected entities.
             */
