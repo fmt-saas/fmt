@@ -112,18 +112,18 @@
             },
             {
                 "sync_policy_id": 1,
-                "object_field": "firstname",
+                "object_field": "uuid",
                 "scope": "public"
+            },
+            {
+                "sync_policy_id": 1,
+                "object_field": "firstname",
+                "scope": "protected"
             },
             {
                 "sync_policy_id": 1,
                 "object_field": "lastname",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 1,
-                "object_field": "uuid",
-                "scope": "public"
+                "scope": "protected"
             },
             {
                 "sync_policy_id": 2,
@@ -155,31 +155,6 @@
                 "sync_policy_id": 2,
                 "object_field": "uuid",
                 "scope": "public"
-            },
-            {
-                "sync_policy_id": 3,
-                "object_field": "short_name",
-                "scope": "private"
-            },
-            {
-                "sync_policy_id": 4,
-                "object_field": "short_name",
-                "scope": "private"
-            },
-            {
-                "sync_policy_id": 4,
-                "object_field": "identity_id",
-                "scope": "private"
-            },
-            {
-                "sync_policy_id": 6,
-                "object_field": "identity_id",
-                "scope": "private"
-            },
-            {
-                "sync_policy_id": 7,
-                "object_field": "identity_id",
-                "scope": "private"
             },
             {
                 "sync_policy_id": 2,
@@ -282,14 +257,9 @@
                 "scope": "public"
             },
             {
-                "sync_policy_id": 1,
-                "object_field": "firstname",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 1,
-                "object_field": "lastname",
-                "scope": "protected"
+                "sync_policy_id": 3,
+                "object_field": "short_name",
+                "scope": "private"
             },
             {
                 "sync_policy_id": 3,
@@ -337,219 +307,14 @@
                 "scope": "public"
             },
             {
-                "sync_policy_id": 13,
-                "object_field": "firstname",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "lastname",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "registration_number",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "legal_name",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 13,
+                "sync_policy_id": 4,
                 "object_field": "short_name",
                 "scope": "private"
             },
             {
-                "sync_policy_id": 13,
-                "object_field": "uuid",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "slug_hash",
+                "sync_policy_id": 4,
+                "object_field": "identity_id",
                 "scope": "private"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "title",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "date_of_birth",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "gender",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "type_id",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "citizen_identification",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "has_vat",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "vat_number",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "nationality",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "address_street",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "address_dispatch",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "address_city",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "address_zip",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "address_country",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "email",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "email_alt",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "phone",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "phone_alt",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "mobile",
-                "scope": "protected"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "website",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 11,
-                "object_field": "name",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 11,
-                "object_field": "uuid",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 11,
-                "object_field": "code",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 11,
-                "object_field": "folder_code",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 11,
-                "object_field": "description",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 11,
-                "object_field": "document_type_id",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 10,
-                "object_field": "name",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 10,
-                "object_field": "code",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 10,
-                "object_field": "description",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 10,
-                "object_field": "folder_code",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 10,
-                "object_field": "json_schema",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 10,
-                "object_field": "has_subtype",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 10,
-                "object_field": "uuid",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 12,
-                "object_field": "name",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 12,
-                "object_field": "uuid",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 12,
-                "object_field": "code",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 12,
-                "object_field": "category",
-                "scope": "public"
             },
             {
                 "sync_policy_id": 5,
@@ -607,6 +372,31 @@
                 "scope": "private"
             },
             {
+                "sync_policy_id": 5,
+                "object_field": "email",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 5,
+                "object_field": "email_alt",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 5,
+                "object_field": "phone",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 5,
+                "object_field": "phone_alt",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 6,
+                "object_field": "identity_id",
+                "scope": "private"
+            },
+            {
                 "sync_policy_id": 6,
                 "object_field": "registration_number",
                 "scope": "public"
@@ -667,24 +457,9 @@
                 "scope": "public"
             },
             {
-                "sync_policy_id": 5,
-                "object_field": "email",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 5,
-                "object_field": "email_alt",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 5,
-                "object_field": "phone",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 5,
-                "object_field": "phone_alt",
-                "scope": "public"
+                "sync_policy_id": 7,
+                "object_field": "identity_id",
+                "scope": "private"
             },
             {
                 "sync_policy_id": 7,
@@ -749,6 +524,221 @@
             {
                 "sync_policy_id": 7,
                 "object_field": "mobile",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 10,
+                "object_field": "name",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 10,
+                "object_field": "code",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 10,
+                "object_field": "description",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 10,
+                "object_field": "folder_code",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 10,
+                "object_field": "json_schema",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 10,
+                "object_field": "has_subtype",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 10,
+                "object_field": "uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 11,
+                "object_field": "name",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 11,
+                "object_field": "uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 11,
+                "object_field": "code",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 11,
+                "object_field": "folder_code",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 11,
+                "object_field": "description",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 11,
+                "object_field": "document_type_id",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 12,
+                "object_field": "name",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 12,
+                "object_field": "uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 12,
+                "object_field": "code",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 12,
+                "object_field": "category",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "firstname",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "lastname",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "registration_number",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "legal_name",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "short_name",
+                "scope": "private"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "slug_hash",
+                "scope": "private"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "title",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "date_of_birth",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "gender",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "type_id",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "citizen_identification",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "has_vat",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "vat_number",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "nationality",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "address_street",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "address_dispatch",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "address_city",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "address_zip",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "address_country",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "email",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "email_alt",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "phone",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "phone_alt",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "mobile",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "website",
                 "scope": "public"
             }
         ]
