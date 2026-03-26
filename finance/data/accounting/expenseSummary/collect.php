@@ -497,6 +497,15 @@ foreach($lines as $line_id => $line) {
         $owner_share = 100;
         $vat_rate = 0.0;
     }
+    if(!empty($line['misc_operation_line_id'])) {
+        $apportionment_id = $line['misc_operation_line_id']['apportionment_id'] ?? null;
+        if($line['misc_operation_line_id']['is_private_expense']) {
+            $apportionment_id = 'private_expense';
+        }
+        $owner_share = $line['misc_operation_line_id']['owner_share'] ?? 0;
+        $tenant_share = $line['misc_operation_line_id']['tenant_share'] ?? 0;
+        $vat_rate = $line['misc_operation_line_id']['vat_rate'] ?? 0.0;
+    }
     elseif($is_provision) {
         $apportionment_id = 'provisions_restitution';
     }
