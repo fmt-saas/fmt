@@ -1804,6 +1804,9 @@ class DocumentProcess extends Model {
                         ])
                         ->first();
 
+                    $invoice_issue_date = !empty($data['issue_date']) ? (strtotime($data['issue_date']) ?: null) : null;
+                    $invoice_due_date = !empty($data['due_date']) ? (strtotime($data['due_date']) ?: null) : null;
+
                     // create invoice
                     $invoice = PurchaseInvoice::create([
                             'condo_id'                      => $documentProcess['condo_id'],
@@ -1813,8 +1816,8 @@ class DocumentProcess extends Model {
                             'condo_bank_account_id'         => $condoBankAccount['id'] ?? null,
                             'payment_reference'             => str_replace(['+', '/'], '', $data['payment']['payment_id'] ?? ''),
                             'payable_amount'                => $data['totals']['payable_amount'] ?? '',
-                            'emission_date'                 => $data['issue_date'] ? strtotime($data['issue_date']) : time(),
-                            'due_date'                      => $data['due_date'] ? strtotime($data['due_date']) : null,
+                            'emission_date'                 => $invoice_issue_date,
+                            'due_date'                      => $invoice_due_date,
                             'has_fund_usage'                => false,
                             'has_instant_reinvoice'         => false,
                             'document_process_id'           => $id,
@@ -1822,7 +1825,7 @@ class DocumentProcess extends Model {
                         ])
                         // posting_date triggers sync with fiscal year & period
                         ->update([
-                            'posting_date'                  => strtotime($data['issue_date'])
+                            'posting_date'                  => $invoice_issue_date
                         ])
                         ->first();
 
