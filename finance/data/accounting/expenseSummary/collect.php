@@ -360,6 +360,7 @@ foreach($lines as $line) {
 // Read all involved invoices at once
 $map_invoices = [];
 $map_statements = [];
+
 $map_apportionments = [];
 
 
@@ -376,7 +377,8 @@ if(!empty($invoices_ids)) {
     foreach($invoices as $invoice_id => $invoice) {
         $map_invoices[$invoice_id] = [
             'supplier_id'           => $invoice['supplier_id'],
-            'supplier_reference'    => $invoice['supplier_invoice_number']
+            'supplier_reference'    => $invoice['supplier_invoice_number'],
+            'entry_reference'       => $invoice['invoice_number']
         ];
     }
 }
@@ -393,7 +395,8 @@ if(!empty($bank_statements_ids)) {
     foreach($statements as $statement_id => $statement) {
         $map_statements[$statement_id] = [
             'supplier_id'        => $statement['bank_id'],
-            'supplier_reference' => $statement['statement_number']
+            'supplier_reference' => $statement['statement_number'],
+            'entry_reference'    => $statement['statement_number']
         ];
     }
 }
@@ -480,7 +483,7 @@ foreach($lines as $line_id => $line) {
         if(isset($map_invoices[$invoice_id])) {
             $supplier_id = $map_invoices[$invoice_id]['supplier_id'];
             $supplier_reference = $map_invoices[$invoice_id]['supplier_reference'];
-            $entry_reference = $map_invoices[$invoice_id]['invoice_number'];
+            $entry_reference = $map_invoices[$invoice_id]['entry_reference'];
         }
     }
     elseif(!empty($line['bank_statement_line_id']['bank_statement_id'])) {
@@ -493,7 +496,7 @@ foreach($lines as $line_id => $line) {
         if(isset($map_statements[$statement_id])) {
             // $supplier_id = $map_statements[$statement_id]['supplier_id'];
             // $supplier_reference = $map_statements[$statement_id]['supplier_reference'];
-            $entry_reference = $map_statements[$statement_id]['statement_number'];
+            $entry_reference = $map_statements[$statement_id]['entry_reference'];
         }
     }
     elseif(!empty($line['fund_usage_line_id']['invoice_id'])) {
