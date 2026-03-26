@@ -483,11 +483,17 @@ class AccountingEntry extends Model {
             'fiscal_year_id',
             'journal_id',
             'entry_date',
-            'entry_lines_ids' => ['account_id', 'debit', 'credit'],
             'purchase_invoice_id',
             'sale_invoice_id',
             'misc_operation_id',
             'bank_statement_line_id',
+            'entry_lines_ids' => [
+                'account_id', 'debit', 'credit',
+                'description',
+                'sale_invoice_line_id',
+                'purchase_invoice_line_id',
+                'misc_operation_line_id'
+            ],
         ]);
 
         foreach ($self as $id => $entry) {
@@ -509,11 +515,15 @@ class AccountingEntry extends Model {
             // 2) Create reversal lines (swap debit/credit)
             foreach ($entry['entry_lines_ids'] ?? [] as $line) {
                 AccountingEntryLine::create([
-                    'condo_id'            => $entry['condo_id'],
-                    'accounting_entry_id' => $reversal['id'],
-                    'account_id'          => $line['account_id'],
-                    'debit'               => $line['credit'],
-                    'credit'              => $line['debit']
+                    'condo_id'                  => $entry['condo_id'],
+                    'accounting_entry_id'       => $reversal['id'],
+                    'account_id'                => $line['account_id'],
+                    'debit'                     => $line['credit'],
+                    'credit'                    => $line['debit'],
+                    'description'               => $line['description'],
+                    'sale_invoice_line_id'      => $line['sale_invoice_line_id'],
+                    'purchase_invoice_line_id'  => $line['purchase_invoice_line_id'],
+                    'misc_operation_line_id'    => $line['misc_operation_line_id']
                 ]);
             }
 

@@ -97,7 +97,6 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             'journal_id',
             'entry_date',
             'description',
-            'entry_lines_ids' => ['account_id', 'debit', 'credit'],
             'origin_object_class',
             'origin_object_id',
             'purchase_invoice_id',
@@ -105,7 +104,18 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             'misc_operation_id',
             'bank_statement_line_id',
             'fund_request_execution_id',
-            'expense_statement_id'
+            'expense_statement_id',
+            'entry_lines_ids' => [
+                'account_id', 'debit', 'credit',
+                'description',
+                'sale_invoice_line_id',
+                'purchase_invoice_line_id',
+                'misc_operation_line_id',
+                'bank_statement_line_id',
+                'fund_usage_line_id',
+                'ownership_id',
+                'suppliership_id'
+            ],
         ]);
 
         foreach($self as $id => $entry) {
@@ -132,11 +142,19 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             // 2) Create reversal lines (swap debit/credit)
             foreach($entry['entry_lines_ids'] ?? [] as $line) {
                 AccountingEntryLine::create([
-                    'condo_id'            => $entry['condo_id'],
-                    'accounting_entry_id' => $reversal['id'],
-                    'account_id'          => $line['account_id'],
-                    'debit'               => $line['credit'],
-                    'credit'              => $line['debit']
+                    'condo_id'                  => $entry['condo_id'],
+                    'accounting_entry_id'       => $reversal['id'],
+                    'account_id'                => $line['account_id'],
+                    'debit'                     => $line['credit'],
+                    'credit'                    => $line['debit'],
+                    'description'               => $line['description'],
+                    'sale_invoice_line_id'      => $line['sale_invoice_line_id'],
+                    'purchase_invoice_line_id'  => $line['purchase_invoice_line_id'],
+                    'misc_operation_line_id'    => $line['misc_operation_line_id'],
+                    'bank_statement_line_id'    => $line['bank_statement_line_id'],
+                    'fund_usage_line_id'        => $line['fund_usage_line_id'],
+                    'ownership_id'              => $line['ownership_id'],
+                    'suppliership_id'           => $line['suppliership_id']
                 ]);
             }
 
