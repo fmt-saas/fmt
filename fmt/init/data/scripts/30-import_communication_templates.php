@@ -655,7 +655,7 @@ $template = Template::create([
 
 TemplatePart::create([
     'name'          => 'subject',
-    'value'         => "<p>Balance Générale au {date_to}</p>",
+    'value'         => "<p>Balance Générale au {date_to} {filter}</p>",
     'template_id'   => $template['id'],
     'variables'     => '["date_to", "filter"]'
 ]);

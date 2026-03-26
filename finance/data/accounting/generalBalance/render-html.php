@@ -298,10 +298,10 @@ foreach($template['parts_ids'] as $part_id => $part) {
 
         $filter_label = '';
 
-        if(!empty($params['params']['suppliers_only'])) {
+        if($params['params']['suppliers_only'] ?? false) {
             $filter_label = 'fournisseurs';
         }
-        elseif(!empty($params['params']['ownerships_only'])) {
+        elseif($params['params']['ownerships_only'] ?? false) {
             $filter_label = 'copropriétaires';
         }
 
