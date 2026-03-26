@@ -154,11 +154,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'description'       => 'Fundings created from the invoice.'
             ],
 
+            // #memo - emission_date presence is checked upon completion / validation
             'emission_date' => [
                 'type'              => 'date',
                 'usage'             => 'date/plain',
                 'description'       => 'Date at which the invoice was emitted by the supplier.',
-                'required'          => true,
+                // 'required'          => true,
                 'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
             ],
 
