@@ -286,9 +286,9 @@ foreach($groups as $account_id => &$group) {
 $subject = 'Balance Générale';
 
 $template = Template::search([
-    ['code', '=', 'general_balance'],
-    ['type', '=', 'document']
-])
+        ['code', '=', 'general_balance'],
+        ['type', '=', 'document']
+    ])
     ->read(['parts_ids' => ['name', 'value']])
     ->first();
 
@@ -296,8 +296,18 @@ foreach($template['parts_ids'] as $part_id => $part) {
     if($part['name'] == 'subject') {
         $subject = strip_tags($part['value']);
 
+        $filter_label = '';
+
+        if(!empty($params['params']['suppliers_only'])) {
+            $filter_label = 'fournisseurs';
+        }
+        elseif(!empty($params['params']['ownerships_only'])) {
+            $filter_label = 'copropriétaires';
+        }
+
         $map_values = [
-            'date_to' => $getFormattedDate($date_to)
+            'date_to' => $getFormattedDate($date_to),
+            'filter'  => strlen($filter_label) ? ' ('. $filter_label .')' : ''
         ];
 
         // Replace {var} items with corresponding values, set in $map_values

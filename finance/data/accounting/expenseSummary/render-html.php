@@ -251,9 +251,9 @@ foreach($data as $line) {
 $subject = 'Dépenses courantes';
 
 $template = Template::search([
-    ['code', '=', 'expense_summary'],
-    ['type', '=', 'document']
-])
+        ['code', '=', 'expense_summary'],
+        ['type', '=', 'document']
+    ])
     ->read(['parts_ids' => ['name', 'value']])
     ->first(true);
 
