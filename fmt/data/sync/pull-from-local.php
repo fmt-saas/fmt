@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use equal\orm\Domain;
 use fmt\sync\SyncPolicy;
 use infra\server\Instance;
 
@@ -34,12 +35,15 @@ use infra\server\Instance;
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_URL_EDMS'],
+    'constants'     => ['FMT_INSTANCE_TYPE'],
     'providers'     => ['context', 'orm', 'auth']
 ]);
 
+/**
+ * @var \equal\php\Context          $context
+ * @var \equal\orm\ObjectManager    $orm
+ */
 ['context' => $context, 'orm' => $orm] = $providers;
-
 
 if(constant('FMT_INSTANCE_TYPE') !== 'global') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
@@ -66,27 +70,14 @@ $policy = SyncPolicy::search([
     ])
     ->first();
 
-
 if(!$policy) {
     throw new Exception('missing_policy', EQ_ERROR_INVALID_CONFIG);
 }
-
-// retrieve all fields of the requested entity
-$schema = $orm->getModel($params['entity'])->getSchema();
-
-// we're only interested in scalar fields and many2one relations
-foreach($schema as $field => $def) {
-    if(!in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) {
-        unset($schema[$field]);
-    }
-}
-
 
 $entity = $params['entity'];
 
 // remember how to handle fields
 $map_fields = [];
-
 foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
     $map_fields[$policyLine['object_field']] = $policyLine['scope'];
 }
@@ -97,11 +88,15 @@ $schema = $orm->getModel($entity)->getSchema();
 // we're only interested in scalar fields
 $fields = ['uuid'];
 
-$domain = [
-    ['modified', '>=', $params['date_from'] ?? 0]
-];
-
+$domain_data = [];
 foreach($schema as $field => $def) {
+    if($field === 'instance_id' && $policy['scope'] === 'protected') {
+        $domain_data['instance_id'] = $instance['id'];
+    }
+    elseif($field === 'object_class') {
+        $domain_data['object_class'] = $entity;
+    }
+
     if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
         continue;
     }
@@ -121,24 +116,29 @@ foreach($schema as $field => $def) {
         }
     }
 
-    if($field === 'instance_id' && $policy['scope'] === 'protected') {
-        $domain[] = ['instance_id', '=', $instance['id']];
-        // prevent re-sending data originating from instance itself
-        $domain[] = ['created', '<>', 'object.modified'];
-    }
-    elseif($field === 'object_class') {
-        $domain[] = ['object_class', '=', $entity];
-    }
-
     $fields[] = $field;
 }
 
+$domain = new Domain();
+if(isset($domain_data['instance_id'])) {
+    $domain = new Domain([
+        [
+            ['instance_id', '<>', $domain_data['instance_id']]
+        ],
+        [
+            ['instance_id', '=', $domain_data['instance_id']],
+            ['created', '<>', 'object.modified']
+        ]
+    ]);
+}
+if(isset($domain_data['object_class'])) {
+    $domain->addCondition(['object_class', '=', $domain_data['object_class']]);
+}
 
 $objects = $entity::search($domain)
     ->read($fields)
     ->adapt('json')
     ->get(true);
-
 
 $context->httpResponse()
         ->body($objects)
