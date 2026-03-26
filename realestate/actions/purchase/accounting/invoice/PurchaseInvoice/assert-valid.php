@@ -214,7 +214,7 @@ $dispatch->cancel('purchase.accounting.invoice.missing_apportionment', $class, $
 $dispatch->cancel('purchase.accounting.invoice.missing_expense_account', $class, $id);
 
 
-if($usage_total > $purchaseInvoice['price']) {
+if(abs($usage_total) > abs($purchaseInvoice['price'])) {
     // error: Fund usage cannot exceed invoice total
     $dispatch->dispatch('purchase.accounting.invoice.exceeding_fund_allocation', $class, $id, 'important', $script, ['id' => $id]);
     throw new Exception("exceeding_fund_allocation", EQ_ERROR_INVALID_PARAM);
