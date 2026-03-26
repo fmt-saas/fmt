@@ -38,7 +38,8 @@ class Instance extends Model {
                 // #memo - commented for testing because items are on the same instance
                 // #todo - uncomment for PROD
                 // 'unique'            => true,
-                'description'       => 'Unique identifier from the Master instance.'
+                'description'       => 'Unique identifier from the Master instance.',
+                'visible'           => ['instance_type', '=', 'agency']
             ],
 
             'description' => [
@@ -75,15 +76,76 @@ class Instance extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'core\User',
                 'description'       => 'User for API requests from the instance to Global instance.',
-                'help'              => 'This User is intended to be set on Global instance only and is expected to be created automatically at instance creation.'
+                'help'              => 'This User is intended to be set on Global instance only and is expected to be created automatically at instance creation.',
+                'visible'           => ['instance_type', '=', 'agency']
             ],
 
             'managing_agent_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\management\ManagingAgent',
                 'description'       => "The Managing agent the Instance relates to.",
+                'visible'           => ['instance_type', '=', 'agency']
             ],
 
+        ];
+    }
+
+    protected static function policyCanCreateUser($self) {
+        $result = [];
+        $self->read(['user_id', 'instance_type']);
+        foreach($self as $id => $instance) {
+            if(constant('FMT_INSTANCE_TYPE') !== 'global') {
+                $result[$id] = [
+                    'not_global' => "The instance's user already exists."
+                ];
+            }
+            elseif($instance['user_id']) {
+                $result[$id] = [
+                    'existing_user' => "The instance's user already exists."
+                ];
+            }
+            elseif($instance['instance_type'] !== 'agency') {
+                $result[$id] = [
+                    'wrong_instance_type' => "An user can be created for agency instances only."
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    public static function getPolicies() {
+        return [
+            'can_create_user' => [
+                'description' => "Verifies that the instance user is not already created.",
+                'function'    => 'policyCanCreateUser'
+            ]
+        ];
+    }
+
+    protected static function doCreateUser($self) {
+        $self->read(['name', 'instance_type']);
+        foreach($self as $id => $instance) {
+            $domain = parse_url(constant('BACKEND_URL'), PHP_URL_HOST);
+            $login = $instance['name'] . '@' . $domain;
+            $user = User::create([
+                'login'         => $login,
+                'allow_auth'    => false,
+                'validated'     => true
+            ])
+                ->first();
+
+            self::id($id)->update(['user_id' => $user['id']]);
+        }
+    }
+
+    public static function getActions() {
+        return [
+            'create_user' => [
+                'description'   => 'Create the agency instance user.',
+                'policies'      => ['can_create_user'],
+                'function'      => 'doCreateUser'
+            ]
         ];
     }
 
@@ -91,30 +153,36 @@ class Instance extends Model {
      * This is a "private class": upon creation, assign a unique UUID if on GLOBAL instance
      */
     protected static function oncreate($self, $orm) {
-        $self->read(['name', 'instance_type']);
+        $self->read(['instance_type']);
         foreach($self as $id => $instance) {
             if(constant('FMT_INSTANCE_TYPE') === 'global' && $instance['instance_type'] === 'agency') {
-                $values = [];
                 // generate a new UUID
                 do {
                     $uuid = DataGenerator::uuid();
                     $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
                 } while( $existing > 0 && count($existing) > 0 );
 
-                $values['uuid'] = $uuid;
+                $orm->update(static::class, $id, ['uuid' => $uuid]);
+            }
+        }
+    }
 
-                // create a new user for the instance and assign id as user_id
-                $domain = parse_url(constant('BACKEND_URL'), PHP_URL_HOST);
-                $login = $instance['name'] . '@' . $domain;
-                $user = User::create([
-                        'login'         => $login,
-                        'allow_auth'    => false,
-                        'validated'     => true
-                    ])
-                    ->first();
+    public static function canupdate($self, $values) {
+        if(isset($values['name'])) {
+            // validation needed, else user creation can fail
+            if(!filter_var($values['name'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+                return ['name' => ['invalid_name' => 'Invalid instance name.']];
+            }
+        }
 
-                $values['user_id'] = $user['id'];
-                self::id($id)->update($values);
+        return parent::canupdate($self);
+    }
+
+    protected static function onafterupdate($self) {
+        $self->read(['instance_type', 'user_id']);
+        foreach($self as $id => $instance) {
+            if(constant('FMT_INSTANCE_TYPE') === 'global' && $instance['instance_type'] === 'agency' && !$instance['user_id']) {
+                self::id($id)->do('create_user');
             }
         }
     }

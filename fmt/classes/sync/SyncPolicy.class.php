@@ -71,11 +71,23 @@ class SyncPolicy extends Model {
         ];
     }
 
-
     public function getUnique() {
         return [
             ['object_class', 'sync_direction']
         ];
     }
 
+    public static function canupdate($self, $values): array {
+        $self->read(['sync_direction', 'scope']);
+        foreach($self as $syncPolicy) {
+            $sync_direction = $values['sync_direction'] ?? $syncPolicy['sync_direction'];
+            $scope = $values['scope'] ?? $syncPolicy['scope'];
+
+            if($sync_direction === 'ascending' && $scope === 'private') {
+                return ['scope' => ['private_not_allowed_for_ascending' => 'Private scope isn\'t allowed for an ascending sync policy.']];
+            }
+        }
+
+        return parent::canupdate($self, $values);
+    }
 }

@@ -16,6 +16,12 @@
             },
             {
                 "type": "field",
+                "value": "is_new",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "object_field",
                 "width": "25%"
             },
