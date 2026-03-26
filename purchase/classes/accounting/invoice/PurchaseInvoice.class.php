@@ -176,6 +176,9 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
         $result = [];
         $self->read(['condo_id', 'posting_date']);
         foreach($self as $id => $invoice) {
+            if(!$invoice['posting_date']) {
+                continue;
+            }
             $fiscalYear = FiscalYear::search([ ['condo_id', '=', $invoice['condo_id']], ['date_from', '<=', $invoice['posting_date']], ['date_to', '>=', $invoice['posting_date']] ])->first();
             if($fiscalYear) {
                 $result[$id] = $fiscalYear['id'];

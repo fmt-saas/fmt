@@ -367,6 +367,9 @@ class Invoice extends Model {
         $result = [];
         $self->read(['status', 'posting_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
         foreach($self as $id => $invoice) {
+            if(!$invoice['posting_date']) {
+                continue;
+            }
             foreach($invoice['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
                 if($invoice['posting_date'] >= $period['date_from'] && $invoice['posting_date'] <= $period['date_to']) {
                     $result[$id] = $period_id;

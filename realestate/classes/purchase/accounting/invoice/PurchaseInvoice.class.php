@@ -198,7 +198,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'type'              => 'date',
                 'usage'             => 'date/plain',
                 'description'       => 'The date on which the invoice is recorded in the accounting system.',
-                'default'           => function () { return time(); },
                 'visible'           => ['has_date_range', '=', false],
                 'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
             ],
@@ -1579,6 +1578,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         $result = [];
         $self->read(['condo_id', 'posting_date']);
         foreach($self as $id => $invoice) {
+            if(!$invoice['posting_date']) {
+                continue;
+            }
             $fiscalYear = FiscalYear::search([
                     ['condo_id', '=', $invoice['condo_id']],
                     ['date_from', '<=', $invoice['posting_date']],
