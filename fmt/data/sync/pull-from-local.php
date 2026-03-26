@@ -135,7 +135,7 @@ if(isset($domain_data['object_class'])) {
     $domain->addCondition(['object_class', '=', $domain_data['object_class']]);
 }
 
-$objects = $entity::search($domain)
+$objects = $entity::search($domain->toArray())
     ->read($fields)
     ->adapt('json')
     ->get(true);
