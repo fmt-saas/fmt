@@ -86,11 +86,12 @@ class ExpenseStatementOwnerLine extends \sale\accounting\invoice\SaleInvoiceLine
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]]
             ],
 
+            // #memo - property lot is always relevant, even if not private expense
             'property_lot_id' => [
                 'type'              => 'many2one',
                 'description'       => "Property Lot to apply the charge to.",
                 'foreign_object'    => 'realestate\property\PropertyLot',
-                'visible'           => ['is_private_expense', '=', true],
+                // 'visible'           => ['is_private_expense', '=', true],
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
