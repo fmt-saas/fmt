@@ -7,17 +7,6 @@
     },
     "routes": [
         {
-            "id": "route.current_balance",
-            "label": "Current Balance",
-            "description": "",
-            "icon": "balance",
-            "context": {
-                "entity": "finance\\accounting\\CurrentBalanceLine",
-                "view": "list.condo",
-                "domain": [["condo_id", "=", "object.id"]]
-            }
-        },
-        {
             "id": "route.general_ledger",
             "label": "General Ledger",
             "description": "",
@@ -32,7 +21,7 @@
             "id": "route.general_balance",
             "label": "General Balance",
             "description": "",
-            "icon": "menu_book",
+            "icon": "balance",
             "context": {
                 "entity": "finance\\accounting\\generalBalance\\collect",
                 "view": "list.default",

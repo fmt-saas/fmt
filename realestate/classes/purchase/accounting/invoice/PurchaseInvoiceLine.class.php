@@ -38,7 +38,10 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 'description'       => 'Enable to apply charge to a single owner.',
                 'default'           => false,
                 'onupdate'          => 'onupdateIsPrivateExpense',
-                'visible'           => ['is_apportionable', '=', true]
+                'visible'           => [
+                    [ ['is_apportionable', '=', true] ],
+                    [ ['is_private_expense', '=', true] ]
+                ]
             ],
 
             'has_instant_reinvoice' => [
@@ -92,7 +95,10 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
                 'onupdate'          => 'onupdateOwnerShare',
-                'visible'           => ['is_apportionable', '=', true]
+                'visible'           => [
+                    [ ['is_apportionable', '=', true] ],
+                    [ ['is_private_expense', '=', true] ]
+                ]
             ],
 
             'tenant_share'          => [
@@ -101,7 +107,10 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 'description'       => "Default value, in percent, of the amount to be imputed to the tenant when using the account.",
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
                 'onupdate'          => 'onupdateTenantShare',
-                'visible'           => ['is_apportionable', '=', true]
+                'visible'           => [
+                    [ ['is_apportionable', '=', true] ],
+                    [ ['is_private_expense', '=', true] ]
+                ]
             ],
 
             'ownership_id' => [
@@ -262,6 +271,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                             ];
                     }
                     $result['apportionment_id'] = null;
+                    $result['owner_share'] = 100;
                 }
                 else {
                     // #memo - visibility might be impacted
