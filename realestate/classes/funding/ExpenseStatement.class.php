@@ -355,6 +355,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         }
     }
 
+    private static function normalizeMoneyAmount($amount): float {
+        $amount = round((float) $amount, 2);
+        return (abs($amount) < 0.01) ? 0.0 : $amount;
+    }
+
     /**
      * Check that the statement is balanced: common_total + assigned_delta = sum(expense_statement_owners.expense_amount)
      */
@@ -770,10 +775,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             $data = self::computeExpenseStatementData($expenseStatement['fiscal_period_id']);
             self::id($id)
                 ->update([
-                    'provisions_total'  => $data['provisions_total'],
-                    'private_total'     => $data['private_total'],
-                    'common_total'      => $data['common_total'],
-                    'assigned_delta'    => $data['assigned_delta']
+                    'provisions_total'  => self::normalizeMoneyAmount($data['provisions_total']),
+                    'private_total'     => self::normalizeMoneyAmount($data['private_total']),
+                    'common_total'      => self::normalizeMoneyAmount($data['common_total']),
+                    'assigned_delta'    => self::normalizeMoneyAmount($data['assigned_delta'])
                 ]);
 
             // temporarily link involved records with current statement (has no implication while statement is not posted and `is_cleared` is not set to true)
@@ -803,11 +808,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                             'apportionment_id'      => $line['apportionment_id'],
                             'account_id'            => $line['account_id'],
                             'property_lot_id'       => $line['property_lot_id'],
-                            'total_amount'          => $line['total_amount'] ?? 0.0,
-                            'owner_amount'          => $line['owner'] ?? 0.0,
-                            'tenant_amount'         => $line['tenant'] ?? 0.0,
-                            'vat_amount'            => $line['vat'] ?? 0.0,
-                            'assigned_delta'        => $line['assigned_delta'] ?? 0.0,
+                            'total_amount'          => self::normalizeMoneyAmount($line['total_amount'] ?? 0.0),
+                            'owner_amount'          => self::normalizeMoneyAmount($line['owner'] ?? 0.0),
+                            'tenant_amount'         => self::normalizeMoneyAmount($line['tenant'] ?? 0.0),
+                            'vat_amount'            => self::normalizeMoneyAmount($line['vat'] ?? 0.0),
+                            'assigned_delta'        => self::normalizeMoneyAmount($line['assigned_delta'] ?? 0.0),
                             'date'                  => $line['date'] ?? null,
                             'expense_type'          => $line['expense_type'],
                             'shares'                => $line['shares'] ?? null,
@@ -1635,11 +1640,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
         // generate output response
         $result = [
-                'provisions_total'           => $provisions_total,
-                'private_total'              => $private_total,
-                'common_total'               => $common_total,
+                'provisions_total'           => self::normalizeMoneyAmount($provisions_total),
+                'private_total'              => self::normalizeMoneyAmount($private_total),
+                'common_total'               => self::normalizeMoneyAmount($common_total),
                 // #memo - a positive amount means that a part of the purchase invoice was not allocated to owners
-                'assigned_delta'             => round($delta_total, 2),
+                'assigned_delta'             => self::normalizeMoneyAmount($delta_total),
                 'accounting_entry_lines_ids' => array_keys($map_accounting_entry_lines_ids),
                 'owners'                     => []
             ];
@@ -1670,9 +1675,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                                             'property_lot_id'   => $property_lot_id,
                                             'apportionment_id'  => $apportionment_id,
                                             'expense_type'      => $expense_type,
-                                            'owner'             => $account_entry['owner'],
-                                            'tenant'            => $account_entry['tenant'],
-                                            'vat'               => $account_entry['vat'],
+                                            'owner'             => self::normalizeMoneyAmount($account_entry['owner']),
+                                            'tenant'            => self::normalizeMoneyAmount($account_entry['tenant']),
+                                            'vat'               => self::normalizeMoneyAmount($account_entry['vat']),
                                             'description'       => $account_entry['description'] ?? null,
                                             'date'              => $account_entry['date'] ?? null,
                                             'date_from'         => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['date_from'],
@@ -1687,16 +1692,16 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                                         'property_lot_id'   => $property_lot_id,
                                         'apportionment_id'  => $apportionment_id,
                                         'expense_type'      => $expense_type,
-                                        'owner'             => $account['owner'],
-                                        'tenant'            => $account['tenant'],
-                                        'vat'               => $account['vat'] ?? 0.0,
+                                        'owner'             => self::normalizeMoneyAmount($account['owner']),
+                                        'tenant'            => self::normalizeMoneyAmount($account['tenant']),
+                                        'vat'               => self::normalizeMoneyAmount($account['vat'] ?? 0.0),
                                         'description'       => $account['description'] ?? null,
                                         'date'              => $account['date'] ?? null,
                                         'date_from'         => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['date_from'],
                                         'date_to'           => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['date_to'],
                                         'nb_days'           => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['nb_days'],
                                         'shares'            => $account['shares'] ?? null,
-                                        'total_amount'      => $account['total_amount'],
+                                        'total_amount'      => self::normalizeMoneyAmount($account['total_amount']),
                                     ];
                             }
                         }
