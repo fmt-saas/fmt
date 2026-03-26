@@ -43,6 +43,7 @@ $policies = SyncPolicy::search([
         ['sync_direction', '=', 'descending']
     ])
     ->read([
+        'name',
         'scope',
         'object_class',
         'field_unique',
@@ -85,7 +86,7 @@ foreach($policies as $id => $policy) {
 
         $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_sync_pull-from-local' .
                 '&entity=' . urlencode($policy['object_class']) .
-                '&date_from=' . $date_from .
+                '&date_from=' . urlencode($date_from) .
                 '&instance_uuid=' . $instance['uuid']
             );
 
@@ -104,7 +105,7 @@ foreach($policies as $id => $policy) {
 
             $fields = array_keys($values);
 
-            if($values['uuid'] && !empty($values['uuid'])) {
+            if(!empty($values['uuid'])) {
                 $localObject = $entity::search(['uuid', '=', $values['uuid']])
                     ->read($fields)
                     ->first();
