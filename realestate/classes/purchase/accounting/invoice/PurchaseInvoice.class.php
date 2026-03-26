@@ -1290,10 +1290,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         MiscOperationLine::create([
                                 'condo_id'                  => $invoice['condo_id'],
                                 'misc_operation_id'         => $miscOperation['id'],
+                                'is_private_expense'        => true,
                                 'description'               => $invoice['description'],
                                 'account_id'                => $privateExpenseAccount['id'],
                                 'debit'                     => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price']),
-                                'credit'                    => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0
+                                'credit'                    => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
+                                'ownership_id'              => $invoiceLine['ownership_id'],
+                                'property_lot_id'           => $invoiceLine['property_lot_id']
                             ]);
 
                     }
