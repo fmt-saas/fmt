@@ -1187,8 +1187,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'accounting_entry_id'   => $accountingEntry['id'],
                     'description'           => $invoice['description'],
                     'account_id'            => $suppliershipAccount['id'],
-                    'debit'                 => 0.0,
-                    'credit'                => $invoice['price']
+                    'debit'                 => ($invoice['price'] > 0.0) ? 0.0 : abs($invoice['price']),
+                    'credit'                => ($invoice['price'] > 0.0) ? abs($invoice['price']) : 0.0
                 ]);
 
 
@@ -1197,27 +1197,28 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             if($invoice['has_fund_usage']) {
                 foreach($invoice['fund_usage_lines_ids'] as $usage_line_id => $fundUsageLine) {
 
-                    // create the debit line on the expense account (use of reserve fund)
-                    AccountingEntryLine::create([
-                            'condo_id'              => $invoice['condo_id'],
-                            'accounting_entry_id'   => $accountingEntry['id'],
-                            'description'           => $fundUsageLine['description'] ?? $invoice['description'],
-                            'account_id'            => $fundUsageLine['expense_account_id'],
-                            'fund_usage_line_id'    => $usage_line_id,
-                            'debit'                 => 0.0,
-                            'credit'                => $fundUsageLine['amount']
-                        ]);
-
-                    // create the credit line on the reserve fund
+                    // pay with reserve fund : create the debit line on the reserve fund
                     AccountingEntryLine::create([
                             'condo_id'              => $invoice['condo_id'],
                             'accounting_entry_id'   => $accountingEntry['id'],
                             'description'           => $fundUsageLine['description'] ?? $invoice['description'],
                             'account_id'            => $fundUsageLine['fund_account_id'],
                             'fund_usage_line_id'    => $usage_line_id,
-                            'debit'                 => $fundUsageLine['amount'],
-                            'credit'                => 0.0
+                            'debit'                 => ($fundUsageLine['amount'] > 0.0) ? abs($fundUsageLine['amount']) : 0.0,
+                            'credit'                => ($fundUsageLine['amount'] > 0.0) ? 0.0 : abs($fundUsageLine['amount'])
                         ]);
+
+                    // cancel the expense : create the credit line on the expense account (use of reserve fund)
+                    AccountingEntryLine::create([
+                            'condo_id'              => $invoice['condo_id'],
+                            'accounting_entry_id'   => $accountingEntry['id'],
+                            'description'           => $fundUsageLine['description'] ?? $invoice['description'],
+                            'account_id'            => $fundUsageLine['expense_account_id'],
+                            'fund_usage_line_id'    => $usage_line_id,
+                            'debit'                 => ($fundUsageLine['amount'] > 0.0) ? 0.0 : abs($fundUsageLine['amount']),
+                            'credit'                => ($fundUsageLine['amount'] > 0.0) ? abs($fundUsageLine['amount']) : 0.0
+                        ]);
+
                 }
             }
 
@@ -1247,8 +1248,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             'description'               => $invoiceLine['description'],
                             'account_id'                => $privateExpenseAccount['id'],
                             'purchase_invoice_line_id'  => $invoice_line_id,
-                            'debit'                     => $invoiceLine['price'],
-                            'credit'                    => 0.0
+                            'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
+                            'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
                         ]);
 
                     if($invoiceLine['has_instant_reinvoice']) {
@@ -1271,7 +1272,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             ])
                             ->first();
 
-                        // create the credit line on the ownership account
+                        // create the debit line on the ownership account
                         MiscOperationLine::create([
                                 'condo_id'                  => $invoice['condo_id'],
                                 'misc_operation_id'         => $miscOperation['id'],
@@ -1309,8 +1310,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             'description'               => $invoice['description'],
                             'account_id'                => $invoiceLine['expense_account_id'],
                             'purchase_invoice_line_id'  => $invoice_line_id,
-                            'debit'                     => $invoiceLine['price'],
-                            'credit'                    => 0.0
+                            'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
+                            'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
                         ]);
                 }
             }
@@ -1353,8 +1354,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                     'description'               => $invoiceLine['description'],
                                     'account_id'                => $invoiceLine['expense_account_id'],
                                     'purchase_invoice_line_id'  => $invoice_line_id,
-                                    'debit'                     => $invoiceLine['price'],
-                                    'credit'                    => 0.0
+                                    'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
+                                    'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
                                 ]);
 
                             // compute paid amount pro-rata based on the duration of the date range.
@@ -1394,8 +1395,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                     'description'               => $description,
                                     'account_id'                => $deferredExpensesAccount['id'],
                                     'purchase_invoice_line_id'  => $invoice_line_id,
-                                    'debit'                     => $amount,
-                                    'credit'                    => 0.0
+                                    'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
+                                    'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
                                 ]);
 
                             // create the credit line for the expense
@@ -1405,8 +1406,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                     'description'               => $description,
                                     'account_id'                => $invoiceLine['expense_account_id'],
                                     'purchase_invoice_line_id'  => $invoice_line_id,
-                                    'debit'                     => 0.0,
-                                    'credit'                    => $amount
+                                    'debit'                     => ($amount > 0.0) ? 0.0 : abs($amount),
+                                    'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
                                 ]);
 
                             // 2) schedule a symmetrical accounting entry for the related period ('planned')
@@ -1439,8 +1440,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                     'description'               => $description,
                                     'account_id'                => $deferredExpensesAccount['id'],
                                     'purchase_invoice_line_id'  => $invoice_line_id,
-                                    'debit'                     => 0.0,
-                                    'credit'                    => $amount
+                                    'debit'                     => ($amount > 0.0) ? 0.0 : abs($amount),
+                                    'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
                                 ]);
 
                             // create the debit line for the expense
@@ -1450,8 +1451,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                     'description'               => $description,
                                     'account_id'                => $invoiceLine['expense_account_id'],
                                     'purchase_invoice_line_id'  => $invoice_line_id,
-                                    'debit'                     => $amount,
-                                    'credit'                    => 0.0
+                                    'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
+                                    'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
                                 ]);
 
                         }
