@@ -190,41 +190,43 @@ foreach($policies as $id => $policy) {
                     $values_to_update[$field] = $value;
                 }
 
-                $updateRequest = UpdateRequest::create([
-                    'object_class'  => $policy['object_class'],
-                    'request_date'  => time(),
-                    'source_type'   => 'global',
-                    'source_origin' => 'sync',
-                    'is_new'        => true
-                ])
-                    ->first();
+                if(!empty($values_to_update)) {
+                    $updateRequest = UpdateRequest::create([
+                        'object_class'  => $policy['object_class'],
+                        'request_date'  => time(),
+                        'source_type'   => 'global',
+                        'source_origin' => 'sync',
+                        'is_new'        => true
+                    ])
+                        ->first();
 
-                foreach($values as $field => $value) {
-                    if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
-                        continue;
+                    foreach($values_to_update as $field => $value) {
+                        if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                            continue;
+                        }
+                        // ignore empty fields
+                        if($value === null || $value === '') {
+                            continue;
+                        }
+
+                        UpdateRequestLine::create([
+                            'update_request_id' => $updateRequest['id'],
+                            'object_field'      => $field,
+                            'new_value'         => (string) $value
+                        ]);
                     }
-                    // ignore empty fields
-                    if($value === null || $value === '') {
-                        continue;
+
+                    if($policy['scope'] === 'private') {
+                        // automatically accept private policy
+                        UpdateRequest::id($updateRequest['id'])->do('accept');
+
+                        $result['logs'][] = "Created new object of entity {$entity}";
+                        ++$result['created'];
                     }
-
-                    UpdateRequestLine::create([
-                        'update_request_id' => $updateRequest['id'],
-                        'object_field'      => $field,
-                        'new_value'         => (string) $value
-                    ]);
-                }
-
-                if($policy['scope'] === 'private') {
-                    // automatically accept private policy
-                    UpdateRequest::id($updateRequest['id'])->do('accept');
-
-                    $result['logs'][] = "Created new object of entity {$entity}";
-                    ++$result['created'];
-                }
-                else {
-                    $result['logs'][] = "Requested creation of new object of entity {$entity}";
-                    ++$result['requested'];
+                    else {
+                        $result['logs'][] = "Requested creation of new object of entity {$entity}";
+                        ++$result['requested'];
+                    }
                 }
             }
         }
