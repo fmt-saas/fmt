@@ -183,20 +183,11 @@ class AccountingEntry extends Model {
                 'default'           => true
             ],
 
-            'is_cancelled' => [
-                'type'              => 'boolean',
-                'description'       => 'Flag marking the entry as cancelled (reversed).',
-                'help'              => 'When cancelled an entry remains valid and continues impacting the balance.
-                    It should be linked with an accounting document that voids it.
-                    And should not have an impact on the result since its debit and credits are voided by the reverse entry (`reverse_entry_id`).',
-                'default'           => false
-            ],
-
-            'reverse_entry_id' => [
+            'reversed_entry_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
                 'description'       => "Reverse accounting entry voiding the current one, if any.",
-                'visible'           => ['is_cancelled', '=', true]
+                'visible'           => ['status', '=', 'reversed']
             ],
 
             'origin_object_class' => [
@@ -256,13 +247,6 @@ class AccountingEntry extends Model {
                 'instant'           => true,
                 'relation'          => ['bank_statement_line_id' => ['bank_statement_id']],
                 'visible'           => ['bank_statement_line_id', '<>', null]
-            ],
-
-            'reversed_entry_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\AccountingEntry',
-                'description'       => 'Symmetric entry generated when reversing an entry.',
-                'visible'           => ['status', '=', 'reversed']
             ],
 
             'status' => [
@@ -474,7 +458,7 @@ class AccountingEntry extends Model {
     }
 
     /**
-     * Policy ensures: status == 'validated' AND reverse_entry_id is null AND fiscal year is not closed, etc.
+     * Policy ensures: status == 'validated' AND reversed_entry_id is null AND fiscal year is not closed, etc.
      */
     protected static function doCancel($self) {
 
@@ -534,19 +518,20 @@ class AccountingEntry extends Model {
             // 4) Link original to reversal
             self::id($id)
                 ->update([
-                    'reverse_entry_id'  => $reversal['id'],
+                    'reversed_entry_id'  => $reversal['id'],
                     'status'            => 'reversed'
                 ]);
 
             // 5) Link reversal to original
             self::id($reversal['id'])
                 ->update([
-                    'reverse_entry_id'  => $id,
+                    'reversed_entry_id'  => $id,
                     'status'            => 'reversed'
                 ]);
 
+            // 6) Mark all lines as reversed
             AccountingEntryLine::search(['accounting_entry_id', 'in', [$id, $reversal['id']]])
-                ->update(['status'=> 'reversed']);
+                ->update(['status' => 'reversed']);
 
         }
     }
@@ -615,7 +600,7 @@ class AccountingEntry extends Model {
 
         $self->read([
             'status',
-            'reverse_entry_id',
+            'reversed_entry_id',
             'fiscal_year_id' => ['status'],
             'fiscal_period_id' => ['status'],
             'entry_lines_ids'
@@ -631,7 +616,7 @@ class AccountingEntry extends Model {
             }
 
             // 2) Must not already be cancelled / linked to a reversal
-            if(!empty($entry['reverse_entry_id'])) {
+            if(!empty($entry['reversed_entry_id'])) {
                 $errors['already_cancelled'] = 'Accounting entry has already been cancelled (reversal entry exists).';
             }
 
@@ -1038,7 +1023,7 @@ class AccountingEntry extends Model {
      */
     public static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['status', 'description', 'reverse_entry_id'];
+        $allowed_fields = ['status', 'description', 'reversed_entry_id'];
         foreach($self as $id => $accountingEntry) {
             if(in_array($accountingEntry['status'], ['reversed', 'validated'])) {
                 if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {

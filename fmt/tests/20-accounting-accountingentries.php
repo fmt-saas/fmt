@@ -131,7 +131,7 @@ $tests = [
 
         '1103' => [
             'description'       => "Accounting entry cancelation creates a linked reversal entry.",
-            'help'              => "Create an accounting entry, validate it, cancel it, and verify both entries are linked through reverse_entry_id with status reversed.",
+            'help'              => "Create an accounting entry, validate it, cancel it, and verify both entries are linked through reversed_entry_id with status reversed.",
             'return'            => ['boolean'],
             'arrange'           => function() use($providers) {
                     $condo = Condominium::create(['name' => 'test condo reversal', 'managing_agent_id' => 1])
@@ -177,22 +177,22 @@ $tests = [
                 },
             'assert'            => function($accounting_entry_id) use($providers) {
                     $entry = AccountingEntry::id($accounting_entry_id)
-                        ->read(['id', 'status', 'reverse_entry_id'])
+                        ->read(['id', 'status', 'reversed_entry_id'])
                         ->first();
 
-                    if(!$entry || $entry['status'] !== 'reversed' || !$entry['reverse_entry_id']) {
+                    if(!$entry || $entry['status'] !== 'reversed' || !$entry['reversed_entry_id']) {
                         return false;
                     }
 
-                    $reverseEntry = AccountingEntry::id($entry['reverse_entry_id'])
-                        ->read(['id', 'status', 'reverse_entry_id'])
+                    $reverseEntry = AccountingEntry::id($entry['reversed_entry_id'])
+                        ->read(['id', 'status', 'reversed_entry_id'])
                         ->first();
 
                     if(!$reverseEntry || $reverseEntry['status'] !== 'reversed') {
                         return false;
                     }
 
-                    return ($reverseEntry['reverse_entry_id'] === $accounting_entry_id);
+                    return ($reverseEntry['reversed_entry_id'] === $accounting_entry_id);
                 },
             'rollback'          => function() use($providers) {
                     ['orm' => $orm] = $providers;

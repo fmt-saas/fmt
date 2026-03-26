@@ -87,7 +87,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
     }
 
     /**
-     * Policy ensures: status = 'validated' AND reverse_entry_id is null AND fiscal year is not closed, etc.
+     * Policy ensures: status = 'validated' AND reversed_entry_id is null AND fiscal year is not closed, etc.
      */
     protected static function doCancel($self) {
 
@@ -165,16 +165,21 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             // 4) Link original to reversal
             self::id($id)
                 ->update([
-                    'reverse_entry_id'  => $reversal['id'],
+                    'reversed_entry_id'  => $reversal['id'],
                     'status'            => 'reversed'
                 ]);
 
             // 5) Link reversal to original
             self::id($reversal['id'])
                 ->update([
-                    'reverse_entry_id'  => $id,
+                    'reversed_entry_id'  => $id,
                     'status'            => 'reversed'
                 ]);
+
+            // 6) Mark all lines as reversed
+            AccountingEntryLine::search(['accounting_entry_id', 'in', [$id, $reversal['id']]])
+                ->update(['status' => 'reversed']);
+
         }
     }
 }
