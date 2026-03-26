@@ -8,6 +8,9 @@ namespace finance\accounting;
 use equal\orm\Model;
 use finance\bank\CondominiumBankAccount;
 use realestate\sale\pay\Funding;
+use realestate\finance\accounting\AccountingEntry;
+use realestate\finance\accounting\AccountingEntryLine;
+
 
 class MiscOperation extends Model {
 
@@ -430,7 +433,11 @@ class MiscOperation extends Model {
         $self->read([
                 'condo_id', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
                 'description', 'has_opening_journal',
-                'misc_operation_lines_ids' => ['account_id', 'debit', 'credit', 'description']
+                'misc_operation_lines_ids' => [
+                    'account_id', 'debit', 'credit', 'description',
+                    'ownership_id',
+                    'property_lot_id'
+                ]
             ]);
 
         foreach ($self as $id => $miscOperation) {
@@ -468,7 +475,9 @@ class MiscOperation extends Model {
                         'credit'                => $line['credit'],
                         'accounting_entry_id'   => $accountingEntry['id'],
                         'misc_operation_line_id'=> $line_id,
-                        'description'           => $line['description']
+                        'description'           => $line['description'],
+                        'ownership_id'          => $line['ownership_id'],
+                        'property_lot_id'       => $line['property_lot_id']
                     ]);
             }
 

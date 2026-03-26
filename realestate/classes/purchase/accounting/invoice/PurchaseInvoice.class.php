@@ -1107,7 +1107,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'has_instant_reinvoice',
                     'owner_share',
                     'tenant_share',
-                    'ownership_id'
+                    'ownership_id',
+                    'property_lot_id'
                 ],
                 'fund_usage_lines_ids' => [
                     'amount',
@@ -1276,10 +1277,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         MiscOperationLine::create([
                                 'condo_id'                  => $invoice['condo_id'],
                                 'misc_operation_id'         => $miscOperation['id'],
+                                'is_private_expense'        => true,
                                 'description'               => $invoice['description'],
                                 'account_id'                => $ownershipAccount['id'],
                                 'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
-                                'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
+                                'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price']),
+                                'ownership_id'              => $invoiceLine['ownership_id'],
+                                'property_lot_id'           => $invoiceLine['property_lot_id']
                             ]);
 
                         // create the credit line on the private expense
