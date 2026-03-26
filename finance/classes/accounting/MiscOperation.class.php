@@ -145,6 +145,13 @@ class MiscOperation extends Model {
                 'domain'            => [['origin_object_class', '=', 'finance\accounting\MiscOperation'], ['origin_object_id', '=', 'object.id']]
             ],
 
+            'opening_balance_id' => [
+                'type'              => 'many2one',
+                'description'       => "The opening balance of the fiscal year.",
+                'foreign_object'    => 'finance\accounting\OpeningBalance',
+                'ondelete'          => 'null'
+            ],
+
             /**
              * // #todo - temporary flag indicating that this journal entry is used as an "opening journal".
              *
@@ -414,6 +421,8 @@ class MiscOperation extends Model {
                 ->update(['opening_balance_id' => $openingBalance['id']]);
 
             OpeningBalance::id($openingBalance['id'])->update(['status' => 'validated']);
+
+            self::id($id)->update(['opening_balance_id' => $openingBalance['id']]);
         }
     }
 
@@ -780,7 +789,7 @@ class MiscOperation extends Model {
 
     public static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['name', 'accounting_entry_id', 'payment_status', 'has_date_range', 'date_from', 'date_to'];
+        $allowed_fields = ['name', 'accounting_entry_id', 'opening_balance_id', 'payment_status', 'has_date_range', 'date_from', 'date_to'];
         foreach($self as $id => $miscOperation) {
             // only allow editable fields
             if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {

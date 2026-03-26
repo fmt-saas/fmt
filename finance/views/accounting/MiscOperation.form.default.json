@@ -135,7 +135,13 @@
                                                 "type": "field",
                                                 "value": "accounting_entry_id",
                                                 "width": "50%",
-                                                "visible": ["status", "=", "posted"]
+                                                "visible": [["status", "=", "posted"], ["has_opening_journal", "=", false]]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "opening_balance_id",
+                                                "width": "50%",
+                                                "visible": [["status", "=", "posted"], ["has_opening_journal", "=", true]]
                                             },
                                             {
                                                 "type": "field",
