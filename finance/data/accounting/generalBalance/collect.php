@@ -32,6 +32,11 @@ use realestate\finance\accounting\AccountingEntryLine;
             'readonly'          => true
         ],
 
+        'entry_journal' => [
+            'type'              => 'string',
+            'readonly'          => true
+        ],
+
         'description' => [
             'type'              => 'string',
             'description'       => 'Explanation or internal notes about the operation.'
@@ -437,6 +442,7 @@ foreach($map_accounts_ids as $account_id => $_) {
         'journal_id'            => null,
         'accounting_entry_id'   => null,
         'entry_date'            => date('c', $date_from),
+        'entry_journal'         => '',
         'description'           => 'Solde au ' . date('d/m/Y', $params['date_from'] ?? $date_from),
         'debit'                 => $opening_balance > 0 ? $opening_balance : 0,
         'credit'                => $opening_balance < 0 ? abs($opening_balance) : 0,
@@ -458,6 +464,7 @@ foreach($map_accounts_ids as $account_id => $_) {
             }
             if(isset($journals[$journal_id])) {
                 $row['journal_id'] = $journals[$journal_id]->toArray();
+                $row['entry_journal'] = $journals[$journal_id]['mnemo'];
             }
             if(isset($entries[$entry_id])) {
                 $row['accounting_entry_id'] = $entries[$entry_id]->toArray();

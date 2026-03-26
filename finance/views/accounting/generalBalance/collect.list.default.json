@@ -90,8 +90,15 @@
             {
                 "type": "field",
                 "label": "Journal",
-                "value": "journal_id",
+                "value": "entry_journal",
                 "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Journal",
+                "value": "journal_id",
+                "width": "20%",
+                "visible": false
             },
             {
                 "type": "field",
