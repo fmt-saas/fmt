@@ -1283,7 +1283,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
                             ]);
 
-                        // create the credit line on the private expense
+                        // create the credit line on the private expense - we must force the ownership_id and property_lot_id
                         MiscOperationLine::create([
                                 'condo_id'                  => $invoice['condo_id'],
                                 'misc_operation_id'         => $miscOperation['id'],
@@ -1293,7 +1293,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 'debit'                     => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price']),
                                 'credit'                    => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
                                 'ownership_id'              => $invoiceLine['ownership_id'],
-                                'property_lot_id'           => $invoiceLine['property_lot_id']
+                                'property_lot_id'           => $invoiceLine['property_lot_id'],
+                                'owner_share'               => $invoiceLine['owner_share'],
+                                'tenant_share'              => $invoiceLine['tenant_share']
                             ]);
 
                     }
