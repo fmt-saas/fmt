@@ -6,6 +6,7 @@
 */
 
 use equal\orm\Domain;
+use equal\orm\DomainCondition;
 use fmt\sync\SyncPolicy;
 use infra\server\Instance;
 
@@ -132,7 +133,7 @@ if(isset($domain_data['instance_id'])) {
     ]);
 }
 if(isset($domain_data['object_class'])) {
-    $domain->addCondition(['object_class', '=', $domain_data['object_class']]);
+    $domain->addCondition(new DomainCondition('object_class', '=', $domain_data['object_class']));
 }
 
 $objects = $entity::search($domain->toArray())
