@@ -297,7 +297,7 @@ foreach($map_accounts as $account_id => $account) {
 
 
 $invoices_ids = [];
-$statements_ids = [];
+$bank_statements_ids = [];
 $apportionments_ids = [];
 
 
@@ -341,7 +341,7 @@ foreach($lines as $line) {
     }
     elseif($line['bank_statement_line_id']) {
         if($line['bank_statement_line_id']['bank_statement_id']) {
-            $statements_ids[] = $line['bank_statement_line_id']['bank_statement_id'];
+            $bank_statements_ids[] = $line['bank_statement_line_id']['bank_statement_id'];
         }
         if($line['bank_statement_line_id']['apportionment_id']) {
             $apportionments_ids[] = $line['bank_statement_line_id']['apportionment_id'];
@@ -368,20 +368,21 @@ if(!empty($invoices_ids)) {
         ->read([
             'supplier_id' => ['name'],
             'supplier_invoice_number',
-            'emission_date'
+            'emission_date',
+            'invoice_number'
         ])
         ->get();
 
     foreach($invoices as $invoice_id => $invoice) {
         $map_invoices[$invoice_id] = [
-            'supplier_id' => $invoice['supplier_id'],
-            'supplier_reference' => $invoice['supplier_invoice_number']
+            'supplier_id'           => $invoice['supplier_id'],
+            'supplier_reference'    => $invoice['supplier_invoice_number']
         ];
     }
 }
 
-if(!empty($statements_ids)) {
-    $statements = BankStatement::ids($statements_ids)
+if(!empty($bank_statements_ids)) {
+    $statements = BankStatement::ids($bank_statements_ids)
         ->read([
             'bank_id' => ['name'],
             'date',
@@ -391,7 +392,7 @@ if(!empty($statements_ids)) {
 
     foreach($statements as $statement_id => $statement) {
         $map_statements[$statement_id] = [
-            'supplier_id' => $statement['bank_id'],
+            'supplier_id'        => $statement['bank_id'],
             'supplier_reference' => $statement['statement_number']
         ];
     }
@@ -463,6 +464,8 @@ foreach($lines as $line_id => $line) {
     $owner_share  = 0;
     $tenant_share = 0;
 
+    $entry_reference = ($ref = $line['accounting_entry_id']['name'] ?? null) ? implode('/', array_slice(explode('/', $ref), -3)) : null;
+
     // Determine origin and fetch doc metadata
     if(!empty($line['purchase_invoice_line_id']['invoice_id'])) {
         $invoice_id = $line['purchase_invoice_line_id']['invoice_id'];
@@ -477,6 +480,7 @@ foreach($lines as $line_id => $line) {
         if(isset($map_invoices[$invoice_id])) {
             $supplier_id = $map_invoices[$invoice_id]['supplier_id'];
             $supplier_reference = $map_invoices[$invoice_id]['supplier_reference'];
+            $entry_reference = $map_invoices[$invoice_id]['invoice_number'];
         }
     }
     elseif(!empty($line['bank_statement_line_id']['bank_statement_id'])) {
@@ -487,8 +491,9 @@ foreach($lines as $line_id => $line) {
         $vat_rate = $line['bank_statement_line_id']['vat_rate'] ?? 0.0;
 
         if(isset($map_statements[$statement_id])) {
-            $supplier_id = $map_statements[$statement_id]['supplier_id'];
-            $supplier_reference = $map_statements[$statement_id]['supplier_reference'];
+            // $supplier_id = $map_statements[$statement_id]['supplier_id'];
+            // $supplier_reference = $map_statements[$statement_id]['supplier_reference'];
+            $entry_reference = $map_statements[$statement_id]['statement_number'];
         }
     }
     elseif(!empty($line['fund_usage_line_id']['invoice_id'])) {
@@ -521,7 +526,7 @@ foreach($lines as $line_id => $line) {
         // for sorting
         'timestamp'          => $line['entry_date'] ?? null,
         // keep only last 3 parts
-        'entry_reference'    => ($ref = $line['accounting_entry_id']['name'] ?? null) ? implode('/', array_slice(explode('/', $ref), -3)) : null,
+        'entry_reference'    => $entry_reference,
         'supplier_id'        => $supplier_id,
         'supplier_reference' => $supplier_reference,
         'owner_share'        => $owner_share,
