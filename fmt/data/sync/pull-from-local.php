@@ -124,17 +124,22 @@ $domain = new Domain();
 if(isset($domain_data['instance_id'])) {
     $domain = new Domain([
         [
+            ['instance_id', 'is', null]
+        ],
+        [
             ['instance_id', '<>', $domain_data['instance_id']]
         ],
         [
             ['instance_id', '=', $domain_data['instance_id']],
-            ['created', '<>', 'object.modified']
+            ['created', '<>', 'object.modified'] // #todo - handle, because it is automatically removed from domain when ->toArray()
         ]
     ]);
 }
 if(isset($domain_data['object_class'])) {
     $domain->addCondition(new DomainCondition('object_class', '=', $domain_data['object_class']));
 }
+
+$domain->addCondition(new DomainCondition('modified', '>=', $params['date_from'] ?? 0));
 
 $objects = $entity::search($domain->toArray())
     ->read($fields)
