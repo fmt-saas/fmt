@@ -1274,7 +1274,6 @@ class FiscalYear extends Model {
                         $accounting_entries_ids = AccountingEntry::search([
                                 ['fiscal_year_id', '=', $id],
                                 ['entry_date', '>', $values['date_to']],
-                                ['is_cancelled', '=', false],
                                 ['status', '=', 'validated']
                             ])
                             ->ids();

@@ -249,10 +249,11 @@ $lines = AccountingEntryLine::search($domain->toArray())
         'account_id',
         'account_class',
         'accounting_entry_id'       => ['name', 'journal_id', 'expense_statement_id'],
-        'fund_usage_line_id'        => ['apportionment_id', 'invoice_id'],
         'sale_invoice_line_id'      => ['invoice_id'],
-        'purchase_invoice_line_id'  => ['is_private_expense', 'apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'invoice_id'],
+        'fund_usage_line_id'        => ['apportionment_id', 'invoice_id'],
+        'purchase_invoice_line_id'  => ['apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'is_private_expense', 'invoice_id'],
         'bank_statement_line_id'    => ['apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'bank_statement_id'],
+        'misc_operation_line_id'    => ['apportionment_id', 'owner_share', 'tenant_share', 'vat_rate', 'is_private_expense'],
         'description',
         'entry_date',
         'debit',
@@ -331,6 +332,11 @@ foreach($lines as $line) {
         }
         if($line['purchase_invoice_line_id']['apportionment_id']) {
             $apportionments_ids[] = $line['purchase_invoice_line_id']['apportionment_id'];
+        }
+    }
+    elseif($line['misc_operation_line_id']) {
+        if($line['misc_operation_line_id']['apportionment_id']) {
+            $apportionments_ids[] = $line['misc_operation_line_id']['apportionment_id'];
         }
     }
     elseif($line['bank_statement_line_id']) {
@@ -490,6 +496,15 @@ foreach($lines as $line_id => $line) {
         $apportionment_id = $line['fund_usage_line_id']['apportionment_id'] ?? null;
         $owner_share = 100;
         $vat_rate = 0.0;
+    }
+    if(!empty($line['misc_operation_line_id'])) {
+        $apportionment_id = $line['misc_operation_line_id']['apportionment_id'] ?? null;
+        if($line['misc_operation_line_id']['is_private_expense']) {
+            $apportionment_id = 'private_expense';
+        }
+        $owner_share = $line['misc_operation_line_id']['owner_share'] ?? 0;
+        $tenant_share = $line['misc_operation_line_id']['tenant_share'] ?? 0;
+        $vat_rate = $line['misc_operation_line_id']['vat_rate'] ?? 0.0;
     }
     elseif($is_provision) {
         $apportionment_id = 'provisions_restitution';

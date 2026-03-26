@@ -78,8 +78,8 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Reverse accounting entry",
-                                                "value": "reverse_entry_id",
+                                                "label": "Reversed accounting entry",
+                                                "value": "reversed_entry_id",
                                                 "width": "50%",
                                                 "visible": ["status", "=", "cancelled"]
                                             }
