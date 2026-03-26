@@ -1266,7 +1266,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 'condo_id'              => $invoice['condo_id'],
                                 'description'           => 'Refacturation ' . $invoice['description'],
                                 'purchase_invoice_id'   => $id,
-                                'journal_id'            => $saleJournal['id']
+                                'journal_id'            => $saleJournal['id'],
+                                'posting_date'          => $invoice['posting_date']
                             ])
                             ->first();
 
@@ -1650,6 +1651,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         }
     }
 
+    /**
+     * #memo - posting_date is synched based on emission_date in parent::onchange($event, $values)
+     */
     public static function onchange($event, $values) {
         $result = [];
         if(array_key_exists('invoice_lines_ids', $event)) {
