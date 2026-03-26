@@ -277,7 +277,7 @@ else {
         )
         ->first();
 
-    $opening_balance_id = $openingBalance['id'];
+    $opening_balance_id = $openingBalance['id'] ?? null;
 }
 
 if($opening_balance_id) {

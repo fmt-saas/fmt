@@ -1223,6 +1223,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             // 3) create entry lines for private expenses, if any, and keep track of what should be taken into account by the working capital
 
+            // delete any previously created pending MiscOperation
+            MiscOperation::search(['purchase_invoice_id', '=', $id])->delete(true);
+
             // #memo - in case of a private expense, only first date is used for accounting
             foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
                 if($invoiceLine['is_private_expense']) {
@@ -1273,8 +1276,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 'misc_operation_id'         => $miscOperation['id'],
                                 'description'               => $invoice['description'],
                                 'account_id'                => $ownershipAccount['id'],
-                                'debit'                     => 0.0,
-                                'credit'                    => $invoiceLine['price']
+                                'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
+                                'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
                             ]);
 
                         // create the credit line on the private expense
@@ -1283,8 +1286,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 'misc_operation_id'         => $miscOperation['id'],
                                 'description'               => $invoice['description'],
                                 'account_id'                => $privateExpenseAccount['id'],
-                                'debit'                     => 0.0,
-                                'credit'                    => $invoiceLine['price']
+                                'debit'                     => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price']),
+                                'credit'                    => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0
                             ]);
 
                     }
