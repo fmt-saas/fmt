@@ -298,16 +298,16 @@ foreach($template['parts_ids'] as $part_id => $part) {
 
         $filter_label = '';
 
-        if($params['params']['suppliers_only'] ?? false) {
+        if($params['params']['suppliers_only'] === true || $params['params']['suppliers_only'] === 'true') {
             $filter_label = 'fournisseurs';
         }
-        elseif($params['params']['ownerships_only'] ?? false) {
+        elseif($params['params']['ownerships_only'] === true || $params['params']['ownerships_only'] === 'true') {
             $filter_label = 'copropriétaires';
         }
 
         $map_values = [
             'date_to' => $getFormattedDate($date_to),
-            'filter'  => strlen($filter_label) ? ' ('. $filter_label .')' : ''
+            'filter'  => strlen($filter_label) ?  " ($filter_label)"     : ''
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
