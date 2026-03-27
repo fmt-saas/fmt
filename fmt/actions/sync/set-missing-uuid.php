@@ -10,6 +10,8 @@ use documents\DocumentType;
 use equal\data\DataGenerator;
 use identity\Identity;
 use purchase\supplier\Supplier;
+use purchase\supplier\SupplierType;
+use realestate\property\Condominium;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate and set uuid that are missing on objects.',
@@ -18,7 +20,7 @@ use purchase\supplier\Supplier;
             'type'          => 'string',
             'usage'         => 'orm/entity',
             'description'   => 'Full name (including namespace) of the specific class to export (e.g. "core\\User").',
-            'help'          => 'If left empty, all DocumentType, DocumentSubtype, Identity and Supplier are handled.'
+            'help'          => 'If left empty all (DocumentType, DocumentSubtype, Identity, Supplier and Condominium) are handled.'
         ]
     ],
     'access' => [
@@ -43,21 +45,23 @@ if(constant('FMT_INSTANCE_TYPE') !== 'global') {
 }
 
 $entities_classes_links = [
-    DocumentType::class     => [],
-    DocumentSubtype::class  => ['document_type'],
-    Identity::class         => [],
-    Supplier::class         => ['identity']
+    DocumentType::getType()     => [],
+    DocumentSubtype::getType()  => ['document_type'],
+    Identity::getType()         => [],
+    SupplierType::getType()     => [],
+    Supplier::getType()         => ['identity'],
+    Condominium::getType()      => ['identity']
 ];
 
 if(isset($params['entity'])) {
     $entities_classes = [];
-    if($params['entity'] === DocumentSubtype::class) {
+    if($params['entity'] === DocumentSubtype::getType()) {
         // needs DocumentType to create a valid link
-        $entities_classes[] = DocumentType::class;
+        $entities_classes[] = DocumentType::getType();
     }
-    elseif($params['entity'] === Supplier::class) {
+    elseif(in_array($params['entity'], [Supplier::getType(), Condominium::getType()])) {
         // needs Identity to create a valid link
-        $entities_classes[] = Identity::class;
+        $entities_classes[] = Identity::getType();
     }
 
     $entities_classes[] = $params['entity'];
