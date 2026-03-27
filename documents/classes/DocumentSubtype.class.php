@@ -52,12 +52,17 @@ class DocumentSubtype extends Model {
             'document_type_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentType',
-                'description'       => 'Parent documents type.'
+                'description'       => 'Parent documents type.',
+                'dependents'        => ['document_type_uuid']
             ],
 
             'document_type_uuid' => [
-                'type'              => 'string',
+                'type'              => 'computed',
+                'result_type'       => 'string',
                 'usage'             => 'text/plain:36',
+                'store'             => true,
+                'instant'           => true,
+                'relation'          => ['document_type_id' => 'uuid'],
                 'description'       => 'Unique document type identifier provided by GLOBAL instance.'
             ],
 

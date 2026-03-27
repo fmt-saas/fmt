@@ -114,6 +114,7 @@ class Identity extends Model {
             'identity_uuid' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
+                'usage'             => 'text/plain:36',
                 'store'             => true,
                 'instant'           => true,
                 'relation'          => ['identity_id' => 'uuid'],
