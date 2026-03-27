@@ -42,18 +42,28 @@ if(constant('FMT_INSTANCE_TYPE') !== 'global') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-$entities_classes = [
-    DocumentType::class,
-    DocumentSubtype::class,
-    Identity::class,
-    Supplier::class
+$entities_classes_links = [
+    DocumentType::class     => [],
+    DocumentSubtype::class  => ['document_type'],
+    Identity::class         => [],
+    Supplier::class         => ['identity']
 ];
 
 if(isset($params['entity'])) {
-    $entities_classes = [$params['entity']];
+    $entities_classes = [];
+    if($params['entity'] === DocumentSubtype::class) {
+        // needs DocumentType to create a valid link
+        $entities_classes[] = DocumentType::class;
+    }
+    elseif($params['entity'] === Supplier::class) {
+        // needs Identity to create a valid link
+        $entities_classes[] = Identity::class;
+    }
+
+    $entities_classes[] = $params['entity'];
 }
 
-foreach($entities_classes as $entity_class) {
+foreach($entities_classes_links as $entity_class => $links) {
     $objects = $entity_class::search(['uuid', 'is', null])
         ->read(['uuid'])
         ->get();
@@ -65,6 +75,21 @@ foreach($entities_classes as $entity_class) {
         } while( $existing > 0 && count($existing) > 0 );
 
         $entity_class::id($id)->update(['uuid' => $uuid]);
+    }
+
+    if(!empty($links)) {
+        foreach($links as $link) {
+            $objects = $entity_class::search([
+                [$link.'_id', 'is not', null],
+                [$link.'_uuid', 'is', null]
+            ])
+                ->read([$link.'_id' => ['uuid']])
+                ->get();
+
+            foreach($objects as $id => $object) {
+                $entity_class::id($id)->update([$link.'_uuid' => $object[$link.'_id']['uuid']]);
+            }
+        }
     }
 }
 
