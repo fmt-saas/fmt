@@ -130,12 +130,18 @@ foreach($policies as $id => $policy) {
                     ->first();
             }
 
+            $not_allowed_fields = ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'];
+            if($policy['scope'] === 'private') {
+                // #memo - allow "id" field for "private" scope, because entity cannot be created/modified on agencies' instances
+                unset($not_allowed_fields[0]);
+            }
+
             // a match was found with an existing object
             if($localObject) {
                 $values_to_update = [];
                 foreach($values as $field => $value) {
                     // #memo - if uuid has been received we need it to be part of the update
-                    if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                    if(in_array($field, $not_allowed_fields)) {
                         continue;
                     }
                     // ignore empty fields
@@ -186,7 +192,7 @@ foreach($policies as $id => $policy) {
             else {
                 $values_to_update = [];
                 foreach($values as $field => $value) {
-                    if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                    if(in_array($field, $not_allowed_fields)) {
                         continue;
                     }
                     // ignore empty fields
