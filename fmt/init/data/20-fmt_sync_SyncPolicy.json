@@ -373,6 +373,11 @@
             },
             {
                 "sync_policy_id": 5,
+                "object_field": "identity_uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 5,
                 "object_field": "email",
                 "scope": "public"
             },
@@ -395,6 +400,11 @@
                 "sync_policy_id": 6,
                 "object_field": "identity_id",
                 "scope": "private"
+            },
+            {
+                "sync_policy_id": 6,
+                "object_field": "identity_uuid",
+                "scope": "public"
             },
             {
                 "sync_policy_id": 6,
