@@ -65,6 +65,11 @@ if(!$model) {
 
 $schema = $model->getSchema();
 
+if(isset($schema['uuid'])) {
+    // make sure that all objects needing an uuid have one
+    eQual::run('do', 'fmt_sync_set-missing-uuid', ['entity' => $entity]);
+}
+
 // retrieve SyncPolicy related to 'protected' entities
 // #memo - we expect SyncPolicies to remain identical across all instances
 $policy = SyncPolicy::search([

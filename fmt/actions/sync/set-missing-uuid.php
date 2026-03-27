@@ -13,6 +13,12 @@ use purchase\supplier\Supplier;
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate and set uuid that are missing on objects.',
     'params'        => [
+        'entity' => [
+            'type'          => 'string',
+            'usage'         => 'orm/entity',
+            'description'   => 'Full name (including namespace) of the specific class to export (e.g. "core\\User").',
+            'help'          => 'If left empty, all DocumentType, Identity and Supplier are handled.'
+        ]
     ],
     'access' => [
         'visibility'    => 'protected'
@@ -40,6 +46,10 @@ $entities_classes = [
     Identity::class,
     Supplier::class
 ];
+
+if(isset($params['entity'])) {
+    $entities_classes = [$params['entity']];
+}
 
 foreach($entities_classes as $entity_class) {
     $objects = $entity_class::search(['uuid', 'is', null])

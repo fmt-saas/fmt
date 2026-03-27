@@ -71,9 +71,6 @@ $now = time();
 $timestamp = Setting::get_value('fmt', 'system', 'sync.last_pull_timestamp', 0);
 $date_from = date('c', $timestamp);
 
-// make sure that all objects needing an uuid have one
-eQual::run('do', 'fmt_sync_set-missing-uuid');
-
 // #memo - on local instances there is a single Instance object
 $instance = Instance::search()->read(['uuid'])->first();
 
