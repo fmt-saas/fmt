@@ -328,6 +328,11 @@
             },
             {
                 "sync_policy_id": 4,
+                "object_field": "identity_uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 4,
                 "object_field": "address_street",
                 "scope": "protected"
             },
