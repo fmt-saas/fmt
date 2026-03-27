@@ -86,6 +86,11 @@ foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
 // retrieve all fields of the requested entity
 $schema = $orm->getModel($entity)->getSchema();
 
+if(isset($schema['uuid'])) {
+    // make sure that all objects needing an uuid have one
+    eQual::run('do', 'fmt_sync_set-missing-uuid', ['entity' => $entity]);
+}
+
 // we're only interested in scalar fields
 $fields = ['uuid'];
 
@@ -94,8 +99,8 @@ foreach($schema as $field => $def) {
     if($field === 'instance_id' && $policy['scope'] === 'protected') {
         $domain_data['instance_id'] = $instance['id'];
     }
-    elseif($field === 'object_class') {
-        $domain_data['object_class'] = $entity;
+    elseif($field === 'object_class' && isset($def['default'])) {
+        $domain_data['object_class'] = $def['default'];
     }
 
     if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {

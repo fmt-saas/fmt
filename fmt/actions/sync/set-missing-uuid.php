@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use documents\DocumentSubtype;
 use documents\DocumentType;
 use equal\data\DataGenerator;
 use identity\Identity;
@@ -17,7 +18,7 @@ use purchase\supplier\Supplier;
             'type'          => 'string',
             'usage'         => 'orm/entity',
             'description'   => 'Full name (including namespace) of the specific class to export (e.g. "core\\User").',
-            'help'          => 'If left empty, all DocumentType, Identity and Supplier are handled.'
+            'help'          => 'If left empty, all DocumentType, DocumentSubtype, Identity and Supplier are handled.'
         ]
     ],
     'access' => [
@@ -43,6 +44,7 @@ if(constant('FMT_INSTANCE_TYPE') !== 'global') {
 
 $entities_classes = [
     DocumentType::class,
+    DocumentSubtype::class,
     Identity::class,
     Supplier::class
 ];
