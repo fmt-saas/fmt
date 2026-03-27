@@ -153,7 +153,7 @@ class DocumentType extends Model {
 
     public static function getActions() {
         return [
-            'sync_links' => [
+            'sync_uuid_links' => [
                 'description'   => 'Synchronize the uuid links.',
                 'policies'      => [],
                 'function'      => 'doSyncUuidLinks'

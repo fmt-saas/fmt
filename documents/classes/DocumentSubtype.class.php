@@ -109,7 +109,7 @@ class DocumentSubtype extends Model {
                     ->first();
 
                 if($document_subtype['document_type_id'] !== $document['id']) {
-                    self::id($id)->update(['document_id' => $document['id']]);
+                    self::id($id)->update(['document_type_id' => $document['id']]);
                 }
             }
         }
@@ -117,7 +117,7 @@ class DocumentSubtype extends Model {
 
     public static function getActions() {
         return [
-            'sync_links' => [
+            'sync_uuid_links' => [
                 'description'   => 'Synchronize the uuid links.',
                 'policies'      => [],
                 'function'      => 'doSyncUuidLinks'

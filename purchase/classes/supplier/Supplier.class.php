@@ -70,13 +70,6 @@ class Supplier extends Identity {
              * Specific Supplier columns
              */
 
-            'uuid' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain:36',
-                'unique'            => true,
-                'description'       => 'Unique supplier identifier provided by GLOBAL instance.'
-            ],
-
             'invoices_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoice',

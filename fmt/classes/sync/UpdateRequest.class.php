@@ -265,7 +265,7 @@ class UpdateRequest extends Model {
 
                 self::id($id)->update($values);
 
-                if(!method_exists($model, 'getActions')) {
+                if(method_exists($model, 'getActions')) {
                     $actions = array_keys($updateRequest['object_class']::getActions());
                     if(in_array('sync_uuid_links', $actions)) {
                         $updateRequest['object_class']::id($object['id'])->do('sync_uuid_links');
