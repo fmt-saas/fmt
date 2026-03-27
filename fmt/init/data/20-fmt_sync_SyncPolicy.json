@@ -457,6 +457,12 @@
                 "scope": "public"
             },
             {
+                "sync_policy_id": 6,
+                "object_field": "address_country",
+                "scope": "public"
+            },
+
+            {
                 "sync_policy_id": 7,
                 "object_field": "identity_id",
                 "scope": "private"

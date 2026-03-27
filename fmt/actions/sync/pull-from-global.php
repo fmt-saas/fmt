@@ -15,7 +15,13 @@ use infra\server\Instance;
 [$params, $providers] = eQual::announce([
     'description'   => 'Request a pull of changed data from GLOBAL instance to local FMT instance.',
     'help'          => 'This action connects to the GLOBAL instance and pulls all changed data since last sync.',
-    'params'        => [],
+    'params'        => [
+        'accept' => [
+            'type'              => 'boolean',
+            'description'       => "Automatically accept all update requests.",
+            'default'           => false
+        ]
+    ],
     'access' => [
         'visibility'    => 'protected'
     ],
@@ -163,7 +169,7 @@ foreach($policies as $id => $policy) {
                         ]);
                     }
 
-                    if($policy['scope'] === 'private') {
+                    if($policy['scope'] === 'private' || $params['accept']) {
                         // automatically accept private policy
                         UpdateRequest::id($updateRequest['id'])->do('accept');
 
@@ -217,7 +223,7 @@ foreach($policies as $id => $policy) {
                         ]);
                     }
 
-                    if($policy['scope'] === 'private') {
+                    if($policy['scope'] === 'private' || $params['accept']) {
                         // automatically accept private policy
                         UpdateRequest::id($updateRequest['id'])->do('accept');
 

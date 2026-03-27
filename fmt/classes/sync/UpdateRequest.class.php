@@ -254,8 +254,7 @@ class UpdateRequest extends Model {
 
                 $values = [
                         'status'            => 'approved',
-                        'approval_user_id'  => $user_id,
-                        'approval_reason'   => $values['reason']
+                        'approval_user_id'  => $user_id
                     ];
 
                 if(isset($values['reason'])) {
