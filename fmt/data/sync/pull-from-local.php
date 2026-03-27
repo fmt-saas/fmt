@@ -122,18 +122,8 @@ foreach($schema as $field => $def) {
 
 $domain = new Domain();
 if(isset($domain_data['instance_id'])) {
-    $domain = new Domain([
-        [
-            ['instance_id', 'is', null]
-        ],
-        [
-            ['instance_id', '<>', $domain_data['instance_id']]
-        ],
-        [
-            ['instance_id', '=', $domain_data['instance_id']],
-            ['created', '<>', 'object.modified'] // #todo - handle, because it is automatically removed from domain when ->toArray()
-        ]
-    ]);
+    // the filtering is done after the objects are fetched, to handle the condition -> "modified" <> "created"
+    $fields = array_merge($fields, ['instance_id', 'created', 'modified']);
 }
 if(isset($domain_data['object_class'])) {
     $domain->addCondition(new DomainCondition('object_class', '=', $domain_data['object_class']));
@@ -145,6 +135,16 @@ $objects = $entity::search($domain->toArray())
     ->read($fields)
     ->adapt('json')
     ->get(true);
+
+if(isset($domain_data['instance_id'])) {
+    // don't return the objects that were created on the agency instance and were not modified since
+    $objects = array_filter($objects, function ($object) use ($domain_data) {
+        return $object['instance_id'] !== $domain_data['instance_id']
+            || $object['modified'] !== $object['created'];
+    });
+
+    $objects = array_values($objects);
+}
 
 $context->httpResponse()
         ->body($objects)
