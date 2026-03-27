@@ -594,7 +594,7 @@
             },
             {
                 "sync_policy_id": 11,
-                "object_field": "document_type_id",
+                "object_field": "document_type_uuid",
                 "scope": "public"
             },
             {

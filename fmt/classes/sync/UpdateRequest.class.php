@@ -245,11 +245,13 @@ class UpdateRequest extends Model {
 
                 // create or update target object
                 if($updateRequest['is_new']) {
-                    $updateRequest['object_class']::create($data);
+                    $object = $updateRequest['object_class']::create($data)
+                        ->first();
                 }
                 else {
-                    $updateRequest['object_class']::id($updateRequest['object_id'])
-                        ->update($data);
+                    $object = $updateRequest['object_class']::id($updateRequest['object_id'])
+                        ->update($data)
+                        ->first();
                 }
 
                 $values = [
@@ -262,6 +264,13 @@ class UpdateRequest extends Model {
                 }
 
                 self::id($id)->update($values);
+
+                if(!method_exists($model, 'getActions')) {
+                    $actions = array_keys($updateRequest['object_class']::getActions());
+                    if(in_array('sync_uuid_links', $actions)) {
+                        $updateRequest['object_class']::id($object['id'])->do('sync_uuid_links');
+                    }
+                }
             }
             catch(\Exception $e) {
                 trigger_error("PHP::unable to apply update request: " . $e->getMessage(), EQ_REPORT_ERROR);
