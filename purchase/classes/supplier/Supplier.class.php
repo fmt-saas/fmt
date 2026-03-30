@@ -184,7 +184,7 @@ class Supplier extends Identity {
                 $identity = Identity::search(['uuid', '=', $supplier['identity_uuid']])
                     ->first();
 
-                if($identity['identity_id'] !== $identity['id']) {
+                if($identity && $identity['identity_id'] !== $identity['id']) {
                     self::id($id)->update(['identity_id' => $identity['id']]);
                 }
             }

@@ -492,7 +492,7 @@ class Condominium extends Identity {
                 $identity = Identity::search(['uuid', '=', $condo['identity_uuid']])
                     ->first();
 
-                if($identity['identity_id'] !== $identity['id']) {
+                if($identity && $identity['identity_id'] !== $identity['id']) {
                     self::id($id)->update(['identity_id' => $identity['id']]);
                 }
             }

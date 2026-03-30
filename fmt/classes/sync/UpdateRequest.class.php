@@ -231,6 +231,9 @@ class UpdateRequest extends Model {
                         case 'boolean':
                             $val = (bool) $line['new_value'];
                             break;
+                        case 'many2many':
+                            $val = json_decode($line['new_value'], true);
+                            break;
                         case 'string':
                         default:
                             $val = (string) $line['new_value'];

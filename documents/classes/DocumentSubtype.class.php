@@ -113,7 +113,7 @@ class DocumentSubtype extends Model {
                 $document = DocumentType::search(['uuid', '=', $document_subtype['document_type_uuid']])
                     ->first();
 
-                if($document_subtype['document_type_id'] !== $document['id']) {
+                if($document && $document_subtype['document_type_id'] !== $document['id']) {
                     self::id($id)->update(['document_type_id' => $document['id']]);
                 }
             }

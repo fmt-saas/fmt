@@ -148,8 +148,14 @@ foreach($policies as $id => $policy) {
                     if($value === null || $value === '') {
                         continue;
                     }
+                    // ignore unchanged fields (many2many)
+                    if(is_array($localObject[$field]) && is_array($value)) {
+                        if(empty(array_diff($localObject[$field], $value)) && empty(array_diff($value, $localObject[$field]))) {
+                            continue;
+                        }
+                    }
                     // ignore unchanged fields
-                    if((string) $localObject[$field] === (string) $value) {
+                    elseif((string) $localObject[$field] === (string) $value) {
                         continue;
                     }
 
@@ -167,11 +173,27 @@ foreach($policies as $id => $policy) {
                         ->first();
 
                     foreach($values_to_update as $field => $value) {
+                        $old_value = null;
+                        if(is_array($localObject[$field])) {
+                            $old_value = json_encode($localObject[$field]);
+                        }
+                        else {
+                            $old_value = (string) $localObject[$field];
+                        }
+
+                        $new_value = null;
+                        if(is_array($value)) {
+                            $new_value = json_encode($value);
+                        }
+                        else {
+                            $new_value = (string) $value;
+                        }
+
                         UpdateRequestLine::create([
                             'update_request_id' => $updateRequest['id'],
                             'object_field'      => $field,
-                            'old_value'         => (string) $localObject[$field],
-                            'new_value'         => (string) $value
+                            'old_value'         => $old_value,
+                            'new_value'         => $new_value
                         ]);
                     }
 
@@ -214,18 +236,18 @@ foreach($policies as $id => $policy) {
                         ->first();
 
                     foreach($values_to_update as $field => $value) {
-                        if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
-                            continue;
+                        $new_value = null;
+                        if(is_array($value)) {
+                            $new_value = json_encode($value);
                         }
-                        // ignore empty fields
-                        if($value === null || $value === '') {
-                            continue;
+                        else {
+                            $new_value = (string) $value;
                         }
 
                         UpdateRequestLine::create([
                             'update_request_id' => $updateRequest['id'],
                             'object_field'      => $field,
-                            'new_value'         => (string) $value
+                            'new_value'         => $new_value
                         ]);
                     }
 
