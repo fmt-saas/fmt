@@ -307,11 +307,6 @@
                 "scope": "public"
             },
             {
-                "sync_policy_id": 3,
-                "object_field": "supplier_types_ids",
-                "scope": "public"
-            },
-            {
                 "sync_policy_id": 4,
                 "object_field": "registration_number",
                 "scope": "public"
@@ -389,6 +384,11 @@
             {
                 "sync_policy_id": 4,
                 "object_field": "website",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "supplier_types_ids",
                 "scope": "public"
             },
             {
