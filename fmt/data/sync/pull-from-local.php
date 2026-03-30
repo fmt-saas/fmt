@@ -153,11 +153,19 @@ if(isset($domain_data['instance_id'])) {
 
 // don't return data if one object has a missing required value
 foreach($objects as $object) {
+    $has_invalid_object = false;
+
     foreach($schema as $field => $def) {
         $is_required = $def['required'] ?? false;
         if($is_required && empty($object[$field])) {
-            throw new Exception("missing_required_value", EQ_ERROR_CONFLICT_OBJECT);
+            // #todo - create alert on object so it can be fixed
+            $has_invalid_object = true;
         }
+    }
+
+    if($has_invalid_object) {
+        // #todo - send mail to alert that the synchronization is stuck
+        throw new Exception("missing_required_value", EQ_ERROR_CONFLICT_OBJECT);
     }
 }
 
