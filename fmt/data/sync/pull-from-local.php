@@ -151,6 +151,16 @@ if(isset($domain_data['instance_id'])) {
     $objects = array_values($objects);
 }
 
+// don't return data if one object has a missing required value
+foreach($objects as $object) {
+    foreach($schema as $field => $def) {
+        $is_required = $def['required'] ?? false;
+        if($is_required && empty($object[$field])) {
+            throw new Exception("missing_required_value", EQ_ERROR_CONFLICT_OBJECT);
+        }
+    }
+}
+
 $context->httpResponse()
         ->body($objects)
         ->send();
