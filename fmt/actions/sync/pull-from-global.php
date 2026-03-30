@@ -53,6 +53,7 @@ $policies = SyncPolicy::search([
         'scope',
         'object_class',
         'field_unique',
+        'last_pull',
         'sync_policy_lines_ids' => ['object_field', 'scope']
     ]);
 
@@ -66,11 +67,6 @@ $result = [
     'logs'      => []
 ];
 
-$now = time();
-
-$timestamp = Setting::get_value('fmt', 'system', 'sync.last_pull_timestamp', 0);
-$date_from = date('c', $timestamp);
-
 // #memo - on local instances there is a single Instance object
 $instance = Instance::search()->read(['uuid'])->first();
 
@@ -79,6 +75,8 @@ if(!$instance || empty($instance['uuid'])) {
 }
 
 foreach($policies as $id => $policy) {
+
+    $now = time();
 
     $entity = $policy['object_class'];
 
@@ -89,6 +87,8 @@ foreach($policies as $id => $policy) {
         }
 
         $schema = $model->getSchema();
+
+        $date_from = date('c', $policy['last_pull']);
 
         $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_sync_pull-from-local' .
                 '&entity=' . urlencode($policy['object_class']) .
@@ -270,15 +270,14 @@ foreach($policies as $id => $policy) {
                 }
             }
         }
+
+        SyncPolicy::id($policy['id'])->update(['last_pull' => $now]);
     }
     catch(Exception $e) {
         ++$result['errors'];
         $result['logs'][] = "Unable to fetch entity {$entity} from Global instance: " . $e->getMessage();
     }
 }
-
-// store last_sync_timestamp
-Setting::set_value('fmt', 'system', 'sync.last_pull_timestamp', $now);
 
 $context
     ->httpResponse()
