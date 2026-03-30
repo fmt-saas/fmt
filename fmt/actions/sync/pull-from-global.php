@@ -102,6 +102,11 @@ foreach($policies as $id => $policy) {
 
         /** @var \equal\http\HttpResponse $response */
         $response = $request->send();
+
+        if($response->getStatusCode() !== 200) {
+            throw new Exception('data_fetching_error', EQ_ERROR_CONFLICT_OBJECT);
+        }
+
         $data = $response->body();
 
         foreach($data as $values) {
