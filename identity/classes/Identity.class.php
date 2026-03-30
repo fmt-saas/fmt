@@ -114,6 +114,7 @@ class Identity extends Model {
             'identity_uuid' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
+                'usage'             => 'text/plain:36',
                 'store'             => true,
                 'instant'           => true,
                 'relation'          => ['identity_id' => 'uuid'],
@@ -757,6 +758,11 @@ class Identity extends Model {
             'refresh_registration_number' => [
                 'description'   => '.',
                 'function'      => 'doRefreshRegistrationNumber'
+            ],
+            'sync_uuid_links' => [
+                'description'   => 'Synchronize the uuid links.',
+                'policies'      => [],
+                'function'      => 'doSyncUuidLinks'
             ]
         ];
     }
@@ -965,6 +971,28 @@ class Identity extends Model {
                     'address_state'     => $identity['address_state'],
                     'address_country'   => $identity['address_country']
                 ]);
+            }
+        }
+    }
+
+    protected static function doSyncUuidLinks($self) {
+        $self->read(['uuid']);
+        foreach($self as $id => $identity) {
+            if(!empty($identity['uuid'])) {
+                $suppliers = Supplier::search(['identity_uuid', '=', $identity['uuid']])
+                    ->read(['identity_id'])
+                    ->get();
+
+                $suppliers_to_sync_ids = [];
+                foreach($suppliers as $s_id => $supplier) {
+                    if($supplier['identity_id'] !== $id) {
+                        $suppliers_to_sync_ids[] = $s_id;
+                    }
+                }
+
+                if(!empty($suppliers_to_sync_ids)) {
+                    Supplier::ids($suppliers_to_sync_ids)->update(['identity_id' => $id]);
+                }
             }
         }
     }

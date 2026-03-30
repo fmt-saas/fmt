@@ -86,6 +86,11 @@ foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
 // retrieve all fields of the requested entity
 $schema = $orm->getModel($entity)->getSchema();
 
+if(isset($schema['uuid'])) {
+    // make sure that all objects needing an uuid have one
+    eQual::run('do', 'fmt_sync_set-missing-uuid', ['entity' => $entity]);
+}
+
 // we're only interested in scalar fields
 $fields = ['uuid'];
 
@@ -94,16 +99,16 @@ foreach($schema as $field => $def) {
     if($field === 'instance_id' && $policy['scope'] === 'protected') {
         $domain_data['instance_id'] = $instance['id'];
     }
-    elseif($field === 'object_class') {
-        $domain_data['object_class'] = $entity;
+    elseif($field === 'object_class' && isset($def['default'])) {
+        $domain_data['object_class'] = $def['default'];
     }
 
     if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
         continue;
     }
     elseif(
-        (!isset($def['type']) || !in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one'])) &&
-        (!isset($def['result_type']) || !in_array($def['result_type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one']))
+        (!isset($def['type']) || !in_array($def['type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one', 'many2many'])) &&
+        (!isset($def['result_type']) || !in_array($def['result_type'], ['string', 'integer', 'float', 'boolean', 'date', 'datetime', 'many2one', 'many2many']))
     ) {
         continue;
     }
@@ -122,18 +127,8 @@ foreach($schema as $field => $def) {
 
 $domain = new Domain();
 if(isset($domain_data['instance_id'])) {
-    $domain = new Domain([
-        [
-            ['instance_id', 'is', null]
-        ],
-        [
-            ['instance_id', '<>', $domain_data['instance_id']]
-        ],
-        [
-            ['instance_id', '=', $domain_data['instance_id']],
-            ['created', '<>', 'object.modified'] // #todo - handle, because it is automatically removed from domain when ->toArray()
-        ]
-    ]);
+    // the filtering is done after the objects are fetched, to handle the condition -> "modified" <> "created"
+    $fields = array_merge($fields, ['instance_id', 'created', 'modified']);
 }
 if(isset($domain_data['object_class'])) {
     $domain->addCondition(new DomainCondition('object_class', '=', $domain_data['object_class']));
@@ -145,6 +140,34 @@ $objects = $entity::search($domain->toArray())
     ->read($fields)
     ->adapt('json')
     ->get(true);
+
+if(isset($domain_data['instance_id'])) {
+    // don't return the objects that were created on the agency instance and were not modified since
+    $objects = array_filter($objects, function ($object) use ($domain_data) {
+        return $object['instance_id'] !== $domain_data['instance_id']
+            || $object['modified'] !== $object['created'];
+    });
+
+    $objects = array_values($objects);
+}
+
+// don't return data if one object has a missing required value
+foreach($objects as $object) {
+    $has_invalid_object = false;
+
+    foreach($schema as $field => $def) {
+        $is_required = $def['required'] ?? false;
+        if($is_required && empty($object[$field])) {
+            // #todo - create alert on object so it can be fixed
+            $has_invalid_object = true;
+        }
+    }
+
+    if($has_invalid_object) {
+        // #todo - send mail to alert that the synchronization is stuck
+        throw new Exception("missing_required_value", EQ_ERROR_CONFLICT_OBJECT);
+    }
+}
 
 $context->httpResponse()
         ->body($objects)

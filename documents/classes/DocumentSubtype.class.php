@@ -52,7 +52,18 @@ class DocumentSubtype extends Model {
             'document_type_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentType',
-                'description'       => 'Parent documents type.'
+                'description'       => 'Parent documents type.',
+                'dependents'        => ['document_type_uuid']
+            ],
+
+            'document_type_uuid' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'text/plain:36',
+                'store'             => true,
+                'instant'           => true,
+                'relation'          => ['document_type_id' => 'uuid'],
+                'description'       => 'Unique document type identifier provided by GLOBAL instance.'
             ],
 
             'recording_rules_ids' => [
@@ -94,122 +105,28 @@ class DocumentSubtype extends Model {
             }
         }
     }
-}
 
+    protected static function doSyncUuidLinks($self) {
+        $self->read(['document_type_id', 'document_type_uuid']);
+        foreach($self as $id => $document_subtype) {
+            if(!empty($document_subtype['document_type_uuid'])) {
+                $document = DocumentType::search(['uuid', '=', $document_subtype['document_type_uuid']])
+                    ->first();
 
-/*
-// example for `invoice`
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.org/schemas/invoice.schema.json",
-  "title": "Invoice Schema",
-  "description": "Simplified invoice format compatible with UBL, inspired by schema.org/Invoice",
-  "type": "object",
-  "required": ["invoice_number", "issue_date", "currency", "supplier", "customer", "lines", "totals"],
-  "properties": {
-    "invoice_number": {
-      "type": "string",
-      "description": "Unique identifier for the invoice"
-    },
-    "issue_date": {
-      "type": "string",
-      "format": "date",
-      "description": "Date the invoice was issued"
-    },
-    "due_date": {
-      "type": ["string", "null"],
-      "format": "date",
-      "description": "Date by which the payment is due"
-    },
-    "currency": {
-      "type": "string",
-      "description": "Currency code in ISO 4217 format",
-      "examples": ["EUR", "USD"]
-    },
-
-    "supplier": {
-      "type": "object",
-      "required": ["name", "street", "vat"],
-      "properties": {
-        "name": { "type": "string" },
-        "street": { "type": "string" },
-        "vat": { "type": "string" }
-      }
-    },
-
-    "customer": {
-      "type": "object",
-      "required": ["name", "street"],
-      "properties": {
-        "name": { "type": "string" },
-        "street": { "type": "string" }
-      }
-    },
-
-    "customer_reference": {
-      "type": ["string", "null"],
-      "description": "Reference provided by the customer (e.g. PO number)"
-    },
-
-    "billing_period": {
-      "type": "object",
-      "required": ["start", "end"],
-      "properties": {
-        "start": { "type": ["string", "null"], "format": "date" },
-        "end": { "type": ["string", "null"], "format": "date" }
-      }
-    },
-
-    "payment_reference": {
-      "type": ["string", "null"],
-      "description": "Reference to use when making payment"
-    },
-
-    "payment_account": {
-      "type": ["string", "null"],
-      "description": "Bank account or IBAN to pay to"
-    },
-
-    "payment_account_name": {
-      "type": ["string", "null"],
-      "description": "Name associated with the payment account"
-    },
-
-    "payment_type": {
-      "type": ["string", "null"],
-      "description": "Type of payment expected (e.g. SEPA, Transfer)"
-    },
-
-    "auto_debit": {
-      "type": "boolean",
-      "description": "Indicates whether the invoice will be debited automatically"
-    },
-
-    "lines": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["id", "description", "amount", "unit_price"],
-        "properties": {
-          "id": { "type": "string" },
-          "description": { "type": "string" },
-          "amount": { "type": "number" },
-          "unit_price": { "type": "number" }
+                if($document && $document_subtype['document_type_id'] !== $document['id']) {
+                    self::id($id)->update(['document_type_id' => $document['id']]);
+                }
+            }
         }
-      }
-    },
-
-    "totals": {
-      "type": "object",
-      "required": ["subtotal", "total_excl_tax", "total_incl_tax", "payable_amount"],
-      "properties": {
-        "subtotal": { "type": "number" },
-        "total_excl_tax": { "type": "number" },
-        "total_incl_tax": { "type": "number" },
-        "payable_amount": { "type": "number" }
-      }
     }
-  }
-}
 
- */
+    public static function getActions() {
+        return [
+            'sync_uuid_links' => [
+                'description'   => 'Synchronize the uuid links.',
+                'policies'      => [],
+                'function'      => 'doSyncUuidLinks'
+            ]
+        ];
+    }
+}

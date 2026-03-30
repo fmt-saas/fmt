@@ -15,7 +15,13 @@ use infra\server\Instance;
 [$params, $providers] = eQual::announce([
     'description'   => 'Request a pull of changed data from GLOBAL instance to local FMT instance.',
     'help'          => 'This action connects to the GLOBAL instance and pulls all changed data since last sync.',
-    'params'        => [],
+    'params'        => [
+        'accept' => [
+            'type'              => 'boolean',
+            'description'       => "Automatically accept all update requests.",
+            'default'           => false
+        ]
+    ],
     'access' => [
         'visibility'    => 'protected'
     ],
@@ -47,6 +53,7 @@ $policies = SyncPolicy::search([
         'scope',
         'object_class',
         'field_unique',
+        'last_pull',
         'sync_policy_lines_ids' => ['object_field', 'scope']
     ]);
 
@@ -60,11 +67,6 @@ $result = [
     'logs'      => []
 ];
 
-$now = time();
-
-$timestamp = Setting::get_value('fmt', 'system', 'sync.last_pull_timestamp', 0);
-$date_from = date('c', $timestamp);
-
 // #memo - on local instances there is a single Instance object
 $instance = Instance::search()->read(['uuid'])->first();
 
@@ -73,6 +75,8 @@ if(!$instance || empty($instance['uuid'])) {
 }
 
 foreach($policies as $id => $policy) {
+
+    $now = time();
 
     $entity = $policy['object_class'];
 
@@ -83,6 +87,8 @@ foreach($policies as $id => $policy) {
         }
 
         $schema = $model->getSchema();
+
+        $date_from = date('c', $policy['last_pull']);
 
         $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_sync_pull-from-local' .
                 '&entity=' . urlencode($policy['object_class']) .
@@ -96,6 +102,11 @@ foreach($policies as $id => $policy) {
 
         /** @var \equal\http\HttpResponse $response */
         $response = $request->send();
+
+        if($response->getStatusCode() !== 200) {
+            throw new Exception('data_fetching_error', EQ_ERROR_CONFLICT_OBJECT);
+        }
+
         $data = $response->body();
 
         foreach($data as $values) {
@@ -124,20 +135,32 @@ foreach($policies as $id => $policy) {
                     ->first();
             }
 
+            $not_allowed_fields = ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'];
+            if($policy['scope'] === 'private') {
+                // #memo - allow "id" field for "private" scope, because entity cannot be created/modified on agencies' instances
+                unset($not_allowed_fields[0]);
+            }
+
             // a match was found with an existing object
             if($localObject) {
                 $values_to_update = [];
                 foreach($values as $field => $value) {
                     // #memo - if uuid has been received we need it to be part of the update
-                    if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                    if(in_array($field, $not_allowed_fields)) {
                         continue;
                     }
                     // ignore empty fields
                     if($value === null || $value === '') {
                         continue;
                     }
+                    // ignore unchanged fields (many2many)
+                    if(is_array($localObject[$field]) && is_array($value)) {
+                        if(empty(array_diff($localObject[$field], $value)) && empty(array_diff($value, $localObject[$field]))) {
+                            continue;
+                        }
+                    }
                     // ignore unchanged fields
-                    if((string) $localObject[$field] === (string) $value) {
+                    elseif((string) $localObject[$field] === (string) $value) {
                         continue;
                     }
 
@@ -155,15 +178,31 @@ foreach($policies as $id => $policy) {
                         ->first();
 
                     foreach($values_to_update as $field => $value) {
+                        $old_value = null;
+                        if(is_array($localObject[$field])) {
+                            $old_value = json_encode($localObject[$field]);
+                        }
+                        else {
+                            $old_value = (string) $localObject[$field];
+                        }
+
+                        $new_value = null;
+                        if(is_array($value)) {
+                            $new_value = json_encode($value);
+                        }
+                        else {
+                            $new_value = (string) $value;
+                        }
+
                         UpdateRequestLine::create([
                             'update_request_id' => $updateRequest['id'],
                             'object_field'      => $field,
-                            'old_value'         => (string) $localObject[$field],
-                            'new_value'         => (string) $value
+                            'old_value'         => $old_value,
+                            'new_value'         => $new_value
                         ]);
                     }
 
-                    if($policy['scope'] === 'private') {
+                    if($policy['scope'] === 'private' || $params['accept']) {
                         // automatically accept private policy
                         UpdateRequest::id($updateRequest['id'])->do('accept');
 
@@ -180,7 +219,7 @@ foreach($policies as $id => $policy) {
             else {
                 $values_to_update = [];
                 foreach($values as $field => $value) {
-                    if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                    if(in_array($field, $not_allowed_fields)) {
                         continue;
                     }
                     // ignore empty fields
@@ -202,22 +241,22 @@ foreach($policies as $id => $policy) {
                         ->first();
 
                     foreach($values_to_update as $field => $value) {
-                        if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
-                            continue;
+                        $new_value = null;
+                        if(is_array($value)) {
+                            $new_value = json_encode($value);
                         }
-                        // ignore empty fields
-                        if($value === null || $value === '') {
-                            continue;
+                        else {
+                            $new_value = (string) $value;
                         }
 
                         UpdateRequestLine::create([
                             'update_request_id' => $updateRequest['id'],
                             'object_field'      => $field,
-                            'new_value'         => (string) $value
+                            'new_value'         => $new_value
                         ]);
                     }
 
-                    if($policy['scope'] === 'private') {
+                    if($policy['scope'] === 'private' || $params['accept']) {
                         // automatically accept private policy
                         UpdateRequest::id($updateRequest['id'])->do('accept');
 
@@ -231,15 +270,14 @@ foreach($policies as $id => $policy) {
                 }
             }
         }
+
+        SyncPolicy::id($policy['id'])->update(['last_pull' => $now]);
     }
     catch(Exception $e) {
         ++$result['errors'];
         $result['logs'][] = "Unable to fetch entity {$entity} from Global instance: " . $e->getMessage();
     }
 }
-
-// store last_sync_timestamp
-Setting::set_value('fmt', 'system', 'sync.last_pull_timestamp', $now);
 
 $context
     ->httpResponse()
