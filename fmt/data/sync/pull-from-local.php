@@ -112,14 +112,10 @@ foreach($schema as $field => $def) {
     ) {
         continue;
     }
-    elseif(!isset($map_fields[$field])) {
+
+    $scope = $map_fields[$field] ?? 'private';
+    if($scope === 'private') {
         continue;
-    }
-    else {
-        $scope = $map_fields[$field];
-        if($scope === 'private') {
-            continue;
-        }
     }
 
     $fields[] = $field;

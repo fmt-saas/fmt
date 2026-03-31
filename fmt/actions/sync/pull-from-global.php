@@ -80,6 +80,11 @@ foreach($policies as $id => $policy) {
 
     $entity = $policy['object_class'];
 
+    $map_fields = [];
+    foreach($policy['sync_policy_lines_ids'] as $policy_line_id => $policyLine) {
+        $map_fields[$policyLine['object_field']] = $policyLine['scope'];
+    }
+
     try {
         $model = $orm->getModel($entity);
         if(!$model) {
@@ -143,6 +148,7 @@ foreach($policies as $id => $policy) {
 
             // a match was found with an existing object
             if($localObject) {
+                $has_protected_field = false;
                 $values_to_update = [];
                 foreach($values as $field => $value) {
                     // #memo - if uuid has been received we need it to be part of the update
@@ -162,6 +168,14 @@ foreach($policies as $id => $policy) {
                     // ignore unchanged fields
                     elseif((string) $localObject[$field] === (string) $value) {
                         continue;
+                    }
+
+                    $scope = $map_fields[$field] ?? 'private';
+                    if($scope === 'private') {
+                        continue;
+                    }
+                    elseif($scope === 'protected') {
+                        $has_protected_field = true;
                     }
 
                     $values_to_update[$field] = $value;
@@ -202,8 +216,8 @@ foreach($policies as $id => $policy) {
                         ]);
                     }
 
-                    if($policy['scope'] === 'private' || $params['accept']) {
-                        // automatically accept private policy
+                    if($policy['scope'] === 'private' || $params['accept'] || !$has_protected_field) {
+                        // automatically accept
                         UpdateRequest::id($updateRequest['id'])->do('accept');
 
                         $result['logs'][] = "Updated object of entity {$entity} with id {$localObject['id']}";
@@ -217,6 +231,7 @@ foreach($policies as $id => $policy) {
             }
             // new object (existing object could not be retrieved), create a new one
             else {
+                $has_protected_field = false;
                 $values_to_update = [];
                 foreach($values as $field => $value) {
                     if(in_array($field, $not_allowed_fields)) {
@@ -225,6 +240,14 @@ foreach($policies as $id => $policy) {
                     // ignore empty fields
                     if($value === null || $value === '') {
                         continue;
+                    }
+
+                    $scope = $map_fields[$field] ?? 'private';
+                    if($scope === 'private') {
+                        continue;
+                    }
+                    elseif($scope === 'protected') {
+                        $has_protected_field = true;
                     }
 
                     $values_to_update[$field] = $value;
@@ -256,7 +279,7 @@ foreach($policies as $id => $policy) {
                         ]);
                     }
 
-                    if($policy['scope'] === 'private' || $params['accept']) {
+                    if($policy['scope'] === 'private' || $params['accept'] || !$has_protected_field) {
                         // automatically accept private policy
                         UpdateRequest::id($updateRequest['id'])->do('accept');
 
