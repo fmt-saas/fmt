@@ -7,135 +7,161 @@ Le système de **synchronisation** vise à harmoniser les données entre les ins
 👉 La position FMT :
 
 > La responsabilité des données reste du ressort des **syndics**.
->  Le système facilite la mise à jour, mais **n’impose jamais** de modification automatique sur les champs sensibles.
+> Le système facilite la mise à jour, mais **n’impose jamais** de modification automatique sur les champs sensibles.
 
 
 
 ## 2. Suivi des demandes de modification
 
-### Entités principales
+Les demandes de modification permettre de suivre et gérer les synchronisations qui sont proposées pour une instance Global ou Local.
 
-#### **UpdateRequest**
+Elles peuvent être acceptées **automatiquement** ou **manuellement** en fonction de :
+- la configuration de synchronisation de l'entité
+- la sensibilité des champs concernés
 
-| Champ               | Description                             |
-| ------------------- | --------------------------------------- |
-| `id`                | Identifiant de la requête               |
-| `object_class`      | Classe de l’objet concerné              |
-| `instance_id`       | Identifiant de l’instance locale        |
-| `managing_agent_id` | Référence du syndic / agent responsable |
-| `request_date`      | Date de la demande                      |
+### Requête de mise à jour `UpdateRequest`
 
-#### **UpdateRequestLine**
+| Champ                      | Description                                                                         |
+|----------------------------|-------------------------------------------------------------------------------------|
+| `object_class`             | Classe de l’objet concerné                                                          |
+| `object_id`                | Si création, alors identifiant de l'object concerné                                 |
+| `object_name`              | Nom de l'object concerné                                                            |
+| `is_new`                   | Concerne une création d'un nouvel objet                                             |
+| `instance_id`              | Identifiant de l’instance locale                                                    |
+| `managing_agent_id`        | Référence du syndic ou agent responsable                                            |
+| `request_date`             | Date de la demande                                                                  |
+| `source_type`              | Type de source (`locale`, `globale`, etc.)                                          |
+| `source_origin`            | Origine de la donnée (`system`, `user`, `integration`, etc.)                        |
+| `approval_user_id`         | Utilisateur ayant approuvé                                                          |
+| `approval_reason`          | Motif d’approbation (`unsupervised`, `verified`)                                    |
+| `rejection_user_id`        | Utilisateur ayant rejeté                                                            |
+| `rejection_reason`         | Motif de rejet (`conflict`, `incorrect_data`, `outdated_data`, `duplicate_request`) |
+| `status`                   | Status (`pending`, `approved`, `rejected`)                                          |
+| `update_request_lines_ids` | Liste des valeurs des champs à synchroniser                                         |
 
-| Champ               | Description                                                  |
-| ------------------- | ------------------------------------------------------------ |
-| `update_request_id` | Référence à `updateRequest`                                  |
-| `object_field`      | Champ de l’objet concerné                                    |
-| `object_id`         | Identifiant de l’objet                                       |
-| `new_value`         | Nouvelle valeur proposée                                     |
-| `old_value`         | Ancienne valeur (calculée)                                   |
-| `status`            | `pending` / `approved` / `rejected`                          |
-| `source_type`       | Type de source (locale, globale, etc.)                       |
-| `source_origin`     | Origine de la donnée                                         |
-| `source_date`       | Date de la donnée source                                     |
-| `approval_user_id`  | Utilisateur ayant approuvé                                   |
-| `approval_reason`   | Motif d’approbation (`unsupervised`, `verified`)             |
-| `rejection_user_id` | Utilisateur ayant rejeté                                     |
-| `rejection_reason`  | Motif de rejet (`conflict`, `incorrect_data`, `outdated_data`, `duplicate_request` |
+### Valeur de requête de mise à jour `UpdateRequestLine`
 
-
-
-## 3. Politiques de mise à jour
-
-Les **UpdatePolicy** déterminent la sensibilité et le comportement de synchro **par entité et par champ**.
-
-#### **SyncPolicy**
-
-| Champ            | Description                                                  |
-| ---------------- | ------------------------------------------------------------ |
-| `name`           | (calc)                                                       |
-| `object_class`   | Classe concernée (unique)                                    |
-| `scope`          | Niveau de visibilité de la classe: `protected`, `private`    |
-| `field_unique`   | Champ à utiliser pour déterminer si un objet est déjà présent ou non (pour assignation UUID) |
-| `sync_direction` | Direction de la synchro : `ascending` (Local > Global) ou `descending` (Global > Local) |
+| Champ               | Description                                  |
+|---------------------|----------------------------------------------|
+| `update_request_id` | Référence à `updateRequest`                  |
+| `object_class`      | Classe de l'object concerné                  |
+| `object_field`      | Champ de l’objet concerné                    |
+| `is_new`            | Concerne une création d'un nouvel objet      |
+| `new_value`         | Nouvelle valeur proposée                     |
+| `old_value`         | Ancienne valeur (si modification d'un objet) |
 
 
-| Scope           | Description                                                  | Comportement                                 |
-| --------------- | ------------------------------------------------------------ | -------------------------------------------- |
-| **`private`**   | Classe gérée exclusivement sur l'instance Globale (pas de modification possible par les instances Locales) | Synchronisation descendante seulement        |
-| **`protected`** | Classe gérée sur l'instance Globale, mais pouvant faire l'objet de créations ou de modifications par les instances Locales. synchro | Synchro **supervisée** (via `UpdateRequest`) |
-| **`public`**    | (Classes non synchronisées)                                  |                                              |
 
-#### **SyncPolicyLine**
+## 3. Configuration de la synchronisation
 
-| Champ              | Description                                             |
-| ------------------ | ------------------------------------------------------- |
-| `update_policy_id` | Référence à `UpdatePolicy`                              |
-| `object_field`     | Champ concerné (unique)                                 |
-| `scope`            | Niveau de visibilité : `public`, `protected`, `private` |
+Les politiques de synchronisation **SyncPolicy** déterminent la sensibilité et le comportement de synchro **par entité et par champ**.
 
-| Scope           | Description                                                  | Comportement                                                 |
-| --------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| **`private`**   | Données strictement locales (ex. coordonnées personnelles, IBAN) | Non synchronisées                                            |
-| **`protected`** | Données nécessitant supervision avant synchro                | Synchro **supervisée** (via `UpdateRequest`)                 |
-| **`public`**    | Données considérées fiables, non sensibles                   | Synchro **automatique** (`UpdateRequest` avec `approval_reason` = `'unsupervised'`) |
+### Politiques de synchronisation `SyncPolicy`
 
-> * Sur les instances locales, **tous les champs reçus sont considérés comme `protected`** par défaut (et nécessitent donc une validation manuelle).
-> * Sur l'instance Globale, seuls les champs explicitement marqués comme `public` peuvent être synchronisés sans supervision.
+| Champ                    | Description                                                                                  |
+|--------------------------|----------------------------------------------------------------------------------------------|
+| `object_class`           | Classe concernée                                                                             |
+| `field_unique`           | Champ à utiliser pour déterminer si un objet est déjà présent ou non (pour assignation UUID) |
+| `sync_direction`         | Direction de la synchro : `ascending` (Local -> Global) ou `descending` (Global -> Local)    |
+| `last_pull`              | Moment de la dernière synchronisation                                                        |
+| `scope`                  | Niveau de visibilité de la classe (`protected`, `private`)                                   |
+| `sync_policy_lines_ids`  | Liste des règles de synchronisation des champs                                               |
+
+**Unique** sur `object_class` et `sync_direction`, donc deux politiques possibles pour chaque entité.
+
+> Notes :
+> * Si **pas de politique** de synchronisation pour une entité, alors elle n'est pas synchronisée.
+> * Si seulement **une politique descendante** pour une entité, alors la synchronisation est seulement de `Global vers Local`. Par exemple si des données sont modifiables sur l'instance Global, mais pas sur les instances Local.
+> * Si **une politique descendante et une ascendante** pour une entité, alors synchronisation est de `Global vers Local` et de `Local vers Global`.
+> * Le cas d'une politique ascendante sans politique descendante ne semble pas pertinent. Mais pourrait être utilisée dans une situation très spécifique et rare.
+
+#### Niveau de visibilité d'une classe
+
+| Scope       | Description                                                                                                                 |
+|-------------|-----------------------------------------------------------------------------------------------------------------------------|
+| `private`   | Classe gérée exclusivement sur l'instance Globale, pas de modification possible par les instances Locales.                  |
+| `protected` | Classe gérée sur l'instance Globale, mais pouvant faire l'objet de créations ou de modifications par les instances Locales. |
+
+> Notes :
+> * Une synchronisation descendante ou ascendante va créer des requêtes de mise à jour pour chaque création ou modification d'un objet.
+> * Ces requêtes peuvent être acceptées automatiquement ou manuellement. Cette création d'une requête permet de garder un historique des modifications réalisées par les synchronisations.
+
+| Scope       | Sync direction | Autorisé |      Requêtes de mise à jour       |
+|-------------|----------------|:--------:|:----------------------------------:|
+| `private`   | `descending`   |    X     |     acceptées automatiquement      |
+| `private`   | `ascending`    |          |                 -                  |
+| `protected` | `descending`   |    X     | à accepter manuellement sur Local  |
+| `protected` | `ascending`    |    X     | à accepter manuellement sur Global |
+
+> Notes :
+> * Pour une **SyncPolicy** de scope `private` la direction de synchronisation ne peut pas être ascendante.
+> * Pour une **SyncPolicy** de scope `private` les champs `id` et `*_id` peuvent être synchronisés (many2one, many2many), car les objets sont uniquement gérés (création/modification) sur l'instance **Global**.
+
+### Champ de politiques de synchronisation `SyncPolicyLine`
+
+| Champ            | Description                                                                               |
+|------------------|-------------------------------------------------------------------------------------------|
+| `sync_policy_id` | Référence à la politique de synchronisation                                               |
+| `sync_direction` | Direction de la synchro : `ascending` (Local -> Global) ou `descending` (Global -> Local) |
+| `object_class`   | Classe concernée                                                                          |
+| `object_field`   | Champ concerné                                                                            |
+| `scope`          | Niveau de visibilité du champ (`public`, `protected`, `private`)                          |
+
+#### Niveau de visibilité d'un champ
+
+| Scope       | Synchronisation                                                                 |
+|-------------|---------------------------------------------------------------------------------|
+| `private`   | Inexistante                                                                     |
+| `protected` | **Supervisée** (via `UpdateRequest`)                                            |
+| `public`    | **Automatique** (via `UpdateRequest` avec `approval_reason` = `'unsupervised'`) |
+
+> Notes :
+> * Sur les instances Locals, **tous les champs reçus sont considérés comme `protected`** par défaut (et nécessitent donc une validation manuelle).
+> * Sur l'instance Global, seuls les champs explicitement marqués comme `public` peuvent être synchronisés sans supervision.
 
 
 
 ## 4. Types de synchronisation
 
-Dans tous les cas, les entités "Public", ne sont pas synchronisées (les éventuelles lignes sont sans effet).
-
-Lors d'une synchronisation, quelle que soit la direction, pour une **entité protected** :
-
-* tous les champs sont envoyés, à l'exception de ceux explicitement marqués comme "private"
-* les champs "public" seront acceptés sans supervision par l'instance de destination (mais toujours dans le cadre d'une UpdateRequest, jamais appliquée automatiquement)
-
-Lors d'une synchronisation, pour une **entité private** (en principe uniquement Global > Local):
-
-* tous les champs sont envoyés, à l'exception de ceux explicitement marqués comme "private"
-* l'instance de destination est automatiquement mise à jour sans supervision.
-
-### 
+Il existe deux types de synchronisations, qui sont toujours déclenché par une instance Local :
+- Synchro ascendante : envoie des données de l'instance Local vers l'instance Global 
+- Synchro descendante : récupération des données de l'instance Global par une instance Local
 
 ### 🔼 Synchro ascendante (Local → Global)
 
-Lorsqu’une instance locale propose une mise à jour :
-
-- Les champs **private** ne remontent pas vers Global (ex. `phone`, `email`, `bank_account_iban` pour personnes physiques, sur base des UpdatePolicies).
-- Les champs **unsupervised (public)** sont **acceptés automatiquement**.
-- Les champs **supervised (protected)** nécessitent une **vérification** :
-  - automatique (comparaison de sources sûres),
-  - manuelle (validation par un utilisateur),
-  - ou assistée (avec suggestion et préremplissage).
-
-
-
-### 🔽 Synchro descendante (Global → Local)
-
-- Les mises à jour descendantes pour les entités `private` **sont toujours appliquées automatiquement** (pas de validation/supervision).
-- Les mises à jour descendantes pour les entités `protected` **ne sont jamais appliquées directement**: et ne se font que pour certains champs (il faut définir quelles entités) -> il faut définir une direction dans les Policies
-- Elles apparaissent sous forme de **suggestion** dans l’instance locale.
-- L’utilisateur local doit **valider manuellement** avant mise à jour effective.
+- Il n'existe pas de mises à jour ascendantes pour les entité `private`
+- Les mises à jour descendantes pour les entités `protected` **sont appliquées automatiquement ou manuellement** en fonction des champs concernés :
+  - Si **un des champs** qui doit être mis à jour est configuré comme `protected`, alors la mise à jour doit être appliquée **manuellement**
+  - Si **tous les champs** qui doivent être mis à jour sont configurés comme `public`, alors la mise à jour est appliquée **automatiquement**
+  - Les champs configurés comme `private` sont ignorés
 
 #### Règles spécifiques :
 
-| Scope           | Comportement                                |
-| --------------- | ------------------------------------------- |
-| **`private`**   | Jamais envoyées vers les instances locales  |
-| **`public`**    | Transmises car considérées RGPD-compatibles |
-| **`protected`** | Nécessitent validation manuelle locale      |
+| Scope       | Comportement Local                | Comportement Global                                                            |
+|-------------|-----------------------------------|--------------------------------------------------------------------------------|
+| `private`   | Champs ignoré                     | Jamais envoyées vers l'instance globale                                        |
+| `protected` | Transmises vers l'instance global | Si un champs `protected` acceptation manuelle requise de l'`UpdateRequest`     |
+| `public`    | Transmises vers l'instance global | Si uniquement des champs `public` acceptation automatique de l'`UpdateRequest` |
 
-**Exemples de champs `public` transmis :**
+### 🔽 Synchro descendante (Global → Local)
 
-- `first_name`
-- `last_name`
-- `birth_date` *(nécessaire même si RGPD)*
-- `address`
+- Les mises à jour descendantes pour les entités `private` **sont toujours appliquées automatiquement**
+- Les mises à jour descendantes pour les entités `protected` **sont appliquées automatiquement ou manuellement** en fonction des champs concernés :
+  - Si **un des champs** qui doit être mis à jour est configuré comme `protected`, alors la mise à jour doit être appliquée **manuellement**
+  - Si **tous les champs** qui doivent être mis à jour sont configurés comme `public`, alors la mise à jour est appliquée **automatiquement**
+  - Les champs configurés comme `private` sont ignorés
 
+#### Règles spécifiques :
+
+| Scope       | Comportement Global                        | Comportement Local                                                             |
+|-------------|--------------------------------------------|--------------------------------------------------------------------------------|
+| `private`   | Jamais envoyées vers les instances locales | Champs ignoré                                                                  |
+| `protected` | Transmises vers les instances locales      | Si un champs `protected` acceptation manuelle requise de l'`UpdateRequest`     |
+| `public`    | Transmises vers les instances locales      | Si uniquement des champs `public` acceptation automatique de l'`UpdateRequest` |
+
+> Notes :
+> * Un champ `protected` ou `public` sur Global **peut** être définis comme `private` sur Local, la valeur est donc **retournée par l'instance Global**, mais est **ignorée sur l'instance Local**.
+> * Un champ `private` sur Global **ne peut pas** être définis comme `protected` ou `public` sur Local, car la valeur n'est **pas retournée par l'instance Global**.
 
 
 ## 5. Logique applicative : encodage et supervision
@@ -158,7 +184,7 @@ Un champ `registration_date` (scope `public`) est mis à jour dans une instance 
 ### Exemple 2 – Champ protégé
 
 Un champ `address_street` (scope `protected`) est modifié.
- → Une `updateRequestLine` est envoyée vers l'instance Global avec `status = pending` 
+ → Une `UpdateRequestLine` est envoyée vers l'instance Global avec `status = pending` 
  → Après vérification, un utilisateur Global valide (`approval_user_id`) ou rejette (`rejection_user_id`).
 
 ### Exemple 3 – Champ privé
@@ -171,7 +197,7 @@ Un champ `bank_account_iban` est modifié localement.
 ## 7. Rejets possibles
 
 | Code                  | Signification                                 |
-| --------------------- | --------------------------------------------- |
+|-----------------------|-----------------------------------------------|
 | `conflict`            | Conflit entre version locale et globale       |
 | `incorrect_data`      | Données incohérentes ou erronées              |
 | `outdated_data`       | Valeur basée sur une source ancienne          |
@@ -182,7 +208,4 @@ Un champ `bank_account_iban` est modifié localement.
 
 ## Suivis
 
-
-
 * Sur une base régulière un controller (cron) pourrait vérifier la synchronicité des valeurs entre une instance Locale et les valeurs correspondantes sur l'instance Globale 
-
