@@ -286,17 +286,18 @@ class UpdateRequest extends Model {
         $user_id = $auth->userId();
 
         foreach($self as $id => $updateRequest) {
-            $values = [
-                    'status'            => 'rejected',
-                    'rejection_user_id'  => $user_id
-                ];
+            $reason = $values['rejection_reason'] ?? null;
 
-            if(isset($values['reason'])) {
-                $values['rejection_reason'] = $values['reason'];
+            $values = [
+                'status'            => 'rejected',
+                'rejection_user_id' => $user_id
+            ];
+
+            if(!is_null($reason)) {
+                $values['rejection_reason'] = $reason;
             }
 
-            self::id($id)
-                ->update($values);
+            self::id($id)->update($values);
         }
     }
 }
