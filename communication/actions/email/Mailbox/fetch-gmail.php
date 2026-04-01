@@ -52,15 +52,18 @@ $getMessagesIds = function($access_token, $after) {
     $next_page_token  = null;
 
     do {
-        $params = [
-            'q' => "after:$after"
-        ];
-
+        $params = [];
+        if($after > 0) {
+            $params['q'] = "after:$after";
+        }
         if($next_page_token) {
             $params['pageToken'] = $next_page_token;
         }
 
-        $url = "https://gmail.googleapis.com/gmail/v1/users/me/messages?".http_build_query($params);
+        $url = "https://gmail.googleapis.com/gmail/v1/users/me/messages";
+        if(!empty($params)) {
+            $url .= '?'.http_build_query($params);
+        }
 
         $http = new \equal\http\HttpRequest("GET $url");
 
@@ -76,7 +79,7 @@ $getMessagesIds = function($access_token, $after) {
             throw new Exception("graph_api_error", EQ_ERROR_INVALID_PARAM);
         }
 
-        foreach($data['messages'] as $message) {
+        foreach($data['messages'] ?? [] as $message) {
             $messages_ids[] = $message['id'];
         }
 
