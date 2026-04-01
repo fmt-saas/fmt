@@ -285,14 +285,17 @@ foreach($messages_ids as $message_id) {
 
     $body = $extractMessageBody($message['payload']);
 
+    $from_addresses = imap_rfc822_parse_adrlist($headers['From']);
+    $to_addresses = imap_rfc822_parse_adrlist($headers['To']);
+
     $email = Email::create([
         'mailbox_id'    => $mailbox['id'],
         'message_id'    => $message_id,
         'subject'       => substr($headers['Subject'], 0, 255),
-        'from'          => $headers['From'],
-        'to'            => $headers['To'],
+        'from'          => $from_addresses[0] ?? '',
+        'to'            => $to_addresses[0] ?? '',
         'direction'     => 'incoming',
-        'date'          => $headers['Date'],
+        'date'          => strtotime($headers['Date']),
         'body'          => $body
     ])
         ->read(['thread_hash'])
