@@ -17,17 +17,16 @@ use equal\http\HttpRequest;
             'description'      => 'Identifier of the Assembly item (resolution).',
         ]
     ],
-    'constants'     => ['BACKEND_URL'],
     'access'        => [
-        'visibility' => 'public'
+        'visibility'    => 'public'
     ],
     'response'      => [
-        'content-type'      => 'application/json',
-        'charset'           => 'utf-8',
-        'accept-origin'     => '*'
+        'content-type'  => 'application/json',
+        'charset'       => 'utf-8',
+        'accept-origin' => '*'
     ],
-    'providers'     => ['context', 'auth', 'orm'],
-    'constants'     => ['BACKEND_URL', 'AUTH_ACCESS_TOKEN_VALIDITY', 'AUTH_TOKEN_HTTPS', 'FMT_INSTANCE_TYPE']
+    'constants'     => ['GOOGLE_GMAIL_CLIENT_ID', 'GOOGLE_GMAIL_CLIENT_SECRET'],
+    'providers'     => ['context', 'auth', 'orm']
 ]);
 
 /**
@@ -66,8 +65,8 @@ if($mailbox['refresh_token_expiry'] < time()) {
 
 $body = [
     'grant_type'    => 'refresh_token',
-    'client_id'     => '24230475119-6fabc7k3lh9v9u3aa01im86d48bsudp0.apps.googleusercontent.com',
-    'client_secret' => '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',
+    'client_id'     => constant('GOOGLE_GMAIL_CLIENT_ID'),
+    'client_secret' => constant('GOOGLE_GMAIL_CLIENT_SECRET'),
     'refresh_token' => $mailbox['refresh_token']
 ];
 
