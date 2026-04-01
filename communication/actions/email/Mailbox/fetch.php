@@ -8,12 +8,12 @@
 use communication\email\Mailbox;
 
 [$params, $providers] = eQual::announce([
-    'description'	=>	"Refresh the access token of a given Mailbox.",
+    'description'	=>	"Fetch the new emails of a given Mailbox.",
     'params' 		=>	[
         'id' =>  [
             'type'             => 'many2one',
             'foreign_object'   => 'communication\email\Mailbox',
-            'description'      => 'Identifier of the Assembly item (resolution).',
+            'description'      => "Identifier of the Mailbox.",
             'required'         => true
         ]
     ],
@@ -25,12 +25,11 @@ use communication\email\Mailbox;
         'charset'           => 'utf-8',
         'accept-origin'     => '*'
     ],
-    'providers'     => ['context'],
-    'constants'     => ['BACKEND_URL', 'AUTH_ACCESS_TOKEN_VALIDITY', 'AUTH_TOKEN_HTTPS', 'FMT_INSTANCE_TYPE']
+    'providers'     => ['context']
 ]);
 
 /**
- * @var equal\php\Context                   $context
+ * @var equal\php\Context   $context
  */
 ['context' => $context] = $providers;
 

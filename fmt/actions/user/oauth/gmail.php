@@ -25,7 +25,6 @@ use infra\server\Instance;
             'required'      => true
         ]
     ],
-    'constants'     => ['BACKEND_URL'],
     'access'        => [
         'visibility' => 'public'
     ],

@@ -232,7 +232,7 @@ $allowed_mime_types = [
 
 // check consistency
 $mailbox = Mailbox::id($params['id'])
-    ->read(['status', 'auth_type', 'access_token_expiry', 'refresh_token_expiry', 'date_last_sync'])
+    ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'date_last_sync'])
     ->first();
 
 if(!$mailbox) {
@@ -281,7 +281,7 @@ foreach($messages_ids as $message_id) {
         'body'          => $body
     ])
         ->read(['thread_hash'])
-        ->first();;
+        ->first();
 
     $attachments = $extractMessageAttachments($message['payload']);
 
