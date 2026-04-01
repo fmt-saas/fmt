@@ -17,7 +17,6 @@ use communication\email\Mailbox;
             'required'         => true
         ]
     ],
-    'constants'     => ['BACKEND_URL'],
     'access'        => [
         'visibility' => 'public'
     ],
