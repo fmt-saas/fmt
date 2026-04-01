@@ -149,6 +149,12 @@ $extractMessageBody = function($payload) use(&$extractMessageBody) {
     return $html;
 };
 
+/**
+ * Extracts first email address found in given string based on rfc822
+ *
+ * @param string $address_header raw imap email address (e.g.: "Google <no-reply@accounts.google.com>", "fmtsolutions.yb@gmail.com")
+ * @return mixed|string
+ */
 $extractEmailAddress = function($address_header) {
     if (preg_match('/<([^>]+)>/', $address_header, $matches)) {
         return $matches[1];
@@ -259,8 +265,7 @@ if($mailbox['auth_type'] !== 'oauth') {
 
 try {
     if($mailbox['refresh_token_expiry'] < time()) {
-        // #todo - reset as non-comment after test finished
-        // throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
+        throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
     }
 
     if($mailbox['access_token_expiry'] < time()) {
