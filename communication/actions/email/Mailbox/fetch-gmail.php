@@ -283,7 +283,14 @@ catch(Exception $e) {
 
 $messages_ids = $getMessagesIds($mailbox['access_token'], $mailbox['date_last_sync']);
 
+$new_date_last_sync = time();
+
 foreach($messages_ids as $message_id) {
+    // skip already imported
+    if(Email::search(['message_id', '=', $message_id])->first()) {
+        continue;
+    }
+
     $message = $getMessage($mailbox['access_token'], $message_id);
 
     $headers = [
@@ -337,6 +344,9 @@ foreach($messages_ids as $message_id) {
             ->do('start_processing');
     }
 }
+
+// update sync time ($new_date_last_sync = time saved just after the messages ids were fetched)
+Mailbox::id($mailbox['id'])->update(['date_last_sync' => $new_date_last_sync]);
 
 $context
     ->httpResponse()
