@@ -149,6 +149,13 @@ $extractMessageBody = function($payload) use(&$extractMessageBody) {
     return $html;
 };
 
+$extractEmailAddress = function($address_header) {
+    if (preg_match('/<([^>]+)>/', $address_header, $matches)) {
+        return $matches[1];
+    }
+    return filter_var($address_header, FILTER_VALIDATE_EMAIL) ? $address_header : '';
+};
+
 /**
  * Extracts attachments from the given Gmail message payload
  *
@@ -285,15 +292,12 @@ foreach($messages_ids as $message_id) {
 
     $body = $extractMessageBody($message['payload']);
 
-    $from_addresses = imap_rfc822_parse_adrlist($headers['From']);
-    $to_addresses = imap_rfc822_parse_adrlist($headers['To']);
-
     $email = Email::create([
         'mailbox_id'    => $mailbox['id'],
         'message_id'    => $message_id,
         'subject'       => substr($headers['Subject'], 0, 255),
-        'from'          => $from_addresses[0] ?? '',
-        'to'            => $to_addresses[0] ?? '',
+        'from'          => $extractEmailAddress($headers['From']),
+        'to'            => $extractEmailAddress($headers['To']),
         'direction'     => 'incoming',
         'date'          => strtotime($headers['Date']),
         'body'          => $body
