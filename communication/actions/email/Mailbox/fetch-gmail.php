@@ -131,14 +131,17 @@ $extractMessageBody = function($payload) use(&$extractMessageBody) {
     }
 
     // Multipart — search parts for text/plain or text/html
-    $html = '';
+    $body = '';
     foreach($payload['parts'] ?? [] as $part) {
-        if($part['mimeType'] === 'text/plain' && !empty($part['body']['data'])) {
+        // HTML part prioritized
+        if($part['mimeType'] === 'text/html' && !empty($part['body']['data'])) {
             return base64_decode(strtr($part['body']['data'], '-_', '+/'));
         }
-        if($part['mimeType'] === 'text/html' && !empty($part['body']['data'])) {
-            $html = base64_decode(strtr($part['body']['data'], '-_', '+/'));
+
+        if($part['mimeType'] === 'text/plain' && !empty($part['body']['data'])) {
+            $body =  base64_decode(strtr($part['body']['data'], '-_', '+/'));
         }
+
         // Recurse into nested parts
         if(!empty($part['parts'])) {
             $nested = $extractMessageBody($part);
@@ -146,7 +149,7 @@ $extractMessageBody = function($payload) use(&$extractMessageBody) {
         }
     }
 
-    return $html;
+    return $body;
 };
 
 /**
