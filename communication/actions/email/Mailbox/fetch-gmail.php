@@ -308,6 +308,10 @@ foreach($messages_ids as $message_id) {
     $attachments = $extractMessageAttachments($message['payload']);
 
     foreach($attachments as $attachment) {
+        if(!in_array($attachment['mimeType'], $allowed_mime_types, true)) {
+            continue;
+        }
+
         if(!$attachment['data'] && !$attachment['attachmentId']) {
             continue;
         }
