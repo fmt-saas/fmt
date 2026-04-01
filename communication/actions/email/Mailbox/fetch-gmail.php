@@ -40,7 +40,7 @@ use documents\Document;
  *************/
 
 /**
- * Returns the list of ids of email that where received after the given timestamp
+ * Returns the ids of emails that were received after the given timestamp
  *
  * @param string $access_token  Gmail Google API token
  * @param int $after            Unix timestamp
@@ -153,7 +153,7 @@ $extractMessageBody = function($payload) use(&$extractMessageBody) {
 };
 
 /**
- * Extracts first email address found in given string based on rfc822
+ * Extracts first email address found in given string (based on rfc822)
  *
  * @param string $address_header raw imap email address (e.g.: "Google <no-reply@accounts.google.com>", "fmtsolutions.yb@gmail.com")
  * @return mixed|string
@@ -209,6 +209,8 @@ $extractMessageAttachments = function($payload) use (&$extractMessageAttachments
 };
 
 /**
+ * Returns a specific attachment fetched from Gmail API
+ *
  * @param string $access_token  Gmail Google API token
  * @param int $message_id       Gmail API email's id of the attachment to fetch
  * @param int $id               Gmail API id of the attachment to fetch
