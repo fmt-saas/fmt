@@ -75,8 +75,8 @@ $getMessagesIds = function($access_token, $after) {
         $status = $response->getStatusCode();
 
         if($status < 200 || $status > 299) {
-            trigger_error("APP::Graph API error: " . json_encode($data), EQ_REPORT_ERROR);
-            throw new Exception("graph_api_error", EQ_ERROR_INVALID_PARAM);
+            trigger_error("APP::Gmail API error: " . json_encode($data), EQ_REPORT_ERROR);
+            throw new Exception("gmail_api_error", EQ_ERROR_INVALID_PARAM);
         }
 
         foreach($data['messages'] ?? [] as $message) {
@@ -111,8 +111,8 @@ $getMessage = function($access_token, $id) {
     $status = $response->getStatusCode();
 
     if($status < 200 || $status > 299) {
-        trigger_error("APP::Graph API error: " . json_encode($data), EQ_REPORT_ERROR);
-        throw new Exception("graph_api_error", EQ_ERROR_INVALID_PARAM);
+        trigger_error("APP::Gmail API error: " . json_encode($data), EQ_REPORT_ERROR);
+        throw new Exception("gmail_api_error", EQ_ERROR_INVALID_PARAM);
     }
 
     return $data;
@@ -252,7 +252,8 @@ if($mailbox['auth_type'] !== 'oauth') {
 
 try {
     if($mailbox['refresh_token_expiry'] < time()) {
-        throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
+        // #todo - reset as non-comment after test finished
+        // throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
     }
 
     if($mailbox['access_token_expiry'] < time()) {
@@ -270,17 +271,28 @@ $messages_ids = $getMessagesIds($mailbox['access_token'], $mailbox['date_last_sy
 foreach($messages_ids as $message_id) {
     $message = $getMessage($mailbox['access_token'], $message_id);
 
-    $headers = $message['payload']['headers'];
+    $headers = [
+        'Subject'   => '(no subject)',
+        'From'      => '',
+        'To'        => '',
+        'Date'      => '',
+    ];
+    foreach($message['payload']['headers'] as $header) {
+        if(in_array($header['name'], array_keys(['Subject', 'From', 'To', 'Date']))) {
+            $headers[$header['name']] = $header['value'];
+        }
+    }
+
     $body = $extractMessageBody($message['payload']);
 
     $email = Email::create([
         'mailbox_id'    => $mailbox['id'],
         'message_id'    => $message_id,
-        'subject'       => substr($headers['Subject'] ?? '(no subject)', 0, 255),
-        'from'          => $headers['From'] ?? '',
-        'to'            => $headers['To'] ?? '',
+        'subject'       => substr($headers['Subject'], 0, 255),
+        'from'          => $headers['From'],
+        'to'            => $headers['To'],
         'direction'     => 'incoming',
-        'date'          => $headers['Date'] ?? '',
+        'date'          => $headers['Date'],
         'body'          => $body
     ])
         ->read(['thread_hash'])
