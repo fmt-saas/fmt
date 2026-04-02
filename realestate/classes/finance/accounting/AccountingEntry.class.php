@@ -105,7 +105,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 'fund_request_execution_id' => ['name'],
                 'expense_statement_id' => ['name'],
                 'misc_operation_id',
-                'bank_statement_line_id' => ['bank_statement_id' => 'statement_number']
+                'bank_statement_id' => ['statement_number']
             ]);
 
         foreach($self as $id => $accountingEntry) {
@@ -129,8 +129,8 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 $result = $accountingEntry['entry_number'];
                 continue;
             }
-            if(isset($accountingEntry['bank_statement_line_id'])) {
-                $accountingEntry['bank_statement_line_id']['bank_statement_id']['statement_number'];
+            if(isset($accountingEntry['bank_statement_id'])) {
+                $accountingEntry['bank_statement_id']['statement_number'];
                 continue;
             }
         }
@@ -155,6 +155,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             'purchase_invoice_id',
             'sale_invoice_id',
             'misc_operation_id',
+            'bank_statement_id',
             'bank_statement_line_id',
             'fund_request_execution_id',
             'expense_statement_id',
@@ -186,6 +187,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                     'purchase_invoice_id'       => $entry['purchase_invoice_id'],
                     'sale_invoice_id'           => $entry['sale_invoice_id'],
                     'misc_operation_id'         => $entry['misc_operation_id'],
+                    'bank_statement_id'         => $entry['bank_statement_id'],
                     'bank_statement_line_id'    => $entry['bank_statement_line_id'],
                     'fund_request_execution_id' => $entry['fund_request_execution_id'],
                     'expense_statement_id'      => $entry['expense_statement_id']

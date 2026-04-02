@@ -122,7 +122,7 @@ class AccountingEntry extends Model {
             'entry_number' => [
                 'type'              => 'string',
                 'description'       => 'Unique code for entry identification.',
-                'dependents'        => ['name', 'debit', 'credit'],
+                'dependents'        => ['name', 'debit', 'credit', 'entry_reference'],
                 'help'              => 'Entry number is automatically assigned after validation, and cannot be changed afterwards.',
                 'onupdate'          => 'onupdateEntryNumber'
             ],
@@ -479,6 +479,7 @@ class AccountingEntry extends Model {
             'sale_invoice_id',
             'misc_operation_id',
             'bank_statement_line_id',
+            'bank_statement_id',
             'entry_lines_ids' => [
                 'account_id', 'debit', 'credit',
                 'description',
@@ -501,6 +502,7 @@ class AccountingEntry extends Model {
                     'sale_invoice_id'           => $entry['sale_invoice_id'],
                     'misc_operation_id'         => $entry['misc_operation_id'],
                     'bank_statement_line_id'    => $entry['bank_statement_line_id'],
+                    'bank_statement_id'         => $entry['bank_statement_id']
                 ])
                 ->first();
 
@@ -673,24 +675,26 @@ class AccountingEntry extends Model {
     protected static function calcEntryReference($self) {
         $result = null;
 
-        $self->read(['entry_number', 'purchase_invoice_id' => ['name'], 'sale_invoice_id' => ['name'], 'misc_operation_id', 'bank_statement_line_id' => ['bank_statement_id' => 'statement_number']]);
+        $self->read([
+                'entry_number',
+                'purchase_invoice_id' => ['name'],
+                'sale_invoice_id' => ['name'],
+                'misc_operation_id',
+                'bank_statement_id' => ['statement_number']
+            ]);
 
         foreach($self as $id => $accountingEntry) {
             if(isset($accountingEntry['purchase_invoice_id'])) {
                 $result[$id] = $accountingEntry['purchase_invoice_id']['name'];
-                continue;
             }
-            if(isset($accountingEntry['sale_invoice_id'])) {
+            elseif(isset($accountingEntry['sale_invoice_id'])) {
                 $result[$id] = $accountingEntry['sale_invoice_id']['name'];
-                continue;
             }
-            if(isset($accountingEntry['misc_operation_id'])) {
+            elseif(isset($accountingEntry['misc_operation_id'])) {
                 $result = $accountingEntry['entry_number'];
-                continue;
             }
-            if(isset($accountingEntry['bank_statement_line_id'])) {
-                $accountingEntry['bank_statement_line_id']['bank_statement_id']['statement_number'];
-                continue;
+            elseif(isset($accountingEntry['bank_statement_id'])) {
+                $accountingEntry['bank_statement_id']['statement_number'];
             }
         }
 
