@@ -267,6 +267,7 @@ class BankAccount extends Model {
                 $otherBankAccount = self::search([
                         ['id', '<>', $id],
                         ['owner_identity_id', '=', $bankAccount['owner_identity_id']],
+                        ['owner_identity_id', '<>', null],
                         ['bank_account_type', '=', $bankAccount['bank_account_type']],
                         ['is_primary', '=', true],
                     ])
