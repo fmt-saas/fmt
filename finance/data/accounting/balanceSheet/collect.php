@@ -10,6 +10,9 @@ use equal\orm\DomainCondition;
 use finance\accounting\Account;
 use realestate\finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
+use finance\accounting\AccountBalanceChange;
+use finance\accounting\OpeningBalance;
+use finance\accounting\OpeningBalanceLine;
 
 [$params, $providers] = eQual::announce([
     'description' => 'Advanced search for Balance Sheet (Asset / Liability) - "Bilan".',
@@ -125,16 +128,9 @@ if(!isset($params['condo_id'])) {
     throw new Exception('missing_condo_id', EQ_ERROR_MISSING_PARAM);
 }
 
-// build domain
-$domain = new Domain($params['domain']);
-
-$domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
-$domain->addCondition(new DomainCondition('is_carry_forward', '=', false));
-$domain->addCondition(new DomainCondition('is_closing', '=', false));
-
 // Resolve date interval
-$dateFrom = null;
-$dateTo   = null;
+$date_from = null;
+$date_to   = null;
 
 if(!empty($params['fiscal_year_id'])) {
     $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
@@ -142,26 +138,18 @@ if(!empty($params['fiscal_year_id'])) {
         ->first();
 
     if($fiscalYear) {
-        $dateFrom = $fiscalYear['date_from'];
-        $dateTo   = $fiscalYear['date_to'];
+        $date_from = $fiscalYear['date_from'];
+        $date_to   = $fiscalYear['date_to'];
     }
 }
 
-if(!empty($params['date_from']) && (!$dateFrom || $params['date_from'] > $dateFrom)) {
-    $dateFrom = $params['date_from'];
+if(!empty($params['date_from']) && (!$date_from || $params['date_from'] > $date_from)) {
+    $date_from = $params['date_from'];
 }
 
-if(!empty($params['date_to']) && (!$dateTo || $params['date_to'] < $dateTo)) {
-    $dateTo = $params['date_to'];
+if(!empty($params['date_to']) && (!$date_to || $params['date_to'] < $date_to)) {
+    $date_to = $params['date_to'];
 }
-
-if($dateFrom && $dateTo) {
-    $domain->addCondition(new DomainCondition('entry_date', '>=', $dateFrom));
-    $domain->addCondition(new DomainCondition('entry_date', '<=', $dateTo));
-}
-
-// Only validated entries
-$domain->addCondition(new DomainCondition('status', '=', 'validated'));
 
 $adjustmentAccount = Account::search([['condo_id', '=', $params['condo_id']], ['operation_assignment', '=', 'adjustment_account']])
     ->read(['id', 'code', 'description', 'account_nature', ''])
@@ -234,28 +222,83 @@ foreach($map_accounts as $account_id => $account) {
 }
 
 
-// Retrieve accounting entry lines
-$lines = AccountingEntryLine::search($domain->toArray())
-    ->read([
-        'account_id',
-        'debit',
-        'credit'
-    ]);
-
-
-
 $balances           = [];
 $balances_asset     = [];
 $balances_liability = [];
 
-// 1) aggregate raw balances first
-foreach($lines as $line) {
+/**
+ * Compute balances using AccountBalanceChange (same logic as general balance)
+ */
 
-    $leaf_account_id = $line['account_id'];
+// resolve opening balance (fallback)
+$opening_balance_id = null;
+
+$fiscalYear = null;
+if(!empty($params['fiscal_year_id'])) {
+    $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
+        ->read(['opening_balance_id'])
+        ->first();
+}
+
+if($fiscalYear && isset($fiscalYear['opening_balance_id'])) {
+    $opening_balance_id = $fiscalYear['opening_balance_id'];
+}
+else {
+    $openingBalance = OpeningBalance::search([
+            ['condo_id', '=', $params['condo_id']],
+            ['status', '=', 'validated']
+        ],
+        [
+            'sort'  => ['created' => 'desc'],
+            'limit' => 1
+        ]
+    )->first();
+
+    $opening_balance_id = $openingBalance['id'] ?? null;
+}
+
+// 1) retrieve balance changes up to dateTo
+$map_balances = [];
+
+if($date_to) {
+    $changes = AccountBalanceChange::search([
+            ['condo_id', '=', $params['condo_id']],
+            ['date', '<=', $date_to]
+        ],
+        [
+            'sort' => ['date' => 'asc', 'id' => 'asc']
+        ]
+    )
+    ->read(['account_id', 'debit_balance', 'credit_balance']);
+
+    foreach($changes as $change) {
+        $map_balances[$change['account_id']] =
+            $change['debit_balance'] - $change['credit_balance'];
+    }
+}
+
+// 2) fallback with OpeningBalance
+if($opening_balance_id) {
+    $openingLines = OpeningBalanceLine::search([
+            ['condo_id','=', $params['condo_id']],
+            ['balance_id','=', $opening_balance_id]
+        ])
+        ->read(['account_id', 'debit', 'credit']);
+
+    foreach($openingLines as $line) {
+        if(!isset($map_balances[$line['account_id']])) {
+            $map_balances[$line['account_id']] =
+                $line['debit'] - $line['credit'];
+        }
+    }
+}
+
+// 3) aggregate balances per storage account
+foreach($map_balances as $leaf_account_id => $raw) {
+
     $storage_account_id = $map_storage[$leaf_account_id] ?? $leaf_account_id;
 
     if(!isset($map_accounts[$storage_account_id])) {
-        // this shouldn't occur
         trigger_error("APP::unable to resolve account with id {$storage_account_id}", EQ_REPORT_ERROR);
         continue;
     }
@@ -264,9 +307,6 @@ foreach($lines as $line) {
     $code    = $storage['code'];
     $nature  = $storage['account_nature'];
 
-    $raw = round($line['debit'], 2) - round($line['credit'], 2);
-
-    // aggregate raw balance per account
     if(!isset($balances[$code])) {
         $balances[$code] = [
             'account_id'        => $storage_account_id,
@@ -277,11 +317,11 @@ foreach($lines as $line) {
         ];
     }
 
-    $balances[$code]['raw'] += $raw;
+    $balances[$code]['raw'] += round($raw, 2);
 }
 
 
-// 2) split balances into asset / liability
+// 4) split balances into asset / liability
 foreach($balances as $code => $balance) {
 
     $raw    = round($balance['raw'], 2);
