@@ -342,7 +342,7 @@ class BankAccount extends Model {
     protected static function onafterupdate($self, $values) {
         $self->read(['is_primary', 'owner_identity_id', 'bank_account_iban', 'bank_account_bic']);
         foreach($self as $id => $bankAccount) {
-            if($bankAccount['is_primary']) {
+            if($bankAccount['is_primary'] && $bankAccount['owner_identity_id']) {
                 Identity::id($bankAccount['owner_identity_id'])
                     ->update([
                         'bank_account_iban' => $bankAccount['bank_account_iban'],
