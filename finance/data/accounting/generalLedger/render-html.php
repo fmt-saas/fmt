@@ -7,6 +7,7 @@
 
 use communication\template\Template;
 use core\setting\Setting;
+use finance\accounting\FiscalYear;
 use identity\Organisation;
 use realestate\property\Condominium;
 use Twig\TwigFilter;
@@ -62,6 +63,13 @@ use Twig\Extension\ExtensionInterface;
 
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
+
+$getFormattedDate = function($timestamp) {
+    $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
+    $tz_offset = $tz->getOffset(new DateTime('@' . $timestamp));
+    $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
+    return date($date_format, $timestamp + $tz_offset);
+};
 
 $getTwigCurrency = function($equal_currency) {
     $equal_twig_currency_map = [
@@ -157,6 +165,41 @@ $data = eQual::run('get', 'finance_accounting_generalLedger_collect', [
         'account_id'        => $params['params']['account_id'] ?? null,
     ]);
 
+$fiscalYear = null;
+
+if(isset($params['params']['fiscal_year_id'])) {
+    $fiscalYear = FiscalYear::id($params['params']['fiscal_year_id'])
+        ->read(['date_from', 'date_to'])
+        ->first();
+}
+
+if(!$fiscalYear) {
+    $fiscalYear = FiscalYear::search([
+            ['status', '=', 'open'],
+            ['condo_id', '=', $condo_id],
+        ],  ['sort' => ['date_from' => 'desc']])
+        ->read(['date_from', 'date_to'])
+        ->first();
+}
+
+if(!$fiscalYear) {
+    $fiscalYear = FiscalYear::search([
+            ['status', '=', 'preopen'],
+            ['condo_id', '=', $condo_id],
+        ],  ['sort' => ['date_from' => 'asc']])
+        ->read(['date_from', 'date_to'])
+        ->first();
+}
+
+if($fiscalYear) {
+    $date_from = $fiscalYear['date_from'];
+    $date_to = $fiscalYear['date_to'];
+}
+
+if(isset($params['params']['date_from'], $params['params']['date_to']) && $params['params']['date_from'] && $params['params']['date_to']) {
+    $date_from = strtotime($params['params']['date_from']);
+    $date_to = strtotime($params['params']['date_to']);
+}
 
 $groups = [];
 
@@ -253,7 +296,19 @@ $template = Template::search([
 
 foreach($template['parts_ids'] as $part_id => $part) {
     if($part['name'] == 'subject') {
+
         $subject = strip_tags($part['value']);
+
+        $map_values = [
+            'date_from' => $getFormattedDate($date_from),
+            'date_to' => $getFormattedDate($date_to),
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $subject);
     }
 }
 
