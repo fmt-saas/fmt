@@ -123,7 +123,9 @@ if(!isset($params['params']['condo_id'])) {
     throw new \Exception('missing_mandatory_condo_id', EQ_ERROR_MISSING_PARAM);
 }
 
-$condominium = Condominium::id($params['params']['condo_id'])
+$condo_id = $params['params']['condo_id'];
+
+$condominium = Condominium::id($condo_id)
     ->read([
         'name', 'address_street', 'address_zip', 'address_city',
         'registration_number',
@@ -157,8 +159,8 @@ $organisation = Organisation::id(1)
 
 $data = eQual::run('get', 'finance_accounting_generalLedger_collect', [
         'domain'            => $params['domain'] ?? [],
-        'date_from'         => ($params['params']['date_from']) ? strtotime($params['params']['date_from']) : null,
-        'date_to'           => ($params['params']['date_to']) ? strtotime($params['params']['date_to']) : null,
+        'date_from'         => ($params['params']['date_from'] ?? null) ? strtotime($params['params']['date_from']) : null,
+        'date_to'           => ($params['params']['date_to'] ?? null) ? strtotime($params['params']['date_to']) : null,
         'condo_id'          => $params['params']['condo_id'],
         'journal_id'        => $params['params']['journal_id'] ?? null,
         'fiscal_year_id'    => $params['params']['fiscal_year_id'] ?? null,

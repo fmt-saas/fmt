@@ -328,12 +328,14 @@ $domain->addCondition(new DomainCondition('account_id', 'in', array_keys($map_ac
 $domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
 $domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 
+/*
 if($params['suppliers_only']) {
     $domain->addCondition(new DomainCondition('suppliership_id', '<>', null));
 }
 elseif($params['ownerships_only']) {
     $domain->addCondition(new DomainCondition('ownership_id', '<>', null));
 }
+*/
 
 if(isset($params['journal_id']) && $params['journal_id'] > 0) {
     $journal = Journal::id($params['journal_id'])->read(['journal_type'])->first();
