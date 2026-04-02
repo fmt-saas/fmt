@@ -34,7 +34,7 @@
             /* margin-bottom must match footer::height */
             margin-bottom: 50px;
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
+            font-size: 10px;
             text-align: justify;
             width: 100%;
         }
@@ -159,7 +159,7 @@
             </tr>
 
             {% for entry in group.entries %}
-                <tr style="font-size: 10px;">
+                <tr>
                     <td>{{ entry.entry_date | date('d/m/Y') }}</td>
                     <td style="text-align: center;">{{ entry.entry_journal }}</td>
                     <td style="text-align: center;">{{ entry.entry_reference }}</td>
