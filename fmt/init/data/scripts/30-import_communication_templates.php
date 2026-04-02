@@ -639,9 +639,9 @@ $template = Template::create([
 
 TemplatePart::create([
     'name'          => 'subject',
-    'value'         => "<p>Grand Livre</p>",
+    'value'         => "<p>Grand Livre du {date_from} au {date_to}</p>",
     'template_id'   => $template['id'],
-    'variables'     => '[]'
+    'variables'     => '["date_from", "date_to", "condo"]'
 ]);
 
 $template = Template::create([
@@ -671,9 +671,9 @@ $template = Template::create([
 
 TemplatePart::create([
     'name'          => 'subject',
-    'value'         => "<p>Bilan comptable</p>",
+    'value'         => "<p>Bilan comptable au {date_to}</p>",
     'template_id'   => $template['id'],
-    'variables'     => '[]'
+    'variables'     => '["date_to", "condo"]'
 ]);
 
 $template = Template::create([

@@ -7,6 +7,7 @@
 
 use communication\template\Template;
 use core\setting\Setting;
+use finance\accounting\FiscalYear;
 use identity\Organisation;
 use realestate\property\Condominium;
 use Twig\TwigFilter;
@@ -63,6 +64,13 @@ use Twig\Extension\ExtensionInterface;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
+$getFormattedDate = function($timestamp) {
+    $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
+    $tz_offset = $tz->getOffset(new DateTime('@' . $timestamp));
+    $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
+    return date($date_format, $timestamp + $tz_offset);
+};
+
 $getTwigCurrency = function($equal_currency) {
     $equal_twig_currency_map = [
         '€'   => 'EUR',
@@ -113,7 +121,9 @@ if(!isset($params['params']['condo_id'])) {
     throw new \Exception('missing_mandatory_condo_id', EQ_ERROR_MISSING_PARAM);
 }
 
-$condominium = Condominium::id($params['params']['condo_id'])
+$condo_id = $params['params']['condo_id'];
+
+$condominium = Condominium::id($condo_id)
     ->read([
         'name', 'address_street', 'address_zip', 'address_city',
         'registration_number',
@@ -147,14 +157,47 @@ $organisation = Organisation::id(1)
 
 $data = eQual::run('get', 'finance_accounting_balanceSheet_collect', [
         'domain'            => $params['domain'] ?? [],
-        'date_from'         => ($params['params']['date_from']) ? strtotime($params['params']['date_from']) : null,
-        'date_to'           => ($params['params']['date_to']) ? strtotime($params['params']['date_to']) : null,
+        'date_from'         => ($params['params']['date_from'] ?? null) ? strtotime($params['params']['date_from']) : null,
+        'date_to'           => ($params['params']['date_to'] ?? null) ? strtotime($params['params']['date_to']) : null,
         'condo_id'          => $params['params']['condo_id'],
         'journal_id'        => $params['params']['journal_id'] ?? null,
         'fiscal_year_id'    => $params['params']['fiscal_year_id'] ?? null,
         'account_id'        => $params['params']['account_id'] ?? null,
     ]);
 
+$date_to = null;
+
+if(isset($params['params']['fiscal_year_id'])) {
+    $fiscalYear = FiscalYear::id($params['params']['fiscal_year_id'])
+        ->read(['date_from', 'date_to'])
+        ->first();
+}
+
+if(!$fiscalYear) {
+    $fiscalYear = FiscalYear::search([
+            ['status', '=', 'open'],
+            ['condo_id', '=', $condo_id],
+        ],  ['sort' => ['date_from' => 'desc']])
+        ->read(['date_from', 'date_to'])
+        ->first();
+}
+
+if(!$fiscalYear) {
+    $fiscalYear = FiscalYear::search([
+            ['status', '=', 'preopen'],
+            ['condo_id', '=', $condo_id],
+        ],  ['sort' => ['date_from' => 'asc']])
+        ->read(['date_from', 'date_to'])
+        ->first();
+}
+
+if($fiscalYear) {
+    $date_to = $fiscalYear['date_to'];
+}
+
+if(isset($params['params']['date_from'], $params['params']['date_to']) && $params['params']['date_from'] && $params['params']['date_to']) {
+    $date_to = strtotime($params['params']['date_to']);
+}
 
 $total_asset     = 0.0;
 $total_liability = 0.0;
@@ -195,15 +238,26 @@ foreach($data as $line) {
 $subject = 'Bilan comptable';
 
 $template = Template::search([
-    ['code', '=', 'balance_sheet'],
-    ['type', '=', 'document']
-])
+        ['code', '=', 'balance_sheet'],
+        ['type', '=', 'document']
+    ])
     ->read(['parts_ids' => ['name', 'value']])
     ->first(true);
 
 foreach($template['parts_ids'] as $part_id => $part) {
     if($part['name'] == 'subject') {
         $subject = strip_tags($part['value']);
+
+        $map_values = [
+            'condo'     => $condominium['name'],
+            'date_to'   => $getFormattedDate($date_to),
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $subject);
     }
 }
 

@@ -95,20 +95,33 @@ use finance\accounting\OpeningBalanceLine;
             'type'           => 'many2one',
             'foreign_object' => 'finance\accounting\FiscalYear',
             'domain'         => ['condo_id', '=', 'object.condo_id'],
-            'default'        => function ($condo_id = null) {
-                $ids = FiscalYear::search([
-                    ['status', '=', 'open'],
-                    ['condo_id', '=', $condo_id],
-                ], ['sort' => ['date_from' => 'desc']])->ids();
+            'default'        => function ($condo_id = null, $domain = []) {
+                $origDomain = new Domain($domain);
 
-                if (!$ids) {
-                    $ids = FiscalYear::search([
-                        ['status', '=', 'preopen'],
-                        ['condo_id', '=', $condo_id],
-                    ], ['sort' => ['date_from' => 'asc']])->ids();
+                foreach ($origDomain->getClauses() as $clause) {
+                    foreach ($clause->getConditions() as $condition) {
+                        if ($condition->getOperand() === 'condo_id') {
+                            $condo_id = $condition->getValue();
+                            break 2;
+                        }
+                    }
                 }
+                if($condo_id) {
+                    $ids = FiscalYear::search([
+                        ['status', '=', 'open'],
+                        ['condo_id', '=', $condo_id],
+                    ], ['sort' => ['date_from' => 'desc']])->ids();
 
-                return $ids ? current($ids) : null;
+                    if(!$ids) {
+                        $ids = FiscalYear::search([
+                            ['status', '=', 'preopen'],
+                            ['condo_id', '=', $condo_id],
+                        ], ['sort' => ['date_from' => 'asc']])->ids();
+                    }
+
+                    return $ids ? current($ids) : null;
+                }
+                return null;
             }
         ]
     ],
