@@ -7,7 +7,8 @@
         "exports": false,
         "actions": false,
         "advanced_search": {
-            "open": true
+            "open": true,
+            "submit": "manual"
         }
     },
     "actions": [

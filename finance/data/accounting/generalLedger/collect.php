@@ -7,9 +7,14 @@
 
 use equal\orm\Domain;
 use equal\orm\DomainCondition;
-use realestate\finance\accounting\AccountingEntryLine;
+use finance\accounting\Account;
+use finance\accounting\AccountBalanceChange;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
+use finance\accounting\OpeningBalance;
+use finance\accounting\OpeningBalanceLine;
+use realestate\finance\accounting\AccountingEntry;
+use realestate\finance\accounting\AccountingEntryLine;
 
 list($params, $providers) = eQual::announce([
     'description'   => 'Advanced search for General Ledger - "Grand Livre".',
@@ -171,7 +176,7 @@ list($params, $providers) = eQual::announce([
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context']
+    'providers'     => ['context', 'orm']
 ]);
 
 

@@ -1,5 +1,5 @@
 {
-    "name": "General Ledger",
+    "name": "General Balance",
     "controller": "finance_accounting_generalBalance_collect",
     "header": {
         "#memo": "inline layout disables visible actions of the view",
