@@ -677,10 +677,10 @@ class AccountingEntry extends Model {
 
         $self->read([
                 'entry_number',
+                'misc_operation_id',
                 'purchase_invoice_id'   => ['invoice_number'],
                 'sale_invoice_id'       => ['invoice_number'],
-                'misc_operation_id',
-                'bank_statement_id' => ['statement_number']
+                'bank_statement_id'     => ['statement_number']
             ]);
 
         foreach($self as $id => $accountingEntry) {
@@ -691,7 +691,8 @@ class AccountingEntry extends Model {
                 $result[$id] = $accountingEntry['sale_invoice_id']['invoice_number'];
             }
             elseif(isset($accountingEntry['misc_operation_id'])) {
-                $result[$id] = $accountingEntry['entry_number'];
+                // #todo - use operation_number once it will be available
+                $result[$id] = preg_replace('/^[^\/]+\//', '', $accountingEntry['entry_number']);
             }
             elseif(isset($accountingEntry['bank_statement_id'])) {
                 $result[$id] = $accountingEntry['bank_statement_id']['statement_number'];
