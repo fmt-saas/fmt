@@ -677,8 +677,8 @@ class AccountingEntry extends Model {
 
         $self->read([
                 'entry_number',
-                'purchase_invoice_id' => ['name'],
-                'sale_invoice_id' => ['name'],
+                'purchase_invoice_id'   => ['invoice_number'],
+                'sale_invoice_id'       => ['invoice_number'],
                 'misc_operation_id',
                 'bank_statement_id' => ['statement_number']
             ]);

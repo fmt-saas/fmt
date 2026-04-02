@@ -100,10 +100,10 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
 
         $self->read([
                 'entry_number',
-                'purchase_invoice_id' => ['name'],
-                'sale_invoice_id' => ['name'],
-                'fund_request_execution_id' => ['name'],
-                'expense_statement_id' => ['name'],
+                'purchase_invoice_id'       => ['invoice_number'],
+                'sale_invoice_id'           => ['invoice_number'],
+                'fund_request_execution_id' => ['invoice_number'],
+                'expense_statement_id'      => ['invoice_number'],
                 'misc_operation_id',
                 'bank_statement_id' => ['statement_number']
             ]);
@@ -111,27 +111,21 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
         foreach($self as $id => $accountingEntry) {
             if(isset($accountingEntry['purchase_invoice_id'])) {
                 $result[$id] = $accountingEntry['purchase_invoice_id']['name'];
-                continue;
             }
-            if(isset($accountingEntry['sale_invoice_id'])) {
+            elseif(isset($accountingEntry['sale_invoice_id'])) {
                 $result[$id] = $accountingEntry['sale_invoice_id']['name'];
-                continue;
             }
-            if(isset($accountingEntry['fund_request_execution_id'])) {
+            elseif(isset($accountingEntry['fund_request_execution_id'])) {
                 $result[$id] = $accountingEntry['fund_request_execution_id']['name'];
-                continue;
             }
-            if(isset($accountingEntry['expense_statement_id'])) {
+            elseif(isset($accountingEntry['expense_statement_id'])) {
                 $result[$id] = $accountingEntry['expense_statement_id']['name'];
-                continue;
             }
-            if(isset($accountingEntry['misc_operation_id'])) {
+            elseif(isset($accountingEntry['misc_operation_id'])) {
                 $result = $accountingEntry['entry_number'];
-                continue;
             }
-            if(isset($accountingEntry['bank_statement_id'])) {
+            elseif(isset($accountingEntry['bank_statement_id'])) {
                 $accountingEntry['bank_statement_id']['statement_number'];
-                continue;
             }
         }
 
