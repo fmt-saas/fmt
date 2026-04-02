@@ -12,7 +12,7 @@ use realestate\finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
 
 [$params, $providers] = eQual::announce([
-    'description' => 'Advanced search for General Balance (Asset / Liability).',
+    'description' => 'Advanced search for Balance Sheet (Asset / Liability) - "Bilan".',
     'params' => [
 
         /* Rendering fields */

@@ -17,7 +17,7 @@ use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Advanced search for General Balance.',
+    'description'   => 'Advanced search for General Balance - "Balance générale".',
     // #memo - this controller is named `collect` but is provides data from its own logic, not directly from the model
     // 'extends'       => 'core_model_collect',
     'params'        => [
@@ -33,6 +33,11 @@ use realestate\finance\accounting\AccountingEntryLine;
         ],
 
         'entry_journal' => [
+            'type'              => 'string',
+            'readonly'          => true
+        ],
+
+        'entry_reference' => [
             'type'              => 'string',
             'readonly'          => true
         ],
@@ -370,6 +375,7 @@ $lines = $orm->read(AccountingEntryLine::getType(), $accounting_entry_lines_ids,
         'journal_id',
         'accounting_entry_id',
         'entry_date',
+        'entry_reference',
         'description',
         'debit',
         'credit',
@@ -404,6 +410,7 @@ foreach($map_accounts_ids as $account_id => $_) {
             'journal_id'            => null,
             'accounting_entry_id'   => null,
             'entry_date'            => date('c', $date_from),
+            'entry_reference'       => '',
             'description'           => 'Solde au ' . date('d/m/Y', $date_from),
             'debit'                 => $balance > 0 ? $balance : 0,
             'credit'                => $balance < 0 ? abs($balance) : 0,
@@ -443,6 +450,7 @@ foreach($map_accounts_ids as $account_id => $_) {
         'accounting_entry_id'   => null,
         'entry_date'            => date('c', $date_from),
         'entry_journal'         => '',
+        'entry_reference'       => '',
         'description'           => 'Solde au ' . date('d/m/Y', $params['date_from'] ?? $date_from),
         'debit'                 => $opening_balance > 0 ? $opening_balance : 0,
         'credit'                => $opening_balance < 0 ? abs($opening_balance) : 0,
