@@ -252,7 +252,8 @@ else {
             'sort'  => ['created' => 'desc'],
             'limit' => 1
         ]
-    )->first();
+    )
+    ->first();
 
     $opening_balance_id = $openingBalance['id'] ?? null;
 }
@@ -380,6 +381,14 @@ $result = [];
 
 $assets = array_values($balances_asset);
 $liabilities = array_values($balances_liability);
+
+usort($assets, function($a, $b) {
+    return strcmp($a['account_code'], $b['account_code']);
+});
+
+usort($liabilities, function($a, $b) {
+    return strcmp($a['account_code'], $b['account_code']);
+});
 
 $max_lines = max(count($balances_asset), count($balances_liability));
 
