@@ -95,19 +95,19 @@ use finance\accounting\OpeningBalanceLine;
             'type'           => 'many2one',
             'foreign_object' => 'finance\accounting\FiscalYear',
             'domain'         => ['condo_id', '=', 'object.condo_id'],
-            'default'        => function ($condo_id = null, $domain = []) {
-                if(!$condo_id) {
-                    $origDomain = new Domain($domain);
+            'default'        => function ($domain = []) {
+                $condo_id = null;
+                $origDomain = new Domain($domain);
 
-                    foreach($origDomain->getClauses() as $clause) {
-                        foreach($clause->getConditions() as $condition) {
-                            if($condition->getOperand() === 'condo_id') {
-                                $condo_id = $condition->getValue();
-                                break 2;
-                            }
+                foreach($origDomain->getClauses() as $clause) {
+                    foreach($clause->getConditions() as $condition) {
+                        if($condition->getOperand() === 'condo_id') {
+                            $condo_id = $condition->getValue();
+                            break 2;
                         }
                     }
                 }
+
                 if($condo_id) {
                     $ids = FiscalYear::search([
                         ['status', '=', 'open'],
