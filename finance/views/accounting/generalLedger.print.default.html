@@ -174,7 +174,7 @@
 
             <!-- Totaux du compte -->
             <tr class="total-footer">
-                <td colspan="5" style="text-align: right;">{{ labels['accounting.table.account_footer.td.total'] }} {{ group.account_code }}</td>
+                <td colspan="5" style="text-align: right;">{{ labels['accounting.table.account_footer.td.total'] }} {{ group.account_code }} – {{ group.account_label }}</td>
                 <td>{{ group.totals.debit | format_money() }}</td>
                 <td>{{ group.totals.credit | format_money() }}</td>
                 <td>{{ group.totals.balance | format_money() }}</td>
