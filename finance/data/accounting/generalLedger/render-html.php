@@ -165,8 +165,6 @@ foreach($data as $line) {
 
     $account_id    = $line['account_id']['id'];
     $account_name  = $line['account_id']['name']; // "7420005 - Loyers ..."
-    $journal_name  = $line['journal_id']['name'];
-    $entry_number  = $line['accounting_entry_id']['name'];
 
     // Extract account code + label (split at first " - ")
     $parts = explode(' - ', $account_name, 2);
@@ -189,8 +187,8 @@ foreach($data as $line) {
 
     $groups[$account_id]['entries'][] = [
         'entry_date'    => $line['entry_date'],
-        'journal_name'  => $journal_name,
-        'entry_number'  => $entry_number,
+        'entry_journal' => $line['entry_journal'],
+        'entry_number'  => $line['entry_number'],
         'description'   => $line['description'],
         'debit'         => floatval($line['debit']),
         'credit'        => floatval($line['credit']),
