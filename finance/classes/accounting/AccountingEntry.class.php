@@ -685,16 +685,16 @@ class AccountingEntry extends Model {
 
         foreach($self as $id => $accountingEntry) {
             if(isset($accountingEntry['purchase_invoice_id'])) {
-                $result[$id] = $accountingEntry['purchase_invoice_id']['name'];
+                $result[$id] = $accountingEntry['purchase_invoice_id']['invoice_number'];
             }
             elseif(isset($accountingEntry['sale_invoice_id'])) {
-                $result[$id] = $accountingEntry['sale_invoice_id']['name'];
+                $result[$id] = $accountingEntry['sale_invoice_id']['invoice_number'];
             }
             elseif(isset($accountingEntry['misc_operation_id'])) {
-                $result = $accountingEntry['entry_number'];
+                $result[$id] = $accountingEntry['entry_number'];
             }
             elseif(isset($accountingEntry['bank_statement_id'])) {
-                $accountingEntry['bank_statement_id']['statement_number'];
+                $result[$id] = $accountingEntry['bank_statement_id']['statement_number'];
             }
         }
 
