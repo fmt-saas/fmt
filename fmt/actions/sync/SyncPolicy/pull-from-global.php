@@ -78,7 +78,7 @@ try {
         unset($sync_policy_data['sync_policy_lines_ids']);
 
         foreach($sync_policy_data as $field => $value) {
-            if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+            if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted', 'last_pull'])) {
                 unset($sync_policy_data[$field]);
             }
         }

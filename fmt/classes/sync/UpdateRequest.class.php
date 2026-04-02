@@ -231,6 +231,9 @@ class UpdateRequest extends Model {
                         case 'boolean':
                             $val = (bool) $line['new_value'];
                             break;
+                        case 'many2many':
+                            $val = json_decode($line['new_value'], true);
+                            break;
                         case 'string':
                         default:
                             $val = (string) $line['new_value'];
@@ -245,17 +248,18 @@ class UpdateRequest extends Model {
 
                 // create or update target object
                 if($updateRequest['is_new']) {
-                    $updateRequest['object_class']::create($data);
+                    $object = $updateRequest['object_class']::create($data)
+                        ->first();
                 }
                 else {
-                    $updateRequest['object_class']::id($updateRequest['object_id'])
-                        ->update($data);
+                    $object = $updateRequest['object_class']::id($updateRequest['object_id'])
+                        ->update($data)
+                        ->first();
                 }
 
                 $values = [
                         'status'            => 'approved',
-                        'approval_user_id'  => $user_id,
-                        'approval_reason'   => $values['reason']
+                        'approval_user_id'  => $user_id
                     ];
 
                 if(isset($values['reason'])) {
@@ -263,6 +267,13 @@ class UpdateRequest extends Model {
                 }
 
                 self::id($id)->update($values);
+
+                if(method_exists($model, 'getActions')) {
+                    $actions = array_keys($updateRequest['object_class']::getActions());
+                    if(in_array('sync_uuid_links', $actions)) {
+                        $updateRequest['object_class']::id($object['id'])->do('sync_uuid_links');
+                    }
+                }
             }
             catch(\Exception $e) {
                 trigger_error("PHP::unable to apply update request: " . $e->getMessage(), EQ_REPORT_ERROR);
@@ -275,17 +286,18 @@ class UpdateRequest extends Model {
         $user_id = $auth->userId();
 
         foreach($self as $id => $updateRequest) {
-            $values = [
-                    'status'            => 'rejected',
-                    'rejection_user_id'  => $user_id
-                ];
+            $reason = $values['rejection_reason'] ?? null;
 
-            if(isset($values['reason'])) {
-                $values['rejection_reason'] = $values['reason'];
+            $values = [
+                'status'            => 'rejected',
+                'rejection_user_id' => $user_id
+            ];
+
+            if(!is_null($reason)) {
+                $values['rejection_reason'] = $reason;
             }
 
-            self::id($id)
-                ->update($values);
+            self::id($id)->update($values);
         }
     }
 }

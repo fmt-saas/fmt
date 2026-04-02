@@ -485,6 +485,19 @@ class Condominium extends Identity {
         parent::doSyncFromIdentity($self, $orm);
     }
 
+    protected static function doSyncUuidLinks($self) {
+        $self->read(['identity_id', 'identity_uuid']);
+        foreach($self as $id => $condo) {
+            if(!empty($condo['identity_uuid'])) {
+                $identity = Identity::search(['uuid', '=', $condo['identity_uuid']])
+                    ->first();
+
+                if($identity && $identity['identity_id'] !== $identity['id']) {
+                    self::id($id)->update(['identity_id' => $identity['id']]);
+                }
+            }
+        }
+    }
 
     protected static function policyIsValid($self) {
         $result = [];

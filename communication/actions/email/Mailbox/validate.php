@@ -8,7 +8,7 @@
 use communication\email\Mailbox;
 
 [$params, $providers] = eQual::announce([
-    'description'	=>	"Refresh the access token of a given Mailbox.",
+    'description'	=>	"Validate a given Mailbox.",
     'params' 		=>	[
         'email' => [
             'type'          => 'string',
@@ -39,7 +39,6 @@ use communication\email\Mailbox;
             'required'      => true
         ]
     ],
-    'constants'     => ['BACKEND_URL'],
     'access'        => [
         'visibility' => 'public'
     ],

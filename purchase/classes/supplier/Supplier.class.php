@@ -70,13 +70,6 @@ class Supplier extends Identity {
              * Specific Supplier columns
              */
 
-            'uuid' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain:36',
-                'unique'            => true,
-                'description'       => 'Unique supplier identifier provided by GLOBAL instance.'
-            ],
-
             'invoices_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoice',
@@ -182,6 +175,20 @@ class Supplier extends Identity {
             ],
 
         ];
+    }
+
+    protected static function doSyncUuidLinks($self) {
+        $self->read(['identity_id', 'identity_uuid']);
+        foreach($self as $id => $supplier) {
+            if(!empty($supplier['identity_uuid'])) {
+                $identity = Identity::search(['uuid', '=', $supplier['identity_uuid']])
+                    ->first();
+
+                if($identity && $identity['identity_id'] !== $identity['id']) {
+                    self::id($id)->update(['identity_id' => $identity['id']]);
+                }
+            }
+        }
     }
 
     protected static function calcSupplierTypeCode($self) {

@@ -48,6 +48,13 @@ class SyncPolicy extends Model {
                 'description'       => 'Direction of the synchronization.'
             ],
 
+            'last_pull' => [
+                'type'              => 'datetime',
+                'description'       => 'Last time some data were pulled from the global instance.',
+                'default'           => 0,
+                'visible'           => ['sync_direction', '=', 'descending']
+            ],
+
             'sync_policy_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'fmt\sync\SyncPolicyLine',

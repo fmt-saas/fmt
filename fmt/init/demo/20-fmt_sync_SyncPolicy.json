@@ -308,6 +308,16 @@
             },
             {
                 "sync_policy_id": 4,
+                "object_field": "registration_number",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "legal_name",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 4,
                 "object_field": "short_name",
                 "scope": "private"
             },
@@ -315,6 +325,71 @@
                 "sync_policy_id": 4,
                 "object_field": "identity_id",
                 "scope": "private"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "identity_uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "address_street",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "address_dispatch",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "address_city",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "address_zip",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "address_country",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "email",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "email_alt",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "phone",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "phone_alt",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "mobile",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "website",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 4,
+                "object_field": "supplier_types_ids",
+                "scope": "public"
             },
             {
                 "sync_policy_id": 5,
@@ -373,6 +448,11 @@
             },
             {
                 "sync_policy_id": 5,
+                "object_field": "identity_uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 5,
                 "object_field": "email",
                 "scope": "public"
             },
@@ -395,6 +475,11 @@
                 "sync_policy_id": 6,
                 "object_field": "identity_id",
                 "scope": "private"
+            },
+            {
+                "sync_policy_id": 6,
+                "object_field": "identity_uuid",
+                "scope": "public"
             },
             {
                 "sync_policy_id": 6,
@@ -456,6 +541,12 @@
                 "object_field": "address_zip",
                 "scope": "public"
             },
+            {
+                "sync_policy_id": 6,
+                "object_field": "address_country",
+                "scope": "public"
+            },
+
             {
                 "sync_policy_id": 7,
                 "object_field": "identity_id",
@@ -588,7 +679,12 @@
             },
             {
                 "sync_policy_id": 11,
-                "object_field": "document_type_id",
+                "object_field": "document_type_uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 12,
+                "object_field": "id",
                 "scope": "public"
             },
             {

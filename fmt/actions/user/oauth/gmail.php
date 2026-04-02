@@ -25,7 +25,6 @@ use infra\server\Instance;
             'required'      => true
         ]
     ],
-    'constants'     => ['BACKEND_URL'],
     'access'        => [
         'visibility' => 'public'
     ],
@@ -50,7 +49,7 @@ Example of received params:
 
     "state": "https://test1.fmtsolutions.be/",
     "code": "4/0Ab32j92b4Yh_NL_2UyNlp3GZwJCNUWGVRNN2Izsd7VzmQp2IBdj7h_omtkaG_cRLC1jZtw",
-    "scope": "email profile https://mail.google.com/ https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email openid",
+    "scope": "email profile https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email openid",
     "authuser": "1",
     "prompt": "consent",
     "system_info": "{\"resolution\":\"1920x1080\",\"platform\":\"Windows 19.0.0\",\"vendor\":\"Google Inc. (Intel)\",\"renderer\":\"ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x0000A7A1) Direct3D11 vs_5_0 ps_5_0, D3D11)\"}",
