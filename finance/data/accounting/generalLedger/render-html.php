@@ -300,8 +300,9 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $subject = strip_tags($part['value']);
 
         $map_values = [
+            'condo'     => $condominium['name'],
             'date_from' => $getFormattedDate($date_from),
-            'date_to' => $getFormattedDate($date_to),
+            'date_to'   => $getFormattedDate($date_to),
         ];
 
         // Replace {var} items with corresponding values, set in $map_values

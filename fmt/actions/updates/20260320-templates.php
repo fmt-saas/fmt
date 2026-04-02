@@ -114,7 +114,7 @@ TemplatePart::create([
     'name'          => 'subject',
     'value'         => "<p>Grand Livre</p>",
     'template_id'   => $template['id'],
-    'variables'     => '[]'
+    'variables'     => '["date_from", "date_to", "condo"]'
 ]);
 
 $template = Template::create([
