@@ -79,9 +79,9 @@ use finance\accounting\OpeningBalanceLine;
                 $condo_id = null;
                 $origDomain = new Domain($domain);
 
-                foreach ($origDomain->getClauses() as $clause) {
-                    foreach ($clause->getConditions() as $condition) {
-                        if ($condition->getOperand() === 'condo_id') {
+                foreach($origDomain->getClauses() as $clause) {
+                    foreach($clause->getConditions() as $condition) {
+                        if($condition->getOperand() === 'condo_id') {
                             $condo_id = $condition->getValue();
                             break 2;
                         }
@@ -96,13 +96,15 @@ use finance\accounting\OpeningBalanceLine;
             'foreign_object' => 'finance\accounting\FiscalYear',
             'domain'         => ['condo_id', '=', 'object.condo_id'],
             'default'        => function ($condo_id = null, $domain = []) {
-                $origDomain = new Domain($domain);
+                if(!$condo_id) {
+                    $origDomain = new Domain($domain);
 
-                foreach ($origDomain->getClauses() as $clause) {
-                    foreach ($clause->getConditions() as $condition) {
-                        if ($condition->getOperand() === 'condo_id') {
-                            $condo_id = $condition->getValue();
-                            break 2;
+                    foreach($origDomain->getClauses() as $clause) {
+                        foreach($clause->getConditions() as $condition) {
+                            if($condition->getOperand() === 'condo_id') {
+                                $condo_id = $condition->getValue();
+                                break 2;
+                            }
                         }
                     }
                 }
