@@ -2,7 +2,7 @@
     "accounting.table.th.entry_date": "Date",
     "accounting.table.th.entry_journal": "JNL",
     "accounting.table.th.entry_number": "Pièce",
-    "accounting.table.th.entry_reference": "Reference",
+    "accounting.table.th.entry_reference": "REF.",
     "accounting.table.th.description": "Description",
     "accounting.table.th.debit": "Débit",
     "accounting.table.th.credit": "Crédit",
