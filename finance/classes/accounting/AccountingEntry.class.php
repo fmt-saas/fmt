@@ -127,6 +127,14 @@ class AccountingEntry extends Model {
                 'onupdate'          => 'onupdateEntryNumber'
             ],
 
+            'entry_reference' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'store'             => true,
+                'function'          => 'calcEntryReference',
+                'description'       => 'Info to display as reference (links to accoutning doc).'
+            ],
+
             'debit' => [
                 'type'              => 'computed',
                 'result_type'       => 'float',
@@ -659,6 +667,33 @@ class AccountingEntry extends Model {
                 $result[$id] = $accountingEntry['entry_number'];
             }
         }
+        return $result;
+    }
+
+    protected static function calcEntryReference($self) {
+        $result = null;
+
+        $self->read(['entry_number', 'purchase_invoice_id' => ['name'], 'sale_invoice_id' => ['name'], 'misc_operation_id', 'bank_statement_line_id' => ['bank_statement_id' => 'statement_number']]);
+
+        foreach($self as $id => $accountingEntry) {
+            if(isset($accountingEntry['purchase_invoice_id'])) {
+                $result[$id] = $accountingEntry['purchase_invoice_id']['name'];
+                continue;
+            }
+            if(isset($accountingEntry['sale_invoice_id'])) {
+                $result[$id] = $accountingEntry['sale_invoice_id']['name'];
+                continue;
+            }
+            if(isset($accountingEntry['misc_operation_id'])) {
+                $result = $accountingEntry['entry_number'];
+                continue;
+            }
+            if(isset($accountingEntry['bank_statement_line_id'])) {
+                $accountingEntry['bank_statement_line_id']['bank_statement_id']['statement_number'];
+                continue;
+            }
+        }
+
         return $result;
     }
 

@@ -56,6 +56,7 @@ $purchaseInvoice = PurchaseInvoice::id($id)
         'payable_amount',
         'fiscal_year_id',
         'emission_date',
+        'posting_date',
         'document_id' => ['hash'],
         'price',
         'invoice_lines_ids' => [

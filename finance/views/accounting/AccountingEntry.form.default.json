@@ -164,6 +164,13 @@
                                                 "label": "Bank Statement Line",
                                                 "value": "bank_statement_line_id",
                                                 "width": "50%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Bank Statement",
+                                                "value": "bank_statement_id",
+                                                "width": "50%",
                                                 "visible": [
                                                     [ ["origin_object_class", "=", "finance\\bank\\BankStatementLine"] ]
                                                 ]

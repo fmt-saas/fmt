@@ -1008,12 +1008,14 @@ class BankStatementLine extends Model {
                         }
 
                         $accountingEntry = AccountingEntry::create([
-                                'condo_id'              => $bankStatementLine['condo_id'],
-                                'entry_date'            => $payment['receipt_date'],
-                                'origin_object_class'   => self::getType(),
-                                'origin_object_id'      => $id,
-                                'journal_id'            => $journal['id'],
-                                'description'           => $bankStatementLine['communication']
+                                'condo_id'               => $bankStatementLine['condo_id'],
+                                'entry_date'             => $payment['receipt_date'],
+                                'origin_object_class'    => self::getType(),
+                                'origin_object_id'       => $id,
+                                'bank_statement_line_id' => $id,
+                                'bank_statement_id'      => $bankStatementLine['bank_statement_id']['id'],
+                                'journal_id'             => $journal['id'],
+                                'description'            => $bankStatementLine['communication']
                             ])
                             ->first();
 
@@ -1064,12 +1066,14 @@ class BankStatementLine extends Model {
                     $amount = round($bankStatementLine['amount'], 2);
 
                     $accountingEntry = AccountingEntry::create([
-                            'condo_id'              => $bankStatementLine['condo_id'],
-                            'entry_date'            => $bankStatementLine['date'],
-                            'origin_object_class'   => self::getType(),
-                            'origin_object_id'      => $id,
-                            'journal_id'            => $journal['id'],
-                            'description'           => $bankStatementLine['communication']
+                            'condo_id'               => $bankStatementLine['condo_id'],
+                            'entry_date'             => $bankStatementLine['date'],
+                            'origin_object_class'    => self::getType(),
+                            'origin_object_id'       => $id,
+                            'bank_statement_line_id' => $id,
+                            'bank_statement_id'      => $bankStatementLine['bank_statement_id']['id'],
+                            'journal_id'             => $journal['id'],
+                            'description'            => $bankStatementLine['communication']
                         ])
                         ->first();
 

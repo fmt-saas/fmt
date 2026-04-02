@@ -31,6 +31,14 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 'description'       => 'Object identifier, as a complement to `origin_object_class`, the entry originates from.'
             ],
 
+            'entry_reference' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'store'             => true,
+                'function'          => 'calcEntryReference',
+                'description'       => 'Info to display as reference (links to accoutning doc).'
+            ],
+
             'purchase_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
@@ -85,6 +93,51 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             ]
         ]);
     }
+
+
+    protected static function calcEntryReference($self) {
+        $result = null;
+
+        $self->read([
+                'entry_number',
+                'purchase_invoice_id' => ['name'],
+                'sale_invoice_id' => ['name'],
+                'fund_request_execution_id' => ['name'],
+                'expense_statement_id' => ['name'],
+                'misc_operation_id',
+                'bank_statement_line_id' => ['bank_statement_id' => 'statement_number']
+            ]);
+
+        foreach($self as $id => $accountingEntry) {
+            if(isset($accountingEntry['purchase_invoice_id'])) {
+                $result[$id] = $accountingEntry['purchase_invoice_id']['name'];
+                continue;
+            }
+            if(isset($accountingEntry['sale_invoice_id'])) {
+                $result[$id] = $accountingEntry['sale_invoice_id']['name'];
+                continue;
+            }
+            if(isset($accountingEntry['fund_request_execution_id'])) {
+                $result[$id] = $accountingEntry['fund_request_execution_id']['name'];
+                continue;
+            }
+            if(isset($accountingEntry['expense_statement_id'])) {
+                $result[$id] = $accountingEntry['expense_statement_id']['name'];
+                continue;
+            }
+            if(isset($accountingEntry['misc_operation_id'])) {
+                $result = $accountingEntry['entry_number'];
+                continue;
+            }
+            if(isset($accountingEntry['bank_statement_line_id'])) {
+                $accountingEntry['bank_statement_line_id']['bank_statement_id']['statement_number'];
+                continue;
+            }
+        }
+
+        return $result;
+    }
+
 
     /**
      * Policy ensures: status = 'validated' AND reversed_entry_id is null AND fiscal year is not closed, etc.

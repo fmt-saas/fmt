@@ -42,7 +42,7 @@ class AccountingEntryLine extends Model {
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
                 'description'       => "Accounting entry the line relates to.",
                 'ondelete'          => 'cascade',
-                'dependents'        => ['journal_id', 'entry_date', 'entry_number', 'fiscal_year_id', 'fiscal_period_id']
+                'dependents'        => ['journal_id', 'entry_date', 'entry_number', 'entry_reference','fiscal_year_id', 'fiscal_period_id']
             ],
 
             'journal_id' => [
@@ -94,6 +94,16 @@ class AccountingEntryLine extends Model {
                 'result_type'       => 'string',
                 'relation'          => ['accounting_entry_id' => 'entry_number'],
                 'description'       => 'Number of the parent accounting entry.',
+                'store'             => true,
+                'instant'           => true,
+                'readonly'          => true
+            ],
+
+            'entry_reference' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['accounting_entry_id' => 'entry_reference'],
+                'description'       => 'Info to display as reference for accounting entry.',
                 'store'             => true,
                 'instant'           => true,
                 'readonly'          => true
