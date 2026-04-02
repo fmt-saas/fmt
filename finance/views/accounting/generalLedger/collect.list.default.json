@@ -82,7 +82,20 @@
             {
                 "type": "field",
                 "label": "Journal",
+                "value": "entry_journal",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Journal",
                 "value": "journal_id",
+                "width": "20%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Reference",
+                "value": "entry_reference",
                 "width": "20%"
             },
             {
@@ -107,6 +120,11 @@
             {
                 "type": "field",
                 "value": "credit",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "balance",
                 "width": "15%"
             }
         ]

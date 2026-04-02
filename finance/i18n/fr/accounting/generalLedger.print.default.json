@@ -1,7 +1,8 @@
 {
     "accounting.table.th.date": "Date",
-    "accounting.table.th.journal": "Journal",
-    "accounting.table.th.entity_number": "Pièce",
+    "accounting.table.th.journal": "JNL",
+    "accounting.table.th.entry_number": "Pièce",
+    "accounting.table.th.entry_reference": "Reference",
     "accounting.table.th.description": "Description",
     "accounting.table.th.debit": "Débit",
     "accounting.table.th.credit": "Crédit",
