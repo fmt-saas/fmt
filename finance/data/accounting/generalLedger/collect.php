@@ -38,6 +38,11 @@ list($params, $providers) = eQual::announce([
             'readonly'          => true
         ],
 
+        'entry_number' => [
+            'type'              => 'string',
+            'readonly'          => true
+        ],
+
         'entry_reference' => [
             'type'              => 'string',
             'readonly'          => true
@@ -367,6 +372,7 @@ $lines = $orm->read(AccountingEntryLine::getType(), $accounting_entry_lines_ids,
         'journal_id',
         'accounting_entry_id',
         'entry_date',
+        'entry_number',
         'entry_reference',
         'description',
         'debit',
@@ -402,6 +408,7 @@ foreach($map_accounts_ids as $account_id => $_) {
             'journal_id'            => null,
             'accounting_entry_id'   => null,
             'entry_date'            => date('c', $date_from),
+            'entry_number'          => '',
             'entry_reference'       => '',
             'description'           => 'Solde au ' . date('d/m/Y', $date_from),
             'debit'                 => $balance > 0 ? $balance : 0,
@@ -442,6 +449,7 @@ foreach($map_accounts_ids as $account_id => $_) {
         'accounting_entry_id'   => null,
         'entry_date'            => date('c', $date_from),
         'entry_journal'         => '',
+        'entry_number'          => '',
         'entry_reference'       => '',
         'description'           => 'Solde au ' . date('d/m/Y', $params['date_from'] ?? $date_from),
         'debit'                 => $opening_balance > 0 ? $opening_balance : 0,
