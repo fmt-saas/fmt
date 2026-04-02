@@ -193,6 +193,7 @@ foreach($data as $line) {
         'description'       => $line['description'],
         'debit'             => floatval($line['debit']),
         'credit'            => floatval($line['credit']),
+        'balance'           => floatval($line['balance'])
     ];
 }
 
