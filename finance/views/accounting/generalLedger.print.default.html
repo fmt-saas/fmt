@@ -136,11 +136,11 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 9%;">{{ labels['accounting.table.th.entry_date'] }}</th>
-                <th style="width: 4%; text-align: center;">{{ labels['accounting.table.th.entry_journal'] }}</th>
-                <th style="width: 8%; text-align: center;">{{ labels['accounting.table.th.entry_reference'] }}</th>
-                <th style="width: 13%;">{{ labels['accounting.table.th.entry_number'] }}</th>
-                <th style="width: 24%;">{{ labels['accounting.table.th.description'] }}</th>
+                <th style="width: 8%;">{{ labels['accounting.table.th.entry_date'] }}</th>
+                <th style="width: 5%; text-align: center;">{{ labels['accounting.table.th.entry_journal'] }}</th>
+                <th style="width: 9%; text-align: center;">{{ labels['accounting.table.th.entry_reference'] }}</th>
+                <th style="width: 14%;">{{ labels['accounting.table.th.entry_number'] }}</th>
+                <th style="width: 22%;">{{ labels['accounting.table.th.description'] }}</th>
                 <th style="width: 14%;">{{ labels['accounting.table.th.debit'] }}</th>
                 <th style="width: 14%;">{{ labels['accounting.table.th.credit'] }}</th>
                 <th style="width: 14%;">{{ labels['accounting.table.th.balance'] }}</th>
@@ -164,7 +164,7 @@
                     <td style="text-align: center;">{{ entry.entry_journal }}</td>
                     <td style="text-align: center;">{{ entry.entry_reference }}</td>
                     <td>{{ entry.entry_number }}</td>
-                    <td>{{ entry.description }}</td>
+                    <td style="font-size: 9px;">{{ entry.description }}</td>
                     <td>{{ entry.debit | format_money() }}</td>
                     <td>{{ entry.credit | format_money() }}</td>
                     <td>{{ entry.balance | format_money() }}</td>
