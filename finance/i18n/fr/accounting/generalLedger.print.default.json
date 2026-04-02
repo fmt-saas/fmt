@@ -1,6 +1,6 @@
 {
-    "accounting.table.th.date": "Date",
-    "accounting.table.th.journal": "JNL",
+    "accounting.table.th.entry_date": "Date",
+    "accounting.table.th.entry_journal": "JNL",
     "accounting.table.th.entry_number": "Pièce",
     "accounting.table.th.entry_reference": "Reference",
     "accounting.table.th.description": "Description",

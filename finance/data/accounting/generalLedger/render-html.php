@@ -186,12 +186,13 @@ foreach($data as $line) {
     }
 
     $groups[$account_id]['entries'][] = [
-        'entry_date'    => $line['entry_date'],
-        'entry_journal' => $line['entry_journal'],
-        'entry_number'  => $line['entry_number'],
-        'description'   => $line['description'],
-        'debit'         => floatval($line['debit']),
-        'credit'        => floatval($line['credit']),
+        'entry_date'        => $line['entry_date'],
+        'entry_journal'     => $line['entry_journal'],
+        'entry_number'      => $line['entry_number'],
+        'entry_reference'   => $line['entry_reference'],
+        'description'       => $line['description'],
+        'debit'             => floatval($line['debit']),
+        'credit'            => floatval($line['credit']),
     ];
 }
 
@@ -243,9 +244,9 @@ foreach($groups as $account_id => &$group) {
 $subject = 'Grand Livre';
 
 $template = Template::search([
-    ['code', '=', 'general_ledger'],
-    ['type', '=', 'document']
-])
+        ['code', '=', 'general_ledger'],
+        ['type', '=', 'document']
+    ])
     ->read(['parts_ids' => ['name', 'value']])
     ->first();
 
