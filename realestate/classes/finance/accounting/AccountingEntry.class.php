@@ -99,6 +99,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
         $result = null;
 
         $self->read([
+                'status',
                 'entry_number',
                 'misc_operation_id',
                 'purchase_invoice_id'       => ['invoice_number'],
@@ -109,6 +110,9 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             ]);
 
         foreach($self as $id => $accountingEntry) {
+            if($accountingEntry['status'] !== 'validated') {
+                continue;
+            }
             if(isset($accountingEntry['purchase_invoice_id'])) {
                 $result[$id] = $accountingEntry['purchase_invoice_id']['invoice_number'];
             }
