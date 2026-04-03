@@ -16,7 +16,7 @@
                                         "items": [
                                             {
                                                 "id": "item.alerts",
-                                                "label": "A traiter",
+                                                "label": "Todo",
                                                 "description": "",
                                                 "width": "100%",
                                                 "entity": "fmt\\processing\\collect-summary",
@@ -30,7 +30,7 @@
                                         "items": [
                                             {
                                                 "id": "item.fundings",
-                                                "label": "Paiements",
+                                                "label": "Payments",
                                                 "description": "",
                                                 "width": "100%",
                                                 "height": "50%",
@@ -40,7 +40,7 @@
                                             },
                                             {
                                                 "id": "item.exporting_tasks",
-                                                "label": "Exports disponibles",
+                                                "label": "Available exports",
                                                 "description": "",
                                                 "width": "100%",
                                                 "height": "50%",

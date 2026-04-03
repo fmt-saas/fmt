@@ -70,6 +70,21 @@
             "name": "Employés",
             "description": "Liste de base des employés existants.",
             "layout": {}
+        },
+        "dashboard.default": {
+            "name": "Employé",
+            "description": "Tableau de bord employé.",
+            "layout": {
+                "item.alerts": {
+                    "label": "À traiter"
+                },
+                "item.fundings": {
+                    "label": "Paiements"
+                },
+                "item.exporting_tasks": {
+                    "label": "Exports disponibles"
+                }
+            }
         }
     },
     "error": {}
