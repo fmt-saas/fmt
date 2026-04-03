@@ -51,7 +51,11 @@
         "status": {
             "label": "Statut",
             "description": "Indique si la boîte est en attente de validation ou prête.",
-            "help": ""
+            "help": "",
+            "selection": {
+                "pending": "Non connectée",
+                "validated": "Connectée"
+            }
         }
     },
     "view": {
