@@ -156,7 +156,7 @@ foreach($purchaseInvoice['invoice_lines_ids'] as $line_id => $purchaseInvoiceLin
             $dispatch->dispatch('purchase.accounting.invoice.invalid_owner_tenant_ratio', $class, $id, 'important', $script, ['id' => $id]);
             throw new Exception("invalid_owner_tenant_ratio", EQ_ERROR_INVALID_PARAM);
         }
-        if(!$purchaseInvoiceLine['apportionment_id'] && !$purchaseInvoiceLine['is_private_expense']) {
+        if(!$purchaseInvoiceLine['apportionment_id']) {
             $dispatch->dispatch('purchase.accounting.invoice.missing_mandatory_line_apportionment', $class, $id, 'important', $script, ['id' => $id]);
             throw new Exception("missing_mandatory_line_apportionment", EQ_ERROR_INVALID_PARAM);
         }
