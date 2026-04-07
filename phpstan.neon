@@ -16,7 +16,6 @@ parameters:
     scanDirectories:
         - ../lib
         - ../packages/core
-        - ../packages/demo
     scanFiles:
         - ../eq.lib.php
         - ../run.php
