@@ -41,7 +41,7 @@
             }
         }
     },
-    "require-dev": {
+    "requires": {
         "phpstan/phpstan": ">=2.1"
     },
     "config": {
