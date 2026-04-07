@@ -61,7 +61,7 @@ class FundUsageLine extends \equal\orm\Model {
 
             'apportionment_id' => [
                 'type'              => 'computed',
-                'type'              => 'many2one',
+                'result_type'       => 'many2one',
                 'description'       => "The key that the apportionment refers to.",
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",

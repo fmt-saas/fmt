@@ -1,7 +1,7 @@
 pipelines:
   default:
     - step:
-        name: Test with eQual dev-2.0
+        name: Test with eQual dev-2.0 + PHPStan
         image: php:8.3-fpm
         artifacts:
           - artifacts/**
@@ -13,6 +13,9 @@ pipelines:
           - apt-get update && apt-get -y install git libzip-dev libicu-dev default-mysql-client
           - docker-php-ext-install pdo pdo_mysql mysqli zip intl
           - docker-php-ext-enable mysqli
+          # Install Composer
+          - curl -sS https://getcomposer.org/installer | php
+          - mv composer.phar /usr/local/bin/composer
           # Create a directory for artifacts
           - mkdir -p artifacts
           - mkdir -p /var/www/html
@@ -48,6 +51,9 @@ pipelines:
           - cat /var/www/html/config/config.json
           - set +e ; php /var/www/html/run.php --do=init_package --package=fmt --force=true --import=false --demo=true ; export FAILING=$? ; set -e
           - cp /var/www/html/log/equal.log artifacts/equal.log
+          - if [ "$FAILING" -ne 0 ]; then exit $FAILING; fi
+          # Run static analysis
+          - set +e ; /var/www/html/vendor/bin/phpstan analyse --no-progress --level=0 --memory-limit=-1 --configuration=/var/www/html/packages/phpstan.neon ; export FAILING=$? ; set -e
           - if [ "$FAILING" -ne 0 ]; then exit $FAILING; fi
           # Run tests
           - set +e ; php /var/www/html/run.php --do=test_package --package=fmt ; export FAILING=$? ; set -e

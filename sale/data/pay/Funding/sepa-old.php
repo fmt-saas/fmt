@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+/*
 use Digitick\Sepa\DomBuilder\DomBuilderFactory;
 use Digitick\Sepa\GroupHeader;
 use Digitick\Sepa\PaymentInformation;
@@ -29,10 +30,10 @@ use sale\pay\Funding;
     'providers'     => [ 'context', 'orm' ]
 ]);
 
-/**
+/
  * @var \equal\php\Context $context
  * @var \equal\orm\ObjectManager $orm
- */
+ /
 ['context' => $context, 'orm' => $orm] = $providers;
 
 
@@ -97,3 +98,4 @@ $context->httpResponse()
         ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
         ->body($xmlOutput)
         ->send();
+*/

@@ -6,10 +6,10 @@
 */
 
 use equal\orm\Domain;
-use sale\accounting\invoice\Invoice;
+use sale\accounting\invoice\SaleInvoice;
 
 list($params, $providers) = eQual::announce([
-    'description'   => 'Advanced search for the Funding: returns a collection of Reports according to extra paramaters.',
+    'description'   => 'Advanced search for the Funding: returns a collection of Reports according to extra parameters.',
     'extends'       => 'core_model_collect',
     'params'        => [
         'entity' =>  [
@@ -47,6 +47,7 @@ list($params, $providers) = eQual::announce([
     ],
     'providers'     => [ 'context', 'orm' ]
 ]);
+
 /**
  * @var \equal\php\Context $context
  * @var \equal\orm\ObjectManager $orm
@@ -69,7 +70,7 @@ if(isset($params['invoice_id']) && $params['invoice_id'] > 0) {
 
 if(isset($params['customer_id']) && $params['customer_id'] > 0) {
     $invoices_ids = [];
-    $invoices_ids = Invoice::search(['customer_id', '=', $params['customer_id']])->ids();
+    $invoices_ids = SaleInvoice::search(['customer_id', '=', $params['customer_id']])->ids();
     if(count($invoices_ids)) {
         $domain = Domain::conditionAdd($domain, ['invoice_id', 'in', $invoices_ids]);
     }

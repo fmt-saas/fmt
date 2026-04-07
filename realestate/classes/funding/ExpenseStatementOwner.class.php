@@ -145,6 +145,8 @@ class ExpenseStatementOwner extends \equal\orm\Model {
         */
         $group_by_collector_account = false;
 
+        $map_accounts = [];
+
         $self->read([
                 'id',
                 'condo_id',

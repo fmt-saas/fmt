@@ -35,9 +35,9 @@ class PriceList extends Model {
 
             'condo_id' => [
                 'type'              => 'many2one',
-                'description'       => "The condominium the tenancy relates to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'description'       => 'If set, relates to the specific condominium the price applies to.',
+                'description'       => "The condominium the tenancy relates to.",
+                'help'              => "If set, relates to the specific condominium the price applies to."
             ],
 
             'date_from' => [
