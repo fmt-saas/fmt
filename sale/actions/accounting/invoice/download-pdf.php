@@ -5,7 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use sale\accounting\invoice\Invoice;
+use sale\accounting\invoice\SaleInvoice;
 
 list($params, $providers) = eQual::announce([
     'description'   => 'Download pdf of given invoice.',
@@ -37,7 +37,7 @@ list($params, $providers) = eQual::announce([
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-$invoice = Invoice::id($params['id'])
+$invoice = SaleInvoice::id($params['id'])
     ->read(['id'])
     ->first();
 

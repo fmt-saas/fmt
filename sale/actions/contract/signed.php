@@ -4,8 +4,7 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
-use sale\order\Contract;
-use sale\order\Order;
+use sale\contract\Contract;
 
 list($params, $providers) = announce([
     'description'   => "Mark a contract as signed (signed version has been received).",
@@ -50,9 +49,11 @@ if($contract['status'] != 'sent') {
 
 // Update booking status
 Contract::id($params['id'])->update(['status' => 'signed']);
+/*
 if($contract['order_id']){
     Order::updateStatusFromFundings((array) $contract['order_id']);
 }
+*/
 
 // #todo - check if required payment have been paid in the meantime
 

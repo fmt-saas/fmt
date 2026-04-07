@@ -1,0 +1,21 @@
+parameters:
+    paths:
+        - ../packages/communication
+        - ../packages/documents
+        - ../packages/finance
+        - ../packages/fmt
+        - ../packages/hr
+        - ../packages/identity
+        - ../packages/infra
+        - ../packages/purchase
+        - ../packages/realestate
+        - ../packages/sale
+        - ../packages/stats
+        - ../packages/temp
+        - ../packages/tracking
+    scanDirectories:
+        - ../lib
+        - ../packages/core
+    scanFiles:
+        - ../eq.lib.php
+        - ../run.php

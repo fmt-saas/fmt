@@ -5,7 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use sale\accounting\invoice\Invoice;
+use sale\accounting\invoice\SaleInvoice;
 
 list($params, $providers) = eQual::announce([
     'description'   => 'Cancel given invoices, can keep or cancel linked receivables.',
@@ -19,7 +19,7 @@ list($params, $providers) = eQual::announce([
         'ids' =>  [
             'description'       => 'Identifiers of the targeted invoices.',
             'type'              => 'one2many',
-            'foreign_object'    => 'sale\accounting\invoice\Invoice',
+            'foreign_object'    => 'sale\accounting\invoice\SaleInvoice',
             'default'           => []
         ],
 
@@ -48,7 +48,7 @@ if(empty($params['ids'])) {
     $params['ids'][] = $params['id'];
 }
 
-$invoices_ids = Invoice::search([
+$invoices_ids = SaleInvoice::search([
     ['id', 'in', $params['ids']],
     ['status', '=', 'posted']
 ])
@@ -58,7 +58,7 @@ if(count($params['ids']) !== count($invoices_ids)) {
     throw new Exception('invoice_invalid_id', QN_ERROR_INVALID_PARAM);
 }
 
-Invoice::ids($invoices_ids)
+SaleInvoice::ids($invoices_ids)
     ->transition(
         $params['keep_receivables'] ? 'cancel-keep-receivables' : 'cancel'
     );

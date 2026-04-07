@@ -61,16 +61,6 @@ class Funding extends \equal\orm\Model {
                 'dependents'        => ['paid_amount', 'remaining_amount', 'is_paid']
             ],
 
-            'accounting_account_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\accounting\Account',
-                'description'       => "Accounting account the funding relates to.",
-                'required'          => true,
-                'domain'            => [
-                    ['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]
-                ]
-            ],
-
             'accounting_entry_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\AccountingEntryLine',

@@ -36,8 +36,7 @@ use realestate\property\OwnershipTransfer;
         'content-type'  => 'application/pdf',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context'],
-    'constants'     => ['L10N_TIMEZONE', 'L10N_LOCALE']
+    'providers'     => ['context']
 ]);
 
 /** @var \equal\php\Context $context */
