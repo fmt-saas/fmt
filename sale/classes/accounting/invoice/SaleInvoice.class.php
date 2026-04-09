@@ -749,29 +749,25 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
      * Check whether an object can be updated, and perform some additional operations if necessary.
      * This method can be overridden to define a more precise set of tests.
      *
-     * @param  \equal\orm\ObjectManager   $om         ObjectManager instance.
-     * @param  array                      $ids        List of objects identifiers.
      * @param  array                      $values     Associative array holding the new values to be assigned.
-     * @param  string                     $lang       Language in which multilang fields are being updated.
      * @return array                      Returns an associative array mapping fields with their error messages. En empty array means that object has been successfully processed and can be updated.
      */
-    public static function canupdate($om, $ids, $values, $lang = 'en') {
-        $res = $om->read(self::getType(), $ids, ['status']);
+    protected static function canupdate($self, $values) {
+        $self->read(['status']);
 
-        if($res > 0) {
-            foreach($res as $id => $invoice) {
-                // only allow editable fields
-                if($invoice['status'] != 'proforma') {
-                    // editable fields for sale\accounting\invoice\Invoice
-                    $editable_fields = ['payment_status', 'customer_ref', 'funding_id', 'reversed_invoice_id'];
+        foreach($self as $id => $invoice) {
+            // only allow editable fields
+            if($invoice['status'] != 'proforma') {
+                // editable fields for sale\accounting\invoice\Invoice
+                $editable_fields = ['payment_status', 'customer_ref', 'funding_id', 'reversed_invoice_id'];
 
-                    if( count(array_diff(array_keys($values), $editable_fields)) ) {
-                    //    return ['status' => ['non_editable' => "Invoice can only be updated while status is proforma ({$id})."]];
-                    }
+                if( count(array_diff(array_keys($values), $editable_fields)) ) {
+                //    return ['status' => ['non_editable' => "Invoice can only be updated while status is proforma ({$id})."]];
                 }
             }
         }
-        return parent::canupdate($om, $ids, $values, $lang);
+
+        return parent::canupdate($self, $values);
     }
 
     /**

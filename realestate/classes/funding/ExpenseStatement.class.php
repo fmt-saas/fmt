@@ -1069,7 +1069,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         foreach($self as $id => $expenseStatement) {
 
             foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
-                // remove previous Funding, if any
+                // remove previous Funding, if any - what if already paid ?
+                /*
                 Funding::search([
                         ['condo_id', '=', $expenseStatement['condo_id']['id']],
                         ['funding_type', '=', 'expense_statement'],
@@ -1077,6 +1078,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         ['ownership_id', '=', $ownership_id]
                     ])
                     ->delete(true);
+                */
 
                 $ownership_id = $statementOwner['ownership_id']['id'];
                 // a funding cannot be issued nor due in the past
@@ -1819,4 +1821,15 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
         return $result;
     }
+
+    protected static function canupdate($self, $values) {
+        $self->read(['status']);
+        foreach($self as $id => $invoice) {
+            if($invoice['status'] === 'posted') {
+                return ['status' => ['non_editable' => 'Expense Statement cannot be updated after recording.']];
+            }
+        }
+        return parent::canupdate($self, $values);
+    }
+
 }
