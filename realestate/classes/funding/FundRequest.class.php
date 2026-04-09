@@ -8,8 +8,8 @@
 namespace realestate\funding;
 
 use finance\accounting\FiscalPeriod;
-use realestate\ownership\Ownership;
 use realestate\property\PropertyLotApportionmentShare;
+use realestate\property\PropertyLotOwnership;
 use finance\accounting\FiscalYear;
 use realestate\property\Condominium;
 
@@ -105,6 +105,12 @@ class FundRequest extends \equal\orm\Model {
                 'foreign_object'    => 'sale\pay\PaymentTerms',
                 'description'       => 'Payment terms to use for the request.',
                 'domain'            => ['is_active', '=', true]
+            ],
+
+            'has_ownership_proration' => [
+                'type'              => 'boolean',
+                'description'       => 'If active, amount requested for is splitted between ownerships impacted by a Transfer within each period.',
+                'default'           => false
             ],
 
             'has_date_range' => [
@@ -463,10 +469,103 @@ class FundRequest extends \equal\orm\Model {
         }
     }
 
+    private static function amountToCents($amount): int {
+        return (int) round(((float) $amount) * 100);
+    }
+
+    private static function centsToAmount($amount_cents): float {
+        return round(((int) $amount_cents) / 100, 2);
+    }
+
+    private static function resolveActiveOwnershipId(array $property_lot_ownerships, int $execution_date, int $property_lot_id): int {
+        $active_ownership_id = null;
+
+        foreach($property_lot_ownerships as $propertyLotOwnership) {
+            if($propertyLotOwnership['date_from'] > $execution_date) {
+                continue;
+            }
+            if($propertyLotOwnership['date_to'] && $propertyLotOwnership['date_to'] < $execution_date) {
+                continue;
+            }
+
+            if($active_ownership_id !== null) {
+                throw new \Exception("multiple_active_ownerships_for_property_lot_{$property_lot_id}", EQ_ERROR_INVALID_PARAM);
+            }
+
+            $active_ownership_id = $propertyLotOwnership['ownership_id'];
+        }
+
+        if($active_ownership_id === null) {
+            throw new \Exception("missing_active_ownership_for_property_lot_{$property_lot_id}", EQ_ERROR_INVALID_PARAM);
+        }
+
+        return $active_ownership_id;
+    }
+
+    private static function resolveProratedOwnershipAmounts(array $property_lot_ownerships, int $period_from, int $period_to, int $amount_cents, int $property_lot_id): array {
+        $allocations = [];
+        $covered_days = 0;
+
+        foreach($property_lot_ownerships as $propertyLotOwnership) {
+            if($propertyLotOwnership['date_from'] > $period_to) {
+                continue;
+            }
+            if($propertyLotOwnership['date_to'] && $propertyLotOwnership['date_to'] < $period_from) {
+                continue;
+            }
+
+            $overlap_from = max($period_from, $propertyLotOwnership['date_from']);
+            $overlap_to = $propertyLotOwnership['date_to'] ? min($period_to, $propertyLotOwnership['date_to']) : $period_to;
+
+            if($overlap_from > $overlap_to) {
+                continue;
+            }
+
+            $days = (int) ((($overlap_to - $overlap_from) / 86400) + 1);
+            $covered_days += $days;
+
+            $allocations[] = [
+                'ownership_id' => $propertyLotOwnership['ownership_id'],
+                'days' => $days,
+                'amount_cents' => 0
+            ];
+        }
+
+        $total_days = (int) ((($period_to - $period_from) / 86400) + 1);
+
+        if(!count($allocations) || $covered_days !== $total_days) {
+            throw new \Exception("invalid_ownership_coverage_for_property_lot_{$property_lot_id}", EQ_ERROR_INVALID_PARAM);
+        }
+
+        $remaining_cents = $amount_cents;
+        foreach($allocations as $index => $allocation) {
+            if($index === count($allocations) - 1) {
+                $allocations[$index]['amount_cents'] = $remaining_cents;
+                continue;
+            }
+
+            $allocated_cents = intdiv($amount_cents * $allocation['days'], $total_days);
+            $allocations[$index]['amount_cents'] = $allocated_cents;
+            $remaining_cents -= $allocated_cents;
+        }
+
+        $result = [];
+        foreach($allocations as $allocation) {
+            if($allocation['amount_cents'] === 0) {
+                continue;
+            }
+            if(!isset($result[$allocation['ownership_id']])) {
+                $result[$allocation['ownership_id']] = 0;
+            }
+            $result[$allocation['ownership_id']] += $allocation['amount_cents'];
+        }
+
+        return $result;
+    }
+
     public static function doGenerateAllocation($self) {
         $self->read([
-                'request_date', 'has_date_range', 'date_from', 'date_to', 'request_type',
-                'condo_id' => ['id', 'ownerships_ids'],
+                'condo_id' => ['id'],
                 'request_lines_ids' => ['request_amount', 'apportionment_id' => ['id', 'total_shares']]
             ]);
 
@@ -475,114 +574,88 @@ class FundRequest extends \equal\orm\Model {
                 continue;
             }
 
-            $date_from = $fundRequest['has_date_range'] ? $fundRequest['date_from'] : $fundRequest['request_date'];
-
             // remove any previously created entry & entry lot
             FundRequestLineEntry::search(['fund_request_id', '=', $id])->delete(true);
 
+            $apportionments_ids = [];
+            foreach($fundRequest['request_lines_ids'] as $requestLine) {
+                $apportionments_ids[$requestLine['apportionment_id']['id']] = true;
+            }
+
+            $map_apportionment_shares = [];
+            if(count($apportionments_ids)) {
+                $apportionmentShares = PropertyLotApportionmentShare::search([
+                        ['apportionment_id', 'in', array_keys($apportionments_ids)]
+                    ])
+                    ->read(['apportionment_id', 'property_lot_id', 'property_lot_shares']);
+
+                foreach($apportionmentShares as $apportionmentShare) {
+                    $map_apportionment_shares[$apportionmentShare['apportionment_id']][] = $apportionmentShare;
+                }
+            }
+
             foreach($fundRequest['request_lines_ids'] as $request_line_id => $requestLine) {
                 $map_property_lot_shares = [];
-                $sum_delta = 0.0;
-                foreach($fundRequest['condo_id']['ownerships_ids'] as $ownership_id) {
+                $allocated_cents = 0;
+                $apportionment_id = $requestLine['apportionment_id']['id'];
+                $total_shares = (int) $requestLine['apportionment_id']['total_shares'];
 
-                    $ownership = Ownership::id($ownership_id)->read(['date_from', 'date_to', 'property_lot_ownerships_ids' => ['property_lot_id', 'date_from', 'date_to']])->first();
+                if($total_shares <= 0) {
+                    throw new \Exception("missing_total_shares_for_apportionment_{$apportionment_id}", EQ_ERROR_INVALID_PARAM);
+                }
 
-                    // ignore ownerships outside of the fund request
-                    if($ownership['date_to'] && $ownership['date_to'] < $date_from) {
-                        continue;
-                    }
-                    if($fundRequest['has_date_range']) {
-                        if($ownership['date_from'] && $ownership['date_from'] > $fundRequest['date_to'] ) {
-                            continue;
-                        }
-                    }
+                $lineEntry = FundRequestLineEntry::create([
+                        'condo_id'          => $fundRequest['condo_id']['id'],
+                        'fund_request_id'   => $id,
+                        'request_line_id'   => $request_line_id
+                    ])
+                    ->first();
 
-                    $lineEntry = FundRequestLineEntry::create([
-                            'condo_id'          => $fundRequest['condo_id']['id'],
-                            'fund_request_id'   => $id,
-                            'request_line_id'   => $request_line_id,
-                            'ownership_id'      => $ownership_id
+                foreach($map_apportionment_shares[$apportionment_id] ?? [] as $apportionmentShare) {
+                    $amount = $requestLine['request_amount'] * ($apportionmentShare['property_lot_shares'] / $total_shares);
+                    $rounded_amount = round($amount, 2);
+                    $allocated_cents += self::amountToCents($rounded_amount);
+
+                    $entryLot = FundRequestLineEntryLot::create([
+                            'condo_id'              => $fundRequest['condo_id']['id'],
+                            'fund_request_id'       => $id,
+                            'request_line_id'       => $request_line_id,
+                            'line_entry_id'         => $lineEntry['id'],
+                            'property_lot_id'       => $apportionmentShare['property_lot_id'],
+                            'apportionment_shares'  => $apportionmentShare['property_lot_shares'],
+                            'allocated_amount'      => $rounded_amount
                         ])
                         ->first();
 
-                    foreach($ownership['property_lot_ownerships_ids'] as $property_lot_ownership) {
-
-                        // ignore property lots outside of the fund request (sold by owner at an earlier date)
-                        if($property_lot_ownership['date_to'] && $property_lot_ownership['date_to'] < $date_from) {
-                            continue;
-                        }
-
-                        $property_lot_id = $property_lot_ownership['property_lot_id'];
-
-                        $ratio = 1.0;
-
-                        // In the case where the request is a time range and the ownership is partially within it, we need to allocate the called amount pro-rata based on the duration of the ownership.
-                        // #memo - We assume that a property lot always belongs to someone and that the dates are contiguous in the event of a property transfer.
-                        if($fundRequest['has_date_range'] && $fundRequest['request_type'] == 'expense_provisions') {
-                            $intersect_from = $property_lot_ownership['date_from'] ? max($property_lot_ownership['date_from'], $fundRequest['date_from']) : $fundRequest['date_from'];
-                            $intersect_to = $property_lot_ownership['date_to'] ? min($property_lot_ownership['date_to'], $fundRequest['date_to']) : $fundRequest['date_to'];
-                            $total_days = ( ($fundRequest['date_to'] - $fundRequest['date_from']) / 86400 ) + 1;
-                            $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
-                            $ratio = round($intersect_days / $total_days, 4);
-                        }
-
-                        // if the lot has a share for this apportionment key, we add it
-                        $apportionmentShare = PropertyLotApportionmentShare::search([
-                                ['apportionment_id', '=', $requestLine['apportionment_id']['id']],
-                                ['property_lot_id', '=', $property_lot_id]
-                            ])
-                            ->read(['property_lot_shares'])
-                            ->first();
-
-                        if($apportionmentShare) {
-
-                            $amount = $ratio * $requestLine['request_amount'] * ($apportionmentShare['property_lot_shares'] / $requestLine['apportionment_id']['total_shares']);
-                            $precise_amount = round($amount, 4);
-                            $rounded_amount = round($amount, 2);
-                            $sum_delta += ($precise_amount - $rounded_amount);
-
-                            $entryLot = FundRequestLineEntryLot::create([
-                                    'condo_id'              => $fundRequest['condo_id']['id'],
-                                    'fund_request_id'       => $id,
-                                    'request_line_id'       => $request_line_id,
-                                    'ownership_id'          => $ownership_id,
-                                    'line_entry_id'         => $lineEntry['id'],
-                                    'property_lot_id'       => $property_lot_id,
-                                    'apportionment_shares'  => $apportionmentShare['property_lot_shares'],
-                                    'allocated_amount'      => $rounded_amount
-                                ])
-                                ->first();
-                            $map_property_lot_shares[$apportionmentShare['property_lot_shares']][] = $entryLot['id'];
-                        }
-                    }
+                    $map_property_lot_shares[$apportionmentShare['property_lot_shares']][] = $entryLot['id'];
                 }
-                $sum_delta = round($sum_delta, 2);
 
-                // handle residual amount, if any
-                if($sum_delta != 0.0) {
-                    $remaining = $sum_delta;
-                    $step = $sum_delta > 0 ? 0.01 : -0.01;
-                    trigger_error("APP::allocation generated a delta: $sum_delta", EQ_REPORT_DEBUG);
+                $delta_cents = self::amountToCents($requestLine['request_amount']) - $allocated_cents;
 
-                    // distribute over the lots starting with those having the largest number of shares
+                if($delta_cents != 0) {
+                    trigger_error("APP::allocation generated a delta: {$delta_cents}", EQ_REPORT_DEBUG);
+
                     krsort($map_property_lot_shares);
-                    $ordered_lots_ids = array_merge(...array_values($map_property_lot_shares));
-                    foreach($ordered_lots_ids as $line_entry_lot_id) {
-                        $entryLot = FundRequestLineEntryLot::id($line_entry_lot_id)->read(['allocated_amount'])->first();
-                        FundRequestLineEntryLot::id($line_entry_lot_id)->update(['allocated_amount' => $entryLot['allocated_amount'] + $step]);
-                        $remaining -= $step;
-                        if($remaining <= 0.0) {
-                            break;
-                        }
+                    $ordered_lots_ids = count($map_property_lot_shares) ? array_merge(...array_values($map_property_lot_shares)) : [];
+
+                    if(!count($ordered_lots_ids)) {
+                        throw new \Exception("missing_property_lots_for_request_line_{$request_line_id}", EQ_ERROR_INVALID_PARAM);
                     }
-                    if(abs($remaining) >= 0.01) {
-                        $line_entry_lot_id = reset($ordered_lots_ids);
+
+                    $step = ($delta_cents > 0) ? 1 : -1;
+                    $remaining = abs($delta_cents);
+                    $index = 0;
+
+                    while($remaining > 0) {
+                        $line_entry_lot_id = $ordered_lots_ids[$index % count($ordered_lots_ids)];
                         $entryLot = FundRequestLineEntryLot::id($line_entry_lot_id)->read(['allocated_amount'])->first();
-                        FundRequestLineEntryLot::id($line_entry_lot_id)->update(['allocated_amount' => $entryLot['allocated_amount'] + $remaining]);
-                        $remaining = 0.0;
+                        FundRequestLineEntryLot::id($line_entry_lot_id)->update([
+                                'allocated_amount' => round($entryLot['allocated_amount'] + self::centsToAmount($step), 2)
+                            ]);
+                        --$remaining;
+                        ++$index;
                     }
                 }
-
             }
             // reset computed fields
             $fundRequest['request_lines_ids']->update(['allocated_amount' => null]);
@@ -598,15 +671,14 @@ class FundRequest extends \equal\orm\Model {
         $self->read([
                 'condo_id',
                 'fiscal_year_id',
-                'request_type',
+                'has_ownership_proration',
                 'request_date',
                 'has_date_range',
                 'date_range_frequency',
                 'date_from',
                 'date_to',
-                'request_amount',
                 'payment_terms_id',
-                'line_entries_ids' => ['apportionment_id', 'ownership_id', 'allocated_amount', 'entry_lots_ids' => ['property_lot_id', 'allocated_amount']]
+                'line_entries_ids' => ['request_line_id', 'entry_lots_ids' => ['property_lot_id', 'allocated_amount']]
             ]);
 
         foreach($self as $id => $fundRequest) {
@@ -634,8 +706,18 @@ class FundRequest extends \equal\orm\Model {
                 }
             }
 
-            // map of called amounts by ownership
-            $map_ownership_amounts = [];
+            $map_lot_amounts = [];
+            $map_property_lot_line_entries = [];
+
+            foreach($fundRequest['line_entries_ids'] as $line_entry_id => $lineEntry) {
+                foreach($lineEntry['entry_lots_ids'] as $entryLot) {
+                    if(!isset($map_lot_amounts[$entryLot['property_lot_id']])) {
+                        $map_lot_amounts[$entryLot['property_lot_id']] = 0;
+                    }
+                    $map_lot_amounts[$entryLot['property_lot_id']] += self::amountToCents($entryLot['allocated_amount']);
+                    $map_property_lot_line_entries[$entryLot['property_lot_id']][$line_entry_id] = true;
+                }
+            }
 
             // pass-1 - remove dates for which a called execution remains
 
@@ -644,13 +726,16 @@ class FundRequest extends \equal\orm\Model {
                 $existing_executions_ids = FundRequestExecution::search([['status', '=', 'posted'], ['fund_request_id', '=', $id], ['posting_date', '=', $execution_date]])->ids();
                 if(count($existing_executions_ids)) {
                     unset($execution_dates[$index]);
-                    // #memo - do not use request_execution_id here (computed field)
-                    $executionLines = FundRequestExecutionLine::search(['invoice_id', 'in', $existing_executions_ids])->read(['ownership_id', 'called_amount']);
-                    foreach($executionLines as $executionLine) {
-                        if(!isset($map_ownership_amounts[$executionLine['ownership_id']])) {
-                            $map_ownership_amounts[$executionLine['ownership_id']] = 0.0;
+                    $executionLineEntries = FundRequestExecutionLineEntry::search([
+                            ['request_execution_id', 'in', $existing_executions_ids]
+                        ])
+                        ->read(['property_lot_id', 'called_amount']);
+
+                    foreach($executionLineEntries as $executionLineEntry) {
+                        if(!isset($map_lot_amounts[$executionLineEntry['property_lot_id']])) {
+                            $map_lot_amounts[$executionLineEntry['property_lot_id']] = 0;
                         }
-                        $map_ownership_amounts[$executionLine['ownership_id']] -= $executionLine['called_amount'];
+                        $map_lot_amounts[$executionLineEntry['property_lot_id']] -= self::amountToCents($executionLineEntry['called_amount']);
                     }
                 }
             }
@@ -665,80 +750,132 @@ class FundRequest extends \equal\orm\Model {
                 continue;
             }
 
-            // keep track of the link between request line entries and execution lines (through ownerships)
-            $map_ownership_line_entries = [];
+            $property_lots_ids = array_keys($map_lot_amounts);
+            $map_property_lot_ownerships = [];
 
-            foreach($fundRequest['line_entries_ids'] as $line_entry_id => $lineEntry) {
-                if(!isset($map_ownership_amounts[$lineEntry['ownership_id']])) {
-                    $map_ownership_amounts[$lineEntry['ownership_id']] = 0.0;
+            if(count($property_lots_ids)) {
+                $propertyLotOwnerships = PropertyLotOwnership::search([
+                        ['property_lot_id', 'in', $property_lots_ids]
+                    ])
+                    ->read(['property_lot_id', 'ownership_id', 'date_from', 'date_to']);
+
+                foreach($propertyLotOwnerships as $propertyLotOwnership) {
+                    $map_property_lot_ownerships[$propertyLotOwnership['property_lot_id']][] = $propertyLotOwnership;
                 }
-                $map_ownership_amounts[$lineEntry['ownership_id']] += $lineEntry['allocated_amount'];
-                $map_ownership_line_entries[$lineEntry['ownership_id']][] = $line_entry_id;
             }
 
-            // retrieve called amount for each ownership, at each date
-            $map_ownership_execution_amounts = [];
+            $map_lot_execution_amounts = [];
+            $map_execution_period_to = [];
 
-            foreach($map_ownership_amounts as $ownership_id => $allocated_amount) {
+            foreach($map_lot_amounts as $property_lot_id => $allocated_amount) {
+                if($allocated_amount === 0) {
+                    continue;
+                }
+
                 $remaining_amount = $allocated_amount;
-                $base_amount = floor(($allocated_amount / $num_intervals) * 100) / 100;
+                $base_amount = intdiv($allocated_amount, $num_intervals);
 
                 foreach($execution_dates as $index => $execution_date) {
                     $called_amount = ($index == $num_intervals - 1) ? $remaining_amount : $base_amount;
-                    $map_ownership_execution_amounts[$ownership_id][$execution_date] = $called_amount;
+                    $map_lot_execution_amounts[$execution_date][$property_lot_id] = $called_amount;
+                    if($fundRequest['has_date_range']) {
+                        $next_execution_date = $execution_dates[$index + 1] ?? null;
+                        $map_execution_period_to[$execution_date] = $next_execution_date ? strtotime('-1 day', $next_execution_date) : $fundRequest['date_to'];
+                    }
+                    else {
+                        $map_execution_period_to[$execution_date] = $execution_date;
+                    }
                     $remaining_amount -= $base_amount;
                 }
             }
 
+            $map_line_entry_execution_lines = [];
+
             foreach($execution_dates as $execution_date) {
+                if(empty($map_lot_execution_amounts[$execution_date])) {
+                    continue;
+                }
+
+                $map_ownership_amounts = [];
+                $map_ownership_lot_amounts = [];
+                $map_ownership_line_entries = [];
+
+                foreach($map_lot_execution_amounts[$execution_date] ?? [] as $property_lot_id => $called_amount) {
+                    if($called_amount === 0) {
+                        continue;
+                    }
+
+                    if($fundRequest['has_date_range'] && $fundRequest['has_ownership_proration']) {
+                        $ownership_amounts = self::resolveProratedOwnershipAmounts(
+                            $map_property_lot_ownerships[$property_lot_id] ?? [],
+                            $execution_date,
+                            $map_execution_period_to[$execution_date],
+                            $called_amount,
+                            $property_lot_id
+                        );
+                    }
+                    else {
+                        $ownership_amounts = [
+                            self::resolveActiveOwnershipId($map_property_lot_ownerships[$property_lot_id] ?? [], $execution_date, $property_lot_id) => $called_amount
+                        ];
+                    }
+
+                    foreach($ownership_amounts as $ownership_id => $ownership_amount) {
+                        if(!isset($map_ownership_amounts[$ownership_id])) {
+                            $map_ownership_amounts[$ownership_id] = 0;
+                        }
+                        if(!isset($map_ownership_lot_amounts[$ownership_id][$property_lot_id])) {
+                            $map_ownership_lot_amounts[$ownership_id][$property_lot_id] = 0;
+                        }
+
+                        $map_ownership_amounts[$ownership_id] += $ownership_amount;
+                        $map_ownership_lot_amounts[$ownership_id][$property_lot_id] += $ownership_amount;
+
+                        foreach($map_property_lot_line_entries[$property_lot_id] ?? [] as $line_entry_id => $value) {
+                            $map_ownership_line_entries[$ownership_id][$line_entry_id] = true;
+                        }
+                    }
+                }
+
+                if(!count($map_ownership_amounts)) {
+                    continue;
+                }
+
                 $execution_values['posting_date'] = $execution_date;
 
                 $requestExecution = FundRequestExecution::create($execution_values)->first();
 
-                foreach($map_ownership_execution_amounts as $ownership_id => $map_amounts) {
+                foreach($map_ownership_amounts as $ownership_id => $called_amount) {
                     $executionLine = FundRequestExecutionLine::create([
                             'condo_id'              => $fundRequest['condo_id'],
                             'fund_request_id'       => $id,
                             // #memo - request_execution_id is an alias of invoice_id
                             'invoice_id'            => $requestExecution['id'],
                             'ownership_id'          => $ownership_id,
-                            // 'called_amount'         => $map_amounts[$execution_date]
-                            'total'                 => round($map_amounts[$execution_date], 4)
+                            'total'                 => self::centsToAmount($called_amount)
                         ])
                         ->first();
-                    // link execution line and related line entries
-                    FundRequestLineEntry::ids($map_ownership_line_entries[$ownership_id])->update(['execution_lines_ids' => [$executionLine['id']]]);
 
-                    // keep track of the part of the execution that goes to each property lot
-                    $lot_remaining = $map_amounts[$execution_date];
+                    foreach(array_keys($map_ownership_line_entries[$ownership_id] ?? []) as $line_entry_id) {
+                        $map_line_entry_execution_lines[$line_entry_id][$executionLine['id']] = true;
+                    }
 
-                    foreach($fundRequest['line_entries_ids'] as $line_entry_id => $lineEntry) {
-                        if($lineEntry['ownership_id'] !== $ownership_id) {
-                            continue;
-                        }
-                        $last_entry_lot_id = array_key_last($lineEntry['entry_lots_ids']->get());
-                        foreach($lineEntry['entry_lots_ids'] as $entry_lot_id => $entryLot) {
-                            if($entry_lot_id === $last_entry_lot_id) {
-                                $lot_amount = $lot_remaining;
-                            }
-                            else {
-                                $lot_amount = $map_amounts[$execution_date] * $entryLot['allocated_amount'] / $lineEntry['allocated_amount'];
-                                $lot_amount = round($lot_amount, 2);
-                                $lot_remaining -= $lot_amount;
-                            }
-                            FundRequestExecutionLineEntry::create([
-                                    'condo_id'                  => $fundRequest['condo_id'],
-                                    'fund_request_id'           => $id,
-                                    'request_execution_id'      => $requestExecution['id'],
-                                    'request_execution_line_id' => $executionLine['id'],
-                                    'ownership_id'              => $ownership_id,
-                                    'property_lot_id'           => $entryLot['property_lot_id'],
-                                    'called_amount'             => round($lot_amount, 4)
-                                ]);
-                        }
-
+                    foreach($map_ownership_lot_amounts[$ownership_id] ?? [] as $property_lot_id => $lot_amount) {
+                        FundRequestExecutionLineEntry::create([
+                                'condo_id'                  => $fundRequest['condo_id'],
+                                'fund_request_id'           => $id,
+                                'request_execution_id'      => $requestExecution['id'],
+                                'request_execution_line_id' => $executionLine['id'],
+                                'ownership_id'              => $ownership_id,
+                                'property_lot_id'           => $property_lot_id,
+                                'called_amount'             => self::centsToAmount($lot_amount)
+                            ]);
                     }
                 }
+            }
+
+            foreach($map_line_entry_execution_lines as $line_entry_id => $execution_lines_ids) {
+                FundRequestLineEntry::id($line_entry_id)->update(['execution_lines_ids' => array_keys($execution_lines_ids)]);
             }
         }
 

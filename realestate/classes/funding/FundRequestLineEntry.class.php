@@ -44,7 +44,6 @@ class FundRequestLineEntry extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The ownership that the owner refers to.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
-                // 'required'          => true,
                 'readonly'          => true
             ],
 

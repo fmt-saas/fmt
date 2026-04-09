@@ -319,7 +319,7 @@
             }
         },
         "form.accounting": {
-            "name": "Paramètres comptables",
+            "name": "Comptabilité",
             "description": "Plan comptable, journaux et comptes bancaires.",
             "routes": {
                 "route.fiscal_year": {
