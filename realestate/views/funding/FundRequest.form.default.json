@@ -167,6 +167,12 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Prorate by Owner",
+                                                "value": "has_ownership_proration",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "label": "Requested Amount",
                                                 "value": "request_amount",
                                                 "width": "33%",
