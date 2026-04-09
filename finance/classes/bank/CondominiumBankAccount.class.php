@@ -349,7 +349,7 @@ class CondominiumBankAccount extends BankAccount {
         $self->read(['current_balance', 'condo_id']);
         foreach($self as $id => $bankAccount) {
             $balance = $bankAccount['current_balance'] ?? 0.0;
-
+            // subtract expected payment (outgoing money)
             $fundings = Funding::search([
                     [
                         ['condo_id', '=', $bankAccount['condo_id']],

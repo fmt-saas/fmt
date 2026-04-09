@@ -922,7 +922,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             if(count($remaining_lots_ids) <= 0) {
                 Ownership::id($ownershipTransfer['old_ownership_id'])
                     ->update([
-                        'date_to' => strtotime('-1 day', $old_date_to)
+                        'date_to' => $old_date_to
                     ]);
             }
 
