@@ -105,7 +105,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'type'              => 'date',
                 'description'       => "Date at which the ownership transfer took place.",
                 'help'              => "This date must match the notary deed date and is therefore known only at the end of the process.",
-                'default'           => function () { return time(); }
+                'default'           => function () { return strtotime('today'); }
             ],
 
             'seller_documents_sent_date' => [
@@ -888,6 +888,9 @@ class OwnershipTransfer extends \equal\orm\Model {
             PropertyLot::ids($ownershipTransfer['property_lots_ids'])
                 ->update(['active_ownership_id' => $ownershipTransfer['new_ownership_id']]);
 
+            $new_date_from = strtotime(date('Y-m-d', $ownershipTransfer['transfer_date']));
+            $old_date_to = strtotime('-1 day', $new_date_from);
+
             // update existing PropertyLotOwnership (`date_to`)
             foreach($ownershipTransfer['property_lots_ids'] as $property_lot_id) {
                 // there should be only one match
@@ -897,7 +900,30 @@ class OwnershipTransfer extends \equal\orm\Model {
                         ['property_lot_id', '=', $property_lot_id],
                         ['date_to', '=', null]
                     ])
-                    ->update(['date_to' => $ownershipTransfer['transfer_date']]);
+                    ->update(['date_to' => $old_date_to]);
+
+                PropertyLotOwnership::create([
+                    'condo_id'        => $ownershipTransfer['condo_id'],
+                    'ownership_id'    => $ownershipTransfer['new_ownership_id'],
+                    'property_lot_id' => $property_lot_id,
+                    'date_from'       => $new_date_from,
+                    'date_to'         => null
+                ]);
+            }
+
+            $remaining_lots_ids = PropertyLotOwnership::search([
+                    ['condo_id', '=', $ownershipTransfer['condo_id']],
+                    ['ownership_id', '=', $ownershipTransfer['old_ownership_id']],
+                    ['date_to', '=', null]
+                ])
+                ->ids();
+
+            // old ownership does not own any property lot anymore
+            if(count($remaining_lots_ids) <= 0) {
+                Ownership::id($ownershipTransfer['old_ownership_id'])
+                    ->update([
+                        'date_to' => strtotime('-1 day', $old_date_to)
+                    ]);
             }
 
             $adjustments = OwnershipTransferAdjustmentLine::search([
