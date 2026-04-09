@@ -759,9 +759,9 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
             // only allow editable fields
             if($invoice['status'] != 'proforma') {
                 // editable fields for sale\accounting\invoice\Invoice
-                $editable_fields = ['payment_status', 'customer_ref', 'funding_id', 'reversed_invoice_id'];
+                $allowed_fields = ['payment_status', 'customer_ref', 'funding_id', 'reversed_invoice_id'];
 
-                if( count(array_diff(array_keys($values), $editable_fields)) ) {
+                if( count(array_diff(array_keys($values), $allowed_fields)) ) {
                 //    return ['status' => ['non_editable' => "Invoice can only be updated while status is proforma ({$id})."]];
                 }
             }
