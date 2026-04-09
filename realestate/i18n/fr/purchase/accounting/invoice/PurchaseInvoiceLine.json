@@ -104,7 +104,7 @@
             "help": "Référence la facture d'acompte déduite."
         },
         "is_private_expense": {
-            "label": "Dépense privée",
+            "label": "Frais privatif",
             "description": "Marque la ligne comme dépense privée.",
             "help": "Active le ciblage sur un dossier/lot et la refacturation."
         },
