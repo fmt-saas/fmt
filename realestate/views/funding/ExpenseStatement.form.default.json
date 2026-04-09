@@ -65,22 +65,32 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "33%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "100%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "fiscal_year_id",
-                                                "width": "100%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "fiscal_period_id",
-                                                "width": "100%"
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_cutoff_at_period_end",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_cutoff_at_document_date",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
@@ -115,11 +125,7 @@
                                         ]
                                     },
                                     {
-                                        "width": "33%",
-                                        "items": []
-                                    },
-                                    {
-                                        "width": "33%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",

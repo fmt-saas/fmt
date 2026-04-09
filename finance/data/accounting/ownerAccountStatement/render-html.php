@@ -182,9 +182,9 @@ $closing_balance = end($data)['balance'] ?? 0;
 $subject = 'Détail de votre compte propriétaire';
 
 $template = Template::search([
-    ['code', '=', 'owner_account_statement'],
-    ['type', '=', 'document']
-])
+        ['code', '=', 'owner_account_statement'],
+        ['type', '=', 'document']
+    ])
     ->read(['parts_ids' => ['name', 'value']])
     ->first(true);
 

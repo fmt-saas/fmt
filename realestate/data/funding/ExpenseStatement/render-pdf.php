@@ -64,7 +64,7 @@ use finance\accounting\FiscalPeriod;
 $context = $providers['context'];
 
 $statement = ExpenseStatement::id($params['id'])
-    ->read(['fiscal_period_id', 'status'])
+    ->read(['fiscal_period_id', 'status', 'posting_date', 'is_cutoff_at_period_end'])
     ->first();
 
 if(!$statement) {
@@ -106,9 +106,15 @@ try {
                 // ignore (ownership with no expense ?)
             }
             try {
+                $date_to = $expenseStatement['posting_date'];
+
+                if($expenseStatement['is_cutoff_at_period_end']) {
+                    $date_to = $expenseStatement['date_to'];
+                }
+
                 $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
                         'date_from'         => $fiscalPeriod['date_from'],
-                        'date_to'           => $fiscalPeriod['date_to'],
+                        'date_to'           => $date_to,
                         'ownership_id'      => $ownership_id
                     ]);
                 $temp = tempnam(sys_get_temp_dir(), 'pdf_');

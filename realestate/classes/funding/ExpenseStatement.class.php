@@ -166,6 +166,20 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'function'          => 'calcSchema',
                 'store'             => false,
                 'help'              => 'This field is not intended to be stored and can safely be computed at any time since its relies on immutable data.'
+            ],
+
+            'is_cutoff_at_period_end' => [
+                'type'              => 'boolean',
+                'description'       => 'Indicates that the cutoff is applied at the end of the accounting period.',
+                'default'           => false,
+                'onupdate'          => 'onupdateIsCutoffAtPeriodEnd'
+            ],
+
+            'is_cutoff_at_document_date' => [
+                'type'              => 'boolean',
+                'description'       => "Indicates that the cutoff is applied based on the document issuance date.",
+                'default'           => true,
+                'onupdate'          => 'onupdateIsCutoffAtDocumentDate'
             ]
 
         ];
@@ -512,6 +526,25 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         foreach($self as $id => $expenseStatement) {
             if($expenseStatement['fiscal_period_id']) {
                 self::id($id)->update(['posting_date' => $expenseStatement['fiscal_period_id']['date_to']]);
+            }
+        }
+    }
+
+    protected static function onupdateIsCutoffAtPeriodEnd($self) {
+        $self->read(['is_cutoff_at_period_end']);
+        foreach($self as $id => $expenseStatement) {
+            if($expenseStatement['is_cutoff_at_period_end']) {
+                self::id($id)->update(['is_cutoff_at_document_date' => false]);
+
+            }
+        }
+    }
+
+    protected static function onupdateIsCutoffAtDocumentDate($self) {
+        $self->read(['is_cutoff_at_document_date']);
+        foreach($self as $id => $expenseStatement) {
+            if($expenseStatement['is_cutoff_at_document_date']) {
+                self::id($id)->update(['is_cutoff_at_period_end' => false]);
             }
         }
     }
@@ -1018,8 +1051,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         $self->read([
                 'name',
                 'posting_date',
+                'date_to',
                 'due_date',
                 'statement_bank_account_id',
+                'is_cutoff_at_period_end',
                 'fiscal_year_id' => ['date_from'],
                 'fiscal_period_id' => ['date_from'],
                 'condo_id' => ['code'],
@@ -1032,15 +1067,34 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ]);
 
         foreach($self as $id => $expenseStatement) {
-            // #todo - supprimer les funding déjà existant si'il y en a
-            foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
-                $ownership_id = $statementOwner['ownership_id']['id'];
 
-                $due_amount = 0.0;
-                foreach($statementOwner['statement_owner_lines_ids'] as $line_id => $ownerLine) {
-                    // use both positive and negative amounts
-                    $due_amount += $ownerLine['price'];
+            foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
+                // remove previous Funding, if any
+                Funding::search([
+                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                        ['funding_type', '=', 'expense_statement'],
+                        ['expense_statement_id', '=', $id],
+                        ['ownership_id', '=', $ownership_id]
+                    ])
+                    ->delete(true);
+
+                $ownership_id = $statementOwner['ownership_id']['id'];
+                // a funding cannot be issued nor due in the past
+                $issue_date = max(strtotime('today'), $expenseStatement['posting_date']);
+                $due_date = $expenseStatement['due_date'];
+
+                $date_to = $expenseStatement['posting_date'];
+                if($expenseStatement['is_cutoff_at_period_end']) {
+                    $date_to = $expenseStatement['date_to'];
                 }
+
+                $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
+                    'ownership_id'      => $ownership_id,
+                    'date_from'         => strtotime('-1 day', strtotime($date_to)),
+                    'date_to'           => $date_to
+                ]);
+
+                $closing_balance = end($data)['balance'] ?? 0;
 
                 $ownershipAccount = Account::search([
                         ['condo_id', '=', $expenseStatement['condo_id']['id']],
@@ -1053,10 +1107,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
-                // a funding cannot be issued nor due in the past
-                $issue_date = max(strtotime('today'), $expenseStatement['posting_date']);
-                $due_date = $expenseStatement['due_date'];
-
                 Funding::create([
                         'condo_id'                          => $expenseStatement['condo_id']['id'],
                         'description'                       => $expenseStatement['name'],
@@ -1067,7 +1117,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'accounting_account_id'             => $ownershipAccount['id'],
                         'issue_date'                        => $issue_date,
                         'due_date'                          => $due_date,
-                        'due_amount'                        => $due_amount
+                        'due_amount'                        => $closing_balance
                     ]);
 
             }
@@ -1100,6 +1150,22 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             $fiscalPeriod = FiscalPeriod::id($event['fiscal_period_id'])->read(['date_to'])->first();
             if($fiscalPeriod) {
                 $result['posting_date'] = $fiscalPeriod['date_to'];
+            }
+        }
+        if(isset($event['is_cutoff_at_period_end'])) {
+            if($event['is_cutoff_at_period_end']) {
+                $result['is_cutoff_at_document_date'] = false;
+            }
+            else {
+                $result['is_cutoff_at_document_date'] = true;
+            }
+        }
+        if(isset($event['is_cutoff_at_document_date'])) {
+            if($event['is_cutoff_at_document_date']) {
+                $result['is_cutoff_at_period_end'] = false;
+            }
+            else {
+                $result['is_cutoff_at_period_end'] = true;
             }
         }
         return $result;
