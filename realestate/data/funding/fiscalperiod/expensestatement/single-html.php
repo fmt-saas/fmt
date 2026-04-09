@@ -7,6 +7,7 @@
 
 use communication\template\Template;
 use core\setting\Setting;
+use equal\data\DataFormatter;
 use realestate\sale\pay\Funding;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
@@ -74,6 +75,13 @@ use realestate\ownership\Owner;
 
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
+
+$dataFormatter = function ($value, $usage) {
+    if(is_null($value)) {
+        return '';
+    }
+    return DataFormatter::format($value, $usage);
+};
 
 /**
  * @param string|float|integer $value
@@ -542,6 +550,10 @@ try {
     // #todo - temp workaround against LOCALE mixups
     $twig->addFilter(
             new TwigFilter('format_money', $formatMoney)
+        );
+
+    $twig->addFilter(
+            new TwigFilter('data_format', $dataFormatter)
         );
 
     $template = $twig->load('ExpenseStatement.'.$params['view_id'].'.html');
