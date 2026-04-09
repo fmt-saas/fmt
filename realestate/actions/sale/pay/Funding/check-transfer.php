@@ -94,7 +94,7 @@ foreach($fundings as $funding) {
         // $links[] = "[{$funding['name']}](/sale/#/funding/{$funding['id']})";
 
         // by convention we dispatch an alert that relates to the controller itself.
-        $dispatch->dispatch('sale.pay.funding.ownership_transfer', 'realestate\sale\pay\Funding', $funding['id'], 'important', 'realestate_sale_pay_Funding_check-transfer', ['id' => $params['id']], $link);
+        $dispatch->dispatch('sale.pay.funding.ownership_transfer', 'realestate\sale\pay\Funding', $funding['id'], 'important', 'realestate_sale_pay_Funding_check-transfer', ['id' => $funding['id']], $link);
 
         $httpResponse->status(qn_error_http(EQ_ERROR_MISSING_PARAM));
     }

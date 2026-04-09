@@ -108,11 +108,9 @@ class OpeningBalance extends Balance {
 
             // find the closing balance for that fiscal year
             $closingBalance = ClosingBalance::search([
-                        ['condo_id', '=', $balance['condo_id']],
-                        ['fiscal_year_id', '=', $prevFiscalYear['id']],
-                    ],
-                    ['sort' => ['date_to' => 'desc'], 'limit' => 1]
-                )
+                    ['condo_id', '=', $balance['condo_id']],
+                    ['fiscal_year_id', '=', $prevFiscalYear['id']],
+                ])
                 ->first();
 
             if(!$closingBalance) {

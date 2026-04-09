@@ -109,7 +109,7 @@ try {
                 $date_to = $expenseStatement['posting_date'];
 
                 if($expenseStatement['is_cutoff_at_period_end']) {
-                    $date_to = $expenseStatement['date_to'];
+                    $date_to = $fiscalPeriod['date_to'];
                 }
 
                 $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
