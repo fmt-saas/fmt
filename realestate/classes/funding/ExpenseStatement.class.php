@@ -1047,7 +1047,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'statement_bank_account_id',
                 'is_cutoff_at_period_end',
                 'fiscal_year_id' => ['date_from'],
-                'fiscal_period_id' => ['date_from'],
+                'fiscal_period_id' => ['date_from', 'date_to'],
                 'condo_id' => ['code'],
                 'statement_owners_ids' => [
                     'ownership_id' => ['code'],
@@ -1076,8 +1076,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
                     'ownership_id'      => $ownership_id,
-                    'date_from'         => strtotime('-1 day', strtotime($date_to)),
-                    'date_to'           => $date_to
+                    'date_from'         => $expenseStatement['fiscal_period_id']['date_from'],
+                    'date_to'           => $expenseStatement['fiscal_period_id']['date_to']
                 ]);
 
                 $closing_balance = 0;
