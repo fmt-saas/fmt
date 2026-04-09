@@ -928,6 +928,9 @@ class AccountingEntry extends Model {
                 /*
                 * Get previous balance (< date)
                 */
+                $previous_debit  = 0.0;
+                $previous_credit = 0.0;
+
                 $previous = AccountBalanceChange::search([
                             ['account_id', '=', $account_id],
                             ['condo_id', '=', $condo_id],
@@ -938,8 +941,35 @@ class AccountingEntry extends Model {
                     ->read(['debit_balance', 'credit_balance'])
                     ->first();
 
-                $previous_debit  = $previous ? (float) $previous['debit_balance']  : 0.0;
-                $previous_credit = $previous ? (float) $previous['credit_balance'] : 0.0;
+                if($previous) {
+                    $previous_debit  = $previous['debit_balance'];
+                    $previous_credit = $previous['credit_balance'];
+                }
+                else {
+                    $openingBalance = OpeningBalance::search([
+                            ['condo_id', '=', $condo_id],
+                            ['status', '=', 'validated']
+                        ],
+                        [
+                            'sort'  => ['created' => 'desc'],
+                            'limit' => 1
+                        ]
+                    )
+                    ->first();
+
+                    if($openingBalance) {
+                        $openingLine = OpeningBalanceLine::search([
+                                ['condo_id','=', $condo_id],
+                                ['account_id', '=', $account_id],
+                                ['balance_id','=', $openingBalance['id']]
+                            ])
+                            ->read(['account_id', 'debit', 'credit'])
+                            ->first();
+
+                        $previous_debit  = $openingLine ? $openingLine['debit']  : 0.0;
+                        $previous_credit = $openingLine ? $openingLine['credit'] : 0.0;
+                    }
+                }
 
                 /*
                 * Get current balance (= date)

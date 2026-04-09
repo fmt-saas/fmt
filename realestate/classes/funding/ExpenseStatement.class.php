@@ -1061,15 +1061,21 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         foreach($self as $id => $expenseStatement) {
 
             foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
-                // remove previous Funding, if any - what if already paid ?
-
-
-
                 $ownership_id = $statementOwner['ownership_id']['id'];
                 // a funding cannot be issued nor due in the past
                 $issue_date = max(strtotime('today'), $expenseStatement['posting_date']);
                 $due_date = $expenseStatement['due_date'];
 
+                // remove previous Funding, if any
+                Funding::search([
+                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                        ['funding_type', '=', 'expense_statement'],
+                        ['expense_statement_id', '=', $id],
+                        ['ownership_id', '=', $ownership_id]
+                    ])
+                    ->delete(true);
+
+                // #todo
                 $date_to = $expenseStatement['posting_date'];
                 if($expenseStatement['is_cutoff_at_period_end']) {
                     $date_to = $expenseStatement['date_to'];

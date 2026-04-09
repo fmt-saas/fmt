@@ -10,6 +10,8 @@ use equal\orm\DomainCondition;
 use finance\accounting\Account;
 use finance\accounting\AccountBalanceChange;
 use finance\accounting\FiscalPeriod;
+use finance\accounting\FiscalYear;
+use finance\accounting\OpeningBalanceLine;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\ownership\Ownership;
 
@@ -74,7 +76,7 @@ list($params, $providers) = eQual::announce([
         'date_to' => [
             'type'              => 'date',
             'description'       => "Last date of the time interval.",
-            'default'           => null
+            'required'          => true
         ],
 
     ],
@@ -109,6 +111,29 @@ if(empty($accounts_ids)) {
 
 $opening_balance = 0;
 
+$fiscalYear = FiscalYear::search([
+        ['condo_id', '=', $ownership['condo_id']],
+        ['date_from', '<=', $date_from],
+        ['date_to', '>=', $date_from]
+    ], ['limit' => 1])
+    ->read(['opening_balance_id'])
+    ->first();
+
+$map_opening_balances = [];
+if($fiscalYear && isset($fiscalYear['opening_balance_id'])) {
+    $openingLines = OpeningBalanceLine::search([
+            ['condo_id', '=', $ownership['condo_id']],
+            ['balance_id', '=', $fiscalYear['opening_balance_id']],
+            ['account_id', 'in', $accounts_ids]
+        ])
+        ->read(['account_id', 'debit', 'credit']);
+
+    foreach($openingLines as $openingLine) {
+        $map_opening_balances[$openingLine['account_id']] =
+            $openingLine['debit'] - $openingLine['credit'];
+    }
+}
+
 foreach($accounts_ids as $account_id) {
     $snapshot = AccountBalanceChange::search([
             ['account_id', '=', $account_id],
@@ -120,14 +145,9 @@ foreach($accounts_ids as $account_id) {
     if($snapshot) {
         $opening_balance += $snapshot['debit_balance'] - $snapshot['credit_balance'];
     }
-}
-
-if(!isset($params['date_to'])) {
-    // take date_to from the last closed period
-    $fiscalPeriod = FiscalPeriod::search([['condo_id', '=', $ownership['condo_id']], ['status', '=', 'closed']], ['sort' => ['date_to' => 'desc'], 'limit' => 1])
-        ->read(['date_to'])
-        ->first();
-    $date_to = $fiscalPeriod['date_to'];
+    elseif(isset($map_opening_balances[$account_id])) {
+        $opening_balance += $map_opening_balances[$account_id];
+    }
 }
 
 // Add conditions to the domain to consider advanced parameters

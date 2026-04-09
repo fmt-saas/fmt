@@ -106,6 +106,7 @@ try {
                 // ignore (ownership with no expense ?)
             }
             try {
+                // #todo
                 $date_to = $expenseStatement['posting_date'];
 
                 if($expenseStatement['is_cutoff_at_period_end']) {
