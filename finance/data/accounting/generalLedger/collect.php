@@ -329,6 +329,7 @@ $domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
 $domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 
 /*
+// #memo - filter should target accounting document lines instead of account nature (i.e. purchaseInvoiceLine.ownership_id)
 if($params['suppliers_only']) {
     $domain->addCondition(new DomainCondition('suppliership_id', '<>', null));
 }
