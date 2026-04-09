@@ -104,6 +104,23 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Bank Account",
+                                                "value": "request_bank_account_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Payment Terms",
+                                                "value": "payment_terms_id",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "has_date_range",
                                                 "width": "25%"
                                             },
@@ -126,18 +143,6 @@
                                                 "type": "field",
                                                 "value": "date_range_frequency",
                                                 "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Bank Account",
-                                                "value": "request_bank_account_id",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Payment Terms",
-                                                "value": "payment_terms_id",
-                                                "width": "33%"
                                             }
                                         ]
                                     },
@@ -186,7 +191,8 @@
                                                 "type": "field",
                                                 "label": "Prorate by Owner",
                                                 "value": "has_ownership_proration",
-                                                "width": "33%"
+                                                "width": "33%",
+                                                "visible": ["has_date_range", "=", true]
                                             },
                                             {
                                                 "type": "field",
