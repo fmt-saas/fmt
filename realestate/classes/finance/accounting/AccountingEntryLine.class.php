@@ -85,6 +85,8 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'dependents'        => ['account_code', 'account_class', 'ownership_id', 'suppliership_id']
             ],
 
+            // #memo - ownership and suppliership are information derived from accounting account but cannot be used in expense statements
+            // #memo - expense statements must only rely on accounting documents (invoice, misc op, bank statement, ...)
             'ownership_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
