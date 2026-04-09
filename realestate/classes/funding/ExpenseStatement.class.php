@@ -466,6 +466,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
     /**
      * Ensure every ownership involved in the statement has the required working-fund account.
      */
+    /*
     protected static function policyCanGenerateFundings($self): array {
         $result = [];
         $self->read(['condo_id', 'statement_owners_ids' => ['ownership_id']]);
@@ -495,6 +496,76 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             }
         }
         return $result;
+    }
+    */
+    protected static function doGenerateFundings($self) {
+
+        /* from finance\accounting\invoice\Invoice: */
+        // 'condo_id'
+        // 'fiscal_year_id'
+        // 'fiscal_period_id'
+        // 'accounting_entry_id'
+        // 'emission_date'
+        // 'due_date'
+
+
+        $self->read([
+                'name',
+                'posting_date',
+                'due_date',
+                'statement_bank_account_id',
+                'fiscal_year_id' => ['date_from'],
+                'fiscal_period_id' => ['date_from'],
+                'condo_id' => ['code'],
+                'statement_owners_ids' => [
+                    'ownership_id' => ['code'],
+                    'statement_owner_lines_ids' => [
+                        'price'
+                    ]
+                ]
+            ]);
+
+        foreach($self as $id => $expenseStatement) {
+            // #todo - supprimer les funding déjà existant si'il y en a
+            foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
+                $ownership_id = $statementOwner['ownership_id']['id'];
+
+                $due_amount = 0.0;
+                foreach($statementOwner['statement_owner_lines_ids'] as $line_id => $ownerLine) {
+                    // use both positive and negative amounts
+                    $due_amount += $ownerLine['price'];
+                }
+
+                $ownershipAccount = Account::search([
+                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                        ['ownership_id', '=', $ownership_id],
+                        ['operation_assignment', '=', 'co_owners_working_fund']
+                    ])
+                    ->first();
+
+                if(!$ownershipAccount) {
+                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                }
+
+                // a funding cannot be issued nor due in the past
+                $issue_date = max(strtotime('today'), $expenseStatement['posting_date']);
+                $due_date = $expenseStatement['due_date'];
+
+                Funding::create([
+                        'condo_id'                          => $expenseStatement['condo_id']['id'],
+                        'description'                       => $expenseStatement['name'],
+                        'funding_type'                      => 'expense_statement',
+                        'expense_statement_id'              => $id,
+                        'ownership_id'                      => $ownership_id,
+                        'bank_account_id'                   => $expenseStatement['statement_bank_account_id'],
+                        'accounting_account_id'             => $ownershipAccount['id'],
+                        'issue_date'                        => $issue_date,
+                        'due_date'                          => $due_date,
+                        'due_amount'                        => $due_amount
+                    ]);
+
+            }
+        }
     }
 
     protected static function policyCanAssignInvoiceNumber($self): array {
