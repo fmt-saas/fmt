@@ -189,8 +189,8 @@
                     {{ communication.payment_amount | raw }}
                 </div>
                 <div style="padding-top: 20px; padding-left: 15px; font-size: 15px;">
-                    {{ communication.payment_reference | data_format('scor') }} &nbsp; ({{ communication.payment_reference | raw }})<br />
-                    IBAN : {{ condominium.bank_account_iban | data_format('iban') }} &nbsp; {{ condominium.bank_account_iban | raw }}<br />
+                    {{ communication.payment_reference | raw }} &nbsp; ({{ funding.payment_reference | data_format('scor') }})<br />
+                    IBAN : {{ condominium.bank_account_iban | raw }} &nbsp; ({{ condominium.bank_account_iban | data_format('iban') }})<br />
                     BIC : {{ condominium.bank_account_bic }}<br />
                     <br />
                     {{ condominium.legal_name }}<br />
