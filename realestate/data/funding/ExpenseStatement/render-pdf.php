@@ -49,11 +49,22 @@ use finance\accounting\FiscalPeriod;
     'constants'     => ['L10N_TIMEZONE', 'L10N_LOCALE']
 ]);
 
+/*
+
+    Ce controller n'est jamais utilisé pour envoyer un document,
+    mais uniquement pour prévisualiser un décompte de charge avant de le confirmer.
+
+    par conséquent, lorsque le décompte n'est pas intégré (posted),
+    * les lignes d'intégration du décompte dans les comptes de copropriétaires ne sont pas présentes
+    * et les financements n'ont pas encore été générés
+
+ */
+
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
 $statement = ExpenseStatement::id($params['id'])
-    ->read(['fiscal_period_id'])
+    ->read(['fiscal_period_id', 'status'])
     ->first();
 
 if(!$statement) {

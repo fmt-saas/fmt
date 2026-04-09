@@ -388,9 +388,12 @@ $funding = Funding::search([
     ->read(['payment_reference', 'remaining_amount', 'due_date'])
     ->first();
 
+// #memo - in preview, fundings are not yet generated
+/*
 if(!$funding) {
     throw new Exception('no_funding', EQ_ERROR_UNKNOWN_OBJECT);
 }
+*/
 
 // retrieve template (subject & body)
 $subject = 'Décompte Propriétaire';
@@ -444,7 +447,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             return $map_values[$key] ?? '';
         }, $introduction);
     }
-    elseif($part['name'] == 'communication_payment_amount') {
+    elseif($part['name'] == 'communication_payment_amount' && $funding) {
         $communication['payment_amount'] = $part['value'];
 
         $map_values = [
