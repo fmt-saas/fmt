@@ -1036,7 +1036,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         }
     }
 
-    /*
     protected static function doGenerateFundings($self) {
 
 
@@ -1081,7 +1080,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'date_to'           => $date_to
                 ]);
 
-                $closing_balance = end($data)['balance'] ?? 0;
+                $closing_balance = 0;
+
+                if(count($data)) {
+                    $closing_balance = end($data)['balance'] ?? 0;
+                }
 
                 $ownershipAccount = Account::search([
                         ['condo_id', '=', $expenseStatement['condo_id']['id']],
@@ -1110,18 +1113,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             }
         }
     }
-    */
 
 
+/*
     protected static function doGenerateFundings($self) {
-
-        /* from finance\accounting\invoice\Invoice: */
-        // 'condo_id'
-        // 'fiscal_year_id'
-        // 'fiscal_period_id'
-        // 'accounting_entry_id'
-        // 'emission_date'
-        // 'due_date'
 
 
         $self->read([
@@ -1144,15 +1139,15 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             // #todo - supprimer les funding déjà existant si'il y en a
             foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
 
-                /*
-                Funding::search([
-                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
-                        ['funding_type', '=', 'expense_statement'],
-                        ['expense_statement_id', '=', $id],
-                        ['ownership_id', '=', $ownership_id]
-                    ])
-                    ->delete(true);
-                */
+
+                // Funding::search([
+                //         ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                //         ['funding_type', '=', 'expense_statement'],
+                //         ['expense_statement_id', '=', $id],
+                //         ['ownership_id', '=', $ownership_id]
+                //     ])
+                //     ->delete(true);
+
 
                 $ownership_id = $statementOwner['ownership_id']['id'];
 
@@ -1193,7 +1188,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             }
         }
     }
-
+*/
     protected static function doClearAccountingEntryLines($self) {
         foreach($self as $id => $expenseStatement) {
             AccountingEntryLine::search(['clearing_expense_statement_id', '=', $id])
