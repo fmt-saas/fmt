@@ -55,6 +55,11 @@
             "description": "Échéance appliquée aux propriétaires pour solder l'appel.",
             "help": ""
         },
+        "has_ownership_proration": {
+            "label": "Prorata",
+            "description": "Prorata des montants pour changement de propriétaire en cours de période.",
+            "help": "Active le prorata des montants appelés lorsqu'un lot change de propriétaire au cours d'une période d'exécution. Si cette option est désactivée, la totalité du montant de la période est appelée à l'ownership actif à la date d'exécution."
+        },
         "has_date_range": {
             "label": "Appel périodique",
             "description": "Active la génération d'exécutions récurrentes (mensuel, trimestriel...).",
