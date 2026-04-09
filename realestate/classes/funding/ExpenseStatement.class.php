@@ -606,8 +606,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 // generate subsequent data
                 $self
                     ->do('generate_statement')
-                    ->do('generate_accounting_entries')
-                    ->do('generate_fundings');
+                    ->do('generate_accounting_entries');
             }
             catch(\Exception $e) {
                 trigger_error("APP::Error while generating expense statement data: {$e->getMessage()}", EQ_REPORT_ERROR);
@@ -629,6 +628,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     ->do('clear_accounting_entry_lines')
                     // validate accounting entries (to be considered in financial statements)
                     ->do('validate_accounting_entries')
+                    // generate payment request for each ownership
+                    ->do('generate_fundings')
                     // mark related fiscal period as closed (and fiscal year if last period)
                     ->do('close_fiscal_period');
             }
