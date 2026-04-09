@@ -475,9 +475,7 @@ class MiscOperation extends Model {
                         'credit'                => $line['credit'],
                         'accounting_entry_id'   => $accountingEntry['id'],
                         'misc_operation_line_id'=> $line_id,
-                        'description'           => $line['description'],
-                        'ownership_id'          => $line['ownership_id'],
-                        'property_lot_id'       => $line['property_lot_id']
+                        'description'           => $line['description']
                     ]);
             }
 
