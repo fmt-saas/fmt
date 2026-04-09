@@ -51,14 +51,14 @@ use finance\accounting\FiscalPeriod;
 
 /*
 
-    Ce controller n'est jamais utilisé pour envoyer un document,
-    mais uniquement pour prévisualiser un décompte de charge avant de le confirmer.
+    This controller is never used to send a document,
+    but only to preview a charge statement before confirming it.
 
-    par conséquent, lorsque le décompte n'est pas intégré (posted),
-    * les lignes d'intégration du décompte dans les comptes de copropriétaires ne sont pas présentes
-    * et les financements n'ont pas encore été générés
+    Therefore, when the statement is not yet posted,
+    * the accounting entries integrating the statement into co-owner accounts are not present
+    * and the funding entries have not yet been generated
 
- */
+*/
 
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
