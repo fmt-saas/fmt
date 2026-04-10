@@ -65,6 +65,7 @@
             border-collapse: collapse;
             */
             border-collapse: collapse;
+            table-layout: fixed;
             /* page-break-inside: avoid; */
             border: 1px solid black;
         }
@@ -143,7 +144,7 @@
         <tbody>
             {% for line in lines %}
                 <tr>
-                    <td style="width: 8%; text-align: left;">
+                    <td style="width: 8%; text-align: left; font-size: 9px;">
                         {{ line.asset.code }}
                     </td>
                     <td style="width: 30%; text-align: left;">
@@ -153,7 +154,7 @@
                         {{ line.asset.balance | format_money(false) }}
                     </td>
 
-                    <td style="width: 8%; text-align: left;">
+                    <td style="width: 8%; text-align: left; font-size: 9px;">
                         {{ line.liability.code }}
                     </td>
                     <td style="width: 30%; text-align: left;">
