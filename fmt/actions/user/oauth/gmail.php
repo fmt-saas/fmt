@@ -5,7 +5,6 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use communication\email\Mailbox;
 use equal\auth\JWT;
 use equal\http\HttpRequest;
 use infra\server\Instance;
@@ -87,25 +86,34 @@ if(!$email) {
     throw new Exception('unexpected_oauth_response', EQ_ERROR_UNKNOWN);
 }
 
-
+// add additional data
+$data = array_merge($data, [
+    'email'                 => $email,
+    'provider'              => 'google',
+    'access_token_expiry'   => time() + $data['expires_in'],
+    'refresh_token_expiry'  => time() + $data['refresh_token_expires_in']
+]);
 
 // retrieve the target instance based on state
 $origin_url = $params['state'];
 $domain = parse_url($origin_url, PHP_URL_HOST);
 
-$instance = Instance::search(['name', '=', $domain])->first();
+$global_domain = parse_url(constant('BACKEND_URL'), PHP_URL_HOST);
 
-if($instance) {
-    $data['email'] = $email;
-    $data['provider'] = 'google';
-    $data['access_token_expiry'] = time() + $data['expires_in'];
-    $data['refresh_token_expiry'] = time() + $data['refresh_token_expires_in'];
-
-    $validationRequest = new HttpRequest('POST https://' . $domain . '/?do=communication_email_Mailbox_validate');
-    $response = $validationRequest
-                ->header('Content-Type', 'application/json')
-                ->setBody($data)
-                ->send();
+if($domain === $global_domain) {
+    // GLOBAL
+    eQual::run('do', 'communication_email_Mailbox_validate', $data);
+}
+else {
+    // AGENCY
+    $instance = Instance::search(['name', '=', $domain])->first();
+    if($instance) {
+        $validationRequest = new HttpRequest('POST https://' . $domain . '/?do=communication_email_Mailbox_validate');
+        $response = $validationRequest
+            ->header('Content-Type', 'application/json')
+            ->setBody($data)
+            ->send();
+    }
 }
 
 
