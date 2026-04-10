@@ -23,6 +23,14 @@ class OwnershipBankAccount extends BankAccount {
                 'dependents'        => ['accounting_account_id']
             ],
 
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Explicit class name of the object.',
+                'help'              => 'This is necessary to distinguish between different types of bank accounts since class uses same table as BankAccount.',
+                'readonly'          => true,
+                'default'           => 'finance\bank\OwnershipBankAccount',
+            ],
+
             'bank_account_type' => [
                 'type'              => 'string',
                 'description'       => 'Type of bank account (current of savings).',

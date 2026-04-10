@@ -27,6 +27,14 @@ class BankAccount extends Model {
                 'visible'           => ['organisation_id', '=', null]
             ],
 
+            'object_class' => [
+                'type'              => 'string',
+                'description'       => 'Explicit class name of the object.',
+                'help'              => 'This is necessary to distinguish between different types of bank accounts since class uses same table as BankAccount.', 
+                'readonly'          => true,
+                'default'           => 'finance\bank\BankAccount',
+            ],
+
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',

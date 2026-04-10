@@ -1182,10 +1182,13 @@ class BankStatementLine extends Model {
             if(!isset($bankStatementLine['condo_id'], $bankStatementLine['account_iban'])) {
                 continue;
             }
+
+
             // attempt to retrieve a ownership or suppliership for Condo with IBAN
             $ownerBankAccount = OwnershipBankAccount::search([
                     ['condo_id', '=', $bankStatementLine['condo_id']],
-                    ['bank_account_iban', '=', $bankStatementLine['account_iban']]
+                    ['bank_account_iban', '=', $bankStatementLine['account_iban']],
+                    ['ownership_id', '<>', null]
                 ])
                 ->read(['ownership_id'])
                 ->first();
@@ -1194,7 +1197,8 @@ class BankStatementLine extends Model {
             if($ownerBankAccount) {
                 $account = Account::search([
                         ['ownership_id', '=', $ownerBankAccount['ownership_id']],
-                        ['operation_assignment', '=', 'co_owners_working_fund']
+                        ['operation_assignment', '=', 'co_owners_working_fund'],
+                        ['is_control_account', '=', false]
                     ])
                     ->first();
 
@@ -1207,14 +1211,38 @@ class BankStatementLine extends Model {
 
             $supplierBankAccount = SuppliershipBankAccount::search([
                     ['condo_id', '=', $bankStatementLine['condo_id']],
-                    ['bank_account_iban', '=', $bankStatementLine['account_iban']]
+                    ['bank_account_iban', '=', $bankStatementLine['account_iban']],
+                    ['suppliership_id', '<>', null]
                 ])
                 ->read(['suppliership_id'])
                 ->first();
 
             if($supplierBankAccount) {
                 $account = Account::search([
+                        ['condo_id', '=', $bankStatementLine['condo_id']],
                         ['suppliership_id', '=', $supplierBankAccount['suppliership_id']]
+                    ])
+                    ->first();
+
+                if($account) {
+                    self::id($id)->update(['accounting_account_id' => $account['id']]);
+                }
+
+                continue;
+            }
+
+            $condominiumBankAccount = CondominiumBankAccount::search([
+                    ['condo_id', '=', $bankStatementLine['condo_id']],
+                    ['object_class', '=', 'finance\bank\CondominiumBankAccount'],
+                    ['bank_account_type', '', ['bank_current', 'bank_savings']],
+                    ['bank_account_iban', '=', $bankStatementLine['account_iban']]
+                ])
+                ->first();
+
+            if($condominiumBankAccount) {
+                $account = Account::search([
+                        ['condo_id', '=', $bankStatementLine['condo_id']],
+                        ['operation_assignment', '=', 'bank_transfer']
                     ])
                     ->first();
 
