@@ -222,9 +222,12 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
         $result = [];
         if(isset($values['condo_id'])) {
             if(isset($event['emission_date'])) {
+                $has_date_range = $event['has_date_range'] ?? $values['has_date_range'] ?? false;
+                if(!$has_date_range) {
+                    $result['date_from'] = $event['emission_date'];
+                    $result['date_to'] = $event['emission_date'];
+                }
                 $result['posting_date'] = $event['emission_date'];
-                $result['date_from'] = $event['emission_date'];
-                $result['date_to'] = $event['emission_date'];
                 // force updating fiscal_year accordingly
                 $event['posting_date'] = $event['emission_date'];
             }
