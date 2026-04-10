@@ -1363,6 +1363,9 @@ class Identity extends Model {
     public static function onupdateUserId($self) {
         $self->read(['user_id']);
         foreach($self as $id => $identity) {
+            if(!$identity['user_id']) {
+                continue;
+            }
             User::id($identity['user_id'])->update(['identity_id' => $id]);
         }
     }
@@ -1370,6 +1373,9 @@ class Identity extends Model {
     public static function onupdateContactId($self) {
         $self->read(['contact_id']);
         foreach($self as $id => $identity) {
+            if(!$identity['contact_id']) {
+                continue;
+            }
             Contact::id($identity['contact_id'])->update(['identity_id' => $id]);
         }
     }
@@ -1377,6 +1383,9 @@ class Identity extends Model {
     public static function onupdateEmployeeId($self) {
         $self->read(['employee_id']);
         foreach($self as $id => $identity) {
+            if(!$identity['employee_id']) {
+                continue;
+            }
             Employee::id($identity['employee_id'])->update(['identity_id' => $id]);
         }
     }
@@ -1384,6 +1393,9 @@ class Identity extends Model {
     public static function onupdateCondominiumId($self) {
         $self->read(['condominium_id']);
         foreach($self as $id => $identity) {
+            if(!$identity['condominium_id']) {
+                continue;
+            }
             Condominium::id($identity['condominium_id'])->update(['identity_id' => $id]);
         }
     }
@@ -1391,6 +1403,9 @@ class Identity extends Model {
     public static function onupdateSupplierId($self) {
         $self->read(['supplier_id']);
         foreach($self as $id => $identity) {
+            if(!$identity['supplier_id']) {
+                continue;
+            }
             Supplier::id($identity['supplier_id'])->update(['identity_id' => $id]);
         }
     }
@@ -1398,6 +1413,9 @@ class Identity extends Model {
     public static function onupdateCustomerId($self) {
         $self->read(['customer_id']);
         foreach($self as $id => $identity) {
+            if(!$identity['customer_id']) {
+                continue;
+            }
             Customer::id($identity['customer_id'])->update(['identity_id' => $id]);
         }
     }
@@ -1405,6 +1423,9 @@ class Identity extends Model {
     public static function onupdateOrganisationId($self) {
         $self->read(['organisation_id']);
         foreach($self as $id => $identity) {
+            if(!$identity['organisation_id']) {
+                continue;
+            }
             Organisation::id($identity['organisation_id'])->update(['identity_id' => $id]);
         }
     }
@@ -1412,6 +1433,9 @@ class Identity extends Model {
     public static function onupdateManagingAgentId($self) {
         $self->read(['managing_agent_id']);
         foreach($self as $id => $identity) {
+            if(!$identity['managing_agent_id']) {
+                continue;
+            }
             ManagingAgent::id($identity['managing_agent_id'])->update(['identity_id' => $id]);
         }
     }
@@ -1428,6 +1452,9 @@ class Identity extends Model {
     public static function onupdateTenantId($self) {
         $self->read(['tenant_id']);
         foreach($self as $id => $identity) {
+            if(!$identity['tenant_id']) {
+                continue;
+            }
             Tenant::id($identity['tenant_id'])->update(['identity_id' => $id]);
         }
     }
