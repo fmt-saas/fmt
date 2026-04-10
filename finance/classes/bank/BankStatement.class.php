@@ -892,6 +892,15 @@ class BankStatement extends Model {
         switch($view) {
             case 'form.manual':
             case 'form.default':
+                if(isset($event['bank_account_id'])) {
+                    $bankAccount = CondominiumBankAccount::id($event['bank_account_id'])->read(['current_balance'])->first();
+                    if($bankAccount) {
+                        $result['opening_balance'] = $bankAccount['current_balance'];
+                    }
+
+                }
+                // #memo - bank_account_id controls bank_account_iban
+                /*
                 if(isset($event['bank_account_iban'])) {
                     if(!isset($values['condo_id'])) {
                         $event['bank_account_iban'] = trim(str_replace(' ', '', $event['bank_account_iban']));
@@ -920,6 +929,7 @@ class BankStatement extends Model {
                         ];
                     }
                 }
+                */
                 if(isset($event['date']) || isset($values['date'])) {
                     $date = $event['date'] ?? $values['date'];
                     if(!isset($values['opening_date'])) {
