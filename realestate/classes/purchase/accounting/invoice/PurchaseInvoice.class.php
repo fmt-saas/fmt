@@ -1679,11 +1679,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 $has_date_range = $event['has_date_range'] ?? $values['has_date_range'] ?? false;
 
                 if($has_date_range) {
+                    // force updating date_from and date_to accordingly
                     $event['has_date_range'] = true;
                 }
 
                 $result['posting_date'] = $event['emission_date'];
-                // force updating fiscal_year accordingly
+                // force updating fiscal_year and fiscal_period accordingly
                 $event['posting_date'] = $event['emission_date'];
             }
             if(isset($event['posting_date']) || isset($event['date_from'])) {
@@ -1741,8 +1742,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
         if(isset($event['has_date_range']) && $event['has_date_range']) {
             // if given, assign date_from and date_to based on fiscal period
-            if(isset($values['fiscal_period_id'])) {
-                $fiscalPeriod = FiscalPeriod::id($values['fiscal_period_id'])
+            $fiscal_period_id = $event['fiscal_period_id'] ?? $values['fiscal_period_id'] ?? null;
+            if($fiscal_period_id) {
+                $fiscalPeriod = FiscalPeriod::id($fiscal_period_id)
                     ->read(['date_from', 'date_to'])
                     ->first();
                 if($fiscalPeriod) {
