@@ -39,6 +39,7 @@ class Bank extends \purchase\supplier\Supplier {
             'bic' => [
                 'type'              => 'string',
                 'description'       => 'Official BIC/Swift code of the Bank.',
+                'help'              => 'BIC8 as of ISO 9362',
                 'onupdate'          => 'onupdateBic',
                 'required'          => true
             ],

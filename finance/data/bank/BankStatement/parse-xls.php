@@ -298,7 +298,8 @@ $adapters = [
         return $prefix . $remainder;
     },
     'bic_normalize' => function($bic) {
-        return strtoupper(str_replace(' ', '', $bic));
+        // BIC8 as of ISO 9362
+        return substr(strtoupper(str_replace(' ', '', $bic)), 0, 8);
     },
     'payment_reference_normalize' => function($reference) {
         return strtoupper(preg_replace('/[^a-z0-9]/i', '', $reference));

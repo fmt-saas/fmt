@@ -70,7 +70,7 @@ class ClosingBalance extends Balance {
      *
      */
     protected static function doGenerateBalanceLines($self) {
-        $self->read(['condo_id', 'status', 'fiscal_year_id', 'is_period_balance', 'fiscal_period_id']);
+        $self->read(['condo_id', 'status', 'is_period_balance', 'fiscal_period_id', 'fiscal_year_id' => ['opening_balance_id']]);
         foreach($self as $id => $balance) {
             // ignore non-draft
             if($balance['status'] != 'pending') {
@@ -90,7 +90,7 @@ class ClosingBalance extends Balance {
                 $domain[] = ['fiscal_period_id', '=', $balance['fiscal_period_id']];
             }
             else {
-                $domain[] = ['fiscal_year_id', '=', $balance['fiscal_year_id']];
+                $domain[] = ['fiscal_year_id', '=', $balance['fiscal_year_id']['id']];
             }
 
             $accounting_entries_ids = AccountingEntry::search($domain)->ids();
@@ -100,8 +100,28 @@ class ClosingBalance extends Balance {
             $values = [
                     'condo_id'          => $balance['condo_id'],
                     'balance_id'        => $id,
-                    'fiscal_year_id'    => $balance['fiscal_year_id']
+                    'fiscal_year_id'    => $balance['fiscal_year_id']['id']
                 ];
+
+            if($balance['fiscal_year_id']['opening_balance_id']) {
+                $openingBalanceLines = OpeningBalanceLine::search([
+                        ['balance_id', '=', $balance['fiscal_year_id']['opening_balance_id']],
+                        ['condo_id', '=', $balance['condo_id']]
+                    ])
+                    ->read(['account_id', 'debit', 'credit']);
+
+                foreach($openingBalanceLines as $openingBalanceLine) {
+                    if(!isset($map_accounts_values[$openingBalanceLine['account_id']])) {
+                        $map_accounts_values[$openingBalanceLine['account_id']] = [
+                                'debit'     => 0.0,
+                                'credit'    => 0.0
+                            ];
+                    }
+
+                    $map_accounts_values[$openingBalanceLine['account_id']]['debit']  += round($openingBalanceLine['debit'], 4);
+                    $map_accounts_values[$openingBalanceLine['account_id']]['credit'] += round($openingBalanceLine['credit'], 4);
+                }
+            }
 
             // pass-1 - read all accounting entry lines
             foreach($accounting_entries_ids ?? [] as $entry_id) {
