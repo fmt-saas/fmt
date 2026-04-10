@@ -948,13 +948,14 @@ try {
                         continue;
                     }
                 }
+
+                OwnershipCommunicationPreference::create($values);
             }
 
             if($communication_preferences['ownership_title']) {
                 Ownership::id($ownership_id)->update(['address_recipient' => $communication_preferences['ownership_title']]);
             }
 
-            OwnershipCommunicationPreference::create($values);
         }
 
         // Apport_keys

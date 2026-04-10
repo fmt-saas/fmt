@@ -207,6 +207,11 @@ if($dataImport['import_type'] == 'condominium_import') {
             $result['logs'][] = "ERR - invalid chars for `firstname` ({$owner['firstname']}) in Owner sheet at row " . ($index + 2);
         }
 
+        if($owner_firstname !== '' && strlen($owner_firstname) < 2) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid length (<2) for `firstname` ({$owner['firstname']}) in Owner sheet at row " . ($index + 2);
+        }
+
         // allow letters (Unicode), space, apostrophe, hyphen
         if(!preg_match('/^[\p{L}\'\- ]+$/u', $owner['lastname'])) {
             ++$result['errors'];
