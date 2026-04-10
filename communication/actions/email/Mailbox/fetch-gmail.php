@@ -270,7 +270,8 @@ if($mailbox['auth_type'] !== 'oauth') {
 
 try {
     if($mailbox['refresh_token_expiry'] < time()) {
-        throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
+        // #todo - uncomment the line below when the Gmail API validation is finished
+        // throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
     }
 
     if($mailbox['access_token_expiry'] < time()) {
