@@ -213,14 +213,6 @@
                     "label": "Valider",
                     "description": "À facturer."
                 },
-                "action.cancel": {
-                    "label": "Annuler",
-                    "description": "Annuler la facture (irréversible)."
-                },
-                "action.unlock": {
-                    "label": "Débloquer",
-                    "description": "Déboquer la facture (permettre de nouvelles modifications)."
-                },
                 "action.complete": {
                     "label": "Marquer completée",
                     "description": "Marquer la facture comme complétée."
@@ -229,9 +221,9 @@
                     "label": "Marquer valide",
                     "description": "Marquer la facture comme valide."
                 },
-                "action.remove": {
-                    "label": "Supprimer",
-                    "description": "Supprimer la facture proforma."
+                "action.post": {
+                    "label": "Intégrer",
+                    "description": "Intégrer la facrure à la comptabilité."
                 },
                 "action.reverse_completed": {
                     "label": "Marquer non complété",
@@ -241,9 +233,17 @@
                     "label": "Marquer non validé",
                     "description": "Repasser à l'étape précédente."
                 },
-                "action.post": {
-                    "label": "Intégrer",
-                    "description": "Intégrer la facrure à la comptabilité."
+                "action.remove": {
+                    "label": "Supprimer",
+                    "description": "Supprimer la facture proforma."
+                },
+                "action.cancel": {
+                    "label": "Annuler",
+                    "description": "Annuler la facture (irréversible)."
+                },
+                "action.unlock": {
+                    "label": "Débloquer",
+                    "description": "Déboquer la facture (permettre de nouvelles modifications)."
                 }
             },
             "routes": {

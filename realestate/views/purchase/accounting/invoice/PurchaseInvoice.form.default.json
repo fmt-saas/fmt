@@ -71,18 +71,17 @@
             }
         },
         {
-            "id": "action.cancel",
-            "label": "Cancel",
-            "description": "Cancel the processing of the invoice. This action will remove the (proforma) invoice and set the Document process to non-drafted. This cannot be undone.",
-            "controller": "core_model_do",
-            "confirm": true,
-            "visible": false,
-            "visible1": [
-                ["document_process_status", "in", ["assigned", "completed", "validated"]]
+            "id": "action.post",
+            "label": "Post",
+            "description": "Post the invoice to the accounting system.",
+            "controller": "core_model_transition",
+            "visible": [
+                ["status", "=", "proforma"],
+                ["document_process_status", "=", "validated"]
             ],
             "params": {
                 "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
-                "action": "mark_cancelled",
+                "transition": "post",
                 "ids": []
             }
         },
@@ -102,7 +101,7 @@
             }
         },
         {
-            "id": "action.reverse_validate",
+            "id": "action.reverse_validated",
             "label": "Revert",
             "description": "Undo marking the invoice as valid.",
             "controller": "core_model_do",
@@ -113,6 +112,22 @@
             "params": {
                 "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                 "action": "reverse_validated",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.cancel",
+            "label": "Cancel",
+            "description": "Cancel the processing of the invoice. This action will remove the (proforma) invoice and set the Document process to non-drafted. This cannot be undone.",
+            "controller": "core_model_do",
+            "confirm": true,
+            "visible": false,
+            "visible1": [
+                ["document_process_status", "in", ["assigned", "completed", "validated"]]
+            ],
+            "params": {
+                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
+                "action": "mark_cancelled",
                 "ids": []
             }
         },
@@ -129,21 +144,6 @@
                 "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                 "action": "remove",
                 "success_status": 205,
-                "ids": []
-            }
-        },
-        {
-            "id": "action.post",
-            "label": "Post",
-            "description": "Post the invoice to the accounting system.",
-            "controller": "core_model_transition",
-            "visible": [
-                ["status", "=", "proforma"],
-                ["document_process_status", "=", "validated"]
-            ],
-            "params": {
-                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
-                "transition": "post",
                 "ids": []
             }
         },
