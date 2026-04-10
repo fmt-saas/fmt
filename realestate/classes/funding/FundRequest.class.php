@@ -96,7 +96,7 @@ class FundRequest extends \equal\orm\Model {
                 'domain'            => [
                     ['condo_id', '<>', null],
                     ['condo_id', '=', 'object.condo_id'],
-                    // ['bank_account_type', '=', 'bank_current']
+                    ['object_class', '=', 'finance\bank\CondominiumBankAccount']
                 ]
             ],
 
