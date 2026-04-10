@@ -227,7 +227,10 @@
                 "ids": []
             },
             "confirm": true,
-            "visible": [ ["state", "=", "instance"], ["status", "=", "created"] ]
+            "visible": [
+                [ ["state", "=", "instance"], ["status", "=", "created"] ],
+                [ ["state", "=", "instance"], ["has_target_object", "=", false] ]
+            ]
         }
     ],
     "layout": {
