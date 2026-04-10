@@ -34,7 +34,7 @@
             /* margin-bottom must match footer::height */
             margin-bottom: 50px;
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
+            font-size: 10px;
             text-align: justify;
             width: 100%;
         }
@@ -65,6 +65,7 @@
             border-collapse: collapse;
             */
             border-collapse: collapse;
+            table-layout: fixed;
             /* page-break-inside: avoid; */
             border: 1px solid black;
         }
@@ -135,18 +136,18 @@
     <table>
         <thead>
             <tr>
-                <th style="width:12%">{{ labels['account_statement.table.th.date'] }}</th>
-                <th style="width:48%">{{ labels['account_statement.table.th.description'] }}</th>
-                <th style="width:13%">{{ labels['account_statement.table.th.debit'] }}</th>
-                <th style="width:13%">{{ labels['account_statement.table.th.credit'] }}</th>
-                <th style="width:14%">{{ labels['account_statement.table.th.balance'] }}</th>
+                <th style="width: 12%">{{ labels['account_statement.table.th.date'] }}</th>
+                <th style="width: 48%">{{ labels['account_statement.table.th.description'] }}</th>
+                <th style="width: 13%">{{ labels['account_statement.table.th.debit'] }}</th>
+                <th style="width: 13%">{{ labels['account_statement.table.th.credit'] }}</th>
+                <th style="width: 14%">{{ labels['account_statement.table.th.balance'] }}</th>
             </tr>
         </thead>
 
         <tbody>
         {% for line in lines %}
             {% if loop.first %}
-                <tr style="font-size: 10px;">
+                <tr>
                     <!-- #memo - this is the given date_from -->
                     <td>{{ line.entry_date | date('d/m/Y') }}</td>
                     <td style="text-align: right; font-weight: bold;">{{ labels['account_statement.table.td.previous_balance'] }}</td>
@@ -155,7 +156,7 @@
                     <td>{{ line.balance | format_money() }}</td>
                 </tr>
             {% else %}
-                <tr style="font-size: 10px;">
+                <tr>
                     <td>{{ line.entry_date | date('d/m/Y') }}</td>
                     <td style="text-align: left; font-weight: bold;">{{ line.description }}</td>
                     <td>{{ line.debit | format_money() }}</td>

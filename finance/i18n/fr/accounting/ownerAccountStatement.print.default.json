@@ -3,7 +3,7 @@
     "account_statement.table.th.description": "Description",
     "account_statement.table.th.debit": "Débit",
     "account_statement.table.th.credit": "Crédit",
-    "account_statement.table.th.balance": "Balance",
+    "account_statement.table.th.balance": "Solde",
     "account_statement.table.td.previous_balance": "Ancien solde",
     "account_statement.table.footer.td.total": "Total"
 }
