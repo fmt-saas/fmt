@@ -184,11 +184,11 @@
 
             <!-- a) payment information -->
             {% if funding.remaining_amount > 0.0 %}
-            <div style="position: relative; margin-top: 20px; padding: 15px 15px 0 15px; border: solid 1px black; height: 215px; page-break-inside: avoid;">
-                <div style="font-size: 15px;">
+            <div style="position: relative; font-size: 15px; margin-top: 20px; padding: 15px 15px 0 15px; border: solid 1px black; height: 215px; page-break-inside: avoid;">
+                <div>
                     {{ communication.payment_amount | raw }}
                 </div>
-                <div style="margin-top: 20px; font-size: 15px;">
+                <div style="margin-top: 20px;">
                     {{ communication.payment_reference | raw }} &nbsp; ({{ funding.payment_reference | data_format('scor') }})<br />
                     IBAN : {{ condominium.bank_account_iban | data_format('iban') }}<br />
                     BIC : {{ condominium.bank_account_bic }}<br />
@@ -205,8 +205,8 @@
 
             <!-- b) reimbursement information -->
             {% if funding.remaining_amount < 0.0 %}
-            <div style="position: relative; margin-top: 20px; padding: 15px 15px 0 15px; border: solid 1px black; page-break-inside: avoid;">
-                <div style="line-height: 15px;">
+            <div style="position: relative; font-size: 15px; margin-top: 20px; padding: 15px; border: solid 1px black; page-break-inside: avoid;">
+                <div>
                     {{ communication.reimbursement | raw }}
                 </div>
             </div>
@@ -214,8 +214,8 @@
 
             <!-- c) no payment nor reimbursement needed information -->
             {% if funding.remaining_amount == 0.0 %}
-            <div style="position: relative; margin-top: 20px; padding: 15px 15px 0 15px; border: solid 1px black; page-break-inside: avoid;">
-                <div style="line-height: 15px;">
+            <div style="position: relative; font-size: 15px; margin-top: 20px; padding: 15px; border: solid 1px black; page-break-inside: avoid;">
+                <div>
                     {{ communication.no_action_required | raw }}
                 </div>
             </div>
