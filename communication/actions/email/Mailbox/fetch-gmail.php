@@ -303,15 +303,12 @@ foreach($messages_ids as $message_id) {
         'Date'      => '',
     ];
     foreach($message['payload']['headers'] as $header) {
-        if(in_array($header['name'], array_keys(['Subject', 'From', 'To', 'Date']))) {
+        if(in_array($header['name'], ['Subject', 'From', 'To', 'Date'])) {
             $headers[$header['name']] = $header['value'];
         }
     }
 
     $body = $extractMessageBody($message['payload']);
-
-    trigger_error("PHP::message".json_encode($message), EQ_REPORT_INFO);
-    trigger_error("PHP::header".json_encode($headers), EQ_REPORT_INFO);
 
     $email = Email::create([
         'mailbox_id'    => $mailbox['id'],
