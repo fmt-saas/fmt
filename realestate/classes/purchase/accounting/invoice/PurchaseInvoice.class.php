@@ -1671,6 +1671,51 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
      */
     public static function onchange($event, $values) {
         $result = [];
+        if(isset($values['condo_id'])) {
+            if(isset($event['emission_date'])) {
+                $result['date_from'] = $event['emission_date'];
+                $result['date_to'] = $event['emission_date'];
+
+                $has_date_range = $event['has_date_range'] ?? $values['has_date_range'] ?? false;
+
+                if($has_date_range) {
+                    $event['has_date_range'] = true;
+                }
+
+                $result['posting_date'] = $event['emission_date'];
+                // force updating fiscal_year accordingly
+                $event['posting_date'] = $event['emission_date'];
+            }
+            if(isset($event['posting_date']) || isset($event['date_from'])) {
+                if(isset($event['posting_date'])) {
+                    $fiscalYear = FiscalYear::search([['condo_id', '=', $values['condo_id']], ['date_from', '<=', $event['posting_date']], ['date_to', '>=', $event['posting_date']]])
+                        ->read(['id', 'name', 'fiscal_periods_ids' => ['name', 'date_from', 'date_to']])
+                        ->first();
+                }
+                else {
+                    $fiscalYear = FiscalYear::search([['condo_id', '=', $values['condo_id']], ['date_from', '<=', $event['date_from']], ['date_to', '>=', $event['date_from']]])
+                        ->read(['id', 'name', 'fiscal_periods_ids' => ['name', 'date_from', 'date_to']])
+                        ->first();
+                }
+                if($fiscalYear) {
+                    $result['fiscal_year_id'] = [
+                        'id'    => $fiscalYear['id'],
+                        'name'  => $fiscalYear['name']
+                    ];
+                    if(isset($event['posting_date'])) {
+                        foreach($fiscalYear['fiscal_periods_ids'] ?? [] as $period_id => $period) {
+                            if($event['posting_date'] >= $period['date_from'] && $event['posting_date'] <= $period['date_to']) {
+                                $result['fiscal_period_id'] = [
+                                    'id'    => $period_id,
+                                    'name'  => $period['name']
+                                ];
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         if(array_key_exists('invoice_lines_ids', $event)) {
             $result['price'] = static::computePrice($values['id']);
         }
@@ -1693,7 +1738,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         if(isset($event['payment_reference'])) {
             $result['payment_reference'] = str_replace(['+', '/'], '', $event['payment_reference']);
         }
-        // #todo - si on change has_date_range (activation)
+
         if(isset($event['has_date_range']) && $event['has_date_range']) {
             // if given, assign date_from and date_to based on fiscal period
             if(isset($values['fiscal_period_id'])) {
@@ -1707,7 +1752,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
         }
 
-        return array_merge(parent::onchange($event, $values), $result);
+        // do not apply parent onchange, to reduce complexity
+        return [];
     }
 
     public static function canupdate($self, $values) {
