@@ -1061,6 +1061,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     protected static function onupdatePostingDate($self) {
         $self->read(['condo_id', 'posting_date', 'has_date_range']);
         foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['posting_date']) {
+                continue;
+            }
             if(!$purchaseInvoice['has_date_range']) {
                 continue;
             }

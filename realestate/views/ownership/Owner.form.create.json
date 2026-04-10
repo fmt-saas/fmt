@@ -21,20 +21,43 @@
                                                 }
                                             },
                                             {
-                                                "type": "field",
-                                                "value": "owner_type",
+                                                "type": "label",
+                                                "value": "",
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "owner_shares",
-                                                "width": "50%"
+                                                "value": "shares_full_property",
+                                                "width": "33%"
                                             },
+                                            {
+                                                "type": "field",
+                                                "value": "shares_bare_property",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "shares_usufruct",
+                                                "width": "33%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
                                             {
                                                 "type": "field",
                                                 "value": "ownership_id",
-                                                "width": "50%",
-                                                "visible": false
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "100%"
                                             }
                                         ]
                                     }
