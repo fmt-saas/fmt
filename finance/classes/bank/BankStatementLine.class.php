@@ -1234,7 +1234,7 @@ class BankStatementLine extends Model {
             $condominiumBankAccount = CondominiumBankAccount::search([
                     ['condo_id', '=', $bankStatementLine['condo_id']],
                     ['object_class', '=', 'finance\bank\CondominiumBankAccount'],
-                    ['bank_account_type', '', ['bank_current', 'bank_savings']],
+                    ['bank_account_type', 'in', ['bank_current', 'bank_savings']],
                     ['bank_account_iban', '=', $bankStatementLine['account_iban']]
                 ])
                 ->first();
