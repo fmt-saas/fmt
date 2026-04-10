@@ -1753,7 +1753,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         }
 
         // do not apply parent onchange, to reduce complexity
-        return [];
+        return $result;
     }
 
     public static function canupdate($self, $values) {
