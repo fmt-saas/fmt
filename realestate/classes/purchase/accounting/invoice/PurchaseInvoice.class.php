@@ -204,6 +204,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'usage'             => 'date/plain',
                 'description'       => 'The date on which the invoice is recorded in the accounting system.',
                 'visible'           => ['has_date_range', '=', false],
+                'onupdate'          => 'onupdatePostingDate',
                 'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
             ],
 
@@ -1053,6 +1054,34 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             if($bankAccount) {
                 self::id($id)->update(['suppliership_bank_account_id' => $bankAccount['id']]);
+            }
+        }
+    }
+
+    protected static function onupdatePostingDate($self) {
+        $self->read(['condo_id', 'posting_date', 'has_date_range']);
+        foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['has_date_range']) {
+                continue;
+            }
+            $fiscalYear = FiscalYear::search([
+                    ['condo_id', '=', $purchaseInvoice['condo_id']],
+                    ['date_from', '<=', $purchaseInvoice['posting_date']],
+                    ['date_to', '>=', $purchaseInvoice['posting_date']]
+                ])
+                ->read(['id', 'name', 'fiscal_periods_ids' => ['name', 'date_from', 'date_to']])
+                ->first();
+            if(!$fiscalYear) {
+                continue;
+            }
+            foreach($fiscalYear['fiscal_periods_ids'] ?? [] as $period_id => $period) {
+                if($purchaseInvoice['posting_date'] >= $period['date_from'] && $purchaseInvoice['posting_date'] <= $period['date_to']) {
+                    self::id($id)->update([
+                        'date_from' => $period['date_from'],
+                        'date_to' => $period['date_to']
+                    ]);
+                    break;
+                }
             }
         }
     }

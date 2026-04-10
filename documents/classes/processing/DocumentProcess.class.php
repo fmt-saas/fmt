@@ -1823,7 +1823,7 @@ class DocumentProcess extends Model {
                             'document_process_id'           => $id,
                             'document_id'                   => $documentProcess['document_id']['id']
                         ])
-                        // posting_date triggers sync with fiscal year & period
+                        // posting_date triggers sync with fiscal year & period (computed fields), and date_from & date_to (if has_date_range is set to true)
                         ->update([
                             'posting_date'                  => $invoice_issue_date
                         ])
