@@ -111,7 +111,7 @@ class Owner extends Identity {
                 'type'              => 'integer',
                 'usage'             => 'amount/natural',
                 'description'       => "Amount of shares the owner has on the ownership",
-                'default'           => 0,
+                'default'           => 100,
                 'dependents'        => ['ownership_percentage']
             ],
 

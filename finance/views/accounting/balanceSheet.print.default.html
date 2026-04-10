@@ -34,7 +34,7 @@
             /* margin-bottom must match footer::height */
             margin-bottom: 50px;
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
+            font-size: 10px;
             text-align: justify;
             width: 100%;
         }
@@ -140,26 +140,26 @@
             </tr>
         </thead>
 
-        <tbody style="font-size: 10px;">
+        <tbody>
             {% for line in lines %}
                 <tr>
-                    <td style="width: 10%; text-align: left;">
+                    <td style="width: 8%; text-align: left;">
                         {{ line.asset.code }}
                     </td>
                     <td style="width: 30%; text-align: left;">
                         {{ line.asset.description }}
                     </td>
-                    <td style="width: 10%; text-align: right;">
+                    <td style="width: 12%; text-align: right;">
                         {{ line.asset.balance | format_money(false) }}
                     </td>
 
-                    <td style="width: 10%; text-align: left;">
+                    <td style="width: 8%; text-align: left;">
                         {{ line.liability.code }}
                     </td>
                     <td style="width: 30%; text-align: left;">
                         {{ line.liability.description }}
                     </td>
-                    <td style="width: 10%; text-align: right;">
+                    <td style="width: 12%; text-align: right;">
                         {{ line.liability.balance | format_money(false) }}
                     </td>
                 </tr>
@@ -168,10 +168,10 @@
 
         <tfoot>
             <tr class="total-footer">
-                <td colspan="2" style="width: 40%; text-align: center;">{{ labels['balance_sheet.table.footer.td.total_assets'] }}</td>
-                <td style="width: 10%">{{ total_asset | format_money(false) }}</td>
-                <td colspan="2" style="width: 40%; text-align: center;">{{ labels['balance_sheet.table.footer.td.total_liabilities'] }}</td>
-                <td style="width: 10%">{{ total_liability | format_money(false) }}</td>
+                <td colspan="2" style="width: 38%; text-align: center;">{{ labels['balance_sheet.table.footer.td.total_assets'] }}</td>
+                <td style="width: 12%">{{ total_asset | format_money(false) }}</td>
+                <td colspan="2" style="width: 38%; text-align: center;">{{ labels['balance_sheet.table.footer.td.total_liabilities'] }}</td>
+                <td style="width: 12%">{{ total_liability | format_money(false) }}</td>
             </tr>
         </tfoot>
     </table>
