@@ -408,6 +408,9 @@ class MiscOperation extends Model {
             }
 
             foreach($lines_by_account as $account_id => $totals) {
+                $debit_balance  = max(0, $totals['debit'] - $totals['credit']);
+                $credit_balance = max(0, $totals['credit'] - $totals['debit']);
+
                 OpeningBalanceLine::create([
                         'condo_id'       => $miscOperation['condo_id'],
                         'balance_id'     => $openingBalance['id'],
@@ -415,8 +418,16 @@ class MiscOperation extends Model {
                         'account_id'     => $account_id,
                         'debit'          => $totals['debit'],
                         'credit'         => $totals['credit'],
-                        'debit_balance'  => max(0, $totals['debit'] - $totals['credit']),
-                        'credit_balance' => max(0, $totals['credit'] - $totals['debit'])
+                        'debit_balance'  => $debit_balance,
+                        'credit_balance' => $credit_balance
+                    ]);
+
+                AccountBalanceChange::create([
+                        'condo_id'       => $miscOperation['condo_id'],
+                        'account_id'     => $account_id,
+                        'date'           => time(),
+                        'debit_balance'  => $debit_balance,
+                        'credit_balance' => $credit_balance
                     ]);
             }
 
