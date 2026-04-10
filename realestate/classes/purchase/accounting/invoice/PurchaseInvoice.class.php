@@ -1710,6 +1710,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                     'id'    => $period_id,
                                     'name'  => $period['name']
                                 ];
+                                // force updating date_from and date_to accordingly
                                 $event['fiscal_period_id'] = $period_id;
                                 break;
                             }
@@ -1738,7 +1739,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             $result['suppliership_bank_account_id'] = null;
         }
         if(isset($event['payment_reference'])) {
-            $result['payment_reference'] = str_replace(['+', '/'], '', $event['payment_reference']);
+            $result['payment_reference'] = str_replace(['+', '/', ' '], '', $event['payment_reference']);
         }
 
         if(isset($event['has_date_range']) && $event['has_date_range']) {

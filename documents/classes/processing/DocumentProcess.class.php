@@ -1814,7 +1814,7 @@ class DocumentProcess extends Model {
                             'supplier_invoice_number'       => $data['invoice_number'] ?? '',
                             'suppliership_bank_account_id'  => $bankAccount['id'] ?? null,
                             'condo_bank_account_id'         => $condoBankAccount['id'] ?? null,
-                            'payment_reference'             => str_replace(['+', '/'], '', $data['payment']['payment_id'] ?? ''),
+                            'payment_reference'             => str_replace(['+', '/', ' '], '', $data['payment']['payment_id'] ?? ''),
                             'payable_amount'                => $data['totals']['payable_amount'] ?? '',
                             'emission_date'                 => $invoice_issue_date,
                             'due_date'                      => $invoice_due_date,
