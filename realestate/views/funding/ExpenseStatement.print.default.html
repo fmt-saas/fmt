@@ -205,7 +205,7 @@
 
             <!-- b) reimbursement information -->
             {% if funding.remaining_amount < 0.0 %}
-            <div style="position: relative; font-size: 15px; margin-top: 20px; padding: 15px; border: solid 1px black; page-break-inside: avoid;">
+            <div style="position: relative; font-size: 14px; margin-top: 20px; padding: 15px; border: solid 1px black; page-break-inside: avoid;">
                 <div>
                     {{ communication.reimbursement | raw }}
                 </div>
@@ -214,7 +214,7 @@
 
             <!-- c) no payment nor reimbursement needed information -->
             {% if funding.remaining_amount == 0.0 %}
-            <div style="position: relative; font-size: 15px; margin-top: 20px; padding: 15px; border: solid 1px black; page-break-inside: avoid;">
+            <div style="position: relative; font-size: 14px; margin-top: 20px; padding: 15px; border: solid 1px black; page-break-inside: avoid;">
                 <div>
                     {{ communication.no_action_required | raw }}
                 </div>
