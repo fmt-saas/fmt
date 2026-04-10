@@ -182,13 +182,13 @@
         {% if funding %}
         <div style="page-break-inside: avoid; margin: 20px 0;">
 
-            <!-- payment information -->
+            <!-- a) payment information -->
             {% if funding.remaining_amount > 0.0 %}
-            <div style="position: relative; margin-top: 20px; border: solid 1px black; height: 215px; page-break-inside: avoid;">
-                <div style="font-size: 15px; padding-left: 15px; padding-top: 15px;">
+            <div style="position: relative; margin-top: 20px; padding: 15px; border: solid 1px black; height: 215px; page-break-inside: avoid;">
+                <div style="font-size: 15px;">
                     {{ communication.payment_amount | raw }}
                 </div>
-                <div style="padding-top: 20px; padding-left: 15px; font-size: 15px;">
+                <div style="margin-top: 20px; font-size: 15px;">
                     {{ communication.payment_reference | raw }} &nbsp; ({{ funding.payment_reference | data_format('scor') }})<br />
                     IBAN : {{ condominium.bank_account_iban | data_format('iban') }}<br />
                     BIC : {{ condominium.bank_account_bic }}<br />
@@ -203,18 +203,18 @@
             </div>
             {% endif %}
 
-            <!-- reimbursement information -->
+            <!-- b) reimbursement information -->
             {% if funding.remaining_amount < 0.0 %}
-            <div style="position: relative; margin-top: 20px; border: solid 1px black; page-break-inside: avoid;">
+            <div style="position: relative; margin-top: 20px; padding: 15px; border: solid 1px black; page-break-inside: avoid;">
                 <div style="font-size: 1rem; line-height: 1.4rem;">
                     {{ communication.reimbursement | raw }}
                 </div>
             </div>
             {% endif %}
 
-            <!-- no payment nor reimbursement needed information -->
+            <!-- c) no payment nor reimbursement needed information -->
             {% if funding.remaining_amount == 0.0 %}
-            <div style="position: relative; margin-top: 20px; border: solid 1px black; page-break-inside: avoid;">
+            <div style="position: relative; margin-top: 20px; padding: 15px; border: solid 1px black; page-break-inside: avoid;">
                 <div style="font-size: 1rem; line-height: 1.4rem; padding: 15px;">
                     {{ communication.no_action_required | raw }}
                 </div>
