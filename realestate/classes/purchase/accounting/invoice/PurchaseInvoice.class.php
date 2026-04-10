@@ -1710,6 +1710,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                     'id'    => $period_id,
                                     'name'  => $period['name']
                                 ];
+                                $event['fiscal_period_id'] = $period_id;
                                 break;
                             }
                         }
