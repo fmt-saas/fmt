@@ -343,8 +343,13 @@ class BankStatement extends Model {
         $result = [];
         $self->read([
                 'condo_id', 'bank_account_id', 'statement_number', 'opening_date', 'opening_balance', 'closing_balance',
-                'statement_lines_ids' => ['is_expense', 'is_income', 'apportionment_id']
+                'statement_lines_ids' => [
+                        'is_expense', 'is_income', 'apportionment_id',
+                        'account_iban', 'account_bic',
+                        'sequence_number'
+                    ]
             ]);
+        // #todo - check iban and bic consistency (should have been done before)
         foreach($self as $id => $bankStatement) {
 
 

@@ -297,7 +297,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'type'              => 'boolean',
                 'description'       => 'Service delivered over a period of time.',
                 'help'              => '',
-                'default'           => false
+                'default'           => true
             ],
 
             // #memo - some actions of this entity rely on status from DocumentProcessing
