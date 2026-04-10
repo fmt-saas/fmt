@@ -310,6 +310,8 @@ foreach($messages_ids as $message_id) {
 
     $body = $extractMessageBody($message['payload']);
 
+    trigger_error("PHP::header".json_encode($headers), EQ_REPORT_INFO);
+
     $email = Email::create([
         'mailbox_id'    => $mailbox['id'],
         'message_id'    => $message_id,
