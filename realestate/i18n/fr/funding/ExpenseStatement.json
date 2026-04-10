@@ -49,12 +49,12 @@
             "help": ""
         },
         "is_cutoff_at_period_end": {
-            "label": "Situation en de période",
+            "label": "Situation en fin de période",
             "description": "Indique que l'arrêté des soldes est effectué à la date de fin de la période comptable.",
             "help": "Utiliser la date de fin de période pour calculer le solde repris dans les appels générés."
         },
         "is_cutoff_at_document_date": {
-            "label": "Situation à la date du décompte",
+            "label": "Situation à la date du jour",
             "description": "Indique que l'arrêté des soldes est effectué à la date d'émission du document.",
             "help": "Utiliser la date du document pour calculer le solde repris dans les appels générés."
         },
