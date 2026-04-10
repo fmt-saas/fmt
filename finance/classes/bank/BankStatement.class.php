@@ -40,9 +40,13 @@ class BankStatement extends Model {
             'bank_account_id' => [
                 'type'              => 'many2one',
                 'description'       => 'The bank account the statement refers to.',
-                'help'              => 'This field is set automatically upon update of the `bank_account_iban` field',
+                'help'              => 'This field is set automatically upon update of the `bank_account_iban` field.',
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['condo_id', '<>', null],
+                    ['object_class', '=', 'finance\bank\CondominiumBankAccount']
+                ],
                 'onupdate'          => 'onupdateBankAccountId',
                 'dependents'        => ['name']
             ],
