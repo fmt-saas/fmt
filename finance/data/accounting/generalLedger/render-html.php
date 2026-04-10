@@ -97,24 +97,20 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
 };
 
 
-$getLabels = function ($lang, $view_i18n_file_path) {
-    $header_labels_json = file_get_contents(
-        sprintf('%s/packages/realestate/i18n/%s/_parts/header.json', EQ_BASEDIR, $lang)
-    );
-    $header_labels = json_decode($header_labels_json, true);
-
-    $footer_labels_json = file_get_contents(
-        sprintf('%s/packages/realestate/i18n/%s/_parts/footer.json', EQ_BASEDIR, $lang)
-    );
-    $footer_labels = json_decode($footer_labels_json, true);
-
-    $labels_json = file_get_contents($view_i18n_file_path);
-    $labels = json_decode($labels_json, true);
+$getLabels = function ($lang, $view_i18n_file_path, $default_labels = []) {
+    $readLabels = function($path) {
+        if(!$path || !file_exists($path)) {
+            return [];
+        }
+        $labels = json_decode(file_get_contents($path), true);
+        return is_array($labels) ? $labels : [];
+    };
 
     return array_merge(
-        $header_labels,
-        $footer_labels,
-        $labels
+        $default_labels,
+        $readLabels(sprintf('%s/packages/realestate/i18n/%s/_parts/header.json', EQ_BASEDIR, $lang)),
+        $readLabels(sprintf('%s/packages/realestate/i18n/%s/_parts/footer.json', EQ_BASEDIR, $lang)),
+        $readLabels($view_i18n_file_path)
     );
 };
 
@@ -315,7 +311,22 @@ foreach($template['parts_ids'] as $part_id => $part) {
     }
 }
 
-$labels = $getLabels($params['lang'], sprintf('%s/packages/finance/i18n/%s/accounting/%s.json', EQ_BASEDIR, $params['lang'], 'generalLedger.'.$params['view_id']));
+$labels = $getLabels(
+    $params['lang'],
+    sprintf('%s/packages/finance/i18n/%s/accounting/%s.json', EQ_BASEDIR, $params['lang'], 'generalLedger.'.$params['view_id']),
+    [
+        'accounting.table.th.entry_date'            => 'Date',
+        'accounting.table.th.entry_journal'         => 'JNL',
+        'accounting.table.th.entry_number'          => 'Entry',
+        'accounting.table.th.entry_reference'       => 'Ref.',
+        'accounting.table.th.description'           => 'Description',
+        'accounting.table.th.debit'                 => 'Debit',
+        'accounting.table.th.credit'                => 'Credit',
+        'accounting.table.th.balance'               => 'Balance',
+        'accounting.table.account_footer.td.total'  => 'Account total',
+        'accounting.table.footer.td.total'          => 'GRAND TOTAL'
+    ]
+);
 
 $values = [
     'title'               => $subject,

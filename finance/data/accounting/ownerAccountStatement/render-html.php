@@ -101,24 +101,20 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
     return $result;
 };
 
-$getLabels = function ($lang, $view_i18n_file_path) {
-    $header_labels_json = file_get_contents(
-        sprintf('%s/packages/realestate/i18n/%s/_parts/header.json', EQ_BASEDIR, $lang)
-    );
-    $header_labels = json_decode($header_labels_json, true);
-
-    $footer_labels_json = file_get_contents(
-        sprintf('%s/packages/realestate/i18n/%s/_parts/footer.json', EQ_BASEDIR, $lang)
-    );
-    $footer_labels = json_decode($footer_labels_json, true);
-
-    $labels_json = file_get_contents($view_i18n_file_path);
-    $labels = json_decode($labels_json, true);
+$getLabels = function ($lang, $view_i18n_file_path, $default_labels = []) {
+    $readLabels = function($path) {
+        if(!$path || !file_exists($path)) {
+            return [];
+        }
+        $labels = json_decode(file_get_contents($path), true);
+        return is_array($labels) ? $labels : [];
+    };
 
     return array_merge(
-        $header_labels,
-        $footer_labels,
-        $labels
+        $default_labels,
+        $readLabels(sprintf('%s/packages/realestate/i18n/%s/_parts/header.json', EQ_BASEDIR, $lang)),
+        $readLabels(sprintf('%s/packages/realestate/i18n/%s/_parts/footer.json', EQ_BASEDIR, $lang)),
+        $readLabels($view_i18n_file_path)
     );
 };
 
@@ -206,7 +202,19 @@ foreach($template['parts_ids'] as $part_id => $part) {
     }
 }
 
-$labels = $getLabels($params['lang'], sprintf('%s/packages/finance/i18n/%s/accounting/%s.json', EQ_BASEDIR, $params['lang'], 'ownerAccountStatement.'.$params['view_id']));
+$labels = $getLabels(
+    $params['lang'],
+    sprintf('%s/packages/finance/i18n/%s/accounting/%s.json', EQ_BASEDIR, $params['lang'], 'ownerAccountStatement.'.$params['view_id']),
+    [
+        'account_statement.table.th.date'             => 'Date',
+        'account_statement.table.th.description'      => 'Description',
+        'account_statement.table.th.debit'            => 'Debit',
+        'account_statement.table.th.credit'           => 'Credit',
+        'account_statement.table.th.balance'          => 'Balance',
+        'account_statement.table.td.previous_balance' => 'Previous balance',
+        'account_statement.table.footer.td.total'     => 'Total'
+    ]
+);
 
 $values = [
     'title'               => $subject,
