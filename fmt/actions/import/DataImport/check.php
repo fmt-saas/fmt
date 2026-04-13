@@ -18,7 +18,7 @@ use realestate\property\PropertyLotNature;
         'id' =>  [
             'type'              => 'many2one',
             'description'       => "Identifier of the targeted DataImport object.",
-            'foreign_object'    => 'fmt\governance\DataImport',
+            'foreign_object'    => 'fmt\import\DataImport',
             'required'          => true
         ],
     ],
@@ -392,7 +392,18 @@ if($dataImport['import_type'] == 'condominium_import') {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing `supplier_code` in Supplierships sheet at row " . ($index + 2);
         }
-        $supplier = Supplier::id((int) $suppliership['supplier_code'])->first();
+
+        $supplier = null;
+        if(str_starts_with($suppliership['supplier_code'], 'uuid-')) {
+            $uuid = substr($suppliership['supplier_code'], 5);
+            $supplier = Supplier::search(['uuid', '=', $uuid])->first();
+
+            // #todo - fetch the missing supplier from GLOBAL instance
+        }
+        else {
+            $supplier = Supplier::id((int) $suppliership['supplier_code'])->first();
+        }
+
         if(!$supplier) {
             ++$result['errors'];
             $result['logs'][] = "ERR - unknown `supplier_code` '" . $suppliership['supplier_code'] . "' in suppliership sheet at row " . ($index + 2);
@@ -484,7 +495,7 @@ elseif($dataImport['import_type'] == 'suppliers_import') {
 
         if($identity) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - duplicated `{$registration_number}` already assigned to identity id {$identity['id']} in suppliers sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - duplicated `{$supplier['registration_number']}` already assigned to identity id {$identity['id']} in suppliers sheet at row " . ($index + 2);
         }
 
     }

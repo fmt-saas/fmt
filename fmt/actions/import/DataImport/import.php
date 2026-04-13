@@ -1001,8 +1001,14 @@ try {
         // Supplierships
         foreach($data['Supplierships'] as $suppliership) {
 
-            // #todo - use UUID (global) instead of id (local)
-            $supplier = Supplier::id((int) $suppliership['supplier_code'])->first();
+            $supplier = null;
+            if(str_starts_with($suppliership['supplier_code'], 'uuid-')) {
+                $uuid = substr($suppliership['supplier_code'], 5);
+                $supplier = Supplier::search(['uuid', '=', $uuid])->first();
+            }
+            else {
+                $supplier = Supplier::id((int) $suppliership['supplier_code'])->first();
+            }
 
             if(!$supplier) {
                 // alert: should not happen
