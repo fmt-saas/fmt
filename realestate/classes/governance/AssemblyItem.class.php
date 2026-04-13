@@ -539,7 +539,11 @@ class AssemblyItem extends AssemblyItemTemplate {
     protected static function doRefreshItemsCount($self) {
         $self->read(['parent_group_id']);
         foreach($self as $id => $assemblyItem) {
+            if(!$assemblyItem['parent_group_id']) {
+                continue;
+            }
             self::id($assemblyItem['parent_group_id'])->update(['items_count' => null]);
+
         }
         $self->update(['items_count' => null]);
     }
@@ -979,7 +983,7 @@ class AssemblyItem extends AssemblyItemTemplate {
                     ['id', '<>', $id]
                 ];
 
-            if($assemblyItem['has_parent_group']) {
+            if($assemblyItem['has_parent_group'] && $assemblyItem['parent_group_id']) {
                 $domain[] = ['id', '<>', $assemblyItem['parent_group_id']];
             }
 
@@ -1030,7 +1034,9 @@ class AssemblyItem extends AssemblyItemTemplate {
         $self->read(['condo_id', 'assembly_id']);
 
         foreach($self as $id => $assemblyItem) {
-
+            if(!$assemblyItem['condo_id']) {
+                continue;
+            }
             $vote = AssemblyVote::search([
                     ['condo_id', '=', $assemblyItem['condo_id']],
                     ['assembly_item_id', '=', $id],
@@ -1119,6 +1125,9 @@ class AssemblyItem extends AssemblyItemTemplate {
             }
 
             // 2) find the targeted apportionment
+            if(!$assemblyItem['apportionment_id']) {
+                continue;
+            }
             $apportionment = Apportionment::id($assemblyItem['apportionment_id'])->first();
 
             // 3) get the total shares for the targeted lots
@@ -1166,6 +1175,10 @@ class AssemblyItem extends AssemblyItemTemplate {
 
             // identify the lots
             $property_lots_ids = [];
+
+            if(!$assemblyItem['apportionment_id']) {
+                continue;
+            }
 
             $apportionment = Apportionment::id($assemblyItem['apportionment_id'])
                 ->read(['apportionment_shares_ids' => ['property_lot_id']])

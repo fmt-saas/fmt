@@ -811,6 +811,14 @@ class OwnershipTransfer extends \equal\orm\Model {
     protected static function doGenerateFundBalanceLines($self) {
         $self->read(['condo_id', 'fiscal_year_id', 'request_date', 'confirmation_date', 'transfer_date', 'status']);
         foreach($self as $id => $ownershipTransfer) {
+            if(!$ownershipTransfer['condo_id']) {
+                continue;
+            }
+
+            if(!$ownershipTransfer['fiscal_year_id']) {
+                continue;
+            }
+
             OwnershipTransferFundBalanceLine::search(['ownership_transfer_id', '=', $id])->delete(true);
 
             // retrieve latest date to take under account
@@ -882,6 +890,8 @@ class OwnershipTransfer extends \equal\orm\Model {
         $self->read(['condo_id', 'fiscal_year_id', 'transfer_date', 'property_lots_ids', 'old_ownership_id', 'new_ownership_id']);
 
         foreach($self as $id => $ownershipTransfer) {
+            // #memo - we do not check $ownershipTransfer['old_ownership_id'] since a previous Ownership might not exist (first Owner / constitution of the Condominium)
+
             // retrieve impacted fiscal year
 
             // set the new owner_id as active for the targeted property_lots

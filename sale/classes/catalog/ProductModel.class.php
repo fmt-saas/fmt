@@ -244,7 +244,7 @@ class ProductModel extends Model {
     public static function onupdateGroupsIds($self) {
         $self->read(['products_ids', 'groups_ids']);
         foreach($self as $mid => $model) {
-            $products = Product::ids($model['products_ids'])->read('groups_ids')->get();
+            $products = Product::ids($model['products_ids'])->read(['groups_ids'])->get();
             foreach($products as $pid => $product) {
                 if(!$product['groups_ids']) {
                     continue;

@@ -179,6 +179,9 @@ class BankAccount extends Model {
     protected static function onupdateBankAccountIban($self) {
         $self->read(['owner_identity_id', 'bank_account_iban', 'is_primary']);
         foreach($self as $id => $bankAccount) {
+            if(!$bankAccount['owner_identity_id']) {
+                continue;
+            }
             if($bankAccount['is_primary']) {
                 Identity::id($bankAccount['owner_identity_id'])->update(['bank_account_iban' => $bankAccount['bank_account_iban']]);
             }

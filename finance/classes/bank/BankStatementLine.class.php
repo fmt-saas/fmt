@@ -748,6 +748,9 @@ class BankStatementLine extends Model {
     protected static function onafterPost($self) {
         $self->read(['bank_statement_id', 'payments_ids']);
         foreach($self as $id => $bankStatementLine) {
+            if(!$bankStatementLine['bank_statement_id']) {
+                continue;
+            }
             Payment::ids($bankStatementLine['payments_ids'])->transition('post');
             BankStatement::id($bankStatementLine['bank_statement_id'])->do('refresh_status');
         }

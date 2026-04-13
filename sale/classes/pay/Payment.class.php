@@ -182,6 +182,9 @@ class Payment extends Model {
     protected static function onafterPost($self) {
         $self->read(['funding_id']);
         foreach($self as $id => $payment) {
+            if(!$payment['funding_id']) {
+                continue;
+            }
             Funding::id($payment['funding_id'])->do('refresh_status');
         }
     }

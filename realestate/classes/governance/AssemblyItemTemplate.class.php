@@ -252,6 +252,9 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
     protected static function doRefreshItemsCount($self) {
         $self->read(['parent_group_id']);
         foreach($self as $id => $assemblyItem) {
+            if(!$assemblyItem['parent_group_id']) {
+                continue;
+            }
             self::id($assemblyItem['parent_group_id'])->update(['items_count' => null]);
         }
         $self->update(['items_count' => null]);

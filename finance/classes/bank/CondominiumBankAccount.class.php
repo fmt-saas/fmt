@@ -229,6 +229,9 @@ class CondominiumBankAccount extends BankAccount {
     protected static function onupdateCondoId($self) {
         $self->read(['condo_id']);
         foreach($self as $id => $condominiumBankAccount) {
+            if(!$condominiumBankAccount['condo_id']) {
+                continue;
+            }
             Condominium::id($condominiumBankAccount['condo_id'])->do('sync_bank_suppliers');
         }
     }
