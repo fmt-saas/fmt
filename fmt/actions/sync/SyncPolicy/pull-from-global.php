@@ -111,6 +111,10 @@ try {
                 }
             }
 
+            if(is_null($condition_data['value'])) {
+                $condition_data['value'] = 'NULL';
+            }
+
             SyncPolicyCondition::create(array_merge(
                 $condition_data,
                 ['sync_policy_id' => $syncPolicy['id']]
