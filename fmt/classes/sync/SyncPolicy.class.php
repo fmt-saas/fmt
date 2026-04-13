@@ -55,13 +55,6 @@ class SyncPolicy extends Model {
                 'visible'           => ['sync_direction', '=', 'descending']
             ],
 
-            'sync_policy_lines_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'fmt\sync\SyncPolicyLine',
-                'foreign_field'     => 'sync_policy_id',
-                'description'       => 'Lines of the Update Policy.',
-            ],
-
             'scope' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -73,7 +66,21 @@ class SyncPolicy extends Model {
                 ],
                 'required'          => true,
                 'description'       => 'Entity Control level - which instance has management.'
-            ]
+            ],
+
+            'sync_policy_lines_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'fmt\sync\SyncPolicyLine',
+                'foreign_field'     => 'sync_policy_id',
+                'description'       => 'Lines of the Update Policy.',
+            ],
+
+            'sync_policy_conditions_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'fmt\sync\SyncPolicyCondition',
+                'foreign_field'     => 'sync_policy_id',
+                'description'       => 'Conditions of the Update Policy.',
+            ],
 
         ];
     }

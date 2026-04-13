@@ -979,6 +979,7 @@ class Identity extends Model {
         $self->read(['uuid']);
         foreach($self as $id => $identity) {
             if(!empty($identity['uuid'])) {
+                // 1) Handle links with suppliers
                 $suppliers = Supplier::search(['identity_uuid', '=', $identity['uuid']])
                     ->read(['identity_id'])
                     ->get();
@@ -992,6 +993,22 @@ class Identity extends Model {
 
                 if(!empty($suppliers_to_sync_ids)) {
                     Supplier::ids($suppliers_to_sync_ids)->update(['identity_id' => $id]);
+                }
+
+                // 2) Handle links with bank accounts
+                $bank_accounts = BankAccount::search(['owner_identity_uuid', '=', $identity['uuid']])
+                    ->read(['owner_identity_id'])
+                    ->get();
+
+                $bank_accounts_to_sync_ids = [];
+                foreach($bank_accounts as $ba_id => $bank_account) {
+                    if($bank_account['owner_identity_id'] !== $id) {
+                        $bank_accounts_to_sync_ids[] = $ba_id;
+                    }
+                }
+
+                if(!empty($bank_accounts_to_sync_ids)) {
+                    BankAccount::ids($bank_accounts_to_sync_ids)->update(['owner_identity_id' => $id]);
                 }
             }
         }
