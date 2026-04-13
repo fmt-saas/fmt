@@ -394,8 +394,8 @@ if($dataImport['import_type'] == 'condominium_import') {
         }
 
         $supplier = null;
-        if(str_starts_with($suppliership['code'], 'uuid-')) {
-            $uuid = substr($suppliership['code'], 5);
+        if(str_starts_with($suppliership['supplier_code'], 'uuid-')) {
+            $uuid = substr($suppliership['supplier_code'], 5);
             $supplier = Supplier::search(['uuid', '=', $uuid])->first();
 
             // #todo - fetch the missing supplier from GLOBAL instance
