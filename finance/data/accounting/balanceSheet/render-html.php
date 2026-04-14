@@ -141,7 +141,7 @@ if(!$condominium) {
 
 $organisation = Organisation::id(1)
     ->read([
-        'name', 'address_street', 'address_dispatch', 'address_zip',
+        'id', 'name', 'address_street', 'address_dispatch', 'address_zip',
         'address_city', 'address_country', 'has_vat', 'vat_number',
         'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
         'website', 'email', 'phone', 'has_vat', 'vat_number',
@@ -151,16 +151,15 @@ $organisation = Organisation::id(1)
     ])
     ->first();
 
-$params = $params['params'];
 
 $data = eQual::run('get', 'finance_accounting_balanceSheet_collect', [
         'domain'            => $params['domain'] ?? [],
-        'date_from'         => ($params['date_from'] ?? null) ? strtotime($params['date_from']) : null,
-        'date_to'           => ($params['date_to'] ?? null) ? strtotime($params['date_to']) : null,
-        'condo_id'          => $params['condo_id'],
-        'journal_id'        => $params['journal_id'] ?? null,
-        'fiscal_year_id'    => $params['fiscal_year_id'] ?? null,
-        'account_id'        => $params['account_id'] ?? null,
+        'date_from'         => ($params['params']['date_from'] ?? null) ? strtotime($params['params']['date_from']) : null,
+        'date_to'           => ($params['params']['date_to'] ?? null) ? strtotime($params['params']['date_to']) : null,
+        'condo_id'          => $params['params']['condo_id'],
+        'journal_id'        => $params['params']['journal_id'] ?? null,
+        'fiscal_year_id'    => $params['params']['fiscal_year_id'] ?? null,
+        'account_id'        => $params['params']['account_id'] ?? null,
     ]);
 
 // Resolve date interval
@@ -168,8 +167,8 @@ $date_from = null;
 $date_to   = null;
 
 
-if(!empty($params['fiscal_year_id'])) {
-    $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
+if(!empty($params['params']['fiscal_year_id'])) {
+    $fiscalYear = FiscalYear::id($params['params']['fiscal_year_id'])
         ->read(['date_from', 'date_to'])
         ->first();
 
@@ -179,12 +178,12 @@ if(!empty($params['fiscal_year_id'])) {
     }
 }
 
-if(!empty($params['date_from']) && (!$date_from || $params['date_from'] > $date_from)) {
-    $date_from = $params['date_from'];
+if(!empty($params['params']['date_from']) && (!$date_from || $params['params']['date_from'] > $date_from)) {
+    $date_from = strtotime($params['params']['date_from']);
 }
 
-if(!empty($params['date_to']) && (!$date_to || $params['date_to'] < $date_to)) {
-    $date_to = $params['date_to'];
+if(!empty($params['params']['date_to']) && (!$date_to || $params['params']['date_to'] < $date_to)) {
+    $date_to = strtotime($params['params']['date_to']);
 }
 
 $total_asset     = 0.0;
