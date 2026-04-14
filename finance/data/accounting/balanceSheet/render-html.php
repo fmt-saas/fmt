@@ -141,7 +141,7 @@ if(!$condominium) {
 
 $organisation = Organisation::id(1)
     ->read([
-        'id', 'name', 'address_street', 'address_dispatch', 'address_zip',
+        'name', 'address_street', 'address_dispatch', 'address_zip',
         'address_city', 'address_country', 'has_vat', 'vat_number',
         'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
         'website', 'email', 'phone', 'has_vat', 'vat_number',
@@ -150,7 +150,6 @@ $organisation = Organisation::id(1)
         ]
     ])
     ->first();
-
 
 $data = eQual::run('get', 'finance_accounting_balanceSheet_collect', [
         'domain'            => $params['domain'] ?? [],
@@ -162,26 +161,37 @@ $data = eQual::run('get', 'finance_accounting_balanceSheet_collect', [
         'account_id'        => $params['params']['account_id'] ?? null,
     ]);
 
-// Resolve date interval
-$date_from = null;
-$date_to   = null;
+$date_to = null;
 
-if(!empty($params['params']['fiscal_year_id'])) {
+if(isset($params['params']['fiscal_year_id'])) {
     $fiscalYear = FiscalYear::id($params['params']['fiscal_year_id'])
         ->read(['date_from', 'date_to'])
         ->first();
-
-    if($fiscalYear) {
-        $date_from = $fiscalYear['date_from'];
-        $date_to   = $fiscalYear['date_to'];
-    }
 }
 
-if(!empty($params['params']['date_from']) && (!$date_from || strtotime($params['params']['date_from']) > $date_from)) {
-    $date_from = strtotime($params['params']['date_from']);
+if(!$fiscalYear) {
+    $fiscalYear = FiscalYear::search([
+            ['status', '=', 'open'],
+            ['condo_id', '=', $condo_id],
+        ],  ['sort' => ['date_from' => 'desc']])
+        ->read(['date_from', 'date_to'])
+        ->first();
 }
 
-if(!empty($params['params']['date_to']) && (!$date_to || strtotime($params['params']['date_to']) < $date_to)) {
+if(!$fiscalYear) {
+    $fiscalYear = FiscalYear::search([
+            ['status', '=', 'preopen'],
+            ['condo_id', '=', $condo_id],
+        ],  ['sort' => ['date_from' => 'asc']])
+        ->read(['date_from', 'date_to'])
+        ->first();
+}
+
+if($fiscalYear) {
+    $date_to = $fiscalYear['date_to'];
+}
+
+if(isset($params['params']['date_from'], $params['params']['date_to']) && $params['params']['date_from'] && $params['params']['date_to']) {
     $date_to = strtotime($params['params']['date_to']);
 }
 
