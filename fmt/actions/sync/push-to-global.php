@@ -105,11 +105,14 @@ foreach($policies as $id => $policy) {
 
     foreach($objects as $object) {
 
-        // #memo - even if registration_number is not set, an Identity might have a slug_hash as secondary unique key
-        if(!isset($object[$policy['field_unique']]) && $policy['object_class'] !== 'identity\Identity') {
-            ++$result['ignored'];
-            $result['logs'][] = "Ignored entity {$entity} object [{$object['id']}] with no value for unique key field `{$policy['field_unique']}`.";
-            continue;
+        $fields_unique = explode(',', $policy['field_unique']);
+        foreach($fields_unique as $field_unique) {
+            // #memo - even if registration_number is not set, an Identity might have a slug_hash as secondary unique key
+            if(!isset($object[$policy['field_unique']]) && $policy['object_class'] !== 'identity\Identity') {
+                ++$result['ignored'];
+                $result['logs'][] = "Ignored entity {$entity} object [{$object['id']}] with no value for unique key field `{$policy['field_unique']}`.";
+                continue 2;
+            }
         }
 
         // remove special fields

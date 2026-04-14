@@ -194,6 +194,14 @@ class User extends \core\User {
 
                 self::id($id)->update(['uuid' => $uuid]);
             }
+            elseif(constant('FMT_INSTANCE_TYPE') === 'agency') {
+                #memo - only one instance (itself) on agency instance
+                $instance = Instance::search()->first();
+
+                if($instance) {
+                    self::id($id)->update(['instance_id' => $instance['id']]);
+                }
+            }
         }
         parent::oncreate($self, $values);
     }
