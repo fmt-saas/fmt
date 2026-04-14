@@ -111,8 +111,8 @@ $balanceSheetDocument = Document::search([
 
 if(!$balanceSheetDocument) {
     $data = eQual::run('get', 'finance_accounting_balanceSheet_render-pdf', ['params' => [
-            'date_from' => $fiscalPeriod['date_from'],
-            'date_to'   => $fiscalPeriod['date_to'],
+            'date_from' => date('c', $fiscalPeriod['date_from']),
+            'date_to'   => date('c', $fiscalPeriod['date_to']),
             'condo_id'  => $statement['condo_id']
         ]]);
 
@@ -139,8 +139,8 @@ $expenseSummaryDocument = Document::search([
 
 if(!$expenseSummaryDocument) {
     $data = eQual::run('get', 'finance_accounting_expenseSummary_render-pdf', [ 'params' => [
-            'date_from' => $fiscalPeriod['date_from'],
-            'date_to'   => $fiscalPeriod['date_to'],
+            'date_from' => date('c', $fiscalPeriod['date_from']),
+            'date_to'   => date('c', $fiscalPeriod['date_to']),
             'condo_id'  => $statement['condo_id']
         ]]);
 
