@@ -106,6 +106,7 @@ $balanceSheetDocument = Document::search([
         ['condo_id', '=', $statement['condo_id']],
         ['expense_statement_id', '=', $statement['id']]
     ])
+    ->read(['data'])
     ->first();
 
 if(!$balanceSheetDocument) {
@@ -133,6 +134,7 @@ $expenseSummaryDocument = Document::search([
         ['condo_id', '=', $statement['condo_id']],
         ['expense_statement_id', '=', $statement['id']]
     ])
+    ->read(['data'])
     ->first();
 
 if(!$expenseSummaryDocument) {
