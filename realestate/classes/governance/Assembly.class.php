@@ -2188,7 +2188,7 @@ class Assembly extends \equal\orm\Model {
 
             // Among the attendees, there must be exactly one president and one secretary.
             $attendees = AssemblyAttendee::search(['assembly_id', '=', $id])
-                ->read('attendee_role');
+                ->read(['attendee_role']);
 
             $count_president = 0;
             $count_secretary = 0;
