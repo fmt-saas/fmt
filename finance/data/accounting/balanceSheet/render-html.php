@@ -151,48 +151,40 @@ $organisation = Organisation::id(1)
     ])
     ->first();
 
+$params = $params['params'];
+
 $data = eQual::run('get', 'finance_accounting_balanceSheet_collect', [
         'domain'            => $params['domain'] ?? [],
-        'date_from'         => ($params['params']['date_from'] ?? null) ? strtotime($params['params']['date_from']) : null,
-        'date_to'           => ($params['params']['date_to'] ?? null) ? strtotime($params['params']['date_to']) : null,
-        'condo_id'          => $params['params']['condo_id'],
-        'journal_id'        => $params['params']['journal_id'] ?? null,
-        'fiscal_year_id'    => $params['params']['fiscal_year_id'] ?? null,
-        'account_id'        => $params['params']['account_id'] ?? null,
+        'date_from'         => ($params['date_from'] ?? null) ? strtotime($params['date_from']) : null,
+        'date_to'           => ($params['date_to'] ?? null) ? strtotime($params['date_to']) : null,
+        'condo_id'          => $params['condo_id'],
+        'journal_id'        => $params['journal_id'] ?? null,
+        'fiscal_year_id'    => $params['fiscal_year_id'] ?? null,
+        'account_id'        => $params['account_id'] ?? null,
     ]);
 
-$date_to = null;
+// Resolve date interval
+$date_from = null;
+$date_to   = null;
 
-if(isset($params['params']['fiscal_year_id'])) {
-    $fiscalYear = FiscalYear::id($params['params']['fiscal_year_id'])
+
+if(!empty($params['fiscal_year_id'])) {
+    $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
         ->read(['date_from', 'date_to'])
         ->first();
+
+    if($fiscalYear) {
+        $date_from = $fiscalYear['date_from'];
+        $date_to   = $fiscalYear['date_to'];
+    }
 }
 
-if(!$fiscalYear) {
-    $fiscalYear = FiscalYear::search([
-            ['status', '=', 'open'],
-            ['condo_id', '=', $condo_id],
-        ],  ['sort' => ['date_from' => 'desc']])
-        ->read(['date_from', 'date_to'])
-        ->first();
+if(!empty($params['date_from']) && (!$date_from || $params['date_from'] > $date_from)) {
+    $date_from = $params['date_from'];
 }
 
-if(!$fiscalYear) {
-    $fiscalYear = FiscalYear::search([
-            ['status', '=', 'preopen'],
-            ['condo_id', '=', $condo_id],
-        ],  ['sort' => ['date_from' => 'asc']])
-        ->read(['date_from', 'date_to'])
-        ->first();
-}
-
-if($fiscalYear) {
-    $date_to = $fiscalYear['date_to'];
-}
-
-if(isset($params['params']['date_from'], $params['params']['date_to']) && $params['params']['date_from'] && $params['params']['date_to']) {
-    $date_to = strtotime($params['params']['date_to']);
+if(!empty($params['date_to']) && (!$date_to || $params['date_to'] < $date_to)) {
+    $date_to = $params['date_to'];
 }
 
 $total_asset     = 0.0;
