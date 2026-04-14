@@ -100,6 +100,13 @@
                 "field_unique": "bank_account_iban",
                 "sync_direction": "descending",
                 "scope": "protected"
+            },
+            {
+                "id": 15,
+                "object_class": "identity\\IdentityType",
+                "field_unique": "code",
+                "sync_direction": "descending",
+                "scope": "private"
             }
         ]
     },
@@ -897,6 +904,21 @@
             {
                 "sync_policy_id": 14,
                 "object_field": "bank_id",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 15,
+                "object_field": "id",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 15,
+                "object_field": "code",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 15,
+                "object_field": "description",
                 "scope": "protected"
             }
         ]
