@@ -196,6 +196,12 @@ foreach($policies as $id => $policy) {
                         if(is_array($localObject[$field])) {
                             $old_value = json_encode($localObject[$field]);
                         }
+                        elseif(is_null($localObject[$field])) {
+                            $old_value = 'NULL';
+                        }
+                        elseif(is_bool($localObject[$field])) {
+                            $old_value = $localObject[$field] ? '1' : '0';
+                        }
                         else {
                             $old_value = (string) $localObject[$field];
                         }
@@ -203,6 +209,12 @@ foreach($policies as $id => $policy) {
                         $new_value = null;
                         if(is_array($value)) {
                             $new_value = json_encode($value);
+                        }
+                        elseif(is_null($value)) {
+                            $new_value = 'NULL';
+                        }
+                        elseif(is_bool($value)) {
+                            $new_value = $value ? '1' : '0';
                         }
                         else {
                             $new_value = (string) $value;
