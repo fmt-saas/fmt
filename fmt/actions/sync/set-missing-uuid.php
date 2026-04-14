@@ -8,6 +8,7 @@
 use documents\DocumentSubtype;
 use documents\DocumentType;
 use equal\data\DataGenerator;
+use finance\bank\BankAccount;
 use identity\Identity;
 use purchase\supplier\Supplier;
 use purchase\supplier\SupplierType;
@@ -50,7 +51,8 @@ $entities_classes_links = [
     Identity::getType()         => [],
     SupplierType::getType()     => [],
     Supplier::getType()         => ['identity'],
-    Condominium::getType()      => ['identity']
+    Condominium::getType()      => ['identity'],
+    BankAccount::getType()      => ['owner_identity']
 ];
 
 if(isset($params['entity'])) {
