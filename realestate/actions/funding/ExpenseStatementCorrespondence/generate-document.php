@@ -34,7 +34,7 @@ use realestate\funding\ExpenseStatementCorrespondence;
 
 
 $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id'])
-    ->read(['status', 'condo_id', 'ownership_id', 'name'])
+    ->read(['status', 'condo_id', 'ownership_id', 'expense_statement_id', 'name'])
     ->first();
 
 if(!$expenseStatementCorrespondence) {
@@ -46,7 +46,7 @@ if(!$expenseStatementCorrespondence) {
 $parentNode = Node::search([
         ['condo_id', '=', $expenseStatementCorrespondence['condo_id'] ],
         ['node_type', '=', 'folder'],
-        ['code', '=', 'expense_statement']
+        ['code', '=', 'operation_statements']
     ])
     ->first();
 
@@ -54,9 +54,10 @@ $parentNode = Node::search([
 $data = eQual::run('get', 'realestate_funding_ExpenseStatementCorrespondence_render-pdf', ['id' => $expenseStatementCorrespondence['id']]);
 
 $document = Document::create([
-        'name'          => 'Décompte de charges - ' . $expenseStatementCorrespondence['name'],
-        'data'          => $data,
-        'condo_id'      => $expenseStatementCorrespondence['condo_id']
+        'name'                  => 'Décompte de charges - ' . $expenseStatementCorrespondence['name'],
+        'data'                  => $data,
+        'condo_id'              => $expenseStatementCorrespondence['condo_id'],
+        'expense_statement_id'  => $expenseStatementCorrespondence['expense_statement_id']
     ])
     ->update([
         // place node in dedicated folder
