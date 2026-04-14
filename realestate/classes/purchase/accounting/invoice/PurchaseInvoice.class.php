@@ -1796,7 +1796,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         $self->read(['status', 'document_process_id' => ['status'], 'fiscal_period_id' => ['status']]);
         foreach($self as $id => $invoice) {
             $allowed_fields = [
-                    'status', 'alert', 'name', 'document_process_status', 'assigned_employee_id', 'invoice_number', 'payment_status', 'has_payment_on_hold', 'customer_ref', 'funding_id', 'accounting_entry_id', 'reversed_invoice_id'
+                    'status', 'alert', 'name', 'price', 'total', 'document_process_status', 'assigned_employee_id', 'invoice_number', 'payment_status', 'has_payment_on_hold', 'customer_ref', 'funding_id', 'accounting_entry_id', 'reversed_invoice_id'
                 ];
             if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
                 if($invoice['status'] !== 'proforma') {
