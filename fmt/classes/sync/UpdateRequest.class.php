@@ -187,6 +187,10 @@ class UpdateRequest extends Model {
                     // other possibility
                     $name = $map_fields['short_name'];
                 }
+                elseif(!empty($map_fields['description'])) {
+                    // last possibility
+                    $name = $map_fields['description'];
+                }
 
                 $result[$id] = $name;
             }
