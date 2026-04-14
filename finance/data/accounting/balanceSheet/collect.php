@@ -355,7 +355,7 @@ foreach($balances as $code => $balance) {
                 'account_id'   => $balance['account_id'],
                 'account_code' => $code,
                 'description'  => $balance['description'],
-                'balance'      => abs($raw),
+                'balance'      => $raw
             ];
         }
         // asset - increases by debit
