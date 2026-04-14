@@ -162,13 +162,17 @@ class UpdateRequest extends Model {
         $self->read(['is_new', 'object_class', 'object_id', 'update_request_lines_ids' => ['object_field', 'new_value']]);
         foreach($self as $id => $updateRequest) {
             if($updateRequest['is_new']) {
-                $result[$id] = '(new object)';
-                foreach($updateRequest['update_request_lines_ids'] as $line_id => $line) {
+                $name = '(new object)';
+                foreach($updateRequest['update_request_lines_ids'] as $line) {
                     if($line['object_field'] === 'name') {
-                        $result[$id] = $line['new_value'];
+                        $name = $line['new_value'];
                         break;
                     }
+                    elseif(str_ends_with($line['object_field'], 'legal_name') || str_ends_with($line['object_field'], 'short_name')) {
+                        $name = $line['new_value'];
+                    }
                 }
+                $result[$id] = $name;
             }
             elseif(class_exists($updateRequest['object_class'])) {
                 $object = $updateRequest['object_class']::id($updateRequest['object_id'])->read(['name'])->first();
