@@ -166,7 +166,6 @@ $data = eQual::run('get', 'finance_accounting_balanceSheet_collect', [
 $date_from = null;
 $date_to   = null;
 
-
 if(!empty($params['params']['fiscal_year_id'])) {
     $fiscalYear = FiscalYear::id($params['params']['fiscal_year_id'])
         ->read(['date_from', 'date_to'])
@@ -178,11 +177,11 @@ if(!empty($params['params']['fiscal_year_id'])) {
     }
 }
 
-if(!empty($params['params']['date_from']) && (!$date_from || $params['params']['date_from'] > $date_from)) {
+if(!empty($params['params']['date_from']) && (!$date_from || strtotime($params['params']['date_from']) > $date_from)) {
     $date_from = strtotime($params['params']['date_from']);
 }
 
-if(!empty($params['params']['date_to']) && (!$date_to || $params['params']['date_to'] < $date_to)) {
+if(!empty($params['params']['date_to']) && (!$date_to || strtotime($params['params']['date_to']) < $date_to)) {
     $date_to = strtotime($params['params']['date_to']);
 }
 
