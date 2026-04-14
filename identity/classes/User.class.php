@@ -174,6 +174,12 @@ class User extends \core\User {
             'sync_from_identity' => [
                 'description'   => 'Force sync values from related identity.',
                 'function'      => 'doSyncFromIdentity'
+            ],
+
+            'sync_uuid_links' => [
+                'description'   => 'Synchronize the uuid links.',
+                'policies'      => [],
+                'function'      => 'doSyncUuidLinks'
             ]
         ];
     }
@@ -248,4 +254,17 @@ class User extends \core\User {
 
     }
 
+    protected static function doSyncUuidLinks($self) {
+        $self->read(['identity_id', 'identity_uuid']);
+        foreach($self as $id => $user) {
+            if(!empty($user['identity_uuid'])) {
+                $identity = Identity::search(['uuid', '=', $user['identity_uuid']])
+                    ->first();
+
+                if($identity && $identity['identity_id'] !== $identity['id']) {
+                    self::id($id)->update(['identity_id' => $identity['id']]);
+                }
+            }
+        }
+    }
 }

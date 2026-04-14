@@ -1010,6 +1010,22 @@ class Identity extends Model {
                 if(!empty($bank_accounts_to_sync_ids)) {
                     BankAccount::ids($bank_accounts_to_sync_ids)->update(['owner_identity_id' => $id]);
                 }
+
+                // 3) Handle links with users
+                $users = User::search(['identity_uuid', '=', $identity['uuid']])
+                    ->read(['identity_id'])
+                    ->get();
+
+                $users_to_sync_ids = [];
+                foreach($users as $u_id => $user) {
+                    if($user['identity_id'] !== $id) {
+                        $users_to_sync_ids[] = $u_id;
+                    }
+                }
+
+                if(!empty($users_to_sync_ids)) {
+                    User::ids($users_to_sync_ids)->update(['identity_id' => $id]);
+                }
             }
         }
     }

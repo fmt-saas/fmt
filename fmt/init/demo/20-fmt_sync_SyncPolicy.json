@@ -6,7 +6,7 @@
             {
                 "id": 1,
                 "object_class": "identity\\User",
-                "field_unique": "login",
+                "field_unique": "instance_uuid,login",
                 "sync_direction": "ascending",
                 "scope": "protected"
             },
@@ -116,7 +116,7 @@
         "data": [
             {
                 "sync_policy_id": 1,
-                "object_field": "uuid",
+                "object_field": "instance_uuid",
                 "scope": "public"
             },
             {
