@@ -158,7 +158,14 @@ class UpdateRequest extends Model {
         }
     }
 
-    protected static function calcObjectName($self) {
+    protected static function calcObjectName($self, $lang) {
+        $map_lang_new_object_labels = [
+            'en' => '(new object)',
+            'fr' => '(nouvel objet)',
+            'nl' => '(nieuw voorwerp)'
+        ];
+        $new_object_label = $map_lang_new_object_labels[$lang] ?? '(new object)';
+
         $result = [];
         $self->read(['is_new', 'object_class', 'object_id', 'update_request_lines_ids' => ['object_field', 'new_value']]);
         foreach($self as $id => $updateRequest) {
@@ -171,26 +178,21 @@ class UpdateRequest extends Model {
                 }
 
                 // #memo - try to find the best name to make the handling of the update request easier
-                $name = '(new object)';
                 if(!empty($map_fields['name'])) {
-                    // most object
+                    // most objects
                     $name = $map_fields['name'];
                 }
                 elseif(!empty($map_fields['legal_name'])) {
-                    // identity company
+                    // identity -> company
                     $name = $map_fields['legal_name'];
                 }
                 elseif(!empty($map_fields['firstname']) && !empty($map_fields['lastname'])) {
-                    // identity person
-                    $name = $map_fields['firstname'] . ' ' . strtoupper($map_fields['lastname']);
+                    // identity -> person
+                    $name = $map_fields['firstname'] . ' ' . mb_strtoupper($map_fields['lastname']);
                 }
-                elseif(!empty($map_fields['short_name'])) {
-                    // other possibility
-                    $name = $map_fields['short_name'];
-                }
-                elseif(!empty($map_fields['description'])) {
-                    // last possibility
-                    $name = $map_fields['description'];
+                else {
+                    // fallback
+                    $name = $map_fields['short_name'] ?? $map_fields['code'] ?? $map_fields['description'] ?? $new_object_label;
                 }
 
                 $result[$id] = $name;
