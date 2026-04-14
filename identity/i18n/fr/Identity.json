@@ -8,6 +8,11 @@
             "description": "Nom d'affichage de l'identité.",
             "help": ""
         },
+        "uuid": {
+            "label": "UUID",
+            "description": "Identifiant global fourni par l'instance maître.",
+            "help": ""
+        },
         "type": {
             "label": "Type",
             "description": "Type d'organisation.",

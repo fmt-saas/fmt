@@ -36,6 +36,14 @@ class UpdateRequestLine extends Model {
                 'required'          => true
             ],
 
+            'object_field_display_name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Human readable field name of the targeted object.',
+                'store'             => false,
+                'function'          => 'calcObjectFieldDisplayName'
+            ],
+
             'is_new' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
@@ -57,6 +65,24 @@ class UpdateRequestLine extends Model {
             ]
 
         ];
+    }
+
+    protected static function calcObjectFieldDisplayName($self, $lang) {
+        $result = [];
+        $map_entity_translation = [];
+        $self->read(['object_class', 'object_field']);
+        foreach($self as $id => $line) {
+            if(!isset($map_entity_translation[$line['object_class']])) {
+                $map_entity_translation[$line['object_class']] = \eQual::run('get', 'core_config_i18n', [
+                    'entity'    => $line['object_class'],
+                    'lang'      => $lang
+                ]);
+            }
+
+            $result[$id] = $map_entity_translation[$line['object_class']]['model'][$line['object_field']]['label'] ?? $line['object_field'];
+        }
+
+        return $result;
     }
 
 }

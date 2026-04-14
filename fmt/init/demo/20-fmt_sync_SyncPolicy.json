@@ -116,7 +116,7 @@
         "data": [
             {
                 "sync_policy_id": 1,
-                "object_field": "login",
+                "object_field": "uuid",
                 "scope": "public"
             },
             {
@@ -126,7 +126,7 @@
             },
             {
                 "sync_policy_id": 1,
-                "object_field": "uuid",
+                "object_field": "login",
                 "scope": "public"
             },
             {
@@ -138,6 +138,11 @@
                 "sync_policy_id": 1,
                 "object_field": "lastname",
                 "scope": "protected"
+            },
+            {
+                "sync_policy_id": 2,
+                "object_field": "uuid",
+                "scope": "public"
             },
             {
                 "sync_policy_id": 2,
@@ -164,11 +169,6 @@
                 "sync_policy_id": 2,
                 "object_field": "short_name",
                 "scope": "private"
-            },
-            {
-                "sync_policy_id": 2,
-                "object_field": "uuid",
-                "scope": "public"
             },
             {
                 "sync_policy_id": 2,
@@ -322,6 +322,11 @@
             },
             {
                 "sync_policy_id": 4,
+                "object_field": "uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 4,
                 "object_field": "registration_number",
                 "scope": "public"
             },
@@ -407,22 +412,22 @@
             },
             {
                 "sync_policy_id": 5,
-                "object_field": "bic",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 5,
                 "object_field": "uuid",
                 "scope": "public"
             },
             {
                 "sync_policy_id": 5,
-                "object_field": "legal_name",
+                "object_field": "bic",
                 "scope": "public"
             },
             {
                 "sync_policy_id": 5,
                 "object_field": "registration_number",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 5,
+                "object_field": "legal_name",
                 "scope": "public"
             },
             {
@@ -560,7 +565,11 @@
                 "object_field": "address_country",
                 "scope": "public"
             },
-
+            {
+                "sync_policy_id": 7,
+                "object_field": "uuid",
+                "scope": "protected"
+            },
             {
                 "sync_policy_id": 7,
                 "object_field": "identity_id",
@@ -570,11 +579,6 @@
                 "sync_policy_id": 7,
                 "object_field": "legal_name",
                 "scope": "public"
-            },
-            {
-                "sync_policy_id": 7,
-                "object_field": "uuid",
-                "scope": "protected"
             },
             {
                 "sync_policy_id": 7,
@@ -633,6 +637,11 @@
             },
             {
                 "sync_policy_id": 10,
+                "object_field": "uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 10,
                 "object_field": "name",
                 "scope": "public"
             },
@@ -662,18 +671,13 @@
                 "scope": "public"
             },
             {
-                "sync_policy_id": 10,
+                "sync_policy_id": 11,
                 "object_field": "uuid",
                 "scope": "public"
             },
             {
                 "sync_policy_id": 11,
                 "object_field": "name",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 11,
-                "object_field": "uuid",
                 "scope": "public"
             },
             {
@@ -698,6 +702,11 @@
             },
             {
                 "sync_policy_id": 12,
+                "object_field": "uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 12,
                 "object_field": "id",
                 "scope": "public"
             },
@@ -708,17 +717,17 @@
             },
             {
                 "sync_policy_id": 12,
-                "object_field": "uuid",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 12,
                 "object_field": "code",
                 "scope": "public"
             },
             {
                 "sync_policy_id": 12,
                 "object_field": "category",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "uuid",
                 "scope": "public"
             },
             {
@@ -745,11 +754,6 @@
                 "sync_policy_id": 13,
                 "object_field": "short_name",
                 "scope": "private"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "uuid",
-                "scope": "public"
             },
             {
                 "sync_policy_id": 13,
@@ -853,12 +857,12 @@
             },
             {
                 "sync_policy_id": 14,
-                "object_field": "name",
+                "object_field": "uuid",
                 "scope": "protected"
             },
             {
                 "sync_policy_id": 14,
-                "object_field": "uuid",
+                "object_field": "name",
                 "scope": "protected"
             },
             {

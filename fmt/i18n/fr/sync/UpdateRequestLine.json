@@ -13,6 +13,11 @@
             "description": "Champ de l'objet.",
             "help": ""
         },
+        "object_field_display_name": {
+            "label": "Champ",
+            "description": "Champ de l'objet.",
+            "help": ""
+        },
         "update_request_id": {
             "label": "Requête de mise à jour",
             "description": "La requête de mise à jour dont la ligne fait parti.",

@@ -8,6 +8,11 @@
             "description": "Nom complet du fournisseur (lié à l'identité).",
             "help": ""
         },
+        "uuid": {
+            "label": "UUID",
+            "description": "Identifiant global fourni par l'instance maître.",
+            "help": ""
+        },
         "owner_identity_id": {
             "label": "Fournisseur de",
             "description": "L'organisation dont l'identité ciblée est partenaire.",
@@ -16,6 +21,11 @@
         "identity_id": {
             "label": "Identité",
             "description": "L'identité associée au fournisseur.",
+            "help": ""
+        },
+        "identity_uuid": {
+            "label": "UUID identité",
+            "description": "Identifiant global de l'identité fourni par l'instance maître.",
             "help": ""
         },
         "relationship": {
@@ -41,6 +51,11 @@
         "invoices_ids": {
             "label": "Factures",
             "description": "Liste des factures émises par le fournisseur.",
+            "help": ""
+        },
+        "supplier_types_ids": {
+            "label": "Types de fournisseurs",
+            "description": "Liste des types de fournisseurs.",
             "help": ""
         }
     },
