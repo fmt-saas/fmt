@@ -18,7 +18,7 @@ use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate an html view of a Mandate template.',
+    'description'   => 'Generate an html view of a Mandate ("Procuration").',
     'params'        => [
         'id' => [
             'description'       => 'Identifier of the specific Assembly to consider.',
@@ -65,6 +65,13 @@ use Twig\Extension\ExtensionInterface;
 
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
+
+$getFormattedDate = function($timestamp) {
+    $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
+    $tz_offset = $tz->getOffset(new DateTime('@' . $timestamp));
+    $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
+    return date($date_format, $timestamp + $tz_offset);
+};
 
 $getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
     $result = '';
@@ -178,9 +185,9 @@ $owner_representation = '';
 $notice = '';
 
 $template = Template::search([
-    ['code', '=', 'mandate_form'],
-    ['type', '=', 'document']
-])
+        ['code', '=', 'mandate_form'],
+        ['type', '=', 'document']
+    ])
     ->read(['id','parts_ids' => ['name', 'value']])
     ->first(true); // owner_undersign ["representative_owner", "representative_owner_address", "condo"], owner_representation ["assembly_date", "assembly_location"], notice
 
@@ -207,7 +214,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $owner_representation = $part['value'];
 
         $map_values = [
-            'assembly_date'     => date('d/m/Y', $assembly['assembly_date']),
+            'assembly_date'     => $getFormattedDate($assembly['assembly_date']),
             'assembly_location' => $assembly['assembly_location']
         ];
 

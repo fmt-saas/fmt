@@ -18,7 +18,7 @@ use Twig\Extension\ExtensionInterface;
 
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate a PDF file of the given fund request.',
+    'description'   => 'Generate a PDF file of the given fund request ("Balance Générale").',
     'params'        => [
         'params' => [
             'description'       => 'Optional identifier of a specific targeted Ownership to limit to rendering to.',

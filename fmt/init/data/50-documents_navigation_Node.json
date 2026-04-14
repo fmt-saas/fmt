@@ -67,7 +67,7 @@
         "code": "operation_statements",
         "node_type": "folder",
         "name": "Relevés des charges et produits",
-        "description": "Relevés de dépenses, répartitions, appels de fonds"
+        "description": "Décompte de charges, répartitions, appels de fonds"
       },
       {
         "code": "bank_statements",

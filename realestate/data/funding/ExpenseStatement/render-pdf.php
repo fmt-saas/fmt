@@ -4,11 +4,14 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use documents\Document;
+use documents\DocumentType;
 use realestate\funding\ExpenseStatement;
 use finance\accounting\FiscalPeriod;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate an html view of given fund request.',
+    'description'   => 'Generate an html view of given Exepense Statement ("Décompte de charge").',
     'help'          => 'This action generates a preview of the Expense Statement, with a PDF file merging all individual expense statements for all ownerships in the given fiscal period.',
     // #memo - this controller can take up a long time to generate document and should not be calle
     // in addition concurrent might infer with temporary files
@@ -64,7 +67,7 @@ use finance\accounting\FiscalPeriod;
 $context = $providers['context'];
 
 $statement = ExpenseStatement::id($params['id'])
-    ->read(['fiscal_period_id', 'status', 'posting_date', 'is_cutoff_at_period_end'])
+    ->read(['condo_id', 'fiscal_period_id', 'status', 'posting_date', 'is_cutoff_at_period_end'])
     ->first();
 
 if(!$statement) {
@@ -84,6 +87,72 @@ $call_qpdf = shell_exec("qpdf --version 2>&1");
 if(stripos($call_qpdf, 'qpdf version') === false) {
     trigger_error("APP::qpdf is not available or not in PATH. Output: " . $call_qpdf, EQ_REPORT_ERROR);
     throw new Exception('missing_mandatory_qpdf_library', EQ_ERROR_INVALID_CONFIG);
+}
+
+
+/*
+On doit ajouter des annexes au décompte (pour chaque propriétaire)
+
+Si ces documents n'existent pas encore, on les créée
+
+* bilan (balanceSheet)
+* dépenses courantes (ExpenseSummary)
+
+
+*/
+
+// generate balance sheet for expense statement, if not generated yet
+$balanceSheetDocument = Document::search([
+        ['condo_id', '=', $statement['condo_id']],
+        ['expense_statement_id', '=', $statement['id']]
+    ])
+    ->first();
+
+if(!$balanceSheetDocument) {
+    $data = eQual::run('get', 'finance_accounting_balanceSheet_render-pdf', [
+            'date_from' => $fiscalPeriod['date_from'],
+            'date_to'   => $fiscalPeriod['date_to'],
+            'condo_id'  => $statement['condo_id']
+        ]);
+
+    $balanceSheetDocument = Document::create([
+            'condo_id'              => $statement['condo_id'],
+            'expense_statement_id'  => $statement['id'],
+            'name'                  => 'Bilan du ' . date('d/m/Y', $fiscalPeriod['date_to']),
+            'data'                  => $data,
+            'is_origin'             => true,
+            'is_source'             => true,
+            'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'balance_sheet'])->first()) ? $dt['id'] : null
+        ])
+        ->read(['data'])
+        ->first();
+}
+
+// generate expense summary for expense statement, if not generated yet
+$expenseSummaryDocument = Document::search([
+        ['condo_id', '=', $statement['condo_id']],
+        ['expense_statement_id', '=', $statement['id']]
+    ])
+    ->first();
+
+if(!$expenseSummaryDocument) {
+    $data = eQual::run('get', 'finance_accounting_expenseSummary_render-pdf', [
+            'date_from' => $fiscalPeriod['date_from'],
+            'date_to'   => $fiscalPeriod['date_to'],
+            'condo_id'  => $statement['condo_id']
+        ]);
+
+    $expenseSummaryDocument = Document::create([
+            'condo_id'              => $statement['condo_id'],
+            'expense_statement_id'  => $statement['id'],
+            'name'                  => 'Dépenses courantes au ' . date('d/m/Y', $fiscalPeriod['date_to']),
+            'data'                  => $data,
+            'is_origin'             => true,
+            'is_source'             => true,
+            'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'expense_summary'])->first()) ? $dt['id'] : null
+        ])
+        ->read(['data'])
+        ->first();
 }
 
 $temp_files = [];
@@ -125,6 +194,17 @@ try {
             }
             catch(Exception $e) {
                 // ignore (unexpected error while generation account statement)
+            }
+            try {
+                $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+                file_put_contents($temp, $balanceSheetDocument['data']);
+                $temp_files[] = $temp;
+
+                $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+                file_put_contents($temp, $expenseSummaryDocument['data']);
+                $temp_files[] = $temp;
+            }
+            catch(\Exception $e) {
             }
         }
     }

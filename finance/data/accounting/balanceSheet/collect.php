@@ -15,7 +15,7 @@ use finance\accounting\OpeningBalance;
 use finance\accounting\OpeningBalanceLine;
 
 [$params, $providers] = eQual::announce([
-    'description' => 'Advanced search for Balance Sheet (Asset / Liability) - "Bilan".',
+    'description' => 'Advanced search for Balance Sheet (Asset / Liability) (virtual entity) ("Bilan").',
     'params' => [
 
         /* Rendering fields */

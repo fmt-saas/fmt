@@ -23,7 +23,7 @@ use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate an html view of the Minutes for a given Assembly.',
+    'description'   => 'Generate an html view of the Minutes for a given Assembly ("Procès verbal").',
     'params'        => [
         'id' => [
             'description'       => 'Identifier of the specific Assembly to consider.',

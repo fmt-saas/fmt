@@ -17,7 +17,7 @@ use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate HTML code of the owner account statement for a given ownership and date range.',
+    'description'   => 'Generate HTML code of the owner account statement for a given ownership and date range ("Situation de compte copropriétaire").',
     'params'        => [
         'ownership_id' => [
             'type'              => 'many2one',

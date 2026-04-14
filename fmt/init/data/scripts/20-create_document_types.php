@@ -54,23 +54,6 @@ DocumentSubtype::create([
 ]);
 
 
-$documentType = DocumentType::create([
-        'id'            => 14,
-        'name'          => 'Relevés bancaires',
-        'code'          => 'bank_statement',
-        'object_class'  => 'finance\bank\BankStatement',
-        'folder_code'   => 'bank_statements',
-        'json_schema'   => 'urn:fmt:json-schema:finance:bank-statement',
-        'description'   => "Mouvement sur compte bancaire de l'ACP."
-    ])
-    ->first();
-
-DocumentSubtype::create([
-    'name'              => 'Relevé bancaire',
-    'code'              => 'bank_statement',
-    'document_type_id'  => $documentType['id'],
-    'description'       => 'Relevé standard.'
-]);
 
 
 /**
@@ -176,6 +159,23 @@ DocumentType::create([
 ]);
 
 
+$documentType = DocumentType::create([
+        'id'            => 14,
+        'name'          => 'Relevés bancaires',
+        'code'          => 'bank_statement',
+        'object_class'  => 'finance\bank\BankStatement',
+        'folder_code'   => 'bank_statements',
+        'json_schema'   => 'urn:fmt:json-schema:finance:bank-statement',
+        'description'   => "Mouvement sur compte bancaire de l'ACP."
+    ])
+    ->first();
+
+DocumentSubtype::create([
+    'name'              => 'Relevé bancaire',
+    'code'              => 'bank_statement',
+    'document_type_id'  => $documentType['id'],
+    'description'       => 'Relevé standard.'
+]);
 
 DocumentType::create([
     'id'            => 15,
@@ -252,6 +252,23 @@ DocumentSubtype::create([
 
 
 
+DocumentType::create([
+        'id'            => 19,
+        'name'          => 'Dépenses courantes',
+        'code'          => 'balance_sheet',
+        'folder_code'   => 'operation_statements',
+        'description'   => "Dépenses courantes."
+    ]);
+
+
+DocumentType::create([
+        'id'            => 20,
+        'name'          => 'Bilan',
+        'code'          => 'expense_summary',
+        'folder_code'   => 'operation_statements',
+        'description'   => "Bilan comptable."
+    ]);
+
 
 DocumentType::create([
     'id'            => 31,
@@ -270,3 +287,7 @@ DocumentType::create([
     'description'   => "Fichiers d'imports Copropriété (temporaire)."
 ]);
 
+
+
+                
+                

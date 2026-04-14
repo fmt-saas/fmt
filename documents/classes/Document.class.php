@@ -139,6 +139,8 @@ class Document extends Model {
                 internal_memo
                 suppliers_import
                 condominium_import
+                balance_sheet
+                expense_summary
             */
             'document_type_id' => [
                 'type'              => 'many2one',

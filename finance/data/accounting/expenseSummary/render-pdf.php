@@ -9,7 +9,7 @@ use Dompdf\Dompdf;
 use Dompdf\Options as DompdfOptions;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate a PDF file of the given expense summary (virtual entity).',
+    'description'   => 'Generate a PDF file of the given expense summary ("Dépenses courantes").',
     'params'        => [
         'params' => [
             'description'       => 'Optional params for rendering the targeted expense summary.',

@@ -18,7 +18,7 @@ use Twig\Extension\ExtensionInterface;
 
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate a HTML rendering of the given balance sheet (virtual entity).',
+    'description'   => 'Generate a HTML rendering of the given balance sheet ("Bilan").',
     'params'        => [
         'params' => [
             'description'       => 'Optional params for rendering the targeted balance sheet.',

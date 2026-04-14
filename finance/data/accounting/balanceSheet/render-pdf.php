@@ -9,7 +9,7 @@ use Dompdf\Dompdf;
 use Dompdf\Options as DompdfOptions;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate a PDF file of the given balance sheet (virtual entity).',
+    'description'   => 'Generate a PDF file of the given balance sheet ("Bilan").',
     'params'        => [
         'params' => [
             'description'       => 'Optional params for rendering the targeted balance sheet.',
