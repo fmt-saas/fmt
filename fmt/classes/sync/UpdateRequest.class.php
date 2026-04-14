@@ -91,8 +91,9 @@ class UpdateRequest extends Model {
             'approval_reason' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'unsupervised',
-                    'verified'
+                    'unsupervised',  // Approved directly because only 'public' fields modified.
+                    'verified',      // Modification on at least one 'protected' field was manually accepted by a user.
+                    'forced'         // Approved directly because the modifications were forced, even if protected fields were modified. (forced: if 'accept' flag was used on sync action or if the sync policy scope is 'private')
                 ],
                 'description'       => 'Reason for approval.',
                 'default'           => 'verified',
@@ -281,13 +282,15 @@ class UpdateRequest extends Model {
                         ->first();
                 }
 
-                $values = [
-                        'status'            => 'approved',
-                        'approval_user_id'  => $user_id
-                    ];
+                $approval_reason = $values['reason'] ?? '';
 
-                if(isset($values['reason'])) {
-                    $values['approval_reason'] = $values['reason'];
+                $values = [
+                    'status'            => 'approved',
+                    'approval_user_id'  => $user_id
+                ];
+
+                if(!empty($approval_reason)) {
+                    $values['approval_reason'] = $approval_reason;
                 }
 
                 self::id($id)->update($values);

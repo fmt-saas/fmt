@@ -229,8 +229,10 @@ foreach($policies as $id => $policy) {
                     }
 
                     if($policy['scope'] === 'private' || $params['accept'] || !$has_protected_field) {
+                        $approval_reason = !$has_protected_field ? 'unsupervised' : 'forced';
+
                         // automatically accept
-                        UpdateRequest::id($updateRequest['id'])->do('accept');
+                        UpdateRequest::id($updateRequest['id'])->do('accept', ['reason' => $approval_reason]);
 
                         $result['logs'][] = "Updated object of entity {$entity} with id {$localObject['id']}";
                         ++$result['updated'];
@@ -292,8 +294,10 @@ foreach($policies as $id => $policy) {
                     }
 
                     if($policy['scope'] === 'private' || $params['accept'] || !$has_protected_field) {
+                        $approval_reason = !$has_protected_field ? 'unsupervised' : 'forced';
+
                         // automatically accept private policy
-                        UpdateRequest::id($updateRequest['id'])->do('accept');
+                        UpdateRequest::id($updateRequest['id'])->do('accept', ['reason' => $approval_reason]);
 
                         $result['logs'][] = "Created new object of entity {$entity}";
                         ++$result['created'];

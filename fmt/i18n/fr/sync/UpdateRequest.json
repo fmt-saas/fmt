@@ -1,7 +1,95 @@
 {
-    "name": "Demande de mise à jour",
-    "plural": "Demandes de mise à jour",
+    "name": "Requête de mise à jour",
+    "plural": "Requêtes de mise à jour",
     "description": "",
+    "model": {
+        "object_class": {
+            "label": "Entité",
+            "description": "Entité concernée par la requête.",
+            "help": ""
+        },
+        "request_date": {
+            "label": "Date de la requête",
+            "description": "Date à laquelle la requête a été faite.",
+            "help": ""
+        },
+        "object_id": {
+            "label": "Identifiant de l'objet",
+            "description": "Identifiant unique de l'objet concerné par la requête.",
+            "help": ""
+        },
+        "object_name": {
+            "label": "Nom de l'objet",
+            "description": "Identifiant de l'objet concerné par la requête.",
+            "help": ""
+        },
+        "is_new": {
+            "label": "Nouvel objet",
+            "description": "Est-ce un nouvel objet?",
+            "help": ""
+        },
+        "instance_id": {
+            "label": "Instance",
+            "description": "Instance à l'origine de la modification",
+            "help": ""
+        },
+        "managing_agent_id": {
+            "label": "Syndic",
+            "description": "Gestionnaire (interne ou externe) en charge de la copropriété.",
+            "help": ""
+        },
+        "source_type": {
+            "label": "Type d'origine",
+            "description": "Type d'origine (locale, globale, etc.).",
+            "help": ""
+        },
+        "source_origin": {
+            "label": "Origine",
+            "description": "Origine de la donnée (système, utilisateur, intégration, etc.).",
+            "help": ""
+        },
+        "approval_user_id": {
+            "label": "Utilisateur acceptation",
+            "description": "Utilisateur qui a accepté la requête.",
+            "help": ""
+        },
+        "approval_reason": {
+            "label": "Raison acceptation",
+            "description": "La raison de l'acceptation de l'application de la requête.",
+            "help": "",
+            "selection": {
+                "unsupervised": "Non supervisée",
+                "verified": "Vérifiée",
+                "forced": "Forcée"
+            }
+        },
+        "rejection_user_id": {
+            "label": "Utilisateur refus",
+            "description": "Utilisateur qui a refusé la requête",
+            "help": ""
+        },
+        "rejection_reason": {
+            "label": "Raison refus",
+            "description": "La raison du refus de l'application de la requête.",
+            "help": "",
+            "selection": {
+                "conflict": "Conflit",
+                "incorrect_data": "Donnée incorrectes",
+                "outdated_data": "Données expirées",
+                "duplicate_request": "Requête doublon"
+            }
+        },
+        "status": {
+            "label": "Status",
+            "description": "Status de la requête de mise à jour",
+            "help": "",
+            "selection": {
+                "pending": "En cours",
+                "approved": "Approuvée",
+                "rejected": "Rejetée"
+            }
+        }
+    },
     "view": {
         "list.default": {
             "actions": {
