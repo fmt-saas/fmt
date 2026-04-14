@@ -66,15 +66,15 @@ use finance\accounting\FiscalPeriod;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-$statement = ExpenseStatement::id($params['id'])
+$expenseStatement = ExpenseStatement::id($params['id'])
     ->read(['condo_id', 'fiscal_period_id', 'status', 'posting_date', 'is_cutoff_at_period_end'])
     ->first();
 
-if(!$statement) {
+if(!$expenseStatement) {
     throw new Exception('unknown_expense_statement', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$fiscalPeriod = FiscalPeriod::id($statement['fiscal_period_id'])
+$fiscalPeriod = FiscalPeriod::id($expenseStatement['fiscal_period_id'])
     ->read(['date_from', 'date_to', 'condo_id' => ['ownerships_ids' => ['date_to']]])
     ->first();
 
@@ -103,8 +103,9 @@ Si ces documents n'existent pas encore, on les créée
 
 // generate balance sheet for expense statement, if not generated yet
 $balanceSheetDocument = Document::search([
-        ['condo_id', '=', $statement['condo_id']],
-        ['expense_statement_id', '=', $statement['id']]
+        ['condo_id', '=', $expenseStatement['condo_id']],
+        ['expense_statement_id', '=', $expenseStatement['id']],
+        ['document_type_code', '=', 'balance_sheet']
     ])
     ->read(['data'])
     ->first();
@@ -113,12 +114,12 @@ if(!$balanceSheetDocument) {
     $data = eQual::run('get', 'finance_accounting_balanceSheet_render-pdf', ['params' => [
             'date_from' => date('c', $fiscalPeriod['date_from']),
             'date_to'   => date('c', $fiscalPeriod['date_to']),
-            'condo_id'  => $statement['condo_id']
+            'condo_id'  => $expenseStatement['condo_id']
         ]]);
 
     $balanceSheetDocument = Document::create([
-            'condo_id'              => $statement['condo_id'],
-            'expense_statement_id'  => $statement['id'],
+            'condo_id'              => $expenseStatement['condo_id'],
+            'expense_statement_id'  => $expenseStatement['id'],
             'name'                  => 'Bilan du ' . date('d/m/Y', $fiscalPeriod['date_to']),
             'data'                  => $data,
             'is_origin'             => true,
@@ -130,9 +131,11 @@ if(!$balanceSheetDocument) {
 }
 
 // generate expense summary for expense statement, if not generated yet
+
 $expenseSummaryDocument = Document::search([
-        ['condo_id', '=', $statement['condo_id']],
-        ['expense_statement_id', '=', $statement['id']]
+        ['condo_id', '=', $expenseStatement['condo_id']],
+        ['expense_statement_id', '=', $expenseStatement['id']],
+        ['document_type_code', '=', 'expense_summary']
     ])
     ->read(['data'])
     ->first();
@@ -141,12 +144,12 @@ if(!$expenseSummaryDocument) {
     $data = eQual::run('get', 'finance_accounting_expenseSummary_render-pdf', [ 'params' => [
             'date_from' => date('c', $fiscalPeriod['date_from']),
             'date_to'   => date('c', $fiscalPeriod['date_to']),
-            'condo_id'  => $statement['condo_id']
+            'condo_id'  => $expenseStatement['condo_id']
         ]]);
 
     $expenseSummaryDocument = Document::create([
-            'condo_id'              => $statement['condo_id'],
-            'expense_statement_id'  => $statement['id'],
+            'condo_id'              => $expenseStatement['condo_id'],
+            'expense_statement_id'  => $expenseStatement['id'],
             'name'                  => 'Dépenses courantes au ' . date('d/m/Y', $fiscalPeriod['date_to']),
             'data'                  => $data,
             'is_origin'             => true,
