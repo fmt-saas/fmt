@@ -34,7 +34,7 @@ use realestate\funding\FundRequestCorrespondence;
 
 
 $fundRequestCorrespondence = FundRequestCorrespondence::id($params['id'])
-    ->read(['status', 'condo_id', 'ownership_id', 'name'])
+    ->read(['status', 'condo_id', 'ownership_id', 'name', 'fund_request_execution_id' => ['id', 'fund_request_id']])
     ->first();
 
 if(!$fundRequestCorrespondence) {
@@ -60,9 +60,11 @@ $document = Document::create([
     ])
     ->update([
         // place node in dedicated folder
-        'parent_node_id'    => $parentNode['id'] ?? null,
+        'parent_node_id'        => $parentNode['id'] ?? null,
         // make node private
-        'ownership_id'      => $fundRequestCorrespondence['ownership_id']
+        'ownership_id'              => $fundRequestCorrespondence['ownership_id'],
+        'fund_request_id'           => $fundRequestCorrespondence['fund_request_execution_id']['fund_request_id'],
+        'fund_request_execution_id' => $fundRequestCorrespondence['fund_request_execution_id']['id']
     ])
     ->first();
 

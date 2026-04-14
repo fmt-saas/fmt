@@ -110,7 +110,8 @@ finally {
 $document = Document::create([
         'name'          => 'Convocation Assemblée - ' . $assemblyInvitationCorrespondence['name'],
         'data'          => $output,
-        'condo_id'      => $assemblyInvitationCorrespondence['condo_id']
+        'condo_id'      => $assemblyInvitationCorrespondence['condo_id'],
+        'assembly_id'   => $assemblyInvitationCorrespondence['assembly_id']
     ])
     ->update([
         // place node in dedicated folder

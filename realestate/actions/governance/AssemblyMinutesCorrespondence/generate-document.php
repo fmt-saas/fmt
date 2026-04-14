@@ -124,7 +124,8 @@ finally {
 $document = Document::create([
         'name'          => 'Procès verbal Assemblée - ' . $assemblyMinutesCorrespondence['name'],
         'data'          => $output,
-        'condo_id'      => $assemblyMinutesCorrespondence['condo_id']
+        'condo_id'      => $assemblyMinutesCorrespondence['condo_id'],
+        'assembly_id'   => $assemblyMinutesCorrespondence['assembly_id']['id']
     ])
     ->update([
         // place node in dedicated folder

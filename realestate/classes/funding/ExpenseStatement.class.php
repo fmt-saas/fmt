@@ -6,6 +6,7 @@
 */
 namespace realestate\funding;
 
+use documents\Document;
 use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
 use finance\accounting\Account;
@@ -810,6 +811,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         foreach($self as $id => $expenseStatement) {
             // remove any previously created owner statement
             ExpenseStatementOwner::search(['expense_statement_id', '=', $id])->delete(true);
+            // remove annex documents, if any
+            Document::search([
+                    ['condo_id', '=', $expenseStatement['condo_id']],
+                    ['expense_statement_id', '=', $id]
+                ])
+                ->delete(true);
+
             $data = self::computeExpenseStatementData($expenseStatement['fiscal_period_id']);
             self::id($id)
                 ->update([
