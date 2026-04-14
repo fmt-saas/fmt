@@ -702,11 +702,6 @@
             },
             {
                 "sync_policy_id": 12,
-                "object_field": "uuid",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 12,
                 "object_field": "id",
                 "scope": "public"
             },

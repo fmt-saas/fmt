@@ -49,7 +49,6 @@ $entities_classes_links = [
     DocumentType::getType()     => [],
     DocumentSubtype::getType()  => ['document_type'],
     Identity::getType()         => [],
-    SupplierType::getType()     => [],
     Supplier::getType()         => ['identity'],
     Condominium::getType()      => ['identity'],
     BankAccount::getType()      => ['owner_identity']
