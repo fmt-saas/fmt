@@ -162,16 +162,32 @@ class UpdateRequest extends Model {
         $self->read(['is_new', 'object_class', 'object_id', 'update_request_lines_ids' => ['object_field', 'new_value']]);
         foreach($self as $id => $updateRequest) {
             if($updateRequest['is_new']) {
-                $name = '(new object)';
+                $map_fields = [];
                 foreach($updateRequest['update_request_lines_ids'] as $line) {
-                    if($line['object_field'] === 'name') {
-                        $name = $line['new_value'];
-                        break;
-                    }
-                    elseif(str_ends_with($line['object_field'], 'legal_name') || str_ends_with($line['object_field'], 'short_name')) {
-                        $name = $line['new_value'];
+                    if(is_string($line['new_value'])) {
+                        $map_fields[$line['object_field']] = $line['new_value'];
                     }
                 }
+
+                // #memo - try to find the best name to make the handling of the update request easier
+                $name = '(new object)';
+                if(!empty($map_fields['name'])) {
+                    // most object
+                    $name = $map_fields['name'];
+                }
+                elseif(!empty($map_fields['legal_name'])) {
+                    // identity company
+                    $name = $map_fields['legal_name'];
+                }
+                elseif(!empty($map_fields['firstname']) && !empty($map_fields['lastname'])) {
+                    // identity person
+                    $name = $map_fields['firstname'] . ' ' . strtoupper($map_fields['lastname']);
+                }
+                elseif(!empty($map_fields['short_name'])) {
+                    // other possibility
+                    $name = $map_fields['short_name'];
+                }
+
                 $result[$id] = $name;
             }
             elseif(class_exists($updateRequest['object_class'])) {
