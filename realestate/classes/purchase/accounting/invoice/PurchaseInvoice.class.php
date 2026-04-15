@@ -1368,7 +1368,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         continue;
                     }
 
-                    $total_amount = $remaining_amount = $invoiceLine['price'];
+                    $total_amount = round($invoiceLine['price'], 2);
+                    $remaining_amount = $total_amount;
 
                     for($i = 0, $n = count($allocation_dates); $i < $n; ++$i) {
 
@@ -1392,10 +1393,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             $intersect_from = max($date_from, $period_date_from);
                             $intersect_to = min($date_to, $period_date_to);
                             $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
-                            $ratio = round($intersect_days / $total_days, 4);
+                            $ratio = $intersect_days / $total_days;
                             $amount = round($total_amount * $ratio, 2);
                             // #memo - no entry line with $amount here: resulting allocated amount for first period will be the delta with following deferred lines
-                            $remaining_amount -= $amount;
+                            $remaining_amount = round($remaining_amount - $amount, 2);
                         }
                         // handle expense deferring
                         else {
@@ -1405,7 +1406,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             $description .= ' (' . date('Y-m-d', $period_date_from) . ' - ' . date('Y-m-d', $period_date_to) . ')';
 
                             if($i == $n-1) {
-                                $amount = $remaining_amount;
+                                $amount = round($remaining_amount, 2);
                             }
                             else {
                                 //  we allocate the paid amount pro-rata based on the duration of the date range.
@@ -1413,9 +1414,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 $intersect_to = min($date_to, $period_date_to);
 
                                 $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
-                                $ratio = round($intersect_days / $total_days, 4);
+                                $ratio = $intersect_days / $total_days;
                                 $amount = round($total_amount * $ratio, 2);
-                                $remaining_amount -= $amount;
+                                $remaining_amount = round($remaining_amount - $amount, 2);
                             }
 
                             // create the debit line for the deferred expense
