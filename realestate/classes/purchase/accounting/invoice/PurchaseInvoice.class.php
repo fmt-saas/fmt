@@ -1386,11 +1386,24 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     throw new \Exception("missing_mandatory_deferred_expenses_account", EQ_ERROR_INVALID_CONFIG);
                 }
 
+                // create the debit lines for the whole common expense
                 foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
                     if($invoiceLine['is_private_expense']) {
                         continue;
                     }
 
+                    AccountingEntryLine::create([
+                            'condo_id'                  => $invoice['condo_id'],
+                            'accounting_entry_id'       => $accountingEntry['id'],
+                            'description'               => $invoiceLine['description'],
+                            'account_id'                => $invoiceLine['expense_account_id'],
+                            'purchase_invoice_line_id'  => $invoice_line_id,
+                            'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
+                            'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
+                        ]);
+                }
+
+                foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
                     $total_amount = round($invoiceLine['price'], 2);
                     $remaining_amount = $total_amount;
 
@@ -1398,36 +1411,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
                         $period_date_from = $allocation_dates[$i];
                         $period_date_to = ($i+1 < $n) ? ($allocation_dates[$i+1] - 86400) : $date_to;
-                        $is_posting_period = (
-                            $period_date_from <= $invoice['fiscal_period_id']['date_to']
-                            && $period_date_from >= $invoice['fiscal_period_id']['date_from']
-                        );
-
-                        // first date of the date range + within posting period
-                        if($i == 0 && $is_posting_period) {
-                            // create the debit line for the whole common expense
-                            AccountingEntryLine::create([
-                                    'condo_id'                  => $invoice['condo_id'],
-                                    'accounting_entry_id'       => $accountingEntry['id'],
-                                    'description'               => $invoiceLine['description'],
-                                    'account_id'                => $invoiceLine['expense_account_id'],
-                                    'purchase_invoice_line_id'  => $invoice_line_id,
-                                    'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
-                                    'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
-                                ]);
-
-                            if($n > 1) {
-                                // compute paid amount pro-rata based on the duration of the date range.
-                                $intersect_from = max($date_from, $period_date_from);
-                                $intersect_to = min($date_to, $period_date_to);
-                                $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
-                                $ratio = $intersect_days / $total_days;
-                                $amount = round($total_amount * $ratio, 2);
-                                // #memo - no entry line with $amount here: resulting allocated amount for first period will be the delta with following deferred lines
-                                $remaining_amount = round($remaining_amount - $amount, 2);
-                                continue;
-                            }
-                        }
 
                         // handle expense deferring
 
