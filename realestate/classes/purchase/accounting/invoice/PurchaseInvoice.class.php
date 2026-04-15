@@ -1403,95 +1403,101 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             // #memo - no entry line with $amount here: resulting allocated amount for first period will be the delta with following deferred lines
                             $remaining_amount = round($remaining_amount - $amount, 2);
                         }
-                        // handle expense deferring
-                        else {
 
-                            // 1) create deferred entry lines
-                            $description = $invoice['description'];
-                            $description .= ' (' . date('Y-m-d', $period_date_from) . ' - ' . date('Y-m-d', $period_date_to) . ')';
+                        $date_range_within_fiscal_period =
+                            $date_from >= $invoice['fiscal_period_id']['date_from']
+                            && $date_to <= $invoice['fiscal_period_id']['date_to'];
 
-                            if($i == $n-1) {
-                                $amount = round($remaining_amount, 2);
-                            }
-                            else {
-                                //  we allocate the paid amount pro-rata based on the duration of the date range.
-                                $intersect_from = max($date_from, $period_date_from);
-                                $intersect_to = min($date_to, $period_date_to);
-
-                                $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
-                                $ratio = $intersect_days / $total_days;
-                                $amount = round($total_amount * $ratio, 2);
-                                $remaining_amount = round($remaining_amount - $amount, 2);
-                            }
-
-                            // create the debit line for the deferred expense
-                            AccountingEntryLine::create([
-                                    'condo_id'                  => $invoice['condo_id'],
-                                    'accounting_entry_id'       => $accountingEntry['id'],
-                                    'description'               => $description,
-                                    'account_id'                => $deferredExpensesAccount['id'],
-                                    'purchase_invoice_line_id'  => $invoice_line_id,
-                                    'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
-                                    'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
-                                ]);
-
-                            // create the credit line for the expense
-                            AccountingEntryLine::create([
-                                    'condo_id'                  => $invoice['condo_id'],
-                                    'accounting_entry_id'       => $accountingEntry['id'],
-                                    'description'               => $description,
-                                    'account_id'                => $invoiceLine['expense_account_id'],
-                                    'purchase_invoice_line_id'  => $invoice_line_id,
-                                    'debit'                     => ($amount > 0.0) ? 0.0 : abs($amount),
-                                    'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
-                                ]);
-
-                            // 2) schedule a symmetrical accounting entry for the related period
-                            $plannedFiscalYear = FiscalYear::search([['condo_id', '=', $invoice['condo_id']], ['date_from', '<=', $period_date_from], ['date_to', '>=', $period_date_from]])->first();
-
-                            if(!$plannedFiscalYear) {
-                                throw new \Exception("missing_mandatory_matching_fiscal_year", EQ_ERROR_INVALID_CONFIG);
-                            }
-
-                            // put all lines related to a period on a single accounting entry
-                            if(!isset($map_planned_accounting_entries[$period_date_from])) {
-                                $map_planned_accounting_entries[$period_date_from] = AccountingEntry::create([
-                                        'condo_id'              => $invoice['condo_id'],
-                                        'journal_id'            => $journal['id'],
-                                        'fiscal_year_id'        => $plannedFiscalYear['id'],
-                                        'entry_date'            => $period_date_from,
-                                        'origin_object_class'   => self::getType(),
-                                        'origin_object_id'      => $id,
-                                        'purchase_invoice_id'   => $id
-                                    ])
-                                    ->first();
-                            }
-
-                            $plannedAccountingEntry = $map_planned_accounting_entries[$period_date_from];
-
-                            // create the credit line for the deferred expense
-                            AccountingEntryLine::create([
-                                    'condo_id'                  => $invoice['condo_id'],
-                                    'accounting_entry_id'       => $plannedAccountingEntry['id'],
-                                    'description'               => $description,
-                                    'account_id'                => $deferredExpensesAccount['id'],
-                                    'purchase_invoice_line_id'  => $invoice_line_id,
-                                    'debit'                     => ($amount > 0.0) ? 0.0 : abs($amount),
-                                    'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
-                                ]);
-
-                            // create the debit line for the expense
-                            AccountingEntryLine::create([
-                                    'condo_id'                  => $invoice['condo_id'],
-                                    'accounting_entry_id'       => $plannedAccountingEntry['id'],
-                                    'description'               => $description,
-                                    'account_id'                => $invoiceLine['expense_account_id'],
-                                    'purchase_invoice_line_id'  => $invoice_line_id,
-                                    'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
-                                    'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
-                                ]);
-
+                        if($date_range_within_fiscal_period) {
+                            continue;
                         }
+
+                        // 1) create deferred entry lines
+                        $description = $invoice['description'];
+                        $description .= ' (' . date('Y-m-d', $period_date_from) . ' - ' . date('Y-m-d', $period_date_to) . ')';
+
+                        if($i == $n-1) {
+                            $amount = round($remaining_amount, 2);
+                        }
+                        else {
+                            //  we allocate the paid amount pro-rata based on the duration of the date range.
+                            $intersect_from = max($date_from, $period_date_from);
+                            $intersect_to = min($date_to, $period_date_to);
+
+                            $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
+                            $ratio = $intersect_days / $total_days;
+                            $amount = round($total_amount * $ratio, 2);
+                            $remaining_amount = round($remaining_amount - $amount, 2);
+                        }
+
+                        // create the debit line for the deferred expense
+                        AccountingEntryLine::create([
+                                'condo_id'                  => $invoice['condo_id'],
+                                'accounting_entry_id'       => $accountingEntry['id'],
+                                'description'               => $description,
+                                'account_id'                => $deferredExpensesAccount['id'],
+                                'purchase_invoice_line_id'  => $invoice_line_id,
+                                'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
+                                'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
+                            ]);
+
+                        // create the credit line for the expense
+                        AccountingEntryLine::create([
+                                'condo_id'                  => $invoice['condo_id'],
+                                'accounting_entry_id'       => $accountingEntry['id'],
+                                'description'               => $description,
+                                'account_id'                => $invoiceLine['expense_account_id'],
+                                'purchase_invoice_line_id'  => $invoice_line_id,
+                                'debit'                     => ($amount > 0.0) ? 0.0 : abs($amount),
+                                'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
+                            ]);
+
+                        // 2) schedule a symmetrical accounting entry for the related period
+                        $plannedFiscalYear = FiscalYear::search([['condo_id', '=', $invoice['condo_id']], ['date_from', '<=', $period_date_from], ['date_to', '>=', $period_date_from]])->first();
+
+                        if(!$plannedFiscalYear) {
+                            throw new \Exception("missing_mandatory_matching_fiscal_year", EQ_ERROR_INVALID_CONFIG);
+                        }
+
+                        // put all lines related to a period on a single accounting entry
+                        if(!isset($map_planned_accounting_entries[$period_date_from])) {
+                            $map_planned_accounting_entries[$period_date_from] = AccountingEntry::create([
+                                    'condo_id'              => $invoice['condo_id'],
+                                    'journal_id'            => $journal['id'],
+                                    'fiscal_year_id'        => $plannedFiscalYear['id'],
+                                    'entry_date'            => $period_date_from,
+                                    'origin_object_class'   => self::getType(),
+                                    'origin_object_id'      => $id,
+                                    'purchase_invoice_id'   => $id
+                                ])
+                                ->first();
+                        }
+
+                        $plannedAccountingEntry = $map_planned_accounting_entries[$period_date_from];
+
+                        // create the credit line for the deferred expense
+                        AccountingEntryLine::create([
+                                'condo_id'                  => $invoice['condo_id'],
+                                'accounting_entry_id'       => $plannedAccountingEntry['id'],
+                                'description'               => $description,
+                                'account_id'                => $deferredExpensesAccount['id'],
+                                'purchase_invoice_line_id'  => $invoice_line_id,
+                                'debit'                     => ($amount > 0.0) ? 0.0 : abs($amount),
+                                'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
+                            ]);
+
+                        // create the debit line for the expense
+                        AccountingEntryLine::create([
+                                'condo_id'                  => $invoice['condo_id'],
+                                'accounting_entry_id'       => $plannedAccountingEntry['id'],
+                                'description'               => $description,
+                                'account_id'                => $invoiceLine['expense_account_id'],
+                                'purchase_invoice_line_id'  => $invoice_line_id,
+                                'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
+                                'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
+                            ]);
+
+
 
                     }
                 }
