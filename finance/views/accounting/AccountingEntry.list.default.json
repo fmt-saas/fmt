@@ -28,7 +28,7 @@
         {
             "id": "filter.validated",
             "label": "Validated",
-            "description": "Show validated entries only.",
+            "description": "Show validated entries only",
             "clause": ["status", "=", "validated"]
         }
     ],

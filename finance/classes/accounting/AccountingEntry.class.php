@@ -407,11 +407,91 @@ class AccountingEntry extends Model {
     }
 
     protected static function onbeforeValidate($self) {
-        $self->read(['condo_id', 'entry_date']);
+        $self->read([
+            'condo_id',
+            'entry_date',
+            'entry_lines_ids' => [
+                'account_id',
+                'debit',
+                'credit',
+                'bank_statement_line_id',
+                'sale_invoice_line_id',
+                'purchase_invoice_line_id',
+                'misc_operation_line_id'
+            ]
+        ]);
 
         foreach($self as $id => $accountingEntry) {
-            // #memo - the encoding of the purchase invoices is non chronological
-            // - we must maintain the sequence, but cannot force dates sequence without losing information
+
+            // consolidate entry lines by account (to avoid several lines targeting same account_id)
+            $grouped_lines = [];
+
+            foreach($accountingEntry['entry_lines_ids'] as $line_id => $line) {
+                $account_id = $line['account_id'] ?? null;
+
+                if(!$account_id) {
+                    continue;
+                }
+
+                $link_key = implode(':', [
+                    $line['bank_statement_line_id'] ?? 0,
+                    $line['sale_invoice_line_id'] ?? 0,
+                    $line['purchase_invoice_line_id'] ?? 0,
+                    $line['misc_operation_line_id'] ?? 0
+                ]);
+
+                $group_key = $account_id . '-' . $link_key;
+
+                if(!isset($grouped_lines[$group_key])) {
+                    $grouped_lines[$group_key] = [
+                        'survivor_id' => $line_id,
+                        'line_ids'    => [],
+                        'debit'       => 0.0,
+                        'credit'      => 0.0
+                    ];
+                }
+
+                $grouped_lines[$group_key]['line_ids'][] = $line_id;
+                $grouped_lines[$group_key]['debit'] = round($grouped_lines[$group_key]['debit'] + (float) $line['debit'], 4);
+                $grouped_lines[$group_key]['credit'] = round($grouped_lines[$group_key]['credit'] + (float) $line['credit'], 4);
+            }
+
+            $lines_to_delete = [];
+            $line_updates = [];
+
+            foreach($grouped_lines as $group) {
+                $survivor_id = $group['survivor_id'];
+                $line_ids = $group['line_ids'];
+                $debit = round($group['debit'], 4);
+                $credit = round($group['credit'], 4);
+
+                if(abs($debit - $credit) < 0.01) {
+                    $lines_to_delete = array_merge($lines_to_delete, $line_ids);
+                    continue;
+                }
+
+                $line_updates[$survivor_id] = [
+                    'debit'  => $debit,
+                    'credit' => $credit
+                ];
+
+                foreach($line_ids as $line_id) {
+                    if($line_id !== $survivor_id) {
+                        $lines_to_delete[] = $line_id;
+                    }
+                }
+            }
+
+            // #memo - there is a slight risk of inconsistency here in case the update operations are interrupted
+            foreach($line_updates as $line_id => $values) {
+                AccountingEntryLine::id($line_id)->update($values);
+            }
+
+            if(!empty($lines_to_delete)) {
+                AccountingEntryLine::ids(array_values(array_unique($lines_to_delete)))->delete(true);
+            }
+
+            // #memo - the encoding of the purchase invoices is non chronological. We must maintain the sequence, but cannot force dates sequence without losing information.
 
             self::id($id)
                 ->update([
@@ -419,6 +499,7 @@ class AccountingEntry extends Model {
                 ]);
         }
     }
+
 
     /**
      * The entry has been validated (irreversible transition).
