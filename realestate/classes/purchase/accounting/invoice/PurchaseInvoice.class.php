@@ -908,58 +908,45 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     private static function computeAllocationDates($date_from, $date_to, $condo_id) {
         $result = [];
-        // there should be none or exactly one matching fiscal year
-        $fiscalYear = FiscalYear::search([
-                ['condo_id', '=', $condo_id],
-                ['date_from', '<=', $date_from],
-                ['date_to', '>=', $date_from]
-            ])
-            ->read(['id', 'status'])
-            ->first();
+        $fiscalPeriods = FiscalPeriod::search(
+                [
+                    ['condo_id', '=', $condo_id],
+                    ['date_from', '<=', $date_to],
+                    ['date_to', '>=', $date_from]
+                ],
+                ['sort' => ['date_from' => 'asc']]
+            )
+            ->read(['date_from', 'date_to', 'fiscal_year_id' => ['id', 'name', 'status']])
+            ->get();
 
-        if(!$fiscalYear) {
-            trigger_error('APP::Missing required fiscal year for assigning (partly or full) a purchase invoice.', EQ_REPORT_WARNING);
+        if(empty($fiscalPeriods)) {
+            trigger_error('APP::Missing required fiscal periods for assigning (partly or full) a purchase invoice.', EQ_REPORT_WARNING);
+            return [];
         }
 
-        $fiscalPeriod = FiscalPeriod::search([
-                ['fiscal_year_id', '=', $fiscalYear['id']],
-                ['date_from', '<=', $date_from],
-                ['date_to', '>=', $date_from]
-            ])
-            ->read(['date_from', 'date_to'])
-            ->first();
+        $expected_date = $date_from;
 
-        if(!$fiscalPeriod) {
-            trigger_error('APP::Missing required fiscal period for assigning a purchase invoice on fiscal year ' . $fiscalYear['name'] . '.', EQ_REPORT_WARNING);
-        }
-        elseif($fiscalPeriod['date_to'] < $date_to) {
-            $current_date = $fiscalPeriod['date_from'];
-            while($current_date <= $date_to) {
-                $result[] = $current_date;
-                if($current_date == $date_to) {
-                    break;
-                }
-                // find the next period (we take all the existing periods for a condo_id and select the one whose date_from is the earliest among those with a date_from greater than the current_date)
-                $nextPeriod = FiscalPeriod::search([
-                            ['condo_id', '=', $condo_id], ['date_from', '>', $current_date]
-                        ],
-                        ['sort' => ['date_from' => 'asc'], 'limit' => 1]
-                    )
-                    ->read(['date_from'])
-                    ->first();
-
-                if(!$nextPeriod) {
-                    trigger_error('APP::Missing required period for assigning (partly or full) a purchase invoice.', EQ_REPORT_WARNING);
-                    $result = [];
-                    break;
-                }
-                $current_date = $nextPeriod['date_from'];
+        foreach($fiscalPeriods as $fiscalPeriod) {
+            if($fiscalPeriod['date_to'] < $expected_date) {
+                continue;
             }
-        }
-        else {
+
+            if($fiscalPeriod['date_from'] > $expected_date) {
+                trigger_error('APP::Missing required period for assigning (partly or full) a purchase invoice.', EQ_REPORT_WARNING);
+                return [];
+            }
+
             $result[] = $fiscalPeriod['date_from'];
+
+            if($fiscalPeriod['date_to'] >= $date_to) {
+                return $result;
+            }
+
+            $expected_date = $fiscalPeriod['date_to'] + 86400;
         }
-        return $result;
+
+        trigger_error('APP::Missing required period for assigning (partly or full) a purchase invoice.', EQ_REPORT_WARNING);
+        return [];
     }
 
     protected static function onbeforePost($self) {
@@ -1386,7 +1373,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     for($i = 0, $n = count($allocation_dates); $i < $n; ++$i) {
 
                         $period_date_from = $allocation_dates[$i];
-                        $period_date_to = ($i+1 < $n) ? $allocation_dates[$i+1] : $date_to;
+                        $period_date_to = ($i+1 < $n) ? ($allocation_dates[$i+1] - 86400) : $date_to;
 
                         // first date of the date range
                         if($i == 0) {
