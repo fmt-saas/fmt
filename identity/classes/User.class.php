@@ -31,6 +31,14 @@ class User extends \core\User {
                 'readonly'          => true
             ],
 
+            'login' => [
+                'type'              => 'string',
+                'usage'             => 'email',
+                'required'          => true,
+                // 'unique'            => true,
+                'dependents'        => ['name']
+            ],
+
             'uuid' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain:36',
@@ -166,6 +174,12 @@ class User extends \core\User {
                 'description'       => 'The employee relating to the user, if set.',
             ]
 
+        ];
+    }
+
+    public function getUnique(): array {
+        return [
+            ['login', 'instance_uuid']
         ];
     }
 

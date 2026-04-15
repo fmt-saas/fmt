@@ -102,6 +102,18 @@
                     "description": "Rejeter les modifications demandées."
                 }
             }
+        },
+        "form.default": {
+            "actions": {
+                "action.accept": {
+                    "label": "Accepter",
+                    "description": "Accepter les modifications demandées."
+                },
+                "action.reject": {
+                    "label": "Rejeter",
+                    "description": "Rejeter les modifications demandées."
+                }
+            }
         }
     }
 }
