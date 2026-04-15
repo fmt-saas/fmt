@@ -492,10 +492,11 @@ class AccountingEntry extends Model {
 
             foreach($grouped_lines as $group) {
                 $line_ids = $group['line_ids'];
-                $debit = round($group['debit'], 4);
-                $credit = round($group['credit'], 4);
+                $debit = round($group['debit'], 2);
+                $credit = round($group['credit'], 2);
+                $net_amount = round($debit - $credit, 2);
 
-                if(abs($debit - $credit) < 0.01) {
+                if(abs($net_amount) < 0.01) {
                     $lines_to_delete = array_merge($lines_to_delete, $line_ids);
                     continue;
                 }
@@ -507,8 +508,8 @@ class AccountingEntry extends Model {
                 $lines_to_create[] = array_merge(
                     $group['fields'],
                     [
-                        'debit'  => $debit,
-                        'credit' => $credit
+                        'debit'  => ($net_amount > 0)? $net_amount : 0.0,
+                        'credit' => ($net_amount < 0)? abs($net_amount) : 0.0
                     ]
                 );
 
