@@ -50,6 +50,7 @@ $policies = SyncPolicy::search([
     ->read([
         'object_class',
         'field_unique',
+        'last_sync',
         'sync_policy_lines_ids' => ['object_field', 'scope']
     ]);
 
@@ -63,8 +64,6 @@ $result = [
 ];
 
 $now = time();
-
-$timestamp = Setting::get_value('fmt', 'system', 'sync.last_push_timestamp', 0);
 
 foreach($policies as $id => $policy) {
 
@@ -98,7 +97,7 @@ foreach($policies as $id => $policy) {
         }
     }
 
-    $objects = $entity::search(['modified', '>=', $timestamp])
+    $objects = $entity::search(['modified', '>=', $policy['last_sync']])
         ->read(array_keys($schema))
         ->adapt('json')
         ->get(true);
@@ -108,9 +107,9 @@ foreach($policies as $id => $policy) {
         $fields_unique = explode(',', $policy['field_unique']);
         foreach($fields_unique as $field_unique) {
             // #memo - even if registration_number is not set, an Identity might have a slug_hash as secondary unique key
-            if(!isset($object[$policy['field_unique']]) && $policy['object_class'] !== 'identity\Identity') {
+            if(!isset($object[$field_unique]) && $policy['object_class'] !== 'identity\Identity') {
                 ++$result['ignored'];
-                $result['logs'][] = "Ignored entity {$entity} object [{$object['id']}] with no value for unique key field `{$policy['field_unique']}`.";
+                $result['logs'][] = "Ignored entity {$entity} object [{$object['id']}] with no value for unique key field `{$field_unique}`.";
                 continue 2;
             }
         }
@@ -153,10 +152,9 @@ foreach($policies as $id => $policy) {
             $result['logs'][] = "Unable to push protected entity {$entity} ({$object['id']}) to Global instance: " . $e->getMessage();
         }
     }
-}
 
-// store last_sync_timestamp
-Setting::set_value('fmt', 'system', 'sync.last_push_timestamp', $now);
+    SyncPolicy::id($policy['id'])->update(['last_sync' => $now]);
+}
 
 if($result['errors'] > 0) {
     // #todo - send email to error reporter

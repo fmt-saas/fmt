@@ -48,7 +48,7 @@ class SyncPolicy extends Model {
                 'description'       => 'Direction of the synchronization.'
             ],
 
-            'last_pull' => [
+            'last_sync' => [
                 'type'              => 'datetime',
                 'description'       => 'Last time some data were pulled from the global instance.',
                 'default'           => 0,

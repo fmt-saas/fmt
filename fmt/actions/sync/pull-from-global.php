@@ -53,7 +53,7 @@ $policies = SyncPolicy::search([
         'scope',
         'object_class',
         'field_unique',
-        'last_pull',
+        'last_sync',
         'sync_policy_lines_ids' => ['object_field', 'scope']
     ]);
 
@@ -93,7 +93,7 @@ foreach($policies as $id => $policy) {
 
         $schema = $model->getSchema();
 
-        $date_from = date('c', $policy['last_pull']);
+        $date_from = date('c', $policy['last_sync']);
 
         $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_sync_pull-from-local' .
                 '&entity=' . urlencode($policy['object_class']) .
@@ -316,7 +316,7 @@ foreach($policies as $id => $policy) {
             }
         }
 
-        SyncPolicy::id($policy['id'])->update(['last_pull' => $now]);
+        SyncPolicy::id($policy['id'])->update(['last_sync' => $now]);
     }
     catch(Exception $e) {
         ++$result['errors'];
