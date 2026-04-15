@@ -1727,6 +1727,7 @@ class DocumentProcess extends Model {
     protected static function doPerformDrafting($self) {
         $self->read([
                 'condo_id',
+                'status',
                 'report_html',
                 'has_target_object',
                 'document_type_code',
@@ -1824,7 +1825,8 @@ class DocumentProcess extends Model {
                             'has_fund_usage'                => false,
                             'has_instant_reinvoice'         => false,
                             'document_process_id'           => $id,
-                            'document_id'                   => $documentProcess['document_id']['id']
+                            'document_id'                   => $documentProcess['document_id']['id'],
+                            'document_process_status'       => $documentProcess['status']
                         ])
                         // posting_date triggers sync with fiscal year & period (computed fields), and date_from & date_to (if has_date_range is set to true)
                         ->update([
@@ -1878,19 +1880,20 @@ class DocumentProcess extends Model {
                     // create the BankStatement
                     // #memo - by convention new statements have their status set to 'pending'
                     $bankStatement = BankStatement::create([
-                            'condo_id'              => $documentProcess['condo_id'],
-                            'date'                  => strtotime($data['closing_date']),
-                            'opening_date'          => strtotime($data['opening_date']),
-                            'closing_date'          => strtotime($data['closing_date']),
-                            'opening_balance'       => round(floatval($data['opening_balance']), 2),
-                            'closing_balance'       => round(floatval($data['closing_balance']), 2),
-                            'statement_currency'    => $data['statement_currency'],
-                            'statement_number'      => sprintf("%03d", intval($data['statement_number'])),
-                            'bank_account_id'       => $bankAccount['id'] ?? null,
-                            'bank_account_iban'     => $data['account_iban'],
-                            'bank_account_bic'      => $data['bank_bic'],
-                            'document_process_id'   => $id,
-                            'document_id'           => $documentProcess['document_id']['id']
+                            'condo_id'                  => $documentProcess['condo_id'],
+                            'date'                      => strtotime($data['closing_date']),
+                            'opening_date'              => strtotime($data['opening_date']),
+                            'closing_date'              => strtotime($data['closing_date']),
+                            'opening_balance'           => round(floatval($data['opening_balance']), 2),
+                            'closing_balance'           => round(floatval($data['closing_balance']), 2),
+                            'statement_currency'        => $data['statement_currency'],
+                            'statement_number'          => sprintf("%03d", intval($data['statement_number'])),
+                            'bank_account_id'           => $bankAccount['id'] ?? null,
+                            'bank_account_iban'         => $data['account_iban'],
+                            'bank_account_bic'          => $data['bank_bic'],
+                            'document_process_id'       => $id,
+                            'document_id'               => $documentProcess['document_id']['id'],
+                            'document_process_status'   => $documentProcess['status']
                         ])
                         ->first();
 
