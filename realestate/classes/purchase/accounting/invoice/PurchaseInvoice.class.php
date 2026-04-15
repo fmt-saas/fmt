@@ -1350,7 +1350,20 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         ]);
                 }
             }
-            // 5) date range: split common expenses
+            // 5) date range within posting period
+            elseif($date_from >= $invoice['fiscal_period_id']['date_from'] && $date_to <= $invoice['fiscal_period_id']['date_to']) {
+                // create the debit line for the whole common expense
+                AccountingEntryLine::create([
+                        'condo_id'                  => $invoice['condo_id'],
+                        'accounting_entry_id'       => $accountingEntry['id'],
+                        'description'               => $invoiceLine['description'],
+                        'account_id'                => $invoiceLine['expense_account_id'],
+                        'purchase_invoice_line_id'  => $invoice_line_id,
+                        'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
+                        'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
+                    ]);
+            }
+            // 6) date range: split common expenses
             else {
                 $total_days = ( ($date_to - $date_from) / 86400 ) + 1;
 
@@ -1378,10 +1391,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
                     for($i = 0, $n = count($allocation_dates); $i < $n; ++$i) {
 
-                        if(abs($remaining_amount) <= 0.01) {
-                            break;
-                        }
-
                         $period_date_from = $allocation_dates[$i];
                         $period_date_to = ($i+1 < $n) ? ($allocation_dates[$i+1] - 86400) : $date_to;
 
@@ -1398,23 +1407,20 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                     'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
                                 ]);
 
-                            // compute paid amount pro-rata based on the duration of the date range.
-                            $intersect_from = max($date_from, $period_date_from);
-                            $intersect_to = min($date_to, $period_date_to);
-                            $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
-                            $ratio = $intersect_days / $total_days;
-                            $amount = round($total_amount * $ratio, 2);
-                            // #memo - no entry line with $amount here: resulting allocated amount for first period will be the delta with following deferred lines
-                            $remaining_amount = round($remaining_amount - $amount, 2);
+                            if($n > 1) {
+                                // compute paid amount pro-rata based on the duration of the date range.
+                                $intersect_from = max($date_from, $period_date_from);
+                                $intersect_to = min($date_to, $period_date_to);
+                                $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
+                                $ratio = $intersect_days / $total_days;
+                                $amount = round($total_amount * $ratio, 2);
+                                // #memo - no entry line with $amount here: resulting allocated amount for first period will be the delta with following deferred lines
+                                $remaining_amount = round($remaining_amount - $amount, 2);
+                                continue;
+                            }
                         }
 
-                        $date_range_within_posting_period =
-                            $date_from >= $invoice['fiscal_period_id']['date_from']
-                            && $date_to <= $invoice['fiscal_period_id']['date_to'];
-
-                        if($date_range_within_posting_period) {
-                            continue;
-                        }
+                        // handle expense deferring
 
                         // 1) create deferred entry lines
                         $description = $invoice['description'];
