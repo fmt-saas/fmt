@@ -1050,7 +1050,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         }
     }
 
-    protected static function onupdatePostingDate($self) {
+    protected static function onupdatePostingDate($self, $values) {
         $self->read(['condo_id', 'posting_date', 'has_date_range']);
         foreach($self as $id => $purchaseInvoice) {
             if(!$purchaseInvoice['posting_date']) {
@@ -1059,6 +1059,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             if(!$purchaseInvoice['has_date_range']) {
                 continue;
             }
+            if(isset($values['date_from'], $values['date_to'])) {
+                // do not force value is both date_from and date_to are given
+                continue;
+            }
+            // assign date_from and date_to to posting period
             $fiscalYear = FiscalYear::search([
                     ['condo_id', '=', $purchaseInvoice['condo_id']],
                     ['date_from', '<=', $purchaseInvoice['posting_date']],
