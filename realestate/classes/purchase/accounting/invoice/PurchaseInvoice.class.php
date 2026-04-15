@@ -509,6 +509,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');
 
+            // delete planned accounting entries
+            AccountingEntry::search([['purchase_invoice_id', '=', $id], ['status', '=', 'planned']])->delete(true);
+
             self::id($id)
                 ->update(['status' => 'proforma'])
                 ->update(['accounting_entry_id' => null]);
