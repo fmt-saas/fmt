@@ -1378,6 +1378,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
                     for($i = 0, $n = count($allocation_dates); $i < $n; ++$i) {
 
+                        if(abs($remaining_amount) <= 0.01) {
+                            break;
+                        }
+
                         $period_date_from = $allocation_dates[$i];
                         $period_date_to = ($i+1 < $n) ? ($allocation_dates[$i+1] - 86400) : $date_to;
 
@@ -1404,11 +1408,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             $remaining_amount = round($remaining_amount - $amount, 2);
                         }
 
-                        $date_range_within_fiscal_period =
+                        $date_range_within_posting_period =
                             $date_from >= $invoice['fiscal_period_id']['date_from']
                             && $date_to <= $invoice['fiscal_period_id']['date_to'];
 
-                        if($date_range_within_fiscal_period) {
+                        if($date_range_within_posting_period) {
                             continue;
                         }
 
