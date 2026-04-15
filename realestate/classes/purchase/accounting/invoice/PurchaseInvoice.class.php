@@ -1352,16 +1352,21 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
             // 5) date range within posting period
             elseif($date_from >= $invoice['fiscal_period_id']['date_from'] && $date_to <= $invoice['fiscal_period_id']['date_to']) {
-                // create the debit line for the whole common expense
-                AccountingEntryLine::create([
-                        'condo_id'                  => $invoice['condo_id'],
-                        'accounting_entry_id'       => $accountingEntry['id'],
-                        'description'               => $invoiceLine['description'],
-                        'account_id'                => $invoiceLine['expense_account_id'],
-                        'purchase_invoice_line_id'  => $invoice_line_id,
-                        'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
-                        'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
-                    ]);
+                foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
+                    if($invoiceLine['is_private_expense']) {
+                        continue;
+                    }
+                    // create the debit line for the whole common expense
+                    AccountingEntryLine::create([
+                            'condo_id'                  => $invoice['condo_id'],
+                            'accounting_entry_id'       => $accountingEntry['id'],
+                            'description'               => $invoiceLine['description'],
+                            'account_id'                => $invoiceLine['expense_account_id'],
+                            'purchase_invoice_line_id'  => $invoice_line_id,
+                            'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
+                            'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
+                        ]);
+                }
             }
             // 6) date range: split common expenses
             else {
