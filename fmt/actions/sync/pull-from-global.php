@@ -208,6 +208,12 @@ foreach($policies as $id => $policy) {
                         elseif(is_bool($localObject[$field])) {
                             $old_value = $localObject[$field] ? '1' : '0';
                         }
+                        elseif(in_array('date', [$schema[$field]['type'], $schema[$field]['result_type']]) && !empty($localObject[$field])) {
+                            $old_value = (string) strtotime($localObject[$field]);
+                        }
+                        elseif(in_array('datetime', [$schema[$field]['type'], $schema[$field]['result_type']]) && !empty($localObject[$field])) {
+                            $old_value = (string) strtotime($localObject[$field]);
+                        }
                         else {
                             $old_value = (string) $localObject[$field];
                         }
@@ -221,6 +227,12 @@ foreach($policies as $id => $policy) {
                         }
                         elseif(is_bool($value)) {
                             $new_value = $value ? '1' : '0';
+                        }
+                        elseif(in_array('date', [$schema[$field]['type'], $schema[$field]['result_type']]) && !empty($value)) {
+                            $new_value = (string) strtotime($value);
+                        }
+                        elseif(in_array('datetime', [$schema[$field]['type'], $schema[$field]['result_type']]) && !empty($value)) {
+                            $new_value = (string) strtotime($value);
                         }
                         else {
                             $new_value = (string) $value;
@@ -287,6 +299,18 @@ foreach($policies as $id => $policy) {
                         $new_value = null;
                         if(is_array($value)) {
                             $new_value = json_encode($value);
+                        }
+                        elseif(is_null($value)) {
+                            $new_value = 'NULL';
+                        }
+                        elseif(is_bool($value)) {
+                            $new_value = $value ? '1' : '0';
+                        }
+                        elseif(in_array('date', [$schema[$field]['type'], $schema[$field]['result_type']]) && !empty($value)) {
+                            $new_value = (string) strtotime($value);
+                        }
+                        elseif(in_array('datetime', [$schema[$field]['type'], $schema[$field]['result_type']]) && !empty($value)) {
+                            $new_value = (string) strtotime($value);
                         }
                         else {
                             $new_value = (string) $value;
