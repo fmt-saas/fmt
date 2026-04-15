@@ -412,12 +412,14 @@ class AccountingEntry extends Model {
             'entry_date',
             'entry_lines_ids' => [
                 'account_id',
+                'description',
                 'debit',
                 'credit',
-                'bank_statement_line_id',
-                'sale_invoice_line_id',
-                'purchase_invoice_line_id',
-                'misc_operation_line_id'
+                'funding_id',
+                'bank_statement_line_id'    => ['id', 'description'],
+                'sale_invoice_line_id'      => ['id', 'description'],
+                'purchase_invoice_line_id'  => ['id', 'description'],
+                'misc_operation_line_id'    => ['id', 'description']
             ]
         ]);
 
@@ -433,21 +435,50 @@ class AccountingEntry extends Model {
                     continue;
                 }
 
+                $bank_statement_line_id = $line['bank_statement_line_id']['id'] ?? 0;
+                $sale_invoice_line_id = $line['sale_invoice_line_id']['id'] ?? 0;
+                $purchase_invoice_line_id = $line['purchase_invoice_line_id']['id'] ?? 0;
+                $misc_operation_line_id = $line['misc_operation_line_id']['id'] ?? 0;
+
                 $link_key = implode(':', [
-                    $line['bank_statement_line_id'] ?? 0,
-                    $line['sale_invoice_line_id'] ?? 0,
-                    $line['purchase_invoice_line_id'] ?? 0,
-                    $line['misc_operation_line_id'] ?? 0
+                    $bank_statement_line_id,
+                    $sale_invoice_line_id,
+                    $purchase_invoice_line_id,
+                    $misc_operation_line_id
                 ]);
 
                 $group_key = $account_id . '-' . $link_key;
 
                 if(!isset($grouped_lines[$group_key])) {
+                    $description = $line['description'] ?? null;
+
+                    if(isset($line['purchase_invoice_line_id']['description']) && strlen((string) $line['purchase_invoice_line_id']['description']) > 0) {
+                        $description = $line['purchase_invoice_line_id']['description'];
+                    }
+                    elseif(isset($line['sale_invoice_line_id']['description']) && strlen((string) $line['sale_invoice_line_id']['description']) > 0) {
+                        $description = $line['sale_invoice_line_id']['description'];
+                    }
+                    elseif(isset($line['misc_operation_line_id']['description']) && strlen((string) $line['misc_operation_line_id']['description']) > 0) {
+                        $description = $line['misc_operation_line_id']['description'];
+                    }
+                    elseif(isset($line['bank_statement_line_id']['communication']) && strlen((string) $line['bank_statement_line_id']['description']) > 0) {
+                        $description = $line['bank_statement_line_id']['description'];
+                    }
+
                     $grouped_lines[$group_key] = [
-                        'survivor_id' => $line_id,
                         'line_ids'    => [],
                         'debit'       => 0.0,
-                        'credit'      => 0.0
+                        'credit'      => 0.0,
+                        'fields' => [
+                            'accounting_entry_id'        => $id,
+                            'account_id'                 => $account_id,
+                            'description'                => $description,
+                            'funding_id'                 => $line['funding_id'] ?? null,
+                            'bank_statement_line_id'     => $bank_statement_line_id ?: null,
+                            'sale_invoice_line_id'       => $sale_invoice_line_id ?: null,
+                            'purchase_invoice_line_id'   => $purchase_invoice_line_id ?: null,
+                            'misc_operation_line_id'     => $misc_operation_line_id ?: null
+                        ]
                     ];
                 }
 
@@ -457,10 +488,9 @@ class AccountingEntry extends Model {
             }
 
             $lines_to_delete = [];
-            $line_updates = [];
+            $lines_to_create = [];
 
             foreach($grouped_lines as $group) {
-                $survivor_id = $group['survivor_id'];
                 $line_ids = $group['line_ids'];
                 $debit = round($group['debit'], 4);
                 $credit = round($group['credit'], 4);
@@ -470,21 +500,24 @@ class AccountingEntry extends Model {
                     continue;
                 }
 
-                $line_updates[$survivor_id] = [
-                    'debit'  => $debit,
-                    'credit' => $credit
-                ];
-
-                foreach($line_ids as $line_id) {
-                    if($line_id !== $survivor_id) {
-                        $lines_to_delete[] = $line_id;
-                    }
+                if(count($line_ids) <= 1) {
+                    continue;
                 }
+
+                $lines_to_create[] = array_merge(
+                    $group['fields'],
+                    [
+                        'debit'  => $debit,
+                        'credit' => $credit
+                    ]
+                );
+
+                $lines_to_delete = array_merge($lines_to_delete, $line_ids);
             }
 
-            // #memo - there is a slight risk of inconsistency here in case the update operations are interrupted
-            foreach($line_updates as $line_id => $values) {
-                AccountingEntryLine::id($line_id)->update($values);
+            // #memo - there is a slight risk of inconsistency here in case the create/delete operations are interrupted
+            foreach($lines_to_create as $values) {
+                AccountingEntryLine::create($values);
             }
 
             if(!empty($lines_to_delete)) {

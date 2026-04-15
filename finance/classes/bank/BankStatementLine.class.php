@@ -41,6 +41,11 @@ class BankStatementLine extends Model {
                 'alias'             => 'sequence_number'
             ],
 
+            'description' => [
+                'type'              => 'alias',
+                'alias'             => 'communication'
+            ],
+
             'sequence_number' => [
                 'type'              => 'integer',
                 'description'       => 'Sequence number of the line.',
