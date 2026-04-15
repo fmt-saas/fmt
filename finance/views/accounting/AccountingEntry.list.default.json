@@ -24,6 +24,14 @@
             ]
         }
     },
+    "filters": [
+        {
+            "id": "filter.validated",
+            "label": "Validated",
+            "description": "Show validated entries only.",
+            "clause": ["status", "=", "validated"]
+        }
+    ],
     "layout": {
         "items": [
             {
@@ -53,7 +61,8 @@
                 "type": "field",
                 "value": "status",
                 "width": "20%",
-                "readonly": true
+                "readonly": true,
+                "sortable": true
             },
             {
                 "type": "field",

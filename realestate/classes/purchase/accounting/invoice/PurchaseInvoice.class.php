@@ -1350,7 +1350,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         ]);
                 }
             }
-            // 5) date range within posting period
+            // 5) date range within posting period: only add debit lines
             elseif($date_from >= $invoice['fiscal_period_id']['date_from'] && $date_to <= $invoice['fiscal_period_id']['date_to']) {
                 foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
                     if($invoiceLine['is_private_expense']) {
@@ -1368,7 +1368,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         ]);
                 }
             }
-            // 6) date range: split common expenses
+            // 6) date range: split expenses across impacted periods
             else {
                 $total_days = ( ($date_to - $date_from) / 86400 ) + 1;
 
@@ -1401,7 +1401,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             && $period_date_from >= $invoice['fiscal_period_id']['date_from']
                         );
 
-                        // first date of the date range + within posting period
+                        // first date of the allocation range
                         if($i == 0) {
                             // create the debit line for the whole common expense
                             AccountingEntryLine::create([
@@ -1413,8 +1413,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                     'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
                                     'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
                                 ]);
-
+                            // date is within period impacted by posting_date
                             if($is_posting_period) {
+                                // adapt remaining amount for following allocation dates, if any
                                 if($n > 1) {
                                     // compute paid amount pro-rata based on the duration of the date range.
                                     $intersect_from = max($date_from, $period_date_from);
