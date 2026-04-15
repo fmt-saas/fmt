@@ -1641,6 +1641,8 @@ class DocumentProcess extends Model {
 
                         // attempt to retrieve condominium by suppliership
                         if(!$values['condo_id']) {
+                            // #memo - this could lead to unintended condo_id assignment (if suppliership has not been created yet)
+                            /*
                             if($values['supplier_id']) {
                                 $supplierships = Suppliership::search(['supplier_id', '=', $values['supplier_id']])
                                     ->read(['condo_id']);
@@ -1651,6 +1653,7 @@ class DocumentProcess extends Model {
                                     $logs[] = "condo_id retrieved from single suppliership";
                                 }
                             }
+                            */
                         }
 
                         // attempt to retrieve condominium by name
