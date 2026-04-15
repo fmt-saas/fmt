@@ -277,14 +277,25 @@ class User extends \core\User {
     }
 
     protected static function doSyncUuidLinks($self) {
-        $self->read(['identity_id', 'identity_uuid']);
+        $self->read(['identity_id', 'identity_uuid', 'instance_id', 'instance_uuid']);
         foreach($self as $id => $user) {
+            // identity
             if(!empty($user['identity_uuid'])) {
                 $identity = Identity::search(['uuid', '=', $user['identity_uuid']])
                     ->first();
 
-                if($identity && $identity['identity_id'] !== $identity['id']) {
+                if($identity && $user['identity_id'] !== $identity['id']) {
                     self::id($id)->update(['identity_id' => $identity['id']]);
+                }
+            }
+
+            // instance
+            if(!empty($user['instance_uuid'])) {
+                $instance = Instance::search(['uuid', '=', $user['instance_uuid']])
+                    ->first();
+
+                if($instance && $user['instance_id'] !== $instance['id']) {
+                    self::id($id)->update(['instance_id' => $instance['id']]);
                 }
             }
         }
