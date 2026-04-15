@@ -1398,9 +1398,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
                         $period_date_from = $allocation_dates[$i];
                         $period_date_to = ($i+1 < $n) ? ($allocation_dates[$i+1] - 86400) : $date_to;
+                        $is_posting_period = (
+                            $period_date_from <= $invoice['fiscal_period_id']['date_to']
+                            && $period_date_from >= $invoice['fiscal_period_id']['date_from']
+                        );
 
-                        // first date of the date range
-                        if($i == 0) {
+                        // first date of the date range + within posting period
+                        if($i == 0 && $is_posting_period) {
                             // create the debit line for the whole common expense
                             AccountingEntryLine::create([
                                     'condo_id'                  => $invoice['condo_id'],
@@ -1511,8 +1515,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
                                 'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
                             ]);
-
-
 
                     }
                 }
