@@ -507,10 +507,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     ]);
             }
 
-            AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');
-
-            // delete planned accounting entries
-            AccountingEntry::search([['purchase_invoice_id', '=', $id], ['status', '=', 'planned']])->delete(true);
+            // reverse planned accounting entries, any
+            AccountingEntry::search([
+                    ['purchase_invoice_id', '=', $id],
+                    ['status', '=', 'validated']
+                ])
+                ->do('cancel');
 
             self::id($id)
                 ->update(['status' => 'proforma'])
@@ -1444,7 +1446,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                     'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
                                 ]);
 
-                            // 2) schedule a symmetrical accounting entry for the related period ('planned')
+                            // 2) schedule a symmetrical accounting entry for the related period
                             $plannedFiscalYear = FiscalYear::search([['condo_id', '=', $invoice['condo_id']], ['date_from', '<=', $period_date_from], ['date_to', '>=', $period_date_from]])->first();
 
                             if(!$plannedFiscalYear) {
@@ -1495,9 +1497,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 }
             }
 
-            // mark all scheduled accounting entries as planned
+            // validate all scheduled accounting entries
             foreach($map_planned_accounting_entries as $period_date_from => $plannedAccountingEntry) {
-                AccountingEntry::id($plannedAccountingEntry['id'])->transition('plan');
+                AccountingEntry::id($plannedAccountingEntry['id'])->transition('validate');
             }
 
         }

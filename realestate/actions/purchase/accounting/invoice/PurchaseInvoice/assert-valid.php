@@ -6,6 +6,7 @@
 */
 
 use documents\processing\DocumentProcess;
+use finance\accounting\FiscalYear;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
@@ -55,6 +56,8 @@ $purchaseInvoice = PurchaseInvoice::id($id)
         'fiscal_year_id',
         'emission_date',
         'posting_date',
+        'date_from',
+        'date_to',
         'price',
         'invoice_lines_ids' => [
             'apportionment_id', 'total', 'price', 'vat_rate', 'owner_share', 'tenant_share',
@@ -145,6 +148,44 @@ if(!isset($purchaseInvoice['emission_date']) || $purchaseInvoice['emission_date'
 else {
     // symmetrical removal of the alert (if any)
     $dispatch->cancel('purchase.accounting.invoice.missing_emission_date', $class, $id);
+}
+
+if($purchaseInvoice['date_from'] != $purchaseInvoice['date_to']) {
+    $dateFromFiscalYear = FiscalYear::search([
+            ['condo_id', '=', $purchaseInvoice['condo_id']],
+            ['date_from', '<=', $purchaseInvoice['date_from']],
+            ['date_to', '>=', $purchaseInvoice['date_from']]
+        ])
+        ->read(['id', 'status'])
+        ->first();
+
+    if(!$dateFromFiscalYear || $dateFromFiscalYear['status'] === 'closed') {
+        $dispatch->dispatch('purchase.accounting.invoice.invalid_date_from_fiscal_year', $class, $id, 'important', $script, ['id' => $id]);
+        throw new Exception("invalid_date_from_fiscal_year", EQ_ERROR_INVALID_PARAM);
+    }
+    else {
+        $dispatch->cancel('purchase.accounting.invoice.invalid_date_from_fiscal_year', $class, $id);
+    }
+
+    $dateToFiscalYear = FiscalYear::search([
+            ['condo_id', '=', $purchaseInvoice['condo_id']],
+            ['date_from', '<=', $purchaseInvoice['date_to']],
+            ['date_to', '>=', $purchaseInvoice['date_to']]
+        ])
+        ->read(['id', 'status'])
+        ->first();
+
+    if(!$dateToFiscalYear || !in_array($dateToFiscalYear['status'], ['preopen', 'open'], true)) {
+        $dispatch->dispatch('purchase.accounting.invoice.invalid_date_to_fiscal_year', $class, $id, 'important', $script, ['id' => $id]);
+        throw new Exception("invalid_date_to_fiscal_year", EQ_ERROR_INVALID_PARAM);
+    }
+    else {
+        $dispatch->cancel('purchase.accounting.invoice.invalid_date_to_fiscal_year', $class, $id);
+    }
+}
+else {
+    $dispatch->cancel('purchase.accounting.invoice.invalid_date_from_fiscal_year', $class, $id);
+    $dispatch->cancel('purchase.accounting.invoice.invalid_date_to_fiscal_year', $class, $id);
 }
 
 
