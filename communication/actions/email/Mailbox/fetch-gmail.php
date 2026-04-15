@@ -40,54 +40,47 @@ use documents\Document;
  *************/
 
 /**
- * Returns the ids of emails that were received after the given timestamp
+ * Returns a page of emails that were received after the given timestamp
  *
- * @param string $access_token  Gmail Google API token
- * @param int $after            Unix timestamp
- * @return int[]                List of messages ids
+ * @param string $access_token      Gmail Google API token
+ * @param int $after                Unix timestamp
+ * @param string|null $page_token   Gmail pagination token
+ * @param int $max_results          Maximum number of messages for the page
+ * @return array                    Gmail list response subset
  * @throws Exception
  */
-$getMessagesIds = function($access_token, $after) {
-    $messages_ids = [];
-    $next_page_token  = null;
-
-    do {
-        $params = [];
-        if($after > 0) {
-            $params['q'] = "after:$after";
-        }
-        if($next_page_token) {
-            $params['pageToken'] = $next_page_token;
-        }
-
-        $url = "https://gmail.googleapis.com/gmail/v1/users/me/messages";
-        if(!empty($params)) {
-            $url .= '?'.http_build_query($params);
-        }
-
-        $http = new \equal\http\HttpRequest("GET $url");
-
-        $response = $http
-            ->header("Authorization", "Bearer $access_token")
-            ->send();
-
-        $data = $response->body();
-        $status = $response->getStatusCode();
-
-        if($status < 200 || $status > 299) {
-            trigger_error("APP::Gmail API error: " . json_encode($data), EQ_REPORT_ERROR);
-            throw new Exception("gmail_api_error", EQ_ERROR_INVALID_PARAM);
-        }
-
-        foreach($data['messages'] ?? [] as $message) {
-            $messages_ids[] = $message['id'];
-        }
-
-        $next_page_token = $data['nextPageToken'] ?? null;
+$getMessagesPage = function($access_token, $after, $page_token = null, $max_results = 50) {
+    $params = ['maxResults' => $max_results];
+    if($after > 0) {
+        $params['q'] = "after:$after";
     }
-    while ($next_page_token);
+    if($page_token) {
+        $params['pageToken'] = $page_token;
+    }
 
-    return $messages_ids;
+    $url = "https://gmail.googleapis.com/gmail/v1/users/me/messages";
+    if(!empty($params)) {
+        $url .= '?'.http_build_query($params);
+    }
+
+    $http = new \equal\http\HttpRequest("GET $url");
+
+    $response = $http
+        ->header("Authorization", "Bearer $access_token")
+        ->send();
+
+    $data = $response->body();
+    $status = $response->getStatusCode();
+
+    if($status < 200 || $status > 299) {
+        trigger_error("APP::Gmail API error: " . json_encode($data), EQ_REPORT_ERROR);
+        throw new Exception("gmail_api_error", EQ_ERROR_INVALID_PARAM);
+    }
+
+    return [
+        'messages'       => $data['messages'] ?? [],
+        'nextPageToken'  => $data['nextPageToken'] ?? null
+    ];
 };
 
 /**
@@ -251,6 +244,9 @@ $allowed_mime_types = [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ];
 
+$max_messages_per_fetch = 50;
+$gmail_page_size = 50;
+
 // check consistency
 $mailbox = Mailbox::id($params['id'])
     ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'date_last_sync'])
@@ -270,25 +266,48 @@ if($mailbox['auth_type'] !== 'oauth') {
 
 try {
     if($mailbox['refresh_token_expiry'] < time()) {
-        // #todo - uncomment the line below when the Gmail API validation is finished
-        // throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
+        // #todo - dispatch an alert to notify user to re-connect
+        throw new Exception("expired_oauth_refresh_token", EQ_ERROR_INVALID_PARAM);
     }
 
     if($mailbox['access_token_expiry'] < time()) {
         eQual::run('do', 'communication_email_Mailbox_refresh-token-gmail', ['id' => $params['id']]);
+
+        $mailbox = Mailbox::id($params['id'])
+            ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'date_last_sync'])
+            ->first();
     }
 }
 catch(Exception $e) {
     // refresh token failed : force the need for OAuth renewal
     Mailbox::id($params['id'])->update(['status' => 'pending']);
-    throw $e;
+    trigger_error("Gmail OAuth token expired: " . $e->getMessage(), EQ_REPORT_ERROR);
+    throw new \Exception('expired_oauth_token', EQ_ERROR_UNKNOWN);
 }
 
-$messages_ids = $getMessagesIds($mailbox['access_token'], $mailbox['date_last_sync']);
-
 $new_date_last_sync = time();
+$imported_messages_count = 0;
+$fetch_limit_reached = false;
+$next_page_token = null;
+$message_refs = [];
+$last_processed_message_date = null;
 
-foreach($messages_ids as $message_id) {
+do {
+    $page = $getMessagesPage($mailbox['access_token'], $mailbox['date_last_sync'], $next_page_token, $gmail_page_size);
+
+    foreach($page['messages'] as $message_ref) {
+        $message_refs[] = $message_ref;
+    }
+
+    $next_page_token = $page['nextPageToken'];
+}
+while($next_page_token);
+
+$message_refs = array_reverse($message_refs);
+
+foreach($message_refs as $message_ref) {
+    $message_id = $message_ref['id'];
+
     // skip already imported
     if(Email::search(['message_id', '=', $message_id])->first()) {
         continue;
@@ -309,17 +328,19 @@ foreach($messages_ids as $message_id) {
     }
 
     $body = $extractMessageBody($message['payload']);
+    $message_date = strtotime($headers['Date']);
+    $message_internal_date = !empty($message['internalDate']) ? intval($message['internalDate'] / 1000) : null;
 
     $email = Email::create([
-        'mailbox_id'    => $mailbox['id'],
-        'message_id'    => $message_id,
-        'subject'       => substr($headers['Subject'], 0, 255),
-        'from'          => $extractEmailAddress($headers['From']),
-        'to'            => $extractEmailAddress($headers['To']),
-        'direction'     => 'incoming',
-        'date'          => strtotime($headers['Date']),
-        'body'          => $body
-    ])
+            'mailbox_id'    => $mailbox['id'],
+            'message_id'    => $message_id,
+            'subject'       => substr($headers['Subject'], 0, 255),
+            'from'          => $extractEmailAddress($headers['From']),
+            'to'            => $extractEmailAddress($headers['To']),
+            'direction'     => 'incoming',
+            'date'          => $message_date,
+            'body'          => $body
+        ])
         ->read(['thread_hash'])
         ->first();
 
@@ -340,16 +361,30 @@ foreach($messages_ids as $message_id) {
         }
 
         Document::create([
-            'name'     => $attachment['filename'],
-            'data'     => base64_decode($data),
-            'email_id' => $email['id']
-        ])
+                'name'     => $attachment['filename'],
+                'data'     => base64_decode($data),
+                'email_id' => $email['id']
+            ])
             ->do('start_processing');
+    }
+
+    ++$imported_messages_count;
+    if($message_internal_date !== null) {
+        $last_processed_message_date = $message_internal_date;
+    }
+
+    if($imported_messages_count >= $max_messages_per_fetch) {
+        $fetch_limit_reached = true;
+        break;
     }
 }
 
-// update sync time ($new_date_last_sync = time saved just after the messages ids were fetched)
-Mailbox::id($mailbox['id'])->update(['date_last_sync' => $new_date_last_sync]);
+if($fetch_limit_reached && $last_processed_message_date !== null) {
+    Mailbox::id($mailbox['id'])->update(['date_last_sync' => max(0, $last_processed_message_date - 1)]);
+}
+else {
+    Mailbox::id($mailbox['id'])->update(['date_last_sync' => $new_date_last_sync]);
+}
 
 $context
     ->httpResponse()

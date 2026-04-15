@@ -49,6 +49,7 @@ $allowed_mime_types = [
         'application/vnd.ms-excel',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ];
+$max_messages_per_fetch = 50;
 
 // check consistency
 $mailbox = Mailbox::id($params['id'])
@@ -97,11 +98,21 @@ try {
 
     // limit query to messages received since last sync
     $messages = $inbox->query()->since($mailbox['date_last_sync'])->get();
-
-    // update date of last synchro (before hand so that we don't re-download in case of error)
-    Mailbox::id($mailbox['id'])->update(['date_last_sync' => time()]);
-
+    $messages_buffer = [];
     foreach($messages as $message) {
+        $messages_buffer[] = $message;
+    }
+
+    usort($messages_buffer, function($message_a, $message_b) {
+        return strtotime($message_a->getDate()) <=> strtotime($message_b->getDate());
+    });
+
+    $new_date_last_sync = time();
+    $imported_messages_count = 0;
+    $fetch_limit_reached = false;
+    $last_processed_message_date = null;
+
+    foreach($messages_buffer as $message) {
         $message_id = $message->getMessageId();
 
         $email = Email::search(['message_id', '=', $message_id])->first();
@@ -110,6 +121,8 @@ try {
             continue;
         }
 
+        $message_date = strtotime($message->getDate());
+
         $email = Email::create([
                 'mailbox_id'    => $mailbox['id'],
                 'message_id'    => $message_id,
@@ -117,7 +130,7 @@ try {
                 'from'          => $message->getFrom()[0]->mail ?? '',
                 'to'            => $message->getTo()[0]->mail ?? '',
                 'direction'     => 'incoming',
-                'date'          => strtotime($message->getDate()),
+                'date'          => $message_date,
                 'body'          => $message->getHTMLBody() ?? ($message->getTextBody() ?? ''),
             ])
             ->read(['thread_hash'])
@@ -141,6 +154,23 @@ try {
                 // create related DocumentProcess object
                 ->do('start_processing');
         }
+
+        ++$imported_messages_count;
+        if($message_date !== false) {
+            $last_processed_message_date = $message_date;
+        }
+
+        if($imported_messages_count >= $max_messages_per_fetch) {
+            $fetch_limit_reached = true;
+            break;
+        }
+    }
+
+    if($fetch_limit_reached && $last_processed_message_date !== null) {
+        Mailbox::id($mailbox['id'])->update(['date_last_sync' => max(0, $last_processed_message_date - 1)]);
+    }
+    else {
+        Mailbox::id($mailbox['id'])->update(['date_last_sync' => $new_date_last_sync]);
     }
 
     $client->disconnect();

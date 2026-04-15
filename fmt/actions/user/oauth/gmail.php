@@ -91,27 +91,27 @@ $data = array_merge($data, [
     'email'                 => $email,
     'provider'              => 'google',
     'access_token_expiry'   => time() + $data['expires_in'],
-    'refresh_token_expiry'  => time() + $data['refresh_token_expires_in']
+    // #memo - $data['refresh_token_expires_in'] presence is not guaranteed
+    'refresh_token_expiry'  => time() + ($data['refresh_token_expires_in'] ?? (365 * 86400))
 ]);
 
-// retrieve the target instance based on state
-$origin_url = $params['state'];
-$domain = parse_url($origin_url, PHP_URL_HOST);
-
-$global_domain = parse_url(constant('BACKEND_URL'), PHP_URL_HOST);
-
-if($domain === $global_domain) {
+if(constant('FMT_INSTANCE_TYPE') === 'global') {
     // GLOBAL
     eQual::run('do', 'communication_email_Mailbox_validate', $data);
 }
 else {
     // AGENCY
+    // retrieve the target instance based on state
+    $domain = parse_url($params['state'], PHP_URL_HOST);
+    if(!$domain) {
+        throw new Exception('unexpected_malformed_state', EQ_ERROR_INVALID_PARAM);
+    }
     $instance = Instance::search(['name', '=', $domain])->first();
     if($instance) {
         $validationRequest = new HttpRequest('POST https://' . $domain . '/?do=communication_email_Mailbox_validate');
         $response = $validationRequest
             ->header('Content-Type', 'application/json')
-            ->setBody($data)
+            ->body($data)
             ->send();
     }
 }

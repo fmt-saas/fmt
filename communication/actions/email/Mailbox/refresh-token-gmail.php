@@ -79,6 +79,15 @@ $response = $oauthRequest
 $data = $response->body();
 $status = $response->getStatusCode();
 
+if($status < 200 || $status >= 300) {
+    trigger_error("Gmail OAuth refresh failed: " . json_encode($data), EQ_REPORT_ERROR);
+    throw new Exception("refresh_token_failed", EQ_ERROR_INVALID_PARAM);
+}
+
+if(empty($data['access_token']) || empty($data['expires_in'])) {
+    trigger_error("Gmail OAuth refresh returned an incomplete response: " . json_encode($data), EQ_REPORT_ERROR);
+    throw new Exception("invalid_oauth_response", EQ_ERROR_INVALID_PARAM);
+}
 
 Mailbox::id($mailbox['id'])->update([
         'access_token'          => $data['access_token'],
