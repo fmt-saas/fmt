@@ -96,7 +96,7 @@ if(count($params['domain'])) {
 
 // if the employee has the role `document_dispatch_officer`, assume they are assigned to all documents with status `created` and not yet `assigned`
 if($employee_id) {
-    $documentProcesses = DocumentProcess::search([['assigned_employee_id', '=', $employee_id], ['status', '=', 'created']])
+    $documentProcesses = DocumentProcess::search([['assigned_employee_id', '=', $employee_id], ['status', 'in', ['created', 'assigned']]])
         ->read(['id', 'created']);
 
     if($documentProcesses->count() > 0) {
