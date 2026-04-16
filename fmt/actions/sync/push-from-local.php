@@ -135,9 +135,10 @@ $fields = array_keys($values);
 if($uuid) {
     $localObject = $entity::search(['uuid', '=', $uuid])
         ->read($fields)
-        ->first();
+        ->adapt('json')
+        ->first(true);
 
-    // #memo - if we received a uuid, it must be valid
+    // #memo - if we received an uuid, it must be valid
     if(!$localObject) {
         throw new Exception('invalid_uuid', EQ_ERROR_INVALID_PARAM);
     }
@@ -152,13 +153,15 @@ if(!$localObject && isset($policy['field_unique']) && !empty($values[$policy['fi
 
     $localObject = $entity::search($domain)
         ->read($fields)
-        ->first();
+        ->adapt('json')
+        ->first(true);
 }
 
 if(!$localObject && $policy['object_class'] === 'identity\Identity' && !empty($values['slug_hash'])) {
     $localObject = $entity::search(['slug_hash', '=', $values['slug_hash']])
         ->read($fields)
-        ->first();
+        ->adapt('json')
+        ->first(true);
 }
 
 $not_allowed_fields = ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'];
