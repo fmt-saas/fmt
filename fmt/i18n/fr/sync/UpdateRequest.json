@@ -88,6 +88,11 @@
                 "approved": "Approuvée",
                 "rejected": "Rejetée"
             }
+        },
+        "alerts_count": {
+            "label": "Alertes",
+            "description": "Nombre d'alertes liés à la reqête.",
+            "help": ""
         }
     },
     "view": {

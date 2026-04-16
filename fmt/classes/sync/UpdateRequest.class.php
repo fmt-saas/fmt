@@ -7,6 +7,7 @@
 namespace fmt\sync;
 
 use equal\orm\Model;
+use fmt\core\alert\Message;
 
 class UpdateRequest extends Model {
 
@@ -129,7 +130,15 @@ class UpdateRequest extends Model {
                 ],
                 'default'           => 'pending',
                 'description'       => 'Current status of the update request.'
-            ]
+            ],
+
+            'alerts_count' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => 'Number of alerts attached to the request.',
+                'store'             => false,
+                'function'          => 'calcAlertsCount'
+            ],
 
         ];
     }
@@ -209,6 +218,22 @@ class UpdateRequest extends Model {
                 $object = $updateRequest['object_class']::id($updateRequest['object_id'])->read(['name'])->first();
                 $result[$id] = $object['name'];
             }
+        }
+        return $result;
+    }
+
+    protected static function calcAlertsCount($self) {
+        $result = [];
+        $self->read(['']);
+        foreach($self as $id => $item) {
+            $alerts_ids = Message::search([
+                ['object_class', '=', self::getType()],
+                ['object_id', '=', $id],
+                ['', '', '']
+            ])
+                ->ids();
+
+            $result[$id] = count($alerts_ids);
         }
         return $result;
     }
