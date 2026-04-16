@@ -182,7 +182,7 @@ if($localObject) {
             continue;
         }
 
-        $values_to_update[$field] = $values;
+        $values_to_update[$field] = $value;
     }
 
     if(!empty($values_to_update)) {
