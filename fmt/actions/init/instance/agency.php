@@ -28,7 +28,7 @@ use infra\server\Instance;
         'content-type'  => 'application/json'
     ],
     'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_INTERNAL_TOKEN'],
-    'providers'     => ['context', 'orm']
+    'providers'     => ['context']
 ]);
 
 /**

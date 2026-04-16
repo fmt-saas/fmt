@@ -22,7 +22,7 @@
         'content-type'  => 'application/json'
     ],
     'constants'     => ['FMT_INSTANCE_TYPE'],
-    'providers'     => ['context', 'orm']
+    'providers'     => ['context']
 ]);
 
 /**
