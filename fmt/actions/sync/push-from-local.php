@@ -36,14 +36,80 @@ use infra\server\Instance;
         'content-type'  => 'application/json'
     ],
     'constants'     => ['FMT_INSTANCE_TYPE'],
-    'providers'     => ['context', 'orm']
+    'providers'     => ['context', 'orm', 'dispatch']
 ]);
 
 /**
  * @var \equal\php\Context          $context
  * @var \equal\orm\ObjectManager    $orm
+ * @var \equal\dispatch\Dispatcher  $dispatch
  */
-['context' => $context, 'orm' => $orm] = $providers;
+['context' => $context, 'orm' => $orm, 'dispatch' => $dispatch] = $providers;
+
+$triggerAlerts = function($update_request_id, $policy, $descendingPolicy) use($dispatch) {
+    $updateRequest = UpdateRequest::id($update_request_id)
+        ->read([
+            'object_class',
+            'is_new',
+            'update_request_lines_ids' => [
+                'object_field'
+            ]
+        ])
+        ->first();
+
+    $alerts = [];
+    foreach($updateRequest['update_request_lines_ids'] as $update_request_line) {
+        // 1) Check if one of the unique fields is updated
+        $fields_unique = explode(',', $policy['field_unique']);
+        if(!$updateRequest['is_new'] && in_array($update_request_line['object_field'], $fields_unique)) {
+            $alerts[] = [
+                'message_model' => 'fmt.sync.push.update_request.field_unique_update',
+                'severity'      => 'warning'
+            ];
+        }
+
+        // 2) Check if agency tries to update the UUID
+        if($update_request_line['object_field'] === 'uuid') {
+            $alerts[] = [
+                'message_model' => 'fmt.sync.push.update_request.uuid_update',
+                'severity'      => 'warning'
+            ];
+        }
+    }
+
+    if(!empty($descendingPolicy['sync_policy_lines_ids'])) {
+        foreach($policy['sync_policy_lines_ids'] as $policy_line) {
+            // 3) Check if descending policy is missing some fields that are present in ascending
+            $field_pulled = false;
+            foreach($descendingPolicy['sync_policy_lines_ids'] as $descending_policy_line) {
+                if($descending_policy_line['object_field'] === $policy_line['object_field']) {
+                    $field_pulled = true;
+                    break;
+                }
+            }
+            if(!$field_pulled) {
+                $alerts[] = [
+                    'message_model' => 'fmt.sync.push.update_request.missing_field_in_descending_policy',
+                    'severity'      => 'warning'
+                ];
+            }
+        }
+    }
+
+    foreach($alerts as $alert) {
+        $dispatch->dispatch($alert['message_model'], UpdateRequest::getType(), $updateRequest['id'], $alert['severity']);
+    }
+
+    /*
+    $dispatch->dispatch($message_model['name'], $task['object_class'], $task['object_id'], $params['severity'], 'core_followup_Task_check-done', [
+        'id'            => $id,
+        'message_model' => $message_model['name'],
+        'severity'      => $params['severity']
+    ]);
+    */
+
+    return $alerts;
+};
 
 if(constant('FMT_INSTANCE_TYPE') !== 'global') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
@@ -75,6 +141,15 @@ $policy = SyncPolicy::search([
     ->read([
         'object_class',
         'field_unique',
+        'sync_policy_lines_ids' => ['object_field', 'scope']
+    ])
+    ->first();
+
+$descendingPolicy = SyncPolicy::search([
+        ['object_class', '=', $entity],
+        ['sync_direction', '=', 'descending']
+    ])
+    ->read([
         'sync_policy_lines_ids' => ['object_field', 'scope']
     ])
     ->first();
@@ -239,6 +314,8 @@ if($localObject) {
         }
 
         $result = 'requested';
+
+        $triggerAlerts($updateRequest['id'], $policy, $descendingPolicy);
     }
 }
 // new object (existing object could not be retrieved), create a new one
@@ -287,6 +364,8 @@ else {
         }
 
         $result = 'requested';
+
+        $triggerAlerts($updateRequest['id'], $policy, $descendingPolicy);
     }
 }
 
