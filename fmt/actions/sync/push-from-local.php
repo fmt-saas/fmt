@@ -166,6 +166,8 @@ if(!$localObject && $policy['object_class'] === 'identity\Identity' && !empty($v
 
 $not_allowed_fields = ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'];
 
+$result = 'ignored';
+
 // a match was found with an existing object
 if($localObject) {
     $values_to_update = [];
@@ -235,6 +237,8 @@ if($localObject) {
                 'new_value'         => $new_value
             ]);
         }
+
+        $result = 'requested';
     }
 }
 // new object (existing object could not be retrieved), create a new one
@@ -281,10 +285,13 @@ else {
                 'new_value'         => $new_value
             ]);
         }
+
+        $result = 'requested';
     }
 }
 
 $context
     ->httpResponse()
-    ->status(204)
+    ->body($result)
+    ->status(200)
     ->send();
