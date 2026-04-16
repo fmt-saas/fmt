@@ -245,25 +245,18 @@ class UpdateRequest extends Model {
 
                     $type = $field_descriptor['result_type'] ?? ($field_descriptor['type'] ?? '');
 
-                    switch($type) {
-                        case 'integer':
-                        case 'date':
-                        case 'datetime':
-                        case 'many2one':
-                            $val = (int) $line['new_value'];
-                            break;
-                        case 'float':
-                            $val = (float) $line['new_value'];
-                            break;
-                        case 'boolean':
-                            $val = (bool) $line['new_value'];
-                            break;
-                        case 'many2many':
-                            $val = json_decode($line['new_value'], true);
-                            break;
-                        case 'string':
-                        default:
-                            $val = (string) $line['new_value'];
+                    if($line['new_value'] === 'NULL') {
+                        $val = null;
+                    }
+                    else {
+                        $val = match($type) {
+                            'integer', 'many2one'   => (int) $line['new_value'],
+                            'date', 'datetime'      => (int) strtotime($line['new_value']),
+                            'float'                 => (float) $line['new_value'],
+                            'boolean'               => (bool) $line['new_value'],
+                            'many2many'             => json_decode($line['new_value'], true),
+                            default                 => (string) $line['new_value']
+                        };
                     }
 
                     $data[$line['object_field']] = $val;

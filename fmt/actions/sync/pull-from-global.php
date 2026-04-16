@@ -161,10 +161,6 @@ foreach($policies as $id => $policy) {
                     if(in_array($field, $not_allowed_fields)) {
                         continue;
                     }
-                    // ignore empty fields
-                    if($value === null || $value === '') {
-                        continue;
-                    }
                     // ignore unchanged fields (many2many)
                     if(is_array($localObject[$field]) && is_array($value)) {
                         if(empty(array_diff($localObject[$field], $value)) && empty(array_diff($value, $localObject[$field]))) {
@@ -208,12 +204,6 @@ foreach($policies as $id => $policy) {
                         elseif(is_bool($localObject[$field])) {
                             $old_value = $localObject[$field] ? '1' : '0';
                         }
-                        elseif(in_array('date', [$schema[$field]['type'], $schema[$field]['result_type']]) && !empty($localObject[$field])) {
-                            $old_value = (string) strtotime($localObject[$field]);
-                        }
-                        elseif(in_array('datetime', [$schema[$field]['type'], $schema[$field]['result_type']]) && !empty($localObject[$field])) {
-                            $old_value = (string) strtotime($localObject[$field]);
-                        }
                         else {
                             $old_value = (string) $localObject[$field];
                         }
@@ -227,12 +217,6 @@ foreach($policies as $id => $policy) {
                         }
                         elseif(is_bool($value)) {
                             $new_value = $value ? '1' : '0';
-                        }
-                        elseif(in_array('date', [$schema[$field]['type'], $schema[$field]['result_type']]) && !empty($value)) {
-                            $new_value = (string) strtotime($value);
-                        }
-                        elseif(in_array('datetime', [$schema[$field]['type'], $schema[$field]['result_type']]) && !empty($value)) {
-                            $new_value = (string) strtotime($value);
                         }
                         else {
                             $new_value = (string) $value;
@@ -269,10 +253,6 @@ foreach($policies as $id => $policy) {
                     if(in_array($field, $not_allowed_fields)) {
                         continue;
                     }
-                    // ignore empty fields
-                    if($value === null || $value === '') {
-                        continue;
-                    }
 
                     $scope = $map_fields[$field] ?? 'private';
                     if($scope === 'private') {
@@ -305,12 +285,6 @@ foreach($policies as $id => $policy) {
                         }
                         elseif(is_bool($value)) {
                             $new_value = $value ? '1' : '0';
-                        }
-                        elseif(in_array('date', [$schema[$field]['type'], $schema[$field]['result_type']]) && !empty($value)) {
-                            $new_value = (string) strtotime($value);
-                        }
-                        elseif(in_array('datetime', [$schema[$field]['type'], $schema[$field]['result_type']]) && !empty($value)) {
-                            $new_value = (string) strtotime($value);
                         }
                         else {
                             $new_value = (string) $value;

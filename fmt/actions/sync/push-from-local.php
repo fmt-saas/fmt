@@ -161,20 +161,24 @@ if(!$localObject && $policy['object_class'] === 'identity\Identity' && !empty($v
         ->first();
 }
 
+$not_allowed_fields = ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'];
+
 // a match was found with an existing object
 if($localObject) {
     $values_to_update = [];
     foreach($values as $field => $value) {
         // #memo - uuid is always set on global and cannot be changed by local instances
-        if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+        if(in_array($field, $not_allowed_fields)) {
             continue;
         }
-        // ignore empty fields
-        if($value === null || $value === '') {
-            continue;
+        // ignore unchanged fields (many2many)
+        if(is_array($localObject[$field]) && is_array($value)) {
+            if(empty(array_diff($localObject[$field], $value)) && empty(array_diff($value, $localObject[$field]))) {
+                continue;
+            }
         }
         // ignore unchanged fields
-        if((string)$localObject[$field] === (string)$value) {
+        elseif((string) $localObject[$field] === (string) $value) {
             continue;
         }
 
@@ -193,11 +197,39 @@ if($localObject) {
             ->first();
 
         foreach($values_to_update as $field => $value) {
+            $old_value = null;
+            if(is_array($localObject[$field])) {
+                $old_value = json_encode($localObject[$field]);
+            }
+            elseif(is_null($localObject[$field])) {
+                $old_value = 'NULL';
+            }
+            elseif(is_bool($localObject[$field])) {
+                $old_value = $localObject[$field] ? '1' : '0';
+            }
+            else {
+                $old_value = (string) $localObject[$field];
+            }
+
+            $new_value = null;
+            if(is_array($value)) {
+                $new_value = json_encode($value);
+            }
+            elseif(is_null($value)) {
+                $new_value = 'NULL';
+            }
+            elseif(is_bool($value)) {
+                $new_value = $value ? '1' : '0';
+            }
+            else {
+                $new_value = (string) $value;
+            }
+
             UpdateRequestLine::create([
                 'update_request_id' => $updateRequest['id'],
                 'object_field'      => $field,
-                'old_value'         => (string) $localObject[$field],
-                'new_value'         => (string) $value
+                'old_value'         => $old_value,
+                'new_value'         => $new_value
             ]);
         }
     }
@@ -207,11 +239,7 @@ else {
     $values_to_update = [];
     foreach($values as $field => $value) {
         // #memo - uuid is always set on global and cannot be changed by local instances
-        if(in_array($field, ['id', 'uuid', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
-            continue;
-        }
-        // ignore empty fields
-        if($value === null || $value === '') {
+        if(in_array($field, $not_allowed_fields)) {
             continue;
         }
 
@@ -230,10 +258,24 @@ else {
             ->first();
 
         foreach($values_to_update as $field => $value) {
+            $new_value = null;
+            if(is_array($value)) {
+                $new_value = json_encode($value);
+            }
+            elseif(is_null($value)) {
+                $new_value = 'NULL';
+            }
+            elseif(is_bool($value)) {
+                $new_value = $value ? '1' : '0';
+            }
+            else {
+                $new_value = (string) $value;
+            }
+
             UpdateRequestLine::create([
                 'update_request_id' => $updateRequest['id'],
                 'object_field'      => $field,
-                'new_value'         => (string) $value
+                'new_value'         => $new_value
             ]);
         }
     }
