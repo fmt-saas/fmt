@@ -100,14 +100,6 @@ $triggerAlerts = function($update_request_id, $policy, $descendingPolicy) use($d
         $dispatch->dispatch($alert['message_model'], UpdateRequest::getType(), $updateRequest['id'], $alert['severity']);
     }
 
-    /*
-    $dispatch->dispatch($message_model['name'], $task['object_class'], $task['object_id'], $params['severity'], 'core_followup_Task_check-done', [
-        'id'            => $id,
-        'message_model' => $message_model['name'],
-        'severity'      => $params['severity']
-    ]);
-    */
-
     return $alerts;
 };
 
