@@ -55,8 +55,7 @@ $policies = SyncPolicy::search([
     ]);
 
 $result = [
-    'created'   => 0,
-    'updated'   => 0,
+    'requested' => 0,
     'ignored'   => 0,
     'errors'    => 0,
     'processed' => 0,
@@ -142,6 +141,16 @@ foreach($policies as $id => $policy) {
             if($status < 200 || $status > 299) {
                 $out = str_replace('\n', '', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
                 throw new Exception("Error from GLOBAL instance: HTTP status $status: $out", EQ_ERROR_UNKNOWN);
+            }
+            else {
+                switch($data) {
+                    case 'ignored':
+                        ++$result['ignored'];
+                        break;
+                    case 'requested':
+                        ++$result['requested'];
+                        break;
+                }
             }
         }
         catch(Exception $e) {
