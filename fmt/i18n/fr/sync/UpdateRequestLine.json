@@ -33,9 +33,19 @@
             "description": "Ancienne valeur du champ de l'objet.",
             "help": ""
         },
+        "display_old_value": {
+            "label": "Ancienne valeur",
+            "description": "Ancienne valeur du champ de l'objet facile à comprendre pour l'utilisateur.",
+            "help": ""
+        },
         "new_value": {
             "label": "Nouvelle valeur",
             "description": "Nouvelle valeur du champ de l'objet.",
+            "help": ""
+        },
+        "display_new_value": {
+            "label": "Nouvelle valeur",
+            "description": "Nouvelle valeur du champ de l'objet facile à comprendre pour l'utilisateur.",
             "help": ""
         }
     },
