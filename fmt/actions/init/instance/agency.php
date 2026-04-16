@@ -21,7 +21,7 @@ use infra\server\Instance;
         ]
     ],
     'access' => [
-        'visibility'    => 'protected'
+        'visibility'    => 'private'
     ],
     'response'      => [
         'accept-origin' => '*',

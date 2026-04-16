@@ -15,7 +15,7 @@
         ]
     ],
     'access' => [
-        'visibility'    => 'protected'
+        'visibility'    => 'private'
     ],
     'response'      => [
         'accept-origin' => '*',
