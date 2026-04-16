@@ -50,8 +50,7 @@ class UpdateRequestLine extends Model {
                 'result_type'       => 'boolean',
                 'relation'          => ['update_request_id' => 'is_new'],
                 'store'             => true,
-                'description'       => 'JSON encoded new proposed value for the field.',
-                'default'           => false
+                'description'       => 'JSON encoded new proposed value for the field.'
             ],
 
             'new_value' => [
