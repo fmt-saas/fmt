@@ -177,6 +177,8 @@ class UpdateRequest extends Model {
                     }
                 }
 
+                $name = $new_object_label;
+
                 // #memo - try to find the best name to make the handling of the update request easier
                 if(!empty($map_fields['name'])) {
                     // most objects
@@ -192,7 +194,13 @@ class UpdateRequest extends Model {
                 }
                 else {
                     // fallback
-                    $name = $map_fields['short_name'] ?? $map_fields['code'] ?? $map_fields['description'] ?? $new_object_label;
+                    $fallback_fields = ['short_name', 'description', 'code'];
+                    foreach($fallback_fields as $fallback_field) {
+                        if(!empty($map_fields[$fallback_field])) {
+                            $name = $map_fields[$fallback_field];
+                            break;
+                        }
+                    }
                 }
 
                 $result[$id] = $name;
