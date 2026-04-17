@@ -393,8 +393,6 @@ foreach($accountingEntryLines as $line) {
 
 $accounts = $orm->read(Account::getType(), array_keys($map_accounts_ids), ['id', 'name', 'ownership_id', 'suppliership_id', 'operation_assignment', 'parent_account_id']);
 
-$grouped_operations = ['co_owners_reserve_fund', 'co_owners_working_fund', 'co_owners_former','co_owners_repayment'];
-
 $journals = $orm->read(Journal::getType(), array_keys($map_journals_ids), ['id', 'name', 'mnemo']);
 
 $entries = $orm->read(AccountingEntry::getType(), array_keys($map_entries_ids), ['id', 'name']);
@@ -403,6 +401,9 @@ $entries = $orm->read(AccountingEntry::getType(), array_keys($map_entries_ids), 
 $current_balance = [];
 $map_final_accounts_ids = [];
 $map_final_opening_balances = [];
+
+// some accounts (based on operation assignment) must be grouper on their parent control account ("compte collecteur")
+$grouped_operations = ['co_owners_reserve_fund', 'co_owners_working_fund', 'co_owners_former','co_owners_repayment'];
 
 foreach($map_accounts_ids as $account_id => $_) {
     $balance = $map_opening_balances[$account_id] ?? 0;
@@ -424,7 +425,6 @@ foreach($map_accounts_ids as $account_id => $_) {
     $map_final_accounts_ids[$account_id] = true;
 
     $map_final_opening_balances[$account_id] = ($map_final_opening_balances[$account_id] ?? 0) + $balance;
-
 }
 
 $map_account_lines = [];
@@ -438,7 +438,7 @@ foreach($accountingEntryLines as $line) {
     $map_account_lines[$account_id][] = $line;
 }
 
-// sort on entry_date
+// sort resulting lines on entry_date (some account can be merged and entry_dates are no longer guaranteed)
 foreach($map_account_lines as $account_id => &$lines) {
     usort($lines, function($a, $b) {
         return [$a['entry_date'], $a['id']] <=> [$b['entry_date'], $b['id']];

@@ -137,7 +137,7 @@ if($fiscalYear && isset($fiscalYear['opening_balance_id'])) {
 foreach($accounts_ids as $account_id) {
     $snapshot = AccountBalanceChange::search([
             ['account_id', '=', $account_id],
-            ['date', '<=', $date_from]
+            ['date', '<', $date_from]
         ], ['sort' => ['date' => 'desc'], 'limit' => 1])
         ->read(['debit_balance','credit_balance'])
         ->first();
