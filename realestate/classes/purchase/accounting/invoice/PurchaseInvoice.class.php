@@ -868,6 +868,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             ]);
 
         foreach($self as $id => $purchaseInvoice) {
+            // symmetrical removal of the alerts (if any)
+            $dispatch->cancel('purchase.accounting.invoice.insufficient_funds', static::class, $id);
             if($purchaseInvoice['has_fund_usage']) {
                 foreach($purchaseInvoice['fund_usage_lines_ids'] as $fund_usage_line_id => $fundUsageLine) {
                     if(in_array($fundUsageLine['fund_account_id']['operation_assignment'], ['reserve_fund', 'special_reserve_fund'], true)) {
@@ -879,6 +881,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         $balance = $account['balance'];
                         if($balance > 0 || abs($balance) < $fundUsageLine['amount']) {
                             trigger_error("APP::Attempting to post a line on a Reserve fund ({$fundUsageLine['fund_account_id']['id']}) with balance {$balance} at date " . date('Y-m-d', $purchaseInvoice['fiscal_period_id']['date_to']) . ".", EQ_REPORT_WARNING);
+                            $dispatch->dispatch('purchase.accounting.invoice.insufficient_funds', static::class, $id, 'important');
                             $result[$id] = [
                                 'insufficient_funds' => 'Reserve fund balance is insufficient.'
                             ];
