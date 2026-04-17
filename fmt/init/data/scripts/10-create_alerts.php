@@ -512,3 +512,46 @@ MessageModel::id($model['id'])->update([
         'label'         => 'Export terminé',
         'description'   => "L'export demandé est prêt pour le téléchargement.",
     ], 'fr');
+
+/**
+ * SYNCHRONISATION
+ */
+
+$model = MessageModel::create([
+        'name'          => 'fmt.sync.push.update_request.field_unique_update',
+        'type'          => 'sync',
+        'label'         => 'Update of unique field',
+        'description'   => "The request contains a risky update of the unique field."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Mise à jour champ unique',
+        'description'   => "La requête comprends une misa à jour risquée du champ unique.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'fmt.sync.push.update_request.uuid_update',
+        'type'          => 'sync',
+        'label'         => 'Update of UUID',
+        'description'   => "The request contains a risky update of the field UUID."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Mise à jour UUID',
+        'description'   => "La requête comprends une mie à jour risquée du champ UUID.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'fmt.sync.push.update_request.missing_field_in_descending_policy',
+        'type'          => 'sync',
+        'label'         => 'Missing corresponding descending sync policy.',
+        'description'   => "One field present in the ascending policy is missing from the descending one."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Champ manquant politique synchro descendante',
+        'description'   => "Un champ présent dans la politique de synchronisation ascendante est manquant dans la descendante.",
+    ], 'fr');

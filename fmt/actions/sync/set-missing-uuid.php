@@ -8,9 +8,10 @@
 use documents\DocumentSubtype;
 use documents\DocumentType;
 use equal\data\DataGenerator;
+use finance\bank\BankAccount;
 use identity\Identity;
+use identity\User;
 use purchase\supplier\Supplier;
-use purchase\supplier\SupplierType;
 use realestate\property\Condominium;
 
 [$params, $providers] = eQual::announce([
@@ -48,9 +49,10 @@ $entities_classes_links = [
     DocumentType::getType()     => [],
     DocumentSubtype::getType()  => ['document_type'],
     Identity::getType()         => [],
-    SupplierType::getType()     => [],
     Supplier::getType()         => ['identity'],
-    Condominium::getType()      => ['identity']
+    Condominium::getType()      => ['identity'],
+    BankAccount::getType()      => ['owner_identity'],
+    User::getType()             => ['identity']        // #memo - 'instance' relation isn't required, because its uuid is automatically generated when an agency is created
 ];
 
 if(isset($params['entity'])) {

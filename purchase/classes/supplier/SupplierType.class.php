@@ -27,13 +27,6 @@ class SupplierType extends Model {
                 'required'          => true
             ],
 
-            'uuid' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain:36',
-                'unique'            => true,
-                'description'       => 'Unique supplier identifier provided by GLOBAL instance.'
-            ],
-
             'code' => [
                 'type'              => 'string',
                 'description'       => "The name of the supplier type.",

@@ -1,0 +1,54 @@
+{
+    "name": "Ligne de requête de mise à jour",
+    "plural": "Lignes de requête de mise à jour",
+    "description": "",
+    "model": {
+        "object_class": {
+            "label": "Entité",
+            "description": "Entité concernée par politique de synchronisation.",
+            "help": ""
+        },
+        "object_field": {
+            "label": "Champ",
+            "description": "Champ de l'objet.",
+            "help": ""
+        },
+        "object_field_display_name": {
+            "label": "Champ",
+            "description": "Champ de l'objet.",
+            "help": ""
+        },
+        "update_request_id": {
+            "label": "Requête de mise à jour",
+            "description": "La requête de mise à jour dont la ligne fait parti.",
+            "help": ""
+        },
+        "is_new": {
+            "label": "Nouvel objet",
+            "description": "Est-ce un nouvel objet?",
+            "help": ""
+        },
+        "old_value": {
+            "label": "Ancienne valeur",
+            "description": "Ancienne valeur du champ de l'objet.",
+            "help": ""
+        },
+        "display_old_value": {
+            "label": "Ancienne valeur",
+            "description": "Ancienne valeur du champ de l'objet facile à comprendre pour l'utilisateur.",
+            "help": ""
+        },
+        "new_value": {
+            "label": "Nouvelle valeur",
+            "description": "Nouvelle valeur du champ de l'objet.",
+            "help": ""
+        },
+        "display_new_value": {
+            "label": "Nouvelle valeur",
+            "description": "Nouvelle valeur du champ de l'objet facile à comprendre pour l'utilisateur.",
+            "help": ""
+        }
+    },
+    "view": {
+    }
+}

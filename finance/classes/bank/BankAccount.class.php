@@ -44,6 +44,15 @@ class BankAccount extends Model {
                 'instant'           => true
             ],
 
+            'uuid' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:36',
+                // #memo - commented for testing because items are on the same instance
+                // #todo - uncomment for PROD
+                // 'unique'            => true,
+                'description'       => 'Unique identifier from the Master instance.'
+            ],
+
             'description' => [
                 'type'              => 'string',
                 'description'       => 'Short description of the account (purpose).',
@@ -92,6 +101,16 @@ class BankAccount extends Model {
                 'type'              => 'many2one',
                 'description'       => "The Identity that owns the bank account.",
                 'foreign_object'    => 'identity\Identity'
+            ],
+
+            'owner_identity_uuid' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'text/plain:36',
+                'store'             => true,
+                'instant'           => true,
+                'relation'          => ['owner_identity_id' => 'uuid'],
+                'description'       => 'Unique owner identity identifier provided by GLOBAL instance.'
             ],
 
             // #memo - unique key must be made on iban + suffix (to support composition identification)
@@ -361,6 +380,30 @@ class BankAccount extends Model {
                     ]);
             }
         }
+    }
+
+    protected static function doSyncUuidLinks($self) {
+        $self->read(['owner_identity_id', 'owner_identity_uuid']);
+        foreach($self as $id => $bank_account) {
+            if (!empty($bank_account['owner_identity_uuid'])) {
+                $identity = Identity::search(['uuid', '=', $bank_account['owner_identity_uuid']])
+                    ->first();
+
+                if($identity && $bank_account['owner_identity_id'] !== $identity['id']) {
+                    self::id($id)->update(['owner_identity_id' => $identity['id']]);
+                }
+            }
+        }
+    }
+
+    public static function getActions() {
+        return [
+            'sync_uuid_links' => [
+                'description'   => 'Synchronize the uuid links.',
+                'policies'      => [],
+                'function'      => 'doSyncUuidLinks'
+            ]
+        ];
     }
 
 }

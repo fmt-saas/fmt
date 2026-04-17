@@ -87,6 +87,7 @@ User::create([
         'login'         => $identity['email'],
         'language'      => 'fr',
         'validated'     => true,
+        'instance_id'   => 1,
         // users
         'groups_ids'    => [2]
     ])
@@ -96,7 +97,7 @@ User::create([
 
 // create Team
 $team = Team::create([
-        'name' => 'Equipe principale'
+        'name' => 'Équipe principale'
     ])
     ->update(['employees_ids' => [$employee['id']]])
     ->first();

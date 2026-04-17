@@ -31,6 +31,14 @@ class User extends \core\User {
                 'readonly'          => true
             ],
 
+            'login' => [
+                'type'              => 'string',
+                'usage'             => 'email',
+                'required'          => true,
+                // 'unique'            => true,
+                'dependents'        => ['name']
+            ],
+
             'uuid' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain:36',
@@ -169,11 +177,23 @@ class User extends \core\User {
         ];
     }
 
+    public function getUnique(): array {
+        return [
+            ['login', 'instance_uuid']
+        ];
+    }
+
     public static function getActions() {
         return [
             'sync_from_identity' => [
                 'description'   => 'Force sync values from related identity.',
                 'function'      => 'doSyncFromIdentity'
+            ],
+
+            'sync_uuid_links' => [
+                'description'   => 'Synchronize the uuid links.',
+                'policies'      => [],
+                'function'      => 'doSyncUuidLinks'
             ]
         ];
     }
@@ -187,6 +207,14 @@ class User extends \core\User {
                 } while( $existing > 0 && count($existing) > 0 );
 
                 self::id($id)->update(['uuid' => $uuid]);
+            }
+            elseif(constant('FMT_INSTANCE_TYPE') === 'agency') {
+                #memo - only one instance (itself) on agency instance
+                $instance = Instance::search()->first();
+
+                if($instance) {
+                    self::id($id)->update(['instance_id' => $instance['id']]);
+                }
             }
         }
         parent::oncreate($self, $values);
@@ -248,4 +276,28 @@ class User extends \core\User {
 
     }
 
+    protected static function doSyncUuidLinks($self) {
+        $self->read(['identity_id', 'identity_uuid', 'instance_id', 'instance_uuid']);
+        foreach($self as $id => $user) {
+            // identity
+            if(!empty($user['identity_uuid'])) {
+                $identity = Identity::search(['uuid', '=', $user['identity_uuid']])
+                    ->first();
+
+                if($identity && $user['identity_id'] !== $identity['id']) {
+                    self::id($id)->update(['identity_id' => $identity['id']]);
+                }
+            }
+
+            // instance
+            if(!empty($user['instance_uuid'])) {
+                $instance = Instance::search(['uuid', '=', $user['instance_uuid']])
+                    ->first();
+
+                if($instance && $user['instance_id'] !== $instance['id']) {
+                    self::id($id)->update(['instance_id' => $instance['id']]);
+                }
+            }
+        }
+    }
 }

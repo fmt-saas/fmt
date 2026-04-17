@@ -77,6 +77,24 @@
                 "type": "field",
                 "value": "rejection_reason",
                 "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "alerts_count",
+                "width": "15%",
+                "widget": {
+                    "align": "center",
+                    "margin": "auto",
+                    "styles": {
+                        "text_align": "center",
+                        "text_width": "40px",
+                        "text_weight": "bold",
+                        "text_color": "white",
+                        "background_color": "#EEAD26",
+                        "border_radius": "40px"
+                    }
+                },
+                "visible": ["alerts_count", ">", 0]
             }
         ]
     }

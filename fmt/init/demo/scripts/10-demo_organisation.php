@@ -64,9 +64,10 @@ $team = Team::create([
 
 // create Employee
 $identity = Identity::create([
-        "type_id"   => 1,
-        "type"      => "IN",
-        "lang_id"   => 2
+        "type_id"               => 1,
+        "type"                  => "IN",
+        "lang_id"               => 2,
+        "registration_number"   => '07555126991',
     ])
     ->update([
         "firstname" => "Jean",

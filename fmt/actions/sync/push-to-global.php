@@ -50,12 +50,12 @@ $policies = SyncPolicy::search([
     ->read([
         'object_class',
         'field_unique',
+        'last_sync',
         'sync_policy_lines_ids' => ['object_field', 'scope']
     ]);
 
 $result = [
-    'created'   => 0,
-    'updated'   => 0,
+    'requested' => 0,
     'ignored'   => 0,
     'errors'    => 0,
     'processed' => 0,
@@ -63,8 +63,6 @@ $result = [
 ];
 
 $now = time();
-
-$timestamp = Setting::get_value('fmt', 'system', 'sync.last_push_timestamp', 0);
 
 foreach($policies as $id => $policy) {
 
@@ -98,18 +96,21 @@ foreach($policies as $id => $policy) {
         }
     }
 
-    $objects = $entity::search(['modified', '>=', $timestamp])
+    $objects = $entity::search(['modified', '>=', $policy['last_sync']])
         ->read(array_keys($schema))
         ->adapt('json')
         ->get(true);
 
     foreach($objects as $object) {
 
-        // #memo - even if registration_number is not set, an Identity might have a slug_hash as secondary unique key
-        if(!isset($object[$policy['field_unique']]) && $policy['object_class'] !== 'identity\Identity') {
-            ++$result['ignored'];
-            $result['logs'][] = "Ignored entity {$entity} object [{$object['id']}] with no value for unique key field `{$policy['field_unique']}`.";
-            continue;
+        $fields_unique = explode(',', $policy['field_unique']);
+        foreach($fields_unique as $field_unique) {
+            // #memo - even if registration_number is not set, an Identity might have a slug_hash as secondary unique key
+            if(!isset($object[$field_unique]) && $policy['object_class'] !== 'identity\Identity') {
+                ++$result['ignored'];
+                $result['logs'][] = "Ignored entity {$entity} object [{$object['id']}] with no value for unique key field `{$field_unique}`.";
+                continue 2;
+            }
         }
 
         // remove special fields
@@ -141,6 +142,16 @@ foreach($policies as $id => $policy) {
                 $out = str_replace('\n', '', json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
                 throw new Exception("Error from GLOBAL instance: HTTP status $status: $out", EQ_ERROR_UNKNOWN);
             }
+            else {
+                switch($data) {
+                    case 'ignored':
+                        ++$result['ignored'];
+                        break;
+                    case 'requested':
+                        ++$result['requested'];
+                        break;
+                }
+            }
         }
         catch(Exception $e) {
             // force arbitrary update of `modified` field so that failing object is included in next sync loop
@@ -150,10 +161,9 @@ foreach($policies as $id => $policy) {
             $result['logs'][] = "Unable to push protected entity {$entity} ({$object['id']}) to Global instance: " . $e->getMessage();
         }
     }
-}
 
-// store last_sync_timestamp
-Setting::set_value('fmt', 'system', 'sync.last_push_timestamp', $now);
+    SyncPolicy::id($policy['id'])->update(['last_sync' => $now]);
+}
 
 if($result['errors'] > 0) {
     // #todo - send email to error reporter

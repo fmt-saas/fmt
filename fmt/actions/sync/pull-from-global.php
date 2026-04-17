@@ -53,7 +53,7 @@ $policies = SyncPolicy::search([
         'scope',
         'object_class',
         'field_unique',
-        'last_pull',
+        'last_sync',
         'sync_policy_lines_ids' => ['object_field', 'scope']
     ]);
 
@@ -93,7 +93,7 @@ foreach($policies as $id => $policy) {
 
         $schema = $model->getSchema();
 
-        $date_from = date('c', $policy['last_pull']);
+        $date_from = date('c', $policy['last_sync']);
 
         $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_sync_pull-from-local' .
                 '&entity=' . urlencode($policy['object_class']) .
@@ -128,7 +128,13 @@ foreach($policies as $id => $policy) {
             }
 
             if(!$localObject && isset($values[$policy['field_unique']]) && !empty($values[$policy['field_unique']])) {
-                $localObject = $entity::search([$policy['field_unique'], '=', $values[$policy['field_unique']]])
+                $fields_unique = explode(',', $policy['field_unique']);
+                $domain = [];
+                foreach($fields_unique as $field_unique) {
+                    $domain[] = [trim($field_unique), '=', $values[trim($field_unique)]];
+                }
+
+                $localObject = $entity::search($domain)
                     ->read($fields)
                     ->first();
             }
@@ -153,10 +159,6 @@ foreach($policies as $id => $policy) {
                 foreach($values as $field => $value) {
                     // #memo - if uuid has been received we need it to be part of the update
                     if(in_array($field, $not_allowed_fields)) {
-                        continue;
-                    }
-                    // ignore empty fields
-                    if($value === null || $value === '') {
                         continue;
                     }
                     // ignore unchanged fields (many2many)
@@ -196,6 +198,12 @@ foreach($policies as $id => $policy) {
                         if(is_array($localObject[$field])) {
                             $old_value = json_encode($localObject[$field]);
                         }
+                        elseif(is_null($localObject[$field])) {
+                            $old_value = 'NULL';
+                        }
+                        elseif(is_bool($localObject[$field])) {
+                            $old_value = $localObject[$field] ? '1' : '0';
+                        }
                         else {
                             $old_value = (string) $localObject[$field];
                         }
@@ -203,6 +211,12 @@ foreach($policies as $id => $policy) {
                         $new_value = null;
                         if(is_array($value)) {
                             $new_value = json_encode($value);
+                        }
+                        elseif(is_null($value)) {
+                            $new_value = 'NULL';
+                        }
+                        elseif(is_bool($value)) {
+                            $new_value = $value ? '1' : '0';
                         }
                         else {
                             $new_value = (string) $value;
@@ -217,8 +231,10 @@ foreach($policies as $id => $policy) {
                     }
 
                     if($policy['scope'] === 'private' || $params['accept'] || !$has_protected_field) {
+                        $approval_reason = !$has_protected_field ? 'unsupervised' : 'forced';
+
                         // automatically accept
-                        UpdateRequest::id($updateRequest['id'])->do('accept');
+                        UpdateRequest::id($updateRequest['id'])->do('accept', ['reason' => $approval_reason]);
 
                         $result['logs'][] = "Updated object of entity {$entity} with id {$localObject['id']}";
                         ++$result['updated'];
@@ -235,10 +251,6 @@ foreach($policies as $id => $policy) {
                 $values_to_update = [];
                 foreach($values as $field => $value) {
                     if(in_array($field, $not_allowed_fields)) {
-                        continue;
-                    }
-                    // ignore empty fields
-                    if($value === null || $value === '') {
                         continue;
                     }
 
@@ -268,6 +280,12 @@ foreach($policies as $id => $policy) {
                         if(is_array($value)) {
                             $new_value = json_encode($value);
                         }
+                        elseif(is_null($value)) {
+                            $new_value = 'NULL';
+                        }
+                        elseif(is_bool($value)) {
+                            $new_value = $value ? '1' : '0';
+                        }
                         else {
                             $new_value = (string) $value;
                         }
@@ -280,8 +298,10 @@ foreach($policies as $id => $policy) {
                     }
 
                     if($policy['scope'] === 'private' || $params['accept'] || !$has_protected_field) {
+                        $approval_reason = !$has_protected_field ? 'unsupervised' : 'forced';
+
                         // automatically accept private policy
-                        UpdateRequest::id($updateRequest['id'])->do('accept');
+                        UpdateRequest::id($updateRequest['id'])->do('accept', ['reason' => $approval_reason]);
 
                         $result['logs'][] = "Created new object of entity {$entity}";
                         ++$result['created'];
@@ -294,7 +314,7 @@ foreach($policies as $id => $policy) {
             }
         }
 
-        SyncPolicy::id($policy['id'])->update(['last_pull' => $now]);
+        SyncPolicy::id($policy['id'])->update(['last_sync' => $now]);
     }
     catch(Exception $e) {
         ++$result['errors'];
