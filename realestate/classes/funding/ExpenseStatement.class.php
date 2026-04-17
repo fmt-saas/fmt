@@ -1302,7 +1302,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ])
             ->read([
                 'accounting_entry_id',
-                'account_id', 'account_code', 'debit', 'credit', 'ownership_id',
+                'account_id', 'account_code', 'account_operation_assignment', 'debit', 'credit',
+                'ownership_id',
                 'sale_invoice_line_id',
                 // #memo - we need this to retrieve details for private expenses
                 'purchase_invoice_line_id',
@@ -1448,7 +1449,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             if($accountingEntry['fund_request_execution_id']) {
 
                 // consider only provisions
-                if(!in_array($accountingEntryLine['account_code'], ['701', '702'], true)) {
+                if(!in_array($accountingEntryLine['account_operation_assignment'], ['expense_provisions', 'work_provisions'], true)) {
                     trigger_error("APP::skipping accounting entry line {$accountingEntryLine['id']} relating to non-provision fund request", EQ_REPORT_ERROR);
                     continue;
                 }

@@ -488,7 +488,10 @@ class FiscalPeriod extends Model {
             }
 
             // retrieve expense provision account
-            $expenseProvisionAccount = Account::search([['condo_id', '=', $fiscalPeriod['condo_id']], ['operation_assignment', '=', 'expense_provisions']])
+            $expenseProvisionAccount = Account::search([
+                    ['condo_id', '=', $fiscalPeriod['condo_id']],
+                    ['operation_assignment', '=', 'expense_provisions']
+                ])
                 ->read(['id'])
                 ->first();
 
@@ -537,7 +540,7 @@ class FiscalPeriod extends Model {
                         throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                     }
 
-                    // debit account 701
+                    // debit account `expense_provisions` (7001)
                     AccountingEntryLine::create([
                             'condo_id'              => $fiscalPeriod['condo_id'],
                             'accounting_entry_id'   => $accountingEntry['id'],

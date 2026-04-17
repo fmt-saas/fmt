@@ -159,6 +159,16 @@ class AccountingEntryLine extends Model {
                 'readonly'          => true
             ],
 
+            'account_operation_assignment' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => "Operation assignment of related account.",
+                'relation'          => ['account_id' => 'operation_assignment'],
+                'store'             => true,
+                'instant'           => true,
+                'readonly'          => true
+            ],
+
             'account_class' => [
                 'type'              => 'computed',
                 'result_type'       => 'integer',
