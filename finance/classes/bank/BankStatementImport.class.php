@@ -23,7 +23,10 @@ class BankStatementImport extends Model {
     }
 
     public static function getDescription() {
-        return 'Bank Statement Import is a virtual Entity for allowing import of grouped Bank Statements. These imports are meant to be removed upon successful processing.';
+        return 'Bank Statement Import is a virtual entity used to upload and process bank statement files, either as single files or grouped within ZIP archives.
+            Supported formats include CODA (.cod, .coda), text (.txt), CSV (.csv), and Excel (.xls, .xlsx).
+            Each file is parsed to extract one or multiple statements, which are then converted into structured documents for further processing.
+            Import records are temporary and automatically removed after successful processing.';
     }
 
     public static function getColumns() {

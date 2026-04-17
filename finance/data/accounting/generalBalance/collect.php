@@ -391,9 +391,9 @@ foreach($lines as $line) {
     $map_entries_ids[$line['accounting_entry_id']] = true;
 }
 
-$accounts = $orm->read(Account::gettype(), array_keys($map_accounts_ids), ['id', 'name', 'ownership_id', 'suppliership_id']);
+$accounts = $orm->read(Account::getType(), array_keys($map_accounts_ids), ['id', 'name', 'ownership_id', 'suppliership_id', 'operation_assignment', 'parent_account_id']);
 
-$journals = $orm->read(Journal::gettype(), array_keys($map_journals_ids), ['id', 'name', 'mnemo']);
+$journals = $orm->read(Journal::getType(), array_keys($map_journals_ids), ['id', 'name', 'mnemo']);
 
 $entries = $orm->read(AccountingEntry::getType(), array_keys($map_entries_ids), ['id', 'name']);
 
@@ -428,6 +428,25 @@ foreach($lines as $line) {
     $map_account_lines[$line['account_id']][] = $line;
 }
 
+// check if loading of additional accounts is required
+$grouped_operations = ['co_owners_reserve_fund', 'co_owners_working_fund', 'co_owners_former','co_owners_repayment'];
+$has_additional_accounts = false;
+
+foreach($map_accounts_ids as $account_id => $_) {
+    $account = $accounts[$account_id];
+    if(in_array($account['operation_assignment'], $grouped_operations) && $account['parent_account_id']) {
+        if(!isset($map_accounts_ids[$account['parent_account_id']])) {
+            $map_accounts_ids[$account['parent_account_id']] = true;
+            $has_additional_accounts = true;
+        }
+    }
+}
+
+if($has_additional_accounts) {
+    // #memo - only accounts not already in cache will be loaded
+    $accounts = $orm->read(Account::getType(), array_keys($map_accounts_ids), ['id', 'name', 'ownership_id', 'suppliership_id', 'operation_assignment', 'parent_account_id']);
+}
+
 foreach($map_accounts_ids as $account_id => $_) {
 
     $account = $accounts[$account_id]->toArray();
@@ -438,6 +457,12 @@ foreach($map_accounts_ids as $account_id => $_) {
 
     elseif($params['ownerships_only'] && !isset($account['ownership_id'])) {
         continue;
+    }
+
+    if(in_array($account['operation_assignment'], $grouped_operations) && $account['parent_account_id']) {
+        if(isset($accounts[$account['parent_account_id']])) {
+            $account = $accounts[$account['parent_account_id']]->toArray();
+        }
     }
 
     // 1. Opening balance
