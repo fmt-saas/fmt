@@ -56,7 +56,7 @@ class RoleAssignment extends \equal\orm\Model {
                 'foreign_object'    => 'identity\User',
                 'description'       => 'User (internal or external) the assignment applies to.',
                 'help'              => 'The user should always be set and is used for Access Control.
-                    When `employee_id` is set, it is automatically retrieved from related Identity (in `onupdateEmployeeId`).',
+                    When `employee_id` is set, user is automatically retrieved from related Identity (in `onupdateEmployeeId`).',
                 'ondelete'          => 'cascade',
                 'dependents'        => ['identity_id']
             ],

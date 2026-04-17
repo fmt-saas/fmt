@@ -45,6 +45,56 @@ class BankStatementImport extends Model {
         ];
     }
 
+    private static function extractFilesFromBinary(string $binary, string $name): array {
+        $files = [];
+
+        // ZIP archive detection
+        $is_zip = substr($binary, 0, 2) === "PK";
+
+        if(!$is_zip) {
+            return [[
+                'name' => $name,
+                'data' => $binary
+            ]];
+
+        }
+
+        if(!class_exists(\ZipArchive::class)) {
+            throw new \Exception('zip_extension_missing', EQ_ERROR_INVALID_CONFIG);
+        }
+
+        $tmpZip = tempnam(sys_get_temp_dir(), 'zip_');
+        file_put_contents($tmpZip, $binary);
+
+        $zip = new \ZipArchive();
+        if($zip->open($tmpZip) === true) {
+            for($i = 0; $i < $zip->numFiles; $i++) {
+                $stat = $zip->statIndex($i);
+
+                // ignore folders
+                if(substr($stat['name'], -1) === '/') {
+                    continue;
+                }
+
+                $content = $zip->getFromIndex($i);
+
+                if(!$content) {
+                    continue;
+                }
+
+                $files[] = [
+                    'name' => basename($stat['name']),
+                    'data' => $content
+                ];
+            }
+            $zip->close();
+        }
+
+        unlink($tmpZip);
+
+        return $files;
+    }
+
     /**
      * Handle data update (i.e. file upload).
      * This method is used to create the document based on received data, and start the processing.
@@ -54,44 +104,67 @@ class BankStatementImport extends Model {
         $documentType = DocumentType::search(['code', '=', 'bank_statement'])->first();
         $user = User::id($auth->userId())->read(['employee_id'])->first();
 
+        $allowed_extensions = ['cod', 'coda', 'txt', 'csv', 'xls', 'xlsx'];
+
         foreach($self as $id => $bankStatementImport) {
-            // create a temporary import Document holding all statements
-            $document = Document::create([
-                    'name'      => $bankStatementImport['name'],
-                    'data'      => $bankStatementImport['data'],
-                    'is_origin' => true
-                ])
-                ->first();
-            // extract data independently from the document content-type
-            $data = \eQual::run('get', 'documents_processing_BankStatement_extract', ['document_id' => $document['id']]);
+            $files = self::extractFilesFromBinary(
+                $bankStatementImport['data'],
+                $bankStatementImport['name']
+            );
 
-            if(!is_array($data)) {
-                // remove original document
-                Document::id($document['id'])->delete(true);
-                throw new \Exception('invalid_data', EQ_ERROR_INVALID_PARAM);
-            }
-            $file_name = pathinfo($bankStatementImport['name'], PATHINFO_FILENAME);
-
-            foreach($data as $i => $statement) {
-                $binary = self::computeXlsxBinaryFromStatement($statement);
-                // this will trigger the creation of the Document and the Document Processing, which should not interrupt the import even if it fails
+            foreach($files as $file) {
                 try {
-                    $documentProcess = DocumentProcess::create([
-                            'name'                  => $file_name . '(' . ($i+1) . ').' . 'xlsx',
-                            'document_type_id'      => $documentType['id'],
-                            'assigned_employee_id'  => $user['employee_id']
-                        ])
-                        ->update(['data' => $binary])
-                        ->read(['document_id'])
-                        ->first();
+                    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
-                    if($documentProcess && $documentProcess['document_id']) {
-                        // attach original document to the one being processed
-                        Document::id($documentProcess['document_id'])->update(['origin_document_id' => $document['id']]);
+                    if(!in_array($ext, $allowed_extensions)) {
+                        // #todo - dispatch error
+                        continue;
+                    }
+
+                    // create a temporary import Document holding all statements
+                    $document = Document::create([
+                            'name'      => $file['name'],
+                            'data'      => $file['data'],
+                            'is_origin' => true
+                        ])
+                        ->first();
+                    // extract data independently from the document content-type
+                    $data = \eQual::run('get', 'documents_processing_BankStatement_extract', ['document_id' => $document['id']]);
+
+                    if(!is_array($data)) {
+                        // remove original document
+                        Document::id($document['id'])->delete(true);
+                        // #todo - dispatch error
+                        continue;
+                    }
+                    $file_name = pathinfo($file['name'], PATHINFO_FILENAME);
+
+                    foreach($data as $i => $statement) {
+                        $binary = self::computeXlsxBinaryFromStatement($statement);
+                        // this will trigger the creation of the Document and the Document Processing, which should not interrupt the import even if it fails
+                        try {
+                            $documentProcess = DocumentProcess::create([
+                                    'name'                  => $file_name . '(' . ($i+1) . ').' . 'xlsx',
+                                    'document_type_id'      => $documentType['id'],
+                                    'assigned_employee_id'  => $user['employee_id']
+                                ])
+                                ->update(['data' => $binary])
+                                ->read(['document_id'])
+                                ->first();
+
+                            if($documentProcess && $documentProcess['document_id']) {
+                                // attach original document to the one being processed
+                                Document::id($documentProcess['document_id'])->update(['origin_document_id' => $document['id']]);
+                            }
+                        }
+                        catch(\Exception $e) {
+                            // ignore (outputs are in logs)
+                        }
                     }
                 }
                 catch(\Exception $e) {
-                    // ignore (outputs are in logs)
+                    // #todo - dispatch error to let user know that a file was not imported
+                    // keep on processing other files
                 }
             }
             // remove current object (pointless after successful import)
@@ -215,9 +288,16 @@ class BankStatementImport extends Model {
     }
 
     private static function convertToExcelDate($date_str) {
+        if(!$date_str) {
+            return null;
+        }
+
         $timestamp = strtotime($date_str);
+        if($timestamp === false) {
+            return null;
+        }
+
         $dt = (new \DateTime())->setTimestamp($timestamp);
         return XlsDate::PHPToExcel($dt);
     }
-
 }

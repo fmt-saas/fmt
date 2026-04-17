@@ -87,6 +87,8 @@ if(count($params['domain'])) {
     }
 }
 
+// #memo - employee_id is mandatory : either as param or within the domain
+
 
 // #todo - restrict by status matching employee's roles
 // retrouver les roles de l'employé
