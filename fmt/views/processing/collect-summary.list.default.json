@@ -17,7 +17,10 @@
             "context": {
                 "entity": "documents\\processing\\DocumentProcess",
                 "view": "list.processing",
-                "domain": ["status", "not in", ["integrated", "cancelled", "removed"]]
+                "domain": [
+                    ["status", "not in", ["integrated", "cancelled", "removed"]],
+                    ["assigned_employee_id", "=", "user.employee_id"]
+                ]
             },
             "visible": [
                 ["document", "=", "object.document_type_code"]
@@ -32,7 +35,10 @@
             "context": {
                 "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
                 "view": "list.processing",
-                "domain": ["document_process_status", "not in", ["integrated", "cancelled", "removed"]]
+                "domain": [
+                    ["document_process_status", "not in", ["integrated", "cancelled", "removed"]],
+                    ["assigned_employee_id", "=", "user.employee_id"]
+                ]
             },
             "visible": [
                 ["invoice", "=", "object.document_type_code"]
@@ -47,7 +53,10 @@
             "context": {
                 "entity": "finance\\bank\\BankStatement",
                 "view": "list.processing",
-                "domain": ["document_process_status", "not in", ["integrated", "cancelled", "removed"]]
+                "domain": [
+                    ["document_process_status", "not in", ["integrated", "cancelled", "removed"]],
+                    ["assigned_employee_id", "=", "user.employee_id"]
+                ]
             },
             "visible": [
                 ["bank_statement", "=", "object.document_type_code"]
