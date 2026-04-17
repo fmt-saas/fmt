@@ -54,14 +54,13 @@ class BankStatementImport extends Model {
         $files = [];
 
         // ZIP archive detection
-        $is_zip = substr($binary, 0, 2) === "PK";
+        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
 
-        if(!$is_zip) {
+        if($ext !== 'zip') {
             return [[
                 'name' => $name,
                 'data' => $binary
             ]];
-
         }
 
         if(!class_exists(\ZipArchive::class)) {
@@ -109,6 +108,7 @@ class BankStatementImport extends Model {
         $documentType = DocumentType::search(['code', '=', 'bank_statement'])->first();
         $user = User::id($auth->userId())->read(['employee_id'])->first();
 
+        // in case binary is an archive, all files contained inside are returned
         foreach($self as $id => $bankStatementImport) {
             $files = self::extractFilesFromBinary(
                 $bankStatementImport['data'],
