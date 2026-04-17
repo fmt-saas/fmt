@@ -82,26 +82,11 @@ $openingBalance = OpeningBalance::search([
     ->first();
 
 if($openingBalance) {
-    $lines = OpeningBalanceLine::search([
-            ['opening_balance_id', '=', $openingBalance['id']]
-        ])
-        ->read([
-            'account_id',
-            'debit_balance',
-            'credit_balance'
-        ]);
+    // #memo - there might be accounting entries on the same day as the opening - do not create AccountBalanceChange for these (handled by Accounting Entries)
+}
 
-    foreach($lines as $line) {
-        /*
-        AccountBalanceChange::create([
-            'condo_id'          => $condo_id,
-            'account_id'        => $line['account_id'],
-            'date'              => $date_from,
-            'debit_balance'     => $line['debit_balance'],
-            'credit_balance'    => $line['credit_balance']
-        ]);
-        */
-    }
+if(!$openingBalance) {
+    // #todo - there should always be an opening balance
 }
 
 $accountingEntries = AccountingEntry::search([
