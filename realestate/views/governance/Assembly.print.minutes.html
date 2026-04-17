@@ -124,7 +124,7 @@
                 &nbsp;-&nbsp;{{ labels['result.adjourned'] }}
             {% else %}
                 {% if assemblyItem.has_vote_required %}
-                    &nbsp;-&nbsp;{{ labels["result.#{assemblyItem.vote_result}"] }}
+                    &nbsp;-&nbsp;{{ labels["result.vote.#{assemblyItem.vote_result}"] }}
                 {% else %}
                     &nbsp;-&nbsp;{{ labels["result.done"] }}
                 {% endif %}
