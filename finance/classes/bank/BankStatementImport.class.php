@@ -18,6 +18,8 @@ use identity\User;
 
 class BankStatementImport extends Model {
 
+    protected const ALLOWED_EXTENSIONS = ['cod', 'coda', 'txt', 'csv', 'xls', 'xlsx'];
+
     public static function getName() {
         return 'Bank statement import';
     }
@@ -107,8 +109,6 @@ class BankStatementImport extends Model {
         $documentType = DocumentType::search(['code', '=', 'bank_statement'])->first();
         $user = User::id($auth->userId())->read(['employee_id'])->first();
 
-        $allowed_extensions = ['cod', 'coda', 'txt', 'csv', 'xls', 'xlsx'];
-
         foreach($self as $id => $bankStatementImport) {
             $files = self::extractFilesFromBinary(
                 $bankStatementImport['data'],
@@ -119,7 +119,7 @@ class BankStatementImport extends Model {
                 try {
                     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
-                    if(!in_array($ext, $allowed_extensions)) {
+                    if(!in_array($ext, static::ALLOWED_EXTENSIONS)) {
                         // #todo - dispatch error
                         continue;
                     }

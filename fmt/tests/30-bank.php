@@ -104,8 +104,8 @@ $tests = [
         'help'        => "Create BankStatementImport with coda txt to test the creation of the DocumentProcess.",
         'arrange'     => function () use ($providers) {
             $bankStatementImport = BankStatementImport::create([
-                'name' => 'Test document processing of CODA document'
-            ])
+                    'name' => 'test_doc_processing_coda_document.cod'
+                ])
                 ->read(['id'])
                 ->first();
 
@@ -119,7 +119,7 @@ $tests = [
             return $bankStatementImport;
         },
         'assert'      => function ($bankStatementImport) use ($providers) {
-            $bankStatementDocument = Document::search(['name', '=', 'Test document processing of CODA document'])
+            $bankStatementDocument = Document::search(['name', '=', 'test_doc_processing_coda_document.cod'])
                 ->read(['name'])
                 ->first();
 
@@ -136,12 +136,12 @@ $tests = [
                 ->read(['name', 'status', 'document_origin_code', 'document_origin'])
                 ->get(true);
 
-            return $bankStatementDocument['name'] === 'Test document processing of CODA document'
+            return $bankStatementDocument['name'] === 'test_doc_processing_coda_document.cod'
                 && count($xlsxDocuments) === 1
                 && count($documentProcesses) === 1 && $documentProcesses[0]['status'] === 'created';
         },
         'rollback'    => function () use ($providers) {
-            $bankStatementDocument = Document::search(['name', '=', 'Test document processing of CODA document'])
+            $bankStatementDocument = Document::search(['name', '=', 'test_doc_processing_coda_document.cod'])
                 ->read(['id'])
                 ->first();
 
@@ -169,8 +169,8 @@ $tests = [
                 ->first(true);
 
             $bankStatementImport = BankStatementImport::create([
-                'name' => 'Test document assignment during processing of CODA document'
-            ])
+                    'name' => 'test_doc_assignment_processing_coda_document.cod'
+                ])
                 ->read(['id'])
                 ->first();
 
@@ -178,7 +178,7 @@ $tests = [
 
             BankStatementImport::id($bankStatementImport['id'])->update(['data' => $data]);
 
-            $bankStatementDocument = Document::search(['name', '=', 'Test document assignment during processing of CODA document'])
+            $bankStatementDocument = Document::search(['name', '=', 'test_doc_assignment_processing_coda_document.cod'])
                 ->read(['name'])
                 ->first();
 
@@ -212,7 +212,7 @@ $tests = [
                 ->read(['id'])
                 ->first();
 
-            $bankStatementDocument = Document::search(['name', '=', 'Test document assignment during processing of CODA document'])
+            $bankStatementDocument = Document::search(['name', '=', 'test_doc_assignment_processing_coda_document.cod'])
                  ->read(['id'])
                  ->first();
 
@@ -242,8 +242,8 @@ $tests = [
                 ->first(true);
 
             $bankStatementImport = BankStatementImport::create([
-                'name' => 'Test document assignment during processing of CODA document'
-            ])
+                    'name' => 'test_doc_assignment_processing_coda_document.cod'
+                ])
                 ->read(['id'])
                 ->first();
 
@@ -251,7 +251,7 @@ $tests = [
 
             BankStatementImport::id($bankStatementImport['id'])->update(['data' => $data]);
 
-            $bankStatementDocument = Document::search(['name', '=', 'Test document assignment during processing of CODA document'])
+            $bankStatementDocument = Document::search(['name', '=', 'test_doc_assignment_processing_coda_document.cod'])
                 ->read(['name'])
                 ->first();
 
@@ -292,7 +292,7 @@ $tests = [
                 ->read(['id'])
                 ->first();
 
-            $bankStatementDocument = Document::search(['name', '=', 'Test document assignment during processing of CODA document'])
+            $bankStatementDocument = Document::search(['name', '=', 'test_doc_assignment_processing_coda_document.cod'])
                 ->read(['id'])
                 ->first();
 
@@ -319,8 +319,8 @@ $tests = [
         'help'        => "Create BankStatementImport with coda txt to test the creation of two DocumentProcess.",
         'arrange'     => function () use ($providers) {
             $bankStatementImport = BankStatementImport::create([
-                'name' => 'Test document processing of CODA documents'
-            ])
+                    'name' => 'test_doc_processing_coda_document.cod'
+                ])
                 ->read(['id'])
                 ->first();
 
@@ -334,7 +334,7 @@ $tests = [
             return $bankStatementImport;
         },
         'assert'      => function ($bankStatementImport) use ($providers) {
-            $bankStatementDocument = Document::search(['name', '=', 'Test document processing of CODA documents'])
+            $bankStatementDocument = Document::search(['name', '=', 'test_doc_processing_coda_document.cod'])
                 ->read(['name'])
                 ->first();
 
@@ -351,12 +351,12 @@ $tests = [
                 ->read(['name', 'status', 'document_origin_code', 'document_origin'])
                 ->get(true);
 
-            return $bankStatementDocument['name'] === 'Test document processing of CODA documents'
+            return $bankStatementDocument['name'] === 'test_doc_processing_coda_document.cod'
                 && count($xlsxDocuments) === 2
                 && count($documentProcesses) === 2 && $documentProcesses[0]['status'] === 'created' && $documentProcesses[1]['status'] === 'created';
         },
         'rollback'    => function () use ($providers) {
-            $bankStatementDocument = Document::search(['name', '=', 'Test document processing of CODA documents'])
+            $bankStatementDocument = Document::search(['name', '=', 'test_doc_processing_coda_document.cod'])
                 ->read(['id'])
                 ->first();
 

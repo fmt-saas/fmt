@@ -118,7 +118,7 @@ $tests = [
             'arrange'           => function() use($providers) {
                     $data = file_get_contents(EQ_BASEDIR . '/packages/fmt/tests/' . 'bank_isabel_demo.xlsx');
                     BankStatementImport::create()
-                        ->update(['name' => 'Bank statement import'])
+                        ->update(['name' => 'bank_statement_import.xlsx'])
                         ->update(['data' => $data]);
                 },
             'act'               => function() use($providers) {
