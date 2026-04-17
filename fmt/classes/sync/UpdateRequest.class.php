@@ -228,8 +228,7 @@ class UpdateRequest extends Model {
         foreach($self as $id => $item) {
             $alerts_ids = Message::search([
                 ['object_class', '=', self::getType()],
-                ['object_id', '=', $id],
-                ['', '', '']
+                ['object_id', '=', $id]
             ])
                 ->ids();
 
