@@ -19,6 +19,7 @@
                 "view": "list.processing",
                 "domain": [
                     ["status", "not in", ["integrated", "cancelled", "removed"]],
+                    ["has_target_object", "=", false],
                     ["assigned_employee_id", "=", "user.employee_id"]
                 ]
             },
