@@ -8,7 +8,7 @@
 use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Init a global instance.",
+    'description'   => "Initializes an agency instance, and synchronizes it with global instance.",
     'params'        => [
         'instance_uuid' => [
             'type'          => 'string',
