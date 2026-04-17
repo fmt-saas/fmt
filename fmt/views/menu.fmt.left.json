@@ -187,9 +187,6 @@
                                 "label": "Condominium - Form",
                                 "icon": "location_city",
                                 "route": "/condo/object.id",
-                                "context": {
-                                    "view": "form.accounting"
-                                },
                                 "search_context": {
                                     "entity": "realestate\\property\\Condominium"
                                 }
