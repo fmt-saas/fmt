@@ -197,7 +197,7 @@ $map_accounts_ids = [];
 $map_journals_ids = [];
 $map_entries_ids = [];
 $map_opening_balances = [];
-$map_opening_lines = [];
+
 
 if(!isset($params['condo_id'])) {
     throw new Exception('missing_mandatory_condo', EQ_ERROR_MISSING_PARAM);
@@ -368,7 +368,7 @@ $accounting_entry_lines_ids = $orm->search(
         ]
     );
 
-$lines = $orm->read(AccountingEntryLine::getType(), $accounting_entry_lines_ids,
+$accountingEntryLines = $orm->read(AccountingEntryLine::getType(), $accounting_entry_lines_ids,
     [
         'condo_id',
         'account_id',
@@ -385,7 +385,7 @@ $lines = $orm->read(AccountingEntryLine::getType(), $accounting_entry_lines_ids,
 
 // use maps to load related objects only once
 
-foreach($lines as $line) {
+foreach($accountingEntryLines as $line) {
     $map_accounts_ids[$line['account_id']] = true;
     $map_journals_ids[$line['journal_id']] = true;
     $map_entries_ids[$line['accounting_entry_id']] = true;
@@ -393,63 +393,21 @@ foreach($lines as $line) {
 
 $accounts = $orm->read(Account::getType(), array_keys($map_accounts_ids), ['id', 'name', 'ownership_id', 'suppliership_id', 'operation_assignment', 'parent_account_id']);
 
+$grouped_operations = ['co_owners_reserve_fund', 'co_owners_working_fund', 'co_owners_former','co_owners_repayment'];
+
 $journals = $orm->read(Journal::getType(), array_keys($map_journals_ids), ['id', 'name', 'mnemo']);
 
 $entries = $orm->read(AccountingEntry::getType(), array_keys($map_entries_ids), ['id', 'name']);
 
 // init iterative account balances based on "opening" balances (either from OpeningBalance or from AccountBalanceChange)
 $current_balance = [];
+$map_final_accounts_ids = [];
+$map_final_opening_balances = [];
+
 foreach($map_accounts_ids as $account_id => $_) {
     $balance = $map_opening_balances[$account_id] ?? 0;
-    $current_balance[$account_id] = $balance;
 
-    // create virtual opening line
-    if(abs($balance) > 0.0001) {
-        $map_opening_lines[$account_id] = [
-            'account_id'            => $accounts[$account_id]->toArray(),
-            'journal_id'            => null,
-            'accounting_entry_id'   => null,
-            'entry_date'            => date('c', $date_from),
-            'entry_reference'       => '',
-            'description'           => 'Solde au ' . date('d/m/Y', $date_from),
-            'debit'                 => $balance > 0 ? $balance : 0,
-            'credit'                => $balance < 0 ? abs($balance) : 0,
-            'balance'               => $balance,
-            'is_virtual'            => true
-        ];
-    }
-}
-
-$last_account_id = null;
-
-$map_account_lines = [];
-
-foreach($lines as $line) {
-    $map_account_lines[$line['account_id']][] = $line;
-}
-
-// check if loading of additional accounts is required
-$grouped_operations = ['co_owners_reserve_fund', 'co_owners_working_fund', 'co_owners_former','co_owners_repayment'];
-$has_additional_accounts = false;
-
-foreach($map_accounts_ids as $account_id => $_) {
     $account = $accounts[$account_id];
-    if(in_array($account['operation_assignment'], $grouped_operations) && $account['parent_account_id']) {
-        if(!isset($map_accounts_ids[$account['parent_account_id']])) {
-            $map_accounts_ids[$account['parent_account_id']] = true;
-            $has_additional_accounts = true;
-        }
-    }
-}
-
-if($has_additional_accounts) {
-    // #memo - only accounts not already in cache will be loaded
-    $accounts = $orm->read(Account::getType(), array_keys($map_accounts_ids), ['id', 'name', 'ownership_id', 'suppliership_id', 'operation_assignment', 'parent_account_id']);
-}
-
-foreach($map_accounts_ids as $account_id => $_) {
-
-    $account = $accounts[$account_id]->toArray();
 
     if($params['suppliers_only'] && !isset($account['suppliership_id'])) {
         continue;
@@ -459,14 +417,45 @@ foreach($map_accounts_ids as $account_id => $_) {
         continue;
     }
 
-    if(in_array($account['operation_assignment'], $grouped_operations) && $account['parent_account_id']) {
-        if(isset($accounts[$account['parent_account_id']])) {
-            $account = $accounts[$account['parent_account_id']]->toArray();
-        }
+    if(in_array($account['operation_assignment'], $grouped_operations, true) && $account['parent_account_id']) {
+        $account_id = $account['parent_account_id'];
     }
 
+    $map_final_accounts_ids[$account_id] = true;
+
+    $map_final_opening_balances[$account_id] = ($map_final_opening_balances[$account_id] ?? 0) + $balance;
+
+}
+
+$map_account_lines = [];
+
+foreach($accountingEntryLines as $line) {
+    $account_id = $line['account_id'];
+    $account = $accounts[$account_id];
+    if(in_array($account['operation_assignment'], $grouped_operations, true) && $account['parent_account_id']) {
+        $account_id = $account['parent_account_id'];
+    }
+    $map_account_lines[$account_id][] = $line;
+}
+
+// sort on entry_date
+foreach($map_account_lines as $account_id => &$lines) {
+    usort($lines, function($a, $b) {
+        return [$a['entry_date'], $a['id']] <=> [$b['entry_date'], $b['id']];
+    });
+}
+unset($lines);
+
+// make sure all accounts are loaded in `$accounts`
+// #memo - only accounts not in cache will be loaded
+$accounts = $orm->read(Account::getType(), array_keys($map_final_accounts_ids), ['id', 'name']);
+
+foreach($map_final_accounts_ids as $account_id => $_) {
+
+    $account = $accounts[$account_id]->toArray();
+
     // 1. Opening balance
-    $opening_balance = $map_opening_balances[$account_id] ?? 0;
+    $opening_balance = $map_final_opening_balances[$account_id] ?? 0;
     $current_balance[$account_id] = $opening_balance;
 
     $result[] = [
