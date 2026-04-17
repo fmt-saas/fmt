@@ -107,7 +107,7 @@ if($openingBalance) {
 $accountingEntries = AccountingEntry::search([
             ['condo_id', '=', $condo_id],
             ['status', '=', 'validated'],
-            ['entry_date', '>', $date_from],
+            ['entry_date', '>=', $date_from],
             ['entry_date', '<=', $date_to]
         ],
         ['sort' => ['entry_date' => 'asc', 'created' => 'asc', 'id' => 'asc']]
