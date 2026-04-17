@@ -39,7 +39,7 @@ use realestate\finance\accounting\AccountingEntryLine;
 
 $fiscal_year_id = $params['id'];
 
-$fiscalYear = FiscalYear::id($params['id'])
+$fiscalYear = FiscalYear::id($fiscal_year_id)
     ->read(['status', 'condo_id', 'date_from', 'date_to'])
     ->first();
 
@@ -50,6 +50,18 @@ if(!$fiscalYear) {
 if(!in_array($fiscalYear['status'], ['open', 'preopen'])) {
     trigger_error("APP::Account balances can only be rebuild on open fiscal year.", EQ_REPORT_ERROR);
     throw new Exception('invalid_fiscal_year_id', EQ_ERROR_INVALID_PARAM);
+}
+
+if(!$fiscalYear['condo_id']) {
+    throw new Exception('missing_condo_id', EQ_ERROR_INVALID_PARAM);
+}
+
+if(!$fiscalYear['date_from']) {
+    throw new Exception('missing_date_from', EQ_ERROR_INVALID_PARAM);
+}
+
+if(!$fiscalYear['date_to']) {
+    throw new Exception('missing_date_to', EQ_ERROR_INVALID_PARAM);
 }
 
 $condo_id = $fiscalYear['condo_id'];
@@ -80,6 +92,7 @@ if($openingBalance) {
         ]);
 
     foreach($lines as $line) {
+        /*
         AccountBalanceChange::create([
             'condo_id'          => $condo_id,
             'account_id'        => $line['account_id'],
@@ -87,13 +100,14 @@ if($openingBalance) {
             'debit_balance'     => $line['debit_balance'],
             'credit_balance'    => $line['credit_balance']
         ]);
+        */
     }
 }
 
 $accountingEntries = AccountingEntry::search([
             ['condo_id', '=', $condo_id],
             ['status', '=', 'validated'],
-            ['entry_date', '>=', $date_from],
+            ['entry_date', '>', $date_from],
             ['entry_date', '<=', $date_to]
         ],
         ['sort' => ['entry_date' => 'asc', 'created' => 'asc', 'id' => 'asc']]
