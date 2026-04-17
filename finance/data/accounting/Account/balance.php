@@ -43,7 +43,7 @@ use finance\accounting\OpeningBalanceLine;
 
 $result = [
     'id'        => $params['id'],
-    'date'      => $params['date'],
+    'date'      => date('c', $params['date']),
     'balance'   => 0.0
 ];
 
