@@ -319,7 +319,7 @@ TemplatePart::create([
 <p>Madame, Monsieur,</p>
 <p>
 Nous avons le plaisir de vous transmettre, en annexe à la présente, le
-<strong>procès-verbal de l'Assemblée Générale des copropriétaires</strong> de la copropriété <strong>{condo}</strong>, qui s'est tenue le <strong>{date}</strong>, à <strong>{condo_city}</strong>.
+<strong>procès-verbal de l'Assemblée Générale des copropriétaires</strong> de la copropriété <strong>{condo}</strong>, qui s'est tenue le <strong>{date}</strong>.
 </p>
 <p>
 Ce procès-verbal reprend l'ensemble des résolutions soumises au vote,

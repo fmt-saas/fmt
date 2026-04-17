@@ -89,7 +89,7 @@ TemplatePart::create([
 
 TemplatePart::create([
     'name'          => 'owner_representation',
-    'value'         => "<p>Pour me représenter à l'Assemblée Générale des copropriétaires qui se tiendra le <strong>{{ assembly.assembly_date | date(date_format, timezone) }}</strong>, à <strong>{{ assembly.assembly_location }}</strong>,<br />et pour voter en mon nom sur toutes les résolutions inscrites à l'ordre du jour, ainsi que sur toutes questions pouvant être soumises à l'assemblée.</p>",
+    'value'         => "<p>Pour me représenter à l'Assemblée Générale des copropriétaires qui se tiendra le <strong>{assembly_date}</strong>, à <strong>{assembly_location}</strong>,<br />et pour voter en mon nom sur toutes les résolutions inscrites à l'ordre du jour, ainsi que sur toutes questions pouvant être soumises à l'assemblée.</p>",
     'template_id'   => $template['id'],
     'variables'     => '["assembly_date", "assembly_location"]'
 ]);
