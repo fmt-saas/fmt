@@ -49,6 +49,38 @@
             "label": "Copropriétés",
             "description": "Lister et gérer les copropriétés."
         },
+        "condominiums.condominium": {
+            "label": "Copropriété - Fiche",
+            "description": "Formulaire d'une copropriété."
+        },
+        "condominiums.condominium.config": {
+            "label": "Copropriété - Configuration",
+            "description": "Formulaire configuration d'une copropriété."
+        },
+        "condominiums.condominium.accounting": {
+            "label": "Copropriété - Comptabilité",
+            "description": "Formulaire comptabilité d'une copropriété."
+        },
+        "condominiums.condominium.fiscal_years": {
+            "label": "Copropriété - Années fiscales",
+            "description": "Liste des années fiscales d'une copropriété."
+        },
+        "condominiums.condominium.general_assemblies": {
+            "label": "Copropriété - Assemblées générales",
+            "description": "Liste des assemblées générales d'une copropriété."
+        },
+        "condominiums.condominium.purchase_invoices": {
+            "label": "Copropriété - Factures de vente",
+            "description": "Liste des factures de vente d'une copropriété."
+        },
+        "condominiums.condominium.ownerships": {
+            "label": "Copropriété - Dossiers de propriété",
+            "description": "Liste des dossiers de propriété d'une copropriété."
+        },
+        "condominiums.condominium.property_lots": {
+            "label": "Copropriété - Lots",
+            "description": "Liste des lots d'une copropriété."
+        },
         "property_lots": {
             "label": "Lots",
             "description": "Définir et gérer les lots."

@@ -179,7 +179,92 @@
                         "context": {
                             "entity": "realestate\\property\\Condominium",
                             "view": "list.default"
-                        }
+                        },
+                        "search_children": [
+                            {
+                                "id": "condominiums.condominium",
+                                "type": "search",
+                                "label": "Condominium - Form",
+                                "icon": "location_city",
+                                "route": "/condo/object.id",
+                                "context": {
+                                    "view": "form.accounting"
+                                },
+                                "search_context": {
+                                    "entity": "realestate\\property\\Condominium"
+                                }
+                            },
+                            {
+                                "id": "condominiums.condominium.config",
+                                "type": "search",
+                                "label": "Condominium - Configuration",
+                                "icon": "location_city",
+                                "route": "/condo/object.id/config",
+                                "search_context": {
+                                    "entity": "realestate\\property\\Condominium"
+                                }
+                            },
+                            {
+                                "id": "condominiums.condominium.accounting",
+                                "type": "search",
+                                "label": "Condominium - Accounting",
+                                "icon": "location_city",
+                                "route": "/condo/object.id/accounting",
+                                "search_context": {
+                                    "entity": "realestate\\property\\Condominium"
+                                }
+                            },
+                            {
+                                "id": "condominiums.condominium.fiscal_years",
+                                "type": "search",
+                                "label": "Condominium - Fiscal years",
+                                "icon": "date_range",
+                                "route": "/condo/object.id/accounting/fiscal-year",
+                                "search_context": {
+                                    "entity": "realestate\\property\\Condominium"
+                                }
+                            },
+                            {
+                                "id": "condominiums.condominium.general_assemblies",
+                                "type": "search",
+                                "label": "Condominium - General assemblies",
+                                "icon": "checklist",
+                                "route": "/condo/object.id/accounting/general-assembly",
+                                "search_context": {
+                                    "entity": "realestate\\property\\Condominium"
+                                }
+                            },
+                            {
+                                "id": "condominiums.condominium.purchase_invoices",
+                                "type": "search",
+                                "label": "Condominium - Purchase invoices",
+                                "icon": "receipt_long",
+                                "route": "/condo/object.id/accounting/purchase-invoice",
+                                "search_context": {
+                                    "entity": "realestate\\property\\Condominium"
+                                }
+                            },
+                            {
+                                "id": "condominiums.condominium.ownerships",
+                                "type": "search",
+                                "label": "Condominium - Ownerships",
+                                "icon": "group",
+                                "route": "/condo/object.id/ownership",
+                                "search_context": {
+                                    "entity": "realestate\\property\\Condominium"
+                                }
+                            },
+                            {
+                                "id": "condominiums.condominium.property_lots",
+                                "type": "search",
+                                "label": "Condominium - Property lots",
+                                "icon": "apartment",
+                                "route": "/condo/object.id/property-lot",
+                                "search_context": {
+                                    "entity": "realestate\\property\\Condominium"
+                                }
+                            }
+                        ]
                     },
                     {
                         "id": "property_lots",
