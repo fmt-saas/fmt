@@ -1,0 +1,48 @@
+{
+    "name": "Ligne de politique de synchronisation",
+    "plural": "Lignes de politique de synchronisation",
+    "description": "",
+    "model": {
+        "sync_policy_id": {
+            "label": "Politique de synchronisation",
+            "description": "La politique de synchronisation de la ligne.",
+            "help": ""
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Nom de la ligne.",
+            "help": ""
+        },
+        "sync_direction": {
+            "label": "Direction",
+            "description": "Direction de la politique de synchronisation.",
+            "help": "",
+            "selection": {
+                "descending": "Descendant",
+                "ascending": "Ascendant"
+            }
+        },
+        "object_class": {
+            "label": "Entité",
+            "description": "Entité concernée par politique de synchronisation.",
+            "help": ""
+        },
+        "object_field": {
+            "label": "Champ",
+            "description": "Champ de l'objet.",
+            "help": ""
+        },
+        "scope": {
+            "label": "Scope",
+            "description": "Comment gérer la donnée.",
+            "help": "",
+            "selection": {
+                "public": "Publique",
+                "protected": "Protégé",
+                "private": "Privé"
+            }
+        }
+    },
+    "view": {
+    }
+}

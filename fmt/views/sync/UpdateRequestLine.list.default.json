@@ -23,16 +23,34 @@
             {
                 "type": "field",
                 "value": "object_field",
+                "width": "25%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "object_field_display_name",
                 "width": "25%"
             },
             {
                 "type": "field",
                 "value": "old_value",
+                "width": "25%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "display_old_value",
                 "width": "25%"
             },
             {
                 "type": "field",
                 "value": "new_value",
+                "width": "25%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "display_new_value",
                 "width": "25%"
             }
         ]

@@ -8,6 +8,11 @@
             "description": "Nom d'affichage de l'identité.",
             "help": ""
         },
+        "uuid": {
+            "label": "UUID",
+            "description": "Identifiant global fourni par l'instance maître.",
+            "help": ""
+        },
         "type": {
             "label": "Type",
             "description": "Type d'organisation.",
@@ -130,9 +135,24 @@
             "description": "Adresse e-mail principale.",
             "help": ""
         },
+        "email_alt": {
+            "label": "Email secondaire",
+            "description": "Adresse e-mail secondaire.",
+            "help": ""
+        },
         "phone": {
             "label": "Numéro de téléphone",
             "description": "Numéro de téléphone.",
+            "help": ""
+        },
+        "phone_alt": {
+            "label": "Numéro de téléphone secondaire",
+            "description": "Numéro de téléphone secondaire.",
+            "help": ""
+        },
+        "mobile": {
+            "label": "Numéro de téléphone mobile",
+            "description": "Numéro de téléphone mobile principale.",
             "help": ""
         },
         "website": {

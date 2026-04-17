@@ -7,6 +7,7 @@
 namespace fmt\sync;
 
 use equal\orm\Model;
+use fmt\core\alert\Message;
 
 class UpdateRequest extends Model {
 
@@ -91,8 +92,9 @@ class UpdateRequest extends Model {
             'approval_reason' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'unsupervised',
-                    'verified'
+                    'unsupervised',  // Approved directly because only 'public' fields modified.
+                    'verified',      // Modification on at least one 'protected' field was manually accepted by a user.
+                    'forced'         // Approved directly because the modifications were forced, even if protected fields were modified. (forced: if 'accept' flag was used on sync action or if the sync policy scope is 'private')
                 ],
                 'description'       => 'Reason for approval.',
                 'default'           => 'verified',
@@ -128,7 +130,15 @@ class UpdateRequest extends Model {
                 ],
                 'default'           => 'pending',
                 'description'       => 'Current status of the update request.'
-            ]
+            ],
+
+            'alerts_count' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => 'Number of alerts attached to the request.',
+                'store'             => false,
+                'function'          => 'calcAlertsCount'
+            ],
 
         ];
     }
@@ -157,23 +167,72 @@ class UpdateRequest extends Model {
         }
     }
 
-    protected static function calcObjectName($self) {
+    protected static function calcObjectName($self, $lang) {
+        $map_lang_new_object_labels = [
+            'en' => '(new object)',
+            'fr' => '(nouvel objet)',
+            'nl' => '(nieuw voorwerp)'
+        ];
+        $new_object_label = $map_lang_new_object_labels[$lang] ?? '(new object)';
+
         $result = [];
         $self->read(['is_new', 'object_class', 'object_id', 'update_request_lines_ids' => ['object_field', 'new_value']]);
         foreach($self as $id => $updateRequest) {
             if($updateRequest['is_new']) {
-                $result[$id] = '(new object)';
-                foreach($updateRequest['update_request_lines_ids'] as $line_id => $line) {
-                    if($line['object_field'] === 'name') {
-                        $result[$id] = $line['new_value'];
-                        break;
+                $map_fields = [];
+                foreach($updateRequest['update_request_lines_ids'] as $line) {
+                    if(is_string($line['new_value'])) {
+                        $map_fields[$line['object_field']] = $line['new_value'];
                     }
                 }
+
+                $name = $new_object_label;
+
+                // #memo - try to find the best name to make the handling of the update request easier
+                if(!empty($map_fields['name'])) {
+                    // most objects
+                    $name = $map_fields['name'];
+                }
+                elseif(!empty($map_fields['legal_name'])) {
+                    // identity -> company
+                    $name = $map_fields['legal_name'];
+                }
+                elseif(!empty($map_fields['firstname']) && !empty($map_fields['lastname'])) {
+                    // identity -> person
+                    $name = $map_fields['firstname'] . ' ' . mb_strtoupper($map_fields['lastname']);
+                }
+                else {
+                    // fallback
+                    $fallback_fields = ['short_name', 'description', 'code'];
+                    foreach($fallback_fields as $fallback_field) {
+                        if(!empty($map_fields[$fallback_field])) {
+                            $name = $map_fields[$fallback_field];
+                            break;
+                        }
+                    }
+                }
+
+                $result[$id] = $name;
             }
             elseif(class_exists($updateRequest['object_class'])) {
                 $object = $updateRequest['object_class']::id($updateRequest['object_id'])->read(['name'])->first();
                 $result[$id] = $object['name'];
             }
+        }
+        return $result;
+    }
+
+    protected static function calcAlertsCount($self) {
+        $result = [];
+        $self->read(['']);
+        foreach($self as $id => $item) {
+            $alerts_ids = Message::search([
+                ['object_class', '=', self::getType()],
+                ['object_id', '=', $id]
+            ])
+                ->ids();
+
+            $result[$id] = count($alerts_ids);
         }
         return $result;
     }
@@ -218,25 +277,18 @@ class UpdateRequest extends Model {
 
                     $type = $field_descriptor['result_type'] ?? ($field_descriptor['type'] ?? '');
 
-                    switch($type) {
-                        case 'integer':
-                        case 'date':
-                        case 'datetime':
-                        case 'many2one':
-                            $val = (int) $line['new_value'];
-                            break;
-                        case 'float':
-                            $val = (float) $line['new_value'];
-                            break;
-                        case 'boolean':
-                            $val = (bool) $line['new_value'];
-                            break;
-                        case 'many2many':
-                            $val = json_decode($line['new_value'], true);
-                            break;
-                        case 'string':
-                        default:
-                            $val = (string) $line['new_value'];
+                    if($line['new_value'] === 'NULL') {
+                        $val = null;
+                    }
+                    else {
+                        $val = match($type) {
+                            'integer', 'many2one'   => (int) $line['new_value'],
+                            'date', 'datetime'      => (int) strtotime($line['new_value']),
+                            'float'                 => (float) $line['new_value'],
+                            'boolean'               => (bool) $line['new_value'],
+                            'many2many'             => json_decode($line['new_value'], true),
+                            default                 => (string) $line['new_value']
+                        };
                     }
 
                     $data[$line['object_field']] = $val;
@@ -257,13 +309,15 @@ class UpdateRequest extends Model {
                         ->first();
                 }
 
-                $values = [
-                        'status'            => 'approved',
-                        'approval_user_id'  => $user_id
-                    ];
+                $approval_reason = $values['reason'] ?? '';
 
-                if(isset($values['reason'])) {
-                    $values['approval_reason'] = $values['reason'];
+                $values = [
+                    'status'            => 'approved',
+                    'approval_user_id'  => $user_id
+                ];
+
+                if(!empty($approval_reason)) {
+                    $values['approval_reason'] = $approval_reason;
                 }
 
                 self::id($id)->update($values);

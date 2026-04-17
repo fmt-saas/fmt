@@ -1,0 +1,44 @@
+{
+    "name": "Condition de politique de synchronisation",
+    "plural": "Conditions de politique de synchronisation",
+    "description": "",
+    "model": {
+        "sync_policy_id": {
+            "label": "Politique de synchronisation",
+            "description": "La politique de synchronisation de la ligne.",
+            "help": ""
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Nom de la ligne.",
+            "help": ""
+        },
+        "operand": {
+            "label": "Opérande",
+            "description": "L'opérande de la condition.",
+            "help": ""
+        },
+        "operator": {
+            "label": "Opérateur",
+            "description": "L'opérateur à appliquer.",
+            "help": "",
+            "selection": {
+                "=": "=",
+                ">": ">",
+                ">=": ">=",
+                "<": "<",
+                "<=": "<=",
+                "<>": "<>",
+                "in": "dans",
+                "not_in": "pas dans"
+            }
+        },
+        "value": {
+            "label": "Valeur",
+            "description": "Valeur de la condition.",
+            "help": ""
+        }
+    },
+    "view": {
+    }
+}

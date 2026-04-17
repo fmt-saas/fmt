@@ -1,0 +1,38 @@
+{
+    "name": "Update Policy Condition",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE":  [
+                {
+                    "view": false
+                }
+            ]
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "sync_policy_id",
+                "width": "25%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "operand",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "operator",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "value",
+                "width": "25%"
+            }
+        ]
+    }
+}

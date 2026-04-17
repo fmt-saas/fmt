@@ -6,7 +6,7 @@
             {
                 "id": 1,
                 "object_class": "identity\\User",
-                "field_unique": "login",
+                "field_unique": "instance_uuid,login",
                 "sync_direction": "ascending",
                 "scope": "protected"
             },
@@ -93,6 +93,20 @@
                 "field_unique": "registration_number",
                 "sync_direction": "descending",
                 "scope": "protected"
+            },
+            {
+                "id": 14,
+                "object_class": "finance\\bank\\BankAccount",
+                "field_unique": "bank_account_iban",
+                "sync_direction": "descending",
+                "scope": "protected"
+            },
+            {
+                "id": 15,
+                "object_class": "identity\\IdentityType",
+                "field_unique": "code",
+                "sync_direction": "descending",
+                "scope": "private"
             }
         ]
     },
@@ -102,7 +116,7 @@
         "data": [
             {
                 "sync_policy_id": 1,
-                "object_field": "login",
+                "object_field": "instance_uuid",
                 "scope": "public"
             },
             {
@@ -112,7 +126,7 @@
             },
             {
                 "sync_policy_id": 1,
-                "object_field": "uuid",
+                "object_field": "login",
                 "scope": "public"
             },
             {
@@ -124,6 +138,11 @@
                 "sync_policy_id": 1,
                 "object_field": "lastname",
                 "scope": "protected"
+            },
+            {
+                "sync_policy_id": 2,
+                "object_field": "uuid",
+                "scope": "public"
             },
             {
                 "sync_policy_id": 2,
@@ -150,11 +169,6 @@
                 "sync_policy_id": 2,
                 "object_field": "short_name",
                 "scope": "private"
-            },
-            {
-                "sync_policy_id": 2,
-                "object_field": "uuid",
-                "scope": "public"
             },
             {
                 "sync_policy_id": 2,
@@ -308,6 +322,11 @@
             },
             {
                 "sync_policy_id": 4,
+                "object_field": "uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 4,
                 "object_field": "registration_number",
                 "scope": "public"
             },
@@ -393,22 +412,22 @@
             },
             {
                 "sync_policy_id": 5,
-                "object_field": "bic",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 5,
                 "object_field": "uuid",
                 "scope": "public"
             },
             {
                 "sync_policy_id": 5,
-                "object_field": "legal_name",
+                "object_field": "bic",
                 "scope": "public"
             },
             {
                 "sync_policy_id": 5,
                 "object_field": "registration_number",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 5,
+                "object_field": "legal_name",
                 "scope": "public"
             },
             {
@@ -546,7 +565,11 @@
                 "object_field": "address_country",
                 "scope": "public"
             },
-
+            {
+                "sync_policy_id": 7,
+                "object_field": "uuid",
+                "scope": "protected"
+            },
             {
                 "sync_policy_id": 7,
                 "object_field": "identity_id",
@@ -556,11 +579,6 @@
                 "sync_policy_id": 7,
                 "object_field": "legal_name",
                 "scope": "public"
-            },
-            {
-                "sync_policy_id": 7,
-                "object_field": "uuid",
-                "scope": "protected"
             },
             {
                 "sync_policy_id": 7,
@@ -619,6 +637,11 @@
             },
             {
                 "sync_policy_id": 10,
+                "object_field": "uuid",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 10,
                 "object_field": "name",
                 "scope": "public"
             },
@@ -648,18 +671,13 @@
                 "scope": "public"
             },
             {
-                "sync_policy_id": 10,
+                "sync_policy_id": 11,
                 "object_field": "uuid",
                 "scope": "public"
             },
             {
                 "sync_policy_id": 11,
                 "object_field": "name",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 11,
-                "object_field": "uuid",
                 "scope": "public"
             },
             {
@@ -694,17 +712,17 @@
             },
             {
                 "sync_policy_id": 12,
-                "object_field": "uuid",
-                "scope": "public"
-            },
-            {
-                "sync_policy_id": 12,
                 "object_field": "code",
                 "scope": "public"
             },
             {
                 "sync_policy_id": 12,
                 "object_field": "category",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 13,
+                "object_field": "uuid",
                 "scope": "public"
             },
             {
@@ -731,11 +749,6 @@
                 "sync_policy_id": 13,
                 "object_field": "short_name",
                 "scope": "private"
-            },
-            {
-                "sync_policy_id": 13,
-                "object_field": "uuid",
-                "scope": "public"
             },
             {
                 "sync_policy_id": 13,
@@ -836,6 +849,136 @@
                 "sync_policy_id": 13,
                 "object_field": "website",
                 "scope": "public"
+            },
+            {
+                "sync_policy_id": 14,
+                "object_field": "uuid",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 14,
+                "object_field": "name",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 14,
+                "object_field": "description",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 14,
+                "object_field": "bank_account_type",
+                "scope": "public"
+            },
+            {
+                "sync_policy_id": 14,
+                "object_field": "is_primary",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 14,
+                "object_field": "is_active",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 14,
+                "object_field": "owner_identity_uuid",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 14,
+                "object_field": "bank_account_iban",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 14,
+                "object_field": "bank_account_bic",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 14,
+                "object_field": "bank_account_suffix",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 14,
+                "object_field": "bank_id",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 15,
+                "object_field": "id",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 15,
+                "object_field": "code",
+                "scope": "protected"
+            },
+            {
+                "sync_policy_id": 15,
+                "object_field": "description",
+                "scope": "protected"
+            }
+        ]
+    },
+    {
+        "name": "fmt\\sync\\SyncPolicyCondition",
+        "lang": "fr",
+        "data": [
+            {
+                "sync_policy_id": 2,
+                "operand": "object_class",
+                "operator": "=",
+                "value": "identity\\Identity"
+            },
+            {
+                "sync_policy_id": 3,
+                "operand": "object_class",
+                "operator": "=",
+                "value": "purchase\\supplier\\Supplier"
+            },
+            {
+                "sync_policy_id": 4,
+                "operand": "object_class",
+                "operator": "=",
+                "value": "purchase\\supplier\\Supplier"
+            },
+            {
+                "sync_policy_id": 5,
+                "operand": "object_class",
+                "operator": "=",
+                "value": "finance\\bank\\Bank"
+            },
+            {
+                "sync_policy_id": 6,
+                "operand": "object_class",
+                "operator": "=",
+                "value": "realestate\\property\\NotaryOffice"
+            },
+            {
+                "sync_policy_id": 7,
+                "operand": "object_class",
+                "operator": "=",
+                "value": "realestate\\management\\ManagingAgent"
+            },
+            {
+                "sync_policy_id": 13,
+                "operand": "object_class",
+                "operator": "=",
+                "value": "identity\\Identity"
+            },
+            {
+                "sync_policy_id": 14,
+                "operand": "object_class",
+                "operator": "=",
+                "value": "finance\\bank\\BankAccount"
+            },
+            {
+                "sync_policy_id": 14,
+                "operand": "owner_identity_id",
+                "operator": "<>",
+                "value": null
             }
         ]
     }

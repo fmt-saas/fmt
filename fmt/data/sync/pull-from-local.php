@@ -67,7 +67,8 @@ $policy = SyncPolicy::search([
         'scope',
         'object_class',
         'field_unique',
-        'sync_policy_lines_ids' => ['object_field', 'scope']
+        'sync_policy_lines_ids'         => ['object_field', 'scope'],
+        'sync_policy_conditions_ids'    => ['operand', 'operator', 'value']
     ])
     ->first();
 
@@ -99,9 +100,6 @@ foreach($schema as $field => $def) {
     if($field === 'instance_id' && $policy['scope'] === 'protected') {
         $domain_data['instance_id'] = $instance['id'];
     }
-    elseif($field === 'object_class' && isset($def['default'])) {
-        $domain_data['object_class'] = $def['default'];
-    }
 
     if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
         continue;
@@ -126,8 +124,13 @@ if(isset($domain_data['instance_id'])) {
     // the filtering is done after the objects are fetched, to handle the condition -> "modified" <> "created"
     $fields = array_merge($fields, ['instance_id', 'created', 'modified']);
 }
-if(isset($domain_data['object_class'])) {
-    $domain->addCondition(new DomainCondition('object_class', '=', $domain_data['object_class']));
+foreach($policy['sync_policy_conditions_ids'] as $condition) {
+    $value = $condition['value'];
+    if(in_array($condition['operator'], ['in', 'not_in'])) {
+        $value = json_decode($value, true);
+    }
+
+    $domain->addCondition(new DomainCondition($condition['operand'], $condition['operator'], $value));
 }
 
 $domain->addCondition(new DomainCondition('modified', '>=', $params['date_from'] ?? 0));

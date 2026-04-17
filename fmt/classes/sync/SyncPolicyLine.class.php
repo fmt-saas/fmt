@@ -16,7 +16,7 @@ class SyncPolicyLine extends Model {
             'sync_policy_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'fmt\sync\SyncPolicy',
-                'description'       => 'Reference to the parent update request.',
+                'description'       => 'Reference to the parent sync policy.',
                 'required'          => true,
                 'ondelete'          => 'cascade',
                 'dependents'        => ['object_class', 'sync_direction']
@@ -33,6 +33,12 @@ class SyncPolicyLine extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'relation'          => ['sync_policy_id' => 'sync_direction'],
+                'selection'         => [
+                    // Local > Global
+                    'ascending',
+                    // Global > Local
+                    'descending'
+                ],
                 'store'             => true,
                 'instant'           => true,
                 'description'       => 'Direction of the synchronization.'

@@ -33,6 +33,11 @@
             "description": "Type de document auquel ce sous-type est rattaché.",
             "help": ""
         },
+        "document_type_uuid": {
+            "label": "UUID type document",
+            "description": "Identifiant global du type de document fourni par l'instance maître.",
+            "help": ""
+        },
         "recording_rules_ids": {
             "label": "Règles d'enregistrement",
             "description": "Règles métiers déclenchées lors d'un import pour ce sous-type.",

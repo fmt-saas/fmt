@@ -12,6 +12,11 @@
 			"label": "Identité",
 			"description": "Le contact lié à l'utilisateur.",
 			"help": ""
+		},
+		"instance_id": {
+			"label": "Instance",
+			"description": "L'instance d'origine de l'utilisateur'.",
+			"help": ""
 		}
 	},
 	"view": {

@@ -7,6 +7,7 @@
 
 use equal\http\HttpRequest;
 use fmt\sync\SyncPolicy;
+use fmt\sync\SyncPolicyCondition;
 use fmt\sync\SyncPolicyLine;
 
 [$params, $providers] = eQual::announce([
@@ -58,8 +59,12 @@ try {
     $syncPolicyLineModel = $orm->getModel(SyncPolicyLine::class);
     $sync_policy_line_schema = $syncPolicyLineModel->getSchema();
 
+    $syncPolicyConditionModel = $orm->getModel(SyncPolicyCondition::class);
+    $sync_policy_condition_schema = $syncPolicyConditionModel->getSchema();
+
     $fields = array_keys($sync_policy_schema);
     $fields['sync_policy_lines_ids'] = array_keys($sync_policy_line_schema);
+    $fields['sync_policy_conditions_ids'] = array_keys($sync_policy_condition_schema);
 
     $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=core_model_collect' .
         '&entity=' . urlencode(SyncPolicy::class) .
@@ -77,8 +82,11 @@ try {
         $lines_data = $sync_policy_data['sync_policy_lines_ids'];
         unset($sync_policy_data['sync_policy_lines_ids']);
 
+        $conditions_data = $sync_policy_data['sync_policy_conditions_ids'];
+        unset($sync_policy_data['sync_policy_conditions_ids']);
+
         foreach($sync_policy_data as $field => $value) {
-            if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted', 'last_pull'])) {
+            if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted', 'last_sync'])) {
                 unset($sync_policy_data[$field]);
             }
         }
@@ -93,6 +101,22 @@ try {
 
             SyncPolicyLine::create(array_merge(
                 $line_data,
+                ['sync_policy_id' => $syncPolicy['id']]
+            ));
+        }
+        foreach($conditions_data as $condition_data) {
+            foreach($condition_data as $field => $value) {
+                if(in_array($field, ['id', 'creator', 'modifier', 'created', 'modified', 'state', 'deleted'])) {
+                    unset($condition_data[$field]);
+                }
+            }
+
+            if(is_null($condition_data['value'])) {
+                $condition_data['value'] = 'NULL';
+            }
+
+            SyncPolicyCondition::create(array_merge(
+                $condition_data,
                 ['sync_policy_id' => $syncPolicy['id']]
             ));
         }

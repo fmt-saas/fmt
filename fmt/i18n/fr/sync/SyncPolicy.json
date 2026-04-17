@@ -1,0 +1,61 @@
+{
+    "name": "Politique de synchronisation",
+    "plural": "Politiques de synchronisation",
+    "description": "",
+    "model": {
+        "object_class": {
+            "label": "Entité",
+            "description": "Le namespace de l'entité concernée.",
+            "help": ""
+        },
+        "field_unique": {
+            "label": "Champ unique",
+            "description": "Le champ unique pour distinguer les objets.",
+            "help": ""
+        },
+        "scope": {
+            "label": "Scope",
+            "description": "",
+            "help": "Ne peut être privé que pour les synchronisations de direction descendante.",
+            "selection": {
+                "private": "Privé",
+                "protected": "Protégé"
+            }
+        },
+        "sync_direction": {
+            "label": "Direction",
+            "description": "Direction de la synchronisation.",
+            "help": "",
+            "selection": {
+                "descending": "Descendant",
+                "ascending": "Ascendant"
+            }
+        }
+    },
+    "view": {
+        "list.default": {
+            "actions": {
+                "action.accept": {
+                    "label": "Accepter",
+                    "description": "Accepter les modifications demandées."
+                },
+                "action.reject": {
+                    "label": "Rejeter",
+                    "description": "Rejeter les modifications demandées."
+                }
+            }
+        },
+        "form.default": {
+            "layout": {
+                "section.sync_policy_lines_ids": {
+                    "label": "Lignes",
+                    "description": "Les différents champs à récupérer."
+                },
+                "section.sync_policy_conditions_ids": {
+                    "label": "Conditions",
+                    "description": "Conditions de récupération des données."
+                }
+            }
+        }
+    }
+}
