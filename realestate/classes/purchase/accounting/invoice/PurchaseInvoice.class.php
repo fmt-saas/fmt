@@ -862,25 +862,28 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         $result = [];
 
         $self->read([
-                'fiscal_period_id' => ['date_to'],
-                'invoice_lines_ids' => ['amount', 'expense_account_id' => ['operation_assignment']]
+                'has_fund_usage',
+                'fund_usage_lines_ids' => ['amount', 'fund_account_id' => ['operation_assignment']],
+                'fiscal_period_id' => ['date_to']
             ]);
 
         foreach($self as $id => $purchaseInvoice) {
-            foreach($purchaseInvoice['invoice_lines_ids'] as $invoice_line_id => $purchaseInvoiceLine) {
-                if(in_array($purchaseInvoiceLine['expense_account_id']['operation_assignment'], ['reserve_fund', 'special_reserve_fund'], true)) {
-                    $account = \eQual::run('get', 'finance_accounting_Account_balance', [
-                            'id'    => $purchaseInvoiceLine['expense_account_id']['id'],
-                            'date'  => $purchaseInvoice['fiscal_period_id']['date_to']
-                        ]);
+            if($purchaseInvoice['has_fund_usage']) {
+                foreach($purchaseInvoice['fund_usage_lines_ids'] as $fund_usage_line_id => $fundUsageLine) {
+                    if(in_array($fundUsageLine['fund_account_id']['operation_assignment'], ['reserve_fund', 'special_reserve_fund'], true)) {
+                        $account = \eQual::run('get', 'finance_accounting_Account_balance', [
+                                'id'    => $fundUsageLine['fund_account_id']['id'],
+                                'date'  => $purchaseInvoice['fiscal_period_id']['date_to']
+                            ]);
 
-                    $balance = $account['balance'];
-                    if($balance > 0 || abs($balance) < $purchaseInvoiceLine['amount']) {
-                        trigger_error("APP::Attempting to post a line on a Reserve fund ({$purchaseInvoiceLine['expense_account_id']['id']}) with balance {$balance} at date " . date('Y-m-d', $purchaseInvoice['fiscal_period_id']['date_to']) . ".", EQ_REPORT_WARNING);
-                        $result[$id] = [
-                            'insufficient_funds' => 'Reserve fund balance is insufficient.'
-                        ];
-                        break;
+                        $balance = $account['balance'];
+                        if($balance > 0 || abs($balance) < $fundUsageLine['amount']) {
+                            trigger_error("APP::Attempting to post a line on a Reserve fund ({$fundUsageLine['fund_account_id']['id']}) with balance {$balance} at date " . date('Y-m-d', $purchaseInvoice['fiscal_period_id']['date_to']) . ".", EQ_REPORT_WARNING);
+                            $result[$id] = [
+                                'insufficient_funds' => 'Reserve fund balance is insufficient.'
+                            ];
+                            break;
+                        }
                     }
                 }
             }
