@@ -49,10 +49,10 @@ foreach($fiscalPeriods as $fiscal_period_id => $fiscalPeriod) {
     }
 
     try {
-        eQual::run('do', 'finance_accounting_FiscalPeriod_assert-expense-statement', ['id' => $id]);
+        eQual::run('do', 'finance_accounting_FiscalPeriod_assert-expense-statement', ['id' => $fiscal_period_id]);
     }
     catch(Exception $e) {
-        trigger_error("APP::Unexpected error while asserting expense statement for FiscalPerdio ({$id}) " . $e->getMessage(), EQ_REPORT_WARNING);
+        trigger_error("APP::Unexpected error while asserting expense statement for FiscalPeriod ({$fiscal_period_id}) " . $e->getMessage(), EQ_REPORT_WARNING);
     }
 
 }
