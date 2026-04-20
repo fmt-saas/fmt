@@ -15,6 +15,7 @@ use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
 use finance\accounting\MiscOperationLine;
 use finance\bank\BankStatementLine;
+use finance\bank\CondominiumBankAccount;
 use realestate\finance\accounting\CondoFund;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
@@ -52,6 +53,15 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             // 'accounting_entry_id'
             // 'emission_date'
             // 'due_date'
+
+            'condo_id' => [
+                'type'              => 'many2one',
+                'description'       => "The condominium the invoice refers to.",
+                'foreign_object'    => 'realestate\property\Condominium',
+                'onupdate'          => 'onupdateCondoId',
+                'oncreate'          => 'onupdateCondoId',
+                'readonly'          => true
+            ],
 
             'invoice_type' => [
                 'type'              => 'string',
@@ -524,6 +534,25 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
     protected static function policyCanSendExpenseStatements($self): array {
         return [];
+    }
+
+    protected static function onupdateCondoId($self) {
+        $self->read(['fiscal_period_id' => ['date_from', 'date_to']]);
+        foreach($self as $id => $expenseStatement) {
+            if(!$expenseStatement['condo_id']) {
+                continue;
+            }
+            $bankAccount = CondominiumBankAccount::search([
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['object_class', '=', 'finance\bank\CondominiumBankAccount'],
+                    ['bank_account_type', '=', 'current'],
+                    ['is_primary', '=', true]
+                ])
+                ->first();
+            if($bankAccount) {
+                self::id($id)->update(['statement_bank_account_id' => $bankAccount['id']]);
+            }
+        }
     }
 
     protected static function onupdateFiscalPeriodId($self) {

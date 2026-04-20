@@ -30,6 +30,23 @@
             "confirm": true
         }
     ],
+    "routes": [
+        {
+            "id": "item.create_expense_statement",
+            "label": "Create Expense Statement",
+            "description": "",
+            "icon": "data_object",
+            "context": {
+                "entity": "realestate\\funding\\ExpenseStatement",
+                "view": "form.create",
+                "purpose": "create",
+                "mode": "edit",
+                "domain": [
+                    ["fiscal_period_id", "=", "object.id"]
+                ]
+            }
+        }
+    ],
     "layout": {
         "groups": [
             {

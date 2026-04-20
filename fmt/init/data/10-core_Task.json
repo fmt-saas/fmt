@@ -6,12 +6,12 @@
             {
                 "id": 1,
                 "name": "Envoi d'emails",
-                "moment": "2025-11-06T13:55:08+00:00",
                 "is_active": true,
                 "is_recurring": true,
                 "repeat_axis": "minute",
                 "repeat_step": 1,
                 "is_exclusive": false,
+                "after_execution": "keep",
                 "controller": "core_spool_run"
             },
             {
@@ -19,14 +19,24 @@
                 "name": "Génération d'export de documents",
                 "status": "idle",
                 "pid": 450,
-                "last_run": "2025-11-06T13:54:01+00:00",
-                "moment": "2025-11-07T13:52:41+00:00",
                 "is_active": true,
                 "is_recurring": true,
                 "repeat_axis": "minute",
                 "repeat_step": 1,
                 "is_exclusive": false,
+                "after_execution": "keep",
                 "controller": "documents_export_cron_run"
+            },
+            {
+                "id": 3,
+                "name": "Vérification des envois d'emails",
+                "is_active": true,
+                "is_recurring": true,
+                "repeat_axis": "hour",
+                "repeat_step": 3,
+                "is_exclusive": false,
+                "after_execution": "keep",
+                "controller": "core_spool_sync-alerts"
             }
         ]
     }
