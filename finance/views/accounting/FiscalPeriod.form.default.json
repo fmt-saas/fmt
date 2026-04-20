@@ -6,7 +6,9 @@
             "label": "Pre-close",
             "description": "Pre-close the fiscal period. This will generate a proforma Expense Statement.",
             "controller": "core_model_transition",
-            "visible": ["status", "=", "open"],
+            "visible1": ["status", "=", "open"],
+            "visible": false,
+            "visible_desription": "#memo - preclose action is performed through ExpenseStatement",
             "params": {
                 "entity": "finance\\accounting\\FiscalPeriod",
                 "transition": "preclose",
@@ -19,7 +21,7 @@
             "label": "Reopen",
             "description": "Set fiscal period back to pre-close.",
             "controller": "core_model_transition",
-            "visible": ["status", "=", "closed"],
+            "visible": [["status", "=", "closed"], ["fiscal_year_status", "=", "open"]],
             "params": {
                 "entity": "finance\\accounting\\FiscalPeriod",
                 "transition": "repreclose",
@@ -80,6 +82,12 @@
                                                 "label": "Fiscal Year",
                                                 "value": "fiscal_year_id",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fiscal_year_status",
+                                                "width": "50%",
+                                                "visible": false
                                             }
                                         ]
                                     }

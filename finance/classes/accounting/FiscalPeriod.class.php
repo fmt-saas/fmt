@@ -87,6 +87,15 @@ class FiscalPeriod extends Model {
                 'function'          => 'calcCode'
             ],
 
+            'fiscal_year_status' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Order of the period, based on its date within the fiscal year.',
+                'help'              => 'This value is assigned by parent Fiscal Year, and is needed for purchase invoice sequence numbering.',
+                'store'             => false,
+                'relation'          => ['fiscal_year_id' => 'status']
+            ],
+
             'status' => [
                 'type'        => 'string',
                 'selection'   => [
