@@ -30,7 +30,7 @@
         },
         "status": {
             "label": "Statut",
-            "description": "open = utilisable pour enregistrer des écritures, closed = clôturé.",
+            "description": "open = utilisable pour enregistrer des écritures, closed = clôturée.",
             "help": "",
             "selection": {
                 "open": "Ouverte",
@@ -62,6 +62,10 @@
                 "action.preclose": {
                     "label": "Pré-clôturer",
                     "description": "Pré-clôturer la période comptable et générer un décompte de charges proforma."
+                },
+                "action.reopen": {
+                    "label": "Réouvrir",
+                    "description": "Remettre la période comptable en pré-clôture."
                 }
             }
         }

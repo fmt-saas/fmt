@@ -8,7 +8,7 @@
             "controller": "core_model_transition",
             "visible1": ["status", "=", "open"],
             "visible": false,
-            "visible_desription": "#memo - preclose action is performed through ExpenseStatement",
+            "visible_help": "#memo - preclose action is performed through ExpenseStatement",
             "params": {
                 "entity": "finance\\accounting\\FiscalPeriod",
                 "transition": "preclose",

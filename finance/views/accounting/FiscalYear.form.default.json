@@ -84,10 +84,9 @@
             "label": "Close",
             "description": "Close the fiscal year.",
             "controller": "core_model_transition",
-            "visible": ["status", "=", "open"],
-            "visible1": false,
-            "visible_help": "This action has been removed : handled with expense statement",
-            "visible2": ["status", "=", "preclosed"],
+            "visible1": ["status", "=", "open"],
+            "visible": false,
+            "visible_help": "#memo - fiscal year closing is handled with ExpenseStatement",
             "params": {
                 "entity": "finance\\accounting\\FiscalYear",
                 "transition": "close",
