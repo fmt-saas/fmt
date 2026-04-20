@@ -37,6 +37,17 @@
                 "is_exclusive": false,
                 "after_execution": "keep",
                 "controller": "core_spool_sync-alerts"
+            },
+            {
+                "id": 4,
+                "name": "Génération auto des Décomptes proforma",
+                "is_active": true,
+                "is_recurring": true,
+                "repeat_axis": "hour",
+                "repeat_step": 3,
+                "is_exclusive": false,
+                "after_execution": "keep",
+                "controller": "finance_accounting_generate-expense-statements"
             }
         ]
     }
