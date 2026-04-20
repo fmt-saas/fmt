@@ -66,8 +66,8 @@
             "description": "Formulaire états comptables d'une copropriété."
         },
         "condominiums.condominium.fiscal_years": {
-            "label": "Copropriété - Années fiscales",
-            "description": "Liste des années fiscales d'une copropriété."
+            "label": "Copropriété - Exercices comptables",
+            "description": "Liste des exercices comptables d'une copropriété."
         },
         "condominiums.condominium.general_assemblies": {
             "label": "Copropriété - Assemblées générales",
