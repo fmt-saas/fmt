@@ -217,11 +217,11 @@ class FiscalPeriod extends Model {
                 continue;
             }
             // create a draft expense statement if not exist
-            $expenseStatement = ExpenseStatement::create([
+            ExpenseStatement::create([
                     'condo_id'          => $fiscalPeriod['condo_id'],
                     'fiscal_period_id'  => $id,
                     'fiscal_year_id'    => $fiscalPeriod['fiscal_year_id'],
-                    'request_date'      => time(),
+                    'posting_date'      => time(),
                     'has_date_range'    => true,
                     'date_from'         => $fiscalPeriod['date_from'],
                     'date_to'           => $fiscalPeriod['date_to'],
@@ -229,16 +229,6 @@ class FiscalPeriod extends Model {
                 ])
                 ->do('generate_statement');
 
-            // if a primary bank account is found for the condo, assign it to the expense statement
-            $bankAccount = CondominiumBankAccount::search([
-                    ['condo_id', '=', $fiscalPeriod['condo_id']],
-                    ['is_primary', '=', true]
-                ])
-                ->first();
-
-            if($bankAccount) {
-                $expenseStatement->update(['statement_bank_account_id' => $bankAccount['id']]);
-            }
         }
     }
 

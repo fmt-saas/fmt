@@ -52,14 +52,16 @@ if($fiscalPeriod['status'] !== 'open') {
     throw new \Exception('non_open_fiscal_period', EQ_ERROR_INVALID_PARAM);
 }
 
-$fiscal_period_id = $fiscalPeriod['id'];
+
 
 if(
     !isset($fiscalPeriod['fiscal_year_id']['status'])
     || !in_array($fiscalPeriod['fiscal_year_id']['status'], ['open', 'preopen'], true)
 ) {
-    continue;
+    throw new \Exception('non_candidate_fiscal_period', EQ_ERROR_INVALID_PARAM);
 }
+
+$fiscal_period_id = $fiscalPeriod['id'];
 
 $existingExpenseStatement = ExpenseStatement::search([
         ['condo_id', '=', $fiscalPeriod['condo_id']],
@@ -75,8 +77,12 @@ if(!$existingExpenseStatement) {
             'fiscal_period_id'  => $fiscal_period_id,
             'fiscal_year_id'    => $fiscalPeriod['fiscal_year_id']['id'],
             'posting_date'      => $fiscalPeriod['date_to'],
+            'has_date_range'    => true,
+            'date_from'         => $fiscalPeriod['date_from'],
+            'date_to'           => $fiscalPeriod['date_to'],
             'invoice_type'      => 'expense_statement'
         ]);
+
 }
 
 
