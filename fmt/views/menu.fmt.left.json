@@ -212,6 +212,16 @@
                                 }
                             },
                             {
+                                "id": "condominiums.condominium.financial_statements",
+                                "type": "search",
+                                "label": "Condominium - États comptable",
+                                "icon": "troubleshoot",
+                                "route": "/condo/object.id?view=form.financial_statements",
+                                "search_context": {
+                                    "entity": "realestate\\property\\Condominium"
+                                }
+                            },
+                            {
                                 "id": "condominiums.condominium.fiscal_years",
                                 "type": "search",
                                 "label": "Condominium - Fiscal years",
