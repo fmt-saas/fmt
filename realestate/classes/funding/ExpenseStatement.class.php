@@ -537,15 +537,15 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
     }
 
     protected static function onupdateCondoId($self) {
-        $self->read(['fiscal_period_id' => ['date_from', 'date_to']]);
+        $self->read(['condo_id']);
         foreach($self as $id => $expenseStatement) {
             if(!$expenseStatement['condo_id']) {
                 continue;
             }
             $bankAccount = CondominiumBankAccount::search([
-                    ['condo_id', '=', 'object.condo_id'],
+                    ['condo_id', '=', $expenseStatement['condo_id']],
                     ['object_class', '=', 'finance\bank\CondominiumBankAccount'],
-                    ['bank_account_type', '=', 'current'],
+                    ['bank_account_type', '=', 'bank_current'],
                     ['is_primary', '=', true]
                 ])
                 ->first();
