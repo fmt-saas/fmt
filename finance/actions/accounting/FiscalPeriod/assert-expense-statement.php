@@ -74,10 +74,7 @@ if(!$existingExpenseStatement) {
             'condo_id'          => $fiscalPeriod['condo_id'],
             'fiscal_period_id'  => $fiscal_period_id,
             'fiscal_year_id'    => $fiscalPeriod['fiscal_year_id']['id'],
-            'request_date'      => $fiscalPeriod['date_to'],
-            'has_date_range'    => true,
-            'date_from'         => $fiscalPeriod['date_from'],
-            'date_to'           => $fiscalPeriod['date_to'],
+            'posting_date'      => $fiscalPeriod['date_to'],
             'invoice_type'      => 'expense_statement'
         ]);
 }
