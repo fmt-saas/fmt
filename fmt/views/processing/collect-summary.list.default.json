@@ -62,6 +62,23 @@
             "visible": [
                 ["bank_statement", "=", "object.document_type_code"]
             ]
+        },
+        {
+            "id": "route.expense_statement",
+            "label": "Expense Statement",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "realestate\\funding\\ExpenseStatement",
+                "view": "list.default",
+                "domain": [
+                    ["status", "in", ["proforma"]]
+                ]
+            },
+            "visible": [
+                ["expense_statement", "=", "object.document_type_code"]
+            ]
         }
     ],
     "layout": {

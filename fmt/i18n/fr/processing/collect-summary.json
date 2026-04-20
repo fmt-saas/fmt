@@ -39,12 +39,20 @@
             "name": "Traitements de documents",
             "description": "Liste des traitements en cours par type de document.",
             "routes": {
+                "route.document_process": {
+                    "label": "Documents",
+                    "description": ""
+                },
                 "route.purchase_invoice": {
                     "label": "Factures",
                     "description": ""
                 },
                 "route.bank_statement": {
                     "label": "Relevés bancaires",
+                    "description": ""
+                },
+                "route.expense_statement": {
+                    "label": "Décomptes",
                     "description": ""
                 }
             },

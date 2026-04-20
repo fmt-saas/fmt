@@ -9,6 +9,7 @@
 use documents\processing\DocumentProcess;
 use equal\orm\Domain;
 use finance\bank\BankStatement;
+use realestate\funding\ExpenseStatement;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
@@ -185,6 +186,46 @@ if($bankStatements->count() > 0) {
         'document_type_code'    => 'bank_statement',
         'count'                 => $count,
         'count_alerts'          => $alerts,
+        'date_last'             => date('c', $date_last)
+    ];
+}
+
+
+
+$domain = [
+    ['status', '=', 'proforma']
+];
+
+/*
+// #todo
+if($employee_id) {
+    $domain[] = ['assigned_employee_id', '=', $employee_id];
+}
+*/
+
+$expenseStatements = ExpenseStatement::search($domain)->read(['id', 'created']);
+
+if($expenseStatements->count() > 0) {
+    $count = 0;
+    $alerts = 0;
+    $date_last = 0;
+    foreach($expenseStatements as $expenseStatement) {
+        ++$count;
+        if($expenseStatement['created'] > $date_last) {
+            $date_last = $expenseStatement['created'];
+        }
+        /*
+        if($expenseStatement['alert'] && $expenseStatement['alert'] !== 'info') {
+            ++$alerts;
+        }
+        */
+    }
+
+    $result[] = [
+        'document_type_code'    => 'expense_statement',
+        'count'                 => $count,
+        // 'count_alerts'          => $alerts,
+        'count_alerts'          => 0,
         'date_last'             => date('c', $date_last)
     ];
 }
