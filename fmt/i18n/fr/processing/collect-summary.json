@@ -19,7 +19,8 @@
             "selection": {
                 "document": "Document à traiter",
                 "invoice": "Factures d'achat",
-                "bank_statement": "Extraits bancaires"
+                "bank_statement": "Extraits bancaires",
+                "expense_statement": "Décomptes de charges"
             },
             "help": "Permet d'identifier le type de processing suivi dans la ligne."
         },
