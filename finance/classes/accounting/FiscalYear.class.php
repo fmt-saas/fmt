@@ -257,7 +257,7 @@ class FiscalYear extends Model {
                         'status' => 'preopen'
                     ],
                     'open' => [
-                        'description' => 'Delete the proforma and set receivables statuses back to pending.',
+                        'description' => 'Update the fiscal year status to `open`.',
                         'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
                         'onafter' => 'onafterOpen',
                         'policies' => [

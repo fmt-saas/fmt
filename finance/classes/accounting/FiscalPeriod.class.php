@@ -199,9 +199,9 @@ class FiscalPeriod extends Model {
                     ['condo_id', '=', $fiscalPeriod['condo_id']],
                     ['fiscal_year_id', '=', $fiscalPeriod['fiscal_year_id']],
                     ['fiscal_period_id', '=', $id],
-                    ['invoice_type', '=', 'expense_statement']
+                    ['invoice_type', '=', 'expense_statement'],
+                    ['status', '=', 'proforma']
                 ])
-                ->read(['status'])
                 ->first();
 
             if($existingExpenseStatement) {

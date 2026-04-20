@@ -8,8 +8,21 @@
             "controller": "core_model_transition",
             "visible": ["status", "=", "open"],
             "params": {
-                "entity": "finance\\accounting\\Fiscalperiod",
+                "entity": "finance\\accounting\\FiscalPeriod",
                 "transition": "preclose",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.reopen",
+            "label": "Reopen",
+            "description": "Set fiscal period back to pre-close.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "closed"],
+            "params": {
+                "entity": "finance\\accounting\\FiscalPeriod",
+                "transition": "repreclose",
                 "ids": []
             },
             "confirm": true
