@@ -162,6 +162,7 @@ $data = eQual::run('get', 'finance_accounting_balanceSheet_collect', [
     ]);
 
 $date_to = null;
+$fiscalYear = null;
 
 if(isset($params['params']['fiscal_year_id'])) {
     $fiscalYear = FiscalYear::id($params['params']['fiscal_year_id'])

@@ -10,12 +10,20 @@ use Dompdf\Options as DompdfOptions;
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate a PDF file of given fund request.',
     'params'        => [
+
+        'expense_statement_id' => [
+            'type'              => 'many2one',
+            'foreign_object'    => 'realestate\funding\ExpenseStatement',
+            'description'       => "Identifier of the Expense statement to render.",
+            'domain'            => ['condo_id', '=', 'object.condo_id'],
+            'required'          => true
+        ],
+
         'fiscal_period_id' => [
             'label'             => 'Fiscal Period',
             'description'       => 'Identifier of the targeted Fiscal Period.',
             'type'              => 'many2one',
-            'foreign_object'    => 'finance\accounting\FiscalPeriod',
-            'required'          => true
+            'foreign_object'    => 'finance\accounting\FiscalPeriod'
         ],
 
         'ownership_id' => [
@@ -60,8 +68,8 @@ $context = $providers['context'];
 try {
 
     $html = (string) eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-html', [
-            'fiscal_period_id' => $params['fiscal_period_id'],
-            'ownership_id' => $params['ownership_id']
+            'expense_statement_id'  => $params['expense_statement_id'],
+            'ownership_id'          => $params['ownership_id']
         ]);
 
     /*

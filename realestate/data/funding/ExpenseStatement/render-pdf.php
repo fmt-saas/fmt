@@ -169,8 +169,8 @@ try {
     foreach($expenseStatement['statement_owners_ids'] as $ownership_id) {
         try {
             $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-pdf', [
-                    'fiscal_period_id'  => $fiscalPeriod['id'],
-                    'ownership_id'      => $ownership_id
+                    'expense_statement_id'  => $expenseStatement['id'],
+                    'ownership_id'          => $ownership_id
                 ]);
             $temp = tempnam(sys_get_temp_dir(), 'pdf_');
             file_put_contents($temp, $pdf);
