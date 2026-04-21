@@ -38,6 +38,14 @@ class SettingValue extends \core\setting\SettingValue {
                 'foreign_object'    => 'realestate\property\Condominium',
                 'description'       => 'Condominium the setting is specific to (optional).',
                 'ondelete'          => 'cascade'
+            ],
+
+            'ownership_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'description'       => "The ownerships of the condominium.",
+                'default'           => 0,
+                'ondelete'          => 'cascade'
             ]
 
         ];
@@ -45,7 +53,7 @@ class SettingValue extends \core\setting\SettingValue {
 
     public function getUnique() {
         return [
-            ['setting_id', 'user_id', 'organisation_id', 'condo_id']
+            ['setting_id', 'user_id', 'organisation_id', 'condo_id', 'ownership_id']
         ];
     }
 

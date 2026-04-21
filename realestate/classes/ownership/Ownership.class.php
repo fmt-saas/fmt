@@ -256,6 +256,20 @@ class Ownership extends \equal\orm\Model {
                 'description'       => "Attendees that have represented the ownership represented over time."
             ],
 
+            'setting_values_ids' => [
+                'type'              => 'one2many',
+                'description'       => "The apportionment keys relating to the ownership.",
+                'foreign_object'    => 'fmt\setting\SettingValue',
+                'foreign_field'     => 'ownership_id'
+            ],
+
+            'setting_sequences_ids' => [
+                'type'              => 'one2many',
+                'description'       => "The apportionment keys relating to the ownership.",
+                'foreign_object'    => 'fmt\setting\SettingSequence',
+                'foreign_field'     => 'ownership_id'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'description'       => 'Current status of the Ownership.',
