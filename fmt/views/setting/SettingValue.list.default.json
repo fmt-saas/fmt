@@ -13,7 +13,7 @@
             {
                 "type": "field",
                 "value": "organisation_id",
-                "label": "User",
+                "label": "Organisation",
                 "width": "25%",
                 "sortable": true
             },
@@ -27,14 +27,14 @@
             {
                 "type": "field",
                 "value": "condo_id",
-                "label": "User",
+                "label": "Condominium",
                 "width": "25%",
                 "sortable": true
             },
             {
                 "type": "field",
                 "value": "ownership_id",
-                "label": "User",
+                "label": "Ownership",
                 "width": "25%",
                 "sortable": true
             },
