@@ -288,7 +288,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                         $expense_ref['apportionments'][$apportionment_id] = [
                             'id'            => $apportionment_id,
                             'name'          => $apportionments[$apportionment_id]['name'] ?? 'private',
-                            'total_shares'  => $apportionments[$apportionment_id]['total_shares'],
+                            'total_shares'  => $apportionments[$apportionment_id]['total_shares'] ?? 0,
                             'shares'        => $line['shares'],
                             'accounts'      => []
                         ];
