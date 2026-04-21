@@ -1852,7 +1852,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     public static function canupdate($self, $values) {
-        $self->read(['status', 'document_process_id' => ['status'], 'fiscal_period_id' => ['status']]);
+        $self->read(['status', 'document_process_id' => ['status']]);
         foreach($self as $id => $invoice) {
             $allowed_fields = [
                     'status', 'alert', 'name', 'price', 'total', 'document_process_status', 'assigned_employee_id', 'invoice_number', 'payment_status', 'has_payment_on_hold', 'customer_ref', 'funding_id', 'accounting_entry_id', 'reversed_invoice_id'
@@ -1865,8 +1865,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     return ['status' => ['non_editable' => 'Purchase Invoice cannot be updated after Document processing.']];
                 }
             }
-            if($invoice['fiscal_period_id'] && $invoice['fiscal_period_id']['status'] !== 'open') {
-                return ['fiscal_period_id' => ['closed_fiscal_period' => 'Invoice cannot be allocated to a closed fiscal period.']];
+            if(isset($values['fiscal_period_id'])) {
+                $fiscalPeriod = FiscalPeriod::id($values['fiscal_period_id'])->read(['status'])->first();
+                if($fiscalPeriod && $fiscalPeriod['status'] !== 'open') {
+                    return ['fiscal_period_id' => ['closed_fiscal_period' => 'Invoice cannot be allocated to a closed fiscal period.']];
+                }
             }
         }
     }
