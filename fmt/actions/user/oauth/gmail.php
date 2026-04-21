@@ -56,6 +56,7 @@ Example of received params:
 
 */
 
+// Exchange authorization code for tokens (Google OAuth)
 $oauthRequest = new HttpRequest('POST https://oauth2.googleapis.com/token');
 $response = $oauthRequest
             ->header('Content-Type', 'application/x-www-form-urlencoded')
@@ -75,6 +76,7 @@ if($status < 200 || $status > 299) {
     // error
 }
 
+// Retrieve user email
 $email = null;
 
 if(!empty($data['id_token'])) {
@@ -86,6 +88,19 @@ if(!$email) {
     throw new Exception('unexpected_oauth_response', EQ_ERROR_UNKNOWN);
 }
 
+// retrieve the target instance based on `state`
+$domain = parse_url($params['state'], PHP_URL_HOST);
+
+if(!$domain) {
+    throw new Exception('unexpected_malformed_state', EQ_ERROR_INVALID_PARAM);
+}
+
+$instance = Instance::search(['name', '=', $domain])->first();
+
+if(!$instance) {
+    throw new Exception('unknown_target_domain', EQ_ERROR_INVALID_PARAM);
+}
+
 // add additional data
 $data = array_merge($data, [
     'email'                 => $email,
@@ -95,26 +110,11 @@ $data = array_merge($data, [
     'refresh_token_expiry'  => time() + ($data['refresh_token_expires_in'] ?? (365 * 86400))
 ]);
 
-if(constant('FMT_INSTANCE_TYPE') === 'global') {
-    // GLOBAL
-    eQual::run('do', 'communication_email_Mailbox_validate', $data);
-}
-else {
-    // AGENCY
-    // retrieve the target instance based on state
-    $domain = parse_url($params['state'], PHP_URL_HOST);
-    if(!$domain) {
-        throw new Exception('unexpected_malformed_state', EQ_ERROR_INVALID_PARAM);
-    }
-    $instance = Instance::search(['name', '=', $domain])->first();
-    if($instance) {
-        $validationRequest = new HttpRequest('POST https://' . $domain . '/?do=communication_email_Mailbox_validate');
-        $response = $validationRequest
-            ->header('Content-Type', 'application/json')
-            ->body($data)
-            ->send();
-    }
-}
+$validationRequest = new HttpRequest('POST https://' . $domain . '/?do=communication_email_Mailbox_validate');
+$response = $validationRequest
+    ->header('Content-Type', 'application/json')
+    ->body($data)
+    ->send();
 
 
 /*

@@ -48,7 +48,7 @@ use communication\email\Mailbox;
         'accept-origin'     => '*'
     ],
     'providers'     => ['context', 'auth', 'orm'],
-    'constants'     => ['BACKEND_URL', 'AUTH_ACCESS_TOKEN_VALIDITY', 'AUTH_TOKEN_HTTPS', 'FMT_INSTANCE_TYPE']
+    'constants'     => ['BACKEND_URL', 'AUTH_ACCESS_TOKEN_VALIDITY', 'AUTH_TOKEN_HTTPS']
 ]);
 
 
@@ -72,18 +72,20 @@ $mailbox = Mailbox::search([
     ])
     ->first();
 
-// if found, update it and mark it as validated
-if($mailbox) {
-    Mailbox::id($mailbox['id'])
-        ->update([
-            'access_token'          => $params['access_token'],
-            'refresh_token'         => $params['refresh_token'],
-            'access_token_expiry'   => $params['access_token_expiry'],
-            'refresh_token_expiry'  => $params['refresh_token_expiry'],
-            'imap_server'           => $map_providers[$params['provider']],
-            'status'                => 'validated'
-        ]);
+if(!$mailbox) {
+    throw new Exception('unknown_mailbox', EQ_ERROR_INVALID_PARAM);
 }
+
+// update Mailbox and mark it as validated
+Mailbox::id($mailbox['id'])
+    ->update([
+        'access_token'          => $params['access_token'],
+        'refresh_token'         => $params['refresh_token'],
+        'access_token_expiry'   => $params['access_token_expiry'],
+        'refresh_token_expiry'  => $params['refresh_token_expiry'],
+        'imap_server'           => $map_providers[$params['provider']],
+        'status'                => 'validated'
+    ]);
 
 $context->httpResponse()
         ->status(204)

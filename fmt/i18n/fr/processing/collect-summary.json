@@ -17,7 +17,7 @@
             "label": "Type de document",
             "description": "Code identifiant le type de document (facture, relevé bancaire, etc.).",
             "selection": {
-                "document": "Document à traiter",
+                "document": "Documents à traiter",
                 "invoice": "Factures d'achat",
                 "bank_statement": "Extraits bancaires",
                 "expense_statement": "Décomptes de charges"

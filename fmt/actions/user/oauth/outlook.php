@@ -54,10 +54,7 @@ Example of received params:
 
 */
 
-/* --------------------------------------------------------------------------
-   1) Exchange authorization code for tokens (Microsoft OAuth)
-   -------------------------------------------------------------------------- */
-
+// Exchange authorization code for tokens (Microsoft OAuth)
 $oauthRequest = new HttpRequest('POST https://login.microsoftonline.com/common/oauth2/v2.0/token');
 
 $response = $oauthRequest
@@ -84,8 +81,8 @@ Example of received response :
     "refresh_token": "M.C522_BAY.0.U.-CrLBO7o*f*pCePeW!ky!f6e5YNw0m2e58RL!WqZGbztLbU5kBTwgdGnZBSFWDeC1Pr!y5!SZ4!mF*9sQxoYhckg!6RgtkojK9xcEKH8ZFbpW12jmuQ!aPaVnkO1mgz3f68RXLzT*ro!ITvP772lrmXgLZZk2cIYERw7plspqDm6hzvE2NHVq2wJ7PaWFqfLOi9t2NZQ8RKJFOp7MTRRhhIR9XiGzqaHqibK82LnWDf5AeAgaH!bzkyxNvy1Do7S1Afb7H5mozwnuxroZt0*RaRk7acG0R4jau32Q9vLgBfCD7uBpdQJPzbHt3juC3V0wjQjhi0nWUUplZV3ByhyS9Jf*EdFtG3eNaJhD2kJboyypoxPVJE1QHYy342S1ArU9Cw$$",
     "id_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Imw3WWF2VjFLZnNIajhQVUdTenRET2s5VnBLQSJ9.eyJ2ZXIiOiIyLjAiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vOTE4ODA0MGQtNmM2Ny00YzViLWIxMTItMzZhMzA0YjY2ZGFkL3YyLjAiLCJzdWIiOiJBQUFBQUFBQUFBQUFBQUFBQUFBQUFPc3A1RHRtOTBvRkxBVlMtTHlKU3VjIiwiYXVkIjoiYWRiZDlkNjAtYjY5MS00MDM2LTg3NDgtMzhlNTk2ZGJkNjRmIiwiZXhwIjoxNzY0MjQyNTQ5LCJpYXQiOjE3NjQxNTU4NDksIm5iZiI6MTc2NDE1NTg0OSwibmFtZSI6IkPDqWRyaWMgRnJhbmNveXMiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJmbXRzb2x1dGlvbnMueWJAb3V0bG9vay5jb20iLCJvaWQiOiIwMDAwMDAwMC0wMDAwLTAwMDAtYzJjNi1iYjM3N2FmZDljZjMiLCJlbWFpbCI6ImZtdHNvbHV0aW9ucy55YkBvdXRsb29rLmNvbSIsInRpZCI6IjkxODgwNDBkLTZjNjctNGM1Yi1iMTEyLTM2YTMwNGI2NmRhZCIsImFpbyI6IkRueDJLbGxMSXVBN3AhckswUzNkbVJRRFZvbHdEaFhheDNvNzVFRUJZSjJEYUwhQmtXbXBWVkhqSUIwa242ZlNvdVhYSDFsNnNIb0trdEZnRVlqd1pJeiE0a201dEhzUWZpaDBGWnozWmJ0a2RaQjZZcXYwc0NSWUtnRTdRTm5sU0ZybnFZSnVzNXYqYldDVnFhVUtNV3BBMU01MWptbk9pZ1o0QlJ4bXlqZHYifQ.AL7CqWHzMK-lnSBEySK4hbnWpDFAMqQf4hRFcJvFB-_wpe1GQH11gPf4Qz4p89SynqZG3aHcDQsnoxi1WeQNLgfplu73wl5TfWRQwe2mhsi-s0CbRjU8idHIaxCO3sXu4KGHJdb4qCaGe3x6grTt68L8BLBUMqxkZkET8kemQVIkYUYcIL7hIKoPWGDPsUxBRuZY6QB-QxapNJQ_6vgLZ1KplnlcdT5mXIZX_LCFWo4TeXQbNw3HfYzBpL6UbK13CaV-j9XicrxKX_jZY6IKqVyMb3J9GxwNlYBkbweR-I9r7G6CViU2X6AdNe6KAWbHeQdKWMwqmoJCgxV-g3J9og"
 }
-
 */
+
 $data = $response->body();
 $status = $response->getStatusCode();
 
@@ -94,10 +91,7 @@ if($status < 200 || $status > 299) {
 }
 
 
-/* --------------------------------------------------------------------------
-   2) Retrieve user email
-   -------------------------------------------------------------------------- */
-
+// Retrieve user email
 $email = null;
 
 if(!empty($data['id_token'])) {
@@ -110,28 +104,34 @@ if(!$email) {
 }
 
 
-/* --------------------------------------------------------------------------
-   3) Identify instance to validate mailbox
-   -------------------------------------------------------------------------- */
+// retrieve the target instance based on `state`
+$domain = parse_url($params['state'], PHP_URL_HOST);
 
-$origin_url = $params['state'];
-$domain = parse_url($origin_url, PHP_URL_HOST);
+if(!$domain) {
+    throw new Exception('unexpected_malformed_state', EQ_ERROR_INVALID_PARAM);
+}
 
 $instance = Instance::search(['name', '=', $domain])->first();
 
-if($instance) {
-    $data['email'] = $email;
-    $data['provider'] = 'microsoft';
-    $data['access_token_expiry'] = time() + $data['expires_in'];
-    // Microsoft exposes refresh token validity differently; fallback 90 days
-    $data['refresh_token_expiry'] = time() + (constant('AUTH_ACCESS_TOKEN_VALIDITY') * 5);
-
-    $validationRequest = new HttpRequest('POST https://' . $domain . '/?do=communication_email_Mailbox_validate');
-    $response = $validationRequest
-        ->header('Content-Type', 'application/json')
-        ->setBody($data)
-        ->send();
+if(!$instance) {
+    throw new Exception('unknown_target_domain', EQ_ERROR_INVALID_PARAM);
 }
+
+// add additional data
+$data = array_merge($data, [
+    'email'                 => $email,
+    'provider'              => 'microsoft',
+    'access_token_expiry'   => time() + $data['expires_in'],
+    // #memo - $data['refresh_token_expires_in'] presence is not guaranteed
+    // Microsoft exposes refresh token validity differently; fallback 90 days
+    'refresh_token_expiry' => time() + (constant('AUTH_ACCESS_TOKEN_VALIDITY') * 5)
+]);
+
+$validationRequest = new HttpRequest('POST https://' . $domain . '/?do=communication_email_Mailbox_validate');
+$response = $validationRequest
+    ->header('Content-Type', 'application/json')
+    ->setBody($data)
+    ->send();
 
 $context->httpResponse()
     ->status(200)
