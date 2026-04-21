@@ -191,7 +191,7 @@ try {
                     'date_from'         => $fiscalPeriod['date_from'],
                     'date_to'           => $fiscalPeriod['date_to'],
                     // 'date_to'           => $date_to,
-                    'ownership_id'      => $ownership_id
+                    'ownership_id'      => $statementOwner['ownership_id']
                 ]);
             $temp = tempnam(sys_get_temp_dir(), 'pdf_');
             file_put_contents($temp, $pdf);
