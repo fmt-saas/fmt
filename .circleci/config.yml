@@ -24,7 +24,7 @@ jobs:
             git checkout dev-2.0
             mv ~/repo/packages ~/repo/packages.core
       - checkout:
-          path: ~/repo
+          path: ~/repo/packages
       - run:
           name: Copy core package
           command: |
