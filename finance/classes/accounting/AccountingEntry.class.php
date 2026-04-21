@@ -1137,10 +1137,11 @@ class AccountingEntry extends Model {
                     ->read(['id', 'debit_balance', 'credit_balance']);
 
                 foreach($nextChanges as $change_id => $change) {
-                    AccountBalanceChange::id($change_id)->update([
-                        'debit_balance'  => round((float) $change['debit_balance']  + $delta_debit, 2),
-                        'credit_balance' => round((float) $change['credit_balance'] + $delta_credit, 2)
-                    ]);
+                    AccountBalanceChange::id($change_id)
+                        ->update([
+                            'debit_balance'  => round((float) $change['debit_balance']  + $delta_debit, 2),
+                            'credit_balance' => round((float) $change['credit_balance'] + $delta_credit, 2)
+                        ]);
                 }
             }
 

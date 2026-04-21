@@ -54,6 +54,14 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             // 'emission_date'
             // 'due_date'
 
+            'fiscal_year_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => "Fiscal year the fund request relates to.",
+                'required'          => true,
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['status', 'not in', ['draft', 'closed']]]
+            ],
+
             'condo_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium the invoice refers to.",
