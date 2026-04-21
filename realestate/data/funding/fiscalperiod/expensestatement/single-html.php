@@ -27,15 +27,14 @@ use realestate\ownership\Owner;
         'expense_statement_id' => [
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\funding\ExpenseStatement',
-            'description'       => "Identifier of the Expense statement to render.",
-            'domain'            => ['condo_id', '=', 'object.condo_id']
+            'description'       => "Identifier of the Expense statement to render."
         ],
 
         'fiscal_period_id' => [
-            'label'             => 'Fiscal Period',
-            'description'       => 'Identifier of the targeted Fiscal Period.',
             'type'              => 'many2one',
-            'foreign_object'    => 'finance\accounting\FiscalPeriod'
+            'foreign_object'    => 'finance\accounting\FiscalPeriod',
+            'label'             => 'Fiscal Period',
+            'description'       => 'Identifier of the targeted Fiscal Period.'
         ],
 
         'ownership_id' => [
@@ -286,6 +285,7 @@ $expense_statement_fields = [
         'provisions_total',
         'statement_owners_ids' => [
             '@domain' => ['ownership_id', '=', $params['ownership_id']],
+            'ownership_id',
             'schema'
         ]
     ];
@@ -326,7 +326,6 @@ else {
     if(!$statement) {
         throw new Exception('no_matching_statement', EQ_ERROR_UNKNOWN_OBJECT);
     }
-
 }
 
 $organisation = Organisation::id(1)

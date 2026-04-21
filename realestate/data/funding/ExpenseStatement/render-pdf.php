@@ -67,7 +67,7 @@ use finance\accounting\FiscalPeriod;
 $context = $providers['context'];
 
 $expenseStatement = ExpenseStatement::id($params['id'])
-    ->read(['condo_id', 'fiscal_period_id', 'status', 'posting_date', 'is_cutoff_at_period_end', 'statement_owners_ids'])
+    ->read(['condo_id', 'fiscal_period_id', 'status', 'posting_date', 'is_cutoff_at_period_end', 'statement_owners_ids' => ['ownership_id']])
     ->first();
 
 if(!$expenseStatement) {
@@ -166,11 +166,11 @@ $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 // merge resulting PDF documents for each Ownership
 try {
 
-    foreach($expenseStatement['statement_owners_ids'] as $ownership_id) {
+    foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
         try {
             $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-pdf', [
                     'expense_statement_id'  => $expenseStatement['id'],
-                    'ownership_id'          => $ownership_id
+                    'ownership_id'          => $statementOwner['ownership_id']
                 ]);
             $temp = tempnam(sys_get_temp_dir(), 'pdf_');
             file_put_contents($temp, $pdf);
