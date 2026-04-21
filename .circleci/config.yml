@@ -51,7 +51,7 @@ jobs:
       # verify the content of the file
       - run: php run.php --do=init_package --package=fmt --force=true --import=false --demo=true
       # Run static analysis
-      - run: /var/www/html/vendor/bin/phpstan analyse --no-progress --level=0 --memory-limit=-1 --configuration=/var/www/html/packages/phpstan.neon
+      - run: ~/repo/vendor/bin/phpstan analyse --no-progress --level=0 --memory-limit=-1 --configuration=~/repo/packages/phpstan.neon
       # Run tests
       - run: php run.php --do=test_package --package=fmt
       # export logs on failure
