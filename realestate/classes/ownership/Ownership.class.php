@@ -260,14 +260,16 @@ class Ownership extends \equal\orm\Model {
                 'type'              => 'one2many',
                 'description'       => "The apportionment keys relating to the ownership.",
                 'foreign_object'    => 'fmt\setting\SettingValue',
-                'foreign_field'     => 'ownership_id'
+                'foreign_field'     => 'ownership_id',
+                'domain'            => ['ownership_id', '=', 'object.id']
             ],
 
             'setting_sequences_ids' => [
                 'type'              => 'one2many',
                 'description'       => "The apportionment keys relating to the ownership.",
                 'foreign_object'    => 'fmt\setting\SettingSequence',
-                'foreign_field'     => 'ownership_id'
+                'foreign_field'     => 'ownership_id',
+                'domain'            => ['ownership_id', '=', 'object.id']
             ],
 
             'status' => [
