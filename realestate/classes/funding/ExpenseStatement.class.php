@@ -1533,14 +1533,14 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             }
 
-            // 2) private expense (relates to a purchase invoice line or a bank statement line)
+            // 2) private expense (643) (relates to a purchase invoice line or a bank statement line)
             /*
             Encodage des factures sur le compte correspondant à l'énergie consommée 61200
               + utilisation d'un compte dédié au décomptes de consommation (compteur) 61240
               + création d'un total consommations privatives
             */
             // #memo - consider both debit and credit lines here (to void already reinvoiced private expenses)
-            elseif(substr($accountingEntryLine['account_code'], 0, 3) === '643') {
+            elseif($accountingEntryLine['account_operation_assignment'] === 'private_expenses') {
 
                 // skip private expense that have been reinvoiced
                 if(isset($map_private_expenses[$accountingEntryLine['id']])) {
@@ -1641,7 +1641,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $map_accounts_ids[$accountingEntryLine['account_id']] = true;
                 $map_property_lots_ids[$property_lot_id] = true;
             }
-
             // 3) reserve fund assignment
             // #memo - limit to lines related to use of reserve fund (reserve_fund_variation, special_reserve_fund_variation, working_fund_variation)
             elseif(in_array($accountingEntryLine['account_operation_assignment'], ['reserve_fund_variation', 'special_reserve_fund_variation', 'working_fund_variation'], true)) {
