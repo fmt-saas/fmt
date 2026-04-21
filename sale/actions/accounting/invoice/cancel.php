@@ -7,7 +7,7 @@
 
 use sale\accounting\invoice\SaleInvoice;
 
-list($params, $providers) = eQual::announce([
+[$params, $providers] = eQual::announce([
     'description'   => 'Cancel given invoices, can keep or cancel linked receivables.',
     'params'        => [
 
