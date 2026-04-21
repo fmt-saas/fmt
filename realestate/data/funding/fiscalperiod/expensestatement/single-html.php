@@ -354,6 +354,7 @@ $values = [
 foreach($statement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
     $owner = $statementOwner['schema'];
     $owner['expenses'] = $buildOwnerExpenses($owner);
+    $owner['options']['show_lots_details'] = (bool) Setting::get_value('realestate', 'features', 'expense_statement.show_lots_details', false, ['ownership_id' => $statementOwner['ownership_id']]);
     $values['owners'][] = $owner;
 }
 
@@ -512,8 +513,6 @@ $values = array_merge($values, [
     'condominium'         => $fiscalPeriod['condo_id'],
 
     'recipient'           => $owner['identity_id'],
-    // #todo - base this on ownership options
-    'has_details'         => true,
 
     'funding'             => $funding,
     'payment_qr_code_uri' => $getPaymentQrCodeUri($fiscalPeriod['condo_id']['legal_name'], $fiscalPeriod['condo_id']['bank_account_iban'], $fiscalPeriod['condo_id']['bank_account_bic'], $funding['payment_reference'], $funding['remaining_amount']),
