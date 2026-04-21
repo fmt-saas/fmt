@@ -204,7 +204,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
 
 $labels = $getLabels(
     $params['lang'],
-    sprintf('%s/packages/finance/i18n/%s/accounting/%s.json', EQ_BASEDIR, $params['lang'], 'ownerAccountStatement.'.$params['view_id']),
+    sprintf('%s/packages/finance/i18n/%s/accounting/%s.json', EQ_BASEDIR, $params['lang'], 'ownerAccountStatement.' . $params['view_id']),
     [
         'account_statement.table.th.date'             => 'Date',
         'account_statement.table.th.description'      => 'Description',

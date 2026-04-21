@@ -67,7 +67,7 @@ use finance\accounting\FiscalPeriod;
 $context = $providers['context'];
 
 $expenseStatement = ExpenseStatement::id($params['id'])
-    ->read(['condo_id', 'fiscal_period_id', 'status', 'posting_date', 'is_cutoff_at_period_end'])
+    ->read(['condo_id', 'fiscal_period_id', 'status', 'posting_date', 'is_cutoff_at_period_end', 'statement_owners_ids'])
     ->first();
 
 if(!$expenseStatement) {
@@ -163,56 +163,56 @@ if(!$expenseSummaryDocument) {
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
+// merge resulting PDF documents for each Ownership
 try {
 
-    foreach($fiscalPeriod['condo_id']['ownerships_ids'] as $ownership_id => $ownership) {
-        if(!($ownership['date_to']) || $ownership['date_to'] > $fiscalPeriod['date_to']) {
-            try {
-                $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-pdf', [
-                        'fiscal_period_id'  => $fiscalPeriod['id'],
-                        'ownership_id'      => $ownership_id
-                    ]);
-                $temp = tempnam(sys_get_temp_dir(), 'pdf_');
-                file_put_contents($temp, $pdf);
-                $temp_files[] = $temp;
-            }
-            catch(Exception $e) {
-                // ignore (ownership with no expense ?)
-            }
-            try {
-                // #todo
-                $date_to = $expenseStatement['posting_date'];
-
-                if($expenseStatement['is_cutoff_at_period_end']) {
-                    $date_to = $fiscalPeriod['date_to'];
-                }
-
-                $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
-                        'date_from'         => $fiscalPeriod['date_from'],
-                        'date_to'           => $fiscalPeriod['date_to'],
-                        // 'date_to'           => $date_to,
-                        'ownership_id'      => $ownership_id
-                    ]);
-                $temp = tempnam(sys_get_temp_dir(), 'pdf_');
-                file_put_contents($temp, $pdf);
-                $temp_files[] = $temp;
-            }
-            catch(Exception $e) {
-                // ignore (unexpected error while generation account statement)
-            }
-            try {
-                $temp = tempnam(sys_get_temp_dir(), 'pdf_');
-                file_put_contents($temp, $balanceSheetDocument['data']);
-                $temp_files[] = $temp;
-
-                $temp = tempnam(sys_get_temp_dir(), 'pdf_');
-                file_put_contents($temp, $expenseSummaryDocument['data']);
-                $temp_files[] = $temp;
-            }
-            catch(Exception $e) {
-                // merging error
-            }
+    foreach($expenseStatement['statement_owners_ids'] as $ownership_id) {
+        try {
+            $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-pdf', [
+                    'fiscal_period_id'  => $fiscalPeriod['id'],
+                    'ownership_id'      => $ownership_id
+                ]);
+            $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+            file_put_contents($temp, $pdf);
+            $temp_files[] = $temp;
         }
+        catch(Exception $e) {
+            // ignore (ownership with no expense ?)
+        }
+        try {
+            // #todo
+            $date_to = $expenseStatement['posting_date'];
+
+            if($expenseStatement['is_cutoff_at_period_end']) {
+                $date_to = $fiscalPeriod['date_to'];
+            }
+
+            $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
+                    'date_from'         => $fiscalPeriod['date_from'],
+                    'date_to'           => $fiscalPeriod['date_to'],
+                    // 'date_to'           => $date_to,
+                    'ownership_id'      => $ownership_id
+                ]);
+            $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+            file_put_contents($temp, $pdf);
+            $temp_files[] = $temp;
+        }
+        catch(Exception $e) {
+            // ignore (unexpected error while generation account statement)
+        }
+        try {
+            $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+            file_put_contents($temp, $balanceSheetDocument['data']);
+            $temp_files[] = $temp;
+
+            $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+            file_put_contents($temp, $expenseSummaryDocument['data']);
+            $temp_files[] = $temp;
+        }
+        catch(Exception $e) {
+            // merging error
+        }
+
     }
 
     $escaped_files = array_map('escapeshellarg', $temp_files);
