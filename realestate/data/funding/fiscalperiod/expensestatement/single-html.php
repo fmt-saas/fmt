@@ -6,7 +6,7 @@
 */
 
 use communication\template\Template;
-use core\setting\Setting;
+use fmt\setting\Setting;
 use equal\data\DataFormatter;
 use realestate\sale\pay\Funding;
 use Twig\TwigFilter;
@@ -354,7 +354,10 @@ $values = [
 foreach($statement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
     $owner = $statementOwner['schema'];
     $owner['expenses'] = $buildOwnerExpenses($owner);
-    $owner['options']['show_lots_details'] = (bool) Setting::get_value('realestate', 'features', 'expense_statement.show_lots_details', false, ['ownership_id' => $statementOwner['ownership_id']]);
+    $owner['options']['show_lots_details'] =
+        (bool) Setting::get_value('realestate', 'features', 'expense_statement.show_lots_details', false, ['ownership_id' => $statementOwner['ownership_id']])
+        || (bool) Setting::get_value('realestate', 'features', 'expense_statement.show_lots_details', false, ['condo_id' => $statement['condo_id'], 'ownership_id' => null])
+        || (bool) Setting::get_value('realestate', 'features', 'expense_statement.show_lots_details', false, ['condo_id' => null, 'ownership_id' => null]);
     $values['owners'][] = $owner;
 }
 

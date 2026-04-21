@@ -462,7 +462,7 @@
         {% endif %}
 
         <!-- detailed statements -->
-        {% if has_details %}
+        {% if owner.options.show_lots_details %}
 
             {% for lot in owner.property_lots %}
 

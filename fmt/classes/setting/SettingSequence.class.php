@@ -24,7 +24,6 @@ class SettingSequence extends \core\setting\SettingSequence {
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\User',
                 'description'       => 'User the setting is specific to (optional).',
-                'default'           => 0,
                 'ondelete'          => 'cascade'
             ],
 
@@ -32,7 +31,6 @@ class SettingSequence extends \core\setting\SettingSequence {
                 'type'              => 'many2one',
                 'foreign_object'    => 'identity\Organisation',
                 'description'       => 'Organisation the setting is specific to (optional).',
-                'default'           => 0,
                 'ondelete'          => 'cascade'
             ],
 
@@ -40,7 +38,6 @@ class SettingSequence extends \core\setting\SettingSequence {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\Condominium',
                 'description'       => 'Condominium the setting is specific to (optional).',
-                'default'           => 0,
                 'ondelete'          => 'cascade'
             ],
 
@@ -48,7 +45,6 @@ class SettingSequence extends \core\setting\SettingSequence {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'description'       => "Ownership the setting is specific to (optional).",
-                'default'           => 0,
                 'ondelete'          => 'cascade'
             ]
 

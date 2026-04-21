@@ -44,7 +44,6 @@ class SettingValue extends \core\setting\SettingValue {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'description'       => "Ownership the setting is specific to (optional).",
-                'default'           => 0,
                 'ondelete'          => 'cascade'
             ]
 
