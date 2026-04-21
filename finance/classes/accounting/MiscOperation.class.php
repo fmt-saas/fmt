@@ -385,6 +385,7 @@ class MiscOperation extends Model {
                 OpeningBalance::id($existingOpeningBalance['id'])->delete(true);
             }
 
+            $fiscalYear = FiscalYear::id($miscOperation['fiscal_year_id'])->read(['date_from'])->first();
             $openingBalance = OpeningBalance::create([
                     'condo_id'          => $miscOperation['condo_id'],
                     'fiscal_year_id'    => $miscOperation['fiscal_year_id'],
@@ -425,9 +426,9 @@ class MiscOperation extends Model {
                 AccountBalanceChange::create([
                         'condo_id'       => $miscOperation['condo_id'],
                         'account_id'     => $account_id,
-                        'date'           => time(),
-                        'debit_balance'  => $debit_balance,
-                        'credit_balance' => $credit_balance
+                        'date'           => $fiscalYear['date_from'],
+                        'debit_balance'  => round($debit_balance, 2),
+                        'credit_balance' => round($credit_balance, 2)
                     ]);
             }
 

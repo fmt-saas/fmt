@@ -118,6 +118,18 @@
                 "ids": []
             },
             "confirm": true
+        },
+        {
+            "id": "action.rebuild_projection",
+            "label": "Rebuild projection",
+            "description": "Rebuild Account Balance Projection (can take up to a few minutes).",
+            "controller": "finance_accounting_FiscalYear_rebuild-balance-projection",
+            "visible": ["operators", "in", "user.groups"],
+            "params": {
+                "id": "object.id",
+                "ids": []
+            },
+            "confirm": true
         }
     ],
     "layout": {
