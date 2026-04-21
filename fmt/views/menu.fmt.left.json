@@ -839,6 +839,45 @@
                         ]
                     },
                     {
+                        "id": "item.config.settings",
+                        "label": "Settings",
+                        "description": "",
+                        "icon": "settings",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "item.config.settings.settings",
+                                "type": "entry",
+                                "label": "Available Settings",
+                                "description": "",
+                                "context": {
+                                    "entity": "fmt\\setting\\Setting",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "settitem.config.settings.settings_values",
+                                "type": "entry",
+                                "label": "Settings values",
+                                "description": "",
+                                "context": {
+                                    "entity": "fmt\\setting\\SettingValue",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "item.config.settings.settings_sequences",
+                                "type": "entry",
+                                "label": "Settings sequences",
+                                "description": "",
+                                "context": {
+                                    "entity": "fmt\\setting\\SettingSequence",
+                                    "view": "list.default"
+                                }
+                            }
+                        ]
+                    },
+                    {
                         "id": "item.config.scheduler",
                         "label": "Scheduler",
                         "description": "",
