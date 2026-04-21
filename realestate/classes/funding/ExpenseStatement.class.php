@@ -1642,11 +1642,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $map_property_lots_ids[$property_lot_id] = true;
             }
 
-            // 3) reserve fund
-            // #memo - limit to lines related to use of reserve fund
-            // #todo - change to 6813 ?
-            // #todo - check for fund_usage_line_id assignment instead
-            elseif(substr($accountingEntryLine['account_code'], 0, 4) === '6816') {
+            // 3) reserve fund assignment
+            // #memo - limit to lines related to use of reserve fund (reserve_fund_variation, special_reserve_fund_variation, working_fund_variation)
+            elseif(in_array($accountingEntryLine['account_operation_assignment'], ['reserve_fund_variation', 'special_reserve_fund_variation', 'working_fund_variation'], true)) {
 
                 // retrieve account according to account_id and ReserveFund
                 $reserveFund = $map_reserve_funds[$accountingEntryLine['account_code']] ?? null;
@@ -1657,7 +1655,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 $line_amount = ($accountingEntryLine['credit'] > 0) ? -$accountingEntryLine['credit'] : $accountingEntryLine['debit'];
 
-                // #memo - reserve fund usage is considered as 'common_expense'
+                // #memo - reserve fund usage is considered as 'common_expense' (in expense summary)
                 $common_total += $line_amount;
 
                 $apportionment_id = $reserveFund['apportionment_id'];

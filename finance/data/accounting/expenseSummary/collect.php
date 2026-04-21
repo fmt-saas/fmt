@@ -16,7 +16,7 @@ use finance\bank\BankStatement;
 use realestate\property\Apportionment;
 
 [$params, $providers] = eQual::announce([
-    'description' => 'Advanced search for current expenses summary (virtual entity).',
+    'description' => 'Advanced search for current expenses summary (virtual entity) ("Dépenses courantes").',
     // #memo - this controller is named `collect` but is provides data from its own logic, not directly from the model
     // 'extends'       => 'core_model_collect',
     'params' => [

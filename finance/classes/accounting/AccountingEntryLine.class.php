@@ -146,7 +146,7 @@ class AccountingEntryLine extends Model {
                 'required'          => true,
                 'ondelete'          => 'null',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
-                'dependents'        => ['account_code', 'account_class']
+                'dependents'        => ['account_code', 'account_operation_assignment', 'account_class']
             ],
 
             'account_code' => [

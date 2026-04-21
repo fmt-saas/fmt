@@ -23,7 +23,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 1,
                 "operation_assignment": "working_fund",
-                "is_apportionable": false,
+                "is_apportionable": true,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -35,7 +35,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 1,
                 "operation_assignment": "reserve_fund",
-                "is_apportionable": false,
+                "is_apportionable": true,
                 "tenant_share": null,
                 "owner_share": null
             },
@@ -47,7 +47,7 @@
                 "account_chart_id": 1,
                 "parent_account_id": 1,
                 "operation_assignment": "special_reserve_fund",
-                "is_apportionable": false,
+                "is_apportionable": true,
                 "tenant_share": null,
                 "owner_share": null
             },

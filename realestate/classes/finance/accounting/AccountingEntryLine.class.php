@@ -82,7 +82,7 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'required'          => true,
                 'ondelete'          => 'null',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
-                'dependents'        => ['account_code', 'account_class', 'ownership_id', 'suppliership_id']
+                'dependents'        => ['account_code', 'account_operation_assignment', 'account_class', 'ownership_id', 'suppliership_id']
             ],
 
             // #memo - ownership and suppliership are information derived from accounting account but cannot be used in expense statements
