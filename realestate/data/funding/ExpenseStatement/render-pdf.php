@@ -209,7 +209,8 @@ try {
                 file_put_contents($temp, $expenseSummaryDocument['data']);
                 $temp_files[] = $temp;
             }
-            catch(\Exception $e) {
+            catch(Exception $e) {
+                // merging error
             }
         }
     }
@@ -228,7 +229,7 @@ try {
     $output = file_get_contents($output_file);
 }
 catch(Exception $e) {
-    trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_REPORT_ERROR);
+    trigger_error('APP::Error while rendering template: ' . $e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 finally {

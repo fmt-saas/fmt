@@ -59,7 +59,10 @@ $context = $providers['context'];
 
 try {
 
-    $html = (string) eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-html', ['fiscal_period_id' => $params['fiscal_period_id'], 'ownership_id' => $params['ownership_id']]);
+    $html = (string) eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-html', [
+            'fiscal_period_id' => $params['fiscal_period_id'],
+            'ownership_id' => $params['ownership_id']
+        ]);
 
     /*
         Convert HTML to PDF
@@ -89,7 +92,7 @@ try {
     $output = $dompdf->output();
 }
 catch(Exception $e) {
-    trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_REPORT_ERROR);
+    trigger_error('APP::Error while rendering template ' . $e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 

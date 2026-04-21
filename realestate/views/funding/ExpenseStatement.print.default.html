@@ -267,11 +267,11 @@
             </table>
         </div>
 
-        <!-- global summary -->
+        <!-- global summary ("Décompte de charge") -->
         <h2>{{ title }}</h2>
 
+        {% if owner.has_common_expense or owner.has_reserve_fund or owner.has_private_expense or owner.has_provisions %}
         <div style="page-break-inside: avoid;">
-            {% if owner.has_common_expense or owner.has_reserve_fund %}
             <table>
                 <thead>
                     <tr>
@@ -457,6 +457,8 @@
                 </tbody>
             </table>
         </div>
+        {% else %}
+            <div>---</div>
         {% endif %}
 
         <!-- detailed statements -->

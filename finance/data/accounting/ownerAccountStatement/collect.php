@@ -177,11 +177,11 @@ $balance = $opening_balance;
 
 $result = [];
 
-/* opening balance line */
+/* Owner Account Statement line */
 
 $result[] = [
     'entry_date'  => date('c', $date_from),
-    'description' => 'Opening balance',
+    'description' => 'Owner Account Statement',
     'debit'       => 0.0,
     'credit'      => 0.0,
     'balance'     => $balance
