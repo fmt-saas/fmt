@@ -674,10 +674,10 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
                 // #todo - for testing, we must be able to issue a funding in the past - leave this in prod ?
                 // $issue_date = max(strtotime('today'), $requestExecution['posting_date']);
-                // $due_date = max(strtotime('today'), $requestExecution['issue_date']);
+                // $due_date = max(strtotime('today'), $requestExecution['due_date']);
 
                 $issue_date = $requestExecution['posting_date'];
-                $due_date = $requestExecution['issue_date'];
+                $due_date = $requestExecution['due_date'];
 
                 Funding::create([
                         'condo_id'                          => $requestExecution['condo_id']['id'],

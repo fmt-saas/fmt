@@ -61,6 +61,13 @@ class Funding extends \equal\orm\Model {
                 'dependents'        => ['paid_amount', 'remaining_amount', 'is_paid']
             ],
 
+            'fund_reminders_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'sale\pay\FundReminder',
+                'foreign_field'     => 'funding_id',
+                'description'       => 'Reminders of the funding.'
+            ],
+
             'accounting_entry_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\AccountingEntryLine',

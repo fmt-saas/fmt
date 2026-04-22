@@ -1,0 +1,59 @@
+{
+    "name": "Rappel de paiement",
+    "plural": "Rappels de paiement",
+    "description": "",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble auquel le rappel est associé.",
+            "help": ""
+        },
+        "status": {
+            "label": "Status",
+            "description": "Status de du rappel.",
+            "help": "",
+            "selection": {
+                "not_sent": "Non envoyé",
+                "sent": "Envoyé",
+                "cancelled": "Annulé"
+            }
+        },
+        "due_amount": {
+            "label": "Montant",
+            "description": "Montant total à recevoir.",
+            "help": ""
+        },
+        "due_date": {
+            "label": "Date d'échéance du financement",
+            "description": "Date limite avant laquelle le financement est attendu.",
+            "help": ""
+        },
+        "funding_id": {
+            "label": "Financement",
+            "description": "La financement rappelé.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Propriété",
+            "description": "Propriété ou lot concerné par le document.",
+            "help": "Permet d'associer le document à un droit de propriété particulier."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Rappel financement",
+            "description": "",
+            "layout": {
+            }
+        },
+        "list.default": {
+            "name": "Rappels financements",
+            "description": "Liste des rappels de financements.",
+            "layout": {}
+        }
+    },
+    "error": {
+        "errors": {
+        }
+    }
+}
