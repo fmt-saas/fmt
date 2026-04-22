@@ -1,0 +1,41 @@
+{
+    "name": "Rappel de paiement",
+    "plural": "Rappels de paiement",
+    "description": "",
+    "model": {
+        "ownership_id": {
+            "label": "Propriété",
+            "description": "Propriété concerné par le rappel.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Rappel financement",
+            "description": "",
+            "actions": {
+                "action.send_mail": {
+                    "label": "Envoyer",
+                    "description": "Envoyer l'e-mail de rappel."
+                }
+            },
+            "layout": {
+                "section.mails": {
+                    "label": "E-mails",
+                    "description": "E-mails envoyé pour rappeler le paiement du financement en retard."
+                }
+            }
+        },
+        "list.default": {
+            "name": "Rappels financements",
+            "description": "Liste des rappels de financements.",
+            "header": {
+                "header.selection.actions.send_email": {
+                    "label": "Envoyer",
+                    "description": "Envoyer les e-mails de rappel."
+                }
+            },
+            "layout": {}
+        }
+    }
+}

@@ -32,11 +32,6 @@
             "label": "Financement",
             "description": "La financement rappelé.",
             "help": ""
-        },
-        "ownership_id": {
-            "label": "Propriété",
-            "description": "Propriété ou lot concerné par le document.",
-            "help": "Permet d'associer le document à un droit de propriété particulier."
         }
     },
     "view": {

@@ -1,0 +1,45 @@
+{
+    "name": "Funding reminders",
+    "description": "This view is intended for displaying the list of fundings.",
+    "header": {
+        "actions": false,
+        "exports": false,
+        "selection": {
+            "default" : false,
+            "actions" : [
+                {
+                    "id": "header.selection.actions.send_email",
+                    "label": "Send mails",
+                    "icon": "send",
+                    "controller": "realestate_sale_pay_FundReminder_send-email"
+                }
+            ]
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "30%"
+            },
+            {
+                "type": "field",
+                "value": "due_date",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "label": "Paid",
+                "value": "status",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "label": "Amount Due",
+                "value": "due_amount",
+                "width": "10%"
+            }
+        ]
+    }
+}

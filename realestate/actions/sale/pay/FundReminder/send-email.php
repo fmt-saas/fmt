@@ -19,6 +19,12 @@ use fmt\setting\Setting;
             'type'             => 'many2one',
             'foreign_object'   => 'realestate\sale\pay\FundReminder',
             'description'      => "Identifier of the funding reminder."
+        ],
+        'ids' => [
+            'type'              => 'one2many',
+            'foreign_object'    => 'realestate\sale\pay\FundReminder',
+            'description'       => 'List of reminders IDs for which we want to send emails.',
+            'default'           => []
         ]
     ],
     'response'      => [
@@ -34,11 +40,17 @@ use fmt\setting\Setting;
  */
 ['context' => $context] = $providers;
 
-if(!isset($params['id'])) {
+if(isset($params['id']) && $params['id'] === 0) {
+    unset($params['id']);
+}
+
+$ids = array_merge((isset($params['id']) ? [$params['id']] : []), $params['ids'] ?? []);
+
+if(empty($ids)) {
     throw new Exception("missing_id", EQ_ERROR_INVALID_PARAM);
 }
 
-$reminder = FundReminder::id($params['id'])
+$reminders = FundReminder::ids($ids)
     ->read([
         'status',
         'due_date',
@@ -63,110 +75,114 @@ $reminder = FundReminder::id($params['id'])
             ]
         ]
     ])
-    ->first(true);
+    ->get();
 
-if(!$reminder) {
+if(count($ids) !== count($reminders)) {
     throw new Exception("fund_reminder_not_found", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-if($reminder['status'] !== 'not_sent') {
-    throw new Exception("fund_reminder_{$reminder['status']}", EQ_ERROR_UNKNOWN_OBJECT);
-}
-
-$owner = null;
-if($reminder['ownership_id']['representative_owner_id']) {
-    $representative_owner = $reminder['ownership_id']['representative_owner_id'];
-    if(!empty($representative_owner['email']) || !empty($representative_owner['email_alt'])) {
-        $owner = $representative_owner;
+foreach($reminders as $reminder) {
+    if($reminder['status'] !== 'not_sent') {
+        throw new Exception("fund_reminder_{$reminder['status']}", EQ_ERROR_UNKNOWN_OBJECT);
     }
 }
-if(!$owner) {
-    foreach($reminder['ownership_id']['owners_ids'] as $owner) {
+
+foreach($reminders as $reminder) {
+    $owner = null;
+    if($reminder['ownership_id']['representative_owner_id']) {
+        $representative_owner = $reminder['ownership_id']['representative_owner_id'];
         if(!empty($representative_owner['email']) || !empty($representative_owner['email_alt'])) {
             $owner = $representative_owner;
-            break;
         }
     }
-}
-$recipient_email = !empty($owner['email']) ? $owner['email'] : $owner['email_alt'];
-
-if(!$owner) {
-    throw new Exception("owner_not_found", EQ_ERROR_INVALID_PARAM);
-}
-
-// generate signature
-$organisation = Organisation::id(1)->read(['signature'])->first();
-
-$signature = '';
-
-if($organisation) {
-    $signature = $organisation['signature'];
-}
-
-// retrieve template (subject & body)
-$subject = '';
-$body = '';
-
-$template_code = 'fund_reminder_correspondence';
-
-$template = Template::search([
-    ['code', '=', $template_code],
-    ['type', '=', 'email']
-])
-    ->read( ['id','parts_ids' => ['name', 'value']])
-    ->first(true);
-
-$date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
-
-foreach($template['parts_ids'] as $part_id => $part) {
-    if($part['name'] == 'subject') {
-        $subject = strip_tags($part['value']);
-
-        $map_values = [
-            'due_date'      => date($date_format, $reminder['due_date']),
-            'due_amount'    => Setting::format_number_currency($reminder['due_amount']),
-            'condo'         => $reminder['condo_id']['name']
-        ];
-
-        // Replace {var} items with corresponding values, set in $map_values
-        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
-            $key = $matches[1];
-            return $map_values[$key] ?? '';
-        }, $subject);
-    }
-    elseif($part['name'] == 'body') {
-        $body = $part['value'];
-
-        $map_values = [
-            'due_date'              => date($date_format, $reminder['due_date']),
-            'due_amount'            => Setting::format_number_currency($reminder['due_amount']),
-            'condo'                 => $reminder['condo_id']['name'],
-            'firstname'             => $reminder['owner']['firstname'],
-            'lastname'              => $reminder['owner']['lastname'],
-            'address_recipient'     => $reminder['owner']['address_recipient']
-        ];
-
-        // Replace {var} items with corresponding values, set in $map_values
-        $body = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
-            $key = $matches[1];
-            return $map_values[$key] ?? '';
-        }, $body);
-
-        if(strlen($signature)) {
-            $body .= "<br><br>" . $signature;
+    if(!$owner) {
+        foreach($reminder['ownership_id']['owners_ids'] as $owner) {
+            if(!empty($representative_owner['email']) || !empty($representative_owner['email_alt'])) {
+                $owner = $representative_owner;
+                break;
+            }
         }
     }
+    $recipient_email = !empty($owner['email']) ? $owner['email'] : $owner['email_alt'];
+
+    if(!$owner) {
+        throw new Exception("owner_not_found", EQ_ERROR_INVALID_PARAM);
+    }
+
+    // generate signature
+    $organisation = Organisation::id(1)->read(['signature'])->first();
+
+    $signature = '';
+
+    if($organisation) {
+        $signature = $organisation['signature'];
+    }
+
+    // retrieve template (subject & body)
+    $subject = '';
+    $body = '';
+
+    $template_code = 'fund_reminder_correspondence';
+
+    $template = Template::search([
+        ['code', '=', $template_code],
+        ['type', '=', 'email']
+    ])
+        ->read( ['id','parts_ids' => ['name', 'value']])
+        ->first(true);
+
+    $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
+
+    foreach($template['parts_ids'] as $part_id => $part) {
+        if($part['name'] == 'subject') {
+            $subject = strip_tags($part['value']);
+
+            $map_values = [
+                'due_date'      => date($date_format, $reminder['due_date']),
+                'due_amount'    => Setting::format_number_currency($reminder['due_amount']),
+                'condo'         => $reminder['condo_id']['name']
+            ];
+
+            // Replace {var} items with corresponding values, set in $map_values
+            $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+                $key = $matches[1];
+                return $map_values[$key] ?? '';
+            }, $subject);
+        }
+        elseif($part['name'] == 'body') {
+            $body = $part['value'];
+
+            $map_values = [
+                'due_date'              => date($date_format, $reminder['due_date']),
+                'due_amount'            => Setting::format_number_currency($reminder['due_amount']),
+                'condo'                 => $reminder['condo_id']['name'],
+                'firstname'             => $reminder['owner']['firstname'],
+                'lastname'              => $reminder['owner']['lastname'],
+                'address_recipient'     => $reminder['owner']['address_recipient']
+            ];
+
+            // Replace {var} items with corresponding values, set in $map_values
+            $body = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+                $key = $matches[1];
+                return $map_values[$key] ?? '';
+            }, $body);
+
+            if(strlen($signature)) {
+                $body .= "<br><br>" . $signature;
+            }
+        }
+    }
+
+    $message = new Email();
+    $message->setTo($recipient_email)
+        ->setSubject($subject)
+        ->setContentType("text/html")
+        ->setBody($body);
+
+    $mail_id = Mail::queue($message, 'realestate\sale\pay\FundReminder', $reminder['id']);
+
+    FundReminder::id($reminder['id'])->update(['status' => 'sent']);
 }
-
-$message = new Email();
-$message->setTo($recipient_email)
-    ->setSubject($subject)
-    ->setContentType("text/html")
-    ->setBody($body);
-
-$mail_id = Mail::queue($message, 'realestate\sale\pay\FundReminder', $reminder['id']);
-
-FundReminder::id($reminder['id'])->update(['status' => 'sent']);
 
 $context
     ->httpResponse()
