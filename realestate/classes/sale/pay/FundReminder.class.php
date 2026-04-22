@@ -27,6 +27,15 @@ class FundReminder extends \sale\pay\FundReminder {
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'store'             => true,
                 'relation'          => ['funding_id' => 'ownership_id']
+            ],
+
+            'mails_ids' => [
+                'type'              => 'one2many',
+                'description'       => "Emails sent to remind that the overdue funding is waiting for payment.",
+                'help'              => "Should be only one.",
+                'foreign_object'    => 'core\Mail',
+                'foreign_field'     => 'object_id',
+                'domain'            => ['object_class', '=', 'realestate\sale\pay\FundReminder']
             ]
 
         ];

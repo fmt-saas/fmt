@@ -68,6 +68,15 @@ class FundReminder extends \equal\orm\Model {
                 'relation'          => ['funding_id' => 'due_date']
             ],
 
+            'mails_ids' => [
+                'type'              => 'one2many',
+                'description'       => "Emails sent to remind that the overdue funding is waiting for payment.",
+                'help'              => "Should be only one.",
+                'foreign_object'    => 'core\Mail',
+                'foreign_field'     => 'object_id',
+                'domain'            => ['object_class', '=', 'sale\pay\FundReminder']
+            ]
+
         ];
     }
 

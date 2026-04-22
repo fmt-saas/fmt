@@ -14,18 +14,14 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "name",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "heading": true
-                                                },
-                                                "visible": ["state", "<>", "draft"]
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "condo_id",
                                                 "width": "0%",
                                                 "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "funding_id",
+                                                "width": "33%"
                                             }
                                         ]
                                     },
@@ -42,6 +38,31 @@
                                                 "label": "Amount Due",
                                                 "value": "due_amount",
                                                 "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.mails",
+                        "label": "Email",
+                        "visible": ["status", "=", "sent"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "mails_ids",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

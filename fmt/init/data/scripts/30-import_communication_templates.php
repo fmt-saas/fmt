@@ -708,5 +708,30 @@ TemplatePart::create([
     'variables'     => '["condo", "date_from", "date_to"]'
 ]);
 
+/* Funding reminder */
+
+// email
+$template = Template::create([
+    'code'          => 'fund_reminder_correspondence',
+    'description'   => 'Rappel paiement d\'un financement.',
+    'category_id'   => 5,
+    'type_id'       => 1
+])
+    ->first();
+
+TemplatePart::create([
+    'name'          => 'subject',
+    'value'         => '<p>Échéance de paiement dépassée</p>',
+    'template_id'   => $template['id'],
+    'variables'     => '["condo", "due_date", "due_amount"]'
+]);
+
+TemplatePart::create([
+    'name'          => 'body',
+    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Nous nous permettons de vous contacter car, sauf erreur de notre part, nous n'avons pas encore reçu le règlement d'un montant de {due_amount}, dont l'échéance était fixée au {due_date}.</p><p><br></p><p><br></p><p>Bien cordialement,</p>",
+    'template_id'   => $template['id'],
+    'variables'     => '["condo", "firstname", "lastname", "address_recipient", "due_date", "due_amount"]'
+]);
+
 
 $orm->enableEvents($events);

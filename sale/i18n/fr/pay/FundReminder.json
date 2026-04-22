@@ -44,6 +44,10 @@
             "name": "Rappel financement",
             "description": "",
             "layout": {
+                "section.mails": {
+                    "label": "E-mails",
+                    "description": "E-mails envoyé pour rappeler le paiement du financement en retard."
+                }
             }
         },
         "list.default": {
