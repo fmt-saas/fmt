@@ -98,7 +98,8 @@ $httpResponse = $context->httpResponse();
 $httpResponse->cookie('access_token',  $access_token, [
         'expires'   => time() + constant('AUTH_ACCESS_TOKEN_VALIDITY'),
         'httponly'  => true,
-        'secure'    => constant('AUTH_TOKEN_HTTPS')
+        'secure'    => constant('AUTH_TOKEN_HTTPS'),
+        'samesite'  => 'Strict'
     ]);
 
 
@@ -152,11 +153,12 @@ if(constant('FMT_INSTANCE_TYPE') === 'global') {
         $baseDomain = implode('.', $domainParts);
     }
 
-    $httpResponse->cookie('global_token',  $global_token, [
+    $httpResponse->cookie('global_token', $global_token, [
             'expires'   => time() + constant('AUTH_ACCESS_TOKEN_VALIDITY'),
             'domain'    => $baseDomain,
             'httponly'  => true,
-            'secure'    => constant('AUTH_TOKEN_HTTPS')
+            'secure'    => constant('AUTH_TOKEN_HTTPS'),
+            'samesite'  => 'Lax'
         ]);
 
 }
