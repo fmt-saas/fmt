@@ -426,22 +426,21 @@
                         <!-- there is a single account for private expenses -->
                         {% set is_last_apport = 0 %}
                         {% for apport in expense.apportionments %}
-                        {% if loop.last %}
-                            {% set is_last_apport = 1 %}
-                        {% endif %}
-                        {% for account in apport.accounts %}
-                            <tr {% if is_last_apport and loop.last %} class="before-total"{% endif %}>
-                                <td><div style="padding-left: 20px;">{{ labels['global_summary.table.td.provisions_called'] }}</div></td>
-                                <td>/</td>
-                                <td>{{ provisions_total | format_money(false) }}</td>
-                                <td>{{ account.owner | format_money(false) }}</td>
-                                <td></td>
-                                <td>{{ account.owner | format_money(false) }}</td>
-                                <td></td>
-                            </tr>
-
-                            {% set total_owner = total_owner + account.owner %}
-                        {% endfor %}
+                            {% if loop.last %}
+                                {% set is_last_apport = 1 %}
+                            {% endif %}
+                            {% for account in apport.accounts %}
+                                <tr {% if is_last_apport and loop.last %} class="before-total"{% endif %}>
+                                    <td><div style="padding-left: 20px;">{{ labels['global_summary.table.td.provisions_called'] }}</div></td>
+                                    <td>/</td>
+                                    <td>{{ provisions_total | format_money(false) }}</td>
+                                    <td>{{ account.owner | format_money(false) }}</td>
+                                    <td></td>
+                                    <td>{{ account.owner | format_money(false) }}</td>
+                                    <td></td>
+                                </tr>
+                                {% set total_owner = total_owner + account.owner %}
+                            {% endfor %}
                         {% endfor %}
                         {% set provisions_total_owner = provisions_total_owner + total_owner  %}
                     {% endif %}
@@ -671,6 +670,11 @@
                                         {% endif %}
 
                                         {% for account in apport.accounts %}
+                                            {% set provisions_total = provisions_total + account.owner %}
+                                            {% set provisions_total_owner = provisions_total_owner + account.owner %}
+                                        {% endfor %}
+
+                                        {% for account in apport.accounts %}
                                             <tr {% if is_last_apport and loop.last %} class="before-total"{% endif %}>
                                                 <td><div style="padding-left: 20px;">{{ labels['detailed_statements.table.td.provisions_called'] }}</div></td>
                                                 <td>/</td>
@@ -680,9 +684,6 @@
                                                 <td>{{ account.owner | format_money(false) }}</td>
                                                 <td></td>
                                             </tr>
-
-                                            {% set provisions_total = provisions_total + account.owner %}
-                                            {% set provisions_total_owner = provisions_total_owner + account.owner %}
                                         {% endfor %}
                                     {% endfor %}
                                 {% endif %}
@@ -692,8 +693,8 @@
                             <tr class="total-footer">
                                 <td style="text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ labels['detailed_statements.table.th.provisions'] }}</td>
                                 <td></td>
-                                <td></td>
                                 <td>{{ provisions_total | format_money(false) }}</td>
+                                <td>{{ provisions_total_owner | format_money(false) }}</td>
                                 <td></td>
                                 <td>{{ provisions_total_owner | format_money(false) }}</td>
                                 <td></td>
