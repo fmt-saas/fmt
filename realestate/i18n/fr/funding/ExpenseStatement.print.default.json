@@ -1,9 +1,9 @@
 {
-    "summary.h2": "Récapitulatif des lots",
-    "summary.table.th.references": "Références",
-    "summary.table.th.nature": "Nature",
-    "summary.table.th.quotas": "Quotités",
-    "summary.table.th.days": "Jours",
+    "lots_recap.h2": "Récapitulatif des lots",
+    "lots_recap.table.th.references": "Références",
+    "lots_recap.table.th.nature": "Nature",
+    "lots_recap.table.th.quotas": "Quotités",
+    "lots_recap.table.th.days": "Jours",
 
     "global_summary.table.th.common_expenses": "Charges communes",
     "global_summary.table.th.private_expenses": "Frais privatifs",

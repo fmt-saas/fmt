@@ -211,7 +211,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
             $property_lots_ids  = array_map(fn($a) => $a['property_lot_id'], $invoice_lines);
 
             $accounts = Account::ids($accounts_ids)->read(['name', 'code'])->get();
-            $property_lots = PropertyLot::ids($property_lots_ids)->read(['name', 'code', 'property_lot_ref', 'property_lot_nature', 'statutory_shares'])->get();
+            $property_lots = PropertyLot::ids($property_lots_ids)->read(['name', 'code', 'property_lot_ref', 'property_lot_nature', 'statutory_shares', 'is_primary', 'primary_lot_id'])->get();
             $apportionments = Apportionment::ids($apportionments_ids)->read(['name', 'total_shares'])->get();
 
             $account_code_map = [];
@@ -246,6 +246,8 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                         'code'                  => $property_lots[$property_lot_id]['code'],
                         'ref'                   => $property_lots[$property_lot_id]['property_lot_ref'],
                         'nature'                => $property_lots[$property_lot_id]['property_lot_nature'],
+                        'is_primary'            => $property_lots[$property_lot_id]['is_primary'],
+                        'primary_lot_id'        => $property_lots[$property_lot_id]['primary_lot_id'],
                         'has_reserve_fund'      => false,
                         'has_private_expense'   => false,
                         'has_common_expense'    => false,
