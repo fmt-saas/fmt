@@ -592,10 +592,11 @@
                                     {% set has_group_common_expense = true %}
 
                                     {% for apport in expense.apportionments %}
-                                        {% set apport_key = apport.name ~ '|' ~ apport.shares ~ '|' ~ apport.total_shares %}
+                                        {% set apport_key = apport.id is defined ? apport.id : (apport.name ~ '|' ~ apport.total_shares) %}
                                         {% set current_apport = common_apports[apport_key] | default({
+                                            id: apport.id is defined ? apport.id : null,
                                             name: apport.name,
-                                            shares: apport.shares,
+                                            shares: 0,
                                             total_shares: apport.total_shares,
                                             total_amount: 0,
                                             owner: 0,
@@ -603,24 +604,29 @@
                                             vat: 0,
                                             accounts: {}
                                         }) %}
+                                        {% set current_apport = current_apport | merge({
+                                            shares: current_apport.shares + apport.shares
+                                        }) %}
 
                                         {% for account in apport.accounts %}
-                                            {% set account_key = account.name %}
+                                            {% set account_key = account.code is defined ? account.code : account.name %}
+                                            {% set is_new_account = current_apport.accounts[account_key] is not defined %}
                                             {% set current_account = current_apport.accounts[account_key] | default({
                                                 name: account.name,
+                                                code: account.code is defined ? account.code : null,
                                                 total_amount: 0,
                                                 owner: 0,
                                                 tenant: 0,
                                                 vat: 0
                                             }) %}
                                             {% set merged_account = current_account | merge({
-                                                total_amount: current_account.total_amount + account.total_amount,
+                                                total_amount: is_new_account ? account.total_amount : current_account.total_amount,
                                                 owner: current_account.owner + account.owner,
                                                 tenant: current_account.tenant + account.tenant,
                                                 vat: current_account.vat + account.vat
                                             }) %}
                                             {% set current_apport = current_apport | merge({
-                                                total_amount: current_apport.total_amount + account.total_amount,
+                                                total_amount: is_new_account ? current_apport.total_amount + account.total_amount : current_apport.total_amount,
                                                 owner: current_apport.owner + account.owner,
                                                 tenant: current_apport.tenant + account.tenant,
                                                 vat: current_apport.vat + account.vat,
@@ -636,29 +642,36 @@
                                     {% set has_group_provisions = true %}
 
                                     {% for apport in expense.apportionments %}
-                                        {% set apport_key = apport.name ~ '|' ~ apport.shares ~ '|' ~ apport.total_shares %}
+                                        {% set apport_key = apport.id is defined ? apport.id : (apport.name ~ '|' ~ apport.total_shares) %}
                                         {% set current_apport = provisions_apports[apport_key] | default({
+                                            id: apport.id is defined ? apport.id : null,
                                             name: apport.name,
-                                            shares: apport.shares,
+                                            shares: 0,
                                             total_shares: apport.total_shares,
                                             total_amount: 0,
                                             owner: 0,
                                             accounts: {}
                                         }) %}
+                                        {% set current_apport = current_apport | merge({
+                                            shares: current_apport.shares + apport.shares
+                                        }) %}
 
                                         {% for account in apport.accounts %}
-                                            {% set account_key = account.name %}
+                                            {% set account_total_amount = account.total_amount is defined ? account.total_amount : account.owner %}
+                                            {% set account_key = account.code is defined ? account.code : account.name %}
+                                            {% set is_new_account = current_apport.accounts[account_key] is not defined %}
                                             {% set current_account = current_apport.accounts[account_key] | default({
                                                 name: account.name,
+                                                code: account.code is defined ? account.code : null,
                                                 total_amount: 0,
                                                 owner: 0
                                             }) %}
                                             {% set merged_account = current_account | merge({
-                                                total_amount: current_account.total_amount + account.owner,
+                                                total_amount: is_new_account ? account_total_amount : current_account.total_amount,
                                                 owner: current_account.owner + account.owner
                                             }) %}
                                             {% set current_apport = current_apport | merge({
-                                                total_amount: current_apport.total_amount + account.owner,
+                                                total_amount: is_new_account ? current_apport.total_amount + account_total_amount : current_apport.total_amount,
                                                 owner: current_apport.owner + account.owner,
                                                 accounts: current_apport.accounts | merge({ (account_key): merged_account })
                                             }) %}
