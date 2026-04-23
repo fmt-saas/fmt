@@ -55,6 +55,15 @@ class Owner extends Identity {
                 'readonly'          => true
             ],
 
+            'vat_number' => [
+                'type'              => 'string',
+                'description'       => 'Value Added Tax identification number, if any.',
+                'visible'           => [ ['has_vat', '=', true], ['type', '<>', 'IN'], ['has_parent', '=', false] ],
+                'onupdate'          => 'onupdateVatNumber',
+                'help'              => 'There might be several owners pointing to the same Identity, therefore vat_number can be duplicated.',
+                'unique'            => false
+            ],
+
             'date_to' => [
                 'type'              => 'computed',
                 'result_type'       => 'date',
