@@ -322,18 +322,17 @@
                             {% endfor %}
                         {% endif %}
                     {% endfor %}
-                </tbody>
-                <tfoot>
+
                     <tr class="total-footer">
-                            <td style="background-color: white; text-align: right;">{{ labels['global_summary.table.footer.td.total'] }} {{ labels['global_summary.table.th.common_expenses'] }}</td>
-                            <td></td>
-                            <td>{{ common_total | format_money(false) }}</td>
-                            <td><strong>{{ (common_total_owner + common_total_tenant) | format_money(false) }}</strong></td>
-                            <td>{{ common_total_vat | format_money(false) }}</td>
-                            <td>{{ common_total_owner | format_money(false) }}</td>
-                            <td>{{ common_total_tenant | format_money(false) }}</td>
-                        </tr>
-                </tfoot>
+                        <td style="background-color: white; text-align: right;">{{ labels['global_summary.table.footer.td.total'] }} {{ labels['global_summary.table.th.common_expenses'] }}</td>
+                        <td></td>
+                        <td>{{ common_total | format_money(false) }}</td>
+                        <td><strong>{{ (common_total_owner + common_total_tenant) | format_money(false) }}</strong></td>
+                        <td>{{ common_total_vat | format_money(false) }}</td>
+                        <td>{{ common_total_owner | format_money(false) }}</td>
+                        <td>{{ common_total_tenant | format_money(false) }}</td>
+                    </tr>
+                </tbody>
             </table>
             <!-- private expenses -->
             {% if owner.has_private_expense %}
