@@ -326,7 +326,7 @@
                 </tbody>
                 <tfoot>
                     <tr class="total-footer">
-                            <td style="text-align: right;">{{ labels['global_summary.table.footer.td.grand_totals'] }}</td>
+                            <td style="text-align: right;">{{ labels['global_summary.table.footer.td.total'] }} {{ labels['global_summary.table.th.common_expenses'] }}</td>
                             <td></td>
                             <td>{{ common_total | format_money(false) }}</td>
                             <td><strong>{{ (common_total_owner + common_total_tenant) | format_money(false) }}</strong></td>
@@ -541,7 +541,7 @@
 
                                             {% for account in apport.accounts %}
                                                 <tr>
-                                                    <td><div style="padding-left: 40px;">{{ account.name }}</div></td>
+                                                    <td><div style="padding-left: 20px;">{{ account.name }}</div></td>
                                                     <td style="text-align: center;">{{ quotites }}</td>
                                                     <td>{{ account.total_amount | format_money(false) }}</td>
                                                     <td>{{ (account.owner + account.tenant) | format_money(false) }}</td>

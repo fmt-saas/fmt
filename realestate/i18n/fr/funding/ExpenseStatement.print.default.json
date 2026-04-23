@@ -27,6 +27,7 @@
     "detailed_statements.table.th.vat": "TVA",
     "detailed_statements.table.th.owner": "Prop",
     "detailed_statements.table.th.tenant": "Loc",
+    "detailed_statements.table.footer.td.grand_totals": "Totaux généraux",
     "detailed_statements.table.footer.td.total": "Total",
     "detailed_statements.table.td.provisions_called": "Provisions appelées"
 
