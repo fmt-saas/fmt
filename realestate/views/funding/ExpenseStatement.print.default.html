@@ -233,9 +233,7 @@
 
         <div class="page-break"></div>
 
-        <!--
-            first part : global summary
-        -->
+        <!-- first part : global summary -->
 
         <!-- global summary ("Décompte de charge") -->
 
@@ -306,7 +304,6 @@
                             {% set is_last_apport = 0 %}
                             {% for apport in expense.apportionments %}
                                 {% set quotites = apport.shares ~ ' / ' ~ apport.total_shares %}
-
                                 {% if loop.last %}
                                     {% set is_last_apport = 1 %}
                                 {% endif %}
@@ -485,19 +482,20 @@
             <div>---</div>
         {% endif %}
 
-        <!--
-            second part : details (optional)
-        -->
+        <!-- second part : details (optional) -->
 
         <!-- detailed statements -->
         {% if owner.options.show_lots_details %}
 
+            <!-- outer loop -->
             {% for parentLot in owner.property_lots %}
-                <!-- outer loop, to keep only primary lots -->
+                <!-- to keep only primary lots -->
                 {% if parentLot.is_primary %}
 
                     <!-- pass-1 - computed recap -->
                     {% set recap = {} %}
+
+                    <!-- inner loop -->
                     {% for lot in owner.property_lots %}
                         <!-- handle only parent lot itself or its secondary lots -->
                         {% if lot.id == parentLot.id or (not lot.is_primary and lot.primary_lot_id == parentLot.id) %}
@@ -568,297 +566,351 @@
                             </tbody>
                         </table>
                     </div>
-
                     <h2>{{ title }}</h2>
 
-                    {% set has_group_common_expense = false %}
-                    {% set has_group_provisions = false %}
-                    {% set has_group_private_expense = false %}
-                    {% set common_apports = {} %}
-                    {% set private_lines = {} %}
-                    {% set provisions_accounts = {} %}
+                    {% set has_lot_common_expense = false %}
+                    {% set has_lot_provisions = false %}
+                    {% set has_lot_private_expense = false %}
+
+                    {% set apport_totals = {} %}
+
                     {% set common_total = 0 %}
                     {% set common_total_owner = 0 %}
                     {% set common_total_tenant = 0 %}
                     {% set common_total_vat = 0 %}
-                    {% set provisions_total = 0 %}
+
                     {% set provisions_total_owner = 0 %}
+
                     {% set private_total = 0 %}
                     {% set private_total_owner = 0 %}
                     {% set private_total_tenant = 0 %}
                     {% set private_total_vat = 0 %}
 
-                    <!-- pass-2 - a) aggregate values for the primary lot group -->
+                    <!-- pass-2 - a) computed values -->
+                    <!-- inner loop -->
                     {% for lot in owner.property_lots %}
                         <!-- handle only parent lot itself or its secondary lots -->
                         {% if lot.id == parentLot.id or (not lot.is_primary and lot.primary_lot_id == parentLot.id) %}
 
+                            {% set has_lot_common_expense = false %}
+                            {% set has_lot_provisions = false %}
+                            {% set has_lot_private_expense = false %}
+
                             {% for expense in lot.expenses %}
                                 {% if expense.name == 'common_expense' %}
-                                    {% set has_group_common_expense = true %}
-
-                                    {% for apport in expense.apportionments %}
-                                        {% set apport_key = 'apport_' ~ apport.id %}
-                                        {% set current_apport = common_apports[apport_key] | default({
-                                            id: apport.id is defined ? apport.id : null,
-                                            name: apport.name,
-                                            shares: 0,
-                                            total_shares: apport.total_shares,
-                                            total_amount: 0,
-                                            owner: 0,
-                                            tenant: 0,
-                                            vat: 0,
-                                            accounts: {}
-                                        }) %}
-                                        {% set current_apport = current_apport | merge({
-                                            shares: current_apport.shares + apport.shares
-                                        }) %}
-
-                                        {% for account in apport.accounts %}
-                                            {% set account_key = account.code is defined ? account.code : account.name %}
-                                            {% set is_new_account = current_apport.accounts[account_key] is not defined %}
-                                            {% set current_account = current_apport.accounts[account_key] | default({
-                                                name: account.name,
-                                                code: account.code is defined ? account.code : null,
-                                                total_amount: 0,
-                                                owner: 0,
-                                                tenant: 0,
-                                                vat: 0
-                                            }) %}
-                                            {% set merged_account = current_account | merge({
-                                                total_amount: is_new_account ? account.total_amount : current_account.total_amount,
-                                                owner: current_account.owner + account.owner,
-                                                tenant: current_account.tenant + account.tenant,
-                                                vat: current_account.vat + account.vat
-                                            }) %}
-                                            {% set current_apport = current_apport | merge({
-                                                total_amount: is_new_account ? current_apport.total_amount + account.total_amount : current_apport.total_amount,
-                                                owner: current_apport.owner + account.owner,
-                                                tenant: current_apport.tenant + account.tenant,
-                                                vat: current_apport.vat + account.vat,
-                                                accounts: current_apport.accounts | merge({ (account_key): merged_account })
-                                            }) %}
-                                        {% endfor %}
-
-                                        {% set common_apports = common_apports | merge({ (apport_key): current_apport }) %}
-                                    {% endfor %}
+                                    {% set has_lot_common_expense = true %}
                                 {% endif %}
-
                                 {% if expense.name == 'provisions' %}
-                                    {% set has_group_provisions = true %}
+                                    {% set has_lot_provisions = true %}
+                                {% endif %}
+                                {% if expense.name == 'private_expense' %}
+                                    {% set has_lot_private_expense = true %}
+                                {% endif %}
+                            {% endfor %}
+
+
+                            <!-- common_expense -->
+
+                            {% for expense in lot.expenses %}
+                                {% if expense.name == 'common_expense' %}
 
                                     {% for apport in expense.apportionments %}
-                                        {% for account in apport.accounts %}
-                                            {% set account_total_amount = account.total_amount is defined ? account.total_amount : account.owner %}
-                                            {% set account_key = account.code is defined ? account.code : account.name %}
-                                            {% set is_new_account = provisions_accounts[account_key] is not defined %}
-                                            {% set current_account = provisions_accounts[account_key] | default({
-                                                name: account.name,
-                                                code: account.code is defined ? account.code : null,
-                                                total_amount: 0,
-                                                owner: 0
+
+                                        {% if apport_totals[apport.id] is not defined %}
+                                            {% set apport_totals = apport_totals|merge({
+                                                (apport.id): {
+                                                    'total': 0,
+                                                    'shares': apport.shares,
+                                                    'owner': 0,
+                                                    'tenant': 0,
+                                                    'vat': 0,
+                                                    'accounts': {}
+                                                }
                                             }) %}
-                                            {% set provisions_accounts = provisions_accounts | merge({
-                                                (account_key): current_account | merge({
-                                                    total_amount: is_new_account ? account_total_amount : current_account.total_amount,
-                                                    owner: current_account.owner + account.owner
+                                        {% endif %}
+
+                                        {% for account in apport.accounts %}
+
+                                            {% if apport_totals[apport.id].accounts[account.id] is not defined %}
+                                                {% set apport_totals = apport_totals|merge({
+                                                    (apport.id): apport_totals[apport.id]|merge({
+                                                        'accounts': apport_totals[apport.id].accounts|merge({
+                                                            (account.id): {
+                                                                'total': account.total,
+                                                                'shares': 0,
+                                                                'lot': 0,
+                                                                'vat': 0,
+                                                                'owner': 0,
+                                                                'tenant': 0
+                                                            }
+                                                        })
+                                                    })
+                                                }) %}
+
+                                                {% set common_total = common_total + account.total %}
+                                            {% endif %}
+
+                                            {% set apport_totals = apport_totals|merge({
+                                                (apport.id): apport_totals[apport.id]|merge({
+                                                    'accounts': apport_totals[apport.id].accounts|merge({
+                                                        (account.id): apport_totals[apport.id].accounts[account.id]|merge({
+                                                            'shares': apport_totals[apport.id].accounts[account.id].shares + account.shares,
+                                                            'lot': apport_totals[apport.id].accounts[account.id].lot + account.lot,
+                                                            'vat': apport_totals[apport.id].accounts[account.id].vat + account.vat,
+                                                            'owner': apport_totals[apport.id].accounts[account.id].owner + account.owner,
+                                                            'tenant': apport_totals[apport.id].accounts[account.id].tenant + account.tenant
+                                                        })
+                                                    })
                                                 })
                                             }) %}
+
+                                            {% set common_total_owner = common_total_owner + account.owner %}
+                                            {% set common_total_tenant = common_total_tenant + account.tenant %}
+                                            {% set common_total_vat = common_total_vat + account.vat %}
+
                                         {% endfor %}
-                                    {% endfor %}
-                                {% endif %}
 
-                                {% if expense.name == 'private_expense' %}
-                                    {% set has_group_private_expense = true %}
-
-                                    {% for line in expense.lines %}
-                                        {% set line_key = line.name %}
-                                        {% set current_line = private_lines[line_key] | default({
-                                            name: line.name,
-                                            owner: 0,
-                                            tenant: 0,
-                                            vat: 0
-                                        }) %}
-                                        {% set private_lines = private_lines | merge({
-                                            (line_key): current_line | merge({
-                                                owner: current_line.owner + line.owner,
-                                                tenant: current_line.tenant + line.tenant,
-                                                vat: current_line.vat + line.vat
-                                            })
-                                        }) %}
                                     {% endfor %}
                                 {% endif %}
                             {% endfor %}
-                        {% endif %}
-                    {% endfor %}
 
-                    {% for apport in common_apports %}
-                        {% set common_total = common_total + apport.total_amount %}
-                        {% set common_total_owner = common_total_owner + apport.owner %}
-                        {% set common_total_tenant = common_total_tenant + apport.tenant %}
-                        {% set common_total_vat = common_total_vat + apport.vat %}
-                    {% endfor %}
+                            <!-- private expenses -->
 
-                    {% for line in private_lines %}
-                        {% set private_total = private_total + line.owner + line.tenant %}
-                        {% set private_total_owner = private_total_owner + line.owner %}
-                        {% set private_total_tenant = private_total_tenant + line.tenant %}
-                        {% set private_total_vat = private_total_vat + line.vat %}
-                    {% endfor %}
-
-                    {% for account in provisions_accounts %}
-                        {% set provisions_total = provisions_total + account.total_amount %}
-                        {% set provisions_total_owner = provisions_total_owner + account.owner %}
-                    {% endfor %}
-
-
-                    <!-- pass-2 - b) render aggregated tables -->
-                    <div style="page-break-inside: avoid;">
-                        {% if (owner.has_common_expense or owner.has_reserve_fund) and has_group_common_expense %}
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 33%;">{{ labels['detailed_statements.table.th.common_expenses'] }}</th>
-                                    <th style="width: 12%; text-align: center;">{{ labels['detailed_statements.table.th.quotas'] }}</th>
-                                    <th style="width: 11%;">{{ labels['detailed_statements.table.th.condo'] }}</th>
-                                    <th style="width: 11%;">{{ labels['detailed_statements.table.th.lot'] }}</th>
-                                    <th style="width: 11%;">{{ labels['detailed_statements.table.th.vat'] }}</th>
-                                    <th style="width: 11%;">{{ labels['detailed_statements.table.th.owner'] }}</th>
-                                    <th style="width: 11%;">{{ labels['detailed_statements.table.th.tenant'] }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for apport in common_apports %}
-                                    {% set is_last_apport = loop.last %}
-                                    {% set quotites = apport.shares ~ ' / ' ~ apport.total_shares %}
-
-                                    <tr>
-                                        <td style="background-color: #eaeaea; font-weight: bold;"><div style="padding-left: 10px;"><strong>{{ apport.name }}</strong></div></td>
-                                        <td style="background-color: #eaeaea; font-weight: bold;"></td>
-                                        <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.total_amount | format_money(false) }}</td>
-                                        <td style="background-color: #eaeaea; font-weight: bold;">{{ (apport.owner + apport.tenant) | format_money(false) }}</td>
-                                        <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.vat | format_money(false) }}</td>
-                                        <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.owner | format_money(false) }}</td>
-                                        <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.tenant | format_money(false) }}</td>
-                                    </tr>
-
-                                    {% for account in apport.accounts %}
-                                        <tr {% if is_last_apport and loop.last %} class="before-total"{% endif %}>
-                                            <td><div style="padding-left: 20px;">{{ account.name }}</div></td>
-                                            <td style="text-align: center;">{{ quotites }}</td>
-                                            <td>{{ account.total_amount | format_money(false) }}</td>
-                                            <td>{{ (account.owner + account.tenant) | format_money(false) }}</td>
-                                            <td>{{ account.vat | format_money(false) }}</td>
-                                            <td>{{ account.owner | format_money(false) }}</td>
-                                            <td>{{ account.tenant | format_money(false) }}</td>
-                                        </tr>
+                            {% for expense in lot.expenses %}
+                                {% if expense.name == 'private_expense' %}
+                                    {% for line in expense.lines %}
+                                        {% set private_total = private_total + line.owner + line.tenant %}
+                                        {% set private_total_owner = private_total_owner + line.owner %}
+                                        {% set private_total_tenant = private_total_tenant + line.tenant %}
+                                        {% set private_total_vat = private_total_vat + line.vat %}
                                     {% endfor %}
-                                {% endfor %}
+                                {% endif %}
+                            {% endfor %}
 
-                                <tr class="total-footer">
-                                    <td style="text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ labels['detailed_statements.table.th.common_expenses'] }}</td>
-                                    <td></td>
-                                    <td>{{ common_total | format_money(false) }}</td>
-                                    <td>{{ (common_total_owner + common_total_tenant) | format_money(false) }}</td>
-                                    <td>{{ common_total_vat | format_money(false) }}</td>
-                                    <td>{{ common_total_owner | format_money(false) }}</td>
-                                    <td>{{ common_total_tenant | format_money(false) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+
+                            <!-- provisions -->
+
+                            {% for expense in lot.expenses %}
+                                {% if expense.name == 'provisions' %}
+
+                                    {% for apport in expense.apportionments %}
+
+                                        {% for account in apport.accounts %}
+                                            {% set provisions_total_owner = provisions_total_owner + account.owner %}
+                                        {% endfor %}
+
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+
+
+
                         {% endif %}
-                        {% if owner.has_private_expense and has_group_private_expense %}
-                        <table style="border-top: 0px;">
-                            <thead>
-                                <tr>
-                                    <th style="width: 33%;">{{ labels['detailed_statements.table.th.private_expenses'] }}</th>
-                                    <th style="width: 12%;"></th>
-                                    <th style="width: 11%;"></th>
-                                    <th style="width: 11%;"></th>
-                                    <th style="width: 11%;"></th>
-                                    <th style="width: 11%;"></th>
-                                    <th style="width: 11%;"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for line in private_lines %}
-                                    <tr {% if loop.last %} class="before-total"{% endif %}>
-                                        <td><div style="padding-left: 20px;">{{ line.name }}</div></td>
-                                        <td>/</td>
-                                        <td></td>
-                                        <td>{{ (line.owner + line.tenant) | format_money(false) }}</td>
-                                        <td>{{ line.vat | format_money(false) }}</td>
-                                        <td>{{ line.owner | format_money(false) }}</td>
-                                        <td>{{ line.tenant | format_money(false) }}</td>
-                                    </tr>
-                                {% endfor %}
+                    {% endfor %}
 
-                                <tr class="total-footer">
-                                    <td style="text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ labels['detailed_statements.table.th.private_expenses'] }}</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td>{{ private_total | format_money(false) }}</td>
-                                    <td>{{ private_total_vat | format_money(false) }}</td>
-                                    <td>{{ private_total_owner | format_money(false) }}</td>
-                                    <td>{{ private_total_tenant | format_money(false) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+
+                    <!-- pass-2 - b) render table -->
+                    {% for lot in owner.property_lots %}
+                        <!-- handle only parent lot itself or its secondary lots -->
+                        {% if lot.id == parentLot.id or (not lot.is_primary and lot.primary_lot_id == parentLot.id) %}
+
+
+                            <div style="page-break-inside: avoid;">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 33%;">{{ labels['detailed_statements.table.th.common_expenses'] }}</th>
+                                            <th style="width: 12%; text-align: center;">{{ labels['detailed_statements.table.th.quotas'] }}</th>
+                                            <th style="width: 11%;">{{ labels['detailed_statements.table.th.condo'] }}</th>
+                                            <th style="width: 11%;">{{ labels['detailed_statements.table.th.lot'] }}</th>
+                                            <th style="width: 11%;">{{ labels['detailed_statements.table.th.vat'] }}</th>
+                                            <th style="width: 11%;">{{ labels['detailed_statements.table.th.owner'] }}</th>
+                                            <th style="width: 11%;">{{ labels['detailed_statements.table.th.tenant'] }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+
+                                        {% if (owner.has_common_expense or owner.has_reserve_fund) and has_lot_common_expense %}
+
+                                            {% for expense in lot.expenses %}
+                                                {% if expense.name == 'common_expense' %}
+                                                    {% set is_last_apport = 0 %}
+
+                                                    {% for apport_id, apport in apport_totals %}
+
+                                                        {% if loop.last %}
+                                                            {% set is_last_apport = 1 %}
+                                                        {% endif %}
+
+                                                        <tr>
+                                                            <td style="background-color: #eaeaea; font-weight: bold;">
+                                                                <div style="padding-left: 10px;">
+                                                                    <strong>{{ apport.name }}</strong>
+                                                                </div>
+                                                            </td>
+                                                            <td style="background-color: #eaeaea;"></td>
+                                                            <td style="background-color: #eaeaea;">{{ apport.total | format_money(false) }}</td>
+                                                            <td style="background-color: #eaeaea;">{{ (apport.owner + apport.tenant) | format_money(false) }}</td>
+                                                            <td style="background-color: #eaeaea;">{{ apport.tenant | format_money(false) }}</td>
+                                                            <td style="background-color: #eaeaea;">{{ apport.vat | format_money(false) }}</td>
+                                                            <td style="background-color: #eaeaea;">{{ apport.owner | format_money(false) }}</td>
+                                                        </tr>
+
+                                                        {% if apport.accounts is defined %}
+                                                            {% for account_id, account in apport.accounts %}
+                                                                {% set quotites = account.shares ~ ' / ' ~ apport.shares %}
+                                                                <tr {% if is_last_apport and loop.last %}class="before-total"{% endif %}>
+                                                                    <td><div style="padding-left: 20px;">{{ account.name }}</div></td>
+                                                                    <td style="text-align: center;">{{ quotites }}</td>
+                                                                    <td>{{ account.total | format_money(false) }}</td>
+                                                                    <td>{{ (account.owner + account.tenant) | format_money(false) }}</td>
+                                                                    <td>{{ account.vat | format_money(false) }}</td>
+                                                                    <td>{{ account.owner | format_money(false) }}</td>
+                                                                    <td>{{ account.tenant | format_money(false) }}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        {% endif %}
+
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endfor %}
+
+                                            <tr class="total-footer">
+                                                <td style="text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ labels['detailed_statements.table.th.common_expenses'] }}</td>
+                                                <td></td>
+                                                <td>{{ common_total | format_money(false) }}</td>
+                                                <td>{{ (common_total_owner + common_total_tenant) | format_money(false) }}</td>
+                                                <td>{{ common_total_vat | format_money(false) }}</td>
+                                                <td>{{ common_total_owner | format_money(false) }}</td>
+                                                <td>{{ common_total_tenant | format_money(false) }}</td>
+                                            </tr>
+                                        {% endif %}
+
+                                    </tbody>
+                                </table>
+
+                                <!-- private expenses -->
+                                {% if owner.has_private_expense and has_lot_private_expense %}
+                                <table style="border-top: 0px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 33%;">{{ labels['detailed_statements.table.th.private_expenses'] }}</th>
+                                            <th style="width: 12%;"></th>
+                                            <th style="width: 11%;"></th>
+                                            <th style="width: 11%;"></th>
+                                            <th style="width: 11%;"></th>
+                                            <th style="width: 11%;"></th>
+                                            <th style="width: 11%;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for expense in lot.expenses %}
+                                            {% if expense.name == 'private_expense' %}
+                                                {% for line in expense.lines %}
+                                                    <tr {% if loop.last %} class="before-total"{% endif %}>
+                                                        <td><div style="padding-left: 20px;">{{ line.name }}</div></td>
+                                                        <td>/</td>
+                                                        <td></td>
+                                                        <td>{{ (line.owner + line.tenant) | format_money(false) }}</td>
+                                                        <td>{{ line.vat | format_money(false) }}</td>
+                                                        <td>{{ line.owner | format_money(false) }}</td>
+                                                        <td>{{ line.tenant | format_money(false) }}</td>
+                                                    </tr>
+
+                                                    {% set private_total = private_total + line.owner + line.tenant %}
+                                                    {% set private_total_owner = private_total_owner + line.owner %}
+                                                    {% set private_total_tenant = private_total_tenant + line.tenant %}
+                                                    {% set private_total_vat = private_total_vat + line.vat %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+
+
+                                        <tr class="total-footer">
+                                            <td style="text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ labels['detailed_statements.table.th.private_expenses'] }}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td>{{ private_total | format_money(false) }}</td>
+                                            <td>{{ private_total_vat | format_money(false) }}</td>
+                                            <td>{{ private_total_owner | format_money(false) }}</td>
+                                            <td>{{ private_total_tenant | format_money(false) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                {% endif %}
+                                <!-- provisions -->
+                                {% if owner.has_provisions and has_lot_provisions %}
+                                <table style="border-top: 0px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 33%;">{{ labels['detailed_statements.table.th.provisions'] }}</th>
+                                            <th style="width: 12%;"></th>
+                                            <th style="width: 11%;"></th>
+                                            <th style="width: 11%;"></th>
+                                            <th style="width: 11%;"></th>
+                                            <th style="width: 11%;"></th>
+                                            <th style="width: 11%;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for expense in lot.expenses %}
+                                            {% if expense.name == 'provisions' %}
+                                                {% set is_last_apport = 0 %}
+                                                {% for apport in expense.apportionments %}
+                                                    {% if loop.last %}
+                                                        {% set is_last_apport = 1 %}
+                                                    {% endif %}
+
+                                                    {% for account in apport.accounts %}
+                                                        {% set provisions_total_owner = provisions_total_owner + account.owner %}
+                                                    {% endfor %}
+
+                                                    {% for account in apport.accounts %}
+                                                        <tr {% if is_last_apport and loop.last %} class="before-total"{% endif %}>
+                                                            <td><div style="padding-left: 20px;">{{ labels['detailed_statements.table.td.provisions_called'] }}</div></td>
+                                                            <td>/</td>
+                                                            <td>{{ provisions_total | format_money(false) }}</td>
+                                                            <td>{{ account.owner | format_money(false) }}</td>
+                                                            <td></td>
+                                                            <td>{{ account.owner | format_money(false) }}</td>
+                                                            <td></td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+
+
+                                        <tr class="total-footer">
+                                            <td style="text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ labels['detailed_statements.table.th.provisions'] }}</td>
+                                            <td></td>
+                                            <td>{{ provisions_total | format_money(false) }}</td>
+                                            <td>{{ provisions_total_owner | format_money(false) }}</td>
+                                            <td></td>
+                                            <td>{{ provisions_total_owner | format_money(false) }}</td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                {% endif %}
+                                <!-- TOTAL lot expenses  -->
+                                <table style="border-top: 0px;">
+                                    <tbody>
+                                        <tr class="total-footer">
+                                            <td style="width: 33%; background-color: #eaeaea; text-transform: uppercase;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ lot.code }} - {{ lot.ref }}</td>
+                                            <td style="width: 12%; background-color: #eaeaea; "></td>
+                                            <td style="width: 11%; background-color: #eaeaea;">{{ (common_total + private_total + provisions_total) | format_money(false) }}</td>
+                                            <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + provisions_total_owner + common_total_tenant + private_total_tenant) | format_money(false) }}</td>
+                                            <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_vat + private_total_vat) | format_money(false) }}</td>
+                                            <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + provisions_total_owner) | format_money(false) }}</td>
+                                            <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_tenant + private_total_tenant) | format_money(false) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         {% endif %}
-
-                        {% if owner.has_provisions and has_group_provisions %}
-                        <table style="border-top: 0px;">
-                            <thead>
-                                <tr>
-                                    <th style="width: 33%;">{{ labels['detailed_statements.table.th.provisions'] }}</th>
-                                    <th style="width: 12%; text-align: center;"></th>
-                                    <th style="width: 11%;"></th>
-                                    <th style="width: 11%;"></th>
-                                    <th style="width: 11%;"></th>
-                                    <th style="width: 11%;"></th>
-                                    <th style="width: 11%;"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for account in provisions_accounts %}
-                                    <tr {% if loop.last %} class="before-total"{% endif %}>
-                                        <td><div style="padding-left: 20px;">{{ account.name }}</div></td>
-                                        <td></td>
-                                        <td>{{ account.total_amount | format_money(false) }}</td>
-                                        <td>{{ account.owner | format_money(false) }}</td>
-                                        <td></td>
-                                        <td>{{ account.owner | format_money(false) }}</td>
-                                        <td></td>
-                                    </tr>
-                                {% endfor %}
-
-                                <tr class="total-footer">
-                                    <td style="text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ labels['detailed_statements.table.th.provisions'] }}</td>
-                                    <td></td>
-                                    <td>{{ provisions_total | format_money(false) }}</td>
-                                    <td>{{ provisions_total_owner | format_money(false) }}</td>
-                                    <td></td>
-                                    <td>{{ provisions_total_owner | format_money(false) }}</td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        {% endif %}
-
-                        <table style="border-top: 0px;">
-                            <tbody>
-                                <tr class="total-footer">
-                                    <td style="width: 33%; background-color: #eaeaea; text-transform: uppercase;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ parentLot.code }} - {{ parentLot.ref }}</td>
-                                    <td style="width: 12%; background-color: #eaeaea;"></td>
-                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total + private_total + provisions_total) | format_money(false) }}</td>
-                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + provisions_total_owner + common_total_tenant + private_total_tenant) | format_money(false) }}</td>
-                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_vat + private_total_vat) | format_money(false) }}</td>
-                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + provisions_total_owner) | format_money(false) }}</td>
-                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_tenant + private_total_tenant) | format_money(false) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    {% endfor %}
 
                 {% endif %}
             {% endfor %}
