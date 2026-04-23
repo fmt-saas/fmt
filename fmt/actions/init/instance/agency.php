@@ -115,20 +115,25 @@ eQual::run('do', 'init_package', [
 ]);
 
 if(!empty($params['instance_uuid'])) {
-    // create the agency instance
+    // set uuid to instance
     Instance::id(1)->update(['uuid' => $params['instance_uuid']]);
 
     if($params['sync']) {
         // create global instance if it doesn't exist
         $global_instance_name = parse_url(constant('FMT_API_URL_GLOBAL'), PHP_URL_HOST);
-        $global_instance = Instance::search(['name', '=', $global_instance_name])->first();
+        $global_instance = Instance::search(['name', '=', $global_instance_name])->read(['user_id'])->first();
         if(!$global_instance) {
-            Instance::create([
+            $global_instance = Instance::create([
                 'server_id'     => 1,
                 'instance_type' => 'global',
                 'name'          => $global_instance_name,
                 'url'           => constant('FMT_API_URL_GLOBAL')
-            ]);
+            ])
+                ->read(['user_id'])
+                ->first();
+        }
+        if(!$global_instance['user_id']) {
+            Instance::id($global_instance['id'])->do('create_user');
         }
 
         // fetch the sync policies from global and overwrite the existing ones
