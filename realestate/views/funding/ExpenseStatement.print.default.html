@@ -341,13 +341,13 @@
             <table style="border-top: 0px;">
                 <thead>
                     <tr>
-                        <th style="width: 33%;">{{ labels['private_expenses.table.th.private_expenses'] }}</th>
-                        <th style="width: 12%;">{{ labels['private_expenses.table.th.quotas'] }}</th>
-                        <th style="width: 11%;">{{ labels['private_expenses.table.th.condo'] }}</th>
-                        <th style="width: 11%;">{{ labels['private_expenses.table.th.lot'] }}</th>
-                        <th style="width: 11%;">{{ labels['private_expenses.table.th.vat'] }}</th>
-                        <th style="width: 11%;">{{ labels['private_expenses.table.th.owner'] }}</th>
-                        <th style="width: 11%;">{{ labels['private_expenses.table.th.tenant'] }}</th>
+                        <th style="width: 33%;">{{ labels['global_summary.table.th.private_expenses'] }}</th>
+                        <th style="width: 12%;"></th>
+                        <th style="width: 11%;"></th>
+                        <th style="width: 11%;"></th>
+                        <th style="width: 11%;"></th>
+                        <th style="width: 11%;"></th>
+                        <th style="width: 11%;"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -385,7 +385,7 @@
                 </tbody>
                 <tfoot>
                     <tr class="total-footer">
-                            <td style="text-align: right;">{{ labels['private_expenses.table.footer.td.grand_totals'] }}</td>
+                            <td style="text-align: right;">{{ labels['global_summary.table.footer.td.grand_totals'] }}</td>
                             <td></td>
                             <td>{{ private_total | format_money() }}</td>
                             <td><strong>{{ (private_total_owner + private_total_tenant) | format_money() }}</strong></td>
@@ -401,13 +401,13 @@
             <table style="border-top: 0px;">
                 <thead>
                     <tr>
-                        <th style="width: 33%;">{{ labels['provisions.table.th.provisions'] }}</th>
-                        <th style="width: 12%;">{{ labels['provisions.table.th.quotas'] }}</th>
-                        <th style="width: 11%;">{{ labels['provisions.table.th.condo'] }}</th>
-                        <th style="width: 11%;">{{ labels['provisions.table.th.lot'] }}</th>
-                        <th style="width: 11%;">{{ labels['provisions.table.th.vat'] }}</th>
-                        <th style="width: 11%;">{{ labels['provisions.table.th.owner'] }}</th>
-                        <th style="width: 11%;">{{ labels['provisions.table.th.tenant'] }}</th>
+                        <th style="width: 33%;">{{ labels['global_summary.table.th.provisions'] }}</th>
+                        <th style="width: 12%;"></th>
+                        <th style="width: 11%;"></th>
+                        <th style="width: 11%;"></th>
+                        <th style="width: 11%;"></th>
+                        <th style="width: 11%;"></th>
+                        <th style="width: 11%;"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -420,7 +420,7 @@
                         {% for account in apport.accounts %}
 
                             <tr>
-                                <td><div style="padding-left: 20px;">{{ labels['provisions.table.td.provisions_called'] }}</div></td>
+                                <td><div style="padding-left: 20px;">{{ labels['global_summary.table.td.provisions_called'] }}</div></td>
                                 <td>/</td>
                                 <td>{{ provisions_total | format_money(false) }}</td>
                                 <td>{{ account.owner | format_money(false) }}</td>
@@ -445,7 +445,7 @@
             <table style="border-top: 0px;">
                 <tbody>
                     <tr class="total-footer">
-                        <td style="width: 33%; text-align: right;">{{ labels['provisions.table.footer.td.grand_totals'] }}</td>
+                        <td style="width: 33%; text-align: right;">{{ labels['global_summary.table.footer.td.grand_totals'] }}</td>
                         <td style="width: 12%;"></td>
                         <td style="width: 11%;">{{ (common_total + private_total + provisions_total) | format_money() }}</td>
                         <td style="width: 11%;">{{ (common_total_owner + private_total_owner + provisions_total_owner + common_total_tenant + private_total_tenant) | format_money() }}</td>
