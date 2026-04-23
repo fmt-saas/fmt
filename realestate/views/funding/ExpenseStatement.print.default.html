@@ -450,8 +450,8 @@
                     <tr class="total-footer">
                         <td style="background-color: white; text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ labels['detailed_statements.table.th.provisions'] }}</td>
                         <td></td>
-                        <td></td>
                         <td>{{ provisions_total | format_money(false) }}</td>
+                        <td>{{ provisions_total_owner | format_money(false) }}</td>
                         <td></td>
                         <td>{{ provisions_total_owner | format_money(false) }}</td>
                         <td></td>
@@ -524,7 +524,6 @@
                             {% set common_total_owner = 0 %}
                             {% set common_total_tenant = 0 %}
                             {% set common_total_vat = 0 %}
-                            {% set provisions_total = 0 %}
                             {% set provisions_total_owner = 0 %}
                             {% set private_total = 0 %}
                             {% set private_total_owner = 0 %}
@@ -670,7 +669,6 @@
                                         {% endif %}
 
                                         {% for account in apport.accounts %}
-                                            {% set provisions_total = provisions_total + account.owner %}
                                             {% set provisions_total_owner = provisions_total_owner + account.owner %}
                                         {% endfor %}
 
