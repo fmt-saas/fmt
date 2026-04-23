@@ -122,7 +122,7 @@ foreach($reminders as $reminder) {
     $subject = '';
     $body = '';
 
-    $template_code = 'fund_reminder_correspondence';
+    $template_code = 'fund_reminder';
 
     $template = Template::search([
         ['code', '=', $template_code],
