@@ -331,7 +331,7 @@
                     {% endfor %}
 
                     <tr class="total-footer">
-                        <td style="background-color: white; text-align: right;">{{ labels['global_summary.table.footer.td.total'] }} {{ labels['global_summary.table.th.common_expenses'] }}</td>
+                        <td style="text-align: right;">{{ labels['global_summary.table.footer.td.total'] }} {{ labels['global_summary.table.th.common_expenses'] }}</td>
                         <td></td>
                         <td>{{ common_total | format_money(false) }}</td>
                         <td><strong>{{ (common_total_owner + common_total_tenant) | format_money(false) }}</strong></td>
@@ -388,7 +388,7 @@
                 {% endfor %}
 
                     <tr class="total-footer">
-                        <td style="text-align: right; text-transform: uppercase;">{{ labels['global_summary.table.footer.td.grand_totals'] }}</td>
+                        <td style="text-align: right;">{{ labels['global_summary.table.footer.td.total'] }} {{ labels['global_summary.table.th.private_expenses'] }}</td>
                         <td></td>
                         <td>{{ private_total | format_money(false) }}</td>
                         <td><strong>{{ (private_total_owner + private_total_tenant) | format_money(false) }}</strong></td>
@@ -457,13 +457,13 @@
             <table style="border-top: 0px;">
                 <tbody>
                     <tr class="total-footer">
-                        <td style="width: 33%; background-color: #eaeaea;  text-align: right; text-transform: uppercase;">{{ labels['global_summary.table.footer.td.grand_totals'] }}</td>
-                        <td style="width: 12%; background-color: #eaeaea; "></td>
-                        <td style="width: 11%; background-color: #eaeaea; ">{{ (common_total + private_total + provisions_total) | format_money(false) }}</td>
-                        <td style="width: 11%; background-color: #eaeaea; ">{{ (common_total_owner + private_total_owner + provisions_total_owner + common_total_tenant + private_total_tenant) | format_money(false) }}</td>
-                        <td style="width: 11%; background-color: #eaeaea; ">{{ (common_total_vat + private_total_vat) | format_money(false) }}</td>
-                        <td style="width: 11%; background-color: #eaeaea; ">{{ (common_total_owner + private_total_owner + provisions_total_owner) | format_money(false) }}</td>
-                        <td style="width: 11%; background-color: #eaeaea; ">{{ (common_total_tenant + private_total_tenant) | format_money(false) }}</td>
+                        <td style="width: 33%; background-color: #eaeaea; text-transform: uppercase;">{{ labels['global_summary.table.footer.td.grand_totals'] }}</td>
+                        <td style="width: 12%; background-color: #eaeaea;"></td>
+                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total + private_total + provisions_total) | format_money(false) }}</td>
+                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + provisions_total_owner + common_total_tenant + private_total_tenant) | format_money(false) }}</td>
+                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_vat + private_total_vat) | format_money(false) }}</td>
+                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + provisions_total_owner) | format_money(false) }}</td>
+                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_tenant + private_total_tenant) | format_money(false) }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -686,7 +686,7 @@
                     <table style="border-top: 0px;">
                         <tbody>
                             <tr class="total-footer">
-                                <td style="width: 33%; background-color: #eaeaea; text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ lot.code }} - {{ lot.ref }}</td>
+                                <td style="width: 33%; background-color: #eaeaea; text-transform: uppercase;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ lot.code }} - {{ lot.ref }}</td>
                                 <td style="width: 12%; background-color: #eaeaea; "></td>
                                 <td style="width: 11%; background-color: #eaeaea; ">{{ common_total | format_money(false) }}</td>
                                 <td style="width: 11%; background-color: #eaeaea; ">{{ (common_total_owner + common_total_tenant + provisions_total + private_total) | format_money(false) }}</td>
