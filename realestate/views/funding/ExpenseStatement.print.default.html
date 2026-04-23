@@ -113,11 +113,15 @@
 
         main table tfoot tr td {
             border-right: 1px solid black;
-            
+
         }
 
         .total-footer {
             font-weight: bold;
+        }
+
+        .total-footer td {
+            border-top: 1px solid black;
         }
 
         .page-break {
@@ -614,8 +618,8 @@
                                     {% endfor %}
                                 {% endif %}
                             {% endfor %}
-                        
-                        
+
+
                             <tr class="total-footer">
                                 <td style="text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ labels['detailed_statements.table.th.private_expenses'] }}</td>
                                 <td></td>
@@ -663,8 +667,8 @@
                                     {% endfor %}
                                 {% endif %}
                             {% endfor %}
-                        
-                        
+
+
                             <tr class="total-footer">
                                 <td style="text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ labels['detailed_statements.table.th.provisions'] }}</td>
                                 <td></td>
