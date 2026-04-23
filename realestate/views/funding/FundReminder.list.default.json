@@ -11,7 +11,7 @@
                     "id": "header.selection.actions.send_email",
                     "label": "Send mails",
                     "icon": "send",
-                    "controller": "realestate_sale_pay_FundReminder_send-email"
+                    "controller": "realestate_funding_FundReminder_send-email"
                 }
             ]
         }

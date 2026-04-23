@@ -43,7 +43,7 @@
                         "icon": "notifications",
                         "description": "Monitor funding reminders.",
                         "context": {
-                            "entity": "realestate\\sale\\pay\\FundReminder",
+                            "entity": "realestate\\funding\\FundReminder",
                             "view": "list.default"
                         }
                     },

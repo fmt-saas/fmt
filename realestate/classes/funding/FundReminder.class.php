@@ -5,7 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-namespace sale\pay;
+namespace realestate\funding;
 
 class FundReminder extends \equal\orm\Model {
 
@@ -20,7 +20,8 @@ class FundReminder extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the reminder relates to.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'readonly'          => true
+                'readonly'          => true,
+                'required'          => true
             ],
 
             'name' => [
@@ -45,7 +46,7 @@ class FundReminder extends \equal\orm\Model {
             'funding_id' => [
                 'type'              => 'many2one',
                 'description'       => "The funding reminder relates to.",
-                'foreign_object'    => 'sale\pay\Funding',
+                'foreign_object'    => 'realestate\sale\pay\Funding',
                 'readonly'          => true,
                 'required'          => true
             ],
@@ -68,13 +69,22 @@ class FundReminder extends \equal\orm\Model {
                 'relation'          => ['funding_id' => 'due_date']
             ],
 
+            'ownership_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'description'       => "The ownership that the funding reminder refers to.",
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'store'             => true,
+                'relation'          => ['funding_id' => 'ownership_id']
+            ],
+
             'mails_ids' => [
                 'type'              => 'one2many',
                 'description'       => "Emails sent to remind that the overdue funding is waiting for payment.",
                 'help'              => "Should be only one.",
                 'foreign_object'    => 'core\Mail',
                 'foreign_field'     => 'object_id',
-                'domain'            => ['object_class', '=', 'sale\pay\FundReminder']
+                'domain'            => ['object_class', '=', 'realestate\funding\FundReminder']
             ]
 
         ];

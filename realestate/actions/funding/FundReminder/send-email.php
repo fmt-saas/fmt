@@ -9,7 +9,7 @@ use communication\template\Template;
 use core\Mail;
 use equal\email\Email;
 use identity\Organisation;
-use realestate\sale\pay\FundReminder;
+use realestate\funding\FundReminder;
 use fmt\setting\Setting;
 
 [$params, $providers] = eQual::announce([
@@ -17,12 +17,12 @@ use fmt\setting\Setting;
     'params'        => [
         'id' =>  [
             'type'             => 'many2one',
-            'foreign_object'   => 'realestate\sale\pay\FundReminder',
+            'foreign_object'   => 'realestate\funding\FundReminder',
             'description'      => "Identifier of the funding reminder."
         ],
         'ids' => [
             'type'              => 'one2many',
-            'foreign_object'    => 'realestate\sale\pay\FundReminder',
+            'foreign_object'    => 'realestate\funding\FundReminder',
             'description'       => 'List of reminders IDs for which we want to send emails.',
             'default'           => []
         ]
@@ -156,9 +156,9 @@ foreach($reminders as $reminder) {
                 'due_date'              => date($date_format, $reminder['due_date']),
                 'due_amount'            => Setting::format_number_currency($reminder['due_amount']),
                 'condo'                 => $reminder['condo_id']['name'],
-                'firstname'             => $reminder['owner']['firstname'],
-                'lastname'              => $reminder['owner']['lastname'],
-                'address_recipient'     => $reminder['owner']['address_recipient']
+                'firstname'             => $owner['firstname'],
+                'lastname'              => $owner['lastname'],
+                'address_recipient'     => $owner['address_recipient']
             ];
 
             // Replace {var} items with corresponding values, set in $map_values
@@ -179,7 +179,7 @@ foreach($reminders as $reminder) {
         ->setContentType("text/html")
         ->setBody($body);
 
-    $mail_id = Mail::queue($message, 'realestate\sale\pay\FundReminder', $reminder['id']);
+    $mail_id = Mail::queue($message, 'realestate\funding\FundReminder', $reminder['id']);
 
     FundReminder::id($reminder['id'])->update(['status' => 'sent']);
 }

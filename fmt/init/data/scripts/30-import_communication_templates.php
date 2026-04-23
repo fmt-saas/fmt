@@ -728,7 +728,7 @@ TemplatePart::create([
 
 TemplatePart::create([
     'name'          => 'body',
-    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Nous nous permettons de vous contacter car, sauf erreur de notre part, nous n'avons pas encore reçu le règlement d'un montant de {due_amount}, dont l'échéance était fixée au {due_date}.</p><p><br></p><p><br></p><p>Bien cordialement,</p>",
+    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Nous nous permettons de vous contacter car, sauf erreur de notre part, nous n'avons pas encore reçu le règlement d'un montant de {due_amount}, dont l'échéance était fixée au {due_date}.</p><p><br></p><p>Bien cordialement,</p>",
     'template_id'   => $template['id'],
     'variables'     => '["condo", "firstname", "lastname", "address_recipient", "due_date", "due_amount"]'
 ]);

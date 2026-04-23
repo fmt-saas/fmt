@@ -6,7 +6,7 @@
 */
 
 use realestate\sale\pay\Funding;
-use realestate\sale\pay\FundReminder;
+use realestate\funding\FundReminder;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Generate reminders of overdue fundings of funding requests and expense statements.",

@@ -243,6 +243,13 @@ class Funding extends \sale\pay\Funding {
                 'help'              => "Indicates if there is an issue with the invoice that needs attention, by providing an icon: success, info, warn, major, error.",
                 'function'          => 'calcAlert',
                 'store'             => true
+            ],
+
+            'fund_reminders_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\funding\FundReminder',
+                'foreign_field'     => 'funding_id',
+                'description'       => 'Reminders of the funding.'
             ]
         ];
     }
