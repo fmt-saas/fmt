@@ -527,12 +527,17 @@
 
                                 {% for expense in lot.expenses %}
                                     {% if expense.name == 'common_expense' %}
+                                        {% set is_last_apport = 0 %}
                                         {% for apport in expense.apportionments %}
                                             {% set quotites = apport.shares ~ ' / ' ~ apport.total_shares %}
                                             {% set apport_total = 0 %}
                                             {% set apport_owner = 0 %}
                                             {% set apport_tenant = 0 %}
                                             {% set apport_vat = 0 %}
+
+                                            {% if loop.last %}
+                                                {% set is_last_apport = 1 %}
+                                            {% endif %}
 
                                             {% for account in apport.accounts %}
                                                 {% set apport_total = apport_total + account.total_amount %}
@@ -552,7 +557,7 @@
                                             </tr>
 
                                             {% for account in apport.accounts %}
-                                                <tr {% if loop.last %} class="before-total"{% endif %}>
+                                                <tr {% if is_last_apport %} class="before-total"{% endif %}>
                                                     <td><div style="padding-left: 20px;">{{ account.name }}</div></td>
                                                     <td style="text-align: center;">{{ quotites }}</td>
                                                     <td>{{ account.total_amount | format_money(false) }}</td>
@@ -650,9 +655,14 @@
                         <tbody>
                             {% for expense in lot.expenses %}
                                 {% if expense.name == 'provisions' %}
+                                    {% set is_last_apport = 0 %}
                                     {% for apport in expense.apportionments %}
+                                        {% if loop.last %}
+                                            {% set is_last_apport = 1 %}
+                                        {% endif %}
+
                                         {% for account in apport.accounts %}
-                                            <tr {% if loop.last %} class="before-total"{% endif %}>
+                                            <tr {% if is_last_apport %} class="before-total"{% endif %}>
                                                 <td><div style="padding-left: 20px;">{{ labels['detailed_statements.table.td.provisions_called'] }}</div></td>
                                                 <td>/</td>
                                                 <td></td>
