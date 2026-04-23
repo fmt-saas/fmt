@@ -676,7 +676,7 @@
                                             <tr {% if is_last_apport and loop.last %} class="before-total"{% endif %}>
                                                 <td><div style="padding-left: 20px;">{{ labels['detailed_statements.table.td.provisions_called'] }}</div></td>
                                                 <td>/</td>
-                                                <td></td>
+                                                <td>{{ provisions_total | format_money(false) }}</td>
                                                 <td>{{ account.owner | format_money(false) }}</td>
                                                 <td></td>
                                                 <td>{{ account.owner | format_money(false) }}</td>
