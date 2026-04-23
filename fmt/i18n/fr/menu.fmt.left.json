@@ -13,6 +13,10 @@
             "label": "Traitement paiements",
             "description": "Surveiller les appels impayés et les relances."
         },
+        "item.followup.reminders_followups": {
+            "label": "Traitement rappels",
+            "description": "Surveiller les rappels des financements impayés."
+        },
         "item.imports": {
             "label": "Importer",
             "description": ""

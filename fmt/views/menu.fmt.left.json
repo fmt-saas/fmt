@@ -37,6 +37,17 @@
                         }
                     },
                     {
+                        "id": "item.followup.reminders_followups",
+                        "type": "entry",
+                        "label": "Reminders followups",
+                        "icon": "notifications",
+                        "description": "Monitor funding reminders.",
+                        "context": {
+                            "entity": "realestate\\funding\\FundReminder",
+                            "view": "list.default"
+                        }
+                    },
+                    {
                         "id": "item.documents.invoice_processings",
                         "type": "entry",
                         "label": "Invoice Processing",
