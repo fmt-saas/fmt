@@ -1111,6 +1111,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
                 $ownership_id = $statementOwner['ownership_id']['id'];
+
                 // a funding cannot be issued nor due in the past
                 $issue_date = max(strtotime('today'), $expenseStatement['posting_date']);
                 $due_date = $expenseStatement['due_date'];

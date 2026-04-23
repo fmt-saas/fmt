@@ -136,6 +136,9 @@
                 },
                 "section.payments_section": {
                     "label": "Paiements"
+                },
+                "section.reminders_section": {
+                    "label": "Rappels"
                 }
             },
             "routes": {

@@ -1,6 +1,6 @@
 {
     "name": "Financement",
-    "plural": "FinancementS",
+    "plural": "Financements",
     "description": "",
     "model": {
         "description": {
