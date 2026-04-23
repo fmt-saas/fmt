@@ -522,24 +522,24 @@
                                             {% set apport_tenant = 0 %}
                                             {% set apport_vat = 0 %}
 
-                                            <tr>
-                                                <td style="background-color: #eaeaea;">
-                                                    <div style="padding-left: 20px;"><strong>{{ apport.name }}</strong></div>
-                                                </td>
-                                                <td style="background-color: #eaeaea;"></td>
-                                                <td style="background-color: #eaeaea;"></td>
-                                                <td style="background-color: #eaeaea;"></td>
-                                                <td style="background-color: #eaeaea;"></td>
-                                                <td style="background-color: #eaeaea;"></td>
-                                                <td style="background-color: #eaeaea;"></td>
-                                            </tr>
-
                                             {% for account in apport.accounts %}
                                                 {% set apport_total = apport_total + account.total_amount %}
                                                 {% set apport_owner = apport_owner + account.owner %}
                                                 {% set apport_tenant = apport_tenant + account.tenant %}
                                                 {% set apport_vat = apport_vat + account.vat %}
+                                            {% endfor %}
 
+                                            <tr>
+                                                <td style="background-color: #eaeaea; font-weight: bold;"><div style="padding-left: 10px;"><strong>{{ apport.name }}</strong></div></td>
+                                                <td style="background-color: #eaeaea; font-weight: bold;"></td>
+                                                <td style="background-color: #eaeaea; font-weight: bold;">{{ apport_total | format_money(false) }}</td>
+                                                <td style="background-color: #eaeaea; font-weight: bold;">{{ (apport_owner + apport_tenant) | format_money(false) }}</td>
+                                                <td style="background-color: #eaeaea; font-weight: bold;">{{ apport_tenant | format_money(false) }}</td>
+                                                <td style="background-color: #eaeaea; font-weight: bold;">{{ apport_vat | format_money(false) }}</td>
+                                                <td style="background-color: #eaeaea; font-weight: bold;">{{ apport_tenant | format_money(false) }}</td>
+                                            </tr>
+
+                                            {% for account in apport.accounts %}
                                                 <tr>
                                                     <td><div style="padding-left: 40px;">{{ account.name }}</div></td>
                                                     <td style="text-align: center;">{{ quotites }}</td>
