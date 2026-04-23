@@ -14,9 +14,9 @@
     "global_summary.table.th.vat": "TVA",
     "global_summary.table.th.owner": "Prop",
     "global_summary.table.th.tenant": "Loc",
+    "global_summary.table.footer.td.total": "Total",
     "global_summary.table.footer.td.grand_totals": "Totaux généraux",
     "global_summary.table.td.provisions_called": "Provisions appelées",
-
 
     "detailed_statements.table.th.common_expenses": "Charges communes",
     "detailed_statements.table.th.private_expenses": "Frais privatifs",
@@ -27,8 +27,7 @@
     "detailed_statements.table.th.vat": "TVA",
     "detailed_statements.table.th.owner": "Prop",
     "detailed_statements.table.th.tenant": "Loc",
-    "detailed_statements.table.footer.td.grand_totals": "Totaux généraux",
     "detailed_statements.table.footer.td.total": "Total",
+    "detailed_statements.table.footer.td.grand_totals": "Totaux généraux",
     "detailed_statements.table.td.provisions_called": "Provisions appelées"
-
 }

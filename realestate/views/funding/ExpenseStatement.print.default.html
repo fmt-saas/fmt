@@ -326,7 +326,7 @@
                 </tbody>
                 <tfoot>
                     <tr class="total-footer">
-                            <td style="text-align: right;">{{ labels['global_summary.table.footer.td.total'] }} {{ labels['global_summary.table.th.common_expenses'] }}</td>
+                            <td style="background-color: white; text-align: right;">{{ labels['global_summary.table.footer.td.total'] }} {{ labels['global_summary.table.th.common_expenses'] }}</td>
                             <td></td>
                             <td>{{ common_total | format_money(false) }}</td>
                             <td><strong>{{ (common_total_owner + common_total_tenant) | format_money(false) }}</strong></td>
@@ -437,6 +437,17 @@
 
                 {% endfor %}
                 </tbody>
+                <tfoot>
+                    <tr class="total-footer">
+                        <td style="background-color: white; text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ labels['detailed_statements.table.th.provisions'] }}</td>
+                        <td></td>
+                        <td></td>
+                        <td>{{ provisions_total | format_money(false) }}</td>
+                        <td></td>
+                        <td>{{ provisions_total_owner | format_money(false) }}</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
             </table>
             {% endif %}
             <!-- consumptions -->
