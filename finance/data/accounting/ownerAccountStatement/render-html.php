@@ -6,7 +6,7 @@
 */
 
 use communication\template\Template;
-use core\setting\Setting;
+use fmt\setting\Setting;
 use identity\Organisation;
 use realestate\ownership\Ownership;
 use realestate\property\Condominium;

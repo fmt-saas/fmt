@@ -6,7 +6,7 @@
 */
 
 use communication\template\Template;
-use core\setting\Setting;
+use fmt\setting\Setting;
 use documents\DocumentSignature;
 use identity\Organisation;
 use realestate\governance\Assembly;

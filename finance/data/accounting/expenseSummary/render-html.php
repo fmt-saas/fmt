@@ -6,7 +6,7 @@
 */
 
 use communication\template\Template;
-use core\setting\Setting;
+use fmt\setting\Setting;
 use finance\accounting\FiscalYear;
 use identity\Organisation;
 use realestate\property\Condominium;

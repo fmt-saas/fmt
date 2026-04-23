@@ -4,7 +4,7 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
-use core\setting\Setting;
+use fmt\setting\Setting;
 use equal\data\DataFormatter;
 use sale\accounting\invoice\SaleInvoice;
 use Twig\TwigFilter;

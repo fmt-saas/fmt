@@ -6,7 +6,7 @@
 */
 namespace finance\accounting\invoice;
 
-use core\setting\Setting;
+use fmt\setting\Setting;
 use equal\orm\Model;
 use finance\accounting\AccountingEntry;
 

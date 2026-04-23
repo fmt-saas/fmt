@@ -139,7 +139,7 @@ class User extends \core\User {
 
             'setting_values_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'core\setting\SettingValue',
+                'foreign_object'    => 'fmt\setting\SettingValue',
                 'foreign_field'     => 'user_id',
                 'description'       => 'List of settings that relate to the user.'
             ],

@@ -7,7 +7,7 @@
 
 namespace sale\pay;
 
-use core\setting\Setting;
+use fmt\setting\Setting;
 use equal\data\DataFormatter;
 
 class Funding extends \equal\orm\Model {

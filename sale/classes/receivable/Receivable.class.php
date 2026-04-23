@@ -6,7 +6,7 @@
 */
 namespace sale\receivable;
 
-use core\setting\Setting;
+use fmt\setting\Setting;
 use equal\orm\Model;
 
 class Receivable extends Model {

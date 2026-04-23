@@ -747,7 +747,6 @@
                             </thead>
                             <tbody>
 
-
                                 {% if (owner.has_common_expense or owner.has_reserve_fund) and has_lot_common_expense %}
 
                                     {% set is_last_apport = 0 %}
@@ -767,9 +766,9 @@
                                             <td style="background-color: #eaeaea;"></td>
                                             <td style="background-color: #eaeaea;">{{ apport.total | format_money(false) }}</td>
                                             <td style="background-color: #eaeaea;">{{ (apport.owner + apport.tenant) | format_money(false) }}</td>
-                                            <td style="background-color: #eaeaea;">{{ apport.tenant | format_money(false) }}</td>
                                             <td style="background-color: #eaeaea;">{{ apport.vat | format_money(false) }}</td>
                                             <td style="background-color: #eaeaea;">{{ apport.owner | format_money(false) }}</td>
+                                            <td style="background-color: #eaeaea;">{{ apport.tenant | format_money(false) }}</td>
                                         </tr>
 
                                         {% if apport.accounts is defined %}

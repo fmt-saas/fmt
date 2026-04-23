@@ -7,7 +7,7 @@
 
 namespace realestate\sale\pay;
 
-use core\setting\Setting;
+use fmt\setting\Setting;
 use equal\data\DataFormatter;
 use finance\accounting\Matching;
 use finance\accounting\MiscOperation;
