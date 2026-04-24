@@ -5,7 +5,6 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use documents\DocumentSubtype;
 use documents\DocumentType;
 use finance\bank\Bank;
 use fmt\setting\Setting;
@@ -42,23 +41,14 @@ if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-$entities_config = [
-    SyncPolicy::getType() => [
-        'relations' => [
-            'sync_policy_lines_ids',
-            'sync_policy_conditions_ids'
-        ]
-    ],
-    DocumentType::getType() => [
-        'relations' => [
-            'document_subtypes_ids'
-        ]
-    ],
-    SupplierType::getType() => [],
-    IdentityType::getType() => [],
-    Bank::getType() => [],
-    NotaryOffice::getType() => []
-];
+$check_config = file_get_contents(EQ_BASEDIR.'/packages/fmt/actions/sync/check-init-config.json');
+if(!$check_config) {
+    throw new Exception('check_config_file_missing', EQ_ERROR_INVALID_CONFIG);
+}
+$check_config = json_decode($check_config, true);
+if(!is_array($check_config)) {
+    throw new Exception('check_config_invalid', EQ_ERROR_INVALID_CONFIG);
+}
 
 $result = [
     'packages' => [],
@@ -77,7 +67,7 @@ if($packages) {
 
 // entities
 
-foreach($entities_config as $entity => $config) {
+foreach($check_config['entities'] as $entity => $config) {
     $policy = SyncPolicy::search([
         ['object_class', '=', $entity],
         ['sync_direction', '=', 'descending']
@@ -96,7 +86,7 @@ foreach($entities_config as $entity => $config) {
     $schema = $model->getSchema();
 
     $fields = array_keys($schema);
-    foreach($config['relations'] ?? [] as $relation) {
+    foreach(array_keys($config['relations'] ?? []) as $relation) {
         $relation_model = $orm->getModel($schema[$relation]['foreign_object']);
         $relation_schema = $relation_model->getSchema();
 
@@ -108,20 +98,14 @@ foreach($entities_config as $entity => $config) {
 
 // identity
 
+$identity_fields = array_merge(
+    array_keys($check_config['main_identity']['mandatory_values']),
+    array_keys($check_config['main_identity']['default_values']),
+    $check_config['main_identity']['mandatory_relations']
+);
+
 $main_identity = Identity::id(1)
-    ->read([
-        'legal_name',
-        'short_name',
-        'registration_number',
-        'has_parent',
-        'address_street',
-        'vat_number',
-        'is_active',
-        'type_id',
-        'type',
-        'organisation_id',
-        'managing_agent_id'
-    ])
+    ->read($identity_fields)
     ->adapt('json')
     ->first(true);
 
