@@ -5,10 +5,10 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use documents\DocumentSubtype;
 use documents\DocumentType;
 use equal\http\HttpRequest;
 use finance\bank\Bank;
+use fmt\setting\Setting;
 use fmt\sync\SyncPolicy;
 use identity\IdentityType;
 use infra\server\Instance;
@@ -264,6 +264,76 @@ foreach($check_config['entities'] as $entity => $entity_config) {
         $logs,
         $check_entity($entity, $entity_config, $objects, $agency_objects)
     );
+}
+
+// 3) check main identity
+
+$default_main_identity_data = [
+    'legal_name'            => 'Nom de votre organisation',
+    'short_name'            => 'Votre nom',
+    'registration_number'   => '0755885564',
+    'address_street'        => 'Rue de l\'Eglise 1',
+    'vat_number'            => "BE0755885564"
+];
+
+if(!$data['main_identity']) {
+    $logs[] = "ERR - Missing main 'identity\\Identity'.";
+}
+else {
+    if(!$data['main_identity']['is_active']) {
+        $logs[] = "ERR - The main 'identity\\Identity' isn't active.";
+    }
+
+    if($data['main_identity']['type_id'] !== 3) {
+        $logs[] = "ERR - The main 'identity\\Identity' type_id is '{$data['main_identity']['type_id']}' instead of '3'.";
+    }
+    if($data['main_identity']['type'] !== 'CO') {
+        $logs[] = "ERR - The main 'identity\\Identity' type is '{$data['main_identity']['type']}' instead of 'CO'.";
+    }
+
+    foreach($default_main_identity_data as $field => $value) {
+        if($data['main_identity'][$field] === $value) {
+            $logs[] = "WARN - The main 'identity\\Identity' field '$field' still has the default value '$value'.";
+        }
+    }
+}
+
+// 4) check settings
+
+$settings = Setting::search()
+    ->read(['name', 'code', 'package', 'section', 'is_sequence', 'type'])
+    ->adapt('json')
+    ->get(true);
+
+// get settings not specific to condo
+$settings = array_values(
+    array_filter($settings, fn($setting) => !preg_match('/\d/', $setting['name']))
+);
+
+foreach($settings as $setting) {
+    $agency_setting = null;
+    foreach($data['settings'] as $set) {
+        if($set['name'] === $setting['name'] && $set['code'] === $setting['code'] && $set['package'] === $setting['package'] && $set['section'] === $setting['section']) {
+            $agency_setting = $set;
+        }
+    }
+
+    if(!$agency_setting) {
+        $logs[] = "ERR - Missing 'fmt\setting\Setting' {$setting['name']} (package: {$setting['package']}, section: {$setting['section']}, code: {$setting['code']}).";
+    }
+    else {
+        if($agency_setting['is_sequence'] !== $setting['is_sequence']) {
+            if($setting['is_sequence']) {
+                $logs[] = "ERR - The object 'fmt\setting\Setting' {$setting['name']} should be a sequence.";
+            }
+            else {
+                $logs[] = "ERR - The object 'fmt\setting\Setting' {$setting['name']} shouldn't be a sequence.";
+            }
+        }
+        if($agency_setting['type'] !== $setting['type']) {
+            $logs[] = "ERR - The object 'fmt\setting\Setting' {$setting['name']} should have the type {$setting['type']} (current type = {$agency_setting['type']}).";
+        }
+    }
 }
 
 if(!$handle_warnings) {
