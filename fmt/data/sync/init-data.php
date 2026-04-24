@@ -126,9 +126,20 @@ $settings = Setting::search()
     ->adapt('json')
     ->get(true);
 
+// settings by condo without a number in name
+$settings_to_ignore = [
+    'realestate.organization.ownership.sequence',
+    'realestate.organization.property_lot.sequence',
+    'realestate.organization.apportionment.sequence',
+    'realestate.organization.suppliership.sequence',
+    'realestate.organization.property_entrance.sequence',
+    'purchase.accounting.invoice.sequence',
+    'purchase.accounting.invoice.sequence_format'
+];
+
 // get settings not specific to condo
 $settings = array_values(
-    array_filter($settings, fn($setting) => !preg_match('/\d/', $setting['name']))
+    array_filter($settings, fn($setting) => !preg_match('/\d/', $setting['name']) && !in_array($setting['name'], $settings_to_ignore))
 );
 
 if(!empty($settings)) {
