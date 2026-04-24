@@ -35,9 +35,10 @@ if(constant('FMT_INSTANCE_TYPE') !== 'global') {
 }
 
 $map_init_packages = [
-    'core'      => false,
-    'identity'  => false,
-    'fmt'       => false
+    'core'          => false,
+    'identity'      => false,
+    'communication' => false,
+    'fmt'           => false
 ];
 
 if(file_exists(EQ_BASEDIR."/log/packages.json")) {
@@ -66,6 +67,15 @@ eQual::run('do', 'init_package', [
     'import_cascade'    => false,
     'ignore_platform'   => true,
     'force'             => !$map_init_packages['identity']
+]);
+
+# init identity
+eQual::run('do', 'init_package', [
+    'package'           => 'communication',
+    'import'            => true,
+    'import_cascade'    => false,
+    'ignore_platform'   => true,
+    'force'             => !$map_init_packages['communication']
 ]);
 
 # init fmt (with data)
