@@ -118,6 +118,10 @@ $check_entity = function($entity, $entity_config, $objects, $agency_objects) use
     return $logs;
 };
 
+if(constant('FMT_INSTANCE_TYPE') !== 'global') {
+    throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
+}
+
 $check_config = file_get_contents(EQ_BASEDIR.'/packages/fmt/actions/sync/check-init-config.json');
 if(!$check_config) {
     throw new Exception('check_config_file_missing', EQ_ERROR_INVALID_CONFIG);
@@ -125,10 +129,6 @@ if(!$check_config) {
 $check_config = json_decode($check_config, true);
 if(!is_array($check_config)) {
     throw new Exception('check_config_invalid', EQ_ERROR_INVALID_CONFIG);
-}
-
-if(constant('FMT_INSTANCE_TYPE') !== 'global') {
-    throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
 $instance = Instance::id($params['id'])
