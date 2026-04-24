@@ -140,7 +140,16 @@
                 "code"
             ],
             "error_fields": [],
-            "warning_fields": ["description"]
+            "warning_fields": ["description"],
+            "relations": {
+                "parts_ids": {
+                    "unique_fields": [
+                        "name"
+                    ],
+                    "error_fields": [],
+                    "warning_fields": ["variables"]
+                }
+            }
         }
     },
     "main_identity": {
