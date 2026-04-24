@@ -115,7 +115,16 @@
         "hr\\role\\Role": {
             "unique_fields": [
                 "code"
-            ]
+            ],
+            "error_fields": [],
+            "warning_fields": []
+        },
+        "realestate\\property\\PropertyLotNature": {
+            "unique_fields": [
+                "code"
+            ],
+            "error_fields": ["hierarchy"],
+            "warning_fields": []
         }
     },
     "main_identity": {
