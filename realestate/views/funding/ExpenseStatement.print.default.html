@@ -588,7 +588,6 @@
 
                     {% set private_lines = [] %}
 
-                    {% set private_total = 0 %}
                     {% set private_total_owner = 0 %}
                     {% set private_total_tenant = 0 %}
                     {% set private_total_vat = 0 %}
@@ -708,7 +707,6 @@
                                     {% for line in expense.lines %}
                                         {% set private_lines = private_lines|merge([line]) %}
 
-                                        {% set private_total = private_total + line.owner + line.tenant %}
                                         {% set private_total_owner = private_total_owner + line.owner %}
                                         {% set private_total_tenant = private_total_tenant + line.tenant %}
                                         {% set private_total_vat = private_total_vat + line.vat %}
@@ -839,11 +837,6 @@
                                         <td>{{ line.owner | format_money(false) }}</td>
                                         <td>{{ line.tenant | format_money(false) }}</td>
                                     </tr>
-
-                                    {% set private_total = private_total + line.owner + line.tenant %}
-                                    {% set private_total_owner = private_total_owner + line.owner %}
-                                    {% set private_total_tenant = private_total_tenant + line.tenant %}
-                                    {% set private_total_vat = private_total_vat + line.vat %}
                                 {% endfor %}
 
                                 <tr class="total-footer">
