@@ -1,10 +1,10 @@
 {
-    "lots_recap.h2": "Récapitulatif des lots",
     "lots_recap.table.th.references": "Références",
     "lots_recap.table.th.nature": "Nature",
     "lots_recap.table.th.quotas": "Quotités",
     "lots_recap.table.th.days": "Jours",
 
+    "global_summary.lots_recap.h2": "Récapitulatif des lots (général)",
     "global_summary.table.th.common_expenses": "Charges communes",
     "global_summary.table.th.private_expenses": "Frais privatifs",
     "global_summary.table.th.provisions": "Provisions",
@@ -18,6 +18,7 @@
     "global_summary.table.footer.td.grand_totals": "Totaux généraux",
     "global_summary.table.td.provisions_called": "Provisions appelées",
 
+    "detailed_statements.lots_recap.h2": "Récapitulatif des lots (détaillé)",
     "detailed_statements.table.th.common_expenses": "Charges communes",
     "detailed_statements.table.th.private_expenses": "Frais privatifs",
     "detailed_statements.table.th.provisions": "Provisions",
