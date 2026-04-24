@@ -504,6 +504,7 @@
                             {% if recap[key] is not defined %}
                                 {% set recap = recap | merge({
                                     (key): {
+                                        is_parent: (lot.id == parentLot.id),
                                         nature: lot.nature,
                                         date_from: lot.date_from,
                                         date_to: lot.date_to,
@@ -544,7 +545,11 @@
                             {% for row in recap %}
                                 <tr>
                                     <td>
-                                        {{ row.refs | join(', ') }}
+                                        {% if row.is_parent %}
+                                            <b>{{ row.refs | join(', ') }}</b>
+                                        {% else %}
+                                            {{ row.refs | join(', ') }}
+                                        {% endif %}
                                     </td>
                                     <td>
                                         {{ row.nature }} ({{ row.count }})
