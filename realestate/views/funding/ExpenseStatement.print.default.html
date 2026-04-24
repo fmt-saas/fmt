@@ -678,6 +678,15 @@
                                                 })
                                             }) %}
 
+                                            {% if lot.id == parentLot.id %}
+                                                {% set common_apport_totals = common_apport_totals|merge({
+                                                    (apport_key): common_apport_totals[apport_key]|merge({
+                                                        'total': common_apport_totals[apport_key].total + account.total_amount
+                                                    })
+                                                }) %}
+                                            {% endif %}
+
+
                                             {% set common_total_owner = common_total_owner + account.owner %}
                                             {% set common_total_tenant = common_total_tenant + account.tenant %}
                                             {% set common_total_vat = common_total_vat + account.vat %}
