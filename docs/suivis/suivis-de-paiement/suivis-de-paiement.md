@@ -170,6 +170,70 @@ Pour en assurer le suivi, un indicateur booléen `is_sent` est utilisé :
 
 Ce flag permet d’identifier facilement les `Funding` en attente de traitement par le gestionnaire financier (comptable, syndic, etc.) et d’éviter les doublons ou oublis lors des campagnes de remboursement.
 
+### PaymentReminder — Usage et rôle dans le modèle comptable
+
+L’entité `PaymentReminder` est conçue pour assurer le suivi des montants dus par les copropriétaires dans un contexte de copropriété (ACP). Elle est indépendante des documents comptables d’origine et se concentre sur la **situation financière actuelle** d’un copropriétaire.
+
+Son objectif est de fournir un cadre unifié pour gérer la **dette**, le **suivi des paiements** et les **actions de relance**, indépendamment de l’origine des montants dus.
+
+#### 1. La dette (ce qui est dû)
+
+Un `PaymentReminder` est toujours associé à un **montant restant dû** par un copropriétaire.
+
+Ce montant peut provenir de différents artefacts comptables, tels que :
+
+- `ExpenseStatement` (décomptes de charges)
+- `FundRequestExecution` (appels de fonds pour provisions ou dépenses exceptionnelles)
+
+Plutôt que de dépendre directement de ces documents, le `PaymentReminder` représente une **vue consolidée de la dette** à un instant donné.
+
+Il répond à la question :
+
+> *Quel est le montant que ce copropriétaire doit encore payer ?*
+
+Cela permet de :
+
+- agréger plusieurs sources de dette,
+- rester stable même si les documents sous-jacents évoluent,
+- découpler le suivi opérationnel de la structure comptable.
+
+#### 2. Le paiement (ce qui a été payé)
+
+Les paiements effectués par les copropriétaires sont gérés via l’entité `Funding`.
+
+Le `PaymentReminder` prend en compte ces paiements pour déterminer le **solde restant dû**. Il s’agit donc d’un objet dynamique qui :
+
+- reflète la **situation financière réelle** du copropriétaire,
+- intègre naturellement les paiements partiels,
+- s’appuie sur les données comptables à jour.
+
+Ainsi, les relances sont toujours basées sur :
+
+> *le montant réellement impayé, et non sur le montant initial demandé.*
+
+#### 3. La relance (l’action à entreprendre)
+
+Le rôle principal du `PaymentReminder` est de structurer les **actions de relance** à destination du copropriétaire.
+
+Il matérialise le fait que :
+
+- un montant reste impayé,
+- un paiement est attendu,
+- une action de suivi doit être engagée.
+
+Un `PaymentReminder` peut correspondre à différents niveaux de relance, par exemple :
+
+- rappel informel,
+- relance formelle,
+- mise en demeure.
+
+Il peut inclure :
+
+- une date de référence,
+- le montant dû à cette date,
+- le copropriétaire concerné,
+- un niveau ou statut de relance.
+
 ### Payment
 
 Les `Payments` représentent les mouvements bancaires (sommes **effectivement versées**).
