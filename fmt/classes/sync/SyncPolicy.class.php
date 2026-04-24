@@ -24,7 +24,6 @@ class SyncPolicy extends Model {
                 'type'              => 'string',
                 'usage'             => 'text/plain:128',
                 'description'       => 'Targeted Entity.',
-                'unique'            => true,
                 'required'          => true,
                 'dependents'        => ['name']
             ],

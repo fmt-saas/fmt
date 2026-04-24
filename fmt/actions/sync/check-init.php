@@ -51,6 +51,73 @@ use realestate\property\NotaryOffice;
  */
 ['context' => $context, 'orm' => $orm] = $providers;
 
+/**
+ * @param string $entity
+ * @param array $entity_config
+ * @param array $objects
+ * @param array $agency_objects
+ * @return array
+ */
+$check_entity = function($entity, $entity_config, $objects, $agency_objects) use(&$check_entity, $orm) {
+    $logs = [];
+
+    $unique_fields = $entity_config['unique_fields'];
+
+    foreach($objects as $object) {
+        $unique_fields_values = [];
+        foreach($unique_fields as $unique_field) {
+            $unique_fields_values[] = $object[$unique_field];
+        }
+        $unique_fields_values = implode(', ', $unique_fields_values);
+
+        $is_object_initialized = false;
+        foreach($agency_objects as $agency_object) {
+            $unique_fields_matches = 0;
+            foreach($unique_fields as $unique_field) {
+                if($agency_object[$unique_field] === $object[$unique_field]) {
+                    $unique_fields_matches++;
+                }
+            }
+
+            $is_object_initialized = $unique_fields_matches === count($unique_fields);
+
+            if($is_object_initialized) {
+                foreach($entity_config['warning_fields'] as $warning_field) {
+                    if($agency_object[$warning_field] !== $object[$warning_field]) {
+                        $logs[] = "WARN - The object '$entity' with unique fields ".implode(', ', $unique_fields)." = '$unique_fields_values' has a different value for field '$warning_field' ('$agency_object[$warning_field]' != '$object[$warning_field])'.";
+                    }
+                }
+
+                foreach($entity_config['error_fields'] as $warning_field) {
+                    if($agency_object[$warning_field] !== $object[$warning_field]) {
+                        $logs[] = "ERR - The object '$entity' with unique field ".implode(', ', $unique_fields)." = '$unique_fields_values' has a different field '$warning_field' ('$agency_object[$warning_field]' != '$object[$warning_field])'.";
+                    }
+                }
+
+                if(!empty($entity_config['relations'])) {
+                    $model = $orm->getModel($entity);
+                    $schema = $model->getSchema();
+
+                    foreach($entity_config['relations'] as $relation_field => $relation_entity_config) {
+                        $logs = array_merge(
+                            $logs,
+                            $check_entity($schema[$relation_field]['foreign_object'], $relation_entity_config, $object[$relation_field], $agency_object[$relation_field])
+                        );
+                    }
+                }
+
+                break;
+            }
+        }
+
+        if(!$is_object_initialized) {
+            $logs[] = "ERR - The object '$entity' with unique field " . implode(', ', $unique_fields) . " = '$unique_fields_values' does not exist.";
+        }
+    }
+
+    return $logs;
+};
+
 if(constant('FMT_INSTANCE_TYPE') !== 'global') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
@@ -92,37 +159,56 @@ $check_config = [
         'tracking', 'communication', 'hr', 'sale', 'stats', 'infra', 'fmt'
     ],
     'entities' => [
-        DocumentType::getType() => [
-            'unique_field'   => 'code',
-            'error_fields'   => [],
-            'warning_fields' => ['name']
+        SyncPolicy::getType() => [
+            'unique_fields' => ['object_class', 'sync_direction'],
+            'error_fields' => ['unique_field', 'scope'],
+            'warning_fields' => [],
+            'relations' => [
+                'sync_policy_lines_ids' => [
+                    'unique_fields' => ['object_field'],
+                    'error_fields' => ['scope'],
+                    'warning_fields' => []
+                ],
+                'sync_policy_conditions_ids' => [
+                    'unique_fields' => ['operand', 'operator', 'value'],
+                    'error_fields' => [],
+                    'warning_fields' => []
+                ]
+            ]
         ],
-        DocumentSubtype::getType() => [
-            'unique_field'   => 'code',
-            'error_fields'   => [],
-            'warning_fields' => ['name']
+        DocumentType::getType() => [
+            'unique_fields' => ['code'],
+            'error_fields' => [],
+            'warning_fields' => ['name'],
+            'relations' => [
+                'document_subtypes_ids' => [
+                    'unique_fields' => ['code'],
+                    'error_fields' => [],
+                    'warning_fields' => ['name']
+                ]
+            ]
         ],
         SupplierType::getType() => [
-            'unique_field'   => 'code',
-            'error_fields'   => [],
+            'unique_fields' => ['code'],
+            'error_fields' => [],
             'warning_fields' => ['name']
         ],
         IdentityType::getType() => [
-            'unique_field'   => 'code',
-            'error_fields'   => [],
+            'unique_fields' => ['code'],
+            'error_fields' => [],
             'warning_fields' => ['name']
         ],
         Bank::getType() => [
-            'unique_field'   => 'bic',
-            'error_fields'   => ['bank_account_iban', 'bank_country'],
+            'unique_fields' => ['bic'],
+            'error_fields' => ['bank_account_iban', 'bank_country'],
             'warning_fields' => ['name']
         ],
         NotaryOffice::getType() => [
-            'unique_field'   => 'registration_number',
-            'error_fields'   => [],
+            'unique_fields' => ['registration_number'],
+            'error_fields' => [],
             'warning_fields' => ['name']
         ]
-    ],
+    ]
 ];
 
 $logs = [];
@@ -140,54 +226,48 @@ foreach($check_config['packages'] as $package) {
 // 2) check entities
 
 foreach($check_config['entities'] as $entity => $entity_config) {
-    $unique_field = $entity_config['unique_field'];
-
-    $policy = SyncPolicy::search([
-        ['object_class', '=', $entity],
-        ['sync_direction', '=', 'descending']
-    ])
-        ->read(['sync_policy_conditions_ids' => ['operand', 'operator', 'value']])
-        ->first();
-
     $domain = [];
-    if(!empty($policy['sync_policy_conditions_ids'])) {
-        foreach($policy['sync_policy_conditions_ids'] as $condition) {
-            $domain[] = [$condition['operand'], $condition['operator'], $condition['value']];
+    if($entity !== SyncPolicy::getType()) {
+        $policy = SyncPolicy::search([
+            ['object_class', '=', $entity],
+            ['sync_direction', '=', 'descending']
+        ])
+            ->read(['sync_policy_conditions_ids' => ['operand', 'operator', 'value']])
+            ->first();
+
+        if(!empty($policy['sync_policy_conditions_ids'])) {
+            foreach($policy['sync_policy_conditions_ids'] as $condition) {
+                $domain[] = [$condition['operand'], $condition['operator'], $condition['value']];
+            }
         }
     }
 
     $model = $orm->getModel($entity);
     $schema = $model->getSchema();
 
-    $objects = $model::search($domain)->read(array_keys($schema))->get(true);
-    foreach($objects as $object) {
-        $is_object_initialized = false;
-        foreach($data['entities'][$entity] as $agency_object) {
-            if($agency_object[$unique_field] === $object[$unique_field]) {
-                $is_object_initialized = true;
+    $fields = array_keys($schema);
+    foreach($entity_config['relations'] ?? [] as $relation_field => $relation_entity_config) {
+        $relation_model = $orm->getModel($schema[$relation_field]['foreign_object']);
+        $relation_schema = $relation_model->getSchema();
 
-                if($handle_warnings) {
-                    foreach($entity_config['warning_fields'] as $warning_field) {
-                        if($agency_object[$warning_field] !== $object[$warning_field]) {
-                            $logs[] = "WARN - The object '$entity' with unique field $unique_field = '$object[$unique_field]' has a different value for field '$warning_field' ('$agency_object[$warning_field]' != '$object[$warning_field])'.";
-                        }
-                    }
-                }
-
-                foreach($entity_config['error_fields'] as $warning_field) {
-                    if($agency_object[$warning_field] !== $object[$warning_field]) {
-                        $logs[] = "ERR - The object '$entity' with unique field $unique_field = '$object[$unique_field]' has a different field '$warning_field' ('$agency_object[$warning_field]' != '$object[$warning_field])'.";
-                    }
-                }
-
-                break;
-            }
-        }
-
-        if(!$is_object_initialized) {
-            $logs[] = "ERR - The object '$entity' with unique field $unique_field = '$object[$unique_field]' does not exist.";
-        }
+        $fields[$relation_field] = array_keys($relation_schema);
     }
+
+    $objects = $model::search($domain)
+        ->read($fields)
+        ->adapt('json')
+        ->get(true);
+
+    $agency_objects = $data['entities'][$entity];
+
+    $logs = array_merge(
+        $logs,
+        $check_entity($entity, $entity_config, $objects, $agency_objects)
+    );
+}
+
+if(!$handle_warnings) {
+    $logs = array_filter($logs, fn($log) => !str_starts_with($log, 'WARN'));
 }
 
 $result = [
