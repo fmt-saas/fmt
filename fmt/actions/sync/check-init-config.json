@@ -111,6 +111,11 @@
             ],
             "error_fields": [],
             "warning_fields": []
+        },
+        "hr\\role\\Role": {
+            "unique_fields": [
+                "code"
+            ]
         }
     },
     "main_identity": {
