@@ -841,9 +841,9 @@
 
                                 <tr class="total-footer">
                                     <td style="text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ labels['detailed_statements.table.th.private_expenses'] }}</td>
-                                    <td></td>
-                                    <td></td>
+                                    <td>/</td>
                                     <td>{{ private_total | format_money(false) }}</td>
+                                    <td>{{ (private_total_owner + private_total_tenant) | format_money(false) }}</td>
                                     <td>{{ private_total_vat | format_money(false) }}</td>
                                     <td>{{ private_total_owner | format_money(false) }}</td>
                                     <td>{{ private_total_tenant | format_money(false) }}</td>
