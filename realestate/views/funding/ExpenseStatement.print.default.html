@@ -779,7 +779,7 @@
 
                                         {% if apport.accounts is defined %}
                                             {% for account_id, account in apport.accounts %}
-                                                {% set quotites = account.shares ~ ' / ' ~ apport.shares %}
+                                                {% set quotites = account.shares ~ ' / ' ~ apport.total_shares %}
                                                 <tr {% if is_last_apport and loop.last %}class="before-total"{% endif %}>
                                                     <td><div style="padding-left: 20px;">{{ account.name }}</div></td>
                                                     <td style="text-align: center;">{{ quotites }}</td>
