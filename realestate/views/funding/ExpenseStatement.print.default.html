@@ -666,7 +666,7 @@
                                                     'owner': common_apport_totals[apport_key].owner + account.owner,
                                                     'tenant': common_apport_totals[apport_key].tenant + account.tenant,
                                                     'vat': common_apport_totals[apport_key].vat + account.vat,
-                                                    'total': common_apport_totals[apport_key].total + account.owner + account.tenant,
+                                                    'total': common_apport_totals[apport_key].total + account.total_amount,
                                                     'accounts': (common_apport_totals[apport_key].accounts|default({}))|merge({
                                                         (account_key): common_apport_totals[apport_key].accounts[account_key]|merge({
                                                             'shares': common_apport_totals[apport_key].accounts[account_key].shares + apport.shares,
