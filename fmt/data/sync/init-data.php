@@ -39,16 +39,27 @@ if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
+$entities_config = [
+    SyncPolicy::getType() => [
+        'relations' => [
+            'sync_policy_lines_ids',
+            'sync_policy_conditions_ids'
+        ]
+    ],
+    DocumentType::getType() => [
+        'relations' => [
+            'document_subtypes_ids'
+        ]
+    ],
+    SupplierType::getType() => [],
+    IdentityType::getType() => [],
+    Bank::getType() => [],
+    NotaryOffice::getType() => []
+];
+
 $result = [
     'packages' => [],
-    'entities' => [
-        DocumentType::getType()     => [],
-        DocumentSubtype::getType()  => [],
-        SupplierType::getType()     => [],
-        IdentityType::getType()     => [],
-        Bank::getType()             => [],
-        NotaryOffice::getType()     => []
-    ]
+    'entities' => []
 ];
 
 $packages = file_get_contents(EQ_LOG_STORAGE_DIR.'/packages.json');
@@ -56,7 +67,7 @@ if($packages) {
     $result['packages'] = json_decode($packages, true);
 }
 
-foreach(array_keys($result['entities']) as $entity) {
+foreach($entities_config as $entity => $config) {
     $policy = SyncPolicy::search([
         ['object_class', '=', $entity],
         ['sync_direction', '=', 'descending']
@@ -74,7 +85,15 @@ foreach(array_keys($result['entities']) as $entity) {
     $model = $orm->getModel($entity);
     $schema = $model->getSchema();
 
-    $result['entities'][$entity] = $model::search($domain)->read(array_keys($schema))->adapt('json')->get(true);
+    $fields = array_keys($schema);
+    foreach($config['relations'] ?? [] as $relation) {
+        $relation_model = $orm->getModel($schema[$relation]['foreign_object']);
+        $relation_schema = $relation_model->getSchema();
+
+        $fields[$relation] = array_keys($relation_schema);
+    }
+
+    $result['entities'][$entity] = $model::search($domain)->read($fields)->adapt('json')->get(true);
 }
 
 $context
