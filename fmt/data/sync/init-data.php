@@ -10,6 +10,7 @@ use documents\DocumentType;
 use finance\bank\Bank;
 use fmt\setting\Setting;
 use fmt\sync\SyncPolicy;
+use hr\role\RoleAssignment;
 use identity\Identity;
 use identity\IdentityType;
 use purchase\supplier\SupplierType;
@@ -63,6 +64,7 @@ $result = [
     'packages' => [],
     'entities' => [],
     'main_identity' => [],
+    'role_assignments' => [],
     'settings' => []
 ];
 
@@ -107,12 +109,35 @@ foreach($entities_config as $entity => $config) {
 // identity
 
 $main_identity = Identity::id(1)
-    ->read(['legal_name', 'short_name', 'registration_number', 'has_parent', 'address_street', 'vat_number', 'is_active', 'type_id', 'type'])
+    ->read([
+        'legal_name',
+        'short_name',
+        'registration_number',
+        'has_parent',
+        'address_street',
+        'vat_number',
+        'is_active',
+        'type_id',
+        'type',
+        'organisation_id',
+        'managing_agent_id'
+    ])
     ->adapt('json')
     ->first(true);
 
 if($main_identity) {
     $result['main_identity']  = $main_identity;
+}
+
+// role assignments
+
+$role_assignments = RoleAssignment::search(['condo_id', '=', null])
+    ->read(['condo_id', 'role_code', 'employee_id' => ['name']])
+    ->adapt('json')
+    ->get(true);
+
+if(!empty($role_assignments)) {
+    $result['role_assignments'] = $role_assignments;
 }
 
 // settings
