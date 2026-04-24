@@ -868,8 +868,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% set is_last_apport = 1 %}
-                                <tr {% if is_last_apport and loop.last %} class="before-total"{% endif %}>
+                                <tr class="before-total">
                                     <td><div style="padding-left: 20px;">{{ labels['detailed_statements.table.td.provisions_called'] }}</div></td>
                                     <td>/</td>
                                     <td>{{ provisions_total | format_money(false) }}</td>
@@ -895,7 +894,7 @@
                         <table style="border-top: 0px;">
                             <tbody>
                                 <tr class="total-footer">
-                                    <td style="width: 33%; background-color: #eaeaea; text-transform: uppercase;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ lot.code }} - {{ lot.ref }}</td>
+                                    <td style="width: 33%; background-color: #eaeaea; text-transform: uppercase;">{{ labels['detailed_statements.table.footer.td.grand_totals'] }}</td>
                                     <td style="width: 12%; background-color: #eaeaea; "></td>
                                     <td style="width: 11%; background-color: #eaeaea;">{{ (common_total + private_total + provisions_total) | format_money(false) }}</td>
                                     <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + provisions_total_owner + common_total_tenant + private_total_tenant) | format_money(false) }}</td>
