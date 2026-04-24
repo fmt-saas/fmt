@@ -113,6 +113,9 @@ $buildOwnerExpenses = function (array $owner): array {
                     'lines'          => $expense['lines'] ?? []
                 ];
             }
+            elseif(count($expense['lines'] ?? [])) {
+                $expenses[$expense_type]['lines'] = array_merge($expenses[$expense_type]['lines'], $expense['lines']);
+            }
 
             foreach($expense['apportionments'] as $apportionment) {
                 $apportionment_id = $apportionment['id'];
@@ -162,7 +165,7 @@ $buildOwnerExpenses = function (array $owner): array {
                     }
                     // #memo total_amount is total under the account for given apportionment, and must not be summed for each lot
                     if($is_first_lot) {
-                        $expenses[$expense_type]['apportionments'][$apportionment_id]['total_amount']   += $account['total_amount'];
+                        $expenses[$expense_type]['apportionments'][$apportionment_id]['total_amount'] += $account['total_amount'];
                     }
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['total_vat']      += $account['vat'];
                     $expenses[$expense_type]['apportionments'][$apportionment_id]['total_owner']    += $account['owner'];

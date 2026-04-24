@@ -134,6 +134,9 @@ class ExpenseStatementOwner extends \equal\orm\Model {
     /**
      * Compute a structured JSON schema of the expense statement for given ownership.
      * This is used for easier rendering.
+     *
+     * example : https://test1.fmtsolutions.be/?get=model_read&ids[]=159&entity=realestate\funding\ExpenseStatementOwner&fields={schema}
+     *
      */
     protected static function calcSchema($self) {
         $result = [];
