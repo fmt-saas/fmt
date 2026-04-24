@@ -128,9 +128,11 @@
         },
         "core\\alert\\MessageModel": {
             "unique_fields": [
-                "name"
+                "category",
+                "type",
+                "code"
             ],
-            "error_fields": ["type"],
+            "error_fields": ["name", "type"],
             "warning_fields": ["label", "description"]
         }
     },
