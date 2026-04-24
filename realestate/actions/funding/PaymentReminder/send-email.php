@@ -78,12 +78,12 @@ $reminders = PaymentReminder::ids($ids)
     ->get();
 
 if(count($ids) !== count($reminders)) {
-    throw new Exception("fund_reminder_not_found", EQ_ERROR_UNKNOWN_OBJECT);
+    throw new Exception("payment_reminder_not_found", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 foreach($reminders as $reminder) {
     if($reminder['status'] !== 'not_sent') {
-        throw new Exception("fund_reminder_{$reminder['status']}", EQ_ERROR_UNKNOWN_OBJECT);
+        throw new Exception("payment_reminder_{$reminder['status']}", EQ_ERROR_UNKNOWN_OBJECT);
     }
 }
 
@@ -122,12 +122,12 @@ foreach($reminders as $reminder) {
     $subject = '';
     $body = '';
 
-    $template_code = 'fund_reminder';
+    $template_code = 'payment_reminder';
 
     $template = Template::search([
-        ['code', '=', $template_code],
-        ['type', '=', 'email']
-    ])
+            ['code', '=', $template_code],
+            ['type', '=', 'email']
+        ])
         ->read( ['id','parts_ids' => ['name', 'value']])
         ->first(true);
 

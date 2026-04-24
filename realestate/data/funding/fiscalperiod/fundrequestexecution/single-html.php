@@ -22,7 +22,7 @@ use Twig\Extension\ExtensionInterface;
 list($params, $providers) = eQual::announce([
     'description'   => 'Generate an html view of given fund request for a single ownership.',
     'params'        => [
-        'id' => [
+        'fund_request_execution_id' => [
             'description'       => 'Identifier of the specific ExpenseStatementCorrespondence to consider.',
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\funding\FundRequestExecution',
@@ -147,7 +147,7 @@ $getLabels = function ($lang, $view_i18n_file_path) {
 $fund_requests = [];
 $executions = [];
 
-$fundRequestExecution = FundRequestExecution::id($params['id'])
+$fundRequestExecution = FundRequestExecution::id($params['fund_request_execution_id'])
     ->read([
         'fund_request_id' => [
             'status',

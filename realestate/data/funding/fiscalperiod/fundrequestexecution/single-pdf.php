@@ -8,22 +8,14 @@ use Dompdf\Dompdf;
 use Dompdf\Options as DompdfOptions;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate a PDF file of given expense statement.',
+    'description'   => 'Generate a PDF file of given fund request execution.',
     'params'        => [
 
-        'expense_statement_id' => [
+        'fund_request_execution_id' => [
+            'description'       => 'Identifier of the specific ExpenseStatementCorrespondence to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\funding\ExpenseStatement',
-            'description'       => "Identifier of the Expense statement to render.",
-            'domain'            => ['condo_id', '=', 'object.condo_id'],
+            'foreign_object'    => 'realestate\funding\FundRequestExecution',
             'required'          => true
-        ],
-
-        'fiscal_period_id' => [
-            'label'             => 'Fiscal Period',
-            'description'       => 'Identifier of the targeted Fiscal Period.',
-            'type'              => 'many2one',
-            'foreign_object'    => 'finance\accounting\FiscalPeriod'
         ],
 
         'ownership_id' => [
@@ -67,9 +59,9 @@ $context = $providers['context'];
 
 try {
 
-    $html = (string) eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-html', [
-            'expense_statement_id'  => $params['expense_statement_id'],
-            'ownership_id'          => $params['ownership_id']
+    $html = (string) eQual::run('get', 'realestate_funding_fiscalperiod_fundrequestexecution_single-html', [
+            'fund_request_execution_id' => $params['fund_request_execution_id'],
+            'ownership_id'              => $params['ownership_id']
         ]);
 
     /*

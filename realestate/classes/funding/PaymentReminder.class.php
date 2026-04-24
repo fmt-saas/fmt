@@ -93,12 +93,12 @@ class PaymentReminder extends \equal\orm\Model {
     public static function calcName($self): array {
         $result = [];
         $self->read(['state', 'funding_id' => ['name']]);
-        foreach($self as $id => $fund_reminder) {
-            if($fund_reminder['state'] === 'draft') {
+        foreach($self as $id => $payment_reminder) {
+            if($payment_reminder['state'] === 'draft') {
                 continue;
             }
 
-            $result[$id] = $fund_reminder['funding_id']['name'];
+            $result[$id] = $payment_reminder['funding_id']['name'];
         }
 
         return $result;

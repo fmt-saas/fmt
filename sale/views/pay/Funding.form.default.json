@@ -170,7 +170,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "fund_reminders_ids",
+                                                "value": "payment_reminders_ids",
                                                 "width": "100%"
                                             }
                                         ]

@@ -712,7 +712,7 @@ TemplatePart::create([
 
 // email
 $template = Template::create([
-    'code'          => 'fund_reminder',
+    'code'          => 'payment_reminder',
     'description'   => 'Rappel paiement d\'un financement.',
     'category_id'   => 5,
     'type_id'       => 1

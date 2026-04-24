@@ -27,10 +27,10 @@ use realestate\funding\PaymentReminder;
 ['context' => $context, 'orm' => $orm] = $providers;
 
 $overdueFundings = Funding::search([
-    ['status', 'in', ['pending', 'debit_balance']],
-    ['funding_type', 'in', ['fund_request', 'expense_statement']],
-    ['due_date', '<=', time()]
-])
+        ['status', 'in', ['pending', 'debit_balance']],
+        ['funding_type', 'in', ['fund_request', 'expense_statement']],
+        ['due_date', '<=', time()]
+    ])
     ->read(['condo_id', 'ownership_id', 'due_date', 'due_amount'])
     ->get();
 
@@ -50,12 +50,12 @@ foreach($overdueFundings as $id => $funding) {
     }
 
     $reminder = PaymentReminder::create([
-        'condo_id'      => $funding['condo_id'],
-        'ownership_id'  => $funding['ownership_id'],
-        'funding_id'    => $id,
-        'due_date'      => $funding['due_date'],
-        'due_amount'    => $funding['due_amount']
-    ])
+            'condo_id'      => $funding['condo_id'],
+            'ownership_id'  => $funding['ownership_id'],
+            'funding_id'    => $id,
+            'due_date'      => $funding['due_date'],
+            'due_amount'    => $funding['due_amount']
+        ])
         ->read(['id'])
         ->first();
 
