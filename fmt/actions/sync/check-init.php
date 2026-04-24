@@ -118,6 +118,15 @@ $check_entity = function($entity, $entity_config, $objects, $agency_objects) use
     return $logs;
 };
 
+$check_config = file_get_contents(EQ_BASEDIR.'/packages/fmt/actions/sync/check-init-config.json');
+if(!$check_config) {
+    throw new Exception('check_config_file_missing', EQ_ERROR_INVALID_CONFIG);
+}
+$check_config = json_decode($check_config, true);
+if(!is_array($check_config)) {
+    throw new Exception('check_config_invalid', EQ_ERROR_INVALID_CONFIG);
+}
+
 if(constant('FMT_INSTANCE_TYPE') !== 'global') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
@@ -149,67 +158,6 @@ if($response->getStatusCode() !== 200) {
 }
 
 $data = $response->body();
-
-// #memo - Key 'error_fields' means that if value for that field is not the same then an error is added
-// #memo - Key 'warning_fields' means that if value for that field is not the same then a warning is added
-
-$check_config = [
-    'packages' => [
-        'core', 'identity', 'documents', 'finance', 'purchase', 'realestate',
-        'tracking', 'communication', 'hr', 'sale', 'stats', 'infra', 'fmt'
-    ],
-    'entities' => [
-        SyncPolicy::getType() => [
-            'unique_fields' => ['object_class', 'sync_direction'],
-            'error_fields' => ['unique_field', 'scope'],
-            'warning_fields' => [],
-            'relations' => [
-                'sync_policy_lines_ids' => [
-                    'unique_fields' => ['object_field'],
-                    'error_fields' => ['scope'],
-                    'warning_fields' => []
-                ],
-                'sync_policy_conditions_ids' => [
-                    'unique_fields' => ['operand', 'operator', 'value'],
-                    'error_fields' => [],
-                    'warning_fields' => []
-                ]
-            ]
-        ],
-        DocumentType::getType() => [
-            'unique_fields' => ['code'],
-            'error_fields' => [],
-            'warning_fields' => ['name'],
-            'relations' => [
-                'document_subtypes_ids' => [
-                    'unique_fields' => ['code'],
-                    'error_fields' => [],
-                    'warning_fields' => ['name']
-                ]
-            ]
-        ],
-        SupplierType::getType() => [
-            'unique_fields' => ['code'],
-            'error_fields' => [],
-            'warning_fields' => ['name']
-        ],
-        IdentityType::getType() => [
-            'unique_fields' => ['code'],
-            'error_fields' => [],
-            'warning_fields' => ['name']
-        ],
-        Bank::getType() => [
-            'unique_fields' => ['bic'],
-            'error_fields' => ['bank_account_iban', 'bank_country'],
-            'warning_fields' => ['name']
-        ],
-        NotaryOffice::getType() => [
-            'unique_fields' => ['registration_number'],
-            'error_fields' => [],
-            'warning_fields' => ['name']
-        ]
-    ]
-];
 
 $logs = [];
 
@@ -268,47 +216,32 @@ foreach($check_config['entities'] as $entity => $entity_config) {
 
 // 3) check main identity
 
-$default_main_identity_data = [
-    'legal_name'            => 'Nom de votre organisation',
-    'short_name'            => 'Votre nom',
-    'registration_number'   => '0755885564',
-    'address_street'        => 'Rue de l\'Eglise 1',
-    'vat_number'            => "BE0755885564"
-];
-
 if(!$data['main_identity']) {
     $logs[] = "ERR - Missing main 'identity\\Identity'.";
 }
 else {
-    if(!$data['main_identity']['is_active']) {
-        $logs[] = "ERR - The main 'identity\\Identity' isn't active.";
+    foreach($check_config['main_identity']['mandatory_values'] as $key => $value) {
+        if($data['main_identity'][$key] !== $value) {
+            $logs[] = "ERR - The main 'identity\\Identity' type is '{$data['main_identity']['type']}' instead of '$value'.";
+        }
     }
 
-    if($data['main_identity']['type_id'] !== 3) {
-        $logs[] = "ERR - The main 'identity\\Identity' type_id is '{$data['main_identity']['type_id']}' instead of '3'.";
-    }
-    if($data['main_identity']['type'] !== 'CO') {
-        $logs[] = "ERR - The main 'identity\\Identity' type is '{$data['main_identity']['type']}' instead of 'CO'.";
-    }
-
-    foreach($default_main_identity_data as $field => $value) {
+    foreach($check_config['main_identity']['default_values'] as $field => $value) {
         if($data['main_identity'][$field] === $value) {
             $logs[] = "WARN - The main 'identity\\Identity' field '$field' still has the default value '$value'.";
         }
     }
 
-    if(!$data['main_identity']['organisation_id']) {
-        $logs[] = "ERR - Missing main 'identity\\Organisation'.";
-    }
-
-    if(!$data['main_identity']['managing_agent_id']) {
-        $logs[] = "ERR - Missing main 'realestate\\management\\ManagingAgent'.";
+    foreach($check_config['main_identity']['mandatory_relations'] as $field) {
+        if(!$data['main_identity'][$field]) {
+            $logs[] = "ERR - Missing main '$field'.";
+        }
     }
 }
 
 // 4) role assignments
 
-$mandatory_roles = ['accountant', 'condo_manager', 'document_dispatch_officer'];
+$mandatory_roles = $check_config['role_assignments'];
 foreach($mandatory_roles as $mandatory_role) {
     $agency_ra = null;
     foreach($data['role_assignments'] as $ra) {
@@ -343,19 +276,19 @@ foreach($settings as $setting) {
     }
 
     if(!$agency_setting) {
-        $logs[] = "ERR - Missing 'fmt\setting\Setting' {$setting['name']} (package: {$setting['package']}, section: {$setting['section']}, code: {$setting['code']}).";
+        $logs[] = "ERR - Missing 'fmt\\setting\\Setting' {$setting['name']} (package: {$setting['package']}, section: {$setting['section']}, code: {$setting['code']}).";
     }
     else {
         if($agency_setting['is_sequence'] !== $setting['is_sequence']) {
             if($setting['is_sequence']) {
-                $logs[] = "ERR - The object 'fmt\setting\Setting' {$setting['name']} should be a sequence.";
+                $logs[] = "ERR - The object 'fmt\\setting\\Setting' {$setting['name']} should be a sequence.";
             }
             else {
-                $logs[] = "ERR - The object 'fmt\setting\Setting' {$setting['name']} shouldn't be a sequence.";
+                $logs[] = "ERR - The object 'fmt\\setting\\Setting' {$setting['name']} shouldn't be a sequence.";
             }
         }
         if($agency_setting['type'] !== $setting['type']) {
-            $logs[] = "ERR - The object 'fmt\setting\Setting' {$setting['name']} should have the type {$setting['type']} (current type = {$agency_setting['type']}).";
+            $logs[] = "ERR - The object 'fmt\\setting\\Setting' {$setting['name']} should have the type {$setting['type']} (current type = {$agency_setting['type']}).";
         }
     }
 }

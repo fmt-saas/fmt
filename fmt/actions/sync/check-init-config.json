@@ -1,0 +1,131 @@
+{
+    "packages": [
+        "core",
+        "identity",
+        "documents",
+        "finance",
+        "purchase",
+        "realestate",
+        "tracking",
+        "communication",
+        "hr",
+        "sale",
+        "stats",
+        "infra",
+        "fmt"
+    ],
+    "entities": {
+        "fmt\\sync\\SyncPolicy": {
+            "unique_fields": [
+                "object_class",
+                "sync_direction"
+            ],
+            "error_fields": [
+                "unique_field",
+                "scope"
+            ],
+            "warning_fields": [],
+            "relations": {
+                "sync_policy_lines_ids": {
+                    "unique_fields": [
+                        "object_field"
+                    ],
+                    "error_fields": [
+                        "scope"
+                    ],
+                    "warning_fields": []
+                },
+                "sync_policy_conditions_ids": {
+                    "unique_fields": [
+                        "operand",
+                        "operator",
+                        "value"
+                    ],
+                    "error_fields": [],
+                    "warning_fields": []
+                }
+            }
+        },
+        "documents\\DocumentType": {
+            "unique_fields": [
+                "code"
+            ],
+            "error_fields": [],
+            "warning_fields": [
+                "name"
+            ],
+            "relations": {
+                "document_subtypes_ids": {
+                    "unique_fields": [
+                        "code"
+                    ],
+                    "error_fields": [],
+                    "warning_fields": [
+                        "name"
+                    ]
+                }
+            }
+        },
+        "purchase\\supplier\\SupplierType": {
+            "unique_fields": [
+                "code"
+            ],
+            "error_fields": [],
+            "warning_fields": [
+                "name"
+            ]
+        },
+        "identity\\IdentityType": {
+            "unique_fields": [
+                "code"
+            ],
+            "error_fields": [],
+            "warning_fields": [
+                "name"
+            ]
+        },
+        "finance\\bank\\Bank": {
+            "unique_fields": [
+                "bic"
+            ],
+            "error_fields": [
+                "bank_account_iban",
+                "bank_country"
+            ],
+            "warning_fields": [
+                "name"
+            ]
+        },
+        "realestate\\property\\NotaryOffice": {
+            "unique_fields": [
+                "registration_number"
+            ],
+            "error_fields": [],
+            "warning_fields": [
+                "name"
+            ]
+        }
+    },
+    "main_identity": {
+        "mandatory_values": {
+            "is_active": true,
+            "type": "CO"
+        },
+        "mandatory_relations": [
+            "organisation_id",
+            "managing_agent_id"
+        ],
+        "default_values": {
+            "legal_name": "Nom de votre organisation",
+            "short_name": "Votre nom",
+            "registration_number": "0755885564",
+            "address_street": "Rue de l'Eglise 1",
+            "vat_number": "BE0755885564"
+        }
+    },
+    "role_assignments": [
+        "accountant",
+        "condo_manager",
+        "document_dispatch_officer"
+    ]
+}
