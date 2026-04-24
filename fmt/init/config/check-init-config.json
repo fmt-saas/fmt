@@ -128,12 +128,19 @@
         },
         "core\\alert\\MessageModel": {
             "unique_fields": [
+                "name"
+            ],
+            "error_fields": ["type"],
+            "warning_fields": ["label", "description"]
+        },
+        "communication\\template\\Template": {
+            "unique_fields": [
                 "category",
                 "type",
                 "code"
             ],
-            "error_fields": ["name", "type"],
-            "warning_fields": ["label", "description"]
+            "error_fields": [],
+            "warning_fields": ["description"]
         }
     },
     "main_identity": {
