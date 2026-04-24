@@ -139,9 +139,11 @@
         "default_values": {
             "legal_name": "Nom de votre organisation",
             "short_name": "Votre nom",
-            "registration_number": "0755885564",
-            "address_street": "Rue de l'Eglise 1",
-            "vat_number": "BE0755885564"
+            "registration_number": "0000000000",
+            "address_street": "Nom de votre rue et numéro",
+            "address_zip": "0000",
+            "address_city": "Nom de votre ville",
+            "vat_number": "BE0000000000"
         }
     },
     "role_assignments": [

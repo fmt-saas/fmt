@@ -5,15 +5,10 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use documents\DocumentType;
 use equal\http\HttpRequest;
-use finance\bank\Bank;
 use fmt\setting\Setting;
 use fmt\sync\SyncPolicy;
-use identity\IdentityType;
 use infra\server\Instance;
-use purchase\supplier\SupplierType;
-use realestate\property\NotaryOffice;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Check that a given agency instance is correctly initialized.',
@@ -122,11 +117,11 @@ if(constant('FMT_INSTANCE_TYPE') !== 'global') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-$check_config = file_get_contents(EQ_BASEDIR.'/packages/fmt/actions/sync/check-init-config.json');
-if(!$check_config) {
+$check_config_raw = file_get_contents(EQ_BASEDIR.'/packages/fmt/init/config/check-init-config.json');
+if(!$check_config_raw) {
     throw new Exception('check_config_file_missing', EQ_ERROR_INVALID_CONFIG);
 }
-$check_config = json_decode($check_config, true);
+$check_config = json_decode($check_config_raw, true);
 if(!is_array($check_config)) {
     throw new Exception('check_config_invalid', EQ_ERROR_INVALID_CONFIG);
 }
