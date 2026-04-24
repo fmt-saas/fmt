@@ -59,10 +59,6 @@ use realestate\property\NotaryOffice;
  * @return array
  */
 $check_entity = function($entity, $entity_config, $objects, $agency_objects) use(&$check_entity, $orm) {
-    if($entity === 'finance\tax\VatRule') {
-        file_put_contents(QN_LOG_STORAGE_DIR.'/tmp.log', json_encode($objects).PHP_EOL, FILE_APPEND | LOCK_EX);
-        file_put_contents(QN_LOG_STORAGE_DIR.'/tmp.log', json_encode($agency_objects).PHP_EOL, FILE_APPEND | LOCK_EX);
-    }
     $logs = [];
 
     $unique_fields = $entity_config['unique_fields'];
