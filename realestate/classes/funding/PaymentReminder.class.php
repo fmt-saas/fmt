@@ -7,7 +7,7 @@
 
 namespace realestate\funding;
 
-class FundReminder extends \equal\orm\Model {
+class PaymentReminder extends \equal\orm\Model {
 
     public static function getDescription(): string {
         return "A funding reminder streamlines the process of alerting customers when a funding due date has passed and the corresponding payment remains outstanding.";
@@ -30,17 +30,6 @@ class FundReminder extends \equal\orm\Model {
                 'description'       => 'Display name of funding reminder.',
                 'function'          => 'calcName',
                 'store'             => true
-            ],
-
-            'status' => [
-                'type'              => 'string',
-                'selection'         => [
-                    'not_sent',
-                    'sent',
-                    'cancelled'
-                ],
-                'description'       => "The current status of the reminder.",
-                'default'           => 'not_sent'
             ],
 
             'funding_id' => [
@@ -84,7 +73,18 @@ class FundReminder extends \equal\orm\Model {
                 'help'              => "Should be only one.",
                 'foreign_object'    => 'core\Mail',
                 'foreign_field'     => 'object_id',
-                'domain'            => ['object_class', '=', 'realestate\funding\FundReminder']
+                'domain'            => ['object_class', '=', 'realestate\funding\PaymentReminder']
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'not_sent',
+                    'sent',
+                    'cancelled'
+                ],
+                'description'       => "The current status of the reminder.",
+                'default'           => 'not_sent'
             ]
 
         ];

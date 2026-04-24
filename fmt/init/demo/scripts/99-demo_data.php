@@ -242,6 +242,7 @@ $fundRequest = FundRequest::create([
 
 FundRequestLine::create([
         'condo_id'          => $condominiums_ids[0],
+        'name'              => 'provisions',
         'fund_request_id'   => $fundRequest['id'],
         'apportionment_id'  => 2,
         'request_amount'    => 6000.00

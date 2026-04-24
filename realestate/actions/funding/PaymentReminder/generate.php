@@ -6,7 +6,7 @@
 */
 
 use realestate\sale\pay\Funding;
-use realestate\funding\FundReminder;
+use realestate\funding\PaymentReminder;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Generate reminders of overdue fundings of funding requests and expense statements.",
@@ -36,7 +36,7 @@ $overdueFundings = Funding::search([
 
 $overdue_fundings_ids = array_keys($overdueFundings);
 
-$existing_reminders = FundReminder::search(['funding_id', 'in', $overdue_fundings_ids])
+$existing_reminders = PaymentReminder::search(['funding_id', 'in', $overdue_fundings_ids])
     ->read(['funding_id'])
     ->get(true);
 
@@ -49,7 +49,7 @@ foreach($overdueFundings as $id => $funding) {
         continue;
     }
 
-    $reminder = FundReminder::create([
+    $reminder = PaymentReminder::create([
         'condo_id'      => $funding['condo_id'],
         'ownership_id'  => $funding['ownership_id'],
         'funding_id'    => $id,

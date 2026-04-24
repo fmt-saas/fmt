@@ -6,7 +6,7 @@
             "id": "action.send_mail",
             "label": "Send mail",
             "description": "Send funding payment reminder email.",
-            "controller": "realestate_funding_FundReminder_send-email",
+            "controller": "realestate_funding_PaymentReminder_send-email",
             "visible": ["status", "=", "not_sent"]
         }
     ],

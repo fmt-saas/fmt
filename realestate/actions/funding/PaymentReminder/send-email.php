@@ -9,7 +9,7 @@ use communication\template\Template;
 use core\Mail;
 use equal\email\Email;
 use identity\Organisation;
-use realestate\funding\FundReminder;
+use realestate\funding\PaymentReminder;
 use fmt\setting\Setting;
 
 [$params, $providers] = eQual::announce([
@@ -17,12 +17,12 @@ use fmt\setting\Setting;
     'params'        => [
         'id' =>  [
             'type'             => 'many2one',
-            'foreign_object'   => 'realestate\funding\FundReminder',
+            'foreign_object'   => 'realestate\funding\PaymentReminder',
             'description'      => "Identifier of the funding reminder."
         ],
         'ids' => [
             'type'              => 'one2many',
-            'foreign_object'    => 'realestate\funding\FundReminder',
+            'foreign_object'    => 'realestate\funding\PaymentReminder',
             'description'       => 'List of reminders IDs for which we want to send emails.',
             'default'           => []
         ]
@@ -50,7 +50,7 @@ if(empty($ids)) {
     throw new Exception("missing_id", EQ_ERROR_INVALID_PARAM);
 }
 
-$reminders = FundReminder::ids($ids)
+$reminders = PaymentReminder::ids($ids)
     ->read([
         'status',
         'due_date',
@@ -179,9 +179,9 @@ foreach($reminders as $reminder) {
         ->setContentType("text/html")
         ->setBody($body);
 
-    $mail_id = Mail::queue($message, 'realestate\funding\FundReminder', $reminder['id']);
+    $mail_id = Mail::queue($message, 'realestate\funding\PaymentReminder', $reminder['id']);
 
-    FundReminder::id($reminder['id'])->update(['status' => 'sent']);
+    PaymentReminder::id($reminder['id'])->update(['status' => 'sent']);
 }
 
 $context

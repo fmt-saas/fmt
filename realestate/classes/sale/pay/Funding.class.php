@@ -247,7 +247,7 @@ class Funding extends \sale\pay\Funding {
 
             'fund_reminders_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'realestate\funding\FundReminder',
+                'foreign_object'    => 'realestate\funding\PaymentReminder',
                 'foreign_field'     => 'funding_id',
                 'description'       => 'Reminders of the funding.'
             ]

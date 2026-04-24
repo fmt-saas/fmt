@@ -22,11 +22,18 @@ class FundRequestLine extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'name' => [
+                'type'              => 'string',
+                'description'       => "Short description of the request line.",
+                'required'          => true
+            ],
+
             'fund_request_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\FundRequest',
                 'description'       => "Fund request the line relates to.",
                 'ondelete'          => 'cascade',
+                'onupdate'          => 'onupdateFundRequestId',
                 'required'          => true
             ],
 
@@ -69,6 +76,13 @@ class FundRequestLine extends \equal\orm\Model {
             ]
 
         ];
+    }
+
+    protected static function onupdateFundRequestId($self) {
+        $self->read(['fund_request_id' => ['name']]);
+        foreach($self as $id => $requestLine) {
+            self::id($id)->update(['name' => $requestLine['fund_request_id']['name']]);
+        }
     }
 
     public static function calcCalledAmount($self) {
