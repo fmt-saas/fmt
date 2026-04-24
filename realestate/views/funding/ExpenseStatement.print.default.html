@@ -579,7 +579,6 @@
                     {% set common_total_tenant = 0 %}
                     {% set common_total_vat = 0 %}
 
-                    {% set provisions_total = 0 %}
                     {% set provisions_total_owner = 0 %}
 
                     {% set private_lines = [] %}
@@ -721,7 +720,6 @@
                                     {% for apport in expense.apportionments %}
 
                                         {% for account in apport.accounts %}
-                                            {% set provisions_total = provisions_total + account.total_amount %}
                                             {% set provisions_total_owner = provisions_total_owner + account.owner %}
                                         {% endfor %}
 
@@ -772,11 +770,11 @@
                                                 </div>
                                             </td>
                                             <td style="background-color: #eaeaea;"></td>
-                                            <td style="background-color: #eaeaea;">{{ apport.total | format_money(false) }}</td>
-                                            <td style="background-color: #eaeaea;">{{ (apport.owner + apport.tenant) | format_money(false) }}</td>
-                                            <td style="background-color: #eaeaea;">{{ apport.vat | format_money(false) }}</td>
-                                            <td style="background-color: #eaeaea;">{{ apport.owner | format_money(false) }}</td>
-                                            <td style="background-color: #eaeaea;">{{ apport.tenant | format_money(false) }}</td>
+                                            <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.total | format_money(false) }}</td>
+                                            <td style="background-color: #eaeaea; font-weight: bold;">{{ (apport.owner + apport.tenant) | format_money(false) }}</td>
+                                            <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.vat | format_money(false) }}</td>
+                                            <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.owner | format_money(false) }}</td>
+                                            <td style="background-color: #eaeaea; font-weight: bold;">{{ apport.tenant | format_money(false) }}</td>
                                         </tr>
 
                                         {% if apport.accounts is defined %}
