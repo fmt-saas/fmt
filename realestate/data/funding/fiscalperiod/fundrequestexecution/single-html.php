@@ -159,8 +159,6 @@ $fundRequestExecution = FundRequestExecution::id($params['id'])
             'date_from',
             'date_to',
             'entry_lots_ids' => [
-                '@domain' => ['ownership_id', '=', $params['ownership_id']],
-                'ownership_id',
                 'apportionment_shares',
                 'allocated_amount',
                 'property_lot_id'   => ['name', 'code', 'property_lot_ref'],
@@ -173,6 +171,12 @@ $fundRequestExecution = FundRequestExecution::id($params['id'])
             'ownership_id',
             'price',
             'invoice_id' => ['emission_date', 'due_date', 'status']
+        ],
+        'execution_line_entries_ids' => [
+            '@domain' => ['ownership_id', '=', $params['ownership_id']],
+            'ownership_id',
+            'property_lot_id',
+            'called_amount'
         ],
         'condo_id' => [
             'name', 'address_street', 'address_zip', 'address_city',
@@ -197,8 +201,9 @@ if(!$fundRequestExecution) {
 
 $fundRequest = $fundRequestExecution['fund_request_id'];
 
-$executions = [];
 
+$map_property_lots_ids = [];
+$executions = [];
 $fund_request = [
         'name'          => $fundRequest['name'],
         'lines'         => [],
@@ -206,7 +211,14 @@ $fund_request = [
         'total'         => 0.0
     ];
 
+foreach($fundRequestExecution['execution_line_entries_ids'] as $executionLineEntry) {
+    $map_property_lots_ids[$executionLineEntry['property_lot_id']] = true;
+}
+
 foreach($fundRequest['entry_lots_ids'] as $entry_lot) {
+    if(!isset($map_property_lots_ids[$entry_lot['property_lot_id']['id']])) {
+        continue;
+    }
     $line = [
         'name'          => $entry_lot['property_lot_id']['name'],
         'code'          => $entry_lot['property_lot_id']['code'],
@@ -219,18 +231,17 @@ foreach($fundRequest['entry_lots_ids'] as $entry_lot) {
     $fund_request['lines'][] = $line;
 }
 
-foreach($fundRequestExecution['execution_lines_ids'] as $execution_line) {
-    if($execution_line['invoice_id']['status'] === 'cancelled') {
+foreach($fundRequestExecution['execution_lines_ids'] as $executionLine) {
+    if($executionLine['invoice_id']['status'] === 'cancelled') {
         continue;
     }
     $line = [
-        'issue_date'    => $execution_line['invoice_id']['emission_date'],
-        'due_date'      => $execution_line['invoice_id']['due_date'],
+        'issue_date'    => $executionLine['invoice_id']['emission_date'],
+        'due_date'      => $executionLine['invoice_id']['due_date'],
         'fund_request'  => $fundRequest['name'],
-        'amount'        => $execution_line['price']
+        'amount'        => $executionLine['price']
     ];
     $executions[] = $line;
-
 }
 
 
