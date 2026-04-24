@@ -104,6 +104,13 @@
             "warning_fields": [
                 "name"
             ]
+        },
+        "finance\\tax\\VatRule": {
+            "unique_fields": [
+                "rate"
+            ],
+            "error_fields": [],
+            "warning_fields": []
         }
     },
     "main_identity": {
