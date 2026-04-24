@@ -69,7 +69,7 @@ eQual::run('do', 'init_package', [
     'force'             => !$map_init_packages['identity']
 ]);
 
-# init identity
+# init communication
 eQual::run('do', 'init_package', [
     'package'           => 'communication',
     'import'            => true,
