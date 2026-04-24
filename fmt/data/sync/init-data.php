@@ -8,7 +8,9 @@
 use documents\DocumentSubtype;
 use documents\DocumentType;
 use finance\bank\Bank;
+use fmt\setting\Setting;
 use fmt\sync\SyncPolicy;
+use identity\Identity;
 use identity\IdentityType;
 use purchase\supplier\SupplierType;
 use realestate\property\NotaryOffice;
@@ -59,13 +61,19 @@ $entities_config = [
 
 $result = [
     'packages' => [],
-    'entities' => []
+    'entities' => [],
+    'main_identity' => [],
+    'settings' => []
 ];
+
+// packages
 
 $packages = file_get_contents(EQ_LOG_STORAGE_DIR.'/packages.json');
 if($packages) {
     $result['packages'] = json_decode($packages, true);
 }
+
+// entities
 
 foreach($entities_config as $entity => $config) {
     $policy = SyncPolicy::search([
@@ -94,6 +102,33 @@ foreach($entities_config as $entity => $config) {
     }
 
     $result['entities'][$entity] = $model::search($domain)->read($fields)->adapt('json')->get(true);
+}
+
+// identity
+
+$main_identity = Identity::id(1)
+    ->read(['legal_name', 'short_name', 'registration_number', 'has_parent', 'address_street', 'vat_number', 'is_active', 'type_id', 'type'])
+    ->adapt('json')
+    ->first(true);
+
+if($main_identity) {
+    $result['main_identity']  = $main_identity;
+}
+
+// settings
+
+$settings = Setting::search()
+    ->read(['name', 'code', 'package', 'section', 'is_sequence', 'type', 'string'])
+    ->adapt('json')
+    ->get(true);
+
+// get settings not specific to condo
+$settings = array_values(
+    array_filter($settings, fn($setting) => !preg_match('/\d/', $setting['name']))
+);
+
+if(!empty($settings)) {
+    $result['settings'] = $settings;
 }
 
 $context
