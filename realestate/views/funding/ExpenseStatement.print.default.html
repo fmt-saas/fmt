@@ -647,7 +647,7 @@
                                                             (account_key): {
                                                                 'id': account.id,
                                                                 'name': account.name,
-                                                                'total': account.total_amount,
+                                                                'total': 0,
                                                                 'shares': 0,
                                                                 'lot': 0,
                                                                 'vat': 0,
@@ -666,7 +666,7 @@
                                                     'owner': common_apport_totals[apport_key].owner + account.owner,
                                                     'tenant': common_apport_totals[apport_key].tenant + account.tenant,
                                                     'vat': common_apport_totals[apport_key].vat + account.vat,
-                                                    'total': common_apport_totals[apport_key].total + account.total_amount,
+
                                                     'accounts': (common_apport_totals[apport_key].accounts|default({}))|merge({
                                                         (account_key): common_apport_totals[apport_key].accounts[account_key]|merge({
                                                             'shares': common_apport_totals[apport_key].accounts[account_key].shares + apport.shares,
@@ -678,6 +678,14 @@
                                                     })
                                                 })
                                             }) %}
+
+                                            {% if lot.id == parentLot.id %}
+                                                {% set common_apport_totals = common_apport_totals|merge({
+                                                    (apport_key): common_apport_totals[apport_key]|merge({
+                                                        'total': common_apport_totals[apport_key].total + account.total_amount
+                                                    })
+                                                }) %}
+                                            {% endif %}
 
                                             {% set common_total_owner = common_total_owner + account.owner %}
                                             {% set common_total_tenant = common_total_tenant + account.tenant %}
