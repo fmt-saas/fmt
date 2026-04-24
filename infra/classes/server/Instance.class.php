@@ -76,8 +76,7 @@ class Instance extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'core\User',
                 'description'       => 'User for API requests from the instance to Global instance.',
-                'help'              => 'This User is intended to be set on Global instance only and is expected to be created automatically at instance creation.',
-                'visible'           => ['instance_type', '=', 'agency']
+                'help'              => "Created automatically at instance creation, allows access from the foreign instance to this instance's API."
             ],
 
             'managing_agent_id' => [
@@ -92,21 +91,16 @@ class Instance extends Model {
 
     protected static function policyCanCreateUser($self) {
         $result = [];
-        $self->read(['user_id', 'instance_type']);
+        $self->read(['instance_type', 'user_id']);
         foreach($self as $id => $instance) {
-            if(constant('FMT_INSTANCE_TYPE') !== 'global') {
+            if($instance['instance_type'] === constant('FMT_INSTANCE_TYPE')) {
                 $result[$id] = [
-                    'not_global' => "The instance's user already exists."
+                    'not_needed' => "The instance doesn't need access to other instances of the same type."
                 ];
             }
             elseif($instance['user_id']) {
                 $result[$id] = [
                     'existing_user' => "The instance's user already exists."
-                ];
-            }
-            elseif($instance['instance_type'] !== 'agency') {
-                $result[$id] = [
-                    'wrong_instance_type' => "An user can be created for agency instances only."
                 ];
             }
         }
@@ -181,7 +175,7 @@ class Instance extends Model {
     protected static function onafterupdate($self) {
         $self->read(['instance_type', 'user_id']);
         foreach($self as $id => $instance) {
-            if(constant('FMT_INSTANCE_TYPE') === 'global' && $instance['instance_type'] === 'agency' && !$instance['user_id']) {
+            if($instance['instance_type'] !== constant('FMT_INSTANCE_TYPE') && !$instance['user_id']) {
                 self::id($id)->do('create_user');
             }
         }
