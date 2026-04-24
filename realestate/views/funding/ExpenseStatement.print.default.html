@@ -627,7 +627,7 @@
                                                     'id': apport.id,
                                                     'name': apport.name,
                                                     'total': 0,
-                                                    'shares': apport.shares,
+                                                    'shares': apport.total_shares,
                                                     'owner': 0,
                                                     'tenant': 0,
                                                     'vat': 0,
@@ -663,7 +663,6 @@
 
                                             {% set common_apport_totals = common_apport_totals|merge({
                                                 (apport_key): common_apport_totals[apport_key]|merge({
-                                                    'total': common_apport_totals[apport_key].total + account.total_amount,
                                                     'owner': common_apport_totals[apport_key].owner + account.owner,
                                                     'tenant': common_apport_totals[apport_key].tenant + account.tenant,
                                                     'vat': common_apport_totals[apport_key].vat + account.vat,
