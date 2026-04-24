@@ -296,9 +296,33 @@ else {
             $logs[] = "WARN - The main 'identity\\Identity' field '$field' still has the default value '$value'.";
         }
     }
+
+    if(!$data['main_identity']['organisation_id']) {
+        $logs[] = "ERR - Missing main 'identity\\Organisation'.";
+    }
+
+    if(!$data['main_identity']['managing_agent_id']) {
+        $logs[] = "ERR - Missing main 'realestate\\management\\ManagingAgent'.";
+    }
 }
 
-// 4) check settings
+// 4) role assignments
+
+$mandatory_roles = ['accountant', 'condo_manager', 'document_dispatch_officer'];
+foreach($mandatory_roles as $mandatory_role) {
+    $agency_ra = null;
+    foreach($data['role_assignments'] as $ra) {
+        if(is_null($ra['condo_id']) && $ra['role_code'] === $mandatory_role && $ra['employee_id']) {
+            $agency_ra = $ra;
+        }
+    }
+
+    if(!$agency_ra) {
+        $logs[] = "ERR - Missing 'hr\\role\\RoleAssignment' for code '$mandatory_role'.";
+    }
+}
+
+// 5) check settings
 
 $settings = Setting::search()
     ->read(['name', 'code', 'package', 'section', 'is_sequence', 'type'])
