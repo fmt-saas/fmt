@@ -125,6 +125,13 @@
             ],
             "error_fields": ["hierarchy"],
             "warning_fields": []
+        },
+        "core\\alert\\MessageModel": {
+            "unique_fields": [
+                "name"
+            ],
+            "error_fields": ["type"],
+            "warning_fields": ["label", "description"]
         }
     },
     "main_identity": {
