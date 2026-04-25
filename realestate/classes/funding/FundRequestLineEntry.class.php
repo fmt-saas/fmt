@@ -13,6 +13,12 @@ class FundRequestLineEntry extends \equal\orm\Model {
         return 'Fund Request Line Entry';
     }
 
+    public static function getDescription() {
+        return "This entity represents the allocation of a Fund Request line for a specific Ownership.
+            It aggregates the amounts distributed across the owner's property lots based on the related apportionment.
+            The resulting amount corresponds to the total requested from the owner for this Fund Request line, calculated as the sum of prorated amounts according to their shares.";
+    }
+
     public static function getColumns() {
         return [
             'condo_id' => [
@@ -53,7 +59,18 @@ class FundRequestLineEntry extends \equal\orm\Model {
                 'usage'             => 'amount/money:4',
                 'function'          => 'calcAllocatedAmount',
                 'store'             => true,
-                'description'       => 'Total amount currently requested to co-owners.'
+                'description'       => 'Total allocated amount for the fund request line.',
+                'help'              => 'Total amount allocated to the ownership for this fund request line, calculated as the sum of the amounts allocated to each related property lots.'
+            ],
+
+            'apportionment_shares' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'usage'             => 'amount/natural',
+                'function'          => 'calcApportionmentShares',
+                'store'             => true,
+                'description'       => 'Amount of shares of the ownership has for related apportionment.',
+                'help'              => 'Total apportionment shares of the ownership for this fund request line, calculated as the sum of shares across its related property lots.'
             ],
 
             'apportionment_id' => [
@@ -65,15 +82,6 @@ class FundRequestLineEntry extends \equal\orm\Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_statutory', '=', false]],
                 'store'             => true,
                 'readonly'          => true
-            ],
-
-            'apportionment_shares' => [
-                'type'              => 'computed',
-                'result_type'       => 'integer',
-                'usage'             => 'amount/natural',
-                'function'          => 'calcApportionmentShares',
-                'store'             => true,
-                'description'       => "Amount of shares the owner has for related apportionment, based on property lot.",
             ],
 
             'entry_lots_ids' => [

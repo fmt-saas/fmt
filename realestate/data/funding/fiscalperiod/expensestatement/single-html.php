@@ -521,7 +521,7 @@ $values = array_merge($values, [
     'recipient'           => $owner['identity_id'],
 
     'funding'             => $funding,
-    'payment_qr_code_uri' => $getPaymentQrCodeUri($fiscalPeriod['condo_id']['legal_name'], $fiscalPeriod['condo_id']['bank_account_iban'], $fiscalPeriod['condo_id']['bank_account_bic'], $funding['payment_reference'], $funding['remaining_amount']),
+    'payment_qr_code_uri' => $getPaymentQrCodeUri($fiscalPeriod['condo_id']['legal_name'], $fiscalPeriod['condo_id']['bank_account_iban'], $fiscalPeriod['condo_id']['bank_account_bic'], $funding['payment_reference'] ?? '', $funding['remaining_amount'] ?? 0),
 
     'date'                => time(),
     'timezone'            => constant('L10N_TIMEZONE'),

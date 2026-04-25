@@ -141,7 +141,6 @@
                 </thead>
                 <tbody>
 
-
                     <tr>
                         <td colspan="5" style="text-align: left;">
                             <strong>{{ fund_request.name }}</strong>
@@ -150,11 +149,6 @@
 
                     {% for line in fund_request.lines %}
                     <tr>
-                        <td colspan="5">
-                            {{ line.name }}
-                        </td>
-                    </tr>
-                    <tr>
                         <td>
                             <!-- {{ line.code }}<br /> -->
                         </td>
@@ -162,13 +156,13 @@
                             {{ line.apportionment }}
                         </td>
                         <td style="text-align: right;">
-                            {{ line.total | format_money() }}
+                            {{ line.request_amount | format_money() }}
                         </td>
                         <td style="text-align: right;">
-                            {{ line.shares }}
+                            {{ line.owner_shares }}
                         </td>
                         <td style="text-align: right;">
-                            {{ line.amount | format_money() }}
+                            {{ line.owner_total | format_money() }}
                         </td>
                     </tr>
                     {% endfor %}
@@ -177,10 +171,8 @@
                         <td colspan="3" style="border-top: solid 1px black !important; text-align: right;">
                             <strong>{{ labels['operations.table.footer.th.total'] }}</strong>
                         </td>
-                        <td style="border-top: solid 1px black !important; text-align: right;"><strong>{{ fund_request.total | format_money() }}</strong></td>
+                        <td style="border-top: solid 1px black !important; text-align: right;"><strong>{{ fund_request.owner_total | format_money() }}</strong></td>
                     </tr>
-
-
 
                 </tbody>
             </table>
@@ -244,20 +236,22 @@
                 </thead>
                 <tbody>
                 {% for execution in executions %}
+                    {% for execution_line in executions['execution_lines_ids'] %}
                     <tr>
                         <td style="text-align: center;">
-                            {{ execution.issue_date | date(date_format, timezone) }}<br />
+                            {{ execution.posting_date | date(date_format, timezone) }}<br />
                         </td>
                         <td style="text-align: center;">
                             {{ execution.due_date | date(date_format, timezone) }}<br />
                         </td>
                         <td>
-                            {{ execution.fund_request }}
+                            {{ execution.price | format_money() }}
                         </td>
                         <td style="text-align: right;">
-                            {{ execution.amount | format_money() }}
+                            {{ execution_line.price | format_money() }}
                         </td>
                     </tr>
+                    {% endfor %}
                 {% endfor %}
 
                 </tbody>

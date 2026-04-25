@@ -13,6 +13,11 @@ class FundRequestLineEntryLot extends \equal\orm\Model {
         return 'Fund Request Line Entry Lot';
     }
 
+    public static function getDescription() {
+        return "Represents the allocation of a fund request line at the property lot level.
+            Each entry defines the shares and allocated amount for a specific lot, which are used to compute the total shares and allocated amount at the ownership level (FundRequestLineEntry).";
+    }
+
     public static function getColumns() {
         return [
             'condo_id' => [
@@ -34,7 +39,9 @@ class FundRequestLineEntryLot extends \equal\orm\Model {
                 'description'       => "Fund request line the entry lot relates to."
             ],
 
+            // #deprecated
             'ownership_id' => [
+                'deprecated'        => 'ownership reference applies only to fund_request_line_entry',
                 'type'              => 'many2one',
                 'description'       => "The ownership that the owner refers to.",
                 'foreign_object'    => 'realestate\ownership\Ownership'

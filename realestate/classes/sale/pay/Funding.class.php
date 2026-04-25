@@ -10,8 +10,6 @@ namespace realestate\sale\pay;
 use fmt\setting\Setting;
 use equal\data\DataFormatter;
 use finance\accounting\Matching;
-use finance\accounting\MiscOperation;
-use finance\bank\BankStatementLine;
 use hr\role\RoleAssignment;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\finance\accounting\MoneyRefund;

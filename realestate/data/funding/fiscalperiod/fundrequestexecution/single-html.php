@@ -11,6 +11,7 @@ use finance\accounting\FiscalYear;
 use identity\Organisation;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecution;
+use realestate\funding\FundRequestExecutionLineEntry;
 use realestate\ownership\Owner;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
@@ -19,7 +20,7 @@ use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
 
 
-list($params, $providers) = eQual::announce([
+[$params, $providers] = eQual::announce([
     'description'   => 'Generate an html view of given fund request for a single ownership.',
     'params'        => [
         'fund_request_execution_id' => [
@@ -105,16 +106,16 @@ $getPaymentQrCodeUri = function($legal_name, $bank_account_iban, $bank_account_b
     $result = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAoMBgDTD2qgAAAAASUVORK5CYII=';
     try {
         $image = eQual::run('get', 'finance_payment_generate-qr-code', [
-                'recipient_name'    => $legal_name,
-                'recipient_iban'    => $bank_account_iban,
-                'recipient_bic'     => $bank_account_bic,
-                'payment_reference' => $payment_reference,
-                'payment_amount'    => $amount
-            ]);
+            'recipient_name'    => $legal_name,
+            'recipient_iban'    => $bank_account_iban,
+            'recipient_bic'     => $bank_account_bic,
+            'payment_reference' => $payment_reference,
+            'payment_amount'    => $amount
+        ]);
         $result = sprintf('data:%s;base64,%s',
-                'image/png',
-                base64_encode($image)
-            );
+            'image/png',
+            base64_encode($image)
+        );
     }
     catch(Exception $e) {
         trigger_error("APP::unable to generate QR code for $bank_account_iban: " . $e->getMessage(), EQ_REPORT_WARNING);
@@ -143,44 +144,29 @@ $getLabels = function ($lang, $view_i18n_file_path) {
     );
 };
 
-
-$fund_requests = [];
-$executions = [];
-
 $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution_id'])
     ->read([
-        'fund_request_id' => [
-            'status',
-            'name',
-            'request_date',
-            'has_date_range',
-            'date_range_frequency',
-            'fiscal_period_id' => ['name', 'date_from', 'date_to'],
-            'date_from',
-            'date_to',
-            'entry_lots_ids' => [
-                'apportionment_shares',
-                'allocated_amount',
-                'property_lot_id'   => ['name', 'code', 'property_lot_ref'],
-                'request_line_id'   => ['apportionment_id' => ['name', 'total_shares'], 'request_amount'],
-                'line_entry_id'     => ['allocated_amount']
-            ]
+        'fund_request_id',
+        'date_from',
+        'date_to',
+        'posting_date',
+        'due_date',
+        'price',
+        'status',
+        // #memo - there should be only one funding matching the ownership
+        'fundings_ids' => [
+            '@domain' => ['ownership_id', '=', $params['ownership_id']],
+            'payment_reference',
+            'remaining_amount'
         ],
+        // #memo - there should be only one execution line matching the ownership
         'execution_lines_ids' => [
             '@domain' => ['ownership_id', '=', $params['ownership_id']],
-            'ownership_id',
-            'price',
-            'invoice_id' => ['emission_date', 'due_date', 'status']
-        ],
-        'execution_line_entries_ids' => [
-            '@domain' => ['ownership_id', '=', $params['ownership_id']],
-            'ownership_id',
-            'property_lot_id',
-            'called_amount'
+            'price'
         ],
         'condo_id' => [
-            'name', 'address_street', 'address_zip', 'address_city',
-            'registration_number',
+            'name', 'legal_name', 'address_street', 'address_zip', 'address_city',
+            'registration_number', 'bank_account_iban', 'bank_account_bic',
             'managing_agent_id' => [
                 'name', 'address_street', 'address_dispatch', 'address_zip',
                 'address_city', 'address_country', 'has_vat', 'vat_number',
@@ -194,56 +180,83 @@ $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution
     ])
     ->first();
 
-
+/*
+// #memo - on ne peut pas donner le détail du calcul quotités par exécution : il n'existe pas puisque le découpage est fait sur un nombre arbitraire de périodes
+*/
 if(!$fundRequestExecution) {
     throw new Exception('unknown_fund_request_execution', EQ_ERROR_INVALID_PARAM);
 }
 
-$fundRequest = $fundRequestExecution['fund_request_id'];
+if($fundRequestExecution['status'] === 'cancelled') {
+    throw new Exception('cancelled_fund_request_execution', EQ_ERROR_INVALID_PARAM);
+}
 
+$fundRequest = FundRequest::id($fundRequestExecution['fund_request_id'])
+    ->read([
+        'status',
+        'name',
+        'request_date',
+        'request_amount',
+        'has_date_range',
+        'date_range_frequency',
+        'date_from',
+        'date_to',
+        'fiscal_period_id' => [
+            'name',
+            'date_from',
+            'date_to'
+        ],
+        'request_lines_ids' => ['name', 'request_amount', 'apportionment_id' => ['name']],
+        'line_entries_ids'  => [
+            '@domain' => ['ownership_id', '=', $params['ownership_id']],
+            'apportionment_shares',
+            'allocated_amount',
+            'request_line_id'
+        ],
+        'request_executions_ids' => [
+            'posting_date',
+            'due_date',
+            'price',
+            'execution_lines_ids' => [
+                '@domain' => ['ownership_id', '=', $params['ownership_id']],
+                'price'
+            ]
+        ]
+    ])
+    ->first();
 
-$map_property_lots_ids = [];
-$executions = [];
+if($fundRequest['status'] === 'cancelled') {
+    throw new Exception('cancelled_fund_request', EQ_ERROR_INVALID_PARAM);
+}
+
+$execution = $fundRequestExecution->toArray();
+
+$funding = $fundRequestExecution['fundings_ids']->first(true);
+
+$executions = $fundRequest['request_executions_ids']->get(true);
+
 $fund_request = [
         'name'          => $fundRequest['name'],
         'lines'         => [],
-        'executions'    => [],
-        'total'         => 0.0
+        'owner_total'   => 0.0
     ];
 
-foreach($fundRequestExecution['execution_line_entries_ids'] as $executionLineEntry) {
-    $map_property_lots_ids[$executionLineEntry['property_lot_id']] = true;
+$map_request_line_entries = [];
+
+foreach($fundRequest['line_entries_ids'] as $request_line_entry_id => $requestLineEntry) {
+    $map_request_line_entries[$requestLineEntry['request_line_id']] = $requestLineEntry;
 }
 
-foreach($fundRequest['entry_lots_ids'] as $entry_lot) {
-    if(!isset($map_property_lots_ids[$entry_lot['property_lot_id']['id']])) {
-        continue;
-    }
-    $line = [
-        'name'          => $entry_lot['property_lot_id']['name'],
-        'code'          => $entry_lot['property_lot_id']['code'],
-        'apportionment' => $entry_lot['request_line_id']['apportionment_id']['name'],
-        'total'         => $entry_lot['request_line_id']['request_amount'],
-        'shares'        => $entry_lot['apportionment_shares'] . '/' . $entry_lot['request_line_id']['apportionment_id']['total_shares'],
-        'amount'        => $entry_lot['allocated_amount']
+foreach($fundRequest['request_lines_ids'] as $request_line_id => $requestLine) {
+    $fund_request['lines'][] = [
+        'apportionment'     => $requestLine['apportionment_id']['name'],
+        'request_amount'    => $requestLine['request_amount'],
+        'owner_shares'      => $map_request_line_entries[$request_line_id]['apportionment_shares'] ?? 0,
+        'owner_total'       => $map_request_line_entries[$request_line_id]['allocated_amount'] ?? 0
     ];
-    $fund_request['total'] += $entry_lot['allocated_amount'];
-    $fund_request['lines'][] = $line;
-}
 
-foreach($fundRequestExecution['execution_lines_ids'] as $executionLine) {
-    if($executionLine['invoice_id']['status'] === 'cancelled') {
-        continue;
-    }
-    $line = [
-        'issue_date'    => $executionLine['invoice_id']['emission_date'],
-        'due_date'      => $executionLine['invoice_id']['due_date'],
-        'fund_request'  => $fundRequest['name'],
-        'amount'        => $executionLine['price']
-    ];
-    $executions[] = $line;
+    $fund_request['owner_total'] += $map_request_line_entries[$request_line_id]['allocated_amount'];
 }
-
 
 $organisation = Organisation::id(1)
     ->read([
@@ -329,25 +342,14 @@ foreach($template['parts_ids'] as $part_id => $part) {
     }
 }
 
-// adapt specific properties to TXT output
-/*
-$invoice['payment_reference'] = DataFormatter::format($invoice['payment_reference'], 'scor');
-$invoice['organisation_id']['bank_account_iban'] = DataFormatter::format($invoice['organisation_id']['bank_account_iban'], 'iban');
-$invoice['organisation_id']['phone'] = DataFormatter::format($invoice['organisation_id']['phone'], 'phone');
-*/
-
 $labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'FundRequest.'.$params['view_id']));
 
 $values = [
     'title'               => $subject,
     'introduction'        => $introduction,
 
-    'fiscal_period'       => [
-            'date_from'     => $fundRequest['fiscal_period_id']['date_from'],
-            'date_to'       => $fundRequest['fiscal_period_id']['date_to'],
-        ],
-
     'fund_request'        => $fund_request,
+    'execution'           => $execution,
     'executions'          => $executions,
 
     'organisation'        => $organisation,
@@ -357,7 +359,9 @@ $values = [
 
     'recipient'           => $owner['identity_id'],
 
-//    'payment_qr_code_uri' => $getPaymentQrCodeUri($invoice),
+    'funding'             => $funding,
+    'payment_qr_code_uri' => $getPaymentQrCodeUri($fundRequestExecution['condo_id']['legal_name'], $fundRequestExecution['condo_id']['bank_account_iban'], $fundRequestExecution['condo_id']['bank_account_bic'], $funding['payment_reference'] ?? '', $funding['remaining_amount'] ?? 0),
+
     'date'                => time(),
     'timezone'            => constant('L10N_TIMEZONE'),
     'locale'              => constant('L10N_LOCALE'),
@@ -395,12 +399,12 @@ try {
             })
         );
 
-    $template = $twig->load('FundRequestExecution.'.$params['view_id'].'.html');
+    $template = $twig->load('FundRequestExecution.' . $params['view_id'] . '.html');
     $html = $template->render($values);
 
 }
 catch(Exception $e) {
-    trigger_error('APP::Error while rendering template'.$e->getMessage(), EQ_REPORT_ERROR);
+    trigger_error('APP::Error while rendering template' . $e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
 }
 
