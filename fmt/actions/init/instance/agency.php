@@ -32,7 +32,7 @@ use infra\server\Instance;
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_INTERNAL_TOKEN'],
+    'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_INTERNAL_TOKEN', 'FMT_API_URL_GLOBAL'],
     'providers'     => ['context']
 ]);
 
@@ -74,9 +74,10 @@ if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
 }
 
 $map_init_packages = [
-    'core'      => false,
-    'identity'  => false,
-    'fmt'       => false
+    'core'          => false,
+    'identity'      => false,
+    'communication' => false,
+    'fmt'           => false
 ];
 if(file_exists(EQ_BASEDIR."/log/packages.json")) {
     $json = file_get_contents(EQ_BASEDIR."/log/packages.json");
@@ -90,14 +91,14 @@ if($map_init_packages['fmt']) {
     throw new Exception('fmt_already_initialized', EQ_ERROR_NOT_ALLOWED);
 }
 
-# init core
+// init core
 eQual::run('do', 'init_package', [
     'package'           => 'core',
     'ignore_platform'   => true,
     'force'             => !$map_init_packages['core']
 ]);
 
-# init identity
+// init identity
 eQual::run('do', 'init_package', [
     'package'           => 'identity',
     'import'            => true,
@@ -106,7 +107,16 @@ eQual::run('do', 'init_package', [
     'force'             => !$map_init_packages['identity']
 ]);
 
-# init fmt (with data)
+# init communication
+eQual::run('do', 'init_package', [
+    'package'           => 'communication',
+    'import'            => true,
+    'import_cascade'    => false,
+    'ignore_platform'   => true,
+    'force'             => !$map_init_packages['communication']
+]);
+
+// init fmt (with data)
 eQual::run('do', 'init_package', [
     'package'           => 'fmt',
     'import'            => true,
@@ -115,10 +125,31 @@ eQual::run('do', 'init_package', [
 ]);
 
 if(!empty($params['instance_uuid'])) {
+    // set uuid to instance
     Instance::id(1)->update(['uuid' => $params['instance_uuid']]);
 
     if($params['sync']) {
+        // create global instance if it doesn't exist
+        $global_instance_name = parse_url(constant('FMT_API_URL_GLOBAL'), PHP_URL_HOST);
+        $global_instance = Instance::search(['name', '=', $global_instance_name])->read(['user_id'])->first();
+        if(!$global_instance) {
+            $global_instance = Instance::create([
+                'server_id'     => 1,
+                'instance_type' => 'global',
+                'name'          => $global_instance_name,
+                'url'           => constant('FMT_API_URL_GLOBAL')
+            ])
+                ->read(['user_id'])
+                ->first();
+        }
+        if(!$global_instance['user_id']) {
+            Instance::id($global_instance['id'])->do('create_user');
+        }
+
+        // fetch the sync policies from global and overwrite the existing ones
         eQual::run('do', 'fmt_sync_SyncPolicy_pull-from-global', ['reset' => true]);
+
+        // pull data from global depending on the sync policies
         eQual::run('do', 'fmt_sync_pull-from-global', ['accept' => true]);
     }
 }

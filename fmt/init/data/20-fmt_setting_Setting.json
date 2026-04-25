@@ -413,66 +413,6 @@
         "lang": "fr",
         "data": [
             {
-                "id": 1011,
-                "title": "Format de commande",
-                "description": "Format de commande",
-                "help": "Format pour la num\u00e9rotation des r\u00e9servations."
-            },
-            {
-                "id": 1012,
-                "title": "Séquence pour les références de commande",
-                "description": "",
-                "help": ""
-            },
-            {
-                "id": 1013,
-                "title": "Jours de validit\u00e9 d'une option",
-                "description": "Jours de validit\u00e9 d'une option",
-                "help": "Nombre de jours de validit\u00e9 d'une option."
-            },
-            {
-                "id": 1014,
-                "title": "Invoices sequence format",
-                "description": "Format for invoices sequence (number).",
-                "help": "Format for the sequence of the invoices (according to accounting conventions)."
-            },
-            {
-                "id": 1015,
-                "title": "Année fiscale",
-                "description": "Année fiscale en cours..",
-                "help": "Année fiscale courante à utiliser pour l'émission des factures."
-            },
-            {
-                "id": 1016,
-                "title": "Séquence des factures",
-                "description": "Format de séquence des factures.",
-                "help": "Format de séquence à utiliser pour la numéroatation des factures."
-            },
-            {
-                "id": 1017,
-                "title": "Compte des Ventes",
-                "description": "Compte comptable par défaut pour les ventes.",
-                "help": "Compte pour l'enregistrement des ventes clients."
-            },
-            {
-                "id": 1018,
-                "title": "Compte des taxes de vente",
-                "description": "Compte comptable pour les taxes de vente.",
-                "help": "Compte pour l'enregistrement comptable des taxes liées aux ventes clients."
-            },
-            {
-                "id": 1019,
-                "title": "Compte débiteur",
-                "description": "Compte comptable débiteur commercial.",
-                "help": "Compte comptable pour les services facturés dont le paiement n'a pas encore été reçu."
-            },
-            {
-                "id": 1020,
-                "title": "Produit pour Acomptes",
-                "description": "SKU à utiliser pour les acomptes.",
-                "help": "Produit du catalogue à utiliser pour les acomptes facturés (le poduit est censé être associé à une règle comptable)."
-            },
-            {
                 "id": 1050,
                 "title": "Titre facture",
                 "description": "Libellé du titre de facture.",
