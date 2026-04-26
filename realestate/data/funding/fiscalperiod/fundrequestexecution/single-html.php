@@ -144,6 +144,7 @@ $getLabels = function ($lang, $view_i18n_file_path) {
     );
 };
 
+/** @var \realestate\funding\FundRequestExecution $fundRequestExecution */
 $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution_id'])
     ->read([
         'fund_request_id',
@@ -191,6 +192,7 @@ if($fundRequestExecution['status'] === 'cancelled') {
     throw new Exception('cancelled_fund_request_execution', EQ_ERROR_INVALID_PARAM);
 }
 
+/** @var \realestate\funding\FundRequest $fundRequest */
 $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id'])
     ->read([
         'status',

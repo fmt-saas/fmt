@@ -565,7 +565,9 @@ class FundRequest extends \equal\orm\Model {
 
     public static function doGenerateAllocation($self) {
         $self->read([
-                'condo_id' => ['id'],
+                'condo_id',
+                'date_from',
+                'date_to',
                 'request_lines_ids' => ['request_amount', 'apportionment_id' => ['id', 'total_shares']]
             ]);
 
@@ -583,6 +585,7 @@ class FundRequest extends \equal\orm\Model {
             }
 
             $map_apportionment_shares = [];
+
             if(count($apportionments_ids)) {
                 $apportionmentShares = PropertyLotApportionmentShare::search([
                         ['apportionment_id', 'in', array_keys($apportionments_ids)]
@@ -592,6 +595,22 @@ class FundRequest extends \equal\orm\Model {
                 foreach($apportionmentShares as $apportionmentShare) {
                     $map_apportionment_shares[$apportionmentShare['apportionment_id']][] = $apportionmentShare;
                 }
+            }
+
+            // retrieve ownerships currently assigned to property lots
+            // we can only have a single one for each property lot : the ownership at the time of the FundRequest
+            $propertyLotOwnerships = PropertyLotOwnership::search([
+                    [['condo_id', '=', $fundRequest['condo_id']], ['date_from', '<=', $fundRequest['date_from']], ['date_to', '=', null]],
+                    [['condo_id', '=', $fundRequest['condo_id']], ['date_to', '>=', $fundRequest['date_from']]]
+                ])
+                ->read([
+                    'property_lot_id',
+                    'ownership_id'
+                ]);
+
+            $map_property_lot_ownership = [];
+            foreach($propertyLotOwnerships as $propertyLotOwnership) {
+                $map_property_lot_ownership[$propertyLotOwnership['property_lot_id']] = $propertyLotOwnership['ownership_id'];
             }
 
             foreach($fundRequest['request_lines_ids'] as $request_line_id => $requestLine) {
@@ -604,24 +623,34 @@ class FundRequest extends \equal\orm\Model {
                     throw new \Exception("missing_total_shares_for_apportionment_{$apportionment_id}", EQ_ERROR_INVALID_PARAM);
                 }
 
-                $lineEntry = FundRequestLineEntry::create([
-                        'condo_id'          => $fundRequest['condo_id']['id'],
-                        'fund_request_id'   => $id,
-                        'request_line_id'   => $request_line_id
-                    ])
-                    ->first();
+                $map_ownership_line_entry = [];
 
                 foreach($map_apportionment_shares[$apportionment_id] ?? [] as $apportionmentShare) {
+                    $property_lot_id = $apportionmentShare['property_lot_id'];
+                    $ownership_id = $map_property_lot_ownership[$property_lot_id] ?? null;
+
+                    if(!isset($map_ownership_line_entry[$ownership_id])) {
+                        $map_ownership_line_entry[$ownership_id] = FundRequestLineEntry::create([
+                                'condo_id'          => $fundRequest['condo_id'],
+                                'fund_request_id'   => $id,
+                                'request_line_id'   => $request_line_id,
+                                'ownership_id'      => $ownership_id
+                            ])
+                            ->first();
+                    }
+
+                    $lineEntry = $map_ownership_line_entry[$ownership_id];
+
                     $amount = $requestLine['request_amount'] * ($apportionmentShare['property_lot_shares'] / $total_shares);
                     $rounded_amount = round($amount, 2);
                     $allocated_cents += self::amountToCents($rounded_amount);
 
                     $entryLot = FundRequestLineEntryLot::create([
-                            'condo_id'              => $fundRequest['condo_id']['id'],
+                            'condo_id'              => $fundRequest['condo_id'],
                             'fund_request_id'       => $id,
                             'request_line_id'       => $request_line_id,
                             'line_entry_id'         => $lineEntry['id'],
-                            'property_lot_id'       => $apportionmentShare['property_lot_id'],
+                            'property_lot_id'       => $property_lot_id,
                             'apportionment_shares'  => $apportionmentShare['property_lot_shares'],
                             'allocated_amount'      => $rounded_amount
                         ])
