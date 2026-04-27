@@ -472,12 +472,6 @@ TemplatePart::create([
     'variables'     => '["remaining_amount", "due_date"]'
 ]);
 TemplatePart::create([
-    'name'          => 'communication_payment_reference',
-    'value'         => '<b>Communication</b><b> : {payment_reference}</b>',
-    'template_id'   => $template['id'],
-    'variables'     => '["payment_reference"]'
-]);
-TemplatePart::create([
     'name'          => 'communication_reimbursement',
     'value'         => '<p>Votre compte présente un solde créditeur de <b>{remaining_amount_abs}</b> en votre faveur. Ce montant sera automatiquement déduit de votre prochain décompte de charges, ou pourra vous être remboursé sur simple demande écrite adressée au syndic.</p>',
     'template_id'   => $template['id'],

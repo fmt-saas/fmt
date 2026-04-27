@@ -159,6 +159,8 @@
         </div>
 
         {% if funding %}
+        <!-- payment-qr-code start -->
+
         <div style="page-break-inside: avoid; margin: 20px 0;">
 
             <!-- a) payment information -->
@@ -168,7 +170,7 @@
                     {{ communication.payment_amount | raw }}
                 </div>
                 <div style="margin-top: 20px;">
-                    {{ communication.payment_reference | raw }} &nbsp; ({{ funding.payment_reference | data_format('scor') }})<br />
+                    {{ labels['funding.communication'] }} {{ funding.payment_reference | raw }} &nbsp; ({{ funding.payment_reference | data_format('scor') }})<br />
                     IBAN : {{ condominium.bank_account_iban | data_format('iban') }}<br />
                     BIC : {{ condominium.bank_account_bic }}<br />
                     <br />
@@ -200,6 +202,7 @@
             </div>
             {% endif %}
         </div>
+        <!-- payment-qr-code end -->
         {% endif %}
 
 
@@ -313,36 +316,6 @@
 
 
     <!-- fund_requests end -->
-
-    <!-- payment-qr-code start -->
-
-    <!--
-    {% if item.status != 'proforma'  %}
-        <div class="fiscal_year-payment-info" style="height: 180px;">
-            <div style="padding-left: 15px; padding-top: 15px;">
-                {% set price = '<b>' ~ item.price | format_money() ~ '</b>' %}
-                {% set due_date = '<b>' ~ item.due_date | date(date_format, timezone) ~ '</b>' %}
-                {{ labels.balance_of_must_be_paid_before | replace({ '%price%': price, '%due_date%': due_date }) | raw }}
-            </div>
-
-            <div style="padding-top: 20px; padding-left: 15px;">
-                <b style="text-transform: uppercase;">{{ labels.communication }}</b><b> : {{ item.payment_reference }}</b><br/>
-                IBAN : {{ organisation.bank_account_iban }}<br/>
-                BIC : {{ organisation.bank_account_bic }}<br/>
-                <br/>
-                {{ organisation.legal_name }}<br/>
-                {{ organisation.address_street }} {{ organisation.address_zip }} {{ organisation.address_city }}<br/>
-            </div>
-
-            <div style="position: absolute; right: 10px; top: 15px;">
-                {% if (payment_qr_code_uri|length > 0) %}
-                    <img src="{{ payment_qr_code_uri }}" width= "150" height="150" alt="payment-qr-code" />
-                {% endif %}
-            </div>
-        </div>
-    {% endif %}
-    -->
-    <!-- payment-qr-code end -->
 
 
     {% include 'footer.html.twig' %}

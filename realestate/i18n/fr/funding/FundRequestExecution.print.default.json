@@ -1,0 +1,21 @@
+{
+    "lots_recap.table.th.references": "Références",
+    "lots_recap.table.th.nature": "Nature",
+    "lots_recap.table.th.quotas": "Quotités",
+    "lots_recap.table.th.days": "Jours",
+
+    "funding.communication": "Communication:",
+
+    "operations.table.th.nature": "Nature des opérations",
+    "operations.table.th.apportionment_key": "Clé de répartition",
+    "operations.table.th.amounts": "Montants",
+    "operations.table.th.quotas": "Quotités",
+    "operations.table.th.quote_share": "Quote part",
+    "operations.table.footer.th.total": "Total de l'appel",
+
+    "payments-planning.title": "Planification des versements attendus :",
+    "payments-planning.table.th.date": "Date",
+    "payments-planning.table.th.deadline": "Échéance",
+    "payments-planning.table.th.appeal": "Appel",
+    "payments-planning.table.th.amount": "Montant"
+}

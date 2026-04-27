@@ -327,6 +327,12 @@ $lang = $owner['identity_id']['lang_id']['code'];
 // retrieve template (subject & body)
 $subject = 'Appels de fonds';
 $introduction = '';
+$communication = [
+    'payment_amount'        => $funding['remaining_amount'] ?? 0.0,
+    'payment_reference'     => $funding['payment_reference'] ?? 0.0,
+    'reimbursement'         => '',
+    'no_action_required'    => ''
+];
 
 $template = Template::search([
         ['code', '=', 'fund_request_correspondence'],
@@ -368,7 +374,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
     }
 }
 
-$labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'FundRequest.'.$params['view_id']));
+$labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'FundRequestExecution.' . $params['view_id']));
 
 $values = [
     'title'               => $subject,

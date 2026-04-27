@@ -413,8 +413,7 @@ if(!$funding) {
 $subject = 'Décompte Propriétaire';
 $introduction = '';
 $communication = [
-    'payment_amount'        => '',
-    'payment_reference'     => '',
+    'payment_amount'        => $formatMoney($funding['remaining_amount'] ?? 0.0),
     'reimbursement'         => '',
     'no_action_required'    => ''
 ];
@@ -474,19 +473,6 @@ foreach($template['parts_ids'] as $part_id => $part) {
             $key = $matches[1];
             return $map_values[$key] ?? '';
         }, $communication['payment_amount']);
-    }
-    elseif($part['name'] == 'communication_payment_reference') {
-        $communication['payment_reference'] = $part['value'];
-
-        $map_values = [
-            'payment_reference' => $funding['payment_reference']
-        ];
-
-        // Replace {var} items with corresponding values, set in $map_values
-        $communication['payment_reference'] = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
-            $key = $matches[1];
-            return $map_values[$key] ?? '';
-        }, $communication['payment_reference']);
     }
     elseif($part['name'] == 'communication_reimbursement') {
         $communication['reimbursement'] = $part['value'];

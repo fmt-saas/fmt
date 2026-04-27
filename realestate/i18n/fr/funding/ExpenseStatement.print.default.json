@@ -4,6 +4,8 @@
     "lots_recap.table.th.quotas": "Quotités",
     "lots_recap.table.th.days": "Jours",
 
+    "funding.communication": "Communication:",
+
     "global_summary.lots_recap.h2": "Récapitulatif des lots (général)",
     "global_summary.table.th.common_expenses": "Charges communes",
     "global_summary.table.th.private_expenses": "Frais privatifs",
