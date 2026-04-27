@@ -166,28 +166,27 @@
         <!-- payment-qr-code start -->
         <div style="page-break-inside: avoid; margin: 20px 0;">
 
-            <!-- a) payment notice OR b) reimbursement information OR c) no payment nor reimbursement needed information -->
-            <div>
-                {{ communication | raw }}
-            </div>
-
-            {% if funding.remaining_amount > 0.0 %}
             <div style="position: relative; font-size: 15px; margin-top: 20px; padding: 15px 15px 0 15px; border: solid 1px black; height: 215px; page-break-inside: avoid;">
-                <div style="margin-top: 20px;">
-                    {{ labels['funding.communication'] }} {{ funding.payment_reference | raw }} &nbsp; ({{ funding.payment_reference | data_format('scor') }})<br />
-                    IBAN : {{ condominium.bank_account_iban | data_format('iban') }}<br />
-                    BIC : {{ condominium.bank_account_bic }}<br />
-                    <br />
-                    {{ condominium.legal_name }}<br />
-                    {{ condominium.address_street }}<br />
-                    {{ condominium.address_zip }} {{ condominium.address_city }}
+                <!-- a) payment notice OR b) reimbursement information OR c) no payment nor reimbursement needed information -->
+                <div>
+                    {{ communication | raw }}
                 </div>
-                <div style="position: absolute; right: 10px; top: 35px;">
-                    <img src="{{ payment_qr_code_uri }}" width= "150" height="150" />
-                </div>
-            </div>
-            {% endif %}
 
+                {% if funding.remaining_amount > 0.0 %}
+                    <div style="margin-top: 20px;">
+                        {{ labels['funding.communication'] }} {{ funding.payment_reference | raw }} &nbsp; ({{ funding.payment_reference | data_format('scor') }})<br />
+                        IBAN : {{ condominium.bank_account_iban | data_format('iban') }}<br />
+                        BIC : {{ condominium.bank_account_bic }}<br />
+                        <br />
+                        {{ condominium.legal_name }}<br />
+                        {{ condominium.address_street }}<br />
+                        {{ condominium.address_zip }} {{ condominium.address_city }}
+                    </div>
+                    <div style="position: absolute; right: 10px; top: 35px;">
+                        <img src="{{ payment_qr_code_uri }}" width= "150" height="150" />
+                    </div>
+                {% endif %}
+            </div>
         </div>
         <!-- payment-qr-code end -->
         {% endif %}
