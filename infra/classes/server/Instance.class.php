@@ -127,10 +127,10 @@ class Instance extends Model {
             $domain = parse_url(constant('BACKEND_URL'), PHP_URL_HOST);
             $login = $instance['name'] . '@' . $domain;
             $user = User::create([
-                'login'         => $login,
-                'allow_auth'    => false,
-                'validated'     => true
-            ])
+                    'login'         => $login,
+                    'allow_auth'    => false,
+                    'validated'     => true
+                ])
                 ->first();
 
             self::id($id)->update(['user_id' => $user['id']]);
