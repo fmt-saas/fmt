@@ -8,7 +8,7 @@
 use realestate\funding\ExpenseStatementCorrespondence;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate an html view of a Expense Statement.',
+    'description'   => 'Generate an html view of a Expense Statement (relates to a single Ownership).',
     'params'        => [
         'id' => [
             'description'       => 'Identifier of the specific ExpenseStatementCorrespondence to consider.',

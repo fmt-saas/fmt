@@ -10,7 +10,7 @@ use Dompdf\Options as DompdfOptions;
 use realestate\funding\FundRequestCorrespondence;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate a PDF individual request for a given Expense Statement Correspondence.',
+    'description'   => 'Generate a PDF individual request for a given Expense Statement Correspondence (relates to a single Ownership).',
     'params'        => [
         'id' => [
             'description'       => 'Identifier of the specific FundRequestCorrespondence to consider.',
@@ -43,7 +43,7 @@ if(!$fundRequestCorrespondence) {
 try {
 
     $html = (string) eQual::run('get', 'realestate_funding_ExpenseStatementCorrespondence_render-html', [
-            'id'            => $params['id']
+            'id'    => $params['id']
         ]);
 
     /*

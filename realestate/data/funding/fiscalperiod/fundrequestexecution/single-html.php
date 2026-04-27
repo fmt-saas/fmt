@@ -214,7 +214,7 @@ $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution
     ->first();
 
 /*
-// #memo - on ne peut pas donner le détail du calcul quotités par exécution : il n'existe pas puisque le découpage est fait sur un nombre arbitraire de périodes
+// #memo - on ne peut pas donner le détail du calcul quotités par exécution : il n'existe pas puisque le découpage est fait a posteriori, sur un nombre arbitraire de périodes, et avec des éventuelles gestion d'arrondis
 */
 if(!$fundRequestExecution) {
     throw new Exception('unknown_fund_request_execution', EQ_ERROR_INVALID_PARAM);

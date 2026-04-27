@@ -34,6 +34,18 @@
             "confirm": true
         }
     ],
+    "routes": [
+        {
+            "id": "route.print_pdf",
+            "type": "entry",
+            "label": "Print Execution",
+            "icon": "print",
+            "description": "",
+            "route": "/?get=realestate_funding_FundRequestExecution_render-pdf&id=object.id",
+            "target": "_blank",
+            "absolute": true
+        }
+    ],
     "layout": {
         "groups": [
             {
