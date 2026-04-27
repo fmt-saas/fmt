@@ -91,47 +91,9 @@ class Instance extends Model {
                 'foreign_object'    => 'realestate\management\ManagingAgent',
                 'description'       => "The Managing agent the Instance relates to.",
                 'visible'           => ['instance_type', '=', 'agency']
-            ],
-
-            'access_token' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'usage'             => 'text/plain.small',
-                'description'       => "Access token for the API of the instance.",
-                'store'             => false,
-                'function'          => 'calcAccessToken'
             ]
 
         ];
-    }
-
-    public static function calcAccessToken($self): array {
-        $result = [];
-        $self->read(['user_id']);
-        foreach($self as $id => $instance) {
-            $access_token = AccessToken::search([
-                [
-                    ['user_id', '=', $instance['user_id']],
-                    ['token_type', '=', 'access_token'],
-                    ['is_revoked', '=', false],
-                    ['expiration', 'is', null]
-                ],
-                [
-                    ['user_id', '=', $instance['user_id']],
-                    ['token_type', '=', 'access_token'],
-                    ['is_revoked', '=', false],
-                    ['expiration', '>', time()]
-                ]
-            ])
-                ->read(['token'])
-                ->first();
-
-            if(!empty($access_token['token'])) {
-                $result[$id] = $access_token['token'];
-            }
-        }
-
-        return $result;
     }
 
     protected static function policyCanCreateUser($self) {
