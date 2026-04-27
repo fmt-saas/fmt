@@ -412,11 +412,7 @@ if(!$funding) {
 // retrieve template (subject & body)
 $subject = 'Décompte Propriétaire';
 $introduction = '';
-$communication = [
-    'payment_amount'        => $formatMoney($funding['remaining_amount'] ?? 0.0),
-    'reimbursement'         => '',
-    'no_action_required'    => ''
-];
+$communication = '';
 
 $template = Template::search([
         ['code', '=', 'expense_statement_correspondence'],
@@ -461,34 +457,34 @@ foreach($template['parts_ids'] as $part_id => $part) {
         }, $introduction);
     }
     elseif($part['name'] == 'communication_payment_amount' && $funding) {
-        $communication['payment_amount'] = $part['value'];
+        $communication = $part['value'];
 
         $map_values = [
             'remaining_amount'  => $formatMoney($funding['remaining_amount']),
-            'due_date'          => date('d/m/Y', $funding['due_date'])
+            'due_date'          => $getFormattedDate($funding['due_date'])
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
-        $communication['payment_amount'] = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+        $communication = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
             $key = $matches[1];
             return $map_values[$key] ?? '';
-        }, $communication['payment_amount']);
+        }, $communication);
     }
-    elseif($part['name'] == 'communication_reimbursement') {
-        $communication['reimbursement'] = $part['value'];
+    elseif($part['name'] == 'communication_reimbursement' && $funding && $funding['remaining_amount'] < 0.0) {
+        $communication = $part['value'];
 
         $map_values = [
-            'remaining_amount_abs' => $formatMoney(abs($funding['remaining_amount']))
+            'remaining_amount' => $formatMoney(abs($funding['remaining_amount']))
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
-        $communication['reimbursement'] = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+        $communication = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
             $key = $matches[1];
             return $map_values[$key] ?? '';
-        }, $communication['reimbursement']);
+        }, $communication);
     }
-    elseif($part['name'] == 'communication_no_action_required') {
-        $communication['no_action_required'] = $part['value'];
+    elseif($part['name'] == 'communication_no_action_required' && abs($funding['remaining_amount']) < 0.01) {
+        $communication = $part['value'];
     }
 }
 

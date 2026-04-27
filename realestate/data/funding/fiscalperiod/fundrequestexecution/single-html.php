@@ -327,12 +327,7 @@ $lang = $owner['identity_id']['lang_id']['code'];
 // retrieve template (subject & body)
 $subject = 'Appels de fonds';
 $introduction = '';
-$communication = [
-    'payment_amount'        => $funding['remaining_amount'] ?? 0.0,
-    'payment_reference'     => $funding['payment_reference'] ?? 0.0,
-    'reimbursement'         => '',
-    'no_action_required'    => ''
-];
+$communication = '';
 
 $template = Template::search([
         ['code', '=', 'fund_request_correspondence'],
@@ -371,6 +366,36 @@ foreach($template['parts_ids'] as $part_id => $part) {
             $key = $matches[1];
             return $map_values[$key] ?? '';
         }, $introduction);
+    }
+    elseif($part['name'] == 'communication_payment_amount' && $funding) {
+        $communication = $part['value'];
+
+        $map_values = [
+            'remaining_amount'  => $formatMoney($funding['remaining_amount']),
+            'due_date'          => $getFormattedDate($funding['due_date'])
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $communication = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $communication);
+    }
+    elseif($part['name'] == 'communication_reimbursement' && $funding && $funding['remaining_amount'] < 0.0) {
+        $communication = $part['value'];
+
+        $map_values = [
+            'remaining_amount' => $formatMoney(abs($funding['remaining_amount']))
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $communication = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $communication);
+    }
+    elseif($part['name'] == 'communication_no_action_required' && abs($funding['remaining_amount']) < 0.01) {
+        $communication = $part['value'];
     }
 }
 
