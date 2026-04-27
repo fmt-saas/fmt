@@ -523,7 +523,7 @@ TemplatePart::create([
     'name'          => 'subject',
     'value'         => 'Appel de fonds',
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "period"]'
+    'variables'     => '["condo", "label", "period", "date_from", "date_to"]'
 ]);
 TemplatePart::create([
     'name'          => 'introduction',
@@ -535,7 +535,7 @@ TemplatePart::create([
     'name'          => 'communication_payment_amount',
     'value'         => '<p>Le montant de <b>{remaining_amount}</b> doit être réglé avant le <b>{due_date}</b></p>',
     'template_id'   => $template['id'],
-    'variables'     => '["remaining_amount", "due_date"]'
+    'variables'     => '["remaining_amount", "due_date", "date_from", "date_to"]'
 ]);
 TemplatePart::create([
     'name'          => 'communication_reimbursement',

@@ -231,6 +231,7 @@ $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id'])
         'name',
         'request_date',
         'request_amount',
+        'request_type',
         'has_date_range',
         'date_range_frequency',
         'date_from',
@@ -355,7 +356,10 @@ foreach($template['parts_ids'] as $part_id => $part) {
 
         $map_values = [
             'condo'             => $fundRequestExecution['condo_id']['name'],
-            'period'            => $fundRequest['fiscal_period_id']['name']
+            'period'            => $fundRequest['fiscal_period_id']['name'],
+            'date_from'         => $getFormattedDate($fundRequestExecution['date_from']),
+            'date_to'           => $getFormattedDate($fundRequestExecution['date_to']),
+            'label'             => $fundRequest['name']
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -370,8 +374,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $map_values = [
             'condo'             => $fundRequestExecution['condo_id']['name'],
             'period'            => $fundRequest['fiscal_period_id']['name'],
-            'date_from'         => $getFormattedDate($fundRequest['fiscal_period_id']['date_from']),
-            'date_to'           => $getFormattedDate($fundRequest['fiscal_period_id']['date_to'])
+            'date_from'         => $getFormattedDate($fundRequestExecution['date_from']),
+            'date_to'           => $getFormattedDate($fundRequestExecution['date_to'])
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
