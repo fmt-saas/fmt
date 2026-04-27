@@ -193,7 +193,7 @@
 
             <!-- a) payment notice OR b) reimbursement information OR c) no payment nor reimbursement needed information -->
             <div>
-                {{ communication.text | raw }}
+                {{ communication | raw }}
             </div>
 
             {% if funding.remaining_amount > 0.0 %}
