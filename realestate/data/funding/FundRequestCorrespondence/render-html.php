@@ -68,10 +68,18 @@ $context = $providers['context'];
 
 
 $getFormattedDate = function($timestamp) {
-    $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
-    $tz_offset = $tz->getOffset(new DateTime('@' . $timestamp));
-    $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
-    return date($date_format, $timestamp + $tz_offset);
+    if(empty($timestamp) || !is_numeric($timestamp)) {
+        return '';
+    }
+    try {
+        $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
+        $tz_offset = $tz->getOffset(new DateTime('@' . $timestamp));
+        $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
+        return date($date_format, $timestamp + $tz_offset);
+    }
+    catch(\Throwable $e) {
+        return '';
+    }
 };
 
 $getTwigCurrency = function($equal_currency) {
