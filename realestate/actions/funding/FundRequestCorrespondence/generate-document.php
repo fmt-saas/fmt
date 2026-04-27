@@ -7,14 +7,14 @@
 
 use documents\Document;
 use documents\navigation\Node;
-use realestate\funding\FundRequestCorrespondence;
+use realestate\funding\FundRequestExecutionCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Create a document for a given Fund Request Correspondence.",
     'params'        => [
         'id' =>  [
             'type'             => 'many2one',
-            'foreign_object'   => 'realestate\funding\FundRequestCorrespondence',
+            'foreign_object'   => 'realestate\funding\FundRequestExecutionCorrespondence',
             'description'      => 'Identifier of the Fund request correspondence.',
             'required'          => true
         ]
@@ -33,38 +33,38 @@ use realestate\funding\FundRequestCorrespondence;
 ['context' => $context] = $providers;
 
 
-$fundRequestCorrespondence = FundRequestCorrespondence::id($params['id'])
+$fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($params['id'])
     ->read(['status', 'condo_id', 'ownership_id', 'name', 'fund_request_execution_id' => ['id', 'fund_request_id']])
     ->first();
 
-if(!$fundRequestCorrespondence) {
+if(!$fundRequestExecutionCorrespondence) {
     throw new Exception("unknown_assembly_invitation", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 
 // retrieve FS Node relating to general meetings (assemblies)
 $parentNode = Node::search([
-        ['condo_id', '=', $fundRequestCorrespondence['condo_id'] ],
+        ['condo_id', '=', $fundRequestExecutionCorrespondence['condo_id'] ],
         ['node_type', '=', 'folder'],
         ['code', '=', 'operation_statements']
     ])
     ->first();
 
 // generate document and add it to EDMS
-$data = eQual::run('get', 'realestate_funding_FundRequestCorrespondence_render-pdf', ['id' => $fundRequestCorrespondence['id']]);
+$data = eQual::run('get', 'realestate_funding_FundRequestExecutionCorrespondence_render-pdf', ['id' => $fundRequestExecutionCorrespondence['id']]);
 
 $document = Document::create([
-        'name'          => 'Appel de fonds - ' . $fundRequestCorrespondence['name'],
+        'name'          => 'Appel de fonds - ' . $fundRequestExecutionCorrespondence['name'],
         'data'          => $data,
-        'condo_id'      => $fundRequestCorrespondence['condo_id']
+        'condo_id'      => $fundRequestExecutionCorrespondence['condo_id']
     ])
     ->update([
         // place node in dedicated folder
         'parent_node_id'        => $parentNode['id'] ?? null,
         // make node private
-        'ownership_id'              => $fundRequestCorrespondence['ownership_id'],
-        'fund_request_id'           => $fundRequestCorrespondence['fund_request_execution_id']['fund_request_id'],
-        'fund_request_execution_id' => $fundRequestCorrespondence['fund_request_execution_id']['id']
+        'ownership_id'              => $fundRequestExecutionCorrespondence['ownership_id'],
+        'fund_request_id'           => $fundRequestExecutionCorrespondence['fund_request_execution_id']['fund_request_id'],
+        'fund_request_execution_id' => $fundRequestExecutionCorrespondence['fund_request_execution_id']['id']
     ])
     ->first();
 
@@ -73,7 +73,7 @@ if(!$document) {
 }
 
 // attach generated document to invitation
-FundRequestCorrespondence::id($fundRequestCorrespondence['id'])->update(['document_id' => $document['id']]);
+FundRequestExecutionCorrespondence::id($fundRequestExecutionCorrespondence['id'])->update(['document_id' => $document['id']]);
 
 
 $context->httpResponse()

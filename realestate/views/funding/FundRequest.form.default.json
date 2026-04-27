@@ -69,7 +69,9 @@
             "description": "",
             "route": "/?get=realestate_funding_FundRequest_render-pdf&id=object.id",
             "target": "_blank",
-            "absolute": true
+            "absolute": true,
+            "visible_help": "Printing is meant for FundRequestExecution",
+            "visible": false
         }
     ],
     "layout": {

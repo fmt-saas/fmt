@@ -108,7 +108,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             'exporting_tasks_ids' => [
                 'type'              => 'one2many',
-                'description'       => "Reference to the task for exporting paper mails for assembly invitation, if any.",
+                'description'       => "Reference to the tasks for exporting paper mails for expense statement, if any.",
+                'help'              => "This is a helper relation to allow generic handling in views.",
                 'foreign_object'    => 'documents\export\ExportingTask',
                 'foreign_field'     => 'object_id',
                 'domain'            => [
@@ -118,7 +119,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             'statements_exporting_task_id' => [
                 'type'              => 'many2one',
-                'description'       => "Reference to the task for exporting paper mails for expense statement correspondences, if any.",
+                'description'       => "Reference to the task for exporting paper mails for expense statement, if any.",
                 'foreign_object'    => 'documents\export\ExportingTask'
             ],
 
@@ -787,9 +788,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             $map_communication_methods = [];
 
-            foreach($expenseStatement['expense_statement_correspondences_ids'] as $fundRequestCorrespondence) {
+            foreach($expenseStatement['expense_statement_correspondences_ids'] as $fundRequestExecutionCorrespondence) {
                 // update global map to acknowledge that at least one invitation uses that communication method
-                $map_communication_methods[$fundRequestCorrespondence['communication_method']] = true;
+                $map_communication_methods[$fundRequestExecutionCorrespondence['communication_method']] = true;
             }
 
             if(isset($map_communication_methods['email'])) {

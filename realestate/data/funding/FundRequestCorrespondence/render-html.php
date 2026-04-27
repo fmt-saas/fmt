@@ -10,7 +10,7 @@ use fmt\setting\Setting;
 use finance\accounting\FiscalYear;
 use identity\Organisation;
 use realestate\funding\FundRequest;
-use realestate\funding\FundRequestCorrespondence;
+use realestate\funding\FundRequestExecutionCorrespondence;
 use realestate\ownership\Owner;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
@@ -22,9 +22,9 @@ use Twig\Extension\ExtensionInterface;
     'description'   => 'Generate an html view of a Mandate template.',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific FundRequestCorrespondence to consider.',
+            'description'       => 'Identifier of the specific FundRequestExecutionCorrespondence to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\funding\FundRequestCorrespondence',
+            'foreign_object'    => 'realestate\funding\FundRequestExecutionCorrespondence',
             'required'          => true
         ],
 
@@ -194,7 +194,7 @@ $getLabels = function ($lang, $view_i18n_file_path) {
 $executions = [];
 
 
-$fundRequestCorrespondence = FundRequestCorrespondence::id($params['id'])
+$fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($params['id'])
     ->read([
         'condo_id' => ['name'],
         'owner_id' => ['firstname', 'lastname', 'email', 'email_alt', 'lang_id'],
@@ -203,11 +203,11 @@ $fundRequestCorrespondence = FundRequestCorrespondence::id($params['id'])
     ])
     ->first();
 
-if(!$fundRequestCorrespondence) {
-    throw new Exception('unknown_fund_request_correspondence', EQ_ERROR_UNKNOWN_OBJECT);
+if(!$fundRequestExecutionCorrespondence) {
+    throw new Exception('unknown_fund_request_execution_correspondence', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$fundRequestExecution = $fundRequestCorrespondence['fund_request_execution_id'];
+$fundRequestExecution = $fundRequestExecutionCorrespondence['fund_request_execution_id'];
 
 // load all fund requests from a given fiscal year
 $fiscalYear = FiscalYear::id($fundRequestExecution['fund_request_id']['fiscal_year_id'])
@@ -259,7 +259,7 @@ $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id']['id'])
         'date_to',
         'condo_id' => ['name'],
         'entry_lots_ids' => [
-            '@domain' => ['ownership_id', '=', $fundRequestCorrespondence['ownership_id']],
+            '@domain' => ['ownership_id', '=', $fundRequestExecutionCorrespondence['ownership_id']],
             'ownership_id',
             'apportionment_shares',
             'allocated_amount',
@@ -268,7 +268,7 @@ $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id']['id'])
             'line_entry_id'     => ['allocated_amount']
         ],
         'execution_lines_ids' => [
-            '@domain' => ['ownership_id', '=', $fundRequestCorrespondence['ownership_id']],
+            '@domain' => ['ownership_id', '=', $fundRequestExecutionCorrespondence['ownership_id']],
             'ownership_id',
             'price',
             'invoice_id' => ['emission_date', 'due_date', 'status']
@@ -327,7 +327,7 @@ foreach($fundRequest['execution_lines_ids'] as $execution_line) {
 
 }
 
-$owner = Owner::id($fundRequestCorrespondence['owner_id']['id'])
+$owner = Owner::id($fundRequestExecutionCorrespondence['owner_id']['id'])
     ->read([
         'identity_id' => [
             'name', 'address_street', 'address_dispatch', 'address_zip',
@@ -348,7 +348,7 @@ $subject = 'Appels de fonds';
 $introduction = '';
 
 $template = Template::search([
-        ['code', '=', 'fund_request_correspondence'],
+        ['code', '=', 'fund_request_execution_correspondence'],
         ['type', '=', 'document']
     ])
     ->read( ['id','parts_ids' => ['name', 'value']])

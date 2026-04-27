@@ -10,14 +10,14 @@ use core\Mail;
 use identity\Organisation;
 use equal\email\Email;
 use equal\email\EmailAttachment;
-use realestate\funding\FundRequestCorrespondence;
+use realestate\funding\FundRequestExecutionCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send a single email for a given Fund Request correspondence.",
     'params'        => [
         'id' =>  [
             'type'             => 'many2one',
-            'foreign_object'   => 'realestate\funding\FundRequestCorrespondence',
+            'foreign_object'   => 'realestate\funding\FundRequestExecutionCorrespondence',
             'description'      => 'Identifier of the Fund Request (individual).',
         ]
     ],
@@ -52,7 +52,7 @@ if($organisation) {
     $signature = $organisation['signature'];
 }
 
-$fundRequestCorrespondence = FundRequestCorrespondence::id($params['id'])
+$fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($params['id'])
     ->read([
         'condo_id' => ['name'],
         'name',
@@ -64,16 +64,16 @@ $fundRequestCorrespondence = FundRequestCorrespondence::id($params['id'])
     ])
     ->first();
 
-if(!$fundRequestCorrespondence) {
-    throw new Exception('unknown_fund_request_correspondence', EQ_ERROR_INVALID_PARAM);
+if(!$fundRequestExecutionCorrespondence) {
+    throw new Exception('unknown_fund_request_execution_correspondence', EQ_ERROR_INVALID_PARAM);
 }
 
-if($fundRequestCorrespondence['communication_method'] !== 'email') {
+if($fundRequestExecutionCorrespondence['communication_method'] !== 'email') {
     throw new Exception('invalid_communication_method', EQ_ERROR_INVALID_PARAM);
 }
 
 // #memo - document is expected to have been generated beforehand
-if(!$fundRequestCorrespondence['document_id']) {
+if(!$fundRequestExecutionCorrespondence['document_id']) {
     throw new Exception('missing_invite_document', EQ_ERROR_INVALID_PARAM);
 }
 
@@ -82,7 +82,7 @@ $subject = '';
 $body = '';
 
 $template = Template::search([
-        ['code', '=', 'fund_request_correspondence'],
+        ['code', '=', 'fund_request_execution_correspondence'],
         ['type', '=', 'email']
     ])
     ->read( ['id','parts_ids' => ['name', 'value']])
@@ -93,9 +93,9 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $subject = strip_tags($part['value']);
 
         $map_values = [
-            'assembly'  => $fundRequestCorrespondence['assembly_id']['name'],
-            'condo'     => $fundRequestCorrespondence['condo_id']['name'],
-            'date'      => $fundRequestCorrespondence['assembly_id']['due_date']
+            'assembly'  => $fundRequestExecutionCorrespondence['assembly_id']['name'],
+            'condo'     => $fundRequestExecutionCorrespondence['condo_id']['name'],
+            'date'      => $fundRequestExecutionCorrespondence['assembly_id']['due_date']
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -108,10 +108,10 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $body = $part['value'];
 
         $map_values = [
-            'firstname' => $fundRequestCorrespondence['owner_id']['firstname'],
-            'lastname'  => $fundRequestCorrespondence['owner_id']['lastname'],
-            'condo'     => $fundRequestCorrespondence['condo_id']['name'],
-            'date'      => $fundRequestCorrespondence['assembly_id']['due_date'],
+            'firstname' => $fundRequestExecutionCorrespondence['owner_id']['firstname'],
+            'lastname'  => $fundRequestExecutionCorrespondence['owner_id']['lastname'],
+            'condo'     => $fundRequestExecutionCorrespondence['condo_id']['name'],
+            'date'      => $fundRequestExecutionCorrespondence['assembly_id']['due_date'],
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -128,17 +128,17 @@ foreach($template['parts_ids'] as $part_id => $part) {
 
 
 // retrieve recipient
-$recipient_email = $fundRequestCorrespondence['owner_id']['email']
-    ?? $fundRequestCorrespondence['owner_id']['email_alt']
+$recipient_email = $fundRequestExecutionCorrespondence['owner_id']['email']
+    ?? $fundRequestExecutionCorrespondence['owner_id']['email_alt']
     ?? null;
 
 /** @var EmailAttachment[] */
 $attachments = [];
 
-$main_attachment_name = 'Appel de Fonds - ' . $fundRequestCorrespondence['condo_id']['name'] . ' - ' . $fundRequestCorrespondence['ownership_id']['name'];
+$main_attachment_name = 'Appel de Fonds - ' . $fundRequestExecutionCorrespondence['condo_id']['name'] . ' - ' . $fundRequestExecutionCorrespondence['ownership_id']['name'];
 
 // push main attachment
-$attachments[] = new EmailAttachment($main_attachment_name.'.pdf', (string) $fundRequestCorrespondence['document_id']['data'], 'application/pdf');
+$attachments[] = new EmailAttachment($main_attachment_name.'.pdf', (string) $fundRequestExecutionCorrespondence['document_id']['data'], 'application/pdf');
 
 // create message
 $message = new Email();
@@ -153,11 +153,11 @@ foreach($attachments as $attachment) {
 }
 
 // queue message
-Mail::queue($message, 'realestate\funding\FundRequestCorrespondence', $fundRequestCorrespondence['id']);
+Mail::queue($message, 'realestate\funding\FundRequestExecutionCorrespondence', $fundRequestExecutionCorrespondence['id']);
 
 
 // mark invitation as sent
-FundRequestCorrespondence::id($fundRequestCorrespondence['id'])
+FundRequestExecutionCorrespondence::id($fundRequestExecutionCorrespondence['id'])
     ->update([
         'sent_date'    => time()
     ])

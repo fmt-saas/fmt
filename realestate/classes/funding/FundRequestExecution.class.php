@@ -107,11 +107,22 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'description'       => 'The fundings that relate to the execution (sale invoice).'
             ],
 
-            'fund_request_correspondences_ids' => [
+            'fund_request_execution_correspondences_ids' => [
                 'type'              => 'one2many',
                 'description'       => "Invitations sent for the assembly.",
-                'foreign_object'    => 'realestate\funding\FundRequestCorrespondence',
+                'foreign_object'    => 'realestate\funding\FundRequestExecutionCorrespondence',
                 'foreign_field'     => 'fund_request_execution_id'
+            ],
+
+            'exporting_tasks_ids' => [
+                'type'              => 'one2many',
+                'description'       => "Reference to the tasks for exporting paper mails for expense statement, if any.",
+                'help'              => "This is a helper relation to allow generic handling in views.",
+                'foreign_object'    => 'documents\export\ExportingTask',
+                'foreign_field'     => 'object_id',
+                'domain'            => [
+                    ['object_class', '=', 'realestate\funding\FundRequestExecution']
+                ]
             ],
 
             'fundings_exporting_task_id' => [
@@ -187,10 +198,10 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'policies'      => ['is_proforma'],
                 'function'      => 'doAssignInvoiceNumber'
             ],
-            'generate_fund_request_correspondences' => [
+            'generate_fund_request_execution_correspondences' => [
                 'description'   => 'Generate individual correspondences for requesting the fundings.',
                 'policies'      => [],
-                'function'      => 'doGenerateFundRequestCorrespondences'
+                'function'      => 'doGenerateFundRequestExecutionCorrespondences'
             ],
             'send_fund_requests' => [
                 'description'   => 'Generate individual correspondences for requesting the fundings.',
@@ -344,7 +355,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             ->do('assign_invoice_number')
             ->do('generate_accounting_entry')
             ->do('generate_fundings')
-            ->do('generate_fund_request_correspondences')
+            ->do('generate_fund_request_execution_correspondences')
             ->do('send_fund_requests')
             // automatically validate accounting entry
             ->read(['accounting_entry_id'])
@@ -356,11 +367,11 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
     /**
      * Generate invites for each ownership.
      */
-    protected static function doGenerateFundRequestCorrespondences($self) {
+    protected static function doGenerateFundRequestExecutionCorrespondences($self) {
         $self->read(['condo_id', 'execution_lines_ids' => ['ownership_id']]);
         foreach($self as $id => $fundRequestExecution) {
             // remove any previously created invite
-            FundRequestCorrespondence::search(['fund_request_execution_id', '=', $id])->delete(true);
+            FundRequestExecutionCorrespondence::search(['fund_request_execution_id', '=', $id])->delete(true);
 
             $ownerships_ids = array_column($fundRequestExecution['execution_lines_ids']->get(true), 'ownership_id');
             $ownerships = Ownership::ids($ownerships_ids)->read(['representative_owner_id']);
@@ -411,7 +422,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         continue;
                     }
 
-                    FundRequestCorrespondence::create([
+                    FundRequestExecutionCorrespondence::create([
                         'condo_id'                  => $fundRequestExecution['condo_id'],
                         'fund_request_execution_id' => $id,
                         'ownership_id'              => $ownership_id,
@@ -429,7 +440,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             'name',
             'condo_id',
             'fundings_exporting_task_id',
-            'fund_request_correspondences_ids' => ['communication_method']
+            'fund_request_execution_correspondences_ids' => ['communication_method']
         ]);
 
         foreach($self as $id => $fundRequestExecution) {
@@ -441,9 +452,9 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
             $map_communication_methods = [];
 
-            foreach($fundRequestExecution['fund_request_correspondences_ids'] as $fundRequestCorrespondence) {
+            foreach($fundRequestExecution['fund_request_execution_correspondences_ids'] as $fundRequestExecutionCorrespondence) {
                 // update global map to acknowledge that at least one invitation uses that communication method
-                $map_communication_methods[$fundRequestCorrespondence['communication_method']] = true;
+                $map_communication_methods[$fundRequestExecutionCorrespondence['communication_method']] = true;
             }
 
             if(isset($map_communication_methods['email'])) {

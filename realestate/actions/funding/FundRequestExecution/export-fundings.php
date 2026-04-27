@@ -7,7 +7,7 @@
 
 use documents\Document;
 use realestate\funding\FundRequestExecution;
-use realestate\funding\FundRequestCorrespondence;
+use realestate\funding\FundRequestExecutionCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Export assembly minutes: generate per-invitation documents (if missing), merge them into a single PDF, store the result as a non-EDMS document, and return its id.",
@@ -52,7 +52,7 @@ if(!$fundRequestExecution) {
 }
 
 // fetch invitations relating to given communication_method
-$fundRequestCorrespondences = FundRequestCorrespondence::search([
+$fundRequestExecutionCorrespondences = FundRequestExecutionCorrespondence::search([
         [ 'fund_request_execution_id', '=', $fundRequestExecution['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
@@ -62,24 +62,24 @@ $fundRequestCorrespondences = FundRequestCorrespondence::search([
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
-foreach($fundRequestCorrespondences as $fund_request_correspondence_id => $fundRequestCorrespondence) {
+foreach($fundRequestExecutionCorrespondences as $fund_request_execution_correspondence_id => $fundRequestExecutionCorrespondence) {
 
     // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
-    if(!$fundRequestCorrespondence['document_id']) {
+    if(!$fundRequestExecutionCorrespondence['document_id']) {
         // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_funding_FundRequestCorrespondence_generate-document', ['id' => $fund_request_correspondence_id]);
+        eQual::run('do', 'realestate_funding_FundRequestExecutionCorrespondence_generate-document', ['id' => $fund_request_execution_correspondence_id]);
     }
 
-    $fundRequestCorrespondence = FundRequestCorrespondence::id($fund_request_correspondence_id)
+    $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($fund_request_execution_correspondence_id)
         ->read(['document_id' => ['data']])
         ->first();
 
-    if(!$fundRequestCorrespondence['document_id']) {
+    if(!$fundRequestExecutionCorrespondence['document_id']) {
         continue;
     }
 
     $temp = tempnam(sys_get_temp_dir(), 'pdf_');
-    file_put_contents($temp, $fundRequestCorrespondence['document_id']['data'] ?? '');
+    file_put_contents($temp, $fundRequestExecutionCorrespondence['document_id']['data'] ?? '');
     $temp_files[] = $temp;
 }
 

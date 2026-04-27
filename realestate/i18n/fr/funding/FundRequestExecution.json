@@ -85,6 +85,12 @@
                     "label": "Annuler l'exécution",
                     "description": "Exécuter l'appel de fonds en créant et validant les écritures et encaissements associés (action irréversible)."
                 }
+            },
+            "routes": {
+                "route.print_pdf": {
+                    "label": "Imprimer l'appel de fonds",
+                    "description": ""
+                }
             }
         },
         "list.default": {

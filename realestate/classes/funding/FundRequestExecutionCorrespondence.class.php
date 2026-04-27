@@ -6,7 +6,7 @@
 */
 namespace realestate\funding;
 
-class FundRequestCorrespondence extends \documents\correspondence\DocumentCorrespondence {
+class FundRequestExecutionCorrespondence extends \documents\correspondence\DocumentCorrespondence {
 
     public function getTable() {
         return 'realestate_funding_fundrequestcorrespondence';
@@ -37,7 +37,7 @@ class FundRequestCorrespondence extends \documents\correspondence\DocumentCorres
                 'type'              => 'one2many',
                 'foreign_object'    => 'core\Mail',
                 'foreign_field'     => 'object_id',
-                'domain'            => ['object_class', '=', 'realestate\funding\FundRequestCorrespondence'],
+                'domain'            => ['object_class', '=', 'realestate\funding\FundRequestExecutionCorrespondence'],
                 'visible'           => ['communication_method', '=', 'email']
             ]
         ];

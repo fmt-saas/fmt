@@ -320,7 +320,7 @@ $subject = 'Appels de fonds';
 $introduction = '';
 
 $template = Template::search([
-        ['code', '=', 'fund_request_correspondence'],
+        ['code', '=', 'fund_request_execution_correspondence'],
         ['type', '=', 'document']
     ])
     ->read(['id','parts_ids' => ['name', 'value']])

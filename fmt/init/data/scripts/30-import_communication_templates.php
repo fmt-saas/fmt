@@ -490,7 +490,7 @@ TemplatePart::create([
 
 // email
 $template = Template::create([
-        'code'          => 'fund_request_correspondence',
+        'code'          => 'fund_request_execution_correspondence',
         'description'   => 'Appel de fonds.',
         'category_id'   => 5,
         'type_id'       => 1
@@ -513,7 +513,7 @@ TemplatePart::create([
 
 // correspondence
 $template = Template::create([
-        'code'          => 'fund_request_correspondence',
+        'code'          => 'fund_request_execution_correspondence',
         'description'   => 'Appel de fonds',
         'category_id'   => 5,
         'type_id'       => 5

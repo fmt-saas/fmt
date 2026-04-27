@@ -7,15 +7,15 @@
 
 use Dompdf\Dompdf;
 use Dompdf\Options as DompdfOptions;
-use realestate\funding\FundRequestCorrespondence;
+use realestate\funding\FundRequestExecutionCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate a PDF individual request for a given Expense Statement Correspondence (relates to a single Ownership).',
     'params'        => [
         'id' => [
-            'description'       => 'Identifier of the specific FundRequestCorrespondence to consider.',
+            'description'       => 'Identifier of the specific FundRequestExecutionCorrespondence to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\funding\FundRequestCorrespondence',
+            'foreign_object'    => 'realestate\funding\FundRequestExecutionCorrespondence',
             'required'          => true
         ]
     ],
@@ -33,11 +33,11 @@ use realestate\funding\FundRequestCorrespondence;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-$fundRequestCorrespondence = FundRequestCorrespondence::id($params['id'])
+$fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($params['id'])
     ->first();
 
-if(!$fundRequestCorrespondence) {
-    throw new Exception('unknown_fund_request_correspondence', EQ_ERROR_UNKNOWN_OBJECT);
+if(!$fundRequestExecutionCorrespondence) {
+    throw new Exception('unknown_fund_request_execution_correspondence', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 try {

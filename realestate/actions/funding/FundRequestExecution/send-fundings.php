@@ -6,7 +6,7 @@
 */
 
 use realestate\funding\FundRequestExecution;
-use realestate\funding\FundRequestCorrespondence;
+use realestate\funding\FundRequestExecutionCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send all email minutes reports for the target assembly.",
@@ -51,36 +51,36 @@ if(!$assembly) {
 }
 
 // fetch invitations relating to given communication_method
-$fundRequestCorrespondences = FundRequestCorrespondence::search([
+$fundRequestExecutionCorrespondences = FundRequestExecutionCorrespondence::search([
         [ 'assembly_id', '=', $assembly['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
     ->read(['is_sent', 'document_id']);
 
-$fund_request_correspondences_ids = [];
+$fund_request_execution_correspondences_ids = [];
 
-foreach($fundRequestCorrespondences as $fund_request_correspondence_id => $fundRequestCorrespondence) {
+foreach($fundRequestExecutionCorrespondences as $fund_request_execution_correspondence_id => $fundRequestExecutionCorrespondence) {
     // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
-    if(!$fundRequestCorrespondence['document_id']) {
+    if(!$fundRequestExecutionCorrespondence['document_id']) {
         // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_funding_FundRequestCorrespondence_generate-document', ['id' => $fund_request_correspondence_id]);
+        eQual::run('do', 'realestate_funding_FundRequestExecutionCorrespondence_generate-document', ['id' => $fund_request_execution_correspondence_id]);
     }
 
-    $fundRequestCorrespondence = FundRequestCorrespondence::id($fund_request_correspondence_id)
+    $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($fund_request_execution_correspondence_id)
         ->read(['document_id' => ['data']])
         ->first();
 
-    if(!$fundRequestCorrespondence['document_id']) {
+    if(!$fundRequestExecutionCorrespondence['document_id']) {
         continue;
     }
 
-    $fund_request_correspondences_ids[] = $fund_request_correspondence_id;
+    $fund_request_execution_correspondences_ids[] = $fund_request_execution_correspondence_id;
 }
 
 // send all generated documents
-foreach($fund_request_correspondences_ids as $fund_request_correspondence_id) {
+foreach($fund_request_execution_correspondences_ids as $fund_request_execution_correspondence_id) {
     try {
-        eQual::run('do', 'realestate_funding_FundRequestCorrespondence_send-email', ['id' => $fund_request_correspondence_id]);
+        eQual::run('do', 'realestate_funding_FundRequestExecutionCorrespondence_send-email', ['id' => $fund_request_execution_correspondence_id]);
     }
     catch(Exception $e) {
         trigger_error('APP::Error while sending documents ' . $e->getMessage(), EQ_REPORT_ERROR);
