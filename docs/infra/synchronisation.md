@@ -62,7 +62,7 @@ Séquence :
 - applique automatiquement les updates selon scope/options (`accept`, `unsupervised`, `forced`),
 - met à jour `last_sync` à la fin de chaque policy.
 
-> Pour le contrôle de conformité post-initialisation (check-init), voir [Vérification d'initialisation d'une instance](verification-initialisation-et-logique-de-synchronisation.md).
+> Pour le contrôle de conformité post-initialisation (check-init), voir [Vérification d'initialisation d'une instance](verification-initialisation.md).
 
 ## 2. Suivi des demandes de modification
 
