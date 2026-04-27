@@ -33,11 +33,6 @@
             },
             "help": ""
         },
-        "branch": {
-            "label": "Branche",
-            "description": "Branche installée sur l'instance.",
-            "help": ""
-        },
         "url": {
             "label": "Url",
             "description": "URL d'accueil du frontend.",
@@ -48,19 +43,14 @@
             "description": "Serveur sur lequel l'instance s'exécute.",
             "help": ""
         },
-        "product_id": {
-            "label": "Produit",
-            "description": "Produit auquel appartient l'instance.",
+        "user_id": {
+            "label": "Utilisateur d'accès API",
+            "description": "Utilisateur de l'instance étrangère pour accèder à l'API de l'instance.",
             "help": ""
         },
-        "accesses_ids": {
-            "label": "Logiciels",
-            "description": "Informations sur la façon d'accéder à l'instance.",
-            "help": ""
-        },
-        "softwares_ids": {
-            "label": "Logiciels",
-            "description": "Informations sur les logiciels exécutés sur l'instance.",
+        "access_token": {
+            "label": "Token API",
+            "description": "Token pour accéder à l'API de l'instance étrangère.",
             "help": ""
         }
     },
