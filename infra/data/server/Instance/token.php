@@ -6,17 +6,14 @@
 */
 
 use infra\server\Instance;
-use realestate\management\ManagingAgent;
 
-// announce script and fetch parameters values
-list($params, $providers) = eQual::announce([
-    'description'	=>	"Attempts to log a user in.",
-    'help'	        =>	"This controller is meant to be used on the Global instance for providing secret API keys to `agency` instances.",
+[$params, $providers] = eQual::announce([
+    'description'	=>	"Generates an API token for the user linked to the given instance.",
+    'help'	        =>	"This controller allows to provide secret API keys to `agency` instances if on `global`, to `global` instance if on `agency`.",
     'params' 		=>	[
         'id' => [
             'type'              => 'many2one',
-            'description'       => "Managing agent id for which a token is requested.",
-            'help'              => "The managing agent or 'Syndic', is in charge of the condominium, and can be a single person or an agency.",
+            'description'       => "Instance id for which a token is requested.",
             'foreign_object'    => 'infra\server\Instance',
             'required'          => true
         ]
@@ -29,26 +26,31 @@ list($params, $providers) = eQual::announce([
         'charset'           => 'utf-8',
         'accept-origin'     => '*'
     ],
-    'providers'     => ['context', 'auth', 'orm'],
-    'constants'     => ['BACKEND_URL', 'AUTH_ACCESS_TOKEN_VALIDITY', 'AUTH_TOKEN_HTTPS']
+    'constants'     => ['FMT_INSTANCE_TYPE'],
+    'providers'     => ['context', 'auth']
 ]);
 
 /**
  * @var equal\php\Context                   $context
- * @var equal\orm\ObjectManager             $om
  * @var equal\auth\AuthenticationManager    $auth
  */
-['context' => $context, 'orm' => $om, 'auth' => $auth] = $providers;
+['context' => $context, 'auth' => $auth] = $providers;
 
-
-$instance = Instance::id($params['id'])->read(['user_id'])->first();
+$instance = Instance::id($params['id'])
+    ->read(['instance_type', 'user_id'])
+    ->first();
 
 if(!$instance) {
-    throw new Exception("unknown_instance", EQ_ERROR_UNKNOWN_OBJECT);
+    throw new Exception('unknown_instance', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+// do not allow the creation of a token for an instance of the same type as the current one
+if($instance['instance_type'] === constant('FMT_INSTANCE_TYPE')) {
+    throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
 // generate a permanent JWT access token
-$access_token = $auth->token($instance['id'], 0);
+$access_token = $auth->token($instance['user_id'], 0);
 
 $context->httpResponse()
         ->body(['token' => $access_token])

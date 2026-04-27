@@ -86,6 +86,10 @@ class Instance extends Model {
                 'visible'           => ['instance_type', '=', 'agency']
             ],
 
+            'api_token' => [
+
+            ]
+
         ];
     }
 
