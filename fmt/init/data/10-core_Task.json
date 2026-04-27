@@ -48,6 +48,17 @@
                 "is_exclusive": false,
                 "after_execution": "keep",
                 "controller": "finance_accounting_generate-expense-statements"
+            },
+            {
+                "id": 4,
+                "name": "Génération des rappels de paiement",
+                "is_active": true,
+                "is_recurring": true,
+                "repeat_axis": "day",
+                "repeat_step": 1,
+                "is_exclusive": false,
+                "after_execution": "keep",
+                "controller": "realestate_funding_verify-expired-fundings"
             }
         ]
     }
