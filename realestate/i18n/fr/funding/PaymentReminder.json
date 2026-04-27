@@ -13,7 +13,8 @@
             "description": "Status de du rappel.",
             "help": "",
             "selection": {
-                "not_sent": "Non envoyé",
+                "draft": "Brouillon",
+                "pending": "En attente",
                 "sent": "Envoyé",
                 "cancelled": "Annulé"
             }
@@ -37,6 +38,21 @@
             "label": "Propriété",
             "description": "Propriété concerné par le rappel.",
             "help": ""
+        },
+        "payment_reminder_correspondences_ids": {
+            "label": "Correspondances",
+            "description": "Correspondances générées pour ce rappel.",
+            "help": ""
+        },
+        "exporting_tasks_ids": {
+            "label": "Tâches d'export",
+            "description": "Tâches d'export des courriers papier liés au rappel.",
+            "help": ""
+        },
+        "reminders_exporting_task_id": {
+            "label": "Tâche d'export courante",
+            "description": "Dernière tâche d'export générée pour ce rappel.",
+            "help": ""
         }
     },
     "view": {
@@ -44,15 +60,19 @@
             "name": "Rappel financement",
             "description": "",
             "actions": {
-                "action.send_mail": {
-                    "label": "Envoyer",
-                    "description": "Envoyer l'e-mail de rappel."
+                "action.generate_correspondences": {
+                    "label": "Générer les correspondances",
+                    "description": "Générer les correspondances selon les préférences de communication des copropriétaires."
+                },
+                "action.send_reminders": {
+                    "label": "Envoyer les rappels",
+                    "description": "Planifier les e-mails et préparer les exports papier."
                 }
             },
             "layout": {
-                "section.mails": {
-                    "label": "E-mails",
-                    "description": "E-mails envoyé pour rappeler le paiement du financement en retard."
+                "section.correspondences": {
+                    "label": "Correspondances",
+                    "description": "Correspondances envoyées pour rappeler le paiement du financement en retard."
                 }
             }
         },
@@ -60,9 +80,9 @@
             "name": "Rappels financements",
             "description": "Liste des rappels de financements.",
             "header": {
-                "header.selection.actions.send_email": {
-                    "label": "Envoyer",
-                    "description": "Envoyer les e-mails de rappel."
+                "header.selection.actions.send_reminders": {
+                    "label": "Envoyer les rappels",
+                    "description": "Planifier les e-mails et exports des rappels sélectionnés."
                 }
             },
             "layout": {}

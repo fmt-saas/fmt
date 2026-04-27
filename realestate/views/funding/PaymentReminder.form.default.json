@@ -3,11 +3,26 @@
     "description": "",
     "actions": [
         {
-            "id": "action.send_mail",
-            "label": "Send mail",
-            "description": "Send funding payment reminder email.",
-            "controller": "realestate_funding_PaymentReminder_send-email",
-            "visible": ["status", "=", "not_sent"]
+            "id": "action.generate_correspondences",
+            "label": "Generate correspondences",
+            "description": "Generate correspondences according to owners communication preferences.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\funding\\PaymentReminder",
+                "action": "generate_payment_reminder_correspondences"
+            },
+            "visible": ["status", "<>", "cancelled"]
+        },
+        {
+            "id": "action.send_reminders",
+            "label": "Send reminders",
+            "description": "Queue reminder emails and prepare export tasks for paper channels.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\funding\\PaymentReminder",
+                "action": "send_payment_reminders"
+            },
+            "visible": ["status", "<>", "cancelled"]
         }
     ],
     "layout": {
@@ -59,9 +74,8 @@
             {
                 "sections": [
                     {
-                        "id": "section.mails",
-                        "label": "Email",
-                        "visible": ["status", "=", "sent"],
+                        "id": "section.correspondences",
+                        "label": "Correspondences",
                         "rows": [
                             {
                                 "columns": [
@@ -69,9 +83,29 @@
                                         "width": "100%",
                                         "items": [
                                             {
-                                                "type": "field",
-                                                "value": "mails_ids",
+                                                "id": "label.exporting_tasks",
+                                                "type": "label",
+                                                "value": "Export tasks",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "exporting_tasks_ids",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "id": "label.payment_reminder_correspondences",
+                                                "type": "label",
+                                                "value": "Email correspondences",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "payment_reminder_correspondences_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "domain": ["communication_method", "=", "email"]
+                                                }
                                             }
                                         ]
                                     }

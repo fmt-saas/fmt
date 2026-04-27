@@ -22,13 +22,13 @@ class PaymentReminderCorrespondence extends \documents\correspondence\DocumentCo
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'relation'          => ['fund_request_execution_id' => 'name'],
+                'relation'          => ['payment_reminder_id' => 'name'],
                 'store'             => true
             ],
 
             'payment_reminder_id' => [
                 'type'              => 'many2one',
-                'description'       => "The assembly the invitation refers to.",
+                'description'       => "The payment reminder the correspondence refers to.",
                 'foreign_object'    => 'realestate\funding\PaymentReminder',
                 'required'          => true
             ],

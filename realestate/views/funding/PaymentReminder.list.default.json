@@ -8,10 +8,15 @@
             "default" : false,
             "actions" : [
                 {
-                    "id": "header.selection.actions.send_email",
-                    "label": "Send mails",
+                    "id": "header.selection.actions.send_reminders",
+                    "label": "Send reminders",
                     "icon": "send",
-                    "controller": "realestate_funding_PaymentReminder_send-email"
+                    "controller": "core_model_do",
+                    "params": {
+                        "entity": "realestate\\funding\\PaymentReminder",
+                        "action": "send_payment_reminders",
+                        "ids": []
+                    }
                 }
             ]
         }
