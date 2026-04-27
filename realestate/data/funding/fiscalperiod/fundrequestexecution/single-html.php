@@ -181,7 +181,8 @@ $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution
         'fundings_ids' => [
             '@domain' => ['ownership_id', '=', $params['ownership_id']],
             'payment_reference',
-            'remaining_amount'
+            'remaining_amount',
+            'due_date'
         ],
         // #memo - there should be only one execution line matching the ownership
         'execution_lines_ids' => [
