@@ -11,6 +11,59 @@ Le système de **synchronisation** vise à harmoniser les données entre les ins
 
 
 
+## 1.5 Initialisation d'instance et bootstrap de synchronisation
+
+Cette section regroupe la logique d'initialisation qui a un impact direct sur la synchronisation.
+
+### Initialisation d'une instance global
+
+Action de référence : `do fmt_init_instance_global`.
+
+Séquence :
+
+1. vérifie `FMT_INSTANCE_TYPE = global`,
+2. vérifie que `fmt` n'est pas déjà initialisé,
+3. initialise successivement `core`, `identity`, `communication`, puis `fmt`,
+4. optionnel : charge les données de démonstration (`demo=true`).
+
+### Initialisation d'une instance agency
+
+Action de référence : `do fmt_init_instance_agency`.
+
+Séquence :
+
+1. vérifie `FMT_INSTANCE_TYPE = agency`,
+2. initialise `core`, `identity`, `communication`, puis `fmt`,
+3. si `instance_uuid` fourni : enregistre l'UUID sur `Instance(1)`,
+4. si `sync=true` :
+   - garantit l'existence de l'entrée d'instance globale locale,
+   - récupère les SyncPolicy depuis global (`do fmt_sync_SyncPolicy_pull-from-global --reset=true`),
+   - lance un premier pull de données (`do fmt_sync_pull-from-global --accept=true`).
+
+### Flux de synchronisation lancés au bootstrap
+
+#### A. Synchronisation des politiques
+
+`fmt_sync_SyncPolicy_pull-from-global` :
+
+- exécutable côté agency,
+- récupère les SyncPolicy/lines/conditions depuis global,
+- nettoie les champs techniques avant création locale,
+- peut fonctionner en reset complet.
+
+#### B. Synchronisation des données descendantes
+
+`fmt_sync_pull-from-global` :
+
+- travaille policy par policy (`scope` protected/private, direction descending),
+- interroge global depuis `last_sync`,
+- tente un matching local (uuid, champs uniques, cas spécial `slug_hash` pour `identity\Identity`),
+- crée des `UpdateRequest` et `UpdateRequestLine`,
+- applique automatiquement les updates selon scope/options (`accept`, `unsupervised`, `forced`),
+- met à jour `last_sync` à la fin de chaque policy.
+
+> Pour le contrôle de conformité post-initialisation (check-init), voir [Vérification d'initialisation d'une instance](verification-initialisation-et-logique-de-synchronisation.md).
+
 ## 2. Suivi des demandes de modification
 
 Les demandes de modification permettre de suivre et gérer les synchronisations qui sont proposées pour une instance Global ou Local.

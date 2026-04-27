@@ -75,7 +75,7 @@ nav:
       - 'Permissions & Autorisations': permissions-autorisations/permissions-autorisations.md
       - 'Authentification': infra/authentification.md
       - 'Synchronisation': infra/synchronisation.md
-      - 'Vérification d''initialisation & logique de synchronisation': infra/verification-initialisation-et-logique-de-synchronisation.md
+      - 'Vérification d''initialisation': infra/verification-initialisation-et-logique-de-synchronisation.md
       - 'Imports': infra/imports/imports.md
       
 
