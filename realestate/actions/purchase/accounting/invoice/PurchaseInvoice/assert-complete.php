@@ -304,7 +304,8 @@ $previousPurchaseInvoice = PurchaseInvoice::search([
         ['supplier_id', '=', $purchaseInvoice['supplier_id']],
         ['supplier_invoice_number', '=', $purchaseInvoice['supplier_invoice_number']],
         ['emission_date', '=', $purchaseInvoice['emission_date']],
-        ['payable_amount', '=', $purchaseInvoice['payable_amount']]
+        ['payable_amount', '=', $purchaseInvoice['payable_amount']],
+        ['status', '<>', 'cancelled']
     ])
     ->read(['supplier_invoice_number'])
     ->first();
