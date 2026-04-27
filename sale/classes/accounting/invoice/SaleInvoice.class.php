@@ -293,7 +293,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
         $self->read(['status', 'invoice_number']);
         foreach($self as $id => $invoice) {
             // #memo - prevent generating a payment reference for a proforma
-            if($invoice['status'] == 'posted') {
+            if($invoice['status'] === 'posted') {
                 // arbitrary value for balance (final) invoice
                 $code_ref = 500;
 
@@ -340,8 +340,11 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
 
     public static function calcDueDate($self): array {
         $result = [];
-        $self->read(['posting_date', 'payment_terms_id' => ['delay_from', 'delay_count']]);
+        $self->read(['status', 'posting_date', 'payment_terms_id' => ['delay_from', 'delay_count']]);
         foreach($self as $id => $invoice) {
+            if($invoice['status'] === 'proforma') {
+                continue;
+            }
             $result[$id] = strtotime('+1 month');
 
             if(!isset($invoice['posting_date'], $invoice['payment_terms_id']['delay_from'], $invoice['payment_terms_id']['delay_count'])) {
