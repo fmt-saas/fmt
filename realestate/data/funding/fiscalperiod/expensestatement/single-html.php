@@ -421,6 +421,10 @@ $template = Template::search([
     ->read(['id','parts_ids' => ['name', 'value']])
     ->first(true);
 
+if(!$template) {
+    throw new Exception('template_not_found', EQ_ERROR_INVALID_CONFIG);
+}
+
 foreach($template['parts_ids'] as $part_id => $part) {
     if($part['name'] == 'subject') {
         $subject = strip_tags($part['value']);
@@ -456,12 +460,12 @@ foreach($template['parts_ids'] as $part_id => $part) {
             return $map_values[$key] ?? '';
         }, $introduction);
     }
-    elseif($part['name'] == 'communication_payment_amount' && $funding) {
+    elseif($part['name'] == 'communication_payment_amount' && $funding && $funding['remaining_amount'] >= 0.01) {
         $communication = $part['value'];
 
         $map_values = [
             'remaining_amount'  => $formatMoney($funding['remaining_amount']),
-            'due_date'          => $getFormattedDate($funding['due_date'])
+            'due_date'          => $getFormattedDate($funding['due_date'] ?? time())
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -483,7 +487,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             return $map_values[$key] ?? '';
         }, $communication);
     }
-    elseif($part['name'] == 'communication_no_action_required' && abs($funding['remaining_amount']) < 0.01) {
+    elseif($part['name'] == 'communication_no_action_required' && $funding && abs($funding['remaining_amount']) < 0.01) {
         $communication = $part['value'];
     }
 }

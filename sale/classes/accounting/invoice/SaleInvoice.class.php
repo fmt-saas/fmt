@@ -340,19 +340,19 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
 
     public static function calcDueDate($self): array {
         $result = [];
-        $self->read(['emission_date', 'payment_terms_id' => ['delay_from', 'delay_count']]);
+        $self->read(['posting_date', 'payment_terms_id' => ['delay_from', 'delay_count']]);
         foreach($self as $id => $invoice) {
             $result[$id] = strtotime('+1 month');
 
-            if(!isset($invoice['emission_date'], $invoice['payment_terms_id']['delay_from'], $invoice['payment_terms_id']['delay_count'])) {
+            if(!isset($invoice['posting_date'], $invoice['payment_terms_id']['delay_from'], $invoice['payment_terms_id']['delay_count'])) {
                 continue;
             }
 
             $from = $invoice['payment_terms_id']['delay_from'];
             $delay = $invoice['payment_terms_id']['delay_count'];
-            $emission_date = $invoice['emission_date'];
+            $posting_date = $invoice['posting_date'];
 
-            $result[$id] = self::computeDueDate($emission_date, $from, $delay);
+            $result[$id] = self::computeDueDate($posting_date, $from, $delay);
         }
 
         return $result;
