@@ -55,7 +55,7 @@ $paymentReminderCorrespondence = PaymentReminderCorrespondence::id($params['id']
     ->first();
 
 if(!$paymentReminderCorrespondence) {
-    throw new Exception("unknown_expense_statement_correspondence", EQ_ERROR_UNKNOWN_OBJECT);
+    throw new Exception("unknown_payment_reminder_correspondence", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 $html = eQual::run('get', 'realestate_funding_fiscalperiod_paymentreminder_single-html', [

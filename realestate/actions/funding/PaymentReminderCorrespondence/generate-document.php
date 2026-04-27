@@ -10,12 +10,12 @@ use documents\navigation\Node;
 use realestate\funding\PaymentReminderCorrespondence;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Create a document for a given Fund Request Correspondence.",
+    'description'   => "Create a document for a given Payment Reminder Correspondence.",
     'params'        => [
         'id' =>  [
             'type'             => 'many2one',
             'foreign_object'   => 'realestate\funding\PaymentReminderCorrespondence',
-            'description'      => 'Identifier of the Fund request correspondence.',
+            'description'      => 'Identifier of the payment reminder correspondence.',
             'required'          => true
         ]
     ],
@@ -44,7 +44,7 @@ $paymentReminderCorrespondence = PaymentReminderCorrespondence::id($params['id']
     ->first();
 
 if(!$paymentReminderCorrespondence) {
-    throw new Exception("unknown_assembly_invitation", EQ_ERROR_UNKNOWN_OBJECT);
+    throw new Exception("unknown_payment_reminder_correspondence", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 
