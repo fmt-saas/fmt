@@ -6,6 +6,7 @@
 */
 
 use communication\template\Template;
+use equal\data\DataFormatter;
 use fmt\setting\Setting;
 use finance\accounting\FiscalYear;
 use identity\Organisation;
@@ -68,6 +69,28 @@ use Twig\Extension\ExtensionInterface;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
+
+$dataFormatter = function ($value, $usage) {
+    if(is_null($value)) {
+        return '';
+    }
+    return DataFormatter::format($value, $usage);
+};
+
+/**
+ * @param string|float|integer $value
+ * @param bool $currency
+ * @return string
+ */
+$formatMoney = function ($value, $currency=true) {
+    if(is_null($value)) {
+        return '';
+    }
+    if($currency) {
+        return number_format((float) $value, 2, ",", ".") . ' €';
+    }
+    return number_format((float) $value, 2, ",", ".");
+};
 
 $getFormattedDate = function($timestamp) {
     $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
@@ -391,15 +414,11 @@ try {
 
     // #todo - temp workaround against LOCALE mixups
     $twig->addFilter(
-            new TwigFilter('format_money', function ($value, $currency=true) {
-                if(is_null($value)) {
-                    return '';
-                }
-                if($currency) {
-                    return number_format((float) $value, 2, ",", ".") . ' €';
-                }
-                return number_format((float) $value, 2, ",", ".");
-            })
+            new TwigFilter('format_money', $formatMoney)
+        );
+
+    $twig->addFilter(
+            new TwigFilter('data_format', $dataFormatter)
         );
 
     $template = $twig->load('FundRequestExecution.' . $params['view_id'] . '.html');
