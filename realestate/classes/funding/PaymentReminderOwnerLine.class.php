@@ -39,7 +39,7 @@ class PaymentReminderOwnerLine extends \equal\orm\Model {
 
             'funding_id' => [
                 'type'              => 'many2one',
-                'description'       => "The funding reminder relates to.",
+                'description'       => "The funding the reminder relates to.",
                 'foreign_object'    => 'realestate\sale\pay\Funding',
                 'readonly'          => true,
                 'required'          => true
@@ -54,8 +54,21 @@ class PaymentReminderOwnerLine extends \equal\orm\Model {
                 'relation'          => ['funding_id' => 'ownership_id']
             ],
 
+            'days_overdue' => [
+                'type'              => 'integer',
+                'description'       => "Amount of overdue days.",
+                'readonly'          => true,
+                'required'          => true
+            ],
 
-            // ajouter les infos relatives au funding : due_amount (at the date of the reminder), days_overdue (integer)
+            'due_amount' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => 'Amount missing at reminder date.',
+                'readonly'          => true,
+                'required'          => true
+            ]
+
         ];
     }
 

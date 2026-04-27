@@ -64,12 +64,14 @@ foreach($condominiums as $condo_id => $condominium) {
             $paymentReminderOwner = $map_payment_reminder_ownership[$ownership_id];
 
             PaymentReminderOwnerLine::create([
-                'condo_id'                      => $condo_id,
-                'ownership_id'                  => $ownership_id,
-                'funding_id'                    => $funding_id,
-                'payment_reminder_id'           => $paymentReminder['id'],
-                'payment_reminder_owner_id'     => $paymentReminderOwner['id']
-            ]);
+                    'condo_id'                      => $condo_id,
+                    'ownership_id'                  => $ownership_id,
+                    'funding_id'                    => $funding_id,
+                    'payment_reminder_id'           => $paymentReminder['id'],
+                    'payment_reminder_owner_id'     => $paymentReminderOwner['id'],
+                    'days_overdue'                  => floor((strtotime('today') - $funding['due_date']) / 86400),
+                    'due_amount'                    => $funding['due_amount'],
+                ]);
 
         }
     }
