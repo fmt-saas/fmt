@@ -131,10 +131,10 @@
                         <th style="text-align: center; padding-left: 7px; width: 15%;">
                             {{ labels['payments-planning.table.th.deadline'] }}
                         </th>
-                        <th style="text-align: center; padding-right: 7px; width: 55%;">
-                            {{ labels['payments-planning.table.th.appeal'] }}
+                        <th style="text-align: right; padding-right: 7px; width: 55%;">
+                            {{ labels['payments-planning.table.th.call'] }}
                         </th>
-                        <th style="text-align: center; padding-right: 7px; width: 15%;">
+                        <th style="text-align: right; padding-right: 7px; width: 15%;">
                             {{ labels['payments-planning.table.th.amount'] }}
                         </th>
                     </tr>
@@ -149,7 +149,7 @@
                         <td style="text-align: center;">
                             {{ execution.due_date | date(date_format, timezone) }}<br />
                         </td>
-                        <td>
+                        <td style="text-align: right;">
                             {{ execution.price | format_money() }}
                         </td>
                         <td style="text-align: right;">
@@ -268,10 +268,10 @@
                         <th style="text-align: center; padding-left: 7px; width: 15%;">
                             {{ labels['payments-planning.table.th.deadline'] }}
                         </th>
-                        <th style="text-align: center; padding-right: 7px; width: 55%;">
-                            {{ labels['payments-planning.table.th.appeal'] }}
+                        <th style="text-align: right; padding-right: 7px; width: 55%;">
+                            {{ labels['payments-planning.table.th.call'] }}
                         </th>
-                        <th style="text-align: center; padding-right: 7px; width: 15%;">
+                        <th style="text-align: right; padding-right: 7px; width: 15%;">
                             {{ labels['payments-planning.table.th.amount'] }}
                         </th>
                     </tr>
@@ -286,7 +286,7 @@
                         <td style="text-align: center;">
                             {{ execution.due_date | date(date_format, timezone) }}<br />
                         </td>
-                        <td>
+                        <td style="text-align: right;">
                             {{ execution.price | format_money() }}
                         </td>
                         <td style="text-align: right;">
