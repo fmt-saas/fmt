@@ -126,17 +126,11 @@ if(!empty($params['instance_uuid'])) {
             'server_id'     => 1,
             'instance_type' => 'global',
             'name'          => $global_instance_name,
-            'url'           => $params['global_instance_url']
+            'url'           => $params['global_instance_url'],
+            'access_token'  => $params['global_access_token']
         ])
             ->do('create_user')
-            ->read(['user_id'])
             ->first();
-
-        AccessToken::create([
-            'user_id'       => $global_instance['user_id'],
-            'token_type'    => 'access_token',
-            'token'         => $params['global_access_token']
-        ]);
 
         // fetch the sync policies from global and overwrite the existing ones
         eQual::run('do', 'fmt_sync_SyncPolicy_pull-from-global', ['reset' => true]);

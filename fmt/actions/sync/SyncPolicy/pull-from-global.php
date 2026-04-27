@@ -57,6 +57,10 @@ $global_instance = Instance::search(['instance_type', '=', 'global'])
     ->read(['url', 'access_token'])
     ->first();
 
+if(empty($global_instance['access_token'])) {
+    throw new Exception('missing_global_api_access_token', EQ_ERROR_INVALID_PARAM);
+}
+
 try {
     $syncPolicyModel = $orm->getModel(SyncPolicy::class);
     $sync_policy_schema = $syncPolicyModel->getSchema();

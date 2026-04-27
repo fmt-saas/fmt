@@ -80,10 +80,10 @@ class Instance extends Model {
                 'help'              => "Created automatically at instance creation, allows access from the foreign instance to this instance's API."
             ],
 
-            'access_token_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'core\\security\\AccessToken',
-                'description'       => 'Token to use to access the instance API.'
+            'access_token' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Token to use to access the instance API."
             ],
 
             'managing_agent_id' => [

@@ -98,7 +98,7 @@ if($user_id <= 0) {
             ->header('Content-Type', 'application/json')
             ->header('Authorization', 'Bearer ' . $global_instance['access_token']);
 
-        /** @var HttpResponse */
+        /** @var \equal\http\HttpResponse $response */
         $response = $request->send();
         $data = $response->body();
 
