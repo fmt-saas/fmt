@@ -81,7 +81,14 @@ try {
         ->header('Authorization', 'Bearer ' . $global_instance['access_token']);
 
     $response = $request->send();
+
     $data = $response->body();
+    $status = $response->getStatusCode();
+
+    if($status < 200 || $status > 299) {
+        trigger_error("APP::Global API error: " . json_encode($data), EQ_REPORT_ERROR);
+        throw new Exception("global_api_error", EQ_ERROR_INVALID_PARAM);
+    }
 
     foreach($data as $sync_policy_data) {
         $lines_data = $sync_policy_data['sync_policy_lines_ids'];

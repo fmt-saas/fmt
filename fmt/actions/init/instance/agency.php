@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use core\security\AccessToken;
 use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
@@ -130,6 +131,12 @@ if(!empty($params['instance_uuid'])) {
             ->do('create_user')
             ->read(['user_id'])
             ->first();
+
+        AccessToken::create([
+            'user_id'       => $global_instance['user_id'],
+            'token_type'    => 'access_token',
+            'token'         => $params['global_access_token']
+        ]);
 
         // fetch the sync policies from global and overwrite the existing ones
         eQual::run('do', 'fmt_sync_SyncPolicy_pull-from-global', ['reset' => true]);
