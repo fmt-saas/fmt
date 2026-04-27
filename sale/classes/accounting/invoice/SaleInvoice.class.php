@@ -342,9 +342,11 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
         $result = [];
         $self->read(['status', 'posting_date', 'payment_terms_id' => ['delay_from', 'delay_count']]);
         foreach($self as $id => $invoice) {
+            /*
             if($invoice['status'] === 'proforma') {
                 continue;
             }
+            */
             $result[$id] = strtotime('+1 month');
 
             if(!isset($invoice['posting_date'], $invoice['payment_terms_id']['delay_from'], $invoice['payment_terms_id']['delay_count'])) {
