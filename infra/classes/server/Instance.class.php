@@ -84,10 +84,6 @@ class Instance extends Model {
                 'foreign_object'    => 'realestate\management\ManagingAgent',
                 'description'       => "The Managing agent the Instance relates to.",
                 'visible'           => ['instance_type', '=', 'agency']
-            ],
-
-            'api_token' => [
-
             ]
 
         ];
