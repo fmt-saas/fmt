@@ -1,13 +1,16 @@
-# Vérification d'initialisation d'une instance et logique de synchronisation
+# Vérification d'initialisation d'une instance
 
 ## Objectif
 
-Cette documentation décrit le fonctionnement de la vérification d'initialisation d'une instance **agency** depuis l'instance **global**, ainsi que la logique générale d'initialisation et de synchronisation entre instances.
+Cette page documente le **contrôle d'initialisation** d'une instance **agency** depuis l'instance **global**.
 
-Deux points d'entrée sont utilisés :
+Elle couvre :
+- le point d'entrée de vérification côté global,
+- le point d'entrée de collecte côté agency,
+- la structure du rapport (`warnings`, `errors`, `logs`),
+- les recommandations de remédiation.
 
-- **Action globale** : `do fmt_sync_check-init`
-- **Endpoint agence** : `get fmt_sync_init-data`
+> Pour la logique de synchronisation (politiques, flux ascendants/descendants, `UpdateRequest`, premier pull), voir la page dédiée : [Synchronisation des données](synchronisation.md).
 
 ---
 
@@ -78,6 +81,8 @@ En cas de réponse non 200, le contrôle échoue.
 5. **Role assignments globaux** : vérifie la présence des rôles attendus au niveau global (`condo_id = null`).
 6. **Settings** : compare les réglages non spécifiques copropriété (avec exclusions explicites).
 
+> Le contrôle de vérification s'appuie sur des éléments de synchronisation (notamment les SyncPolicy descendantes) pour déterminer le périmètre attendu. La logique détaillée de synchronisation reste documentée dans [Synchronisation des données](synchronisation.md).
+
 #### Étape D — Niveau de log
 
 - Si `log_level = error`, les lignes `WARN` sont filtrées.
@@ -127,60 +132,7 @@ Ce comportement garantit que global et agency comparent le même périmètre log
 
 ---
 
-## 4) Logique générale d'initialisation
-
-### Instance global
-
-Action de référence : `do fmt_init_instance_global`.
-
-Séquence :
-
-1. vérifie `FMT_INSTANCE_TYPE = global`,
-2. vérifie que `fmt` n'est pas déjà initialisé,
-3. initialise successivement `core`, `identity`, `communication`, puis `fmt`,
-4. optionnel : charge les données de démonstration (`demo=true`).
-
-### Instance agency
-
-Action de référence : `do fmt_init_instance_agency`.
-
-Séquence :
-
-1. vérifie `FMT_INSTANCE_TYPE = agency`,
-2. initialise `core`, `identity`, `communication`, puis `fmt`,
-3. si `instance_uuid` fourni : enregistre l'UUID sur `Instance(1)`,
-4. si `sync=true` :
-   - garantit l'existence de l'entrée d'instance globale locale,
-   - récupère les SyncPolicy depuis global (`do fmt_sync_SyncPolicy_pull-from-global --reset=true`),
-   - lance un premier pull de données (`do fmt_sync_pull-from-global --accept=true`).
-
----
-
-## 5) Logique générale de synchronisation (résumé)
-
-### A. Synchronisation des politiques
-
-`fmt_sync_SyncPolicy_pull-from-global` :
-
-- exécutable côté agency,
-- récupère les SyncPolicy/lines/conditions depuis global,
-- nettoie les champs techniques avant création locale,
-- peut fonctionner en reset complet.
-
-### B. Synchronisation des données descendantes
-
-`fmt_sync_pull-from-global` :
-
-- travaille policy par policy (`scope` protected/private, direction descending),
-- interroge global depuis `last_sync`,
-- tente un matching local (uuid, champs uniques, cas spécial `slug_hash` pour `identity\Identity`),
-- crée des `UpdateRequest` et `UpdateRequestLine`,
-- applique automatiquement les updates selon scope/options (`accept`, `unsupervised`, `forced`),
-- met à jour `last_sync` à la fin de chaque policy.
-
----
-
-## 6) Recommandations opérationnelles
+## 4) Recommandations opérationnelles
 
 1. Après initialisation d'une agency synchronisée, exécuter immédiatement `do fmt_sync_check-init` depuis global.
 2. Corriger en priorité les `ERR` (bloquants).
@@ -189,7 +141,7 @@ Séquence :
 
 ---
 
-## 7) Exemple d'usage
+## 5) Exemple d'usage
 
 ### Depuis global
 
@@ -198,3 +150,10 @@ Séquence :
 ### Depuis agency (appelé par global)
 
 - `get fmt_sync_init-data`
+
+---
+
+## 6) Documentation liée
+
+- [Synchronisation des données](synchronisation.md)
+- [Authentification](authentification.md)
