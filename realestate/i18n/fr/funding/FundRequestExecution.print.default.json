@@ -17,6 +17,6 @@
     "payments-planning.title": "Planification des versements attendus :",
     "payments-planning.table.th.date": "Date",
     "payments-planning.table.th.deadline": "Échéance",
-    "payments-planning.table.th.appeal": "Appel période",
+    "payments-planning.table.th.call": "Appel période",
     "payments-planning.table.th.amount": "Montant"
 }
