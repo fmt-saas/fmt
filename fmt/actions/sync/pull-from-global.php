@@ -6,7 +6,6 @@
 */
 
 use equal\http\HttpRequest;
-use fmt\setting\Setting;
 use fmt\sync\SyncPolicy;
 use fmt\sync\UpdateRequest;
 use fmt\sync\UpdateRequestLine;
@@ -29,7 +28,7 @@ use infra\server\Instance;
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_INTERNAL_TOKEN', 'FMT_API_URL_GLOBAL'],
+    'constants'     => ['FMT_INSTANCE_TYPE'],
     'providers'     => ['context', 'orm']
 ]);
 
@@ -67,11 +66,24 @@ $result = [
     'logs'      => []
 ];
 
-// #memo - on local instances there is a single Instance object
-$instance = Instance::search()->read(['uuid'])->first();
+$instance = Instance::search(['instance_type', '=', 'agency'])
+    ->read(['uuid'])
+    ->first();
 
 if(!$instance || empty($instance['uuid'])) {
     throw new Exception('unknown_instance_uuid', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+$global_instance = Instance::search(['instance_type', '=', 'global'])
+    ->read(['url', 'access_token'])
+    ->first();
+
+if(!$global_instance) {
+    throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
+}
+
+if(empty($global_instance['access_token'])) {
+    throw new Exception('missing_access_token', EQ_ERROR_INVALID_CONFIG);
 }
 
 foreach($policies as $id => $policy) {
@@ -95,7 +107,7 @@ foreach($policies as $id => $policy) {
 
         $date_from = date('c', $policy['last_sync']);
 
-        $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_sync_pull-from-local' .
+        $request = new HttpRequest('GET ' . rtrim($global_instance['url'], '/') . '/?get=fmt_sync_pull-from-local' .
                 '&entity=' . urlencode($policy['object_class']) .
                 '&date_from=' . urlencode($date_from) .
                 '&instance_uuid=' . $instance['uuid']
@@ -103,7 +115,7 @@ foreach($policies as $id => $policy) {
 
         $request
             ->header('Content-Type', 'application/json')
-            ->header('Authorization', 'Bearer ' . constant('FMT_API_INTERNAL_TOKEN'));
+            ->header('Authorization', 'Bearer ' . $global_instance['access_token']);
 
         /** @var \equal\http\HttpResponse $response */
         $response = $request->send();

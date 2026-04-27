@@ -8,6 +8,7 @@
 
 use fmt\setting\Setting;
 use fmt\setting\SettingValue;
+use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
     'description' => 'Retrieve public configuration intended for front-end.',
@@ -25,44 +26,54 @@ use fmt\setting\SettingValue;
         'expires'       => (60 * 60 * 24)
     ],
     'constants'   => [
-        "ENV_MODE",
-        "APP_DEFAULT_LANG",
-        "L10N_LOCALE",
-        "ORG_NAME",
-        "ORG_URL",
-        "APP_NAME",
-        "APP_LOGO_URL",
-        "BACKEND_URL",
-        "REST_API_URL",
-        "NOTIFICATIONS_ENABLED",
-        "USER_ACCOUNT_REGISTRATION",
-        "FMT_INSTANCE_TYPE",
-        "FMT_API_URL_GLOBAL",
-        "GOOGLE_GMAIL_CLIENT_ID",
-        "MS_OUTLOOK_CLIENT_ID"
+        'ENV_MODE',
+        'APP_DEFAULT_LANG',
+        'L10N_LOCALE',
+        'ORG_NAME',
+        'ORG_URL',
+        'APP_NAME',
+        'APP_LOGO_URL',
+        'BACKEND_URL',
+        'REST_API_URL',
+        'NOTIFICATIONS_ENABLED',
+        'USER_ACCOUNT_REGISTRATION',
+        'FMT_INSTANCE_TYPE',
+        'GOOGLE_GMAIL_CLIENT_ID',
+        'MS_OUTLOOK_CLIENT_ID'
     ],
     'providers'     => ['context', 'auth']
 ] );
 
 ['context' => $context, 'auth' => $auth] = $providers;
 
+$api_url_global = '';
+if(constant('FMT_INSTANCE_TYPE') === 'agency') {
+    $global_instance = Instance::search(['instance_type', '=', 'global'])
+        ->read(['url'])
+        ->first();
+
+    if(!empty($global_instance['url'])) {
+        $api_url_global = $global_instance['url'];
+    }
+}
+
 $envinfo = [
-    "env_mode"                  => constant('ENV_MODE'),
-    "production"                => (constant('ENV_MODE') == 'production'),
-    "parent_domain"             => parse_url(constant('BACKEND_URL'), PHP_URL_HOST),
-    "backend_url"               => constant('BACKEND_URL'),
-    "rest_api_url"              => constant('REST_API_URL'),
-    "lang"                      => constant('APP_DEFAULT_LANG'),
-    "locale"                    => constant('L10N_LOCALE'),
-    "company_name"              => constant('ORG_NAME'),
-    "company_url"               => constant('ORG_URL'),
-    "app_name"                  => constant('APP_NAME'),
-    "app_logo_url"              => constant('APP_LOGO_URL'),
-    "account_registration"      => constant('USER_ACCOUNT_REGISTRATION'),
-    "instance_type"             => constant('FMT_INSTANCE_TYPE'),
-    "api_url_global"            => constant('FMT_API_URL_GLOBAL'),
-    "google_gmail_client_id"    => constant('GOOGLE_GMAIL_CLIENT_ID'),
-    "ms_outlook_client_id"      => constant('MS_OUTLOOK_CLIENT_ID')
+    'env_mode'                  => constant('ENV_MODE'),
+    'production'                => (constant('ENV_MODE') == 'production'),
+    'parent_domain'             => parse_url(constant('BACKEND_URL'), PHP_URL_HOST),
+    'backend_url'               => constant('BACKEND_URL'),
+    'rest_api_url'              => constant('REST_API_URL'),
+    'lang'                      => constant('APP_DEFAULT_LANG'),
+    'locale'                    => constant('L10N_LOCALE'),
+    'company_name'              => constant('ORG_NAME'),
+    'company_url'               => constant('ORG_URL'),
+    'app_name'                  => constant('APP_NAME'),
+    'app_logo_url'              => constant('APP_LOGO_URL'),
+    'account_registration'      => constant('USER_ACCOUNT_REGISTRATION'),
+    'instance_type'             => constant('FMT_INSTANCE_TYPE'),
+    'api_url_global'            => $api_url_global,
+    'google_gmail_client_id'    => constant('GOOGLE_GMAIL_CLIENT_ID'),
+    'ms_outlook_client_id'      => constant('MS_OUTLOOK_CLIENT_ID')
 ];
 
 // retrieve current User

@@ -36,7 +36,7 @@ use infra\server\Instance;
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_INTERNAL_TOKENS'],
+    'constants'     => ['FMT_INSTANCE_TYPE'],
     'providers'     => ['context', 'orm']
 ]);
 
@@ -126,24 +126,23 @@ if(!is_array($check_config)) {
     throw new Exception('check_config_invalid', EQ_ERROR_INVALID_CONFIG);
 }
 
-$instance = Instance::id($params['id'])
-    ->read(['name', 'url'])
+$agency_instance = Instance::id($params['id'])
+    ->read(['name', 'url', 'access_token'])
     ->first();
 
-if(!$instance) {
+if(!$agency_instance) {
     throw new Exception('instance_not_found', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$map_instances_tokens = constant('FMT_API_INTERNAL_TOKENS') ?? [];
-if(empty($map_instances_tokens[$instance['name']])) {
-    throw new Exception('missing_agency_api_token', EQ_ERROR_INVALID_CONFIG);
+if(empty($agency_instance['access_token'])) {
+    throw new Exception('missing_access_token', EQ_ERROR_INVALID_CONFIG);
 }
 
-$request = new HttpRequest('GET ' . rtrim($instance['url'], '/') . '/?get=fmt_sync_init-data');
+$request = new HttpRequest('GET ' . rtrim($agency_instance['url'], '/') . '/?get=fmt_sync_init-data');
 
 $request
     ->header('Content-Type', 'application/json')
-    ->header('Authorization', 'Bearer ' . $map_instances_tokens[$instance['name']]);
+    ->header('Authorization', 'Bearer ' . $agency_instance['access_token']);
 
 /** @var \equal\http\HttpResponse $response */
 $response = $request->send();

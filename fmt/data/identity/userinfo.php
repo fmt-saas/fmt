@@ -16,7 +16,7 @@ use realestate\ownership\Owner;
     'access'      => [
         'visibility' => 'public'
     ],
-    'constants'     => ['AUTH_TOKEN_HTTPS', 'AUTH_ACCESS_TOKEN_VALIDITY', 'BACKEND_URL', 'FMT_INSTANCE_TYPE', 'FMT_API_URL_GLOBAL', 'FMT_API_INTERNAL_TOKEN'],
+    'constants'     => ['AUTH_TOKEN_HTTPS', 'AUTH_ACCESS_TOKEN_VALIDITY', 'BACKEND_URL', 'FMT_INSTANCE_TYPE'],
     'response'      => [
         'content-type'      => 'application/json',
         'charset'           => 'UTF-8',
@@ -73,24 +73,30 @@ if($user_id <= 0) {
             throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
         }
 
-        // #memo - on Local instances there is a single Instance object
-        $instance = Instance::search()->read(['uuid'])->first();
+        $global_instance = Instance::search(['instance_type', '=', 'global'])
+            ->read(['uuid', 'access_token'])
+            ->first();
 
-        if(!$instance) {
+        if(!$global_instance) {
             throw new Exception('protected_operation', EQ_ERROR_NOT_ALLOWED);
         }
 
-        $user_uuid = $token['payload']['user_uuid'] ?? null;
-        $instance_uuid = $instance['uuid'] ?? null;
+        if(empty($global_instance['access_token'])) {
+            throw new Exception('missing_access_token', EQ_ERROR_INVALID_CONFIG);
+        }
 
-        $request = new HttpRequest('GET ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?get=fmt_user_resolve' .
+        $user_uuid = $token['payload']['user_uuid'] ?? null;
+        $instance_uuid = $global_instance['uuid'] ?? null;
+
+        $request = new HttpRequest('GET ' . rtrim($global_instance['url'], '/') . '/?get=fmt_user_resolve' .
             '&user_uuid=' . $user_uuid .
             '&instance_uuid=' . $instance_uuid .
-            '&token=' . $global_jwt);
+            '&token=' . $global_jwt
+        );
 
         $request
             ->header('Content-Type', 'application/json')
-            ->header('Authorization', 'Bearer ' . constant('FMT_API_INTERNAL_TOKEN'));
+            ->header('Authorization', 'Bearer ' . $global_instance['access_token']);
 
         /** @var HttpResponse */
         $response = $request->send();
@@ -108,7 +114,6 @@ if($user_id <= 0) {
         $user_id = $user['id'];
         $auth->su($user_id);
     }
-
 }
 
 // #memo - user has always READ right on its own object

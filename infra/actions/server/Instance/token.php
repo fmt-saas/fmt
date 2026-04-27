@@ -5,6 +5,7 @@
     Licensed under GNU LGPL 3 license <http://www.gnu.org/licenses/>
 */
 
+use core\security\AccessToken;
 use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
@@ -52,6 +53,13 @@ if($instance['instance_type'] === constant('FMT_INSTANCE_TYPE')) {
 // generate a permanent JWT access token
 $access_token = $auth->token($instance['user_id'], 0);
 
-$context->httpResponse()
-        ->body(['token' => $access_token])
-        ->send();
+AccessToken::create([
+    'user_id'       => $instance['user_id'],
+    'token_type'    => 'access_token',
+    'token'         => $access_token
+]);
+
+$context
+    ->httpResponse()
+    ->body(['token' => $access_token])
+    ->send();

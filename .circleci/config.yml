@@ -43,11 +43,11 @@ jobs:
       - run: php run.php --do=init_package --package=core --ignore_platform=true
       # create temp config file for init with FMT specific constants
       - run: |
-          echo "{\"DEFAULT_LANG\": \"fr\", \"FMT_INSTANCE_TYPE\": \"global\", \"FMT_API_URL_EDMS\": \"http://localhost/\", \"FMT_API_URL_GLOBAL\": \"http://localhost/\", \"MINDEE_API_KEY\": \"\"}" > config/config.json
+          echo "{\"DEFAULT_LANG\": \"fr\", \"FMT_INSTANCE_TYPE\": \"global\", \"FMT_API_URL_EDMS\": \"http://localhost/\", \"MINDEE_API_KEY\": \"\"}" > config/config.json
       - run: php run.php --do=init_package --package=fmt --import=true --ignore_platform=true
       # create a config file with FMT specific constants & specific services
       - run: |
-          echo "{\"DEFAULT_LANG\": \"fr\", \"FMT_INSTANCE_TYPE\": \"global\", \"FMT_API_URL_EDMS\": \"http://localhost/\", \"FMT_API_URL_GLOBAL\": \"http://localhost/\", \"MINDEE_API_KEY\": \"\", \"SERVICE_ORM_COLLECTION_CLASS\": \"fmt\\\\orm\\\\Collection\", \"SERVICE_ACCESS_ACCESSCONTROLLER\": \"fmt\\\\access\\\\AccessController\"}" > config/config.json
+          echo "{\"DEFAULT_LANG\": \"fr\", \"FMT_INSTANCE_TYPE\": \"global\", \"FMT_API_URL_EDMS\": \"http://localhost/\", \"MINDEE_API_KEY\": \"\", \"SERVICE_ORM_COLLECTION_CLASS\": \"fmt\\\\orm\\\\Collection\", \"SERVICE_ACCESS_ACCESSCONTROLLER\": \"fmt\\\\access\\\\AccessController\"}" > config/config.json
       # verify the content of the file
       - run: php run.php --do=init_package --package=fmt --force=true --import=false --demo=true
       # Run static analysis
