@@ -294,6 +294,7 @@ $expense_statement_fields = [
         'common_total',
         'private_total',
         'provisions_total',
+        'statement_bank_account_id' => ['bank_account_iban', 'bank_account_bic'],
         'statement_owners_ids' => [
             '@domain' => ['ownership_id', '=', $params['ownership_id']],
             'ownership_id',
@@ -515,7 +516,13 @@ $values = array_merge($values, [
     'recipient'           => $owner['identity_id'],
 
     'funding'             => $funding,
-    'payment_qr_code_uri' => $getPaymentQrCodeUri($fiscalPeriod['condo_id']['legal_name'], $fiscalPeriod['condo_id']['bank_account_iban'], $fiscalPeriod['condo_id']['bank_account_bic'], $funding['payment_reference'] ?? '', $funding['remaining_amount'] ?? 0),
+    'payment_qr_code_uri' => $getPaymentQrCodeUri(
+            $fiscalPeriod['condo_id']['legal_name'],
+            $statement['statement_bank_account_id']['bank_account_iban'] ?? $fiscalPeriod['condo_id']['bank_account_iban'],
+            $statement['statement_bank_account_id']['bank_account_bic'] ?? $fiscalPeriod['condo_id']['bank_account_bic'],
+            $funding['payment_reference'] ?? '',
+            $funding['remaining_amount'] ?? 0
+        ),
 
     'date'                => time(),
     'timezone'            => constant('L10N_TIMEZONE'),
