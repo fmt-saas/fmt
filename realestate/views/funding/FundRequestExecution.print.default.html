@@ -117,6 +117,93 @@
     </div>
 
     <!-- fund_requests start -->
+        <div class="fiscal_year-lines">
+            <table class="inner" width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: auto;">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; padding-left: 7px; width: 15%;">
+                            {{ labels['payments-planning.table.th.date'] }}
+                        </th>
+                        <th style="text-align: center; padding-left: 7px; width: 15%;">
+                            {{ labels['payments-planning.table.th.deadline'] }}
+                        </th>
+                        <th style="text-align: center; padding-right: 7px; width: 55%;">
+                            {{ labels['payments-planning.table.th.appeal'] }}
+                        </th>
+                        <th style="text-align: center; padding-right: 7px; width: 15%;">
+                            {{ labels['payments-planning.table.th.amount'] }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    {% for execution_line in execution['execution_lines_ids'] %}
+                    <tr>
+                        <td style="text-align: center;">
+                            {{ execution.posting_date | date(date_format, timezone) }}<br />
+                        </td>
+                        <td style="text-align: center;">
+                            {{ execution.due_date | date(date_format, timezone) }}<br />
+                        </td>
+                        <td>
+                            {{ execution.price | format_money() }}
+                        </td>
+                        <td style="text-align: right;">
+                            {{ execution_line.price | format_money() }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+        {% if funding %}
+        <div style="page-break-inside: avoid; margin: 20px 0;">
+
+            <!-- a) payment information -->
+            {% if funding.remaining_amount > 0.0 %}
+            <div style="position: relative; font-size: 15px; margin-top: 20px; padding: 15px 15px 0 15px; border: solid 1px black; height: 215px; page-break-inside: avoid;">
+                <div>
+                    {{ communication.payment_amount | raw }}
+                </div>
+                <div style="margin-top: 20px;">
+                    {{ communication.payment_reference | raw }} &nbsp; ({{ funding.payment_reference | data_format('scor') }})<br />
+                    IBAN : {{ condominium.bank_account_iban | data_format('iban') }}<br />
+                    BIC : {{ condominium.bank_account_bic }}<br />
+                    <br />
+                    {{ condominium.legal_name }}<br />
+                    {{ condominium.address_street }}<br />
+                    {{ condominium.address_zip }} {{ condominium.address_city }}
+                </div>
+                <div style="position: absolute; right: 10px; top: 35px;">
+                    <img src="{{ payment_qr_code_uri }}" width= "150" height="150" />
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- b) reimbursement information -->
+            {% if funding.remaining_amount < 0.0 %}
+            <div style="position: relative; font-size: 14px; margin-top: 20px; padding: 15px; border: solid 1px black; page-break-inside: avoid;">
+                <div>
+                    {{ communication.reimbursement | raw }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- c) no payment nor reimbursement needed information -->
+            {% if funding.remaining_amount == 0.0 %}
+            <div style="position: relative; font-size: 14px; margin-top: 20px; padding: 15px; border: solid 1px black; page-break-inside: avoid;">
+                <div>
+                    {{ communication.no_action_required | raw }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+
+
 
         <div class="fiscal_year-lines">
             <table class="inner" width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: auto;">
@@ -176,40 +263,6 @@
 
                 </tbody>
             </table>
-            <!--
-            <table class="trailer" width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: avoid;">
-                <tbody>
-                <tr valign="top">
-                    <td style="width: 87%; text-align: right; padding-right: 10px;">
-                        {{ labels.total_excl_vat }}
-                    </td>
-                    <td style="width: 13%; text-align: right; border-right: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">
-                        {{ item.total | format_money() }}
-                    </td>
-                </tr>
-                {% for tax_label, tax_total in tax_lines %}
-                {% if (tax_total != 0.0) %}
-                <tr>
-                    <td style="text-align: right; padding-right: 10px;">
-                        {{ tax_label }}
-                    </td>
-                    <td style="text-align: right; border-right: 1px solid black; border-left: solid 1px black; border-bottom: solid 1px black;">
-                        {{ tax_total | format_money() }}
-                    </td>
-                </tr>
-                {% endif %}
-                {% endfor %}
-                <tr>
-                    <td style="text-align: right; padding-right: 10px;">
-                        <b>{{ labels.total_incl_vat }}</b>
-                    </td>
-                    <td style="text-align: right; border-right: 1px solid black; border-bottom: 1px solid black; border-left: 1px solid black;">
-                        <b>{{ item.price | format_money() }}</b>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            -->
         </div>
 
         <div style="margin: 20px 0; font-weight: bold;">

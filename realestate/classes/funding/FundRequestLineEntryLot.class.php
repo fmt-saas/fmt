@@ -64,7 +64,7 @@ class FundRequestLineEntryLot extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\funding\FundRequestLineEntry',
                 'description'       => "The fund request line the lot relates to.",
-                'dependents'        => ['fund_request_id', 'request_line_id', 'ownership_id'],
+                'dependents'        => ['fund_request_id', 'request_line_id'],
                 'ondelete'          => 'cascade',
                 'required'          => true
             ],
