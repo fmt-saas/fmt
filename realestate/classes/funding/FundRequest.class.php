@@ -820,7 +820,7 @@ class FundRequest extends \equal\orm\Model {
 
             $map_line_entry_execution_lines = [];
 
-            foreach($execution_dates as $execution_date) {
+            foreach($execution_dates as $execution_index => $execution_date) {
                 if(empty($map_lot_execution_amounts[$execution_date])) {
                     continue;
                 }

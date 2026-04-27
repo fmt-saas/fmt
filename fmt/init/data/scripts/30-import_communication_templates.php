@@ -523,19 +523,19 @@ TemplatePart::create([
     'name'          => 'subject',
     'value'         => 'Appel de fonds',
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "label", "period", "date_from", "date_to"]'
+    'variables'     => '["condo", "label", "date_from", "date_to"]'
 ]);
 TemplatePart::create([
     'name'          => 'introduction',
     'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Veuillez trouver en pièce jointe l'appel de fonds concernant la copropriété <strong>{condo}</strong> pour la période <strong>{period}</strong>.</p><p><br></p><p>Le montant est payable pour le <strong>{due_date}</strong>, selon les modalités précisées dans le document annexé.</p><p><br></p><p>Nous vous remercions de votre attention et restons à votre disposition pour toute information complémentaire.</p>",
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "firstname", "lastname", "period"]'
+    'variables'     => '["condo", "firstname", "lastname", "date_from", "date_to"]'
 ]);
 TemplatePart::create([
     'name'          => 'communication_payment_amount',
     'value'         => '<p>Le montant de <b>{remaining_amount}</b> doit être réglé avant le <b>{due_date}</b></p>',
     'template_id'   => $template['id'],
-    'variables'     => '["remaining_amount", "due_date", "date_from", "date_to"]'
+    'variables'     => '["remaining_amount", "due_date"]'
 ]);
 TemplatePart::create([
     'name'          => 'communication_reimbursement',
