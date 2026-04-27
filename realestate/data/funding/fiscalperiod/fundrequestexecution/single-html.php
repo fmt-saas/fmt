@@ -405,6 +405,7 @@ $labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/funding/%s.j
 $values = [
     'title'               => $subject,
     'introduction'        => $introduction,
+    'communication'       => $communication,
 
     'fund_request'        => $fund_request,
     'execution'           => $execution,
