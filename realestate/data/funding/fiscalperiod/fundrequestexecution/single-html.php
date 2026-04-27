@@ -236,6 +236,7 @@ $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id'])
         'date_range_frequency',
         'date_from',
         'date_to',
+        'request_bank_account_id' => ['bank_account_iban', 'bank_account_bic'],
         'fiscal_period_id' => [
             'name',
             'date_from',
@@ -435,7 +436,13 @@ $values = [
     'recipient'           => $owner['identity_id'],
 
     'funding'             => $funding,
-    'payment_qr_code_uri' => $getPaymentQrCodeUri($fundRequestExecution['condo_id']['legal_name'], $fundRequestExecution['condo_id']['bank_account_iban'], $fundRequestExecution['condo_id']['bank_account_bic'], $funding['payment_reference'] ?? '', $funding['remaining_amount'] ?? 0),
+    'payment_qr_code_uri' => $getPaymentQrCodeUri(
+                $fundRequestExecution['condo_id']['legal_name'],
+                $fundRequest['request_bank_account_id']['bank_account_iban'] ?? $fundRequestExecution['condo_id']['bank_account_iban'],
+                $fundRequest['request_bank_account_id']['bank_account_bic'] ?? $fundRequestExecution['condo_id']['bank_account_bic'],
+                $funding['payment_reference'] ?? '',
+                $funding['remaining_amount'] ?? 0
+            ),
 
     'date'                => time(),
     'timezone'            => constant('L10N_TIMEZONE'),
