@@ -159,7 +159,7 @@
                             {{ line.request_amount | format_money() }}
                         </td>
                         <td style="text-align: right;">
-                            {{ line.owner_shares }}
+                            {{ line.owner_shares }} / {{ line.total_shares }}
                         </td>
                         <td style="text-align: right;">
                             {{ line.owner_total | format_money() }}
@@ -236,7 +236,7 @@
                 </thead>
                 <tbody>
                 {% for execution in executions %}
-                    {% for execution_line in executions['execution_lines_ids'] %}
+                    {% for execution_line in execution['execution_lines_ids'] %}
                     <tr>
                         <td style="text-align: center;">
                             {{ execution.posting_date | date(date_format, timezone) }}<br />
@@ -253,13 +253,9 @@
                     </tr>
                     {% endfor %}
                 {% endfor %}
-
                 </tbody>
             </table>
         </div>
-
-
-
 
 
 

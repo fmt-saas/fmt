@@ -208,7 +208,7 @@ $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id'])
             'date_from',
             'date_to'
         ],
-        'request_lines_ids' => ['name', 'request_amount', 'apportionment_id' => ['name']],
+        'request_lines_ids' => ['name', 'request_amount', 'apportionment_id' => ['name', 'total_shares']],
         'line_entries_ids'  => [
             '@domain' => ['ownership_id', '=', $params['ownership_id']],
             'apportionment_shares',
@@ -252,6 +252,7 @@ foreach($fundRequest['line_entries_ids'] as $request_line_entry_id => $requestLi
 foreach($fundRequest['request_lines_ids'] as $request_line_id => $requestLine) {
     $fund_request['lines'][] = [
         'apportionment'     => $requestLine['apportionment_id']['name'],
+        'total_shares'      => $requestLine['apportionment_id']['total_shares'],
         'request_amount'    => $requestLine['request_amount'],
         'owner_shares'      => $map_request_line_entries[$request_line_id]['apportionment_shares'] ?? 0,
         'owner_total'       => $map_request_line_entries[$request_line_id]['allocated_amount'] ?? 0
