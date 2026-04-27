@@ -7,6 +7,7 @@
 
 namespace infra\server;
 
+use core\security\AccessToken;
 use core\User;
 use equal\data\DataGenerator;
 use equal\orm\Model;
@@ -76,7 +77,15 @@ class Instance extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'core\User',
                 'description'       => 'User for API requests from the instance to Global instance.',
-                'help'              => "Created automatically at instance creation, allows access from the foreign instance to this instance's API."
+                'help'              => "Created automatically at instance creation, allows access from the foreign instance to this instance's API.",
+                'visible'           => ['instance_type', '<>', \eQual::constant('FMT_INSTANCE_TYPE')]
+            ],
+
+            'access_token' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Token to use to access the instance API.",
+                'visible'           => ['instance_type', '<>', \eQual::constant('FMT_INSTANCE_TYPE')]
             ],
 
             'managing_agent_id' => [

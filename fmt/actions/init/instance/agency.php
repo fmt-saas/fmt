@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use core\security\AccessToken;
 use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
@@ -14,15 +15,19 @@ use infra\server\Instance;
             'type'          => 'string',
             'description'   => "The UUID of the agency instance, it is generated on global instance."
         ],
-        'api_internal_token' => [
-            'type'          => 'string',
-            'description'   => "The token to access global instance's API."
-        ],
         'sync' => [
             'type'          => 'boolean',
             'description'   => "Must the new agency instance be synchronized with global instance ?",
             'help'          => "Default true because it'll mostly be used with synchronisation.",
             'default'       => true
+        ],
+        'global_access_token' => [
+            'type'          => 'string',
+            'description'   => "If sync, the token to access global instance's API."
+        ],
+        'global_instance_url' => [
+            'type'          => 'string',
+            'description'   => "If sync, the url of the global instance's API."
         ]
     ],
     'access' => [
@@ -32,7 +37,7 @@ use infra\server\Instance;
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_INTERNAL_TOKEN', 'FMT_API_URL_GLOBAL'],
+    'constants'     => ['FMT_INSTANCE_TYPE'],
     'providers'     => ['context']
 ]);
 
@@ -46,26 +51,12 @@ if($params['sync']) {
         throw new Exception('uuid_must_be_provided_to_sync_with_global', EQ_ERROR_INVALID_PARAM);
     }
 
-    if(empty($params['api_internal_token']) && empty(constant('FMT_API_INTERNAL_TOKEN'))) {
-        throw new Exception('api_internal_token_needed_to_sync_with_global', EQ_ERROR_NOT_ALLOWED);
+    if(empty($params['global_access_token'])) {
+        throw new Exception('global_access_token_needed_to_sync_with_global', EQ_ERROR_NOT_ALLOWED);
     }
-
-    // add given api internal token in config.json
-    if(!empty($params['api_internal_token'])) {
-        $config = [];
-        if(file_exists(EQ_BASEDIR . '/config/config.json')) {
-            $json = file_get_contents(EQ_BASEDIR . '/config/config.json');
-            $data = json_decode($json, true);
-            if($data) {
-                $config = $data;
-            }
-        }
-
-        $config['FMT_API_INTERNAL_TOKEN'] = $params['api_internal_token'];
-
-        file_put_contents(EQ_BASEDIR . '/config/config.json', json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-
-        config\define('FMT_API_INTERNAL_TOKEN', $params['api_internal_token']);
+    
+    if(empty($params['global_instance_url'])) {
+        throw new Exception('global_instance_url_must_be_provided_to_sync_with_global', EQ_ERROR_INVALID_PARAM);
     }
 }
 
@@ -129,22 +120,17 @@ if(!empty($params['instance_uuid'])) {
     Instance::id(1)->update(['uuid' => $params['instance_uuid']]);
 
     if($params['sync']) {
-        // create global instance if it doesn't exist
-        $global_instance_name = parse_url(constant('FMT_API_URL_GLOBAL'), PHP_URL_HOST);
-        $global_instance = Instance::search(['name', '=', $global_instance_name])->read(['user_id'])->first();
-        if(!$global_instance) {
-            $global_instance = Instance::create([
-                'server_id'     => 1,
-                'instance_type' => 'global',
-                'name'          => $global_instance_name,
-                'url'           => constant('FMT_API_URL_GLOBAL')
-            ])
-                ->read(['user_id'])
-                ->first();
-        }
-        if(!$global_instance['user_id']) {
-            Instance::id($global_instance['id'])->do('create_user');
-        }
+        $global_instance_name = parse_url($params['global_instance_url'], PHP_URL_HOST);
+
+        $global_instance = Instance::create([
+            'server_id'     => 1,
+            'instance_type' => 'global',
+            'name'          => $global_instance_name,
+            'url'           => $params['global_instance_url'],
+            'access_token'  => $params['global_access_token']
+        ])
+            ->do('create_user')
+            ->first();
 
         // fetch the sync policies from global and overwrite the existing ones
         eQual::run('do', 'fmt_sync_SyncPolicy_pull-from-global', ['reset' => true]);

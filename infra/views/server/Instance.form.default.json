@@ -29,6 +29,11 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "access_token",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "description",
                                                 "width": "100%"
                                             }

@@ -6,7 +6,6 @@
 */
 
 use equal\http\HttpRequest;
-use fmt\setting\Setting;
 use fmt\sync\SyncPolicy;
 use infra\server\Instance;
 
@@ -21,7 +20,7 @@ use infra\server\Instance;
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_URL_GLOBAL', 'FMT_API_INTERNAL_TOKEN'],
+    'constants'     => ['FMT_INSTANCE_TYPE'],
     'providers'     => ['context', 'orm']
 ]);
 
@@ -35,11 +34,24 @@ if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-// #memo - on local instances there is a single Instance object
-$instance = Instance::search()->read(['uuid'])->first();
+$instance = Instance::search(['instance_type', '=', 'agency'])
+    ->read(['uuid'])
+    ->first();
 
 if(!$instance) {
-    throw new Exception('no_instance_id', EQ_ERROR_INVALID_CONFIG);
+    throw new Exception('no_instance', EQ_ERROR_INVALID_CONFIG);
+}
+
+$global_instance = Instance::search(['instance_type', '=', 'global'])
+    ->read(['url', 'access_token'])
+    ->first();
+
+if(!$global_instance) {
+    throw new Exception('no_global_instance', EQ_ERROR_INVALID_CONFIG);
+}
+
+if(empty($global_instance['access_token'])) {
+    throw new Exception('missing_access_token', EQ_ERROR_INVALID_CONFIG);
 }
 
 // retrieve SyncPolicy related to 'protected' entities ('private' are descending only)
@@ -122,7 +134,7 @@ foreach($policies as $id => $policy) {
         }
 
         try {
-            $request = new HttpRequest('POST ' . rtrim(constant('FMT_API_URL_GLOBAL'), '/') . '/?do=fmt_sync_push-from-local');
+            $request = new HttpRequest('POST ' . rtrim($global_instance['url'], '/') . '/?do=fmt_sync_push-from-local');
 
             $request
                 ->body([
@@ -131,7 +143,7 @@ foreach($policies as $id => $policy) {
                     'instance_uuid'     => $instance['uuid']
                 ])
                 ->header('Content-Type', 'application/json')
-                ->header('Authorization', 'Bearer ' . constant('FMT_API_INTERNAL_TOKEN'));
+                ->header('Authorization', 'Bearer ' . $global_instance['access_token']);
 
             /** @var \equal\http\HttpResponse $response */
             $response = $request->send();
