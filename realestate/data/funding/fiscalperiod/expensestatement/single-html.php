@@ -406,6 +406,7 @@ $lang = $owner['identity_id']['lang_id']['code'];
 
 $funding = Funding::search([
         ['expense_statement_id', '=', $statement['id']],
+        ['funding_type', '=', 'due_balance'],
         ['ownership_id', '=', $params['ownership_id']]
     ])
     ->read(['payment_reference', 'remaining_amount', 'due_date'])

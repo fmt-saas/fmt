@@ -93,7 +93,9 @@ class Funding extends \sale\pay\Funding {
                     'fund_request',
                     'expense_statement',
                     'misc',
-                    'statement_line'
+                    'statement_line',
+                    // based on instant ownership accounting balance
+                    'due_balance'
                 ],
                 'required'          => true,
                 'dependents'        => ['payment_reference'],

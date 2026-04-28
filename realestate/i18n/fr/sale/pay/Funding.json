@@ -16,7 +16,8 @@
                 "fund_request": "Appel de fonds",
                 "expense_statement": "Décompte de charges",
                 "misc": "Opération diverse",
-                "statement_line": "Ligne de relevé bancaire"
+                "statement_line": "Ligne de relevé bancaire",
+                "due_balance": "Situation de compte"
             }
         },
         "payment_reference": {

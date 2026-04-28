@@ -104,6 +104,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\sale\pay\Funding',
                 'foreign_field'     => 'fund_request_execution_id',
+                'domain'            => ['funding_type', '=', 'fund_request'],
                 'description'       => 'The fundings that relate to the execution (sale invoice).'
             ],
 

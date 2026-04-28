@@ -153,6 +153,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\sale\pay\Funding',
                 'foreign_field'     => 'expense_statement_id',
+                'domain'            => ['funding_type', '=', 'expense_statement'],
                 'description'       => 'The fundings that relate to the execution (sale invoice).'
             ],
 
@@ -1132,6 +1133,28 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     $date_to = $expenseStatement['date_to'];
                 }
 
+
+                // 1) generate theoretical Funding
+                $due_amount = 0.0;
+                foreach($statementOwner['statement_owner_lines_ids'] as $line_id => $ownerLine) {
+                    // use both positive and negative amounts
+                    $due_amount += $ownerLine['price'];
+                }
+
+                Funding::create([
+                        'condo_id'                          => $expenseStatement['condo_id']['id'],
+                        'description'                       => $expenseStatement['name'],
+                        'funding_type'                      => 'expense_statement',
+                        'expense_statement_id'              => $id,
+                        'ownership_id'                      => $ownership_id,
+                        'bank_account_id'                   => $expenseStatement['statement_bank_account_id'],
+                        'accounting_account_id'             => $ownershipAccount['id'],
+                        'issue_date'                        => $issue_date,
+                        'due_date'                          => $due_date,
+                        'due_amount'                        => $due_amount
+                    ]);
+
+                // 2) generate instant Funding based on current account statement
                 $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
                     'ownership_id'      => $ownership_id,
                     'date_from'         => $expenseStatement['fiscal_period_id']['date_from'],
@@ -1158,7 +1181,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 Funding::create([
                         'condo_id'                          => $expenseStatement['condo_id']['id'],
                         'description'                       => $expenseStatement['name'],
-                        'funding_type'                      => 'expense_statement',
+                        'funding_type'                      => 'due_balance',
                         'expense_statement_id'              => $id,
                         'ownership_id'                      => $ownership_id,
                         'bank_account_id'                   => $expenseStatement['statement_bank_account_id'],
