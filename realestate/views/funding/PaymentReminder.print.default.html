@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <title>{{ title }}</title>
+
+    {% include 'header.style.html.twig' %}
+    {% include 'footer.style.html.twig' %}
+
+    <style type="text/css">
+        @page {
+            margin: 1cm 1cm;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            margin-top: 100px;
+            margin-bottom: 50px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            text-align: justify;
+            width: 100%;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 21px;
+        }
+
+        main.debug {
+            outline: solid 1px brown;
+        }
+
+        .section-title {
+            margin: 20px 0 10px 0;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .communication-box {
+            margin: 20px 0;
+            padding: 15px;
+            border: solid 1px black;
+            page-break-inside: avoid;
+        }
+
+        main table.inner thead tr th {
+            border-top: 1px solid black;
+            border-bottom: 1px solid black;
+            border-right: 1px solid black;
+            font-weight: bold;
+        }
+
+        main table.inner thead tr th:first-child,
+        main table.inner tbody tr td:first-child {
+            border-left: 1px solid black;
+        }
+
+        main table.inner tbody tr td {
+            border-bottom: 1px solid lightgrey;
+        }
+
+        main table.inner tbody tr td:last-child {
+            border-right: 1px solid black;
+        }
+
+        main table.inner tbody tr:last-child td {
+            border-bottom: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'header.html.twig' %}
+
+    <div class="introduction" style="height: 250px; overflow: hidden; text-overflow: ellipsis;">
+        {{ introduction | raw }}
+    </div>
+
+    <main class="{% if debug %}debug{% endif %}">
+        <div class="section-title">{{ labels['summary.title'] }}</div>
+
+        <table class="inner" width="100%" cellpadding="4" cellspacing="0">
+            <thead>
+                <tr>
+                    <th style="width: 33%; text-align: center;">{{ labels['summary.table.th.emission_date'] }}</th>
+                    <th style="width: 33%; text-align: right;">{{ labels['summary.table.th.owner_balance'] }}</th>
+                    <th style="width: 34%; text-align: right;">{{ labels['summary.table.th.overdue_total'] }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align: center;">{{ payment_reminder.emission_date | date(date_format, timezone) }}</td>
+                    <td style="text-align: right;">{{ owner_balance | format_money() }}</td>
+                    <td style="text-align: right;">{{ overdue_total | format_money() }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="communication-box">
+            {{ communication | raw }}
+        </div>
+
+        <div class="section-title">{{ labels['fundings.title'] }}</div>
+
+        <table class="inner" width="100%" cellpadding="4" cellspacing="0">
+            <thead>
+                <tr>
+                    <th style="width: 16%; text-align: left;">{{ labels['fundings.table.th.nature'] }}</th>
+                    <th style="width: 30%; text-align: left;">{{ labels['fundings.table.th.label'] }}</th>
+                    <th style="width: 14%; text-align: center;">{{ labels['fundings.table.th.deadline'] }}</th>
+                    <th style="width: 10%; text-align: center;">{{ labels['fundings.table.th.days_overdue'] }}</th>
+                    <th style="width: 15%; text-align: right;">{{ labels['fundings.table.th.due_amount'] }}</th>
+                    <th style="width: 15%; text-align: right;">{{ labels['fundings.table.th.remaining_amount'] }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for funding in fundings %}
+                <tr>
+                    <td>{{ funding.nature }}</td>
+                    <td>{{ funding.label }}</td>
+                    <td style="text-align: center;">{{ funding.due_date_label }}</td>
+                    <td style="text-align: center;">{{ funding.days_overdue }}</td>
+                    <td style="text-align: right;">{{ funding.due_amount | format_money() }}</td>
+                    <td style="text-align: right;">{{ funding.remaining_amount | format_money() }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td colspan="3" style="text-align: right;"><strong>{{ labels['fundings.table.footer.th.total'] }}</strong></td>
+                    <td style="text-align: right;"><strong>{{ overdue_total | format_money() }}</strong></td>
+                    <td style="text-align: right;"><strong>{{ owner_balance | format_money() }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    {% include 'footer.html.twig' %}
+</body>
+</html>

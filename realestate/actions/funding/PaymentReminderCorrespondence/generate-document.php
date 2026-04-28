@@ -37,8 +37,7 @@ $paymentReminderCorrespondence = PaymentReminderCorrespondence::id($params['id']
     ->read([
         'status', 'condo_id', 'ownership_id', 'name',
         'payment_reminder_id' => [
-            'id',
-            'funding_id' => ['fund_request_id', 'fund_request_execution_id']
+            'id'
         ]
     ])
     ->first();
@@ -68,9 +67,7 @@ $document = Document::create([
         // place node in dedicated folder
         'parent_node_id'            => $parentNode['id'] ?? null,
         // make node private
-        'ownership_id'              => $paymentReminderCorrespondence['ownership_id'],
-        'fund_request_id'           => $paymentReminderCorrespondence['payment_reminder_id']['funding_id']['fund_request_id'],
-        'fund_request_execution_id' => $paymentReminderCorrespondence['payment_reminder_id']['funding_id']['fund_request_execution_id']
+        'ownership_id'              => $paymentReminderCorrespondence['ownership_id']
     ])
     ->first();
 

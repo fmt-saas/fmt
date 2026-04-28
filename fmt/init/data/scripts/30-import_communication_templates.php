@@ -552,8 +552,8 @@ TemplatePart::create([
 
 // Fund Request Reminder
 $template = Template::create([
-        'code'          => 'fund_request_reminder_correspondence',
-        'description'   => 'Rappel de paiement - appel de fonds.',
+        'code'          => 'payment_reminder_correspondence',
+        'description'   => 'Rappel de paiement.',
         'category_id'   => 5,
         'type_id'       => 1
     ])
@@ -562,34 +562,34 @@ TemplatePart::create([
     'name'          => 'subject',
     'value'         => '<p>{condo} - Rappel de paiement</p>',
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "period", "due_date"]'
+    'variables'     => '["condo", "emission_date", "due_amount"]'
 ]);
 TemplatePart::create([
     'name'          => 'body',
-    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Sauf erreur ou omission de notre part, le paiement relatif à l'appel de fonds de la copropriété <strong>{condo}</strong>, échu au <strong>{due_date}</strong>, n'a pas encore été enregistré.</p><p><br></p><p>Nous vous invitons à régulariser la situation dans les meilleurs délais ou à nous contacter si votre paiement a déjà été effectué.</p><p><br></p><p>Nous restons à votre disposition pour toute question.</p>",
+    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Sauf erreur ou omission de notre part, la situation de votre compte au sein de la copropriété <strong>{condo}</strong> présente encore un montant ouvert de <strong>{due_amount}</strong> à la date du <strong>{emission_date}</strong>.</p><p><br></p><p>Nous vous invitons à régulariser la situation dans les meilleurs délais ou à nous contacter si votre paiement a déjà été effectué.</p><p><br></p><p>Nous restons à votre disposition pour toute question.</p>",
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "firstname", "lastname", "period", "due_date"]'
+    'variables'     => '["condo", "firstname", "lastname", "emission_date", "due_amount"]'
 ]);
 
 // correspondence
 $template = Template::create([
-        'code'          => 'fund_request_reminder_correspondence',
-        'description'   => 'Appel de fonds - Rappel',
+        'code'          => 'payment_reminder_correspondence',
+        'description'   => 'Rappel de paiement',
         'category_id'   => 5,
         'type_id'       => 5
     ])
     ->first();
 TemplatePart::create([
     'name'          => 'subject',
-    'value'         => 'Rappel de l\'appel de fonds pour la période {period}',
+    'value'         => 'Rappel de paiement au {emission_date}',
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "due_date", "period"]'
+    'variables'     => '["condo", "emission_date", "due_amount"]'
 ]);
 TemplatePart::create([
     'name'          => 'introduction',
-    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Veuillez trouver en pièce jointe l'appel de fonds concernant la copropriété <strong>{condo}</strong> pour la période <strong>{period}</strong>.</p><p><br></p><p>Le montant est payable pour le <strong>{due_date}</strong>, selon les modalités précisées dans le document annexé.</p><p><br></p><p>Nous vous remercions de votre attention et restons à votre disposition pour toute information complémentaire.</p>",
+    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Veuillez trouver en pièce jointe le rappel de paiement relatif à votre situation de compte au sein de la copropriété <strong>{condo}</strong>.</p><p><br></p><p>Le solde ouvert repris au rappel s'élève à <strong>{due_amount}</strong> à la date du <strong>{emission_date}</strong>.</p><p><br></p><p>Nous vous remercions de votre attention et restons à votre disposition pour toute information complémentaire.</p>",
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "firstname", "lastname", "period", "due_date"]'
+    'variables'     => '["condo", "firstname", "lastname", "emission_date", "due_amount"]'
 ]);
 
 

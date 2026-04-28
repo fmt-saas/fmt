@@ -249,6 +249,7 @@ foreach($paymentReminderOwner['payment_reminder_owner_lines_ids'] as $paymentRem
         'nature'            => $map_funding_types[$funding['funding_type']] ?? $funding['funding_type'],
         'label'             => $label,
         'due_date'          => $funding['due_date'],
+        'due_date_label'    => $getFormattedDate($funding['due_date']),
         'days_overdue'      => $paymentReminderOwnerLine['days_overdue'],
         'due_amount'        => (float) $paymentReminderOwnerLine['due_amount'],
         'remaining_amount'  => (float) ($funding['remaining_amount'] ?? $paymentReminderOwnerLine['due_amount'])

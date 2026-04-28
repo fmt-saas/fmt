@@ -51,7 +51,7 @@ $paymentReminderCorrespondence = PaymentReminderCorrespondence::id($params['id']
         'communication_method',
         'owner_id' => ['firstname', 'lastname', 'email', 'email_alt', 'lang_id'],
         'ownership_id' => ['name'],
-        'payment_reminder_id' => ['name', 'emission_date', 'due_date'],
+        'payment_reminder_id' => ['name', 'emission_date', 'due_amount'],
         'document_id' => ['data']
     ])
     ->first();
@@ -72,20 +72,26 @@ $subject = '';
 $body = '';
 
 $template = Template::search([
-        ['code', '=', 'fund_request_execution_correspondence'],
+        ['code', '=', 'payment_reminder_correspondence'],
         ['type', '=', 'email']
     ])
     ->read(['id', 'parts_ids' => ['name', 'value']])
     ->first(true);
+
+$emission_date = '';
+if($paymentReminderCorrespondence['payment_reminder_id']['emission_date']) {
+    $emission_date = date('d/m/Y', $paymentReminderCorrespondence['payment_reminder_id']['emission_date']);
+}
 
 foreach($template['parts_ids'] as $part) {
     if($part['name'] === 'subject') {
         $subject = strip_tags($part['value']);
 
         $map_values = [
-            'fund_request' => $paymentReminderCorrespondence['payment_reminder_id']['name'],
-            'condo'        => $paymentReminderCorrespondence['condo_id']['name'],
-            'date'         => $paymentReminderCorrespondence['payment_reminder_id']['due_date']
+            'payment_reminder' => $paymentReminderCorrespondence['payment_reminder_id']['name'],
+            'condo'            => $paymentReminderCorrespondence['condo_id']['name'],
+            'emission_date'    => $emission_date,
+            'due_amount'       => number_format((float) ($paymentReminderCorrespondence['payment_reminder_id']['due_amount'] ?? 0), 2, ',', '.') . ' €'
         ];
 
         $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
@@ -97,10 +103,11 @@ foreach($template['parts_ids'] as $part) {
         $body = $part['value'];
 
         $map_values = [
-            'firstname' => $paymentReminderCorrespondence['owner_id']['firstname'],
-            'lastname'  => $paymentReminderCorrespondence['owner_id']['lastname'],
-            'condo'     => $paymentReminderCorrespondence['condo_id']['name'],
-            'date'      => $paymentReminderCorrespondence['payment_reminder_id']['due_date']
+            'firstname'        => $paymentReminderCorrespondence['owner_id']['firstname'],
+            'lastname'         => $paymentReminderCorrespondence['owner_id']['lastname'],
+            'condo'            => $paymentReminderCorrespondence['condo_id']['name'],
+            'emission_date'    => $emission_date,
+            'due_amount'       => number_format((float) ($paymentReminderCorrespondence['payment_reminder_id']['due_amount'] ?? 0), 2, ',', '.') . ' €'
         ];
 
         $body = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
