@@ -58,7 +58,11 @@ foreach($condominiums as $condo_id => $condominium) {
             $ownership_id = $funding['ownership_id'];
 
             if(!isset($map_payment_reminder_ownership[$ownership_id])) {
-                $map_payment_reminder_ownership[$ownership_id] = PaymentReminderOwner::create(['condo_id' => $condo_id, 'ownership_id' => $ownership_id]);
+                $map_payment_reminder_ownership[$ownership_id] = PaymentReminderOwner::create([
+                        'condo_id'              => $condo_id,
+                        'ownership_id'          => $ownership_id,
+                        'payment_reminder_id'   => $paymentReminder
+                    ]);
             }
 
             $paymentReminderOwner = $map_payment_reminder_ownership[$ownership_id];
