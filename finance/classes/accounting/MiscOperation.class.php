@@ -453,11 +453,11 @@ class MiscOperation extends Model {
 
                     Funding::create([
                             'condo_id'                          => $miscOperation['condo_id'],
-                            'description'                       => $line['name'],
+                            'description'                       => $line['description'],
                             'funding_type'                      => 'misc_operation',
                             'misc_operation_id'                 => $id,
                             'ownership_id'                      => $map_accounts[$account_id]['ownership_id'],
-                            'bank_account_id'                   => $$bankAccount['id'] ?? null,
+                            'bank_account_id'                   => $bankAccount['id'] ?? null,
                             'accounting_account_id'             => $account_id,
                             'issue_date'                        => $issue_date,
                             'due_date'                          => $due_date,
