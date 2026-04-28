@@ -114,6 +114,17 @@ eQual::run('do', 'init_package', [
     'ignore_platform'   => true
 ]);
 
+// add fmt specific Collection and AccessController classes if they're missing from configuration
+$config_json = file_get_contents(EQ_BASEDIR.'/config/config.json');
+$config = json_decode($config_json, true);
+if(!isset($config['SERVICE_ORM_COLLECTION_CLASS'], $config['SERVICE_ACCESS_ACCESSCONTROLLER'])) {
+    $config['SERVICE_ORM_COLLECTION_CLASS'] = "fmt\\orm\\Collection";
+    $config['SERVICE_ACCESS_ACCESSCONTROLLER'] = "fmt\\access\\AccessController";
+
+    $new_config_json = json_encode($config);
+    file_put_contents(EQ_BASEDIR.'/config/config.json', $new_config_json);
+}
+
 if(!empty($params['instance_uuid'])) {
     // set uuid to instance
     Instance::id(1)->update(['uuid' => $params['instance_uuid']]);
