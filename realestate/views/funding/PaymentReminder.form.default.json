@@ -41,11 +41,6 @@
                                                 "value": "condo_id",
                                                 "width": "0%",
                                                 "visible": false
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "funding_id",
-                                                "width": "33%"
                                             }
                                         ]
                                     },

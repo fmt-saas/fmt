@@ -12,7 +12,8 @@
             {
                 "type": "field",
                 "value": "payment_reminder_id",
-                "width": "35%"
+                "width": "35%",
+                "visible": false
             },
             {
                 "type": "field",

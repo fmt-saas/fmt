@@ -39,6 +39,7 @@ foreach($condominiums as $condo_id => $condominium) {
             ['status', 'in', ['pending', 'debit_balance']],
             ['condo_id', '=', $condo_id],
             ['funding_type', 'in', ['fund_request', 'expense_statement']],
+            ['due_amount', '>', 0],
             ['due_date', '<=', time()]
         ])
         ->read(['condo_id', 'ownership_id', 'due_date', 'due_amount']);

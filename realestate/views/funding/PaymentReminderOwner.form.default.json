@@ -16,16 +16,12 @@
                                                 "type": "field",
                                                 "value": "condo_id",
                                                 "width": "100%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "33%",
-                                        "items": [
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "payment_reminder_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             }
                                         ]
                                     },
@@ -52,7 +48,7 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "33%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "field",
