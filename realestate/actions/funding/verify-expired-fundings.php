@@ -62,7 +62,8 @@ foreach($condominiums as $condo_id => $condominium) {
                         'condo_id'              => $condo_id,
                         'ownership_id'          => $ownership_id,
                         'payment_reminder_id'   => $paymentReminder
-                    ]);
+                    ])
+                    ->first();
             }
 
             $paymentReminderOwner = $map_payment_reminder_ownership[$ownership_id];
