@@ -92,7 +92,7 @@ class Funding extends \sale\pay\Funding {
                     'sale_invoice',
                     'fund_request',
                     'expense_statement',
-                    'misc',
+                    'misc_operation',
                     'statement_line',
                     // based on instant ownership accounting balance
                     'due_balance'
@@ -173,7 +173,7 @@ class Funding extends \sale\pay\Funding {
                 'description'       => 'Miscellaneous operation targeted by the funding, if any.',
                 'help'              => 'This is for the unexpected movements, for which the Funding was created at bank statement line reconcile.',
                 'readonly'          => true,
-                'visible'           => ['funding_type', '=', 'misc'],
+                'visible'           => ['funding_type', '=', 'misc_operation'],
             ],
 
             'bank_statement_line_id' => [

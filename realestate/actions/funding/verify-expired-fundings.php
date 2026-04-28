@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use finance\accounting\FiscalYear;
 use realestate\funding\PaymentReminder;
 use realestate\funding\PaymentReminderOwner;
 use realestate\funding\PaymentReminderOwnerLine;
@@ -33,12 +34,24 @@ use realestate\sale\pay\Funding;
 $condominiums = Condominium::search()
     ->read(['id', 'name']);
 
+$map_ownership_balances = [];
+$date_to = time();
+
 foreach($condominiums as $condo_id => $condominium) {
+
+    $fiscalYear = FiscalYear::search([
+            ['condo_id', '=', $condo_id],
+            ['date_from', '<=', $date_to],
+        ], ['sort' => ['date_from' => 'desc'], 'limit' => 1])
+        ->read(['date_from'])
+        ->first();
+
+    $date_from = $fiscalYear['date_from'] ?? $date_to;
 
     $overdueFundings = Funding::search([
             ['status', 'in', ['pending', 'debit_balance']],
             ['condo_id', '=', $condo_id],
-            ['funding_type', 'in', ['fund_request', 'expense_statement']],
+            ['funding_type', 'in', ['fund_request', 'expense_statement', 'misc_operation']],
             ['due_amount', '>', 0],
             ['due_date', '<=', time()]
         ])
@@ -58,11 +71,26 @@ foreach($condominiums as $condo_id => $condominium) {
 
             $ownership_id = $funding['ownership_id'];
 
+            if(!isset($map_ownership_balances[$ownership_id])) {
+                $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
+                    'ownership_id'      => $ownership_id,
+                    'date_from'         => $date_from,
+                    'date_to'           => $date_to
+                ]);
+
+                $current_balance = 0;
+
+                if(count($data)) {
+                    $current_balance = end($data)['balance'] ?? 0;
+                }
+            }
+
             if(!isset($map_payment_reminder_ownership[$ownership_id])) {
                 $map_payment_reminder_ownership[$ownership_id] = PaymentReminderOwner::create([
                         'condo_id'              => $condo_id,
                         'ownership_id'          => $ownership_id,
-                        'payment_reminder_id'   => $paymentReminder['id']
+                        'payment_reminder_id'   => $paymentReminder['id'],
+                        'due_balance'           => $current_balance
                     ])
                     ->first();
             }

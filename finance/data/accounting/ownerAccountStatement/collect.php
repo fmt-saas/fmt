@@ -11,6 +11,7 @@ use finance\accounting\Account;
 use finance\accounting\AccountBalanceChange;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
+use finance\accounting\OpeningBalance;
 use finance\accounting\OpeningBalanceLine;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\ownership\Ownership;
@@ -110,6 +111,7 @@ if(empty($accounts_ids)) {
 }
 
 $opening_balance = 0;
+$map_opening_balances = [];
 
 $fiscalYear = FiscalYear::search([
         ['condo_id', '=', $ownership['condo_id']],
@@ -119,8 +121,25 @@ $fiscalYear = FiscalYear::search([
     ->read(['opening_balance_id'])
     ->first();
 
-$map_opening_balances = [];
-if($fiscalYear && isset($fiscalYear['opening_balance_id'])) {
+$opening_balance_id = $fiscalYear['opening_balance_id'] ?? null;
+
+if(!$opening_balance_id) {
+    // find first available opening balance (last validated for given condominium)
+    $openingBalance = OpeningBalance::search([
+                ['condo_id', '=', $ownership['condo_id']],
+                ['status', '=', 'validated']
+            ],
+            [
+                'sort'  => ['created' => 'desc'],
+                'limit' => 1
+            ]
+        )
+        ->first();
+
+    $opening_balance_id = $openingBalance['id'] ?? null;
+}
+
+if($opening_balance_id) {
     $openingLines = OpeningBalanceLine::search([
             ['condo_id', '=', $ownership['condo_id']],
             ['balance_id', '=', $fiscalYear['opening_balance_id']],

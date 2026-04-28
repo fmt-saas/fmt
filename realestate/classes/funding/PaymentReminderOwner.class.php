@@ -53,6 +53,13 @@ class PaymentReminderOwner extends \equal\orm\Model {
                 'store'             => true,
                 'function'          => 'calcDueAmount'
             ],
+
+            'due_balance' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => "The actual balance ot the ownership at the time of the reminder."
+            ]
+
         ];
     }
 

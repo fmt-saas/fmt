@@ -699,7 +699,7 @@ class MiscOperation extends Model {
                 Funding::create([
                         'condo_id'                          => $miscOperation['condo_id']['id'],
                         'description'                       => $miscOperation['name'],
-                        'funding_type'                      => 'misc',
+                        'funding_type'                      => 'misc_operation',
                         'misc_operation_id'                 => $id,
                         'ownership_id'                      => $ownership_id,
                         'bank_account_id'                   => $bankAccount['id'],

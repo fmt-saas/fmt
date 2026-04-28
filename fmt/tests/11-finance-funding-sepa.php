@@ -178,7 +178,7 @@ $tests = [
 
                     $funding = Funding::create([
                             'description'                   => 'Test Funding',
-                            'funding_type'                  => 'misc',
+                            'funding_type'                  => 'misc_operation',
                             'due_amount'                    => -100.00,
                             'is_paid'                       => false,
                             'bank_account_id'               => $originBankAccount['id'],
