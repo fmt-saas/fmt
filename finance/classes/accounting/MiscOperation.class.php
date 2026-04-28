@@ -394,31 +394,36 @@ class MiscOperation extends Model {
                 ->first();
 
             $miscOperationLines = MiscOperationLine::ids($miscOperation['misc_operation_lines_ids'])
-                ->read(['account_id', 'debit', 'credit']);
+                ->read(['account_id', 'debit', 'credit', 'description']);
 
             $lines_by_account = [];
             foreach($miscOperationLines as $line) {
                 $account_id = $line['account_id'];
 
                 if(!isset($lines_by_account[$account_id])) {
-                    $lines_by_account[$account_id] = ['debit' => 0.0, 'credit' => 0.0];
+                    $lines_by_account[$account_id] = ['debit' => 0.0, 'credit' => 0.0, 'description' => ''];
                 }
 
                 $lines_by_account[$account_id]['debit'] += (float) $line['debit'];
                 $lines_by_account[$account_id]['credit'] += (float) $line['credit'];
+
+                $lines_by_account[$account_id]['description'] .= $line['description'] . ' ';
             }
 
-            foreach($lines_by_account as $account_id => $totals) {
-                $debit_balance  = max(0, $totals['debit'] - $totals['credit']);
-                $credit_balance = max(0, $totals['credit'] - $totals['debit']);
+            // we'll need to check if account is  co_owners_reserve_fund or co_owners_working_fund
+            $map_accounts = Account::ids(array_keys($lines_by_account))->read(['operation_assignment', 'ownership_id'])->get();
+
+            foreach($lines_by_account as $account_id => $line) {
+                $debit_balance  = max(0, $line['debit'] - $line['credit']);
+                $credit_balance = max(0, $line['credit'] - $line['debit']);
 
                 OpeningBalanceLine::create([
                         'condo_id'       => $miscOperation['condo_id'],
                         'balance_id'     => $openingBalance['id'],
                         'fiscal_year_id' => $miscOperation['fiscal_year_id'],
                         'account_id'     => $account_id,
-                        'debit'          => $totals['debit'],
-                        'credit'         => $totals['credit'],
+                        'debit'          => $line['debit'],
+                        'credit'         => $line['credit'],
                         'debit_balance'  => $debit_balance,
                         'credit_balance' => $credit_balance
                     ]);
@@ -430,6 +435,35 @@ class MiscOperation extends Model {
                         'debit_balance'  => round($debit_balance, 2),
                         'credit_balance' => round($credit_balance, 2)
                     ]);
+
+                // in case of ownership account, create a Funding
+                if(in_array($map_accounts[$account_id]['operation_assignment'], ['co_owners_reserve_fund', 'co_owners_working_fund'], true)) {
+                    // a funding cannot be issued nor due in the past
+                    $issue_date = max(strtotime('today'), $miscOperation['posting_date']);
+
+                    // #todo - make possible to customize
+                    $due_date = time() + (86400 * 15);
+
+                    // #todo - allow to choose
+                    $bankAccount = CondominiumBankAccount::search([
+                            ['condo_id', '=', $miscOperation['condo_id']],
+                            ['is_primary', '=', true]
+                        ])
+                        ->first();
+
+                    Funding::create([
+                            'condo_id'                          => $miscOperation['condo_id'],
+                            'description'                       => $line['name'],
+                            'funding_type'                      => 'misc_operation',
+                            'misc_operation_id'                 => $id,
+                            'ownership_id'                      => $map_accounts[$account_id]['ownership_id'],
+                            'bank_account_id'                   => $$bankAccount['id'] ?? null,
+                            'accounting_account_id'             => $account_id,
+                            'issue_date'                        => $issue_date,
+                            'due_date'                          => $due_date,
+                            'due_amount'                        => $line['credit'] - $line['debit']
+                        ]);
+                }
             }
 
             FiscalYear::id($miscOperation['fiscal_year_id'])
@@ -690,6 +724,7 @@ class MiscOperation extends Model {
 
                 // a funding cannot be issued nor due in the past
                 $issue_date = max(strtotime('today'), $miscOperation['posting_date']);
+
                 // #todo - make possible to customize
                 $due_date = $miscOperation['posting_date'] + 60*60*24 * 15;
 

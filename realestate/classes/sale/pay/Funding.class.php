@@ -95,7 +95,8 @@ class Funding extends \sale\pay\Funding {
                     'misc_operation',
                     'statement_line',
                     // based on instant ownership accounting balance
-                    'due_balance'
+                    'due_balance',
+                    'reminder'
                 ],
                 'required'          => true,
                 'dependents'        => ['payment_reference'],

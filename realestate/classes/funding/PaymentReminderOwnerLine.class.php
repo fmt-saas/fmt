@@ -55,10 +55,12 @@ class PaymentReminderOwnerLine extends \equal\orm\Model {
             ],
 
             'days_overdue' => [
-                'type'              => 'integer',
+                'type'              => 'computed',
+                'result_type'       => 'integer',
                 'description'       => "Amount of overdue days.",
+                'function'          => 'calcDaysOverdue',
                 'readonly'          => true,
-                'required'          => true
+                'store'             => false
             ],
 
             'due_amount' => [
@@ -67,10 +69,23 @@ class PaymentReminderOwnerLine extends \equal\orm\Model {
                 'description'       => 'Amount missing at reminder date.',
                 'readonly'          => true,
                 'required'          => true
-            ]
+            ],
 
+            'payment_reminder_status' => [
+                'type'              => 'string',
+                'description'       => "Status of the parent Payment Reminder.",
+                'default'           => 'pending'
+            ]
         ];
     }
 
+    protected static function calcDaysOverdue($self) {
+        $result = [];
+        $self->read(['funding_id' => ['due_date']]);
+        foreach($self as $id => $paymentReminderOwnerLine) {
+            $result[$id] = floor((strtotime('today') - $paymentReminderOwnerLine['funding_id']['due_date']) / 86400);
+        }
+        return $result;
+    }
 
 }

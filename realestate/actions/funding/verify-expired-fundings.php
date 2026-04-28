@@ -63,6 +63,18 @@ foreach($condominiums as $condo_id => $condominium) {
 
     if($overdueFundings->count() > 0) {
 
+// #memo - créer Funding misc_operation dans opening journal / Opening Balance
+
+
+// unset pour les fundings pour lesquels on a envoyé un rappel qui n'est pas encore expiré
+// on se base sur des  Funding "due_balance" pour faire le suivi
+// ces funding sont émis de la validation/envoi des rappels
+
+
+// on ne créée pas un PaymentReminderOwnerLine si une autre ligne pour le même Funding est en brouillon
+// on ne créée pas un PaymentReminderOwnerLine si le funding est lié à un Funding "due_balance" qui n'est pas expiré
+
+
         $map_payment_reminder_ownership = [];
 
         $paymentReminder = PaymentReminder::create([
@@ -72,6 +84,15 @@ foreach($condominiums as $condo_id => $condominium) {
             ->first();
 
         foreach($overdueFundings as $funding_id => $funding) {
+
+
+            /*
+            Funding::search([
+                    ['funding_type', '=', 'due_balance'],
+                    ['ownership_id', '=', $ownership_id],
+                    ['due_date', '<', time()]
+                ])
+            */
 
             $ownership_id = $funding['ownership_id'];
 
@@ -109,7 +130,6 @@ foreach($condominiums as $condo_id => $condominium) {
                     'funding_id'                    => $funding_id,
                     'payment_reminder_id'           => $paymentReminder['id'],
                     'payment_reminder_owner_id'     => $paymentReminderOwner['id'],
-                    'days_overdue'                  => floor((strtotime('today') - $funding['due_date']) / 86400),
                     'due_amount'                    => $funding['due_amount'],
                 ]);
 

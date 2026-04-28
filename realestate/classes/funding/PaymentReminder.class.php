@@ -93,13 +93,13 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'foreign_field'     => 'payment_reminder_id'
             ],
 
+// #memo - upon change - need to update PaymentReminderOwnerLine payment_reminder_status
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
                     'draft',
                     'pending',
-                    'sent',
-                    'cancelled'
+                    'sent'
                 ],
                 'description'       => 'The current status of the reminder.',
                 'help'              => "The reminders are first created and then are published only if candidate to be sent.",
@@ -270,4 +270,20 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
     }
 
 
+    /*
+    // upon validation
+                Funding::create([
+                        'condo_id'                          => $expenseStatement['condo_id']['id'],
+                        'description'                       => $expenseStatement['name'],
+                        'funding_type'                      => 'due_balance',
+                        'expense_statement_id'              => $id,
+                        'ownership_id'                      => $ownership_id,
+                        'bank_account_id'                   => $expenseStatement['statement_bank_account_id'],
+                        'accounting_account_id'             => $ownershipAccount['id'],
+                        'issue_date'                        => $issue_date,
+                        'due_date'                          => $due_date,
+                        'due_amount'                        => $closing_balance
+                    ]);
+
+    */
 }
