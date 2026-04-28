@@ -33,6 +33,15 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'description'       => "Date at which the reminder was emitted."
             ],
 
+            // #memo - funding_id is useless here - only to override required
+            'funding_id' => [
+                'type'              => 'many2one',
+                'description'       => 'The funding reminder relates to.',
+                'help'              => "Funding is stored at PaymentReminderOwnerLine level.",
+                'foreign_object'    => 'sale\pay\Funding',
+                'readonly'          => true
+            ],
+
             // #todo - calc based on PaymentReminderOwnerLine
             'fundings_ids' => [
                 'type'              => 'many2many',
