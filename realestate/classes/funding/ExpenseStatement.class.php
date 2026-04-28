@@ -1121,7 +1121,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 // remove previous Funding, if any
                 Funding::search([
                         ['condo_id', '=', $expenseStatement['condo_id']['id']],
-                        ['funding_type', '=', 'expense_statement'],
+                        // #memo - there are two types of Fundings involved
+                        // ['funding_type', '=', 'expense_statement'],
                         ['expense_statement_id', '=', $id],
                         ['ownership_id', '=', $ownership_id]
                     ])
@@ -1131,6 +1132,17 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $date_to = $expenseStatement['posting_date'];
                 if($expenseStatement['is_cutoff_at_period_end']) {
                     $date_to = $expenseStatement['date_to'];
+                }
+
+                $ownershipAccount = Account::search([
+                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                        ['ownership_id', '=', $ownership_id],
+                        ['operation_assignment', '=', 'co_owners_working_fund']
+                    ])
+                    ->first();
+
+                if(!$ownershipAccount) {
+                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
 
@@ -1165,17 +1177,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 if(count($data)) {
                     $closing_balance = end($data)['balance'] ?? 0;
-                }
-
-                $ownershipAccount = Account::search([
-                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
-                        ['ownership_id', '=', $ownership_id],
-                        ['operation_assignment', '=', 'co_owners_working_fund']
-                    ])
-                    ->first();
-
-                if(!$ownershipAccount) {
-                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
                 Funding::create([
