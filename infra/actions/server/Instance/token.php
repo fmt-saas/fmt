@@ -50,14 +50,21 @@ if($instance['instance_type'] === constant('FMT_INSTANCE_TYPE')) {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-// generate a permanent JWT access token
-$access_token = $auth->token($instance['user_id'], 0);
-
-AccessToken::create([
+$token = AccessToken::create([
     'user_id'       => $instance['user_id'],
-    'token_type'    => 'access_token',
-    'token'         => $access_token
-]);
+    'token_type'    => 'access_token'
+])
+    ->read(['jti'])
+    ->first();
+
+try {
+    // generate a permanent JWT access token
+    $access_token = $auth->token($instance['user_id'], 0, [], $token['jti']);
+}
+catch(Exception $e) {
+    AccessToken::id($token['id'])->delete(true);
+    throw new Exception("Error while generating token: ".$e->getMessage(), EQ_ERROR_UNKNOWN);
+}
 
 $context
     ->httpResponse()
