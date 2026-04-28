@@ -151,7 +151,7 @@ if(!$opening_balance_id) {
 if($opening_balance_id) {
     $openingLines = OpeningBalanceLine::search([
             ['condo_id', '=', $ownership['condo_id']],
-            ['balance_id', '=', $fiscalYear['opening_balance_id']],
+            ['balance_id', '=', $opening_balance_id],
             ['account_id', 'in', $accounts_ids]
         ])
         ->read(['account_id', 'debit', 'credit']);
