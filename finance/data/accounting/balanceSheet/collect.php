@@ -247,6 +247,7 @@ $balances_liability = [];
 
 // resolve opening balance (fallback)
 $opening_balance_id = null;
+$opening_balance_date_from = $date_from;
 
 $fiscalYear = null;
 if(!empty($params['fiscal_year_id'])) {
@@ -260,17 +261,21 @@ if($fiscalYear && isset($fiscalYear['opening_balance_id'])) {
 }
 else {
     $openingBalance = OpeningBalance::search([
-            ['condo_id', '=', $params['condo_id']],
-            ['status', '=', 'validated']
-        ],
-        [
-            'sort'  => ['created' => 'desc'],
-            'limit' => 1
-        ]
-    )
-    ->first();
+                ['condo_id', '=', $params['condo_id']],
+                ['status', '=', 'validated']
+            ],
+            [
+                'sort'  => ['created' => 'desc'],
+                'limit' => 1
+            ]
+        )
+        ->read(['id', 'fiscal_year_id' => ['date_from']])
+        ->first();
 
-    $opening_balance_id = $openingBalance['id'] ?? null;
+    if($openingBalance) {
+        $opening_balance_id = $openingBalance['id'];
+        $opening_balance_date_from = $openingBalance['fiscal_year_id']['date_from'];
+    }
 }
 
 // 1) retrieve balance changes up to dateTo
@@ -279,7 +284,8 @@ $map_balances = [];
 if($date_to) {
     $changes = AccountBalanceChange::search([
             ['condo_id', '=', $params['condo_id']],
-            ['date', '<=', $date_to]
+            ['date', '<=', $date_to],
+            ['date', '>=', $opening_balance_date_from]
         ],
         [
             'sort' => ['date' => 'asc', 'id' => 'asc']
