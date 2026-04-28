@@ -33,6 +33,15 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'description'       => "Date at which the reminder was emitted."
             ],
 
+            'due_amount' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => "The amount that is due from the funding.",
+                'store'             => true,
+                'function'          => 'calcDueAmount'
+            ],
+
             // #memo - funding_id is useless here - only to override required
             'funding_id' => [
                 'type'              => 'many2one',
@@ -239,6 +248,18 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 ]);
             }
         }
+    }
+
+    protected static function calcDueAmount($self) {
+        $result = [];
+        $self->read(['payment_reminder_owners_ids' => ['due_amount']]);
+        foreach($self as $id => $paymentReminderOwner) {
+            $result[$id] = 0.0;
+            foreach($paymentReminderOwner['payment_reminder_owners_ids'] as $payment_reminder_owner_id => $paymentReminderOwner) {
+                $result[$id] += $paymentReminderOwner['due_amount'];
+            }
+        }
+        return $result;
     }
 
 

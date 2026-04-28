@@ -1,0 +1,24 @@
+{
+    "name": "Payment Reminder Owners",
+    "description": "List the owners covered by a payment reminder.",
+    "limit": 500,
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "ownership_id",
+                "width": "40%"
+            },
+            {
+                "type": "field",
+                "value": "payment_reminder_id",
+                "width": "35%"
+            },
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "25%"
+            }
+        ]
+    }
+}

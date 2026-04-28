@@ -21,14 +21,6 @@ class PaymentReminderOwner extends \equal\orm\Model {
                 'required'          => true
             ],
 
-            'payment_reminder_id' => [
-                'type'              => 'many2one',
-                'description'       => "The funding reminder relates to.",
-                'foreign_object'    => 'realestate\funding\PaymentReminder',
-                'readonly'          => true,
-                'required'          => true
-            ],
-
             'ownership_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
@@ -38,8 +30,42 @@ class PaymentReminderOwner extends \equal\orm\Model {
                 'relation'          => ['funding_id' => 'ownership_id']
             ],
 
+            'payment_reminder_id' => [
+                'type'              => 'many2one',
+                'description'       => "The funding reminder relates to.",
+                'foreign_object'    => 'realestate\funding\PaymentReminder',
+                'readonly'          => true,
+                'required'          => true
+            ],
+
+            'payment_reminder_owner_lines_ids' => [
+                'type'              => 'one2many',
+                'description'       => "Owners present in the reminder.",
+                'foreign_object'    => 'realestate\funding\PaymentReminderOwnerLine',
+                'foreign_field'     => 'payment_reminder_owner_id'
+            ],
+
+            'due_amount' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => "The amount that is due from the funding.",
+                'store'             => true,
+                'function'          => 'calcDueAmount'
+            ],
         ];
     }
 
+    protected static function calcDueAmount($self) {
+        $result = [];
+        $self->read(['payment_reminder_owner_lines_ids' => ['due_amount']]);
+        foreach($self as $id => $paymentReminderOwner) {
+            $result[$id] = 0.0;
+            foreach($paymentReminderOwner['payment_reminder_owner_lines_ids'] as $payment_reminder_owner_line_id => $paymentReminderOwnerLine) {
+                $result[$id] += $paymentReminderOwnerLine['due_amount'];
+            }
+        }
+        return $result;
+    }
 
 }

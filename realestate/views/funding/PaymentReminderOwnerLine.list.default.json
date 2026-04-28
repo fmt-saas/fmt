@@ -1,0 +1,42 @@
+{
+    "name": "Payment Reminder Owner Lines",
+    "description": "List the funding lines included in owner payment reminders.",
+    "operations": {
+        "total": {
+            "due_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "limit": 500,
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "ownership_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "payment_reminder_owner_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "funding_id",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "days_overdue",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "due_amount",
+                "width": "15%"
+            }
+        ]
+    }
+}
