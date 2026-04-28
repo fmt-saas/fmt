@@ -48,7 +48,7 @@ foreach($condominiums as $condo_id => $condominium) {
         $map_payment_reminder_ownership = [];
 
         $paymentReminder = PaymentReminder::create([
-                'condo_id'          => $funding['condo_id'],
+                'condo_id'          => $condo_id,
                 'emission_date'     => time()
             ])
             ->first();
