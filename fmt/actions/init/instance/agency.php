@@ -5,7 +5,6 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use core\security\AccessToken;
 use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
