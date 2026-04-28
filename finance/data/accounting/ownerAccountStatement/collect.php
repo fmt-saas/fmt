@@ -104,7 +104,11 @@ if(!$ownership) {
     throw new \Exception('unknown_ownership', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$accounts_ids = Account::search(['ownership_id', '=', $params['ownership_id']])->ids();
+$accounts_ids = Account::search([
+        ['condo_id', '=', $ownership['condo_id']],
+        ['ownership_id', '=', $params['ownership_id']]
+    ])
+    ->ids();
 
 if(empty($accounts_ids)) {
     throw new \Exception('ownership_accounts_missing', EQ_ERROR_INVALID_CONFIG);
@@ -122,6 +126,7 @@ $fiscalYear = FiscalYear::search([
     ->first();
 
 $opening_balance_id = $fiscalYear['opening_balance_id'] ?? null;
+$opening_balance_date_from = $date_from;
 
 if(!$opening_balance_id) {
     // find first available opening balance (last validated for given condominium)
@@ -134,9 +139,13 @@ if(!$opening_balance_id) {
                 'limit' => 1
             ]
         )
+        ->read(['id', 'fiscal_year_id' => ['date_from']])
         ->first();
 
-    $opening_balance_id = $openingBalance['id'] ?? null;
+    if($openingBalance) {
+        $opening_balance_id = $openingBalance['id'];
+        $opening_balance_date_from = $openingBalance['fiscal_year_id']['date_from'];
+    }
 }
 
 if($opening_balance_id) {
@@ -156,7 +165,8 @@ if($opening_balance_id) {
 foreach($accounts_ids as $account_id) {
     $snapshot = AccountBalanceChange::search([
             ['account_id', '=', $account_id],
-            ['date', '<', $date_from]
+            ['date', '<', $date_from],
+            ['date', '>', $opening_balance_date_from]
         ], ['sort' => ['date' => 'desc'], 'limit' => 1])
         ->read(['debit_balance','credit_balance'])
         ->first();
@@ -203,7 +213,7 @@ $result[] = [
     'description' => 'Owner Account Statement',
     'debit'       => 0.0,
     'credit'      => 0.0,
-    'balance'     => $balance
+    'balance'     => round($balance, 2)
 ];
 
 
@@ -221,7 +231,7 @@ foreach($accounting_entry_lines as $line) {
         'description' => $line['description'],
         'debit'       => $debit,
         'credit'      => $credit,
-        'balance'     => $balance
+        'balance'     => round($balance, 2)
     ];
 }
 
