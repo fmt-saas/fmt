@@ -44,6 +44,28 @@
                         ]
                     }
                 ]
+            },
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "payment_reminder_owner_lines_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             }
         ]
     }

@@ -18,6 +18,11 @@
                 "type": "field",
                 "value": "condo_id",
                 "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "due_amount",
+                "width": "25%"
             }
         ]
     }
