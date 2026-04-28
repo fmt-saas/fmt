@@ -35,7 +35,7 @@ $condominiums = Condominium::search()
     ->read(['id', 'name']);
 
 $map_ownership_balances = [];
-$date_to = time();
+$date_to = strtotime('today');
 
 foreach($condominiums as $condo_id => $condominium) {
 
@@ -45,6 +45,10 @@ foreach($condominiums as $condo_id => $condominium) {
         ], ['sort' => ['date_from' => 'desc'], 'limit' => 1])
         ->read(['date_from'])
         ->first();
+
+    if(!$fiscalYear) {
+        continue;
+    }
 
     $date_from = $fiscalYear['date_from'] ?? $date_to;
 
@@ -72,18 +76,20 @@ foreach($condominiums as $condo_id => $condominium) {
             $ownership_id = $funding['ownership_id'];
 
             if(!isset($map_ownership_balances[$ownership_id])) {
+                $map_ownership_balances[$ownership_id] = 0;
+
                 $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
                     'ownership_id'      => $ownership_id,
                     'date_from'         => $date_from,
                     'date_to'           => $date_to
                 ]);
 
-                $current_balance = 0;
-
                 if(count($data)) {
-                    $current_balance = end($data)['balance'] ?? 0;
+                    $map_ownership_balances[$ownership_id] = end($data)['balance'] ?? 0;
                 }
             }
+
+            $current_balance = $map_ownership_balances[$ownership_id];
 
             if(!isset($map_payment_reminder_ownership[$ownership_id])) {
                 $map_payment_reminder_ownership[$ownership_id] = PaymentReminderOwner::create([
