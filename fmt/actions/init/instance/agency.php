@@ -122,7 +122,7 @@ if(!isset($config['SERVICE_ORM_COLLECTION_CLASS'], $config['SERVICE_ACCESS_ACCES
     $config['SERVICE_ACCESS_ACCESSCONTROLLER'] = "fmt\\access\\AccessController";
 
     $new_config_json = json_encode($config);
-    file_put_contents(EQ_BASEDIR.'/config/config.json', $new_config_json);
+    file_put_contents(EQ_BASEDIR.'/config/config.json', $new_config_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 }
 
 if(!empty($params['instance_uuid'])) {
