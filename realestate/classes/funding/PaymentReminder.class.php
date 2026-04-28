@@ -62,13 +62,6 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'rel_local_key'     => 'payment_reminder_id'
             ],
 
-            'payment_reminder_correspondences_ids' => [
-                'type'              => 'one2many',
-                'description'       => "Correspondences generated for the reminder.",
-                'foreign_object'    => 'realestate\funding\PaymentReminderCorrespondence',
-                'foreign_field'     => 'payment_reminder_id'
-            ],
-
             'payment_reminder_owners_ids' => [
                 'type'              => 'one2many',
                 'description'       => "Owners present in the reminder.",
@@ -91,6 +84,13 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'type'              => 'many2one',
                 'description'       => "Reference to the task for exporting paper mails for payment reminder, if any.",
                 'foreign_object'    => 'documents\export\ExportingTask'
+            ],
+
+            'payment_reminder_correspondences_ids' => [
+                'type'              => 'one2many',
+                'description'       => "Correspondences generated for the reminder.",
+                'foreign_object'    => 'realestate\funding\PaymentReminderCorrespondence',
+                'foreign_field'     => 'payment_reminder_id'
             ],
 
             'status' => [

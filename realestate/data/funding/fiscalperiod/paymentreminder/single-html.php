@@ -8,26 +8,22 @@
 use communication\template\Template;
 use equal\data\DataFormatter;
 use fmt\setting\Setting;
-use finance\accounting\FiscalYear;
 use identity\Organisation;
-use realestate\funding\FundRequest;
-use realestate\funding\FundRequestExecution;
-use realestate\funding\FundRequestExecutionLineEntry;
+use realestate\funding\PaymentReminder;
 use realestate\ownership\Owner;
-use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
-use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
-use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
-
+use Twig\Extra\Intl\IntlExtension;
+use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
+use Twig\TwigFilter;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate an html view of given fund request for a single ownership.',
+    'description'   => 'Generate an html view of a payment reminder for a single ownership.',
     'params'        => [
-        'fund_request_execution_id' => [
-            'description'       => 'Identifier of the specific ExpenseStatementCorrespondence to consider.',
+        'payment_reminder_id' => [
+            'description'       => 'Identifier of the specific PaymentReminder to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\funding\FundRequestExecution',
+            'foreign_object'    => 'realestate\funding\PaymentReminder',
             'required'          => true
         ],
 
@@ -69,7 +65,6 @@ use Twig\Extension\ExtensionInterface;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-
 $dataFormatter = function ($value, $usage) {
     if(is_null($value)) {
         return '';
@@ -77,11 +72,6 @@ $dataFormatter = function ($value, $usage) {
     return DataFormatter::format($value, $usage);
 };
 
-/**
- * @param string|float|integer $value
- * @param bool $currency
- * @return string
- */
 $formatMoney = function ($value, $currency=true) {
     if(is_null($value)) {
         return '';
@@ -132,28 +122,6 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
     return $result;
 };
 
-$getPaymentQrCodeUri = function($legal_name, $bank_account_iban, $bank_account_bic, $payment_reference, $amount) {
-    // default to blank image (empty 1x1)
-    $result = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAoMBgDTD2qgAAAAASUVORK5CYII=';
-    try {
-        $image = eQual::run('get', 'finance_payment_generate-qr-code', [
-            'recipient_name'    => $legal_name,
-            'recipient_iban'    => $bank_account_iban,
-            'recipient_bic'     => $bank_account_bic,
-            'payment_reference' => $payment_reference,
-            'payment_amount'    => $amount
-        ]);
-        $result = sprintf('data:%s;base64,%s',
-            'image/png',
-            base64_encode($image)
-        );
-    }
-    catch(Exception $e) {
-        trigger_error("APP::unable to generate QR code for $bank_account_iban: " . $e->getMessage(), EQ_REPORT_WARNING);
-    }
-    return $result;
-};
-
 $getLabels = function ($lang, $view_i18n_file_path) {
     $header_labels_json = file_get_contents(
         sprintf('%s/packages/realestate/i18n/%s/_parts/header.json', EQ_BASEDIR, $lang)
@@ -175,28 +143,10 @@ $getLabels = function ($lang, $view_i18n_file_path) {
     );
 };
 
-/** @var \realestate\funding\FundRequestExecution $fundRequestExecution */
-$fundRequestExecution = FundRequestExecution::id($params['fund_request_execution_id'])
+$paymentReminder = PaymentReminder::id($params['payment_reminder_id'])
     ->read([
-        'fund_request_id',
-        'date_from',
-        'date_to',
-        'posting_date',
-        'due_date',
-        'price',
-        'status',
-        // #memo - there should be only one funding matching the ownership
-        'fundings_ids' => [
-            '@domain' => ['ownership_id', '=', $params['ownership_id']],
-            'payment_reference',
-            'remaining_amount',
-            'due_date'
-        ],
-        // #memo - there should be only one execution line matching the ownership
-        'execution_lines_ids' => [
-            '@domain' => ['ownership_id', '=', $params['ownership_id']],
-            'price'
-        ],
+        'name',
+        'emission_date',
         'condo_id' => [
             'name', 'legal_name', 'address_street', 'address_zip', 'address_city',
             'registration_number', 'bank_account_iban', 'bank_account_bic',
@@ -209,120 +159,45 @@ $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution
                     'type', 'data'
                 ]
             ]
-        ]
-    ])
-    ->first();
-
-/*
-// #memo - on ne peut pas donner le détail du calcul quotités par exécution : il n'existe pas puisque le découpage est fait a posteriori, sur un nombre arbitraire de périodes, et avec des éventuelles gestion d'arrondis
-*/
-if(!$fundRequestExecution) {
-    throw new Exception('unknown_fund_request_execution', EQ_ERROR_INVALID_PARAM);
-}
-
-if($fundRequestExecution['status'] === 'cancelled') {
-    throw new Exception('cancelled_fund_request_execution', EQ_ERROR_INVALID_PARAM);
-}
-
-/** @var \realestate\funding\FundRequest $fundRequest */
-$fundRequest = FundRequest::id($fundRequestExecution['fund_request_id'])
-    ->read([
-        'status',
-        'name',
-        'request_date',
-        'request_amount',
-        'request_type',
-        'has_date_range',
-        'date_range_frequency',
-        'date_from',
-        'date_to',
-        'request_bank_account_id' => ['bank_account_iban', 'bank_account_bic'],
-        'fiscal_period_id' => [
-            'name',
-            'date_from',
-            'date_to'
         ],
-        'request_lines_ids' => ['name', 'request_amount', 'apportionment_id' => ['name', 'total_shares']],
-        'line_entries_ids'  => [
+        'payment_reminder_owners_ids' => [
             '@domain' => ['ownership_id', '=', $params['ownership_id']],
-            'apportionment_shares',
-            'allocated_amount',
-            'request_line_id'
-        ],
-        'request_executions_ids' => [
-            'posting_date',
-            'due_date',
-            'price',
-            'execution_lines_ids' => [
-                '@domain' => ['ownership_id', '=', $params['ownership_id']],
-                'price'
+            'due_balance',
+            'payment_reminder_owner_lines_ids' => [
+                'days_overdue',
+                'due_amount',
+                'funding_id' => [
+                    'name',
+                    'funding_type',
+                    'due_date',
+                    'due_amount',
+                    'remaining_amount',
+                    'payment_reference',
+                    'fund_request_id' => ['name'],
+                    'fund_request_execution_id' => ['name'],
+                    'expense_statement_id' => ['name'],
+                    'purchase_invoice_id' => ['name'],
+                    'misc_operation_id' => ['name']
+                ]
             ]
         ]
     ])
     ->first();
 
-if($fundRequest['status'] === 'cancelled') {
-    throw new Exception('cancelled_fund_request', EQ_ERROR_INVALID_PARAM);
+if(!$paymentReminder) {
+    throw new Exception('unknown_payment_reminder', EQ_ERROR_INVALID_PARAM);
 }
 
-$execution = $fundRequestExecution->toArray();
+$paymentReminderOwner = $paymentReminder['payment_reminder_owners_ids']->first(true);
 
-$funding = $fundRequestExecution['fundings_ids']->first(true);
-
-$executions = $fundRequest['request_executions_ids']->get(true);
-
-$fund_request = [
-        'name'          => $fundRequest['name'],
-        'lines'         => [],
-        'owner_total'   => 0.0
-    ];
-
-$map_request_line_entries = [];
-
-foreach($fundRequest['line_entries_ids'] as $request_line_entry_id => $requestLineEntry) {
-    $map_request_line_entries[$requestLineEntry['request_line_id']] = $requestLineEntry;
+if(!$paymentReminderOwner) {
+    throw new Exception('unknown_payment_reminder_owner', EQ_ERROR_INVALID_PARAM);
 }
-
-foreach($fundRequest['request_lines_ids'] as $request_line_id => $requestLine) {
-    $fund_request['lines'][] = [
-        'apportionment'     => $requestLine['apportionment_id']['name'],
-        'total_shares'      => $requestLine['apportionment_id']['total_shares'],
-        'request_amount'    => $requestLine['request_amount'],
-        'owner_shares'      => $map_request_line_entries[$request_line_id]['apportionment_shares'] ?? 0,
-        'owner_total'       => $map_request_line_entries[$request_line_id]['allocated_amount'] ?? 0
-    ];
-
-    $fund_request['owner_total'] += $map_request_line_entries[$request_line_id]['allocated_amount'];
-}
-
-$organisation = Organisation::id(1)
-    ->read([
-        'name', 'address_street', 'address_dispatch', 'address_zip',
-        'address_city', 'address_country', 'has_vat', 'vat_number',
-        'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
-        'website', 'email', 'phone', 'has_vat', 'vat_number',
-        'profile_image_document_id' => [
-            'type', 'data'
-        ]
-    ])
-    ->first();
-
-
-/*
-    #todo
-    copropriétaire
-
-        déterminer le bloc adresse en fonction du ownership_type et has_representant
-        pour le moment, on prend l'identity du premier owner associé au ownership_id
-
-    si has_representative use representative_identity_id
-    sinon soit on prendre le premier owner de la liste, soit on prend le owner_id renseigné dans les params (pour courrier personnalisé, même s'il s'agit du même ownership)
-*/
 
 $owner = Owner::search(['ownership_id', '=', $params['ownership_id']])
     ->read([
         'identity_id' => [
-            'name', 'address_street', 'address_dispatch', 'address_zip',
+            'name', 'firstname', 'lastname', 'address_street', 'address_dispatch', 'address_zip',
             'address_city', 'address_country', 'has_vat', 'vat_number',
             'lang_id' => ['code']
         ]
@@ -335,13 +210,77 @@ if(!$owner) {
 
 $lang = $owner['identity_id']['lang_id']['code'];
 
-// retrieve template (subject & body)
-$subject = 'Appels de fonds';
+$fundings = [];
+$overdue_total = 0.0;
+
+$map_funding_types = [
+    'fund_request'       => 'Appel de fonds',
+    'expense_statement'  => 'Décompte de charges',
+    'purchase_invoice'   => 'Facture',
+    'misc_operation'     => 'Opération diverse',
+    'statement_line'     => 'Extrait bancaire',
+    'due_balance'        => 'Solde copropriétaire'
+];
+
+foreach($paymentReminderOwner['payment_reminder_owner_lines_ids'] as $paymentReminderOwnerLine) {
+    $funding = $paymentReminderOwnerLine['funding_id'];
+    if(!$funding) {
+        continue;
+    }
+
+    $label = $funding['name'];
+    if($funding['fund_request_execution_id']) {
+        $label = $funding['fund_request_execution_id']['name'];
+    }
+    elseif($funding['expense_statement_id']) {
+        $label = $funding['expense_statement_id']['name'];
+    }
+    elseif($funding['purchase_invoice_id']) {
+        $label = $funding['purchase_invoice_id']['name'];
+    }
+    elseif($funding['misc_operation_id']) {
+        $label = $funding['misc_operation_id']['name'];
+    }
+    elseif($funding['fund_request_id']) {
+        $label = $funding['fund_request_id']['name'];
+    }
+
+    $fundings[] = [
+        'nature'            => $map_funding_types[$funding['funding_type']] ?? $funding['funding_type'],
+        'label'             => $label,
+        'due_date'          => $funding['due_date'],
+        'days_overdue'      => $paymentReminderOwnerLine['days_overdue'],
+        'due_amount'        => (float) $paymentReminderOwnerLine['due_amount'],
+        'remaining_amount'  => (float) ($funding['remaining_amount'] ?? $paymentReminderOwnerLine['due_amount'])
+    ];
+
+    $overdue_total += (float) $paymentReminderOwnerLine['due_amount'];
+}
+
+usort($fundings, function($a, $b) {
+    return ($a['due_date'] <=> $b['due_date']);
+});
+
+$owner_balance = (float) ($paymentReminderOwner['due_balance'] ?? $overdue_total);
+
+$organisation = Organisation::id(1)
+    ->read([
+        'id',
+        'name', 'address_street', 'address_dispatch', 'address_zip',
+        'address_city', 'address_country', 'has_vat', 'vat_number',
+        'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
+        'website', 'email', 'phone', 'has_vat', 'vat_number',
+        'profile_image_document_id' => [
+            'type', 'data'
+        ]
+    ])
+    ->first();
+
+$subject = 'Rappel de paiement';
 $introduction = '';
-$communication = '';
 
 $template = Template::search([
-        ['code', '=', 'fund_request_execution_correspondence'],
+        ['code', '=', 'payment_reminder_correspondence'],
         ['type', '=', 'document']
     ])
     ->read(['id','parts_ids' => ['name', 'value']])
@@ -351,99 +290,64 @@ if(!$template) {
     throw new Exception('template_not_found', EQ_ERROR_INVALID_CONFIG);
 }
 
-foreach($template['parts_ids'] as $part_id => $part) {
-    if($part['name'] == 'subject') {
+$map_template_values = [
+    'condo'         => $paymentReminder['condo_id']['name'],
+    'firstname'     => $owner['identity_id']['firstname'] ?? '',
+    'lastname'      => $owner['identity_id']['lastname'] ?? '',
+    'emission_date' => $getFormattedDate($paymentReminder['emission_date']),
+    'due_amount'    => $formatMoney($overdue_total)
+];
+
+foreach($template['parts_ids'] as $part) {
+    if($part['name'] === 'subject') {
         $subject = strip_tags($part['value']);
-
-        $map_values = [
-            'condo'             => $fundRequestExecution['condo_id']['name'],
-            'period'            => $fundRequest['fiscal_period_id']['name'],
-            'date_from'         => $getFormattedDate($fundRequestExecution['date_from']),
-            'date_to'           => $getFormattedDate($fundRequestExecution['date_to']),
-            'label'             => $fundRequest['name']
-        ];
-
-        // Replace {var} items with corresponding values, set in $map_values
-        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_template_values) {
             $key = $matches[1];
-            return $map_values[$key] ?? '';
+            return $map_template_values[$key] ?? '';
         }, $subject);
     }
-    elseif($part['name'] == 'introduction') {
+    elseif($part['name'] === 'introduction') {
         $introduction = $part['value'];
-
-        $map_values = [
-            'condo'             => $fundRequestExecution['condo_id']['name'],
-            'period'            => $fundRequest['fiscal_period_id']['name'],
-            'date_from'         => $getFormattedDate($fundRequestExecution['date_from']),
-            'date_to'           => $getFormattedDate($fundRequestExecution['date_to'])
-        ];
-
-        // Replace {var} items with corresponding values, set in $map_values
-        $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+        $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_template_values) {
             $key = $matches[1];
-            return $map_values[$key] ?? '';
+            return $map_template_values[$key] ?? '';
         }, $introduction);
-    }
-    elseif($part['name'] == 'communication_payment_amount' && $funding && $funding['remaining_amount'] >= 0.01) {
-        $communication = $part['value'];
-
-        $map_values = [
-            'remaining_amount'  => $formatMoney($funding['remaining_amount']),
-            'due_date'          => $getFormattedDate($funding['due_date'] ?? $fundRequestExecution['due_date'] ?? time())
-        ];
-
-        // Replace {var} items with corresponding values, set in $map_values
-        $communication = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
-            $key = $matches[1];
-            return $map_values[$key] ?? '';
-        }, $communication);
-    }
-    elseif($part['name'] == 'communication_reimbursement' && $funding && $funding['remaining_amount'] < 0.0) {
-        $communication = $part['value'];
-
-        $map_values = [
-            'remaining_amount' => $formatMoney(abs($funding['remaining_amount']))
-        ];
-
-        // Replace {var} items with corresponding values, set in $map_values
-        $communication = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
-            $key = $matches[1];
-            return $map_values[$key] ?? '';
-        }, $communication);
-    }
-    elseif($part['name'] == 'communication_no_action_required' && $funding && abs($funding['remaining_amount']) < 0.01) {
-        $communication = $part['value'];
     }
 }
 
-$labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'FundRequestExecution.' . $params['view_id']));
+$communication = '';
+if($owner_balance > 0.01) {
+    $communication = sprintf(
+        '<p>La situation de votre compte copropriétaire au %s présente un solde débiteur de <strong>%s</strong>.</p><p>Le détail des financements échus repris ci-dessous permet d’identifier l’origine de ce solde.</p>',
+        $getFormattedDate($paymentReminder['emission_date']),
+        $formatMoney($owner_balance)
+    );
+}
+elseif($owner_balance < -0.01) {
+    $communication = sprintf(
+        '<p>La situation de votre compte copropriétaire au %s présente un solde créditeur de <strong>%s</strong> en votre faveur.</p>',
+        $getFormattedDate($paymentReminder['emission_date']),
+        $formatMoney(abs($owner_balance))
+    );
+}
+else {
+    $communication = '<p>La situation de votre compte copropriétaire est équilibrée à la date du rappel.</p>';
+}
+
+$labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'PaymentReminder.' . $params['view_id']));
 
 $values = [
     'title'               => $subject,
     'introduction'        => $introduction,
     'communication'       => $communication,
-
-    'fund_request'        => $fund_request,
-    'execution'           => $execution,
-    'executions'          => $executions,
-
     'organisation'        => $organisation,
     'organisation_logo'   => $getOrganisationLogo($organisation['id']),
-
-    'condominium'         => $fundRequestExecution['condo_id'],
-
+    'condominium'         => $paymentReminder['condo_id'],
     'recipient'           => $owner['identity_id'],
-
-    'funding'             => $funding,
-    'payment_qr_code_uri' => $getPaymentQrCodeUri(
-                $fundRequestExecution['condo_id']['legal_name'],
-                $fundRequest['request_bank_account_id']['bank_account_iban'] ?? $fundRequestExecution['condo_id']['bank_account_iban'],
-                $fundRequest['request_bank_account_id']['bank_account_bic'] ?? $fundRequestExecution['condo_id']['bank_account_bic'],
-                $funding['payment_reference'] ?? '',
-                $funding['remaining_amount'] ?? 0
-            ),
-
+    'payment_reminder'    => $paymentReminder,
+    'owner_balance'       => $owner_balance,
+    'overdue_total'       => $overdue_total,
+    'fundings'            => $fundings,
     'date'                => time(),
     'timezone'            => constant('L10N_TIMEZONE'),
     'locale'              => constant('L10N_LOCALE'),
@@ -453,10 +357,7 @@ $values = [
     'debug'               => $params['debug']
 ];
 
-
-
 try {
-    // generate HTML
     $loader = new TwigFilesystemLoader([
             EQ_BASEDIR.'/packages/realestate/views/_parts',
             EQ_BASEDIR.'/packages/realestate/views/funding'
@@ -468,18 +369,16 @@ try {
     $extension  = new IntlExtension();
     $twig->addExtension($extension);
 
-    // #todo - temp workaround against LOCALE mixups
     $twig->addFilter(
-            new TwigFilter('format_money', $formatMoney)
-        );
+        new TwigFilter('format_money', $formatMoney)
+    );
 
     $twig->addFilter(
-            new TwigFilter('data_format', $dataFormatter)
-        );
+        new TwigFilter('data_format', $dataFormatter)
+    );
 
-    $template = $twig->load('FundRequestExecution.' . $params['view_id'] . '.html');
+    $template = $twig->load('PaymentReminder.' . $params['view_id'] . '.html');
     $html = $template->render($values);
-
 }
 catch(\Throwable $e) {
     trigger_error('APP::Error while rendering template' . $e->getMessage(), EQ_REPORT_ERROR);
@@ -487,5 +386,5 @@ catch(\Throwable $e) {
 }
 
 $context->httpResponse()
-        ->body($html)
-        ->send();
+    ->body($html)
+    ->send();
