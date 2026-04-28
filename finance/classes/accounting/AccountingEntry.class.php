@@ -1064,6 +1064,7 @@ class AccountingEntry extends Model {
                     $openingBalance = OpeningBalance::search([
                             ['condo_id', '=', $condo_id],
                             ['status', '=', 'validated']
+                            // #memo - filtering on date is not necessary since it is not possible to create an entry on a non-open (or similar) fiscal year
                         ],
                         [
                             'sort'  => ['created' => 'desc'],
@@ -1090,8 +1091,8 @@ class AccountingEntry extends Model {
                 * Get current balance (= date)
                 */
                 $current = AccountBalanceChange::search([
-                            ['account_id', '=', $account_id],
                             ['condo_id', '=', $condo_id],
+                            ['account_id', '=', $account_id],
                             ['date', '=', $date]
                         ],
                         ['limit' => 1]

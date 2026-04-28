@@ -1,0 +1,58 @@
+{
+    "name": "Payment Reminder Correspondences",
+    "description": "Track payment reminder correspondences sent to ownerships.",
+    "header": {
+        "layout": "inline",
+        "actions": false
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "label": "Condominium",
+                "width": "12%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Payment Reminder",
+                "value": "payment_reminder_id",
+                "width": "12%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Owner",
+                "value": "owner_id",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "ownership_id",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "communication_method",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "is_sent",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "sent_date",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "is_acknowledged",
+                "width": "12%",
+                "visible": false
+            }
+        ]
+    }
+}
