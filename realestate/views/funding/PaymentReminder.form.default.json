@@ -74,6 +74,26 @@
             {
                 "sections": [
                     {
+                        "id": "section.owners",
+                        "label": "Owners",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "payment_reminder_owners_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "id": "section.correspondences",
                         "label": "Correspondences",
                         "rows": [

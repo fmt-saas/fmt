@@ -59,6 +59,13 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'foreign_field'     => 'payment_reminder_id'
             ],
 
+            'payment_reminder_owners_ids' => [
+                'type'              => 'one2many',
+                'description'       => "Owners present in the reminder.",
+                'foreign_object'    => 'realestate\funding\PaymentReminderOwner',
+                'foreign_field'     => 'payment_reminder_id'
+            ],
+
             'exporting_tasks_ids' => [
                 'type'              => 'one2many',
                 'description'       => "Reference to the tasks for exporting paper mails for payment reminder, if any.",
