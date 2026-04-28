@@ -374,7 +374,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 ->update(['status' => 'cancelled']);
 
             AccountingEntryLine::search(['clearing_expense_statement_id', '=', $id])
-                ->update(['is_cleared' => false]);
+                ->update(['is_cleared' => false, 'clearing_expense_statement_id' => null]);
         }
     }
 
@@ -390,7 +390,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 ->update(['accounting_entry_id' => null]);
 
             AccountingEntryLine::search(['clearing_expense_statement_id', '=', $id])
-                ->update(['is_cleared' => false]);
+                ->update(['is_cleared' => false, 'clearing_expense_statement_id' => null]);
         }
     }
 
@@ -1004,7 +1004,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             // retrieve accounting entry lines cleared by the expense statement
             $accountingEntryLines = AccountingEntryLine::search([
-                    ['clearing_expense_statement_id', '=', $id]
+                    ['clearing_expense_statement_id', '=', $id],
+                    ['status', '=', 'validated']
                 ])
                 ->read(['account_id', 'debit', 'credit']);
 

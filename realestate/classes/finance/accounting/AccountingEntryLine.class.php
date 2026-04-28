@@ -137,4 +137,10 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
     }
 
 
+    public function getIndexes(): array {
+        return array_merge(parent::getIndexes(), [
+            ['clearing_expense_statement_id']
+        ]);
+    }
+
 }
