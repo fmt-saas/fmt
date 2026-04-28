@@ -310,7 +310,9 @@ if($opening_balance_id) {
 
 
 $changes = AccountBalanceChange::search([
-            ['condo_id', '=', $params['condo_id']], ['date', '>=', $opening_date_from], ['date', '<', $date_from]
+            ['condo_id', '=', $params['condo_id']],
+            ['date', '<', $date_from],
+            ['date', '>=', $opening_date_from],
         ],
         [
             'sort'  => ['date' => 'asc', 'id' => 'asc']
