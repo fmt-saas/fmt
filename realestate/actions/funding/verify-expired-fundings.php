@@ -61,7 +61,7 @@ foreach($condominiums as $condo_id => $condominium) {
                 $map_payment_reminder_ownership[$ownership_id] = PaymentReminderOwner::create([
                         'condo_id'              => $condo_id,
                         'ownership_id'          => $ownership_id,
-                        'payment_reminder_id'   => $paymentReminder
+                        'payment_reminder_id'   => $paymentReminder['id']
                     ])
                     ->first();
             }
