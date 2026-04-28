@@ -23,7 +23,7 @@
             "help": ""
         },
         "payment_reference": {
-            "label": "Réréference",
+            "label": "Référence",
             "description": "Message permettant d'identifier la raison de la transaction"
         }
     }
