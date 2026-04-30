@@ -30,18 +30,20 @@ use realestate\sale\pay\Funding;
  */
 ['context' => $context, 'orm' => $orm] = $providers;
 
-
 $condominiums = Condominium::search()
     ->read(['id', 'name']);
 
 $map_ownership_balances = [];
-$date_to = strtotime('today');
+$now = strtotime('today');
 
 foreach($condominiums as $condo_id => $condominium) {
 
+    // remove any existing non-sent PaymentReminder
+    PaymentReminder::search([['condo_id', '=', $condo_id], ['status', '<>', 'sent']])->delete(true);
+
     $fiscalYear = FiscalYear::search([
             ['condo_id', '=', $condo_id],
-            ['date_from', '<=', $date_to],
+            ['date_from', '<=', $now],
         ], ['sort' => ['date_from' => 'desc'], 'limit' => 1])
         ->read(['date_from'])
         ->first();
@@ -50,30 +52,20 @@ foreach($condominiums as $condo_id => $condominium) {
         continue;
     }
 
-    $date_from = $fiscalYear['date_from'] ?? $date_to;
+    $date_from = $fiscalYear['date_from'] ?? $now;
 
     $overdueFundings = Funding::search([
             ['status', 'in', ['pending', 'debit_balance']],
             ['condo_id', '=', $condo_id],
             ['funding_type', 'in', ['fund_request', 'expense_statement', 'misc_operation']],
             ['due_amount', '>', 0],
-            ['due_date', '<=', time()]
+            ['due_date', '<=', $now]
         ])
         ->read(['condo_id', 'ownership_id', 'due_date', 'due_amount']);
 
     if($overdueFundings->count() > 0) {
-
-// #memo - créer Funding misc_operation dans opening journal / Opening Balance
-
-
-// unset pour les fundings pour lesquels on a envoyé un rappel qui n'est pas encore expiré
-// on se base sur des  Funding "due_balance" pour faire le suivi
-// ces funding sont émis de la validation/envoi des rappels
-
-
-// on ne créée pas un PaymentReminderOwnerLine si une autre ligne pour le même Funding est en brouillon
-// on ne créée pas un PaymentReminderOwnerLine si le funding est lié à un Funding "due_balance" qui n'est pas expiré
-
+        // we'll need to know afterwards how many lines have been created
+        $created_lines = 0;
 
         $map_payment_reminder_ownership = [];
 
@@ -85,14 +77,18 @@ foreach($condominiums as $condo_id => $condominium) {
 
         foreach($overdueFundings as $funding_id => $funding) {
 
-
-            /*
-            Funding::search([
-                    ['funding_type', '=', 'due_balance'],
-                    ['ownership_id', '=', $ownership_id],
-                    ['due_date', '<', time()]
+            $previousReminderOwnerLines = PaymentReminderOwnerLine::search([
+                    ['payment_reminder_status', '=', 'sent'],
+                    ['funding_id', '=', $funding_id],
                 ])
-            */
+                ->read(['due_date']);
+
+            // ignore fundings for which a non-expired reminder has been sent
+            foreach($previousReminderOwnerLines as $previousReminderOwnerLine) {
+                if($previousReminderOwnerLine['due_date'] <= $now) {
+                    continue 2;
+                }
+            }
 
             $ownership_id = $funding['ownership_id'];
 
@@ -102,7 +98,7 @@ foreach($condominiums as $condo_id => $condominium) {
                 $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
                     'ownership_id'      => $ownership_id,
                     'date_from'         => $date_from,
-                    'date_to'           => $date_to
+                    'date_to'           => $now
                 ]);
 
                 if(count($data)) {
@@ -124,6 +120,8 @@ foreach($condominiums as $condo_id => $condominium) {
 
             $paymentReminderOwner = $map_payment_reminder_ownership[$ownership_id];
 
+            $reminder_level = $previousReminderOwnerLines->count() + 1;
+
             PaymentReminderOwnerLine::create([
                     'condo_id'                      => $condo_id,
                     'ownership_id'                  => $ownership_id,
@@ -131,8 +129,15 @@ foreach($condominiums as $condo_id => $condominium) {
                     'payment_reminder_id'           => $paymentReminder['id'],
                     'payment_reminder_owner_id'     => $paymentReminderOwner['id'],
                     'due_amount'                    => $funding['due_amount'],
+                    'reminder_level'                => $reminder_level
                 ]);
 
+            ++$created_lines;
+        }
+
+        // remove reminder if empty
+        if($created_lines <= 0) {
+            PaymentReminder::id($paymentReminder['id'])->delete(true);
         }
     }
 }

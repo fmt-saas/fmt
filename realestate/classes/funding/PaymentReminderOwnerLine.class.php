@@ -34,7 +34,8 @@ class PaymentReminderOwnerLine extends \equal\orm\Model {
                 'description'       => "The funding reminder relates to.",
                 'foreign_object'    => 'realestate\funding\PaymentReminderOwner',
                 'readonly'          => true,
-                'required'          => true
+                'required'          => true,
+                'ondelete'          => 'cascade'
             ],
 
             'funding_id' => [
@@ -71,10 +72,28 @@ class PaymentReminderOwnerLine extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'due_date' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => "Deadline before which the funding is expected."
+            ],
+
+            'issue_date' => [
+                'type'              => 'date',
+                'description'       => "Date at which the request for payment has to be issued.",
+                'default'           => function() { return time(); }
+            ],
+
             'payment_reminder_status' => [
                 'type'              => 'string',
                 'description'       => "Status of the parent Payment Reminder.",
                 'default'           => 'pending'
+            ],
+
+            'reminder_level' => [
+                'type'              => 'integer',
+                'description'       => 'Counter of how many reminders have been sent for the funding.',
+                'default'           => 0
             ]
         ];
     }

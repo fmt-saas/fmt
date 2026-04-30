@@ -35,7 +35,8 @@ class PaymentReminderOwner extends \equal\orm\Model {
                 'description'       => "The funding reminder relates to.",
                 'foreign_object'    => 'realestate\funding\PaymentReminder',
                 'readonly'          => true,
-                'required'          => true
+                'required'          => true,
+                'ondelete'          => 'cascade',
             ],
 
             'payment_reminder_owner_lines_ids' => [

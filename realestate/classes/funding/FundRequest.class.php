@@ -802,7 +802,7 @@ class FundRequest extends \equal\orm\Model {
                 }
 
                 $remaining_amount = $allocated_amount;
-                $base_amount = intdiv($allocated_amount, $num_intervals);
+                $base_amount = floor($allocated_amount * 100 / $num_intervals) / 100;
 
                 foreach($execution_dates as $index => $execution_date) {
                     $called_amount = ($index == $num_intervals - 1) ? $remaining_amount : $base_amount;

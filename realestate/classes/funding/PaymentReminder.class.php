@@ -93,7 +93,6 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'foreign_field'     => 'payment_reminder_id'
             ],
 
-// #memo - upon change - need to update PaymentReminderOwnerLine payment_reminder_status
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -122,6 +121,45 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'function'      => 'doSendPaymentReminders'
             ]
         ]);
+    }
+
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => 'Balance being completed, waiting to be validated.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'send' => [
+                        'description' => 'Update the Balance to `validated`.',
+                        'onbefore'    => 'onbeforeSend',
+                        'onafter'     => 'onafterSend',
+                        'status'      => 'validated'
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    protected static function onbeforeSend($self) {
+        foreach($self as $id => $paymentReminder) {
+            $today = strtotime('today');
+            PaymentReminderOwnerLine::search(['payment_reminder_id','=', $id])
+                ->update([
+                    'issue_date'                => $today,
+                    'due_date'                  => $today + (86400 * 15)
+                ]);
+        }
+
+        $self->do('send_payment_reminders');
+    }
+
+    protected static function onafterSend($self) {
+        foreach($self as $id => $paymentReminder) {
+            PaymentReminderOwnerLine::search(['payment_reminder_id','=', $id])
+                ->update([
+                    'payment_reminder_status'   => 'sent'
+                ]);
+        }
     }
 
     protected static function doGeneratePaymentReminderCorrespondences($self): void {
