@@ -8,24 +8,49 @@
             "description": "Nom présenté dans les listes et les écrans.",
             "help": ""
         },
-        "code": {
-            "label": "Code copropriété",
-            "description": "Identifiant court utilisé pour les échanges inter-instances.",
-            "help": "Ce code est calculé automatiquement à partir de la dénomination officielle."
+        "instance_id": {
+            "label": "Instance",
+            "description": "Instance FMT hébergeant actuellement la copropriété.",
+            "help": ""
+        },
+        "bank_accounts_ids": {
+            "label": "Comptes bancaires",
+            "description": "Comptes bancaires ouverts au nom de la copropriété.",
+            "help": ""
+        },
+        "address_street": {
+            "label": "Rue et numéro",
+            "description": "Adresse principale de la copropriété.",
+            "help": ""
+        },
+        "address_city": {
+            "label": "Ville",
+            "description": "",
+            "help": ""
+        },
+        "address_zip": {
+            "label": "Code postal",
+            "description": "",
+            "help": ""
         },
         "is_active": {
             "label": "Actif",
             "description": "Indique si la copropriété est gérée sur l'instance courante.",
             "help": "Décochez ce champ lorsqu'une gestion a été transférée vers un autre syndic afin de conserver l'historique sans créer de doublon."
         },
-        "instance_id": {
-            "label": "Instance",
-            "description": "Instance FMT hébergeant actuellement la copropriété.",
-            "help": ""
-        },
         "managing_agent_id": {
             "label": "Syndic",
             "description": "Gestionnaire (interne ou externe) en charge de la copropriété.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code copropriété",
+            "description": "Identifiant court utilisé pour les échanges inter-instances.",
+            "help": "Ce code est calculé automatiquement à partir de la dénomination officielle."
+        },
+        "assemblies_ids": {
+            "label": "Assemblées",
+            "description": "Assemblées générales planifiées ou passées.",
             "help": ""
         },
         "managing_agent_contracts_ids": {
@@ -41,11 +66,6 @@
         "council_members_ids": {
             "label": "Conseil de copropriété",
             "description": "Membres du conseil ou du comité consultatif.",
-            "help": ""
-        },
-        "assemblies_ids": {
-            "label": "Assemblées",
-            "description": "Assemblées générales planifiées ou passées.",
             "help": ""
         },
         "total_shares": {
@@ -90,22 +110,7 @@
         },
         "cadastral_number": {
             "label": "Numéro cadastral",
-            "description": "Référence cadastrale officielle de l'immeuble.",
-            "help": ""
-        },
-        "address_street": {
-            "label": "Rue et numéro",
-            "description": "Adresse principale de la copropriété.",
-            "help": ""
-        },
-        "address_city": {
-            "label": "Ville",
-            "description": "",
-            "help": ""
-        },
-        "address_zip": {
-            "label": "Code postal",
-            "description": "",
+            "description": "Référence cadastrale officielle de l'immeuble. test",
             "help": ""
         },
         "fiscal_year_start": {
@@ -121,21 +126,11 @@
         "fiscal_period_frequency": {
             "label": "Nombre de périodes",
             "description": "Fréquence de découpage d'un exercice comptable.",
-            "selection": {
-                "Q": "Trimestriel",
-                "T": "Quadrimestriel",
-                "S": "Semestriel",
-                "A": "Annuel"
-            },
             "help": ""
         },
         "expense_management_mode": {
             "label": "Mode de gestion des charges",
             "description": "Gestion en réel ou par appels de provisions.",
-            "selection": {
-                "real_expenses": "Dépenses réelles",
-                "provisions": "Appels de provisions"
-            },
             "help": ""
         },
         "account_chart_id": {
@@ -183,11 +178,6 @@
             "description": "Entrées/blocs qui composent l'immeuble.",
             "help": ""
         },
-        "bank_accounts_ids": {
-            "label": "Comptes bancaires",
-            "description": "Comptes bancaires ouverts au nom de la copropriété.",
-            "help": ""
-        },
         "suppliers_ids": {
             "label": "Fournisseurs",
             "description": "Prestataires liés à la copropriété.",
@@ -201,123 +191,10 @@
         "status": {
             "label": "Statut",
             "description": "État du cycle de vie de la copropriété.",
-            "selection": {
-                "pending": "En préparation",
-                "validated": "Validée"
-            },
             "help": ""
         }
     },
     "view": {
-        "form.default": {
-            "name": "Copropriété",
-            "description": "Fiche d'identité et informations générales de la copropriété.",
-            "layout": {
-                "section.main_info": {
-                    "label": "Informations générales"
-                },
-                "section.address": {
-                    "label": "Adresse"
-                },
-                "section.bank_accounts": {
-                    "label": "Comptes bancaires"
-                },
-                "section.accounting": {
-                    "label": "Comptabilité"
-                }
-            },
-            "actions": {
-                "action.validate": {
-                    "label": "Valider",
-                    "description": "Générer la configuration obligatoire."
-                }
-            },
-            "routes": {
-                "item.ownerships": {
-                    "label": "Copropriétaires",
-                    "description": ""
-                },
-                "item.council_members": {
-                    "label": "Conseil de copropriété",
-                    "description": ""
-                },
-                "item.property_lots": {
-                    "label": "Lots",
-                    "description": ""
-                },
-                "item.property_entrances": {
-                    "label": "Entrées",
-                    "description": ""
-                },
-                "item.accounting": {
-                    "label": "Comptabilité",
-                    "description": ""
-                },
-                "documents": {
-                    "label": "Documents",
-                    "description": ""
-                },
-                "consumption_meters": {
-                    "label": "Compteurs de conso",
-                    "description": ""
-                },
-                "suppliers": {
-                    "label": "Fournisseurs",
-                    "description": ""
-                },
-                "item.governance": {
-                    "label": "Assemblées",
-                    "description": ""
-                },
-                "item.config": {
-                    "label": "Configuration",
-                    "description": ""
-                }
-            }
-        },
-        "form.config": {
-            "name": "Configuration",
-            "description": "Paramètres juridiques, clés de répartition et référentiels liés.",
-            "layout": {
-                "section.management_contracts": {
-                    "label": "Contrats de gestion"
-                },
-                "section.roles_assignments": {
-                    "label": "Affectations des rôles"
-                },
-                "section.sequences": {
-                    "label": "Séquences"
-                },
-                "section.settings": {
-                    "label": "Paramètres"
-                },
-                "label.current_managing_agent": {
-                    "label": "Syndic/agence actuel"
-                }
-            },
-            "routes": {
-                "item.statutory_quotas": {
-                    "label": "Quotes-parts légales",
-                    "description": ""
-                },
-                "item.apportionment_keys": {
-                    "label": "Clés de répartition",
-                    "description": ""
-                },
-                "item.accounts_chart": {
-                    "label": "Plan comptable",
-                    "description": ""
-                },
-                "item.accounting_journals": {
-                    "label": "Journaux comptables",
-                    "description": ""
-                },
-                "item.bank_accounts": {
-                    "label": "Comptes bancaires",
-                    "description": ""
-                }
-            }
-        },
         "form.accounting": {
             "name": "Comptabilité",
             "description": "Plan comptable, journaux et comptes bancaires.",
@@ -376,14 +253,119 @@
                 }
             }
         },
+        "form.config": {
+            "name": "Configuration",
+            "description": "Paramètres juridiques, clés de répartition et référentiels liés.",
+            "layout": {
+                "section.management_contracts": {
+                    "label": "Contrats de gestion"
+                },
+                "label.current_managing_agent": {
+                    "label": "Syndic/agence actuel"
+                },
+                "section.roles_assignments": {
+                    "label": "Affectations des rôles"
+                },
+                "section.sequences": {
+                    "label": "Séquences"
+                },
+                "section.settings": {
+                    "label": "Paramètres"
+                }
+            },
+            "routes": {
+                "item.statutory_quotas": {
+                    "label": "Quotes-parts légales",
+                    "description": ""
+                },
+                "item.apportionment_keys": {
+                    "label": "Clés de répartition",
+                    "description": ""
+                },
+                "item.accounts_chart": {
+                    "label": "Plan comptable",
+                    "description": ""
+                },
+                "item.accounting_journals": {
+                    "label": "Journaux comptables",
+                    "description": ""
+                },
+                "item.bank_accounts": {
+                    "label": "Comptes bancaires",
+                    "description": ""
+                }
+            }
+        },
+        "form.default": {
+            "name": "Copropriété",
+            "description": "Fiche d'identité et informations générales de la copropriété.",
+            "layout": {
+                "section.address": {
+                    "label": "Adresse"
+                },
+                "section.bank_accounts": {
+                    "label": "Comptes bancaires"
+                },
+                "section.accounting": {
+                    "label": "Comptabilité"
+                },
+                "section.main_info": {
+                    "label": "Informations générales"
+                }
+            },
+            "actions": {
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Générer la configuration obligatoire."
+                }
+            },
+            "routes": {
+                "item.ownerships": {
+                    "label": "Copropriétaires",
+                    "description": ""
+                },
+                "item.council_members": {
+                    "label": "Conseil de copropriété",
+                    "description": ""
+                },
+                "item.property_lots": {
+                    "label": "Lots",
+                    "description": ""
+                },
+                "item.property_entrances": {
+                    "label": "Entrées",
+                    "description": ""
+                },
+                "item.accounting": {
+                    "label": "Comptabilité",
+                    "description": ""
+                },
+                "documents": {
+                    "label": "Documents",
+                    "description": ""
+                },
+                "consumption_meters": {
+                    "label": "Compteurs de conso",
+                    "description": ""
+                },
+                "suppliers": {
+                    "label": "Fournisseurs",
+                    "description": ""
+                },
+                "item.governance": {
+                    "label": "Assemblées",
+                    "description": ""
+                },
+                "item.config": {
+                    "label": "Configuration",
+                    "description": ""
+                }
+            }
+        },
         "form.financial_statements": {
             "name": "États comptables",
             "description": "Balance, journaux, Grand livre, ...",
             "routes": {
-                "route.current_balance": {
-                    "label": "Balance Courante",
-                    "description": ""
-                },
                 "route.general_ledger": {
                     "label": "Grand Livre",
                     "description": ""
