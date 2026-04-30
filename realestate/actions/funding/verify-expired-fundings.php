@@ -108,6 +108,11 @@ foreach($condominiums as $condo_id => $condominium) {
 
             $current_balance = $map_ownership_balances[$ownership_id];
 
+            // ignore ownerships for which due_balance is not positive
+            if($current_balance <= 0) {
+                continue;
+            }
+
             if(!isset($map_payment_reminder_ownership[$ownership_id])) {
                 $map_payment_reminder_ownership[$ownership_id] = PaymentReminderOwner::create([
                         'condo_id'              => $condo_id,
