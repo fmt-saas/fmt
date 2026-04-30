@@ -1,0 +1,58 @@
+{
+    "name": "Fund Request Execution Correspondences",
+    "description": "Track fund request executions sent to ownerships.",
+    "header": {
+        "layout": "inline",
+        "actions": false
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "label": "Condominium",
+                "width": "12%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Fund Request Execution",
+                "value": "fund_request_execution_id",
+                "width": "12%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Owner",
+                "value": "owner_id",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "ownership_id",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "communication_method",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "is_sent",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "sent_date",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "is_acknowledged",
+                "width": "12%",
+                "visible": false
+            }
+        ]
+    }
+}
