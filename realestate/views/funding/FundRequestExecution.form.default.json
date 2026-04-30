@@ -11,12 +11,10 @@
             "id": "action.perform_execution",
             "label": "Perform execution",
             "description": "Perform the fund request execution by creating and validating resulting Accounting entries and Fundings. Execution will no longer be modifiable after this operation.",
-            "controller": "core_model_transition",
+            "controller": "realestate_funding_FundRequestExecution_call",
             "visible": ["status", "=", "proforma"],
             "params": {
-                "entity": "realestate\\funding\\FundRequestExecution",
-                "transition": "call",
-                "ids": []
+                "id": "object.id"
             },
             "confirm": true
         },
