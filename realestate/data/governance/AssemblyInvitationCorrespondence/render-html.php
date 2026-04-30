@@ -7,15 +7,9 @@
 
 use communication\template\Template;
 use fmt\setting\Setting;
-use documents\DocumentSignature;
 use identity\Organisation;
 use realestate\governance\Assembly;
 use realestate\governance\AssemblyInvitationCorrespondence;
-use realestate\governance\AssemblyItem;
-use realestate\ownership\Ownership;
-use realestate\property\Apportionment;
-use realestate\property\PropertyLotApportionmentShare;
-use realestate\property\PropertyLotOwnership;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;

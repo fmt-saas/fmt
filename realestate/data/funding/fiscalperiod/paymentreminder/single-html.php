@@ -122,6 +122,28 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
     return $result;
 };
 
+$getPaymentQrCodeUri = function($legal_name, $bank_account_iban, $bank_account_bic, $payment_reference, $amount) {
+    // default to blank image (empty 1x1)
+    $result = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAoMBgDTD2qgAAAAASUVORK5CYII=';
+    try {
+        $image = eQual::run('get', 'finance_payment_generate-qr-code', [
+            'recipient_name'    => $legal_name,
+            'recipient_iban'    => $bank_account_iban,
+            'recipient_bic'     => $bank_account_bic,
+            'payment_reference' => $payment_reference,
+            'payment_amount'    => $amount
+        ]);
+        $result = sprintf('data:%s;base64,%s',
+            'image/png',
+            base64_encode($image)
+        );
+    }
+    catch(Exception $e) {
+        trigger_error("APP::unable to generate QR code for $bank_account_iban: " . $e->getMessage(), EQ_REPORT_WARNING);
+    }
+    return $result;
+};
+
 $getLabels = function ($lang, $view_i18n_file_path) {
     $header_labels_json = file_get_contents(
         sprintf('%s/packages/realestate/i18n/%s/_parts/header.json', EQ_BASEDIR, $lang)
@@ -194,8 +216,20 @@ if(!$paymentReminderOwner) {
     throw new Exception('unknown_payment_reminder_owner', EQ_ERROR_INVALID_PARAM);
 }
 
+/*
+    #todo
+    copropriétaire
+
+        déterminer le bloc adresse en fonction du ownership_type et has_representant
+        pour le moment, on prend l'identity du premier owner associé au ownership_id
+
+    si has_representative use representative_identity_id
+    sinon soit on prendre le premier owner de la liste, soit on prend le owner_id renseigné dans les params (pour courrier personnalisé, même s'il s'agit du même ownership)
+*/
+
 $owner = Owner::search(['ownership_id', '=', $params['ownership_id']])
     ->read([
+        'ownership_id' => ['payment_reference'],
         'identity_id' => [
             'name', 'firstname', 'lastname', 'address_street', 'address_dispatch', 'address_zip',
             'address_city', 'address_country', 'has_vat', 'vat_number',
@@ -316,24 +350,12 @@ foreach($template['parts_ids'] as $part) {
     }
 }
 
-$communication = '';
-if($owner_balance > 0.01) {
-    $communication = sprintf(
-        '<p>La situation de votre compte copropriétaire au %s présente un solde débiteur de <strong>%s</strong>.</p><p>Le détail des financements échus repris ci-dessous permet d’identifier l’origine de ce solde.</p>',
-        $getFormattedDate($paymentReminder['emission_date']),
-        $formatMoney($owner_balance)
-    );
-}
-elseif($owner_balance < -0.01) {
-    $communication = sprintf(
-        '<p>La situation de votre compte copropriétaire au %s présente un solde créditeur de <strong>%s</strong> en votre faveur.</p>',
-        $getFormattedDate($paymentReminder['emission_date']),
-        $formatMoney(abs($owner_balance))
-    );
-}
-else {
-    $communication = '<p>La situation de votre compte copropriétaire est équilibrée à la date du rappel.</p>';
-}
+$communication = sprintf(
+    '<p>La situation de votre compte copropriétaire au %s présente un solde débiteur de <strong>%s</strong>.</p><p>Le détail des financements échus repris ci-dessous permet d’identifier l’origine de ce solde.</p>',
+    $getFormattedDate($paymentReminder['emission_date']),
+    $formatMoney($owner_balance)
+);
+
 
 $labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'PaymentReminder.' . $params['view_id']));
 
@@ -341,14 +363,28 @@ $values = [
     'title'               => $subject,
     'introduction'        => $introduction,
     'communication'       => $communication,
+
     'organisation'        => $organisation,
     'organisation_logo'   => $getOrganisationLogo($organisation['id']),
+
     'condominium'         => $paymentReminder['condo_id'],
+
     'recipient'           => $owner['identity_id'],
+
     'payment_reminder'    => $paymentReminder,
     'owner_balance'       => $owner_balance,
     'overdue_total'       => $overdue_total,
     'fundings'            => $fundings,
+
+    'payment_reference'   => $owner['ownership_id']['payment_reference'],
+    'payment_qr_code_uri' => $getPaymentQrCodeUri(
+            $paymentReminder['condo_id']['legal_name'],
+            $paymentReminder['condo_id']['bank_account_iban'],
+            $paymentReminder['condo_id']['bank_account_bic'],
+            $owner['ownership_id']['payment_reference'] ?? '',
+            $overdue_total
+        ),
+
     'date'                => time(),
     'timezone'            => constant('L10N_TIMEZONE'),
     'locale'              => constant('L10N_LOCALE'),

@@ -28,7 +28,7 @@ class PaymentReminder extends \equal\orm\Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'description'       => 'Display name of funding reminder.',
-                'function'          => 'calcName',
+                'relation'          => ['condo_id' => 'name'],
                 'store'             => true
             ],
 
@@ -72,17 +72,4 @@ class PaymentReminder extends \equal\orm\Model {
         ];
     }
 
-    public static function calcName($self): array {
-        $result = [];
-        $self->read(['state', 'funding_id' => ['name']]);
-        foreach($self as $id => $paymentReminder) {
-            if($paymentReminder['state'] === 'draft') {
-                continue;
-            }
-
-            $result[$id] = $paymentReminder['funding_id']['name'];
-        }
-
-        return $result;
-    }
 }

@@ -57,7 +57,7 @@
     },
     "view": {
         "form.default": {
-            "name": "Rappel financement",
+            "name": "Rappel de paiement",
             "description": "",
             "actions": {
                 "action.generate_correspondences": {
@@ -77,7 +77,7 @@
             }
         },
         "list.default": {
-            "name": "Rappels financements",
+            "name": "Rappels de paiement",
             "description": "Liste des rappels de financements.",
             "header": {
                 "header.selection.actions.send_reminders": {

@@ -34,7 +34,7 @@ class Ownership extends \equal\orm\Model {
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 // 'required'          => true,
-                'dependents'        => ['name']
+                'dependents'        => ['name', 'code', 'payment_reference']
             ],
 
             'code' => [
@@ -270,6 +270,16 @@ class Ownership extends \equal\orm\Model {
                 'foreign_object'    => 'fmt\setting\SettingSequence',
                 'foreign_field'     => 'ownership_id',
                 'domain'            => ['ownership_id', '=', 'object.id']
+            ],
+
+            'payment_reference' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Message for identifying the ownership in bank statements.',
+                'store'             => true,
+                'instant'           => true,
+                'readonly'          => true,
+                'function'          => 'calcPaymentReference'
             ],
 
             'status' => [
@@ -597,6 +607,10 @@ class Ownership extends \equal\orm\Model {
         $self->read(['state', 'condo_id']);
         foreach($self as $id => $ownership) {
             if($ownership['state'] != 'instance') {
+                continue;
+            }
+
+            if(!$ownership['condo_id']) {
                 continue;
             }
 
@@ -949,4 +963,45 @@ class Ownership extends \equal\orm\Model {
             ->do('generate_history');
     }
 
+    protected static function calcPaymentReference($self) {
+        $result = [];
+        $self->read([
+                'code',
+                'condo_id' => ['code']
+            ]);
+        foreach($self as $id => $ownership) {
+            if(!$ownership['code']) {
+                continue;
+            }
+            if(!$ownership['condo_id']) {
+                continue;
+            }
+            $reference =
+                substr(str_pad((int) $ownership['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
+                substr(str_pad((int) $ownership['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+
+            $prefix = substr($reference, 0, 3);
+            $suffix = substr($reference, 3);
+
+            $result[$id] = self::computePaymentReference($prefix, $suffix);
+        }
+        return $result;
+    }
+
+    /**
+     * Compute a Structured Reference using belgian SCOR (StructuredCommunicationReference) reference format.
+     *
+     * Note:
+     *   format is aaa-bbbbbbb-XX and is displayed +++aaa/bbbb/bbbXX+++
+     *   where Xaaa is the prefix, bbbbbbb is the suffix, and XX is the control number, that must verify (aaa * 10000000 + bbbbbbb) % 97
+     *      since 10000000 % 97 = 76
+     *      we do (aaa * 76 + bbbbbbb) % 97
+     */
+    private static function computePaymentReference($prefix, $suffix) {
+        $a = intval($prefix);
+        $b = intval($suffix);
+        $control = ((76*$a) + $b ) % 97;
+        $control = ($control == 0) ? 97 : $control;
+        return sprintf("%03d%04d%03d%02d", $a, $b / 1000, $b % 1000, $control);
+    }
 }
