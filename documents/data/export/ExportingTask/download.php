@@ -66,7 +66,10 @@ foreach($exportingTask['exporting_task_lines_ids'] as $exporting_task_line_id =>
         ->read(['name', 'data', 'extension'])
         ->first();
 
-    $zip->addFromString($document['name'] . '.' . $document['extension'], $document['data']);
+    $zip->addFromString(
+            str_replace(DIRECTORY_SEPARATOR, '-', $document['name'] . '.' . $document['extension']),
+            $document['data']
+        );
 }
 
 $zip->close();
