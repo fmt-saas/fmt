@@ -1,6 +1,11 @@
 {
     "name": "Payment Reminder Owner Lines",
     "description": "List the funding lines included in owner payment reminders.",
+    "header": {
+        "actions": {
+            "ACTION.CREATE": false
+        }
+    },
     "operations": {
         "total": {
             "due_amount": {

@@ -31,13 +31,8 @@
             },
             {
                 "type": "field",
-                "value": "name",
+                "value": "condo_id",
                 "width": "30%"
-            },
-            {
-                "type": "field",
-                "value": "due_date",
-                "width": "15%"
             },
             {
                 "type": "field",

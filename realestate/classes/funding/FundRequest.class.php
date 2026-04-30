@@ -802,6 +802,7 @@ class FundRequest extends \equal\orm\Model {
                 }
 
                 $remaining_amount = $allocated_amount;
+                // #memo - $num_intervals cannot be null here (@see above)
                 $base_amount = floor($allocated_amount * 100 / $num_intervals) / 100;
 
                 foreach($execution_dates as $index => $execution_date) {

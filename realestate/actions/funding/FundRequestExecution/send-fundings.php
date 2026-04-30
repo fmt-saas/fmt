@@ -46,13 +46,13 @@ $fundRequestExecution = FundRequestExecution::id($params['id'])
     ->read(['status', 'condo_id', 'name'])
     ->first();
 
-if(!$assembly) {
-    throw new Exception("unknown_assembly", EQ_ERROR_UNKNOWN_OBJECT);
+if(!$fundRequestExecution) {
+    throw new Exception('unknown_fund_request_execution', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-// fetch invitations relating to given communication_method
+// fetch correspondences relating to given communication_method
 $fundRequestExecutionCorrespondences = FundRequestExecutionCorrespondence::search([
-        [ 'assembly_id', '=', $assembly['id'] ],
+        [ 'fund_request_execution_id', '=', $fundRequestExecution['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
     ->read(['is_sent', 'document_id']);

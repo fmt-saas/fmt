@@ -265,7 +265,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
 
             if(count(array_diff(array_keys($map_communication_methods), ['email'])) > 0) {
                 $exportingTask = ExportingTask::create([
-                        'name'          => "{$paymentReminder['name']} - Export des courriers du rappel de paiement",
+                        'name'          => "Export des courriers du rappel de paiement",
                         'condo_id'      => $paymentReminder['condo_id'],
                         'object_class'  => static::class,
                         'object_id'     => $id
@@ -279,7 +279,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
 
                     ExportingTaskLine::create([
                         'exporting_task_id' => $exportingTask['id'],
-                        'name'              => "{$paymentReminder['name']} - Export du rappel - {$communication_method}",
+                        'name'              => "Export du rappel - {$communication_method}",
                         'controller'        => 'realestate_funding_PaymentReminder_export-reminders',
                         'params'            => json_encode([
                             'id'                    => $id,

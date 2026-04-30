@@ -2,6 +2,11 @@
     "name": "Payment Reminder Owners",
     "description": "List the owners covered by a payment reminder.",
     "limit": 500,
+    "header": {
+        "actions": {
+            "ACTION.CREATE": false
+        }
+    },
     "layout": {
         "items": [
             {

@@ -1,5 +1,5 @@
 {
-    "name": "Funding reminder",
+    "name": "Payment reminder",
     "description": "",
     "actions": [
         {
@@ -11,18 +11,18 @@
                 "entity": "realestate\\funding\\PaymentReminder",
                 "action": "generate_payment_reminder_correspondences"
             },
-            "visible": ["status", "<>", "cancelled"]
+            "visible": ["status", "<>", "sent"]
         },
         {
             "id": "action.send_reminders",
             "label": "Send reminders",
             "description": "Queue reminder emails and prepare export tasks for paper channels.",
-            "controller": "core_model_do",
+            "controller": "core_model_transition",
             "params": {
                 "entity": "realestate\\funding\\PaymentReminder",
-                "action": "send_payment_reminders"
+                "transition": "send"
             },
-            "visible": ["status", "<>", "cancelled"]
+            "visible": ["status", "<>", "sent"]
         }
     ],
     "layout": {
