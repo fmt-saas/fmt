@@ -191,3 +191,38 @@ Les templates de rendu sont organisés selon **leur contexte d’utilisation** :
   → appelle `render-html` puis convertit via DomPDF
 - `generate-document`
   → orchestre la génération, le stockage et la création des `DocumentCorrespondence`
+
+### Prévisualisation (preview) sans persistance
+
+Dans certaines situations, il est nécessaire de proposer une **prévisualisation** d’un document qui n’existe pas encore comme artefact persistant.
+
+Cas typique : un **décompte de charges global** au niveau de la copropriété.
+Ce document n’existe pas en tant que PDF unique stocké ; en pratique, la génération réelle produit **autant de documents qu’il y a de copropriétaires concernés**.
+
+#### Contrainte métier
+
+Les `DocumentCorrespondence` portent normalement le rendu final via leurs endpoints `render-html` / `render-pdf`, car elles encapsulent :
+
+- le document généré,
+- l’`ownership`,
+- et l’`owner` (destinataire final).
+
+En phase de preview, ces correspondences n’existent pas encore.
+
+#### Réponse technique
+
+Pour permettre un rendu immédiat, le système utilise des **controllers de rendu temporaire** :
+
+- des renderers de type `single-pdf` (non persistants),
+- combinés à un controller de preview `render-pdf` pour un rendu instantané.
+
+Objectif : obtenir un aperçu fidèle du futur document, sans créer de `DocumentCorrespondence` ni stocker de PDF définitif.
+
+#### Paramètres de rendu côté single-html
+
+Lorsqu’ils sont disponibles, les endpoints `single-html` acceptent :
+
+- `ownership_id`,
+- `owner_id` (optionnel).
+
+Ces renderers sont ensuite réutilisés par les `render-html` des correspondences associées, qui injectent explicitement ces deux informations pour garantir la cohérence entre preview et rendu final.
