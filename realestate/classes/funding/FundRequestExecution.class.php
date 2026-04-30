@@ -248,7 +248,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
     /**
      * For FundRequestExecution invoices, accounting entry is generated upon funds being called, i.e. when invoice is validated and assigned to a number (there is no draft accounting entry).
      */
-    protected static function policyCanGenerateAccountingEntry($self): array {
+    public static function policyCanGenerateAccountingEntry($self): array {
         $result = [];
         $self->read(['status', 'accounting_entry_id']);
         foreach($self as $id => $requestExecution) {
@@ -262,7 +262,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         return $result;
     }
 
-    protected static function policyCanPerformExecution($self): array {
+    public static function policyCanPerformExecution($self): array {
         $result = [];
         $self->read([
                 'status', 'emission_date', 'posting_date',
@@ -307,11 +307,11 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         return $result;
     }
 
-    protected static function onbeforeCall($self) {
+    public static function onbeforeCall($self) {
         $self->do('perform_execution');
     }
 
-    protected static function doAssignInvoiceNumber($self) {
+    public static function doAssignInvoiceNumber($self) {
         $self->read(['organisation_id', 'condo_id', 'fiscal_year_id' => ['code'], 'fiscal_period_id' => ['code']]);
         foreach($self as $id => $requestExecution) {
             $format = Setting::get_value(
@@ -369,7 +369,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         return $result;
     }
 
-    protected static function doPerformExecution($self) {
+    public static function doPerformExecution($self) {
         $self
             ->do('assign_invoice_number')
             ->do('generate_accounting_entry')
