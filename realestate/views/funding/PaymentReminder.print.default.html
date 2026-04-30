@@ -98,7 +98,7 @@
             </div>
 
                 <div style="margin-top: 20px;">
-                    {{ labels['funding.communication'] }} {{ payment_reference | raw }} &nbsp; ({{ payment_reference | data_format('scor') }})<br />
+                    {{ labels['payment.communication'] }} {{ payment_reference | raw }} &nbsp; ({{ payment_reference | data_format('scor') }})<br />
                     IBAN : {{ condominium.bank_account_iban | data_format('iban') }}<br />
                     BIC : {{ condominium.bank_account_bic }}<br />
                     <br />
@@ -117,28 +117,6 @@
     <div class="page-break"></div>
 
     <main class="{% if debug %}debug{% endif %}">
-        <div class="section-title">{{ labels['summary.title'] }}</div>
-
-        <table class="inner" width="100%" cellpadding="4" cellspacing="0">
-            <thead>
-                <tr>
-                    <th style="width: 33%; text-align: center;">{{ labels['summary.table.th.emission_date'] }}</th>
-                    <th style="width: 33%; text-align: right;">{{ labels['summary.table.th.owner_balance'] }}</th>
-                    <th style="width: 34%; text-align: right;">{{ labels['summary.table.th.overdue_total'] }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="text-align: center;">{{ payment_reminder.emission_date | date(date_format, timezone) }}</td>
-                    <td style="text-align: right;">{{ owner_balance | format_money() }}</td>
-                    <td style="text-align: right;">{{ overdue_total | format_money() }}</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="communication-box">
-            {{ communication | raw }}
-        </div>
 
         <div class="section-title">{{ labels['fundings.title'] }}</div>
 
