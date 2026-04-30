@@ -338,10 +338,7 @@ foreach($template['parts_ids'] as $part) {
 
         $map_values = [
             'condo'         => $paymentReminder['condo_id']['name'],
-            'firstname'     => $owner['identity_id']['firstname'] ?? '',
-            'lastname'      => $owner['identity_id']['lastname'] ?? '',
-            'emission_date' => $getFormattedDate($paymentReminder['emission_date']),
-            'due_amount'    => $formatMoney($overdue_total)
+            'emission_date' => $getFormattedDate($paymentReminder['emission_date'])
         ];
 
         $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
@@ -357,7 +354,8 @@ foreach($template['parts_ids'] as $part) {
             'firstname'     => $owner['identity_id']['firstname'] ?? '',
             'lastname'      => $owner['identity_id']['lastname'] ?? '',
             'emission_date' => $getFormattedDate($paymentReminder['emission_date']),
-            'due_amount'    => $formatMoney($overdue_total)
+            'due_amount'    => $formatMoney($overdue_total),
+            'due_date'      => $getFormattedDate($due_date ?? time())
         ];
 
         $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {

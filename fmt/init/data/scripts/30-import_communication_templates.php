@@ -583,13 +583,13 @@ TemplatePart::create([
     'name'          => 'subject',
     'value'         => 'Rappel de paiement au {emission_date}',
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "emission_date", "due_amount"]'
+    'variables'     => '["condo", "emission_date"]'
 ]);
 TemplatePart::create([
     'name'          => 'introduction',
     'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Veuillez trouver en pièce jointe le rappel de paiement relatif à votre situation de compte au sein de la copropriété <strong>{condo}</strong>.</p><p><br></p><p>Le solde ouvert repris au rappel s'élève à <strong>{due_amount}</strong> à la date du <strong>{emission_date}</strong>.</p><p><br></p><p>Nous vous remercions de votre attention et restons à votre disposition pour toute information complémentaire.</p>",
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "firstname", "lastname", "emission_date", "due_amount"]'
+    'variables'     => '["condo", "firstname", "lastname", "emission_date", "due_amount", "due_date"]'
 ]);
 TemplatePart::create([
     'name'          => 'communication_payment_amount',
