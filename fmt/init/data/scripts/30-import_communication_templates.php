@@ -591,8 +591,12 @@ TemplatePart::create([
     'template_id'   => $template['id'],
     'variables'     => '["condo", "firstname", "lastname", "emission_date", "due_amount"]'
 ]);
-
-
+TemplatePart::create([
+    'name'          => 'communication_payment_amount',
+    'value'         => '<p>Le montant de <b>{remaining_amount}</b> doit être réglé avant le <b>{due_date}</b></p>',
+    'template_id'   => $template['id'],
+    'variables'     => '["due_amount", "due_date", "emission_date"]'
+]);
 
 
 /* Accounting Statements documents */

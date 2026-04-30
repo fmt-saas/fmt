@@ -188,6 +188,8 @@ $paymentReminder = PaymentReminder::id($params['payment_reminder_id'])
             'payment_reminder_owner_lines_ids' => [
                 'days_overdue',
                 'due_amount',
+                'due_date',
+                'issue_date',
                 'funding_id' => [
                     'name',
                     'funding_type',
@@ -313,6 +315,7 @@ $organisation = Organisation::id(1)
 
 $subject = 'Rappel de paiement';
 $introduction = '';
+$communication = '';
 
 $template = Template::search([
         ['code', '=', 'payment_reminder_correspondence'],
@@ -325,37 +328,57 @@ if(!$template) {
     throw new Exception('template_not_found', EQ_ERROR_INVALID_CONFIG);
 }
 
-$map_template_values = [
-    'condo'         => $paymentReminder['condo_id']['name'],
-    'firstname'     => $owner['identity_id']['firstname'] ?? '',
-    'lastname'      => $owner['identity_id']['lastname'] ?? '',
-    'emission_date' => $getFormattedDate($paymentReminder['emission_date']),
-    'due_amount'    => $formatMoney($overdue_total)
-];
+
 
 foreach($template['parts_ids'] as $part) {
     if($part['name'] === 'subject') {
         $subject = strip_tags($part['value']);
-        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_template_values) {
+
+        $map_values = [
+            'condo'         => $paymentReminder['condo_id']['name'],
+            'firstname'     => $owner['identity_id']['firstname'] ?? '',
+            'lastname'      => $owner['identity_id']['lastname'] ?? '',
+            'emission_date' => $getFormattedDate($paymentReminder['emission_date']),
+            'due_amount'    => $formatMoney($overdue_total)
+        ];
+
+        $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
             $key = $matches[1];
-            return $map_template_values[$key] ?? '';
+            return $map_values[$key] ?? '';
         }, $subject);
     }
     elseif($part['name'] === 'introduction') {
         $introduction = $part['value'];
-        $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_template_values) {
+
+        $map_values = [
+            'condo'         => $paymentReminder['condo_id']['name'],
+            'firstname'     => $owner['identity_id']['firstname'] ?? '',
+            'lastname'      => $owner['identity_id']['lastname'] ?? '',
+            'emission_date' => $getFormattedDate($paymentReminder['emission_date']),
+            'due_amount'    => $formatMoney($overdue_total)
+        ];
+
+        $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
             $key = $matches[1];
-            return $map_template_values[$key] ?? '';
+            return $map_values[$key] ?? '';
         }, $introduction);
     }
+    elseif($part['name'] == 'communication_payment_amount' && $funding && $funding['remaining_amount'] >= 0.01) {
+        $communication = $part['value'];
+
+        $map_values = [
+            'due_date'          => $getFormattedDate($paymentReminder['due_date'] ?? time()),
+            'emission_date'     => $getFormattedDate($paymentReminder['emission_date'] ?? time()),
+            'due_amount'        => $formatMoney($overdue_total)
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $communication = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $communication);
+    }
 }
-
-$communication = sprintf(
-    '<p>La situation de votre compte copropriétaire au %s présente un solde débiteur de <strong>%s</strong>.</p><p>Le détail des financements échus repris ci-dessous permet d’identifier l’origine de ce solde.</p>',
-    $getFormattedDate($paymentReminder['emission_date']),
-    $formatMoney($owner_balance)
-);
-
 
 $labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'PaymentReminder.' . $params['view_id']));
 

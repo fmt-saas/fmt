@@ -3,6 +3,7 @@
     "summary.table.th.emission_date": "Date du rappel",
     "summary.table.th.owner_balance": "Solde du compte",
     "summary.table.th.overdue_total": "Total échu",
+    "payment.communication": "Communication",
     "fundings.title": "Détail des financements échus",
     "fundings.table.th.nature": "Nature",
     "fundings.table.th.label": "Origine",
