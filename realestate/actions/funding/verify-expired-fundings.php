@@ -117,7 +117,8 @@ foreach($condominiums as $condo_id => $condominium) {
                         'condo_id'              => $condo_id,
                         'ownership_id'          => $ownership_id,
                         'payment_reminder_id'   => $paymentReminder['id'],
-                        'due_balance'           => $current_balance
+                        'due_balance'           => $current_balance,
+                        'due_date'              => $now + (15 * 86400)
                     ])
                     ->first();
             }
@@ -133,6 +134,7 @@ foreach($condominiums as $condo_id => $condominium) {
                     'payment_reminder_id'           => $paymentReminder['id'],
                     'payment_reminder_owner_id'     => $paymentReminderOwner['id'],
                     'due_amount'                    => $funding['due_amount'],
+                    'due_date'                      => $now + (15 * 86400),
                     'reminder_level'                => $reminder_level
                 ]);
 

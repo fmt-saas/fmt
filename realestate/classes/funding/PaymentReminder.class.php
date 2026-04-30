@@ -307,21 +307,4 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
         return $result;
     }
 
-
-    /*
-    // upon validation
-                Funding::create([
-                        'condo_id'                          => $expenseStatement['condo_id']['id'],
-                        'description'                       => $expenseStatement['name'],
-                        'funding_type'                      => 'due_balance',
-                        'expense_statement_id'              => $id,
-                        'ownership_id'                      => $ownership_id,
-                        'bank_account_id'                   => $expenseStatement['statement_bank_account_id'],
-                        'accounting_account_id'             => $ownershipAccount['id'],
-                        'issue_date'                        => $issue_date,
-                        'due_date'                          => $due_date,
-                        'due_amount'                        => $closing_balance
-                    ]);
-
-    */
 }

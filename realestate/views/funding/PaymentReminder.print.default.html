@@ -74,6 +74,10 @@
         main table.inner tbody tr:last-child td {
             border-bottom: 1px solid black;
         }
+
+        .page-break {
+            page-break-after: always;
+        }
     </style>
 </head>
 
@@ -109,6 +113,8 @@
         </div>
     </div>
     <!-- payment-qr-code end -->
+
+    <div class="page-break"></div>
 
     <main class="{% if debug %}debug{% endif %}">
         <div class="section-title">{{ labels['summary.title'] }}</div>

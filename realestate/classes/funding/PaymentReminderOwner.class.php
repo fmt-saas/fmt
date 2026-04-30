@@ -59,6 +59,12 @@ class PaymentReminderOwner extends \equal\orm\Model {
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
                 'description'       => "The actual balance ot the ownership at the time of the reminder."
+            ],
+
+            'due_date' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => "Deadline before which the funding is expected."
             ]
 
         ];

@@ -185,6 +185,7 @@ $paymentReminder = PaymentReminder::id($params['payment_reminder_id'])
         'payment_reminder_owners_ids' => [
             '@domain' => ['ownership_id', '=', $params['ownership_id']],
             'due_balance',
+            'due_date',
             'payment_reminder_owner_lines_ids' => [
                 'days_overdue',
                 'due_amount',
@@ -248,6 +249,7 @@ $lang = $owner['identity_id']['lang_id']['code'];
 
 $fundings = [];
 $overdue_total = 0.0;
+$due_date = $paymentReminderOwner['due_date'];
 
 $map_funding_types = [
     'fund_request'       => 'Appel de fonds',
@@ -367,7 +369,7 @@ foreach($template['parts_ids'] as $part) {
         $communication = $part['value'];
 
         $map_values = [
-            'due_date'          => $getFormattedDate($paymentReminder['due_date'] ?? time()),
+            'due_date'          => $getFormattedDate($due_date ?? time()),
             'emission_date'     => $getFormattedDate($paymentReminder['emission_date'] ?? time()),
             'due_amount'        => $formatMoney($overdue_total)
         ];
