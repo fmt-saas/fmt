@@ -439,10 +439,10 @@ class MiscOperation extends Model {
                 // in case of ownership account, create a Funding
                 if(in_array($map_accounts[$account_id]['operation_assignment'], ['co_owners_reserve_fund', 'co_owners_working_fund'], true)) {
                     // a funding cannot be issued nor due in the past
-                    $issue_date = max(strtotime('today'), $miscOperation['posting_date']);
+                    $issue_date = max(strtotime('today'), $fiscalYear['date_from']);
 
                     // #todo - make possible to customize
-                    $due_date = time() + (86400 * 15);
+                    $due_date = $fiscalYear['date_from'];
 
                     // #todo - allow to choose
                     $bankAccount = CondominiumBankAccount::search([
@@ -461,7 +461,7 @@ class MiscOperation extends Model {
                             'accounting_account_id'             => $account_id,
                             'issue_date'                        => $issue_date,
                             'due_date'                          => $due_date,
-                            'due_amount'                        => $line['credit'] - $line['debit']
+                            'due_amount'                        => $line['debit'] - $line['credit']
                         ]);
                 }
             }
