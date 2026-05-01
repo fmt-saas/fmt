@@ -11,8 +11,10 @@ use finance\bank\BankStatementLine;
 use sale\pay\Payment;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Match a given series of accounting entry lines and attach the Bank statement line to it.',
-    'help'          => 'When linking a bank statement line, the accounting entry line does exist yet.',
+    'description'   => 'Match a given series of accounting entry lines and match them with given pending Bank Statement Line.',
+    'help'          => "This controller creates a partial Matching (`matching_level` = `part`) and attach it to the Bank Statement Line.
+        Upon validation of the BankStatementLine, the generated AccountingEntryLines will be linked to that Matching.
+        Note: When linking a bank statement line, its Accounting Entry Line do exist yet.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
@@ -20,7 +22,7 @@ use sale\pay\Payment;
             'required'          => true
         ],
         'selected_ids' => [
-            'description'       => 'List of unique identifiers of the objects to read.',
+            'description'       => 'List of unique identifiers of Accounting Entry lines to be linked to the statement line.',
             'type'              => 'array',
             'required'          => true
         ]
@@ -107,6 +109,7 @@ if($accountingEntryLines->count() === 1) {
     if($accountingEntryLine['funding_id']) {
         $found = true;
         Payment::ids($bankStatementLine['payments_ids'])->delete(true);
+        // #memo - this will create a Payment linked with the BankStatementLine and the Funding
         BankStatementLine::id($bankStatementLine['id'])
             ->do('reconcile_with_funding', ['funding_id' => $accountingEntryLine['funding_id']])
             ->update(['is_reconciled' => null]);

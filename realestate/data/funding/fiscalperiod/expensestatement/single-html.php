@@ -44,6 +44,13 @@ use realestate\ownership\Owner;
             'required'          => true
         ],
 
+        'owner_id' => [
+            'description'       => 'Identifier of the targeted Owner, if any.',
+            'help'              => 'If not provided, fallback to first Owner of given Ownership.',
+            'type'              => 'many2one',
+            'foreign_object'    => 'realestate\ownership\Owner',
+        ],
+
         'debug' => [
             'type'        => 'boolean',
             'default'     => false
@@ -363,6 +370,7 @@ $values = [
         'owners'            => []
     ];
 
+// #memo - here, statement_owners_ids contains schema for a single ownership (@see above)
 foreach($statement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
     $owner = $statementOwner['schema'];
     $owner['expenses'] = $buildOwnerExpenses($owner);
@@ -377,19 +385,19 @@ if(!count($values['owners'])) {
     throw new Exception('no_matching_owner', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-/*
-    #todo
-    copropriétaire
+// retrieve Owner : required for Correspondence but optional for preview (fallback to first owner of given ownership)
+if($params['owner_id']) {
+    $ownerCollection = Owner::id($params['owner_id']);
+}
+elseif($params['ownership_id']) {
+    $ownerCollection = Owner::search(['ownership_id', '=', $params['ownership_id']]);
+}
+else {
+    throw new Exception('missing_ownership', EQ_ERROR_INVALID_PARAM);
+}
 
-        déterminer le bloc adresse en fonction du ownership_type et has_representant
-        pour le moment, on prend l'identity du premier owner associé au ownership_id
-
-    si has_representative use representative_identity_id
-    sinon soit on prendre le premier owner de la liste, soit on prend le owner_id renseigné dans les params (pour courrier personnalisé, même s'il s'agit du même ownership)
-*/
-
-$owner = Owner::search(['ownership_id', '=', $params['ownership_id']])
-    ->read([
+$owner = $ownerCollection->read([
+        'ownership_id' => ['address_recipient'],
         'identity_id' => [
             'name', 'address_street', 'address_dispatch', 'address_zip',
             'address_city', 'address_country', 'has_vat', 'vat_number',
@@ -456,8 +464,6 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $introduction = $part['value'];
 
         $map_values = [
-            'firstname'         => $owner['identity_id']['firstname'],
-            'lastname'          => $owner['identity_id']['lastname'],
             'condo'             => $statement['condo_id']['name'],
             'period'            => $getFormattedDate($fiscalPeriod['date_from']) . ' - ' . $getFormattedDate($fiscalPeriod['date_to']),
             'period_from'       => $getFormattedDate($fiscalPeriod['date_from']),

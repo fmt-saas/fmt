@@ -98,7 +98,7 @@
             </div>
 
                 <div style="margin-top: 20px;">
-                    {{ labels['payment.communication'] }} {{ payment_reference | raw }} &nbsp; ({{ payment_reference | data_format('scor') }})<br />
+                    {{ labels['payment.communication'] }} : {{ payment_reference | raw }} &nbsp; ({{ payment_reference | data_format('scor') }})<br />
                     IBAN : {{ condominium.bank_account_iban | data_format('iban') }}<br />
                     BIC : {{ condominium.bank_account_bic }}<br />
                     <br />

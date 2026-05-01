@@ -11,10 +11,9 @@ use realestate\funding\ExpenseStatement;
 use finance\accounting\FiscalPeriod;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate an html view of given Exepense Statement ("Décompte de charge").',
+    'description'   => 'Generate a PDF preview of a given Expense Statement ("Décompte de charge").',
     'help'          => 'This action generates a preview of the Expense Statement, with a PDF file merging all individual expense statements for all ownerships in the given fiscal period.',
-    // #memo - this controller can take up a long time to generate document and should not be calle
-    // in addition concurrent might infer with temporary files
+    // #memo - this controller can take up a long time to generate document and should not be called in a context that might infer with temporary files
     'params'        => [
 
         'id' => [

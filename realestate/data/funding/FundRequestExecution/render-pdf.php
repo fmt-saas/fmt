@@ -5,8 +5,6 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use documents\Document;
-use documents\DocumentType;
 use realestate\funding\FundRequestExecution;
 use finance\accounting\FiscalPeriod;
 

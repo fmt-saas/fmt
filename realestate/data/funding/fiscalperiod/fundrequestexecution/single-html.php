@@ -8,11 +8,9 @@
 use communication\template\Template;
 use equal\data\DataFormatter;
 use fmt\setting\Setting;
-use finance\accounting\FiscalYear;
 use identity\Organisation;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecution;
-use realestate\funding\FundRequestExecutionLineEntry;
 use realestate\ownership\Owner;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
@@ -36,6 +34,13 @@ use Twig\Extension\ExtensionInterface;
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\ownership\Ownership',
             'required'          => true
+        ],
+
+        'owner_id' => [
+            'description'       => 'Identifier of the targeted Owner, if any.',
+            'help'              => 'If not provided, fallback to first Owner of given Ownership.',
+            'type'              => 'many2one',
+            'foreign_object'    => 'realestate\ownership\Owner',
         ],
 
         'debug' => [
@@ -187,7 +192,7 @@ $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution
         'status',
         // #memo - there should be only one funding matching the ownership
         'fundings_ids' => [
-            '@domain' => ['ownership_id', '=', $params['ownership_id']],
+            '@domain' => [['ownership_id', '=', $params['ownership_id']], ['funding_type', '=', 'fund_request']],
             'payment_reference',
             'remaining_amount',
             'due_date'
@@ -308,19 +313,19 @@ $organisation = Organisation::id(1)
     ->first();
 
 
-/*
-    #todo
-    copropriétaire
+// retrieve Owner : required for Correspondence but optional for preview (fallback to first owner of given ownership)
+if($params['owner_id']) {
+    $ownerCollection = Owner::id($params['owner_id']);
+}
+elseif($params['ownership_id']) {
+    $ownerCollection = Owner::search(['ownership_id', '=', $params['ownership_id']]);
+}
+else {
+    throw new Exception('missing_ownership', EQ_ERROR_INVALID_PARAM);
+}
 
-        déterminer le bloc adresse en fonction du ownership_type et has_representant
-        pour le moment, on prend l'identity du premier owner associé au ownership_id
-
-    si has_representative use representative_identity_id
-    sinon soit on prendre le premier owner de la liste, soit on prend le owner_id renseigné dans les params (pour courrier personnalisé, même s'il s'agit du même ownership)
-*/
-
-$owner = Owner::search(['ownership_id', '=', $params['ownership_id']])
-    ->read([
+$owner = $ownerCollection->read([
+        'ownership_id' => ['address_recipient'],
         'identity_id' => [
             'name', 'address_street', 'address_dispatch', 'address_zip',
             'address_city', 'address_country', 'has_vat', 'vat_number',

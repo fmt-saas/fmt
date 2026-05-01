@@ -51,7 +51,7 @@ use realestate\funding\ExpenseStatementCorrespondence;
 $context = $providers['context'];
 
 $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id'])
-    ->read(['status', 'condo_id', 'expense_statement_id', 'ownership_id', 'name'])
+    ->read(['status', 'condo_id', 'expense_statement_id', 'ownership_id', 'owner_id', 'name'])
     ->first();
 
 if(!$expenseStatementCorrespondence) {
@@ -61,6 +61,7 @@ if(!$expenseStatementCorrespondence) {
 $html = eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-html', [
         'expense_statement_id'  => $expenseStatementCorrespondence['expense_statement_id'],
         'ownership_id'          => $expenseStatementCorrespondence['ownership_id'],
+        'owner_id'              => $expenseStatementCorrespondence['owner_id'],
         'debug'                 => $params['debug'],
         'view_id'               => $params['view_id'],
         'lang'                  => $params['lang']

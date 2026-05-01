@@ -199,7 +199,7 @@
 
                 {% if funding.remaining_amount > 0.0 %}
                     <div style="margin-top: 20px;">
-                        {{ labels['funding.communication'] }} {{ funding.payment_reference | raw }} &nbsp; ({{ funding.payment_reference | data_format('scor') }})<br />
+                        {{ labels['funding.communication'] }} : {{ funding.payment_reference | raw }} &nbsp; ({{ funding.payment_reference | data_format('scor') }})<br />
                         IBAN : {{ condominium.bank_account_iban | data_format('iban') }}<br />
                         BIC : {{ condominium.bank_account_bic }}<br />
                         <br />

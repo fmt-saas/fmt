@@ -347,7 +347,7 @@ class Ownership extends \equal\orm\Model {
 
             $count = count($owners);
 
-            // Cas 1 : un seul propriétaire
+            // Case 1 : single owner
             if($count === 1) {
                 $owner = $firstOwner;
                 $gender = strtoupper(trim($owner['gender'] ?? ''));
@@ -357,7 +357,7 @@ class Ownership extends \equal\orm\Model {
                 continue;
             }
 
-            // Cas 2 : homme et femme avec même nom
+            // Case 2 : husband and wife with same name
             if(!empty($groups['M']) && !empty($groups['F']) && empty($groups['X']) && empty($groups[''])) {
                 $lnM = array_column($groups['M'], 'lastname');
                 $lnF = array_column($groups['F'], 'lastname');
@@ -379,7 +379,7 @@ class Ownership extends \equal\orm\Model {
                 continue;
             }
 
-            // Cas 3 : tous du même genre
+            // Case 3 : a single common gender
             $filtered = array_filter($groups);
             if(count($filtered) === 1) {
                 $key = array_key_first($filtered);
@@ -426,7 +426,7 @@ class Ownership extends \equal\orm\Model {
                 }
             }
 
-            // Cas 4 : mélange ou inconnu
+            // Case 4 : mixed up or unknown
             $names = [];
             foreach($owners as $owner) {
                 $gender = strtoupper(trim($owner['gender'] ?? ''));

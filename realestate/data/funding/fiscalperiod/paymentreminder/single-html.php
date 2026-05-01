@@ -34,6 +34,13 @@ use Twig\TwigFilter;
             'required'          => true
         ],
 
+        'owner_id' => [
+            'description'       => 'Identifier of the targeted Owner, if any.',
+            'help'              => 'If not provided, fallback to first Owner of given Ownership.',
+            'type'              => 'many2one',
+            'foreign_object'    => 'realestate\ownership\Owner',
+        ],
+
         'debug' => [
             'type'        => 'boolean',
             'default'     => false
@@ -219,22 +226,21 @@ if(!$paymentReminderOwner) {
     throw new Exception('unknown_payment_reminder_owner', EQ_ERROR_INVALID_PARAM);
 }
 
-/*
-    #todo
-    copropriétaire
+// retrieve Owner : required for Correspondence but optional for preview (fallback to first owner of given ownership)
+if($params['owner_id']) {
+    $ownerCollection = Owner::id($params['owner_id']);
+}
+elseif($params['ownership_id']) {
+    $ownerCollection = Owner::search(['ownership_id', '=', $params['ownership_id']]);
+}
+else {
+    throw new Exception('missing_ownership', EQ_ERROR_INVALID_PARAM);
+}
 
-        déterminer le bloc adresse en fonction du ownership_type et has_representant
-        pour le moment, on prend l'identity du premier owner associé au ownership_id
-
-    si has_representative use representative_identity_id
-    sinon soit on prendre le premier owner de la liste, soit on prend le owner_id renseigné dans les params (pour courrier personnalisé, même s'il s'agit du même ownership)
-*/
-
-$owner = Owner::search(['ownership_id', '=', $params['ownership_id']])
-    ->read([
-        'ownership_id' => ['payment_reference'],
+$owner = $ownerCollection->read([
+        'ownership_id' => ['address_recipient'],
         'identity_id' => [
-            'name', 'firstname', 'lastname', 'address_street', 'address_dispatch', 'address_zip',
+            'name', 'address_street', 'address_dispatch', 'address_zip',
             'address_city', 'address_country', 'has_vat', 'vat_number',
             'lang_id' => ['code']
         ]
@@ -247,7 +253,7 @@ if(!$owner) {
 
 $lang = $owner['identity_id']['lang_id']['code'];
 
-$fundings = [];
+$due_fundings = [];
 $overdue_total = 0.0;
 $due_date = $paymentReminderOwner['due_date'];
 
@@ -283,7 +289,7 @@ foreach($paymentReminderOwner['payment_reminder_owner_lines_ids'] as $paymentRem
         $label = $funding['fund_request_id']['name'];
     }
 
-    $fundings[] = [
+    $due_fundings[] = [
         'nature'            => $map_funding_types[$funding['funding_type']] ?? $funding['funding_type'],
         'label'             => $label,
         'due_date'          => $funding['due_date'],
@@ -296,7 +302,7 @@ foreach($paymentReminderOwner['payment_reminder_owner_lines_ids'] as $paymentRem
     $overdue_total += (float) $paymentReminderOwnerLine['due_amount'];
 }
 
-usort($fundings, function($a, $b) {
+usort($due_fundings, function($a, $b) {
     return ($a['due_date'] <=> $b['due_date']);
 });
 
@@ -351,8 +357,6 @@ foreach($template['parts_ids'] as $part) {
 
         $map_values = [
             'condo'         => $paymentReminder['condo_id']['name'],
-            'firstname'     => $owner['identity_id']['firstname'] ?? '',
-            'lastname'      => $owner['identity_id']['lastname'] ?? '',
             'emission_date' => $getFormattedDate($paymentReminder['emission_date']),
             'due_amount'    => $formatMoney($overdue_total),
             'due_date'      => $getFormattedDate($due_date ?? time())
@@ -397,7 +401,7 @@ $values = [
     'payment_reminder'    => $paymentReminder,
     'owner_balance'       => $owner_balance,
     'overdue_total'       => $overdue_total,
-    'fundings'            => $fundings,
+    'fundings'            => $due_fundings,
 
     'payment_reference'   => $owner['ownership_id']['payment_reference'],
     'payment_qr_code_uri' => $getPaymentQrCodeUri(

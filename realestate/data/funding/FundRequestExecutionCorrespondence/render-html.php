@@ -40,7 +40,7 @@ use realestate\funding\FundRequestExecutionCorrespondence;
 ['context' => $context] = $providers;
 
 $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($params['id'])
-    ->read(['fund_request_execution_id', 'ownership_id'])
+    ->read(['fund_request_execution_id', 'ownership_id', 'owner_id'])
     ->first();
 
 if(!$fundRequestExecutionCorrespondence) {
@@ -50,6 +50,7 @@ if(!$fundRequestExecutionCorrespondence) {
 $html = eQual::run('get', 'realestate_funding_fiscalperiod_fundrequestexecution_single-html', [
     'fund_request_execution_id' => $fundRequestExecutionCorrespondence['fund_request_execution_id'],
     'ownership_id'              => $fundRequestExecutionCorrespondence['ownership_id'],
+    'owner_id'                  => $fundRequestExecutionCorrespondence['owner_id'],
     'debug'                     => $params['debug'],
     'view_id'                   => $params['view_id']
 ]);
