@@ -68,6 +68,7 @@ nav:
   - 'Prise en main':
       - 'Navigation':
           - 'Adresses directes': prise-en-main-et-fonctionnement/navigation/adresses-directes.md
+          - 'Menu principal (agence / syndic)': prise-en-main-et-fonctionnement/navigation/menu-principal-agence-syndic.md
       - 'Consultation et édition des informations':
           - 'Edition de textes': prise-en-main-et-fonctionnement/consultation-et-edition-des-informations/edition-de-textes.md
   - 'Configuration & technique':
