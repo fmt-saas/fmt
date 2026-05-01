@@ -90,6 +90,3 @@ Si l’une de ces deux conditions n’est pas remplie, l’assemblée ne peut pa
 ### Référence légale
 
 Ces règles sont basées sur l’**article 3.87, §5 du Code civil belge** (ancien art. 577-6), qui définit les conditions de quorum de présence pour la validité des délibérations d’une assemblée générale de copropriété.
-
-
-
