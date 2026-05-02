@@ -1,0 +1,6 @@
+### Gestion des Identity et recoupement des signatures
+
+Chaque signature électronique collectée dans le cadre des assemblées générales est associée à une entité technique appelée **Identity**. Cette entité permet de regrouper et d’identifier de manière unique une personne signataire, indépendamment du nombre de procès-verbaux d’assemblées auxquels elle participe. Afin d’éviter la conservation directe du numéro de registre national, l’Identity est construite à partir d’un **hash pseudonymisé** de cet identifiant (incluant un sel secret propre à l’application). Ce mécanisme garantit l’unicité et la stabilité du lien entre les signatures tout en réduisant le risque lié à la conservation de données personnelles sensibles.
+
+Chaque **DocumentSignature** est rattachée à une Identity, ce qui permet de suivre les signatures d’une même personne sur plusieurs assemblées générales. L’Identity est conservée aussi longtemps qu’au moins un procès-verbal lié à l’une de ses signatures reste soumis à la durée légale de conservation. Une fois cette durée expirée pour l’ensemble des documents associés, l’Identity et son hash peuvent être supprimés, tout en conservant les procès-verbaux archivés avec leurs certificats scellés en tant que preuve de validité des signatures au moment de leur émission.
+
