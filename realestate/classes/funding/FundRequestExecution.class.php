@@ -51,6 +51,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             /* from finance\accounting\invoice\Invoice: */
             // 'condo_id'
             // 'fiscal_year_id'
+            // 'fiscal_period_id'
             // 'accounting_entry_id'
             // 'emission_date'
             // 'due_date'
@@ -132,10 +133,17 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'foreign_object'    => 'documents\export\ExportingTask'
             ],
 
+            'with_due_balance' =>  [
+                'type'              => 'boolean',
+                'description'       => 'Take into account the balance status of the co-owners.',
+                'help'              => "If set to true, the payment request will be base on Ownership due balance instead of theoretical Funding due amount.",
+                'default'           => true
+            ],
+
             'logs' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain',
-                'description'       => 'Logs of the accounting entry generation'
+                'description'       => 'Logs of the accounting entry generation.'
             ]
 
         ];
@@ -655,6 +663,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'posting_date',
                 'due_date',
                 'fiscal_year_id' => ['date_from'],
+                'fiscal_period_id' => ['date_from', 'date_to'],
                 'condo_id' => ['id', 'code'],
                 'fund_request_id' => [
                     'id', 'name', 'request_type', 'request_account_id', 'request_bank_account_id'
@@ -702,12 +711,12 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                     Funding::id($funding_id)->update(['fund_request_execution_id' => $id]);
                 }
 
-                // #todo - for testing, we must be able to issue a funding in the past - leave this in prod ?
-                // $issue_date = max(strtotime('today'), $requestExecution['posting_date']);
-                // $due_date = max(strtotime('today'), $requestExecution['due_date']);
-
+                // #memo - for importing historical data, we must be able to issue a funding in the past
                 $issue_date = $requestExecution['posting_date'];
                 $due_date = $requestExecution['due_date'];
+
+                // 1) generate theoretical Funding
+                $due_amount = $executionLine['called_amount'] - $paid_amount;
 
                 Funding::create([
                         'condo_id'                          => $requestExecution['condo_id']['id'],
@@ -719,8 +728,35 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         'bank_account_id'                   => $requestExecution['fund_request_id']['request_bank_account_id'],
                         'issue_date'                        => $issue_date,
                         'due_date'                          => $due_date,
-                        'due_amount'                        => $executionLine['called_amount'] - $paid_amount,
+                        'due_amount'                        => $due_amount,
                         'funding_type'                      => 'fund_request'
+                    ]);
+
+                // 2) generate instant Funding based on current account statement
+                $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
+                    'ownership_id'      => $ownership_id,
+                    'date_from'         => $requestExecution['fiscal_period_id']['date_from'],
+                    'date_to'           => $requestExecution['fiscal_period_id']['date_to']
+                ]);
+
+                $closing_balance = 0;
+
+                if(count($data)) {
+                    $closing_balance = end($data)['balance'] ?? 0;
+                }
+
+                Funding::create([
+                        'condo_id'                          => $requestExecution['condo_id']['id'],
+                        'description'                       => $requestExecution['fund_request_id']['name'],
+                        'funding_type'                      => 'due_balance',
+                        'fund_request_id'                   => $requestExecution['fund_request_id']['id'],
+                        'fund_request_execution_id'         => $id,
+                        'ownership_id'                      => $ownership_id,
+                        'bank_account_id'                   => $requestExecution['fund_request_id']['request_bank_account_id'],
+                        'accounting_account_id'             => $ownershipAccount['id'],
+                        'issue_date'                        => $issue_date,
+                        'due_date'                          => $due_date,
+                        'due_amount'                        => $closing_balance
                     ]);
 
             }

@@ -57,8 +57,8 @@ use finance\accounting\FiscalPeriod;
     but only to preview a charge statement before confirming it.
 
     Therefore, when the statement is not yet posted,
-    * the accounting entries integrating the statement into co-owner accounts are not present
-    * and the funding entries have not yet been generated
+    - the accounting entries integrating the statement into co-owner accounts are not present
+    - and the funding entries have not yet been generated
 
 */
 
@@ -90,13 +90,11 @@ if(stripos($call_qpdf, 'qpdf version') === false) {
 
 
 /*
-On doit ajouter des annexes au décompte (pour chaque propriétaire)
+    Add statement annexes (for each owne)
 
-Si ces documents n'existent pas encore, on les créée
-
-* bilan (balanceSheet)
-* dépenses courantes (ExpenseSummary)
-
+    If these documents do not exist yet, create them
+        - balanceSheet ("bilan")
+        - ExpenseSummary ("dépenses courantes")
 
 */
 
@@ -130,7 +128,6 @@ if(!$balanceSheetDocument) {
 }
 
 // generate expense summary for expense statement, if not generated yet
-
 $expenseSummaryDocument = Document::search([
         ['condo_id', '=', $expenseStatement['condo_id']],
         ['expense_statement_id', '=', $expenseStatement['id']],
@@ -162,7 +159,7 @@ if(!$expenseSummaryDocument) {
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
-// merge resulting PDF documents for each Ownership
+// merge all PDF documents for each Ownership
 try {
 
     foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
@@ -178,6 +175,7 @@ try {
         catch(Exception $e) {
             // ignore (ownership with no expense ?)
         }
+        // append Owner Statement sheet
         try {
             // #todo
             $date_to = $expenseStatement['posting_date'];
@@ -199,6 +197,7 @@ try {
         catch(Exception $e) {
             // ignore (unexpected error while generation account statement)
         }
+        // append Balance Sheet & Expense Summary
         try {
             $temp = tempnam(sys_get_temp_dir(), 'pdf_');
             file_put_contents($temp, $balanceSheetDocument['data']);

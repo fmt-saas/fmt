@@ -192,7 +192,8 @@ $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution
         'status',
         // #memo - there should be only one funding matching the ownership
         'fundings_ids' => [
-            '@domain' => [['ownership_id', '=', $params['ownership_id']], ['funding_type', '=', 'fund_request']],
+            '@domain' => ['ownership_id', '=', $params['ownership_id']],
+            'funding_type',
             'payment_reference',
             'remaining_amount',
             'due_date'
@@ -238,6 +239,7 @@ $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id'])
         'request_amount',
         'request_type',
         'has_date_range',
+        'with_due_balance',
         'date_range_frequency',
         'date_from',
         'date_to',
@@ -272,7 +274,26 @@ if($fundRequest['status'] === 'cancelled') {
 
 $execution = $fundRequestExecution->toArray();
 
-$funding = $fundRequestExecution['fundings_ids']->first(true);
+// either theoretical funding, or due_balance funding
+$funding = null;
+foreach($fundRequestExecution['fundings_ids'] as $candidate_funding_id => $candidateFunding) {
+    if($candidateFunding['funding_type'] === 'fund_request') {
+        $funding = $candidateFunding->toArray();
+        // continue
+    }
+    elseif($fundRequestExecution['with_due_balance'] && $candidateFunding['funding_type'] === 'due_balance') {
+        $funding = $candidateFunding->toArray();
+        // stop looping
+        break;
+    }
+}
+
+// #memo - in preview, fundings are not yet generated
+/*
+if(!$funding) {
+    throw new Exception('no_funding', EQ_ERROR_UNKNOWN_OBJECT);
+}
+*/
 
 $executions = $fundRequest['request_executions_ids']->get(true);
 

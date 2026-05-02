@@ -138,7 +138,7 @@ corresponding user data stored at the global level:
 // if on Global instance, create the global_token to be shared amongst all instances
 if(constant('FMT_INSTANCE_TYPE') === 'global') {
 
-    $global_token = $auth->createAccessToken([
+    $global_token = $auth->encodeToken([
             'iss'       => rtrim(constant('BACKEND_URL'), '/'),
             'sub'       => "user.uuid",
             'user_uuid' => $user['uuid'],

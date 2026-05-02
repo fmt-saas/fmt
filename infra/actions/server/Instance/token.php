@@ -50,16 +50,9 @@ if($instance['instance_type'] === constant('FMT_INSTANCE_TYPE')) {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-$token = AccessToken::create([
-    'user_id'       => $instance['user_id'],
-    'token_type'    => 'access_token'
-])
-    ->read(['jti'])
-    ->first();
-
 try {
-    // generate a permanent JWT access token
-    $access_token = $auth->token($instance['user_id'], 0, [], $token['jti']);
+    // #memo - creates a stored access token with no expiry
+    $access_token = $auth->createAccessToken($instance['user_id']);
 }
 catch(Exception $e) {
     AccessToken::id($token['id'])->delete(true);

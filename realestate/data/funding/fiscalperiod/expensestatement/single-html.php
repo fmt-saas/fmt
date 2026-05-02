@@ -412,6 +412,7 @@ if(!$owner) {
 
 $lang = $owner['identity_id']['lang_id']['code'];
 
+// #memo - for expense statements, we always use due_balance fundings
 $funding = Funding::search([
         ['expense_statement_id', '=', $statement['id']],
         ['funding_type', '=', 'due_balance'],

@@ -16,10 +16,10 @@ use realestate\funding\FundRequestExecution;
             'foreign_object'    => 'realestate\funding\FundRequestExecution',
             'required'          => true
         ],
-        // reprendre la situation de compte
         'with_due_balance' =>  [
             'type'              => 'boolean',
-            'description'       => "Take into account the balance status of the co-owners.",
+            'description'       => 'Take into account the balance status of the co-owners.',
+            'help'              => "If set to true, the payment request will be base on Ownership due balance instead of theoretical Funding due amount.",
             'default'           => true
         ]
     ],
@@ -44,9 +44,11 @@ if($fundRequestExecution->count() <= 0) {
     throw new Exception("unknown_assembly", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+if(array_key_exists('with_due_balance', $params)) {
+    $fundRequestExecution->update(['with_due_balance' => $params['with_due_balance']]);
+}
 
 $fundRequestExecution->transition('call');
-
 
 $context->httpResponse()
         ->status(204)

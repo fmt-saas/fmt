@@ -1115,10 +1115,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
                 $ownership_id = $statementOwner['ownership_id']['id'];
 
-                // a funding cannot be issued nor due in the past
-                $issue_date = max(strtotime('today'), $expenseStatement['posting_date']);
-                $due_date = $expenseStatement['due_date'];
-
                 // remove previous Funding, if any
                 Funding::search([
                         ['condo_id', '=', $expenseStatement['condo_id']['id']],
@@ -1146,6 +1142,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
+                // #memo - for importing historical data, we must be able to issue a funding in the past
+                $issue_date = $expenseStatement['posting_date'];
+                $due_date = $expenseStatement['due_date'];
 
                 // 1) generate theoretical Funding
                 $due_amount = 0.0;

@@ -90,7 +90,7 @@ if(stripos($call_qpdf, 'qpdf version') === false) {
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
-// merge resulting PDF documents for each Ownership
+// merge all PDF documents for each Ownership
 try {
 
     foreach($fundRequestExecution['execution_lines_ids'] as $execution_line_id => $fundRequestExecutionLine) {
@@ -104,7 +104,25 @@ try {
             $temp_files[] = $temp;
         }
         catch(Exception $e) {
-            // ignore (ownership with no expense ?)
+            // ignore (ownership with no request line ?)
+        }
+        // append Owner Statement sheet
+        try {
+            // #todo
+            $date_to = $fundRequestExecution['posting_date'];
+
+            $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
+                    'date_from'         => $fiscalPeriod['date_from'],
+                    'date_to'           => $fiscalPeriod['date_to'],
+                    // 'date_to'           => $date_to,
+                    'ownership_id'      => $fundRequestExecutionLine['ownership_id']
+                ]);
+            $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+            file_put_contents($temp, $pdf);
+            $temp_files[] = $temp;
+        }
+        catch(Exception $e) {
+            // ignore (unexpected error while generation account statement)
         }
     }
 
