@@ -90,71 +90,24 @@ if(stripos($call_qpdf, 'qpdf version') === false) {
 
 
 /*
-    Add statement annexes (for each owne)
-
-    If these documents do not exist yet, create them
+    Generate statement annexes (present for each owner):
         - balanceSheet ("bilan")
         - ExpenseSummary ("dépenses courantes")
-
 */
 
-// generate balance sheet for expense statement, if not generated yet
-$balanceSheetDocument = Document::search([
-        ['condo_id', '=', $expenseStatement['condo_id']],
-        ['expense_statement_id', '=', $expenseStatement['id']],
-        ['document_type_code', '=', 'balance_sheet']
-    ])
-    ->read(['data'])
-    ->first();
+// generate balance sheet PDF
+$balanceSheetDocumentData = eQual::run('get', 'finance_accounting_balanceSheet_render-pdf', ['params' => [
+        'date_from' => date('c', $fiscalPeriod['date_from']),
+        'date_to'   => date('c', $fiscalPeriod['date_to']),
+        'condo_id'  => $expenseStatement['condo_id']
+    ]]);
 
-if(!$balanceSheetDocument) {
-    $data = eQual::run('get', 'finance_accounting_balanceSheet_render-pdf', ['params' => [
-            'date_from' => date('c', $fiscalPeriod['date_from']),
-            'date_to'   => date('c', $fiscalPeriod['date_to']),
-            'condo_id'  => $expenseStatement['condo_id']
-        ]]);
-
-    $balanceSheetDocument = Document::create([
-            'condo_id'              => $expenseStatement['condo_id'],
-            'expense_statement_id'  => $expenseStatement['id'],
-            'name'                  => 'Bilan du ' . date('d/m/Y', $fiscalPeriod['date_to']),
-            'data'                  => $data,
-            'is_origin'             => true,
-            'is_source'             => true,
-            'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'balance_sheet'])->first()) ? $dt['id'] : null
-        ])
-        ->read(['data'])
-        ->first();
-}
-
-// generate expense summary for expense statement, if not generated yet
-$expenseSummaryDocument = Document::search([
-        ['condo_id', '=', $expenseStatement['condo_id']],
-        ['expense_statement_id', '=', $expenseStatement['id']],
-        ['document_type_code', '=', 'expense_summary']
-    ])
-    ->read(['data'])
-    ->first();
-
-if(!$expenseSummaryDocument) {
-    $data = eQual::run('get', 'finance_accounting_expenseSummary_render-pdf', [ 'params' => [
-            'date_from' => date('c', $fiscalPeriod['date_from']),
-            'date_to'   => date('c', $fiscalPeriod['date_to']),
-            'condo_id'  => $expenseStatement['condo_id']
-        ]]);
-
-    $expenseSummaryDocument = Document::create([
-            'condo_id'              => $expenseStatement['condo_id'],
-            'expense_statement_id'  => $expenseStatement['id'],
-            'name'                  => 'Dépenses courantes au ' . date('d/m/Y', $fiscalPeriod['date_to']),
-            'data'                  => $data,
-            'is_origin'             => true,
-            'is_source'             => true,
-            'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'expense_summary'])->first()) ? $dt['id'] : null
-        ])
-        ->read(['data'])
-        ->first();
-}
+// generate expense summary PDF
+$expenseSummaryDocumentData = eQual::run('get', 'finance_accounting_expenseSummary_render-pdf', [ 'params' => [
+        'date_from' => date('c', $fiscalPeriod['date_from']),
+        'date_to'   => date('c', $fiscalPeriod['date_to']),
+        'condo_id'  => $expenseStatement['condo_id']
+    ]]);
 
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
@@ -200,11 +153,11 @@ try {
         // append Balance Sheet & Expense Summary
         try {
             $temp = tempnam(sys_get_temp_dir(), 'pdf_');
-            file_put_contents($temp, $balanceSheetDocument['data']);
+            file_put_contents($temp, $balanceSheetDocumentData);
             $temp_files[] = $temp;
 
             $temp = tempnam(sys_get_temp_dir(), 'pdf_');
-            file_put_contents($temp, $expenseSummaryDocument['data']);
+            file_put_contents($temp, $expenseSummaryDocumentData);
             $temp_files[] = $temp;
         }
         catch(Exception $e) {
