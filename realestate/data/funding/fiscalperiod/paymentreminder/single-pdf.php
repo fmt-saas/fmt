@@ -25,6 +25,13 @@ use Dompdf\Options as DompdfOptions;
             'required'          => true
         ],
 
+        'owner_id' => [
+            'description'       => 'Identifier of the targeted Owner, if any.',
+            'help'              => 'If not provided, fallback to first Owner of given Ownership.',
+            'type'              => 'many2one',
+            'foreign_object'    => 'realestate\ownership\Owner',
+        ],
+
         'debug' => [
             'type'        => 'boolean',
             'default'     => false
@@ -61,7 +68,8 @@ try {
 
     $html = (string) eQual::run('get', 'realestate_funding_fiscalperiod_paymentreminder_single-html', [
             'payment_reminder_id' => $params['payment_reminder_id'],
-            'ownership_id'        => $params['ownership_id']
+            'ownership_id'        => $params['ownership_id'],
+            'owner_id'            => $params['owner_id'] ?? null
         ]);
 
     /*

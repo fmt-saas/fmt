@@ -34,53 +34,64 @@ use realestate\funding\PaymentReminderCorrespondence;
 $context = $providers['context'];
 
 $paymentReminderCorrespondence = PaymentReminderCorrespondence::id($params['id'])
+    ->read(['ownership_id', 'owner_id', 'payment_reminder_id'])
     ->first();
 
 if(!$paymentReminderCorrespondence) {
     throw new Exception('unknown_payment_reminder_correspondence', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+
+$temp_files = [];
+$output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
+
 try {
 
-    $html = (string) eQual::run('get', 'realestate_funding_PaymentReminderCorrespondence_render-html', [
-            'id'    => $params['id']
-        ]);
+    try {
+        $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_paymentreminder_single-pdf', [
+                'payment_reminder_id' => $paymentReminderCorrespondence['payment_reminder_id'],
+                'ownership_id'        => $paymentReminderCorrespondence['ownership_id'],
+                'owner_id'            => $paymentReminderCorrespondence['owner_id']
+            ]);
 
-    /*
-        Convert HTML to PDF
-    */
-
-    // instantiate and use the dompdf class
-    $options = new DompdfOptions();
-    $options->set('isRemoteEnabled', true);
-
-    $dompdf = new Dompdf($options);
-    $dompdf->setPaper('A4', 'portrait');
-    $dompdf->loadHtml($html);
-    $dompdf->render();
-    $canvas = $dompdf->getCanvas();
-
-    $page_count = $canvas->get_page_count();
-
-    $font = $dompdf->getFontMetrics()->getFont("helvetica", "regular");
-    $canvas->page_text(530, $canvas->get_height() - 35, "p. {PAGE_NUM} / {PAGE_COUNT}", $font, 9, [0,0,0]);
-
-    // enforce odd amount of pages
-    if($page_count % 2 !== 0) {
-        $canvas->new_page();
+        $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+        file_put_contents($temp, $pdf);
+        $temp_files[] = $temp;
+    }
+    catch(Exception $e) {
     }
 
-    // get generated PDF raw binary
-    $output = $dompdf->output();
+    $escaped_files = array_map('escapeshellarg', $temp_files);
+    $escaped_output = escapeshellarg($output_file);
+    $cmd = 'qpdf --empty --pages ' . implode(' ', $escaped_files) . ' -- ' . $escaped_output . ' 2>&1';
+
+    exec($cmd, $output_lines, $result_code);
+
+    if($result_code !== 0 || !file_exists($output_file)) {
+        trigger_error("APP::qpdf merge failed:\n" . implode("\n", $output_lines), EQ_REPORT_ERROR);
+        throw new Exception('pdf_merge_failed', EQ_ERROR_UNKNOWN);
+    }
+
+    $output = file_get_contents($output_file);
 }
 catch(Exception $e) {
     trigger_error('APP::Error while rendering template' . $e->getMessage(), EQ_REPORT_ERROR);
     throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+}
+finally {
+    foreach($temp_files as $file) {
+        if(isset($file) && is_file($file)) {
+            @unlink($file);
+        }
+    }
+    if(isset($output_file) && is_file($output_file)) {
+        @unlink($output_file);
+    }
 }
 
 
 $context->httpResponse()
         // ->header('Content-Disposition', 'attachment; filename="document.pdf"')
         ->header('Content-Disposition', 'inline; filename="document.pdf"')
-        ->body($output)
+        ->body($output ?? '')
         ->send();

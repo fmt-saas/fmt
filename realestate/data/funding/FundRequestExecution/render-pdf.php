@@ -106,6 +106,7 @@ try {
         catch(Exception $e) {
             // ignore (ownership with no request line ?)
         }
+
         // append Owner Statement sheet
         try {
             // #todo
@@ -156,5 +157,5 @@ finally {
 
 $context->httpResponse()
         ->header('Content-Disposition', 'inline; filename="document.pdf"')
-        ->body($output)
+        ->body($output ?? '')
         ->send();

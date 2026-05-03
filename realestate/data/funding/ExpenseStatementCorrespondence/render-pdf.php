@@ -183,7 +183,7 @@ try {
 
     exec($cmd, $output_lines, $result_code);
 
-    if ($result_code !== 0 || !file_exists($output_file)) {
+    if($result_code !== 0 || !file_exists($output_file)) {
         trigger_error("APP::qpdf merge failed:\n" . implode("\n", $output_lines), EQ_REPORT_ERROR);
         throw new Exception('pdf_merge_failed', EQ_ERROR_UNKNOWN);
     }
@@ -208,5 +208,5 @@ finally {
 $context->httpResponse()
         // ->header('Content-Disposition', 'attachment; filename="document.pdf"')
         ->header('Content-Disposition', 'inline; filename="document.pdf"')
-        ->body($output)
+        ->body($output ?? '')
         ->send();
