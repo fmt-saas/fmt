@@ -137,6 +137,11 @@ BankStatementLine::id($bankStatementLine['id'])->update([
 
 $orm->enableEvents($events);
 
+Payment::search([
+        ['bank_statement_line_id', '=', $bankStatementLine['id']],
+        ['proforma', '=', 'proforma']
+    ])
+    ->delete(true);
 
 // 2) Allocation to fundings
 
@@ -147,7 +152,8 @@ $remaining_amount = $accounting_amount;
 $fundings = Funding::search([
         ['condo_id', '=', $bankStatementLine['condo_id']],
         ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
-        ['status', '<>', 'balanced']
+        ['status', '<>', 'balanced'],
+        ['funding_type', '<>', 'due_balance'],
     ], ['sort' => ['issue_date' => 'asc']])
     ->read(['id', 'remaining_amount'])
     ->get();
@@ -176,9 +182,9 @@ foreach($fundings as $funding) {
         'amount'                  => $allocated,
         'communication'           => $bankStatementLine['communication'],
         'receipt_date'            => $bankStatementLine['date'],
-        'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id'],
-        'payment_origin'            => 'bank',
-        'payment_method'            => 'wire_transfer',
+        'receipt_bank_account_id' => $bankStatementLine['bank_statement_id']['bank_account_id'],
+        'payment_origin'          => 'bank',
+        'payment_method'          => 'wire_transfer',
         'bank_statement_line_id'  => $bankStatementLine['id'],
         'funding_id'              => $funding['id'],
     ]);
