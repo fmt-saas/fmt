@@ -821,6 +821,11 @@ class BankStatementLine extends Model {
                 ];
                 continue;
             }
+            if(!$bankStatementLine['accounting_account_id']) {
+                $result[$id] = [
+                    'missing_accounting_account' => 'Accounting account is mandatory on Bank Statement Line.'
+                ];
+            }
             // parent bank statement must be balanced before being able to post individual lines
             if(!$bankStatementLine['bank_statement_id']['is_balanced']) {
                 $result[$id] = [
