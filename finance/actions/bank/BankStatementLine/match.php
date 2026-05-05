@@ -8,7 +8,8 @@
 use finance\accounting\AccountingEntryLine;
 use finance\accounting\Matching;
 use finance\bank\BankStatementLine;
-use sale\pay\Payment;
+use realestate\sale\pay\Funding;
+use realestate\sale\pay\Payment;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Match a given series of accounting entry lines and match them with given pending Bank Statement Line.',
@@ -50,6 +51,7 @@ $bankStatementLine = BankStatementLine::id($params['id'])
     ->read([
         'condo_id',
         'status',
+        'amount',
         'accounting_account_id',
         'payments_ids'
     ])
@@ -74,7 +76,9 @@ if(!isset($bankStatementLine['accounting_account_id'])) {
 $accountingEntryLines = AccountingEntryLine::ids($params['selected_ids'])
     ->read([
         'matching_id',
-        'funding_id'
+        'funding_id',
+        'debit',
+        'credit'
     ]);
 
 if($accountingEntryLines->count() <= 0) {
@@ -93,55 +97,94 @@ We need to:
 */
 
 $map_matchings_ids = [];
+// compute accounting amount (scope of matching)
+$accounting_amount = 0.0;
+
 
 foreach($accountingEntryLines as $accounting_entry_line_id => $accountingEntryLine) {
+    $accounting_amount += ($accountingEntryLine['debit'] - $accountingEntryLine['credit']);
+
     if(!$accountingEntryLine['matching_id']) {
         continue;
     }
+
     $map_matchings_ids[$accountingEntryLine['matching_id']] = true;
 }
 
-$found = false;
 
-// special case: a single accounting entry line with a funding_id
-if($accountingEntryLines->count() === 1) {
-    $accountingEntryLine = $accountingEntryLines->first();
-    if($accountingEntryLine['funding_id']) {
-        $found = true;
-        Payment::ids($bankStatementLine['payments_ids'])->delete(true);
-        // #memo - this will create a Payment linked with the BankStatementLine and the Funding
-        BankStatementLine::id($bankStatementLine['id'])
-            ->do('reconcile_with_funding', ['funding_id' => $accountingEntryLine['funding_id']])
-            ->update(['is_reconciled' => null]);
+
+$events = $orm->disableEvents();
+
+// 1) create a new Matching
+
+$matching = Matching::create([
+        'condo_id'              => $bankStatementLine['condo_id'],
+        'accounting_account_id' => $bankStatementLine['accounting_account_id']
+    ])
+    ->first();
+
+// link accounting entry lines
+$accountingEntryLines->update([
+    'matching_id' => $matching['id']
+]);
+
+// link bank statement line
+BankStatementLine::id($bankStatementLine['id'])->update([
+    'matching_id' => $matching['id']
+]);
+
+$orm->enableEvents($events);
+
+
+// 2) Allocation to fundings
+
+// effective amount to allocate
+$remaining_amount = min($bankStatementLine['amount'], $accounting_amount);
+
+// retrieve related fundings
+$fundings = Funding::search([
+        ['condo_id', '=', $bankStatementLine['condo_id']],
+        ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
+        ['status', '<>', 'balanced'],
+        ['due_amount', '>', 0]
+    ], ['sort' => ['issue_date' => 'asc']])
+    ->read(['id', 'remaining_amount'])
+    ->get();
+
+
+// allocate payments (FIFO)
+foreach($fundings as $funding) {
+
+    if($remaining_amount <= 0) {
+        break;
     }
+
+    $due = $funding['remaining_amount'];
+
+    $allocated = min($due, $remaining_mount);
+
+    // #memo - Payment are 'posted' upon validation of the BankStatementLine
+    Payment::create([
+        'funding_id'              => $funding['id'],
+        'matching_id'             => $matching['id'],
+        'amount'                  => $allocated,
+        'bank_statement_line_id'  => $bankStatementLine['id']
+    ]);
+
+    $remaining_amount -= $allocated;
 }
 
-if(!$found) {
-    $events = $orm->disableEvents();
 
-    // 1) create a new Matching
+// 3) refresh lines & impacted matchings
 
-    $matching = Matching::create([
-            'condo_id'              => $bankStatementLine['condo_id'],
-            'accounting_account_id' => $bankStatementLine['accounting_account_id']
-        ])
-        ->first();
-
-    $accountingEntryLines->update(['matching_id' => $matching['id']]);
-    BankStatementLine::id($bankStatementLine['id'])->update(['matching_id' => $matching['id']]);
-
-    $orm->enableEvents($events);
-
-    // 2) refresh lines & impacted matchings
-
-    if(count($map_matchings_ids)) {
-        // #memo - this will cascade-update accounting entry lines still linked to theses matchings
-        Matching::ids(array_keys($map_matchings_ids))->do('refresh_matching_level');
-    }
-
-    // This should result in a non-balanced state, but consistent with given selection (the accounting entry line from the bank statement line is still missing)
-    $accountingEntryLines->do('refresh_matching_level');
+if (count($map_matchings_ids)) {
+    Matching::ids(array_keys($map_matchings_ids))
+        ->do('refresh_matching_level');
 }
+
+// refresh current lines
+$accountingEntryLines->do('refresh_matching_level');
+
 
 $context->httpResponse()
         ->status(204)

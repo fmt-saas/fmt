@@ -29,11 +29,19 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'ondelete'          => 'cascade'
             ],
 
-            // #memo - in realestate package, 'purchase_invoice_line_id' targets `ExpenseStatementOwnerLine` and `FundRequestExecutionLine`
+            // #memo - in realestate package, 'sale_invoice_line_id' targets `ExpenseStatementOwnerLine` and `FundRequestExecutionLine`
+            'sale_invoice_line_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'sale\accounting\invoice\SaleInvoiceLine',
+                'description'       => 'Sale invoice line the entry line relates to, if any.',
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
             'purchase_invoice_line_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoiceLine',
-                'description'       => 'Invoice line the entry line relates to, if any.',
+                'description'       => 'Purchase invoice line the entry line relates to, if any.',
                 'help'              => 'This is necessary for retrieving the invoice line corresponding to the entry line and, further, the apportionment and ratio to use for owner statement.',
                 'readonly'          => true,
                 'domain'            => ['condo_id', '=', 'object.condo_id']

@@ -80,9 +80,9 @@ if($params['date_to']) {
     $domain->addCondition(new DomainCondition('entry_date', '<=', $params['date_to']));
 }
 
-$result = AccountingEntryLine::search($domain->toArray(), ['limit' => $params['limit']])
+$result = AccountingEntryLine::search($domain->toArray(), ['sort' => ['entry_date' => 'asc'], 'limit' => $params['limit']])
     ->read([
-        'id', 'name', 'entry_date', 'entry_number', 'matching_id', 'funding_id', 'debit', 'credit'
+        'id', 'name', 'description', 'entry_date', 'entry_number', 'matching_id', 'funding_id', 'debit', 'credit'
     ])
     ->adapt('json')
     ->get(true);

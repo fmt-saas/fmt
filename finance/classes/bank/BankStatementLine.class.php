@@ -458,6 +458,8 @@ class BankStatementLine extends Model {
 
             self::id($id)->update(['accounting_account_id' => $funding['accounting_account_id']]);
         }
+
+        $self->update(['is_reconciled' => null]);
     }
 
     /**
@@ -492,11 +494,16 @@ class BankStatementLine extends Model {
             }
 
             // 1) attempt to reconcile with a matching Funding
-            $matching_funding_id = self::computeMatchingFunding($bankStatementLine['amount'], $bankStatementLine['communication'], $bankStatementLine['bank_statement_id']['bank_account_iban'], $bankStatementLine['account_iban']);
+            $matching_funding_id = self::computeMatchingFunding(
+                    $bankStatementLine['amount'],
+                    $bankStatementLine['communication'],
+                    $bankStatementLine['bank_statement_id']['bank_account_iban'],
+                    $bankStatementLine['account_iban']
+                );
+
             if($matching_funding_id) {
                 self::id($id)
-                    ->do('reconcile_with_funding', ['funding_id' => $matching_funding_id])
-                    ->update(['is_reconciled' => null]);
+                    ->do('reconcile_with_funding', ['funding_id' => $matching_funding_id]);
             }
             // 2) attempt to reconcile with a matching Funding
             /*
@@ -899,13 +906,13 @@ class BankStatementLine extends Model {
         return $result;
     }
 
-    // on ne doit pas générer une opération mais essayer de rattacher ce qui peut l'être 
+    // on ne doit pas générer une opération mais essayer de rattacher ce qui peut l'être
     protected static function policyCanGenerateOrphanOperation($self) {
         $result = [];
 
 
         // si les écritures ne sont pas lettrées : pas de payment pour la ligne
-        // on prend toutes les écritures de la ligne, et on cherche un matching 
+        // on prend toutes les écritures de la ligne, et on cherche un matching
         // retrouver un matching dont le solde correspond au montant de la ligne
 
         $self->read([
