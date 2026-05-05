@@ -80,8 +80,8 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Statement Line",
-                                                "value": "statement_line_id",
+                                                "label": "Bank Statement Line",
+                                                "value": "bank_statement_line_id",
                                                 "width": "100%"
                                             },
                                             {
