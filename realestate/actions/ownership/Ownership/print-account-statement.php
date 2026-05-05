@@ -7,6 +7,7 @@
 
 use Dompdf\Dompdf;
 use Dompdf\Options as DompdfOptions;
+use realestate\ownership\Ownership;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Renders the owner account statement as a PDF document for a given ownership and date range.',
@@ -44,13 +45,23 @@ use Dompdf\Options as DompdfOptions;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
+$ownership = Ownership::id($params['id'])
+    ->read(['name'])
+    ->first();
+
+if(!$ownership) {
+    throw new Exception('unknown_ownership', EQ_ERROR_INVALID_PARAM);
+}
+
 $data = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
         'ownership_id'  => $params['id'],
         'date_from'     => $params['date_from'],
         'date_to'       => $params['date_to']
     ]);
 
+$filename = "Décompte propriétaire - " . $ownership['name'];
+
 $context->httpResponse()
-        ->header('Content-Disposition', 'inline; filename="document.pdf"')
+        ->header('Content-Disposition', 'inline; filename="' . $filename . '.pdf"')
         ->body($data)
         ->send();
