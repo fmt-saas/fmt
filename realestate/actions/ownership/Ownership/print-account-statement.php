@@ -59,9 +59,9 @@ $data = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf',
         'date_to'       => $params['date_to']
     ]);
 
-$filename = "Décompte propriétaire - " . $ownership['name'];
+$filename = rawurlencode("Decompte propriétaire - " . $ownership['name']);
 
 $context->httpResponse()
-        ->header('Content-Disposition', 'inline; filename="' . $filename . '.pdf"')
+        ->header('Content-Disposition', 'inline; filename*=UTF-8\'\'' . $filename . '.pdf')
         ->body($data)
         ->send();
