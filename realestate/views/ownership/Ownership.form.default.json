@@ -25,6 +25,16 @@
             }
         },
         {
+            "id": "action.print_account_statement",
+            "label": "Print Account Statement",
+            "icon": "savings",
+            "description": "Generate the AccountStatement for a given date range.",
+            "controller": "realestate_ownership_Ownership_print-account-statement",
+            "params": {
+                "id": "object.id"
+            }
+        },
+        {
             "id": "action.generate_history",
             "label": "Generate History",
             "description": "Generate Property Lots Ownership history.",

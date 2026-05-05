@@ -16,7 +16,7 @@ use finance\accounting\OpeningBalanceLine;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\ownership\Ownership;
 
-list($params, $providers) = eQual::announce([
+[$params, $providers] = eQual::announce([
     'description'   => 'Advanced search for General Ledger.',
     // #memo - this controller is named `collect` but is provides data from its own logic, not directly from the model
     // 'extends'       => 'core_model_collect',
@@ -71,21 +71,7 @@ list($params, $providers) = eQual::announce([
             'type'              => 'many2one',
             'description'       => "The ownership that the owner refers to.",
             'foreign_object'    => 'realestate\ownership\Ownership',
-            'default'           => function($domain = []) {
-                // #memo - in some cases fiscal_year_id is provided in $domain and is not valid for Condominium schema
-                $ownership_id = null;
-
-                $origDomain = new Domain($domain);
-                foreach($origDomain->getClauses() as $clause) {
-                    foreach($clause->getConditions() as $condition) {
-                        if($condition->getOperand() === 'ownership_id') {
-                            $condo_id = $condition->getValue();
-                            break 2;
-                        }
-                    }
-                }
-                return $ownership_id;
-            }
+            'required'          => true,
         ],
 
         'date_from' => [
