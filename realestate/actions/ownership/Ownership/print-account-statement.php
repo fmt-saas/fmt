@@ -7,6 +7,7 @@
 
 use Dompdf\Dompdf;
 use Dompdf\Options as DompdfOptions;
+use equal\text\TextTransformer;
 use realestate\ownership\Ownership;
 
 [$params, $providers] = eQual::announce([
@@ -59,9 +60,9 @@ $data = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf',
         'date_to'       => $params['date_to']
     ]);
 
-$filename = rawurlencode("Décompte propriétaire - " . $ownership['name']);
+$filename = TextTransformer::toAscii("Décompte propriétaire - " . $ownership['name']);
 
 $context->httpResponse()
-        ->header('Content-Disposition', "inline; filename*=UTF-8''{$filename}.pdf")
+        ->header('Content-Disposition', "inline; filename=\"{$filename}.pdf\"")
         ->body($data)
         ->send();
