@@ -72,11 +72,11 @@ $domain = new Domain([
         ]
     ]);
 
-if($params['date_from']) {
+if($params['date_from'] ?? null) {
     $domain->addCondition(new DomainCondition('entry_date', '>=', $params['date_from']));
 }
 
-if($params['date_to']) {
+if($params['date_to'] ?? null) {
     $domain->addCondition(new DomainCondition('entry_date', '<=', $params['date_to']));
 }
 

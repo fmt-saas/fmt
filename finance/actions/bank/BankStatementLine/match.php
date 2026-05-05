@@ -52,8 +52,10 @@ $bankStatementLine = BankStatementLine::id($params['id'])
         'condo_id',
         'status',
         'amount',
+        'communication',
+        'date',
         'accounting_account_id',
-        'payments_ids'
+        'bank_statement_id' => ['bank_account_id']
     ])
     ->first();
 
@@ -139,14 +141,13 @@ $orm->enableEvents($events);
 // 2) Allocation to fundings
 
 // effective amount to allocate
-$remaining_amount = min($bankStatementLine['amount'], $accounting_amount);
+$remaining_amount = $accounting_amount;
 
 // retrieve related fundings
 $fundings = Funding::search([
         ['condo_id', '=', $bankStatementLine['condo_id']],
         ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
-        ['status', '<>', 'balanced'],
-        ['due_amount', '>', 0]
+        ['status', '<>', 'balanced']
     ], ['sort' => ['issue_date' => 'asc']])
     ->read(['id', 'remaining_amount'])
     ->get();
@@ -155,20 +156,31 @@ $fundings = Funding::search([
 // allocate payments (FIFO)
 foreach($fundings as $funding) {
 
-    if($remaining_amount <= 0) {
+    if(abs($remaining_amount) < 0.01) {
         break;
     }
 
-    $due = $funding['remaining_amount'];
+    $allocatable = min(abs($funding['remaining_amount']), abs($remaining_amount));
 
-    $allocated = min($due, $remaining_mount);
+    // sign follows the funding (consumer)
+    $allocated = ($funding['remaining_amount'] > 0 ? 1 : -1) * $allocatable;
+
+    // prevent overshoot
+    if(abs($remaining_amount - $allocated) > abs($remaining_amount)) {
+        continue;
+    }
 
     // #memo - Payment are 'posted' upon validation of the BankStatementLine
     Payment::create([
-        'funding_id'              => $funding['id'],
-        'matching_id'             => $matching['id'],
+        'condo_id'                => $bankStatementLine['condo_id'],
         'amount'                  => $allocated,
-        'bank_statement_line_id'  => $bankStatementLine['id']
+        'communication'           => $bankStatementLine['communication'],
+        'receipt_date'            => $bankStatementLine['date'],
+        'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id'],
+        'payment_origin'            => 'bank',
+        'payment_method'            => 'wire_transfer',
+        'bank_statement_line_id'  => $bankStatementLine['id'],
+        'funding_id'              => $funding['id'],
     ]);
 
     $remaining_amount -= $allocated;
@@ -177,7 +189,7 @@ foreach($fundings as $funding) {
 
 // 3) refresh lines & impacted matchings
 
-if (count($map_matchings_ids)) {
+if(count($map_matchings_ids)) {
     Matching::ids(array_keys($map_matchings_ids))
         ->do('refresh_matching_level');
 }
@@ -185,6 +197,7 @@ if (count($map_matchings_ids)) {
 // refresh current lines
 $accountingEntryLines->do('refresh_matching_level');
 
+BankStatementLine::id($bankStatementLine['id'])->update(['is_reconciled' => null]);
 
 $context->httpResponse()
         ->status(204)

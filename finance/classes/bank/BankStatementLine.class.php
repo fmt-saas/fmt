@@ -438,7 +438,8 @@ class BankStatementLine extends Model {
             throw new \Exception('provided_funding_not_found', EQ_ERROR_INVALID_PARAM);
         }
 
-        $self->read(['condo_id', 'amount', 'communication', 'date',
+        $self->read([
+                'condo_id', 'amount', 'communication', 'date',
                 'bank_statement_id' => ['bank_account_id' ]
             ]);
 
