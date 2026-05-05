@@ -14,6 +14,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Shared\Date as XlsDate;
 use documents\processing\DocumentProcess;
 use equal\orm\Model;
+use fmt\setting\Setting;
 use identity\User;
 
 class BankStatementImport extends Model {
@@ -105,8 +106,13 @@ class BankStatementImport extends Model {
      */
     protected static function onupdateData($self, $auth) {
         $self->read(['name', 'data']);
+
         $documentType = DocumentType::search(['code', '=', 'bank_statement'])->first();
         $user = User::id($auth->userId())->read(['employee_id'])->first();
+
+        // make sure there is no filter for current user on condo_id
+        Setting::assert_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user['id']]);
+        Setting::set_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user['id']]);
 
         // in case binary is an archive, all files contained inside are returned
         foreach($self as $id => $bankStatementImport) {

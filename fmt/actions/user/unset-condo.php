@@ -28,6 +28,7 @@ use realestate\property\Condominium;
 
 $user_id = $auth->userId();
 
+Setting::assert_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id]);
 Setting::set_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id]);
 
 $context

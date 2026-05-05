@@ -10,6 +10,7 @@ namespace realestate\purchase\accounting\invoice;
 use documents\DocumentType;
 use documents\processing\DocumentProcess;
 use equal\orm\Model;
+use fmt\setting\Setting;
 use identity\User;
 
 class PurchaseInvoiceImport extends Model {
@@ -47,8 +48,13 @@ class PurchaseInvoiceImport extends Model {
      */
     protected static function onupdateData($self, $auth) {
         $self->read(['name', 'data']);
+
         $documentType = DocumentType::search(['code', '=', 'invoice'])->first();
         $user = User::id($auth->userId())->read(['employee_id'])->first();
+
+        // make sure there is no filter for current user on condo_id
+        Setting::assert_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user['id']]);
+        Setting::set_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user['id']]);
 
         foreach($self as $id => $purchaseInvoiceImport) {
             // this will trigger the creation of the Document and the Document Processing, which should not interrupt the import even if it fails

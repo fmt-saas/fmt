@@ -13,6 +13,7 @@ use finance\bank\Bank;
 use finance\bank\BankAccount;
 use finance\bank\CondominiumBankAccount;
 use fmt\import\DataImport;
+use fmt\setting\Setting;
 use hr\employee\Employee;
 use hr\role\Role;
 use hr\role\RoleAssignment;
@@ -49,10 +50,10 @@ use realestate\ownership\OwnershipCommunicationPreference;
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'providers'     => ['context', 'orm']
+    'providers'     => ['context', 'orm', 'auth']
 ]);
 
-['context' => $context, 'orm' => $orm] = $providers;
+['context' => $context, 'orm' => $orm, 'auth' => $auth] = $providers;
 
 $mapBankRowToJson = function (array $row): array {
     return [
@@ -116,6 +117,11 @@ $result = [
     'logs'      => []
 ];
 
+$user_id = $auth->userId();
+
+// make sure there is no filter for current user on condo_id
+Setting::assert_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id]);
+Setting::set_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id]);
 
 // fetch DataImport object
 $dataImport = DataImport::id($params['id'])
@@ -129,7 +135,6 @@ if(!$dataImport) {
 if($dataImport['status'] !== 'ready') {
     throw new Exception("wrong_data_import_status", EQ_ERROR_UNKNOWN_OBJECT);
 }
-
 
 // fetch parsed JSON
 $data = eQual::run('get', 'fmt_import_DataImport_parse', ['id' => $params['id']]);
