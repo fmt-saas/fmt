@@ -37,8 +37,10 @@ class BankStatementLine extends Model {
             ],
 
             'name' => [
-                'type'              => 'alias',
-                'alias'             => 'sequence_number'
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcName',
+                'store'             => true
             ],
 
             'description' => [
@@ -50,7 +52,8 @@ class BankStatementLine extends Model {
                 'type'              => 'integer',
                 'description'       => 'Sequence number of the line.',
                 'default'           => 'defaultSequenceNumber',
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['name']
             ],
 
             'bank_statement_id' => [
@@ -74,7 +77,7 @@ class BankStatementLine extends Model {
                 'description'       => 'Date of the transaction as provided by the bank.',
                 'required'          => true,
                 'default'           => 'defaultDate',
-                'dependents'        => ['fiscal_year_id']
+                'dependents'        => ['fiscal_year_id', 'name']
             ],
 
             'fiscal_year_id' => [
@@ -407,6 +410,15 @@ class BankStatementLine extends Model {
                 'function'    => 'policyCanGenerateAccountingEntry'
             ]
         ];
+    }
+
+    protected static function calcName($self) {
+        $result = [];
+        $self->read(['date', 'sequence_number', 'description']);
+        foreach($self as $id => $bankStatementLine) {
+            $result[$id] = date('Y-m-d', $bankStatementLine['date']) . $bankStatementLine['sequence_number'] . $bankStatementLine['description'];
+        }
+        return $result;
     }
 
     protected static function defaultSequenceNumber($values) {
