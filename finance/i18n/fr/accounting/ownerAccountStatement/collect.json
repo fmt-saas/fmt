@@ -1,0 +1,60 @@
+{
+    "name": "Situation de compte coproprietaire",
+    "plural": "Situations de compte coproprietaire",
+    "description": "Collecteur des mouvements du compte coproprietaire sur une periode donnee.",
+    "model": {
+        "entry_date": {
+            "label": "Date",
+            "description": "Date de la ligne du releve.",
+            "help": "Affiche la date d'ecriture ou la date d'ouverture du solde."
+        },
+        "description": {
+            "label": "Description",
+            "description": "Libelle de la ligne du releve.",
+            "help": "Permet d'identifier l'operation comptable ou le solde initial."
+        },
+        "debit": {
+            "label": "Debit",
+            "description": "Montant porte au debit du compte coproprietaire.",
+            "help": "Valeur monetaire ajoutee au solde."
+        },
+        "credit": {
+            "label": "Credit",
+            "description": "Montant porte au credit du compte coproprietaire.",
+            "help": "Valeur monetaire retranchee du solde."
+        },
+        "balance": {
+            "label": "Solde",
+            "description": "Solde cumule apres application de la ligne.",
+            "help": "Evolue ligne par ligne sur toute la periode selectionnee."
+        },
+        "ownership_id": {
+            "label": "Lot coproprietaire",
+            "description": "Dossier de propriete pour lequel afficher la situation de compte.",
+            "help": "Determine les comptes comptables et la copropriete associes."
+        },
+        "date_from": {
+            "label": "Date debut",
+            "description": "Premiere date de la periode analysee.",
+            "help": "Le releve commence par le solde calcule avant cette date."
+        },
+        "date_to": {
+            "label": "Date fin",
+            "description": "Derniere date de la periode analysee.",
+            "help": "Les lignes affichees sont limitees aux ecritures jusqu'a cette date."
+        }
+    },
+    "view": {
+        "collect.list.default": {
+            "name": "Situation de compte coproprietaire",
+            "description": "Vue detaillee des mouvements et du solde cumule du compte coproprietaire.",
+            "layout": {}
+        },
+        "collect.search.default": {
+            "name": "Recherche situation de compte coproprietaire",
+            "description": "Filtres pour selectionner le coproprietaire et la periode a consulter.",
+            "layout": {}
+        }
+    },
+    "error": {}
+}

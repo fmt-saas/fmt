@@ -548,6 +548,7 @@ class BankStatementLine extends Model {
         $domain = [
             ['is_cancelled', '=', false],
             ['status', '<>', 'balanced'],
+            ['funding_type', '<>', 'due_balance'],
             // #memo - we support the possibility that the payment be made on another bank account than the one linked to the funding (see below)
             // ['bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']],
             // #memo - funding payment reference is computed (depends on funding_type)

@@ -1,0 +1,61 @@
+{
+    "name": "Owner Account Statement",
+    "controller": "finance_accounting_ownerAccountStatement_collect",
+    "header": {
+        "#memo": "inline layout disables visible actions of the view",
+        "layout": "inline",
+        "exports": false,
+        "actions": false,
+        "advanced_search": {
+            "open": true,
+            "submit": "manual"
+        }
+    },
+    "operations": {
+        "total": {
+            "debit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "credit": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "layout": {
+        "interactions": {
+            "click": false
+        },
+        "items": [
+            {
+                "type": "field",
+                "value": "entry_date",
+                "width": "12%",
+                "widget": {
+                    "usage": "date"
+                }
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "48%"
+            },
+            {
+                "type": "field",
+                "value": "debit",
+                "width": "13%"
+            },
+            {
+                "type": "field",
+                "value": "credit",
+                "width": "13%"
+            },
+            {
+                "type": "field",
+                "value": "balance",
+                "width": "14%"
+            }
+        ]
+    }
+}
