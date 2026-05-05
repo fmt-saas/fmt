@@ -290,7 +290,7 @@ if($purchaseInvoice['document_id']) {
         && !in_array($existingDocument['document_process_id']['status'], ['cancelled', 'removed'])
     ) {
         $dispatch->dispatch('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $id, 'important', $script, ['id' => $id]);
-        DocumentProcess::id($purchaseInvoice['document_process_id'])->do('cancel');
+        DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('cancel');
         throw new Exception("duplicate_document", EQ_ERROR_INVALID_PARAM);
     }
     else {
@@ -317,7 +317,7 @@ if($previousPurchaseInvoice) {
     ];
     // invoice is considered as a duplicate : this is a blocking error (cancel processing)
     $dispatch->dispatch('purchase.accounting.invoice.duplicate_invoice', $class, $id, 'important', $script, ['id' => $id], $links);
-    DocumentProcess::id($purchaseInvoice['document_process_id'])->do('cancel');
+    DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('cancel');
     throw new Exception("duplicate_invoice", EQ_ERROR_INVALID_PARAM);
 }
 
