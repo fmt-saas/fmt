@@ -235,8 +235,13 @@ class FundRequest extends \equal\orm\Model {
             ],
             'active' => [
                 'description' => 'Active fund request, consistent but with or without lines.',
-                'icon'        => 'cancel',
+                'icon'        => 'check',
                 'transitions' => [
+                    'revert' => [
+                        'description' => 'Revert to draft.',
+                        'policies'    => ['can_revert'],
+                        'status'      => 'draft'
+                    ],
                     'cancel' => [
                         'description' => 'Cancel the fund request.',
                         'policies'    => ['can_cancel'],
@@ -268,6 +273,10 @@ class FundRequest extends \equal\orm\Model {
                 'description' => 'Checks & validate values required for activation.',
                 'function'    => 'policyHasMandatoryData'
             ],
+            'can_revert' => [
+                'description' => 'Verifies that there are no invoiced executions.',
+                'function'    => 'policyCanRevert'
+            ],
             'can_cancel' => [
                 'description' => 'Verifies that there are no invoiced executions.',
                 'function'    => 'policyCanCancel'
@@ -287,13 +296,35 @@ class FundRequest extends \equal\orm\Model {
         ];
     }
 
+    protected static function policyCanRevert($self): array {
+        $result = [];
+        $self->read(['status', 'request_executions_ids' => ['status']]);
+        foreach($self as $id => $fundRequest) {
+            if($fundRequest['status'] !== 'active') {
+                $result[$id] = [
+                    'invalid_status' => 'Only active Fund Request can be reverted.'
+                ];
+                continue;
+            }
+            foreach($fundRequest['request_executions_ids'] as $execution_id => $requestExecution) {
+                if($requestExecution['status'] == 'posted') {
+                    $result[$id] = [
+                        'invalid_execution_status' => 'At least one execution has been invoiced.'
+                    ];
+                    continue;
+                }
+            }
+        }
+        return $result;
+    }
+
     public static function policyCanCancel($self): array {
         $result = [];
         $self->read(['status', 'request_executions_ids' => ['status']]);
         foreach($self as $id => $fundRequest) {
-            if($fundRequest['status'] === 'cancelled') {
+            if($fundRequest['status'] !== 'active') {
                 $result[$id] = [
-                    'invalid_status' => 'Already cancelled.'
+                    'invalid_status' => 'Only active Fund Request can be cancelled.'
                 ];
                 continue;
             }

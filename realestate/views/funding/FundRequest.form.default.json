@@ -48,6 +48,19 @@
         },
         {
             "id": "action.cancel",
+            "label": "Revert",
+            "description": "Revert the fund request to draft.",
+            "controller": "core_model_transition",
+            "visible": [["status", "=", "active"]],
+            "params": {
+                "entity": "realestate\\funding\\FundRequest",
+                "transition": "revert",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.cancel",
             "label": "Cancel",
             "description": "Cancel the fund request. This action is not reversible.",
             "controller": "core_model_transition",
