@@ -365,13 +365,14 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     ]
                 ],
             ],
-            // #todo - this is not correct (incomplete), so far we use action::cancel to cancel a purchase invoice
             'posted' => [
                 'description' => 'Invoice can no longer be modified and can be sent to the customer.',
                 'icon' => 'receipt_long',
                 'transitions' => [
                     'cancel' => [
                         'description' => 'Set the invoice and receivables statuses as cancelled.',
+                        'policies'  => ['can_cancel'],
+                        'onbefore'  => 'onbeforeCancel',
                         'status' => 'cancelled',
                     ]
                 ],
@@ -451,6 +452,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             ]
 
         ]);
+    }
+
+    protected static function onbeforeCancel($self) {
+        $self->do('cancel');
     }
 
     protected static function doCancel($self) {
