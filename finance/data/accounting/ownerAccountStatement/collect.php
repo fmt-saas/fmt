@@ -61,11 +61,31 @@ list($params, $providers) = eQual::announce([
 
         /* additional fields for filtering & rendering */
 
+        'domain' => [
+            'type'              => 'array',
+            'description'       => "Conditional domain.",
+            'default'           => []
+        ],
+
         'ownership_id' => [
             'type'              => 'many2one',
             'description'       => "The ownership that the owner refers to.",
             'foreign_object'    => 'realestate\ownership\Ownership',
-            'required'          => true
+            'default'           => function($domain = []) {
+                // #memo - in some cases fiscal_year_id is provided in $domain and is not valid for Condominium schema
+                $ownership_id = null;
+
+                $origDomain = new Domain($domain);
+                foreach($origDomain->getClauses() as $clause) {
+                    foreach($clause->getConditions() as $condition) {
+                        if($condition->getOperand() === 'ownership_id') {
+                            $condo_id = $condition->getValue();
+                            break 2;
+                        }
+                    }
+                }
+                return $ownership_id;
+            }
         ],
 
         'date_from' => [

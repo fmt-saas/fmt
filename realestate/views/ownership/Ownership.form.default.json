@@ -43,7 +43,7 @@
             "description": "",
             "icon": "group",
             "context": {
-                "entity": "finance_accounting_ownerAccountStatement_collect",
+                "entity": "finance\\accounting\\ownerAccountStatement\\collect",
                 "view": "list.default",
                 "domain": ["ownership_id", "=", "object.id"]
             }
