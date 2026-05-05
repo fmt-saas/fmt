@@ -12,7 +12,9 @@
             "label": "Validate",
             "description": "Validate the accounting entry. This action is not reversible.",
             "controller": "core_model_transition",
-            "visible": ["status", "=", "pending"],
+            "visible_help": "Actions should never be directly performed on accounting entries, but rahter through their related accounting document.",
+            "visible": false,
+            "visible1": ["status", "=", "pending"],
             "params": {
                 "entity": "finance\\accounting\\AccountingEntry",
                 "transition": "validate",
@@ -24,6 +26,7 @@
             "id": "action.cancel",
             "label": "Cancel",
             "controller": "core_model_do",
+            "visible_help": "Actions should never be directly performed on accounting entries, but rahter through their related accounting document.",
             "visible": false,
             "description": "#memo - Accounting Entry can only be cancelled through its origin accounting document.",
             "params": {

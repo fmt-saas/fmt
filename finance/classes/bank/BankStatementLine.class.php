@@ -91,6 +91,7 @@ class BankStatementLine extends Model {
 
             'communication' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:256',
                 'description'       => 'Message from the payer (or ref from the bank).',
                 'help'              => "A single communication is handled, since this is implied by the SEPA format (despite some bank allow both free and structured communication on a statement line)."
             ],

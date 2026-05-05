@@ -1919,7 +1919,57 @@ class DocumentProcess extends Model {
                             }
                         }
                         elseif(!empty($txn['unstructured_reference'])) {
-                            $communication = $txn['unstructured_reference'];
+                            // #memo - some banks provide structured communication in
+                            $communication_candidate = null;
+                            if(preg_match('/^\+{3}(\d{3})\/(\d{4})\/(\d{5})\+{3}$/', $txn['unstructured_reference'], $m)) {
+                                $communication_candidate = str_replace(['/', '+'], '', $m[0]);
+                            }
+                            elseif(preg_match('/^(\d{3})\/(\d{4})\/(\d{5})$/', $txn['unstructured_reference'], $m)) {
+                                $communication_candidate = str_replace('/', '', $m[0]);
+                            }
+                            elseif(preg_match('/^(\d{12})$/', $txn['unstructured_reference'], $m)) {
+                                $communication_candidate = $m[0];
+                            }
+
+                            if($communication_candidate && strlen($communication_candidate) === 12) {
+                                $mod = intval(substr($communication_candidate, 0, 10)) % 97 ?: 97;
+                                if(intval(substr($communication_candidate, -2)) === $mod) {
+                                    $communication = $communication_candidate;
+                                    $communication_type = 'VCS';
+                                }
+                            }
+                            else {
+                                $communication = substr($txn['unstructured_reference'], 0, 256);
+                                $communication_type = 'free';
+                            }
+                        }
+                        elseif(!empty($txn['transaction_message'])) {
+                            // #memo - some banks provide structured communication in transaction message
+                            $communication_candidate = null;
+                            if(preg_match('/^\+{3}(\d{3})\/(\d{4})\/(\d{5})\+{3}$/', $txn['transaction_message'], $m)) {
+                                $communication_candidate = str_replace(['/', '+'], '', $m[0]);
+                            }
+                            elseif(preg_match('/^\*{3}(\d{3})\/(\d{4})\/(\d{5})\*{3}$/', $txn['transaction_message'], $m)) {
+                                $communication_candidate = str_replace(['/', '*'], '', $m[0]);
+                            }
+                            elseif(preg_match('/^(\d{3})\/(\d{4})\/(\d{5})$/', $txn['transaction_message'], $m)) {
+                                $communication_candidate = str_replace('/', '', $m[0]);
+                            }
+                            elseif(preg_match('/^(\d{12})$/', $txn['transaction_message'], $m)) {
+                                $communication_candidate = $m[0];
+                            }
+
+                            if($communication_candidate && strlen($communication_candidate) === 12) {
+                                $mod = intval(substr($communication_candidate, 0, 10)) % 97 ?: 97;
+                                if(intval(substr($communication_candidate, -2)) === $mod) {
+                                    $communication = $communication_candidate;
+                                    $communication_type = 'VCS';
+                                }
+                            }
+                            else {
+                                $communication = substr($txn['transaction_message'], 0, 256);
+                                $communication_type = 'free';
+                            }
                         }
 
                         $counterpart_iban = $txn['counterparty_iban'];
