@@ -199,7 +199,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             ],
             'cancel_execution' => [
                 'description'   => 'Void the execution, and cancel subsequent accounting entry.',
-                'policies'      => [],
+                'policies'      => ['can_cancel'],
                 'function'      => 'doCancelExecution'
             ],
             'assign_invoice_number' => [
@@ -532,12 +532,11 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
     }
 
     public static function doCancelExecution($self) {
-        $self->update(['price' => 0.0])
-             ->read(['execution_lines_ids' => ['ownership_id'], 'fund_request_id', 'accounting_entry_id']);
+        $self->read(['execution_lines_ids' => ['ownership_id'], 'fund_request_id', 'accounting_entry_id']);
 
         foreach($self as $id => $requestExecution) {
             // retrieve accounting entry and cancel it
-            AccountingEntry::id($requestExecution['accounting_entry_id'])->transition('cancel');
+            AccountingEntry::id($requestExecution['accounting_entry_id'])->do('cancel');
 
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
                 // remove related fundings with no payments
@@ -560,6 +559,10 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             }
         }
 
+        self::id($id)->update([
+            'status' => 'cancelled',
+            'accounting_entry_id' => null
+        ]);
     }
 
     /**

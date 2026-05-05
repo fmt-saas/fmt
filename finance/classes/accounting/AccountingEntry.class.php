@@ -577,7 +577,11 @@ class AccountingEntry extends Model {
             }
             */
         }
-        $self->do('update_balance_change');
+
+        $self
+            // force refresh Entry name
+            ->update(['name' => null])
+            ->do('update_balance_change');
     }
 
     /**
@@ -774,9 +778,10 @@ class AccountingEntry extends Model {
         $result = [];
         $self->read(['status', 'is_temp', 'entry_number']);
         foreach($self as $id => $accountingEntry) {
-            if($accountingEntry['status'] == 'pending') {
+            if($accountingEntry['status'] === 'pending') {
                 $result[$id] = '(draft)';
             }
+            // #deprecated - is_temp should no longer be used
             elseif($accountingEntry['is_temp']) {
                 $result[$id] = '(temp)';
             }
@@ -1213,7 +1218,7 @@ class AccountingEntry extends Model {
      * Once validated (or reversed) an accounting entry can no longer be modified.
      */
     public static function canupdate($self, $values) {
-        $self->read(['status']);
+        $self->read(['status', 'entry_number']);
         $allowed_fields = ['status', 'description', 'reversed_entry_id'];
         foreach($self as $id => $accountingEntry) {
             if(in_array($accountingEntry['status'], ['reversed', 'validated'])) {

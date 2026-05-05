@@ -282,8 +282,71 @@ class Invoice extends Model {
                 'description'   => 'Validate accounting entry (that should be pending) to be accounted in balance.',
                 'policies'      => [],
                 'function'      => 'doValidateAccountingEntries'
+            ],
+            'can_cancel' => [
+                'description' => 'Checks if the invoice can be cancelled.',
+                'help'        => 'Ensures the (posted) invoice can be permanently cancelled: none of its accounting entries may be cleared, the invoice must not already be cancelled, and the fiscal period must allow cancellation.',
+                'function'    => 'policyCanCancel'
+            ],
+            'can_remove' => [
+                'description' => 'Checks if the invoice can be removed.',
+                'help'        => 'Ensures the invoice is still a draft (proforma).',
+                'function'    => 'policyCanRemove'
             ]
         ];
+    }
+
+    protected static function policyCanRemove($self) {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $purchaseInvoice) {
+            if($purchaseInvoice['status'] === 'proforma') {
+                $result[$id] = [
+                        'cannot_remove_non_proforma' => 'Only non-posted invoice can be removed.'
+                    ];
+                continue;
+            }
+        }
+        return [];
+    }
+
+    /**
+     * Check whether purchase invoices can be cancelled.
+     *
+     * Rules:
+     * - Invoice must be in "posted" status.
+     * - At least one related accounting entry must be validated.
+     * - No accounting entry may contain cleared lines.
+     *
+     * Returns an array of policy violations indexed by invoice id.
+     */
+    protected static function policyCanCancel($self) {
+        $result = [];
+        $self->read(['status', 'accounting_entry_id' => ['status', 'has_cleared_lines']]);
+        foreach($self as $id => $purchaseInvoice) {
+            if($purchaseInvoice['status'] !== 'posted') {
+                $result[$id] = [
+                        'non_posted_invoice' => 'Only posted invoice can be cancelled or unlocked.'
+                    ];
+                continue;
+            }
+
+            $accountingEntry = $purchaseInvoice['accounting_entry_id'];
+
+            if($accountingEntry['status'] !== 'validated') {
+                $result[$id] = [
+                        'non_validated_entry' => 'Only invoice with validated entry can be cancelled or unlocked.'
+                    ];
+            }
+            if($accountingEntry['has_cleared_lines']) {
+                $result[$id] = [
+                        'has_cleared_lines' => 'Accounting entry has already been cleared.'
+                    ];
+
+            }
+
+        }
+        return $result;
     }
 
     public static function calcName($self) {

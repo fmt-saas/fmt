@@ -3,20 +3,6 @@
     "description": "An invoice is a legal document issued by a seller to a buyer that relates to a sale, and is part of the accounting system.",
     "actions": [
         {
-            "id": "action.invoice",
-            "label": "Validate",
-            "description": "To Invoice.",
-            "controller": "core_model_transition",
-            "visible": false,
-            "visible_help": "A purchase invoice should always be posted through its parent DocumentProcess.",
-            "visible1": [["state", "=", "instance"], ["status", "=", "proforma"]],
-            "params": {
-                "entity": "realestate\\purchase\\accounting\\invoice\\PurchaseInvoice",
-                "transition": "post",
-                "ids": []
-            }
-        },
-        {
             "id": "action.cancel",
             "label": "Cancel",
             "description": "Cancel invoice.",

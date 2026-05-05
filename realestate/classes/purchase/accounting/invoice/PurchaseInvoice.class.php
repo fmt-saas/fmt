@@ -365,6 +365,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     ]
                 ],
             ],
+            // #todo - this is not correct (incomplete), so far we use action::cancel to cancel a purchase invoice
             'posted' => [
                 'description' => 'Invoice can no longer be modified and can be sent to the customer.',
                 'icon' => 'receipt_long',
