@@ -1946,16 +1946,16 @@ class DocumentProcess extends Model {
                         elseif(!empty($txn['transaction_message'])) {
                             // #memo - some banks provide structured communication in transaction message
                             $communication_candidate = null;
-                            if(preg_match('/^\+{3}(\d{3})\/(\d{4})\/(\d{5})\+{3}$/', $txn['transaction_message'], $m)) {
+                            if(preg_match('/\+{3}(\d{3})\/(\d{4})\/(\d{5})\+{3}/', $txn['transaction_message'], $m)) {
                                 $communication_candidate = str_replace(['/', '+'], '', $m[0]);
                             }
-                            elseif(preg_match('/^\*{3}(\d{3})\/(\d{4})\/(\d{5})\*{3}$/', $txn['transaction_message'], $m)) {
+                            elseif(preg_match('/\*{3}(\d{3})\/(\d{4})\/(\d{5})\*{3}/', $txn['transaction_message'], $m)) {
                                 $communication_candidate = str_replace(['/', '*'], '', $m[0]);
                             }
-                            elseif(preg_match('/^(\d{3})\/(\d{4})\/(\d{5})$/', $txn['transaction_message'], $m)) {
+                            elseif(preg_match('/(\d{3})\/(\d{4})\/(\d{5})/', $txn['transaction_message'], $m)) {
                                 $communication_candidate = str_replace('/', '', $m[0]);
                             }
-                            elseif(preg_match('/^(\d{12})$/', $txn['transaction_message'], $m)) {
+                            elseif(preg_match('/(\d{12})/', $txn['transaction_message'], $m)) {
                                 $communication_candidate = $m[0];
                             }
 
