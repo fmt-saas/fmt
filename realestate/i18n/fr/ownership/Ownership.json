@@ -127,6 +127,11 @@
             "description": "Participants ayant représenté l'ownership lors des assemblées.",
             "help": ""
         },
+        "setting_values_ids": {
+            "label": "Paramètres dédiés",
+            "description": "Valeurs de configuration propres à ce dossier de propriété.",
+            "help": ""
+        },
         "status": {
             "label": "Statut",
             "description": "État du dossier (préparation ou validé).",
@@ -152,10 +157,13 @@
                     "label": "Comptes bancaires"
                 },
                 "section.communication_preferences": {
-                    "label": "Préférences de communication"
+                    "label": "Communication"
                 },
                 "section.fundings": {
                     "label": "Suivi des paiements"
+                },
+                "section.settings": {
+                    "label": "Paramètres"
                 }
             },
             "actions": {
@@ -167,9 +175,13 @@
                     "label": "Imprimer la demande de fonds",
                     "description": "Générer le document d'appel de fonds pour l'exercice."
                 },
+                "action.print_account_statement": {
+                    "label": "Imprimer le relevé de compte",
+                    "description": "Générer le relevé de compte pour une période donnée."
+                },
                 "action.generate_history": {
                     "label": "Générer l'historique",
-                    "description": "Générer l'historique des tantièmes."
+                    "description": "Générer l'historique des attributions de lots."
                 }
             }
         },

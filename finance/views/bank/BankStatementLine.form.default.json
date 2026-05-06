@@ -7,10 +7,10 @@
             "label": "Attempt Reconcile",
             "icon": "play_arrow",
             "description": "Attempts to reconcile the line based on given data.",
-            "controller": "core_model_do",
+            "controller": "finance_bank_BankStatementLine_attempt-reconcile",
             "params": {
-                "entity": "finance\\bank\\BankStatementLine",
-                "action": "attempt_reconcile"
+                "id": "object.id",
+                "condo_id": "object.condo_id"
             },
             "confirm": false,
             "visible": [

@@ -22,11 +22,22 @@ use realestate\sale\pay\Payment;
             'foreign_object'    => 'finance\bank\BankStatementLine',
             'required'          => true
         ],
-        'selected_ids' => [
-            'description'       => 'List of unique identifiers of Accounting Entry lines to be linked to the statement line.',
-            'type'              => 'array',
-            'required'          => true
+
+        'condo_id' => [
+            'type'              => 'many2one',
+            'description'       => "The condominium the fiscal year refers to.",
+            'help'              => "When a fiscal year is not linked to a condominium, it relates to the organisation itself.",
+            'foreign_object'    => 'realestate\property\Condominium'
+        ],
+
+        'funding_id' => [
+            'type'              => 'many2one',
+            'description'       => "The fiscal year the balance refers to.",
+            'foreign_object'    => 'realestate\sale\pay\Funding',
+            'domain'            => [['condo_id', '=', 'object.condo_id']],
+            'required'          => false
         ]
+
     ],
     'response'      => [
         'content-type'  => 'application/json',
@@ -51,11 +62,7 @@ $bankStatementLine = BankStatementLine::id($params['id'])
     ->read([
         'condo_id',
         'status',
-        'amount',
-        'communication',
-        'date',
-        'accounting_account_id',
-        'bank_statement_id' => ['bank_account_id']
+        'accounting_account_id'
     ])
     ->first();
 
@@ -75,6 +82,18 @@ if(!isset($bankStatementLine['accounting_account_id'])) {
     throw new Exception('missing_bank_statement_line_account', EQ_ERROR_INVALID_PARAM);
 }
 
+if($params['funding_id']) {
+    $funding = Funding::id($params['funding_id'])
+        ->read(['id'])
+        ->first();
+}
+
+if($funding ?? null) {
+    BankStatementLine::id($params['id'])->do('reconcile_with_funding', ['funding_id' => $funding['id']]);
+}
+else {
+    BankStatementLine::id($params['id'])->do('attempt_reconcile');
+}
 
 $context->httpResponse()
         ->status(204)
