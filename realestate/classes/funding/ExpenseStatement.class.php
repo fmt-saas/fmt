@@ -1131,10 +1131,12 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     $date_to = $expenseStatement['date_to'];
                 }
 
+                // #memo - always use Ownership control_account for Fundings
                 $ownershipAccount = Account::search([
                         ['condo_id', '=', $expenseStatement['condo_id']['id']],
                         ['ownership_id', '=', $ownership_id],
-                        ['operation_assignment', '=', 'co_owners_working_fund']
+                        ['is_control_account', '=', true]
+                        // ['operation_assignment', '=', 'co_owners_working_fund']
                     ])
                     ->first();
 

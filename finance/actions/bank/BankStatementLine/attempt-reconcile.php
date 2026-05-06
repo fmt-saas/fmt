@@ -5,11 +5,8 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use finance\accounting\AccountingEntryLine;
-use finance\accounting\Matching;
 use finance\bank\BankStatementLine;
 use realestate\sale\pay\Funding;
-use realestate\sale\pay\Payment;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Match a given series of accounting entry lines and match them with given pending Bank Statement Line.',
@@ -109,7 +106,7 @@ if($params['funding_id']) {
 }
 
 if($funding ?? null) {
-    BankStatementLine::id($params['id'])->do('reconcile_with_funding', ['funding_id' => $funding['id']]);
+    BankStatementLine::id($params['id'])->do('reconcile_with_fundings', ['funding_ids' => [$funding['id']]]);
 }
 else {
     BankStatementLine::id($params['id'])->do('attempt_reconcile');

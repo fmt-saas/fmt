@@ -683,10 +683,13 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
                 // find the account based on operation_assignment
                 $logs[] = "Fetching account for ownership {$ownership_id}";
+
+                // #memo - always use Ownership control_account for Fundings
                 $ownershipAccount = Account::search([
                         ['condo_id', '=', $requestExecution['condo_id']['id']],
                         ['ownership_id', '=', $ownership_id],
-                        ['operation_assignment', '=', $debit_operation_assignment]
+                        ['is_control_account', '=', true]
+                        // ['operation_assignment', '=', $debit_operation_assignment]
                     ])
                     ->first();
 

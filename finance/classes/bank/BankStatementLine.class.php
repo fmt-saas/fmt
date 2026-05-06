@@ -195,7 +195,7 @@ class BankStatementLine extends Model {
                 'dependents'        => ['accounting_account_code', 'is_transfer', 'is_expense', 'is_income', 'is_supplier', 'is_owner', 'ownership_id', 'suppliership_id'],
                 'domain'            => [
                     [
-                        ['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['operation_assignment', 'not in', ['co_owners_reserve_fund', 'co_owners_working_fund']]
+                        ['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['operation_assignment', 'not in', ['co_owners_reserve_fund³', 'co_owners_working_fund']]
                     ],
                     [
                         ['condo_id', '=', 'object.condo_id'], ['ownership_id', '<>', null], ['is_control_account', '=', true]
@@ -387,6 +387,11 @@ class BankStatementLine extends Model {
                 'policies'      => [/* 'can_generate_accounting_entry' */],
                 'function'      => 'doAttemptReconcile'
             ],
+            'reconcile_with_fundings' => [
+                'description'   => 'Creates Payments from the bank statement line and allocates the requested amount on candidate Fundings.',
+                'policies'      => [],
+                'function'      => 'doReconcileWithFundings'
+            ],
             // arbitrary reconcile with a given funding (auto or manual)
             'reconcile_with_funding' => [
                 'description'   => 'Creates Funding and related Payment that use the Bank Statement line itself as accounting document.',
@@ -449,34 +454,70 @@ class BankStatementLine extends Model {
             throw new \Exception('missing_mandatory_funding_id', EQ_ERROR_INVALID_PARAM);
         }
 
-        $funding = Funding::id($values['funding_id'])
-            ->read(['accounting_account_id'])
-            ->first();
+        self::doReconcileWithFundings($self, ['funding_ids' => [$values['funding_id']]]);
+    }
 
-        if(!$funding) {
-            throw new \Exception('provided_funding_not_found', EQ_ERROR_INVALID_PARAM);
+    /**
+     * Reconcile the line by allocating the requested amount across candidate fundings.
+     */
+    protected static function doReconcileWithFundings($self, $values) {
+        $requested_amount = isset($values['amount']) ? round((float) $values['amount'], 2) : null;
+        $funding_ids = [];
+
+        if(isset($values['funding_ids']) && is_array($values['funding_ids'])) {
+            $funding_ids = array_values(array_filter($values['funding_ids']));
         }
 
         $self->read([
-                'condo_id', 'amount', 'communication', 'date',
+                'condo_id', 'amount', 'communication', 'date', 'accounting_account_id',
                 'bank_statement_id' => ['bank_account_id' ]
             ]);
 
         foreach($self as $id => $bankStatementLine) {
-            Payment::create([
-                    'condo_id'                  => $bankStatementLine['condo_id'],
-                    'amount'                    => $bankStatementLine['amount'],
-                    // #memo - communication might not be a payment reference but an arbitrary comment or description
-                    'communication'             => $bankStatementLine['communication'],
-                    'receipt_date'              => $bankStatementLine['date'],
-                    'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id'],
-                    'payment_origin'            => 'bank',
-                    'payment_method'            => 'wire_transfer',
-                    'bank_statement_line_id'    => $id,
-                    'funding_id'                => $funding['id']
-                ]);
+            if(!isset($bankStatementLine['condo_id'])) {
+                throw new \Exception('missing_bank_statement_line_condo', EQ_ERROR_INVALID_PARAM);
+            }
 
-            self::id($id)->update(['accounting_account_id' => $funding['accounting_account_id']]);
+            if(!isset($bankStatementLine['accounting_account_id'])) {
+                throw new \Exception('missing_bank_statement_line_account', EQ_ERROR_INVALID_PARAM);
+            }
+
+            $domain_fundings = [
+                ['is_cancelled', '=', false],
+                ['status', '<>', 'balanced'],
+                ['funding_type', '<>', 'due_balance']
+            ];
+
+            if(count($funding_ids)) {
+                $domain_fundings[] = ['id', 'in', $funding_ids];
+            }
+            else {
+                $domain_fundings[] = ['condo_id', '=', $bankStatementLine['condo_id']];
+                $domain_fundings[] = ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']];
+            }
+
+            $candidateFundings = Funding::search($domain_fundings, ['sort' => ['issue_date' => 'asc']])
+                ->read(['id', 'accounting_account_id', 'remaining_amount']);
+
+            if($candidateFundings->count() <= 0) {
+                if(count($funding_ids)) {
+                    throw new \Exception('provided_funding_not_found', EQ_ERROR_INVALID_PARAM);
+                }
+                continue;
+            }
+
+            foreach($candidateFundings as $funding) {
+                if($funding['accounting_account_id'] != $bankStatementLine['accounting_account_id']) {
+                    throw new \Exception('inconsistent_candidate_fundings_account', EQ_ERROR_INVALID_PARAM);
+                }
+            }
+
+            self::allocatePaymentsFromFundings(
+                $id,
+                $bankStatementLine,
+                $candidateFundings,
+                $requested_amount ?? round((float) $bankStatementLine['amount'], 2)
+            );
         }
 
         $self->update(['is_reconciled' => null]);
@@ -485,7 +526,7 @@ class BankStatementLine extends Model {
     /**
      * This method either links the line with a Funding through a Payment,
      * or generates an orphan operation referencing current line as accounting document.
-     * If a funding is fund, action `reconcile_with_funding` is called with it.
+     * If one or several fundings are found, action `reconcile_with_fundings` is called with them.
      */
     protected static function doAttemptReconcile($self) {
 
@@ -513,25 +554,21 @@ class BankStatementLine extends Model {
                 continue;
             }
 
-            // 1) attempt to reconcile with a matching Funding
-            $matching_funding_id = self::computeMatchingFunding(
-                    $bankStatementLine['amount'],
-                    $bankStatementLine['communication'],
-                    $bankStatementLine['bank_statement_id']['bank_account_iban'],
-                    $bankStatementLine['account_iban']
-                );
+            $matching_funding_ids = Funding::search([
+                        ['condo_id', '=', $bankStatementLine['condo_id']],
+                        ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
+                        ['status', '<>', 'balanced'],
+                        ['funding_type', '<>', 'due_balance'],
+                    ],
+                    ['sort' => ['issue_date' => 'asc']]
+                )
+                ->read(['id', 'remaining_amount'])
+                ->ids();
 
-            if($matching_funding_id) {
+            if(count($matching_funding_ids)) {
                 self::id($id)
-                    ->do('reconcile_with_funding', ['funding_id' => $matching_funding_id]);
+                    ->do('reconcile_with_fundings', ['funding_ids' => $matching_funding_ids]);
             }
-            // 2) attempt to reconcile with a matching Funding
-            /*
-            // #todo - nothing to try here : only at posting, if a Matching can be retrieved
-            elseif($bankStatementLine['accounting_account_id']) {
-                self::id($id)->do('generate_orphan_operation');
-            }
-            */
         }
 
     }
@@ -542,14 +579,13 @@ class BankStatementLine extends Model {
      *  - or, if no funding and accounting_account provided, by handling the line as an orphan operation
      *
      */
-    private static function computeMatchingFunding($amount, $communication, $account_iban, $counterpart_iban) {
-        $selected_funding_id = 0;
-
+    private static function computeMatchingFundings($amount, $communication, $account_iban, $counterpart_iban) {
+        $selected_funding_ids = [];
         $reference = trim(str_replace(['+', '/', ' '], '', $communication));
 
         // attempt to match with an existing Funding
         if(strlen($reference) <= 0) {
-            return $selected_funding_id;
+            return $selected_funding_ids;
         }
         // #memo - amount can be positive or negative
         $domain = [
@@ -566,20 +602,13 @@ class BankStatementLine extends Model {
         // $funding = Funding::search(array_merge($domain, [['counterpart_bank_account_iban', '=', $bankStatementLine['account_iban']]]))->first();
 
         // pass-1 - preliminary match
-        // #memo - in case of multiple candidates, the oldest one prevails
-        $candidateFundings = Funding::search($domain, ['sort' => ['due_date' => 'asc']])
-            ->read(['funding_type', 'bank_account_iban', 'counterpart_bank_account_iban', 'remaining_amount']);
+        $candidateFundings = Funding::search($domain, ['sort' => ['issue_date' => 'asc']])
+            ->read(['id', 'funding_type', 'bank_account_iban', 'counterpart_bank_account_iban', 'remaining_amount']);
 
         // pass-2 - validate candidates based on remaining amount and counterpart_bank_account_iban, when mandatory
         // #memo - the payment reference is the main criteria, additional checks can be applied but not sure yet how to handle manual encoding
         foreach($candidateFundings as $funding_id => $funding) {
-            $valid = false;
-            if($amount < 0) {
-                $valid = ($funding['remaining_amount'] <= $amount);
-            }
-            else {
-                $valid = ($funding['remaining_amount'] >= $amount);
-            }
+            $valid = ($amount < 0 && $funding['remaining_amount'] < 0) || ($amount > 0 && $funding['remaining_amount'] > 0);
 
             if($valid) {
                 if(strlen($account_iban) > 0 && in_array($funding['funding_type'], ['purchase_invoice','fund_request','expense_statement'], true)) {
@@ -599,13 +628,60 @@ class BankStatementLine extends Model {
             }
 
             if($valid) {
-                trigger_error("APP::matching funding ({$selected_funding_id}) found for bank statement line with reference {$reference}.", EQ_REPORT_DEBUG);
-                $selected_funding_id = $funding_id;
-                break;
+                $selected_funding_ids[] = $funding_id;
             }
         }
 
-        return $selected_funding_id;
+        if(count($selected_funding_ids)) {
+            trigger_error("APP::" . count($selected_funding_ids) . " matching funding(s) found for bank statement line with reference {$reference}.", EQ_REPORT_DEBUG);
+        }
+
+        return $selected_funding_ids;
+    }
+
+
+    private static function allocatePaymentsFromFundings($bank_statement_line_id, $bankStatementLine, $candidateFundings, $amount) {
+        $remaining_amount = round((float) $amount, 2);
+
+        foreach($candidateFundings as $funding) {
+            if(abs($remaining_amount) < 0.01) {
+                break;
+            }
+
+            if(abs($funding['remaining_amount']) < 0.01) {
+                continue;
+            }
+
+            if(($remaining_amount > 0 && $funding['remaining_amount'] <= 0) || ($remaining_amount < 0 && $funding['remaining_amount'] >= 0)) {
+                continue;
+            }
+
+            $allocatable = min(abs($funding['remaining_amount']), abs($remaining_amount));
+            $allocated = round(($funding['remaining_amount'] > 0 ? 1 : -1) * $allocatable, 2);
+
+            if(abs($remaining_amount - $allocated) > abs($remaining_amount)) {
+                continue;
+            }
+
+            if(abs($allocated) < 0.01) {
+                continue;
+            }
+
+            Payment::create([
+                    'condo_id'                  => $bankStatementLine['condo_id'],
+                    'amount'                    => $allocated,
+                    // #memo - communication might not be a payment reference but an arbitrary comment or description
+                    'communication'             => $bankStatementLine['communication'],
+                    'receipt_date'              => $bankStatementLine['date'],
+                    'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id'],
+                    'payment_origin'            => 'bank',
+                    'payment_method'            => 'wire_transfer',
+                    'bank_statement_line_id'    => $bank_statement_line_id,
+                    'funding_id'                => $funding['id']
+                ]);
+
+            $remaining_amount = round($remaining_amount - $allocated, 2);
+        }
     }
 
     protected static function calcRemainingAmount($self) {
@@ -1085,6 +1161,7 @@ class BankStatementLine extends Model {
                             ]);
 
                         // instant validation of the created accounting entry
+                        // #todo - put this in onafterPost
                         AccountingEntry::id($accountingEntry['id'])->transition('validate');
 
                         // Store the created accounting entry ID back to the payment
@@ -1238,8 +1315,7 @@ class BankStatementLine extends Model {
             if($ownerBankAccount) {
                 $account = Account::search([
                         ['ownership_id', '=', $ownerBankAccount['ownership_id']],
-                        ['operation_assignment', '=', 'co_owners_working_fund'],
-                        ['is_control_account', '=', false]
+                        ['is_control_account', '=', true]
                     ])
                     ->first();
 
