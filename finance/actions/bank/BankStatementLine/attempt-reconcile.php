@@ -38,10 +38,18 @@ use realestate\sale\pay\Payment;
             'required'          => true
         ],
 
+        'has_manual_funding' => [
+            'type'              => 'boolean',
+            'description'       => 'Allow manual selection of a specific Funding.',
+            'default'           => false
+        ],
+
         'funding_id' => [
             'type'              => 'many2one',
-            'description'       => "The fiscal year the balance refers to.",
+            'label'             => 'Funding',
+            'description'       => 'The fiscal year the balance refers to.',
             'foreign_object'    => 'realestate\sale\pay\Funding',
+            'visible'           => ['has_manual_funding', '=', true],
             'domain'            => [
                 ['condo_id', '=', 'object.condo_id'],
                 ['accounting_account_id', '=', 'object.accounting_account_id'],
