@@ -8,6 +8,7 @@
 use communication\template\Template;
 use fmt\setting\Setting;
 use identity\Organisation;
+use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
 use realestate\property\Condominium;
 use Twig\TwigFilter;
@@ -132,7 +133,22 @@ $ownership = Ownership::id($params['ownership_id'])
     ->first();
 
 if(!$ownership) {
-        throw new \Exception('unknown_ownership', EQ_ERROR_INVALID_PARAM);
+    throw new \Exception('unknown_ownership', EQ_ERROR_INVALID_PARAM);
+}
+
+$owner = Owner::search(['ownership_id', '=', $params['ownership_id']])
+    ->read([
+        'ownership_id' => ['address_recipient'],
+        'identity_id' => [
+            'name', 'address_street', 'address_dispatch', 'address_zip',
+            'address_city', 'address_country', 'has_vat', 'vat_number',
+            'lang_id' => ['code']
+        ]
+    ])
+    ->first();
+
+if(!$owner) {
+    throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
 }
 
 $condominium = Condominium::id($ownership['condo_id'])
@@ -231,6 +247,8 @@ $values = [
     'organisation_logo'   => $getOrganisationLogo($organisation['id']),
 
     'condominium'         => $condominium,
+
+    'recipient'           => $owner['identity_id'],
 
     'lines'               => $data,
     'total_debit'         => $total_debit,

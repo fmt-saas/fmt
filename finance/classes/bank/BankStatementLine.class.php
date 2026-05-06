@@ -974,10 +974,9 @@ class BankStatementLine extends Model {
      *
      * The entries to be made in the financial journal (BANK) .
      *
-     *
-     * s'il y a des paiements, on génère les accounting entries à partir d'eux (ils prévalent toujours sur le compte sélectionné)
-     * corollaire : quand on fait un match manuel avec un funding, il faut créer un paiement (= doReconcileWithFunding)
-     * sinon, on créée des écritures en utilisant  'accounting_account_id'
+     * If there are payments, accounting entries are generated from them (they always take precedence over the selected account)
+     * corollary: when performing a manual match with a funding, a payment must be created (= doReconcileWithFunding)
+     * otherwise, entries are created using 'accounting_account_id'
      *
      */
     protected static function doGenerateAccountingEntry($self) {
