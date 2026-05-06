@@ -10,7 +10,8 @@
             "controller": "finance_bank_BankStatementLine_attempt-reconcile",
             "params": {
                 "id": "object.id",
-                "condo_id": "object.condo_id"
+                "condo_id": "object.condo_id",
+                "accounting_account_id": "object.accounting_account_id"
             },
             "confirm": true,
             "visible": [
