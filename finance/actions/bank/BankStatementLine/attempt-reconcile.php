@@ -49,6 +49,8 @@ use realestate\sale\pay\Payment;
                 ['status', '<>', 'balanced'],
                 ['funding_type', '<>', 'due_balance']
             ],
+            'order'             => 'due_date',
+            'sort'              => 'asc',
             'required'          => false,
             'help'              => "If given, the reconcile attempt is made exclusively on that Funding."
         ]
