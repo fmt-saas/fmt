@@ -27,15 +27,30 @@ use realestate\sale\pay\Payment;
             'type'              => 'many2one',
             'description'       => "The condominium the fiscal year refers to.",
             'help'              => "When a fiscal year is not linked to a condominium, it relates to the organisation itself.",
-            'foreign_object'    => 'realestate\property\Condominium'
+            'foreign_object'    => 'realestate\property\Condominium',
+            'required'          => true
+        ],
+
+        'accounting_account_id' => [
+            'type'              => 'many2one',
+            'foreign_object'    => 'finance\accounting\Account',
+            'description'       => 'Accounting account the statement line relates to.',
+            'required'          => true
         ],
 
         'funding_id' => [
             'type'              => 'many2one',
             'description'       => "The fiscal year the balance refers to.",
             'foreign_object'    => 'realestate\sale\pay\Funding',
-            'domain'            => [['condo_id', '=', 'object.condo_id']],
-            'required'          => false
+            'domain'            => [
+                ['condo_id', '=', 'object.condo_id'],
+                ['accounting_account_id', '=', 'object.accounting_account_id'],
+                ['is_cancelled', '=', false],
+                ['status', '<>', 'balanced'],
+                ['funding_type', '<>', 'due_balance']
+            ],
+            'required'          => false,
+            'help'              => "If given, the reconcile attempt is made exclusively on that Funding."
         ]
 
     ],
