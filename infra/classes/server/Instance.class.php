@@ -93,6 +93,14 @@ class Instance extends Model {
                 'foreign_object'    => 'realestate\management\ManagingAgent',
                 'description'       => "The Managing agent the Instance relates to.",
                 'visible'           => ['instance_type', '=', 'agency']
+            ],
+
+            'user_token_generated' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => "Has the user access token been generated yet.",
+                'store'             => false,
+                'function'          => 'calcUserTokenGenerated'
             ]
 
         ];
@@ -188,5 +196,22 @@ class Instance extends Model {
                 self::id($id)->do('create_user');
             }
         }
+    }
+
+    protected static function calcUserTokenGenerated($self) {
+        $result = [];
+        $self->read(['user_id' => ['access_tokens_ids' => ['token_type']]]);
+        foreach($self as $id => $instance) {
+            $user_token_generated = false;
+            foreach($instance['user_id']['access_tokens_ids'] ?? [] as $token) {
+                if($token['token_type'] === 'access_token') {
+                    $user_token_generated = true;
+                }
+            }
+
+            $result[$id] = $user_token_generated;
+        }
+
+        return $result;
     }
 }
