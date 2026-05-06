@@ -58,6 +58,11 @@
         "form.default": {
             "name": "Instance",
             "description": "Affiche le formulaire de modification d'une instance.",
+            "actions": {
+                "action.create_user_token": {
+                    "label": "Créer token d'accès utilisateur"
+                }
+            },
             "layout": {
                 "section.details": {
                     "label": "Details"

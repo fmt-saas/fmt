@@ -1,6 +1,19 @@
 {
     "name": "Model",
     "description": "Instance manages service or product instances, detailing type, version, URL, access information, and running software.",
+    "actions": [
+        {
+            "id": "action.create_user_token",
+            "label": "Create user's access token",
+            "icon": "",
+            "description": "Create an access token for the instance's user.",
+            "controller": "infra_server_Instance_token",
+            "params": {
+                "save_in_description": true
+            },
+            "visible": ["user_token_generated", "=", false]
+        }
+    ],
     "layout": {
         "groups": [
             {
