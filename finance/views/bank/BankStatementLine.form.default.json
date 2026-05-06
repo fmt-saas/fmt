@@ -12,7 +12,7 @@
                 "id": "object.id",
                 "condo_id": "object.condo_id"
             },
-            "confirm": false,
+            "confirm": true,
             "visible": [
                 [
                     ["status", "=", "pending"],
