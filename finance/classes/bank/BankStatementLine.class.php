@@ -193,7 +193,14 @@ class BankStatementLine extends Model {
                     This is an accounting account, not to be mixed up with bank accounts.",
                 'ondelete'          => 'null',
                 'dependents'        => ['accounting_account_code', 'is_transfer', 'is_expense', 'is_income', 'is_supplier', 'is_owner', 'ownership_id', 'suppliership_id'],
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false]],
+                'domain'            => [
+                    [
+                        ['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['operation_assignment', 'not in', ['co_owners_reserve_fund', 'co_owners_working_fund']]
+                    ],
+                    [
+                        ['condo_id', '=', 'object.condo_id'], ['ownership_id', '<>', null], ['is_control_account', '=', true]
+                    ]
+                ],
                 'onupdate'          => 'onupdateAccountingAccountId'
             ],
 

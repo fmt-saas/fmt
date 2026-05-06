@@ -60,7 +60,7 @@ $data = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf',
         'date_to'       => $params['date_to']
     ]);
 
-$filename = TextTransformer::toAscii("Décompte propriétaire - " . $ownership['name']);
+$filename = TextTransformer::toAscii("Situation de compte - " . $ownership['name']);
 
 $context->httpResponse()
         ->header('Content-Disposition', "inline; filename=\"{$filename}.pdf\"")
