@@ -389,14 +389,9 @@ class BankStatementLine extends Model {
             ],
             'reconcile_with_fundings' => [
                 'description'   => 'Creates Payments from the bank statement line and allocates the requested amount on candidate Fundings.',
+                'help'          => 'Abitrary reconcile with a given funding (auto or manual)',
                 'policies'      => [],
                 'function'      => 'doReconcileWithFundings'
-            ],
-            // arbitrary reconcile with a given funding (auto or manual)
-            'reconcile_with_funding' => [
-                'description'   => 'Creates Funding and related Payment that use the Bank Statement line itself as accounting document.',
-                'policies'      => [],
-                'function'      => 'doReconcileWithFunding'
             ],
             'generate_accounting_entry' => [
                 'description'   => 'Creates accounting entries according to operation lines.',
@@ -444,18 +439,6 @@ class BankStatementLine extends Model {
         return $result;
     }
 
-
-    /**
-     * Reconcile the line by creating a Payment and linking the line to related funding.
-     *
-     */
-    protected static function doReconcileWithFunding($self, $values) {
-        if(!isset($values['funding_id'])) {
-            throw new \Exception('missing_mandatory_funding_id', EQ_ERROR_INVALID_PARAM);
-        }
-
-        self::doReconcileWithFundings($self, ['funding_ids' => [$values['funding_id']]]);
-    }
 
     /**
      * Reconcile the line by allocating the requested amount across candidate fundings.
@@ -533,14 +516,8 @@ class BankStatementLine extends Model {
         $self->read([
                 'status',
                 'condo_id',
-                'communication',
-                'date',
-                'amount',
-                'account_iban',
                 'accounting_account_id',
-                'accounting_account_code',
-                'payments_ids' => ['amount', 'status'],
-                'bank_statement_id' => ['bank_account_iban', 'bank_account_id' => ['id', 'accounting_account_id']]
+                'payments_ids' => ['amount', 'status']
             ]);
 
         foreach($self as $id => $bankStatementLine) {
@@ -566,8 +543,7 @@ class BankStatementLine extends Model {
                 ->ids();
 
             if(count($matching_funding_ids)) {
-                self::id($id)
-                    ->do('reconcile_with_fundings', ['funding_ids' => $matching_funding_ids]);
+                self::id($id)->do('reconcile_with_fundings', ['funding_ids' => $matching_funding_ids]);
             }
         }
 
@@ -579,6 +555,7 @@ class BankStatementLine extends Model {
      *  - or, if no funding and accounting_account provided, by handling the line as an orphan operation
      *
      */
+    /*
     private static function computeMatchingFundings($amount, $communication, $account_iban, $counterpart_iban) {
         $selected_funding_ids = [];
         $reference = trim(str_replace(['+', '/', ' '], '', $communication));
@@ -638,7 +615,7 @@ class BankStatementLine extends Model {
 
         return $selected_funding_ids;
     }
-
+    */
 
     private static function allocatePaymentsFromFundings($bank_statement_line_id, $bankStatementLine, $candidateFundings, $amount) {
         $remaining_amount = round((float) $amount, 2);
@@ -1218,6 +1195,7 @@ class BankStatementLine extends Model {
                         ]);
 
 
+                    // #todo - put this in onafterPost
                     AccountingEntry::id($accountingEntry['id'])
                         // instant validation of the created accounting entry
                         ->transition('validate');

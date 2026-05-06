@@ -51,7 +51,9 @@ $result = [];
 
 $account = Account::id($params['id'])
     ->read([
-        'condo_id'
+        'condo_id',
+        'ownership_id',
+        'is_control_account'
     ])
     ->first();
 
@@ -59,15 +61,28 @@ if(!$account) {
     throw new Exception('unknown_accounting_account', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+$accounts_ids = [$account['id']];
+
+if($account['is_control_account'] && $account['ownership_id']) {
+    $accounts_ids = Account::search([
+            ['condo_id', '=', $account['condo_id']],
+            ['parent_account_id', '=', $account['id']],
+            ['is_control_account', '=', false],
+            ['ownership_id', '<>', null],
+            ['operation_assignment', 'in', ['co_owners_reserve_fund', 'co_owners_working_fund']]
+        ])
+        ->ids();
+}
+
 $domain = new Domain([
         [
             ['condo_id', '=', $account['condo_id']],
-            ['account_id', '=', $account['id']],
+            ['account_id', 'in', $accounts_ids],
             ['matching_id', 'is', null]
         ],
         [
             ['condo_id', '=', $account['condo_id']],
-            ['account_id', '=', $account['id']],
+            ['account_id', 'in', $accounts_ids],
             ['matching_level', 'in', ['none', 'part']]
         ]
     ]);

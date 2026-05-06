@@ -410,8 +410,10 @@ class MiscOperation extends Model {
                 $lines_by_account[$account_id]['description'] .= $line['description'] . ' ';
             }
 
-            // we'll need to check if account is  co_owners_reserve_fund or co_owners_working_fund
-            $map_accounts = Account::ids(array_keys($lines_by_account))->read(['operation_assignment', 'ownership_id'])->get();
+            // we'll need to check if account is co_owners_reserve_fund or co_owners_working_fund
+            $map_accounts = Account::ids(array_keys($lines_by_account))
+                ->read(['operation_assignment', 'ownership_id'])
+                ->get();
 
             foreach($lines_by_account as $account_id => $line) {
                 $debit_balance  = max(0, $line['debit'] - $line['credit']);
@@ -437,7 +439,8 @@ class MiscOperation extends Model {
                     ]);
 
                 // in case of ownership account, create a Funding
-                if(in_array($map_accounts[$account_id]['operation_assignment'], ['co_owners_reserve_fund', 'co_owners_working_fund'], true)) {
+                // if(in_array($map_accounts[$account_id]['operation_assignment'], ['co_owners_reserve_fund', 'co_owners_working_fund'], true)) {
+                if($map_accounts[$account_id]['ownership_id']) {
                     // a funding cannot be issued nor due in the past
                     $issue_date = max(strtotime('today'), $fiscalYear['date_from']);
 
