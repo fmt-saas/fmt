@@ -152,7 +152,7 @@
                     "description": "Tenter de rapprocher puis passer le relevé bancaire."
                 },
                 "action.post": {
-                    "label": "Passer",
+                    "label": "Intégrer",
                     "description": "Générer la configuration obligatoire."
                 }
             },

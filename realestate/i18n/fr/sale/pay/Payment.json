@@ -103,7 +103,7 @@
             "description": "Vue simplifiée utilisée lors du lettrage des relevés bancaires.",
             "actions": {
                 "action.post": {
-                    "label": "Passer",
+                    "label": "Intégrer",
                     "description": "Valider le paiement (action irréversible)."
                 }
             }

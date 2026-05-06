@@ -60,7 +60,7 @@ use realestate\sale\pay\Payment;
             'order'             => 'due_date',
             'sort'              => 'asc',
             'required'          => false,
-            'help'              => "If given, the reconcile attempt is made exclusively on that Funding."
+            'help'              => "If given, the reconcile attempt is made exclusively on that Funding. Required only if `has_manual_funding` is set to true."
         ]
 
     ],
@@ -77,11 +77,6 @@ use realestate\sale\pay\Payment;
  */
 ['context' => $context, 'orm' => $orm] = $providers;
 
-
-$result = [];
-
-
-// #todo - check consistency (has been done in UI)
 
 $bankStatementLine = BankStatementLine::id($params['id'])
     ->read([

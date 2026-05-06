@@ -97,7 +97,7 @@
                     "description": "Publier le remboursement pour validation."
                 },
                 "action.post": {
-                    "label": "Passer",
+                    "label": "Intégrer",
                     "description": "Marquer le remboursement comme comptabilisé/initié."
                 },
                 "action.complete": {

@@ -464,6 +464,33 @@ class MiscOperation extends Model {
                             'due_amount'                        => $line['debit'] - $line['credit']
                         ]);
                 }
+                elseif(in_array($map_accounts[$account_id]['operation_assignment'], ['suppliers'], true)) {
+                    // a funding cannot be issued nor due in the past
+                    $issue_date = max(strtotime('today'), $fiscalYear['date_from']);
+
+                    // #todo - make possible to customize
+                    $due_date = $fiscalYear['date_from'];
+
+                    // #todo - allow to choose
+                    $bankAccount = CondominiumBankAccount::search([
+                            ['condo_id', '=', $miscOperation['condo_id']],
+                            ['is_primary', '=', true]
+                        ])
+                        ->first();
+
+                    Funding::create([
+                            'condo_id'                          => $miscOperation['condo_id'],
+                            'description'                       => $line['description'],
+                            'funding_type'                      => 'misc_operation',
+                            'misc_operation_id'                 => $id,
+                            'suppliership_id'                   => $map_accounts[$account_id]['ownership_id'],
+                            'bank_account_id'                   => $bankAccount['id'] ?? null,
+                            'accounting_account_id'             => $account_id,
+                            'issue_date'                        => $issue_date,
+                            'due_date'                          => $due_date,
+                            'due_amount'                        => $line['debit'] - $line['credit']
+                        ]);
+                }
             }
 
             FiscalYear::id($miscOperation['fiscal_year_id'])

@@ -87,7 +87,7 @@
                     "description": "Publier le virement pour validation."
                 },
                 "action.post": {
-                    "label": "Passer",
+                    "label": "Intégrer",
                     "description": "Marquer le transfert comme comptabilisé/initié."
                 }
             }
