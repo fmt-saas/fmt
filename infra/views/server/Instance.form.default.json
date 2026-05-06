@@ -8,6 +8,9 @@
             "icon": "",
             "description": "Create an access token for the instance's user.",
             "controller": "infra_server_Instance_token",
+            "params": {
+                "save_in_description": true
+            },
             "visible": ["user_token_generated", "=", false]
         }
     ],
