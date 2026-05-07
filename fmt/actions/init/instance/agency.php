@@ -157,7 +157,7 @@ if(!empty($params['instance_uuid'])) {
         eQual::run('do', 'fmt_sync_SyncPolicy_pull-from-global', ['reset' => true, 'level' => $params['level']]);
 
         // pull data from global depending on the sync policies
-        eQual::run('do', 'fmt_sync_pull-from-global', ['accept' => true]);
+        eQual::run('do', 'fmt_sync_pull-from-global', ['accept' => true, 'level' => $params['level']]);
     }
 }
 
