@@ -31,6 +31,12 @@
             },
             {
                 "type": "field",
+                "value": "level",
+                "width": "25%",
+                "sortable": true
+            },
+            {
+                "type": "field",
                 "value": "scope",
                 "width": "20%",
                 "sortable": true

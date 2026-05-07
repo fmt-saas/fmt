@@ -40,11 +40,31 @@ class SyncPolicy extends Model {
                 'selection'         => [
                     // Local > Global
                     'ascending',
+
                     // Global > Local
                     'descending'
                 ],
                 'required'          => true,
                 'description'       => 'Direction of the synchronization.'
+            ],
+
+            'level' => [
+                'type'              => 'string',
+                'description'       => "Synchronisation level of the policy.",
+                'selection'         => [
+                    // essential for operation
+                    'required',
+
+                    // highly recommended for a good experience
+                    'recommended',
+
+                    // useful but not necessary
+                    'optional',
+
+                    // demonstration/test/example data
+                    'demo'
+                ],
+                'default'           => 'recommended'
             ],
 
             'last_sync' => [
@@ -58,8 +78,10 @@ class SyncPolicy extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     // #memo - public is not relevant here (not synced)
+
                     // management on Local & Global
                     'protected',
+
                     // management on origin only (based sync direction : `ascending` = Local, `descending` = Global)
                     'private'
                 ],

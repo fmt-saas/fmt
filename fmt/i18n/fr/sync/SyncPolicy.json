@@ -13,9 +13,20 @@
             "description": "Le champ unique pour distinguer les objets.",
             "help": ""
         },
+        "level": {
+            "label": "Level",
+            "description": "Niveau d'importance de la politique de synchronisation.",
+            "help": "",
+            "selection": {
+                "required": "Requise",
+                "recommended": "Recommandée",
+                "optional": "Optionnelle",
+                "demo": "Demo/Test"
+            }
+        },
         "scope": {
             "label": "Scope",
-            "description": "",
+            "description": "Niveau de contrôle de l'entité - quelle instance est gérée.",
             "help": "Ne peut être privé que pour les synchronisations de direction descendante.",
             "selection": {
                 "private": "Privé",

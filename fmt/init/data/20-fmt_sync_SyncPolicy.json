@@ -8,6 +8,7 @@
                 "object_class": "identity\\User",
                 "field_unique": "instance_uuid,login",
                 "sync_direction": "ascending",
+                "level": "required",
                 "scope": "protected"
             },
             {
@@ -15,6 +16,7 @@
                 "object_class": "identity\\Identity",
                 "field_unique": "registration_number",
                 "sync_direction": "ascending",
+                "level": "recommended",
                 "scope": "protected"
             },
             {
@@ -22,6 +24,7 @@
                 "object_class": "purchase\\supplier\\Supplier",
                 "field_unique": "registration_number",
                 "sync_direction": "ascending",
+                "level": "optional",
                 "scope": "protected"
             },
             {
@@ -29,6 +32,7 @@
                 "object_class": "purchase\\supplier\\Supplier",
                 "field_unique": "registration_number",
                 "sync_direction": "descending",
+                "level": "optional",
                 "scope": "protected"
             },
             {
@@ -36,6 +40,7 @@
                 "object_class": "finance\\bank\\Bank",
                 "field_unique": "bic",
                 "sync_direction": "descending",
+                "level": "recommended",
                 "scope": "private"
             },
             {
@@ -43,6 +48,7 @@
                 "object_class": "realestate\\property\\NotaryOffice",
                 "field_unique": "registration_number",
                 "sync_direction": "descending",
+                "level": "optional",
                 "scope": "private"
             },
             {
@@ -50,6 +56,7 @@
                 "object_class": "realestate\\management\\ManagingAgent",
                 "field_unique": "registration_number",
                 "sync_direction": "ascending",
+                "level": "recommended",
                 "scope": "private"
             },
             {
@@ -57,6 +64,7 @@
                 "object_class": "realestate\\property\\Condominium",
                 "field_unique": "registration_number",
                 "sync_direction": "ascending",
+                "level": "optional",
                 "scope": "protected"
             },
             {
@@ -64,6 +72,7 @@
                 "object_class": "realestate\\property\\Condominium",
                 "field_unique": "registration_number",
                 "sync_direction": "descending",
+                "level": "optional",
                 "scope": "protected"
             },
             {
@@ -71,6 +80,7 @@
                 "object_class": "documents\\DocumentType",
                 "field_unique": "code",
                 "sync_direction": "descending",
+                "level": "required",
                 "scope": "private"
             },
             {
@@ -78,6 +88,7 @@
                 "object_class": "documents\\DocumentSubtype",
                 "field_unique": "code",
                 "sync_direction": "descending",
+                "level": "required",
                 "scope": "private"
             },
             {
@@ -85,6 +96,7 @@
                 "object_class": "purchase\\supplier\\SupplierType",
                 "field_unique": "code",
                 "sync_direction": "descending",
+                "level": "required",
                 "scope": "private"
             },
             {
@@ -92,6 +104,7 @@
                 "object_class": "identity\\Identity",
                 "field_unique": "registration_number",
                 "sync_direction": "descending",
+                "level": "recommended",
                 "scope": "protected"
             },
             {
@@ -99,6 +112,7 @@
                 "object_class": "finance\\bank\\BankAccount",
                 "field_unique": "bank_account_iban",
                 "sync_direction": "descending",
+                "level": "recommended",
                 "scope": "protected"
             },
             {
@@ -106,6 +120,7 @@
                 "object_class": "identity\\IdentityType",
                 "field_unique": "code",
                 "sync_direction": "descending",
+                "level": "required",
                 "scope": "private"
             }
         ]

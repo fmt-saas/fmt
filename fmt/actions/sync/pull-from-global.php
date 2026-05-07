@@ -9,6 +9,7 @@ use equal\http\HttpRequest;
 use fmt\sync\SyncPolicy;
 use fmt\sync\UpdateRequest;
 use fmt\sync\UpdateRequestLine;
+use identity\Identity;
 use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
@@ -19,6 +20,17 @@ use infra\server\Instance;
             'type'              => 'boolean',
             'description'       => "Automatically accept all update requests.",
             'default'           => false
+        ],
+        'level' => [
+            'type'              => 'string',
+            'description'       => "Synchronisation level of the policy.",
+            'selection'         => [
+                'required',
+                'recommended',
+                'optional',
+                'demo'
+            ],
+            'default'           => 'recommended'
         ]
     ],
     'access' => [
@@ -42,10 +54,18 @@ if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
+$map_sync_levels = [
+    'required'      => ['required'],
+    'recommended'   => ['required', 'recommended'],
+    'optional'      => ['required', 'recommended', 'optional'],
+    'demo'          => ['required', 'recommended', 'optional', 'demo']
+];
+
 // retrieve SyncPolicy related to 'protected' & 'private' entities
 $policies = SyncPolicy::search([
         ['scope', 'in', ['protected', 'private']],
-        ['sync_direction', '=', 'descending']
+        ['sync_direction', '=', 'descending'],
+        ['level', 'in', $map_sync_levels[$params['level']]]
     ])
     ->read([
         'name',
@@ -86,7 +106,11 @@ if(empty($global_instance['access_token'])) {
     throw new Exception('missing_access_token', EQ_ERROR_INVALID_CONFIG);
 }
 
+$identity_synced = false;
 foreach($policies as $id => $policy) {
+    if($policy['object_class'] === Identity::getType()) {
+        $identity_synced = true;
+    }
 
     $now = time();
 
@@ -332,6 +356,10 @@ foreach($policies as $id => $policy) {
         ++$result['errors'];
         $result['logs'][] = "Unable to fetch entity {$entity} from Global instance: " . $e->getMessage();
     }
+}
+
+if($identity_synced) {
+    eQual::run('do', 'identity_Identity_delete-orphans');
 }
 
 $context

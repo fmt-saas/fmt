@@ -12,7 +12,19 @@ use infra\server\Instance;
 [$params, $providers] = eQual::announce([
     'description'   => 'Push data from AGENCY instance to GLOBAL instance, depending on ascending sync policies.',
     'help'          => 'This action connects to the GLOBAL instance and push all changed data since last sync.',
-    'params'        => [],
+    'params'        => [
+        'level' => [
+            'type'              => 'string',
+            'description'       => "Synchronisation level of the policy.",
+            'selection'         => [
+                'required',
+                'recommended',
+                'optional',
+                'demo'
+            ],
+            'default'           => 'recommended'
+        ]
+    ],
     'access' => [
         'visibility'    => 'private'
     ],
@@ -54,10 +66,18 @@ if(empty($global_instance['access_token'])) {
     throw new Exception('missing_access_token', EQ_ERROR_INVALID_CONFIG);
 }
 
+$map_sync_levels = [
+    'required'      => ['required'],
+    'recommended'   => ['required', 'recommended'],
+    'optional'      => ['required', 'recommended', 'optional'],
+    'demo'          => ['required', 'recommended', 'optional', 'demo']
+];
+
 // retrieve SyncPolicy related to 'protected' entities ('private' are descending only)
 $policies = SyncPolicy::search([
         ['scope', '=', 'protected'],
-        ['sync_direction', '=', 'ascending']
+        ['sync_direction', '=', 'ascending'],
+        ['level', 'in', $map_sync_levels[$params['level']]]
     ])
     ->read([
         'object_class',

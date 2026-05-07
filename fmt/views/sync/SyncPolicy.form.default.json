@@ -38,6 +38,11 @@
                                                 "type": "field",
                                                 "value": "sync_direction",
                                                 "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "level",
+                                                "width": "33%"
                                             }
                                         ]
                                     }
