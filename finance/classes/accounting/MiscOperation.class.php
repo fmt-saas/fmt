@@ -7,6 +7,7 @@
 namespace finance\accounting;
 use equal\orm\Model;
 use finance\bank\CondominiumBankAccount;
+use finance\bank\SuppliershipBankAccount;
 use realestate\sale\pay\Funding;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
@@ -363,6 +364,10 @@ class MiscOperation extends Model {
                 continue;
             }
 
+            if(!$miscOperation['condo_id']) {
+                throw new \Exception('missing_condominium', EQ_ERROR_INVALID_PARAM);
+            }
+
             if(!$miscOperation['fiscal_year_id']) {
                 throw new \Exception('missing_fiscal_year', EQ_ERROR_INVALID_PARAM);
             }
@@ -371,8 +376,10 @@ class MiscOperation extends Model {
                 throw new \Exception('non_balanced', EQ_ERROR_INVALID_PARAM);
             }
 
+            $condo_id = $miscOperation['condo_id'];
+
             $existingOpeningBalance = OpeningBalance::search([
-                    ['condo_id', '=', $miscOperation['condo_id']],
+                    ['condo_id', '=', $condo_id],
                     ['fiscal_year_id', '=', $miscOperation['fiscal_year_id']]
                 ])
                 ->read(['status'])
@@ -387,7 +394,7 @@ class MiscOperation extends Model {
 
             $fiscalYear = FiscalYear::id($miscOperation['fiscal_year_id'])->read(['date_from'])->first();
             $openingBalance = OpeningBalance::create([
-                    'condo_id'          => $miscOperation['condo_id'],
+                    'condo_id'          => $condo_id,
                     'fiscal_year_id'    => $miscOperation['fiscal_year_id'],
                     'misc_operation_id' => $id
                 ])
@@ -420,7 +427,7 @@ class MiscOperation extends Model {
                 $credit_balance = max(0, $line['credit'] - $line['debit']);
 
                 OpeningBalanceLine::create([
-                        'condo_id'       => $miscOperation['condo_id'],
+                        'condo_id'       => $condo_id,
                         'balance_id'     => $openingBalance['id'],
                         'fiscal_year_id' => $miscOperation['fiscal_year_id'],
                         'account_id'     => $account_id,
@@ -430,11 +437,9 @@ class MiscOperation extends Model {
                         'credit_balance' => $credit_balance
                     ]);
 
-                /*
-                * Get current balance (= date)
-                */
+                // #memo - not sure AccountBalanceChange creating this is necessary (theoretically we always fallback on openingBalanceLine)
                 $current = AccountBalanceChange::search([
-                            ['condo_id', '=', $miscOperation['condo_id']],
+                            ['condo_id', '=', $condo_id],
                             ['account_id', '=', $account_id],
                             ['date', '=', $fiscalYear['date_from']]
                         ],
@@ -473,19 +478,18 @@ class MiscOperation extends Model {
                     $due_date = $fiscalYear['date_from'];
 
                     // #todo - allow to choose
-                    $bankAccount = CondominiumBankAccount::search([
-                            ['condo_id', '=', $miscOperation['condo_id']],
-                            ['is_primary', '=', true]
-                        ])
+                    $condominiumBankAccount = CondominiumBankAccount::search([
+                            ['condo_id', '=', $miscOperation['condo_id']]
+                        ], ['sort' => ['is_primary' => 'desc'], 'limit' => 1])
                         ->first();
 
                     Funding::create([
-                            'condo_id'                          => $miscOperation['condo_id'],
+                            'condo_id'                          => $condo_id,
                             'description'                       => $line['description'],
                             'funding_type'                      => 'misc_operation',
                             'misc_operation_id'                 => $id,
                             'ownership_id'                      => $map_accounts[$account_id]['ownership_id'],
-                            'bank_account_id'                   => $bankAccount['id'] ?? null,
+                            'bank_account_id'                   => $condominiumBankAccount['id'] ?? null,
                             'accounting_account_id'             => $account_id,
                             'issue_date'                        => $issue_date,
                             'due_date'                          => $due_date,
@@ -500,19 +504,30 @@ class MiscOperation extends Model {
                     $due_date = $fiscalYear['date_from'];
 
                     // #todo - allow to choose
-                    $bankAccount = CondominiumBankAccount::search([
-                            ['condo_id', '=', $miscOperation['condo_id']],
-                            ['is_primary', '=', true]
-                        ])
+                    $condominiumBankAccount = CondominiumBankAccount::search([
+                            ['condo_id', '=', $miscOperation['condo_id']]
+                        ], ['sort' => ['is_primary' => 'desc'], 'limit' => 1])
                         ->first();
 
+                    $suppliership_id = $map_accounts[$account_id]['suppliership_id'];
+
+                    $supplierBankAccount = SuppliershipBankAccount::search([
+                            ['condo_id', '=', $condo_id],
+                            ['suppliership_id', '=', $suppliership_id]
+                        ], ['sort' => ['is_primary' => 'desc'], 'limit' => 1])
+                        ->read(['bank_account_id'])
+                        ->first();
+
+
+
                     Funding::create([
-                            'condo_id'                          => $miscOperation['condo_id'],
+                            'condo_id'                          => $condo_id,
                             'description'                       => $line['description'],
                             'funding_type'                      => 'misc_operation',
                             'misc_operation_id'                 => $id,
-                            'suppliership_id'                   => $map_accounts[$account_id]['suppliership_id'],
-                            'bank_account_id'                   => $bankAccount['id'] ?? null,
+                            'suppliership_id'                   => $suppliership_id,
+                            'bank_account_id'                   => $condominiumBankAccount['id'] ?? null,
+                            'counterpart_bank_account_id'       => $supplierBankAccount['bank_account_id'] ?? null,
                             'accounting_account_id'             => $account_id,
                             'issue_date'                        => $issue_date,
                             'due_date'                          => $due_date,
