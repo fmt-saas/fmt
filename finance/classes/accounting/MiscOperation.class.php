@@ -518,8 +518,6 @@ class MiscOperation extends Model {
                         ->read(['bank_account_id'])
                         ->first();
 
-
-
                     Funding::create([
                             'condo_id'                          => $condo_id,
                             'description'                       => $line['description'],
