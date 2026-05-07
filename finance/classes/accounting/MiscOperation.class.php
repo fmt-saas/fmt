@@ -430,13 +430,38 @@ class MiscOperation extends Model {
                         'credit_balance' => $credit_balance
                     ]);
 
-                AccountBalanceChange::create([
+                /*
+                * Get current balance (= date)
+                */
+                $current = AccountBalanceChange::search([
+                            ['condo_id', '=', $miscOperation['condo_id']],
+                            ['account_id', '=', $account_id],
+                            ['date', '=', $fiscalYear['date_from']]
+                        ],
+                        ['limit' => 1]
+                    )
+                    ->read(['id', 'debit_balance', 'credit_balance'])
+                    ->first();
+
+                if($current) {
+                    $new_debit  = (float) $current['debit_balance']  + $debit_balance;
+                    $new_credit = (float) $current['credit_balance'] + $credit_balance;
+
+                    AccountBalanceChange::id($current['id'])->update([
+                        'debit_balance'  => round($new_debit, 2),
+                        'credit_balance' => round($new_credit, 2)
+                    ]);
+
+                }
+                else {
+                    AccountBalanceChange::create([
                         'condo_id'       => $miscOperation['condo_id'],
                         'account_id'     => $account_id,
                         'date'           => $fiscalYear['date_from'],
                         'debit_balance'  => round($debit_balance, 2),
                         'credit_balance' => round($credit_balance, 2)
                     ]);
+                }
 
                 // in case of ownership account, create a Funding
                 // if(in_array($map_accounts[$account_id]['operation_assignment'], ['co_owners_reserve_fund', 'co_owners_working_fund'], true)) {
