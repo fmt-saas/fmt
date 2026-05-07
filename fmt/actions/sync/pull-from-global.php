@@ -9,6 +9,7 @@ use equal\http\HttpRequest;
 use fmt\sync\SyncPolicy;
 use fmt\sync\UpdateRequest;
 use fmt\sync\UpdateRequestLine;
+use identity\Identity;
 use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
@@ -105,7 +106,11 @@ if(empty($global_instance['access_token'])) {
     throw new Exception('missing_access_token', EQ_ERROR_INVALID_CONFIG);
 }
 
+$identity_synced = false;
 foreach($policies as $id => $policy) {
+    if($policy['object_class'] === Identity::getType()) {
+        $identity_synced = true;
+    }
 
     $now = time();
 
@@ -351,6 +356,10 @@ foreach($policies as $id => $policy) {
         ++$result['errors'];
         $result['logs'][] = "Unable to fetch entity {$entity} from Global instance: " . $e->getMessage();
     }
+}
+
+if($identity_synced) {
+    eQual::run('do', 'identity_Identity_delete-orphans');
 }
 
 $context
