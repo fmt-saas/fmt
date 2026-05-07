@@ -19,6 +19,17 @@ use infra\server\Instance;
             'type'              => 'boolean',
             'description'       => 'Remove existing SyncPolicies.',
             'default'           => false
+        ],
+        'level' => [
+            'type'              => 'string',
+            'description'       => "Synchronisation level of the policy.",
+            'selection'         => [
+                'required',
+                'recommended',
+                'optional',
+                'demo'
+            ],
+            'default'           => 'recommended'
         ]
     ],
     'access' => [
@@ -61,6 +72,13 @@ if(empty($global_instance['access_token'])) {
     throw new Exception('missing_global_api_access_token', EQ_ERROR_INVALID_PARAM);
 }
 
+$map_sync_levels = [
+    'required'      => ['required'],
+    'recommended'   => ['required', 'recommended'],
+    'optional'      => ['required', 'recommended', 'optional'],
+    'demo'          => ['required', 'recommended', 'optional', 'demo']
+];
+
 try {
     $syncPolicyModel = $orm->getModel(SyncPolicy::class);
     $sync_policy_schema = $syncPolicyModel->getSchema();
@@ -77,7 +95,8 @@ try {
 
     $request = new HttpRequest('GET ' . rtrim($global_instance['url'], '/') . '/?get=core_model_collect' .
         '&entity=' . urlencode(SyncPolicy::class) .
-        '&fields=' . urlencode(json_encode($fields))
+        '&fields=' . urlencode(json_encode($fields)) .
+        '&domain=' . urlencode(json_encode(['level', 'in', $map_sync_levels[$params['level']]]))
     );
 
     $request

@@ -27,6 +27,17 @@ use infra\server\Instance;
         'global_instance_url' => [
             'type'          => 'string',
             'description'   => "If sync, the url of the global instance's API."
+        ],
+        'level' => [
+            'type'              => 'string',
+            'description'       => "Synchronisation level of the policy.",
+            'selection'         => [
+                'required',
+                'recommended',
+                'optional',
+                'demo'
+            ],
+            'default'           => 'recommended'
         ]
     ],
     'access' => [
@@ -143,10 +154,10 @@ if(!empty($params['instance_uuid'])) {
             ->first();
 
         // fetch the sync policies from global and overwrite the existing ones
-        eQual::run('do', 'fmt_sync_SyncPolicy_pull-from-global', ['reset' => true]);
+        eQual::run('do', 'fmt_sync_SyncPolicy_pull-from-global', ['reset' => true, 'level' => $params['level']]);
 
         // pull data from global depending on the sync policies
-        eQual::run('do', 'fmt_sync_pull-from-global', ['accept' => true]);
+        eQual::run('do', 'fmt_sync_pull-from-global', ['accept' => true, 'level' => $params['level']]);
     }
 }
 
