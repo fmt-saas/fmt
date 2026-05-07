@@ -3,6 +3,21 @@
     "plural": "Suivis de paiement",
     "description": "Entité reliant factures/appels (fonds, relevés, transferts...) aux encaissements et écritures pour savoir ce qui reste dû.",
     "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Intitulé calculé du funding à afficher hors brouillon.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Texte libre utilisé pour identifier le funding en brouillon.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle se rattache le suivi de paiement.",
+            "help": ""
+        },
         "funding_type": {
             "label": "Type",
             "description": "Nature du mouvement suivi (appel, facture, remboursement, transfert, etc.).",
@@ -17,12 +32,23 @@
                 "expense_statement": "Décompte de charges",
                 "misc_operation": "Opération diverse",
                 "statement_line": "Ligne de relevé bancaire",
-                "due_balance": "Situation de compte"
+                "due_balance": "Situation de compte",
+                "reminder": "Rappel"
             }
+        },
+        "has_mandate": {
+            "label": "Mandat",
+            "description": "Indique si le paiement doit être exécuté via un mandat SEPA actif.",
+            "help": ""
         },
         "payment_reference": {
             "label": "Référence de paiement",
             "description": "Message communiqué au débiteur/créditeur (référence SEPA, communication structurée...).",
+            "help": ""
+        },
+        "free_payment_reference": {
+            "label": "Référence libre",
+            "description": "Communication libre utilisée pour identifier l'opération.",
             "help": ""
         },
         "due_amount": {
@@ -33,6 +59,11 @@
         "paid_amount": {
             "label": "Montant encaissé",
             "description": "Montant déjà réglé (via paiements ou contrepassations).",
+            "help": ""
+        },
+        "is_paid": {
+            "label": "Soldé",
+            "description": "Indique si le funding est entièrement réglé.",
             "help": ""
         },
         "remaining_amount": {
@@ -80,6 +111,11 @@
             "description": "Décompte associé lorsqu'il s'agit d'un solde de charges.",
             "help": ""
         },
+        "misc_operation_id": {
+            "label": "Opération diverse",
+            "description": "Opération diverse liée au funding lorsque le mouvement ne provient pas d'un document standard.",
+            "help": ""
+        },
         "purchase_invoice_id": {
             "label": "Facture fournisseur",
             "description": "Facture à rembourser (mandat SEPA éventuel).",
@@ -110,9 +146,24 @@
             "description": "Tiers fournisseur lié (pour les sorties).",
             "help": ""
         },
+        "accounting_account_id": {
+            "label": "Compte comptable",
+            "description": "Compte comptable impacté par le mouvement suivi.",
+            "help": ""
+        },
         "is_sent": {
             "label": "Envoyé",
             "description": "Marqué `vrai` quand l'ordre SEPA a été généré.",
+            "help": ""
+        },
+        "payment_reminders_ids": {
+            "label": "Rappels",
+            "description": "Historique des rappels envoyés ou générés pour ce funding.",
+            "help": ""
+        },
+        "state": {
+            "label": "État",
+            "description": "État technique de l'enregistrement dans son cycle de vie.",
             "help": ""
         },
         "status": {

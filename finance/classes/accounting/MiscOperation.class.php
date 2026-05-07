@@ -412,7 +412,7 @@ class MiscOperation extends Model {
 
             // we'll need to check if account is co_owners_reserve_fund or co_owners_working_fund
             $map_accounts = Account::ids(array_keys($lines_by_account))
-                ->read(['operation_assignment', 'ownership_id'])
+                ->read(['operation_assignment', 'ownership_id', 'suppliership_id'])
                 ->get();
 
             foreach($lines_by_account as $account_id => $line) {
@@ -486,7 +486,7 @@ class MiscOperation extends Model {
                             'description'                       => $line['description'],
                             'funding_type'                      => 'misc_operation',
                             'misc_operation_id'                 => $id,
-                            'suppliership_id'                   => $map_accounts[$account_id]['ownership_id'],
+                            'suppliership_id'                   => $map_accounts[$account_id]['suppliership_id'],
                             'bank_account_id'                   => $bankAccount['id'] ?? null,
                             'accounting_account_id'             => $account_id,
                             'issue_date'                        => $issue_date,
