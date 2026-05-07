@@ -38,6 +38,14 @@ class Identity extends Model {
         return ['AUTH_SECRET_KEY', 'FMT_INSTANCE_TYPE'];
     }
 
+    public function getTable() {
+        return 'identity_identity';
+    }
+
+    public function isIdentityClass() {
+        return $this->getTable() === 'identity_identity';
+    }
+
     public static function getColumns() {
         return [
 
@@ -1678,7 +1686,9 @@ class Identity extends Model {
         $self->read(['identity_id', 'type_id', 'citizen_identification', 'registration_number']);
 
         // Class inherits from Identity but uses a distinct table: check if a new Identity should be created
-        if(static::getType() !== 'identity\\Identity') {
+        $called_model = $orm->getModel(static::getType());
+        // #memo - cannot use " static::getType() !== 'identity\\Identity' " because static::getType() might return "\realestate\identity\Identity" (because of ObjectManager 'virtual' class create with eval)
+        if(!$called_model->isIdentityClass()) {
             $common_fields = [
                     'source',
                     'type_id','legal_name','firstname','lastname','lang_id',
