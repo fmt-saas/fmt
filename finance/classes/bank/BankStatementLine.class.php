@@ -465,6 +465,14 @@ class BankStatementLine extends Model {
                 throw new \Exception('missing_bank_statement_line_account', EQ_ERROR_INVALID_PARAM);
             }
 
+            // remove any pre-existing pending Payments related to the statement line
+            Payment::search([
+                    ['condo_id', '=', $bankStatementLine['condo_id']],
+                    ['bank_statement_line_id', '=', $id],
+                    ['status', '=', 'proforma']
+                ])
+                ->delete(true);
+
             $domain_fundings = [
                 ['is_cancelled', '=', false],
                 ['status', '<>', 'balanced'],
@@ -495,7 +503,7 @@ class BankStatementLine extends Model {
                 }
             }
 
-            self::allocatePaymentsFromFundings(
+            self::createPaymentsFromFundings(
                 $id,
                 $bankStatementLine,
                 $candidateFundings,
@@ -617,7 +625,7 @@ class BankStatementLine extends Model {
     }
     */
 
-    private static function allocatePaymentsFromFundings($bank_statement_line_id, $bankStatementLine, $candidateFundings, $amount) {
+    private static function createPaymentsFromFundings($bank_statement_line_id, $bankStatementLine, $candidateFundings, $amount) {
         $remaining_amount = round((float) $amount, 2);
 
         foreach($candidateFundings as $funding) {
@@ -829,6 +837,13 @@ class BankStatementLine extends Model {
     }
 
     protected static function onbeforePost($self) {
+        $self->read(['is_reconciled']);
+        foreach($self as $id => $bankStatementLine) {
+            if(!$bankStatementLine['is_reconciled']) {
+                self::id($id)->do('attempt_reconcile');
+            }
+        }
+
         $self->do('generate_accounting_entry');
     }
 

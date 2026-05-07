@@ -131,21 +131,7 @@ BankStatementLine::id($bankStatementLine['id'])->update([
 
 $orm->enableEvents($events);
 
-Payment::search([
-        ['bank_statement_line_id', '=', $bankStatementLine['id']],
-        ['proforma', '=', 'proforma']
-    ])
-    ->delete(true);
-
-
-// 2) Allocation to fundings
-
-BankStatementLine::id($bankStatementLine['id'])->do('reconcile_with_fundings', [
-    'amount' => $accounting_amount
-]);
-
-
-// 3) refresh lines & impacted matchings
+// 2) refresh lines & impacted matchings
 
 if(count($map_matchings_ids)) {
     Matching::ids(array_keys($map_matchings_ids))
@@ -155,7 +141,6 @@ if(count($map_matchings_ids)) {
 // refresh selected lines
 $accountingEntryLines->do('refresh_matching_level');
 
-BankStatementLine::id($bankStatementLine['id'])->update(['is_reconciled' => null]);
 
 $context->httpResponse()
         ->status(204)

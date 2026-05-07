@@ -14,7 +14,9 @@
                 "ids": []
             },
             "confirm": false,
-            "visible": [["status", "=", "pending"], ["is_reconciled", "=", false]]
+            "visible_help": "This action is run automatically at line posting and ",
+            "visible": false,
+            "visible1": [["status", "=", "pending"], ["is_reconciled", "=", false]]
         },
         {
             "id": "action.post",
