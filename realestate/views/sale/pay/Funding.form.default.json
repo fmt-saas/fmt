@@ -116,6 +116,13 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Misc Op",
+                                                "value": "misc_operation_id",
+                                                "width": "50%",
+                                                "visible": ["funding_type", "=", "misc_operation"]
+                                            },
+                                            {
+                                                "type": "field",
                                                 "label": "Invoice",
                                                 "value": "purchase_invoice_id",
                                                 "width": "50%",
@@ -144,6 +151,13 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Bank Statement Line",
+                                                "value": "bank_statement_line_id",
+                                                "width": "50%",
+                                                "visible": ["funding_type", "=", "statement_line"]
+                                            },
+                                            {
+                                                "type": "field",
                                                 "label": "Mandate",
                                                 "value": "has_mandate",
                                                 "width": "100%"
@@ -157,41 +171,59 @@
                                         ]
                                     },
                                     {
-                                        "width": "50%",
+                                        "width": "25%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "50%"
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "due_date",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "width": "50%"
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "bank_account_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "width": "50%"
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "counterpart_bank_account_id",
-                                                "width": "50%"
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "state",
                                                 "width": "0%",
                                                 "visible": false
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Ownership",
+                                                "value": "ownership_id",
+                                                "width": "100%",
+                                                "visible": ["ownership_id", "<>", null]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Suppliership",
+                                                "value": "suppliership_id",
+                                                "width": "100%",
+                                                "visible": ["suppliership_id", "<>", null]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Accounting Account",
+                                                "value": "accounting_account_id",
+                                                "width": "100%",
+                                                "visible": ["accounting_account_id", "<>", null]
                                             }
                                         ]
                                     }
