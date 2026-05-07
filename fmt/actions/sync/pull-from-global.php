@@ -19,6 +19,17 @@ use infra\server\Instance;
             'type'              => 'boolean',
             'description'       => "Automatically accept all update requests.",
             'default'           => false
+        ],
+        'level' => [
+            'type'              => 'string',
+            'description'       => "Synchronisation level of the policy.",
+            'selection'         => [
+                'required',
+                'recommended',
+                'optional',
+                'demo'
+            ],
+            'default'           => 'recommended'
         ]
     ],
     'access' => [
@@ -42,10 +53,18 @@ if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
+$map_sync_levels = [
+    'required'      => ['required'],
+    'recommended'   => ['required', 'recommended'],
+    'optional'      => ['required', 'recommended', 'optional'],
+    'demo'          => ['required', 'recommended', 'optional', 'demo']
+];
+
 // retrieve SyncPolicy related to 'protected' & 'private' entities
 $policies = SyncPolicy::search([
         ['scope', 'in', ['protected', 'private']],
-        ['sync_direction', '=', 'descending']
+        ['sync_direction', '=', 'descending'],
+        ['level', 'in', $map_sync_levels[$params['level']]]
     ])
     ->read([
         'name',
