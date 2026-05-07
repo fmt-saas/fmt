@@ -224,6 +224,12 @@ class PropertyLot extends \equal\orm\Model {
         ];
     }
 
+    public function getIndexes(): array {
+        return [
+            ['condo_id']
+        ];
+    }
+
     protected static function calcName($self) {
         $result = [];
         $self->read(['property_lot_ref', 'code', 'nature_id' => ['name'], 'active_ownership_id' => ['name']]);
