@@ -279,6 +279,19 @@
                                                 "width": "100%"
                                             }
                                         ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "logs",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "height": 400
+                                                }
+                                            }
+                                        ]
                                     }
                                 ]
                             }

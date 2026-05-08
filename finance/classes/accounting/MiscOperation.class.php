@@ -355,6 +355,7 @@ class MiscOperation extends Model {
         $self->read([
                 'condo_id',
                 'fiscal_year_id',
+                'posting_date',
                 'has_opening_journal',
                 'misc_operation_lines_ids'
             ]);
@@ -473,8 +474,7 @@ class MiscOperation extends Model {
                 if($map_accounts[$account_id]['ownership_id']) {
                     $ownership_id = $map_accounts[$account_id]['ownership_id'];
 
-                    // a funding cannot be issued nor due in the past
-                    $issue_date = max(strtotime('today'), $fiscalYear['date_from']);
+                    $issue_date = $miscOperation['posting_date'];
 
                     // #todo - make possible to customize
                     $due_date = $fiscalYear['date_from'];
@@ -514,8 +514,7 @@ class MiscOperation extends Model {
                 elseif(in_array($map_accounts[$account_id]['operation_assignment'], ['suppliers'], true)) {
                     $suppliership_id = $map_accounts[$account_id]['suppliership_id'];
 
-                    // a funding cannot be issued nor due in the past
-                    $issue_date = max(strtotime('today'), $fiscalYear['date_from']);
+                    $issue_date = $miscOperation['posting_date'];
 
                     // #todo - make possible to customize
                     $due_date = $fiscalYear['date_from'];
