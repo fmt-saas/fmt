@@ -792,14 +792,10 @@ class BankStatementLine extends Model {
     }
 
     protected static function onbeforePost($self) {
-        $self->read(['is_reconciled']);
-        foreach($self as $id => $bankStatementLine) {
-            // #memo - we cannot trust the user : business logic imposes the use of oldest Fundings first
-            // if(!$bankStatementLine['is_reconciled'])
-            self::id($id)->do('attempt_reconcile');
-        }
-
-        $self->do('generate_accounting_entry');
+        // #memo - we cannot trust the user : business logic imposes the use of oldest Fundings first
+        $self
+            ->do('attempt_reconcile')
+            ->do('generate_accounting_entry');
     }
 
     protected static function onafterPost($self) {
@@ -885,7 +881,7 @@ class BankStatementLine extends Model {
                 continue;
             }
             // The statement date must be in the same fiscal year (not period)
-            if($bankStatementLine['fiscal_year_id'] = $bankStatementLine['bank_statement_id']['fiscal_year_id'] ) {
+            if($bankStatementLine['fiscal_year_id'] !== $bankStatementLine['bank_statement_id']['fiscal_year_id'] ) {
                 $result[$id] = [
                     'incompatible_fiscal_year' => 'Fiscal year of the line must match parent bank statement fiscal year.'
                 ];
@@ -1024,15 +1020,11 @@ class BankStatementLine extends Model {
                 'communication',
                 'matching_id' => ['id', 'accounting_entry_lines_ids' => ['debit', 'credit']],
                 'accounting_account_id' => ['is_control_account', 'ownership_id'],
-                'bank_statement_id' => ['bank_account_id'],
+                'bank_statement_id' => ['id', 'bank_account_id'],
                 'payments_ids' => ['amount', 'funding_id']
             ]);
 
         foreach($self as $id => $bankStatementLine) {
-            // #todo - move to canGenerateAccountingEntry
-            if($bankStatementLine['status'] !== 'pending') {
-                continue;
-            }
 
             $bankAccount = CondominiumBankAccount::id($bankStatementLine['bank_statement_id']['bank_account_id'])
                 ->read(['accounting_account_id'])
