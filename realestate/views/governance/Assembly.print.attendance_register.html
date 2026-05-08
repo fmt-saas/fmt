@@ -170,7 +170,7 @@
                                 <img style="max-width: 250px; height: auto;" src="data:image/png;base64,{{ attendee.register_document_signature_id.sig_drawn }}" />
                             {% else %}
                                 {{ labels['digital_signature.signed_by'] }} {{ attendee.name }} <br />
-                                {{ labels['digital_signature.signature'] }} {{ attendee.register_document_signature_id.sig_hash | slice:0:40 }} ...<br />
+                                {{ labels['digital_signature.signature'] }} {{ attendee.register_document_signature_id.sig_hash | slice(0, 40) }} ...<br />
                                 {{ labels['digital_signature.timestamp'] }} {{ attendee.register_document_signature_id.sig_timestamp }}<br />
                                 {{ labels['digital_signature.algorithm'] }} {{ attendee.register_document_signature_id.sig_algo }}
                             {% endif %}

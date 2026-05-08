@@ -31,7 +31,7 @@ use Twig\Extension\ExtensionInterface;
 
         'full' => [
             'description'       => 'Flag for requesting the "full" / empty version of the list.',
-            'help'              => 'If set to true, the register will include all attendees without condideration of their representation or signature status.',
+            'help'              => 'If set to true, the register will include all attendees without consideration of their representation or signature status.',
             'type'              => 'boolean',
             'default'           => false
         ],
