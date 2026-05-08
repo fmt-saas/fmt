@@ -176,6 +176,11 @@ class Apportionment extends \equal\orm\Model {
                     'not_allowed' => 'Apportionment is already validated and active.'
                 ];
             }
+            if($apportionment['total_shares'] <= 0) {
+                $result[$id] = [
+                    'invalid_apportionment' => 'Apportionment must have a non-null amount of shares.'
+                ];
+            }
             if(round($apportionment['assigned_shares'], 5) != round($apportionment['total_shares'], 5)) {
                 trigger_error('APP::mismatch total_shares and assigned_shares for apportionment ' . $id . ' : ' . round($apportionment['assigned_shares'], 5) . ' ' . round($apportionment['total_shares'], 5) , EQ_REPORT_ERROR);
                 $result[$id] = [
