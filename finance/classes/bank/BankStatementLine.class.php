@@ -900,6 +900,14 @@ class BankStatementLine extends Model {
                 ];
                 continue;
             }
+            if($bankStatementLine['is_expense'] || $bankStatementLine['is_income']) {
+                if(!$bankStatementLine['apportionment_id']) {
+                    $result[$id] = [
+                        'missing_apportionment_id' => "Bank Statement Line ({$id}) not linked to an apportionment key."
+                    ];
+                    continue;
+                }
+            }
         }
         return $result;
     }
