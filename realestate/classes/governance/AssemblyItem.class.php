@@ -234,6 +234,12 @@ class AssemblyItem extends AssemblyItemTemplate {
         ];
     }
 
+    public function getIndexes(): array {
+        return [
+            ['assembly_id']
+        ];
+    }
+
     public static function getWorkflow() {
         return [
             'pending' => [

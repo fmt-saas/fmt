@@ -63,6 +63,12 @@ class ReceivablesQueue extends Model {
         ];
     }
 
+    public function getIndexes(): array {
+        return [
+            ['customer_id']
+        ];
+    }
+
     public static function calcName($self) {
         $result = [];
         $self->read(['customer_id' => ['name']]);

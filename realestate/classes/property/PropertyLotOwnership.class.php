@@ -54,4 +54,10 @@ class PropertyLotOwnership extends \equal\orm\Model {
 
         ];
     }
+
+    public function getIndexes(): array {
+        return [
+            ['ownership_id', 'property_lot_id']
+        ];
+    }
 }

@@ -25,8 +25,7 @@ class Subscription extends Model  {
         'yearly'       => '+1 year'
     ];
 
-    public static function getColumns(): array
-    {
+    public static function getColumns(): array {
         return [
             'name' => [
                 'type'              => 'string',
@@ -152,6 +151,12 @@ class Subscription extends Model  {
                 'description'       => 'Subscription entries of the subscription.'
             ]
 
+        ];
+    }
+
+    public function getIndexes(): array {
+        return [
+            ['customer_id']
         ];
     }
 

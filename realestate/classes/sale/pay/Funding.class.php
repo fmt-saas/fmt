@@ -255,6 +255,12 @@ class Funding extends \sale\pay\Funding {
         ];
     }
 
+    public function getIndexes(): array {
+        return array_merge(parent::getIndexes(), [
+                ['condo_id']
+        ]);
+    }
+
     public static function getActions() {
         return array_merge(parent::getActions(), [
             'refresh_status' => [
