@@ -206,6 +206,12 @@ class Receivable extends Model {
         ];
     }
 
+    public function getIndexes(): array {
+        return [
+            ['customer_id']
+        ];
+    }
+
     public static function calcName($self) {
         $result = [];
         $self->read(['sale_entry_id' => ['name', 'date', 'object_class'], 'product_id' => ['name']]);
