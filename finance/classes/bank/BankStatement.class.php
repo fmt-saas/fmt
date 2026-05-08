@@ -363,7 +363,15 @@ class BankStatement extends Model {
                 continue;
             }
 
-            $bankStatement['statement_lines_ids']->assert('can_post');
+            try {
+                $bankStatement['statement_lines_ids']->assert('can_post');
+            }
+            catch(\Exception $e) {
+                $result[$id] = [
+                    'non_postable_bank_statement_line' => "At least one line for Bank Statement ({$id}) cannot be posted: " . $e->getMessage()
+                ];
+                continue;
+            }
 
             $statement_year = date('Y', $bankStatement['opening_date']);
             $year_start = strtotime("{$statement_year}-01-01");
