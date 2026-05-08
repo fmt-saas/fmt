@@ -295,6 +295,12 @@ class Ownership extends \equal\orm\Model {
         ];
     }
 
+    public function getIndexes(): array {
+        return [
+            ['condo_id']
+        ];
+    }
+
     protected static function calcAddressRecipient($self) {
         $result = [];
 

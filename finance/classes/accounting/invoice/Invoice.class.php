@@ -275,6 +275,12 @@ class Invoice extends Model {
         ];
     }
 
+    public function getIndexes(): array {
+        return [
+            ['condo_id']
+        ];
+    }
+
 
     public static function getActions() {
         return [

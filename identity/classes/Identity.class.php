@@ -740,6 +740,12 @@ class Identity extends Model {
         ];
     }
 
+    public function getIndexes(): array {
+        return [
+            ['type_id']
+        ];
+    }
+
     public static function getActions() {
         return [
             'sync_from_identity' => [

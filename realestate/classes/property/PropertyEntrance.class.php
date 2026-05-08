@@ -85,6 +85,12 @@ class PropertyEntrance extends \equal\orm\Model {
 
     }
 
+    public function getIndexes(): array {
+        return [
+            ['condo_id']
+        ];
+    }
+
     protected static function calcPropertyEntranceCode($self) {
         $result = [];
         $self->read(['state', 'condo_id']);

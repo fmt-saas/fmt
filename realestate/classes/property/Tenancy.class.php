@@ -67,6 +67,12 @@ class Tenancy extends \equal\orm\Model {
         ];
     }
 
+    public function getIndexes(): array {
+        return [
+            ['condo_id']
+        ];
+    }
+
     public static function calcName($self) {
         $result = [];
         $self->read(['tenants_ids' => ['name']]);

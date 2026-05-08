@@ -227,6 +227,13 @@ class Funding extends \equal\orm\Model {
         ];
     }
 
+    public function getIndexes(): array {
+        return [
+            ['invoice_id'],
+            ['customer_id']
+        ];
+    }
+
     public static function getActions() {
         return [
             'refresh_status' => [

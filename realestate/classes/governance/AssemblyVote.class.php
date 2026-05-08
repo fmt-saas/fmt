@@ -208,6 +208,12 @@ class AssemblyVote extends \equal\orm\Model {
         ];
     }
 
+    public function getIndexes(): array {
+        return [
+            ['assembly_item_id']
+        ];
+    }
+
     public static function getWorkflow() {
         return [
             'pending' => [

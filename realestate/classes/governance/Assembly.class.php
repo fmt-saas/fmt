@@ -450,6 +450,12 @@ class Assembly extends \equal\orm\Model {
         ];
     }
 
+    public function getIndexes(): array {
+        return [
+            ['condo_id']
+        ];
+    }
+
     public static function getWorkflow() {
         return [
             'pending' => [
