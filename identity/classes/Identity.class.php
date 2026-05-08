@@ -1685,9 +1685,9 @@ class Identity extends Model {
         $self->read(['identity_id', 'type_id', 'citizen_identification', 'registration_number']);
 
         // Class inherits from Identity but uses a distinct table: check if a new Identity should be created
-        $called_model = $orm->getModel(static::getType());
+        $model = $orm->getModel(static::getType());
         // #memo - cannot use " static::getType() !== 'identity\\Identity' " because static::getType() might return "\realestate\identity\Identity" (because of ObjectManager 'virtual' class override)
-        if(static::getTable() !== 'identity_identity') {
+        if($model->getTable() !== 'identity_identity') {
             $common_fields = [
                     'source',
                     'type_id','legal_name','firstname','lastname','lang_id',
