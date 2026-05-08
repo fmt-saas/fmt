@@ -253,7 +253,21 @@ Cette étape finalise l'intégration comptable de la ligne d'extrait bancaire.
 
 
 
-# Lettrage et matching
+Cas particuliers : 
+
+* lettrage manuel la ligne
+	a) si lettrage complet : on garde
+	b) si lettrage incomplet : 
+		si pas de financement : on garde
+		si financements : on supprime et on tente en auto
+
+
+* Funding Opening Balance
+	si le funding retrouvé est celui d'une opening balance (MiscOp::has_opening_journal), alors il ne faut pas lettrer (sinon risque d'erreur)
+
+
+
+# Lettrage (matching)
 
 ## Principe général
 

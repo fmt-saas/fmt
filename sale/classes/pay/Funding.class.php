@@ -392,6 +392,9 @@ class Funding extends \equal\orm\Model {
      *      we do (aaa * 76 + bbbbbbb) % 97
      */
     protected static function computePaymentReference($prefix, $suffix) {
+        if(strlen($prefix) <=0 || strlen($suffix) <= 0) {
+            return '';
+        }
         $a = intval($prefix);
         $b = intval($suffix);
         $control = ((76*$a) + $b ) % 97;

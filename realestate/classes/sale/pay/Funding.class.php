@@ -406,9 +406,11 @@ class Funding extends \sale\pay\Funding {
         $result = [];
         $self->read([
                 'funding_type',
+                'description',
                 'purchase_invoice_id', 'money_transfer_id', 'money_refund_id', 'misc_operation_id', 'bank_statement_line_id',
                 'condo_id' => ['code'],
-                'ownership_id' => ['code']
+                'ownership_id' => ['code'],
+                'suppliership_id' => ['code']
             ]);
         foreach($self as $id => $funding) {
             if(!$funding['funding_type']) {
@@ -430,6 +432,17 @@ class Funding extends \sale\pay\Funding {
                     // by convention, references for purchase invoices start with '9'
                     // this reference might be overwritten by the reference given by the supplier
                     $reference = sprintf("9%09d", $funding['purchase_invoice_id']);
+                    break;
+                case 'misc_operation':
+                    if($funding['ownership_id']) {
+                        $reference =
+                            substr(str_pad((int) $funding['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
+                            substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+                    }
+                    elseif($funding['suppliership_id']) {
+                        $reference =
+                            substr(str_pad((int) $funding['suppliership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4) . $funding['description'];
+                    }
                     break;
                 case 'refund':
                     // by convention, references for refunds start with '8'

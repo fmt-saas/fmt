@@ -479,7 +479,7 @@ class BankStatementLine extends Model {
                 $funding_ids = $values['funding_ids'];
             }
             else {
-                $funding_ids = self::computeFundingCandidates($bankStatementLine);
+                $funding_ids = self::computeFundingCandidates($id);
             }
 
             $candidateFundings = Funding::ids($funding_ids)->read(['id', 'due_date', 'remaining_amount']);
@@ -534,7 +534,22 @@ class BankStatementLine extends Model {
      *
      * Search logic depends on the nature of the selected accounting account.
      */
-    private static function computeFundingCandidates(array $bankStatementLine): array {
+    private static function computeFundingCandidates($bank_statement_line_id): array {
+        $bankStatementLine = self::id($bank_statement_line_id)
+            ->read([
+                'status',
+                'condo_id',
+                'communication',
+                'amount',
+                'date',
+                'account_iban',
+                'bank_statement_id' => ['bank_account_id'],
+                'accounting_account_id',
+                'is_supplier',
+                'is_owner',
+                'is_transfer'
+            ])
+            ->first();
         if(!isset($bankStatementLine['condo_id']) || !isset($bankStatementLine['accounting_account_id'])) {
             return [];
         }
