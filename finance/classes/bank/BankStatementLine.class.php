@@ -853,7 +853,13 @@ class BankStatementLine extends Model {
 
     protected static function policyCanPost($self) {
         $result = [];
-        $self->read(['status', 'fiscal_year_id', 'accounting_account_id', 'bank_statement_id' => ['is_balanced', 'fiscal_year']]);
+        $self->read([
+            'status',
+            'fiscal_year_id',
+            'accounting_account_id',
+            'is_expense', 'is_income', 'apportionment_id',
+            'bank_statement_id' => ['is_balanced', 'fiscal_year_id']
+        ]);
         foreach($self as $id => $bankStatementLine) {
             if($bankStatementLine['status'] !== 'pending') {
                 $result[$id] = [
