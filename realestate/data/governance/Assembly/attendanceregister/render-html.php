@@ -202,6 +202,7 @@ $propertyLotOwnerships = PropertyLotOwnership::search([
             'property_lot_id' => ['name', 'code', 'is_primary']
         ]);
 
+$map_ownerships_lots = [];
 foreach($propertyLotOwnerships as $propertyLotOwnership) {
     if((!$propertyLotOwnership['date_to'] || $propertyLotOwnership['date_to'] > $assembly['assembly_date']) && $propertyLotOwnership['property_lot_id']['is_primary']) {
         if(!isset($map_ownerships_lots[$propertyLotOwnership['ownership_id']['id']])) {
