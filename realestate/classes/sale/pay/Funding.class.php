@@ -257,7 +257,8 @@ class Funding extends \sale\pay\Funding {
 
     public function getIndexes(): array {
         return array_merge(parent::getIndexes(), [
-                ['condo_id']
+                ['condo_id'],
+                ['condo_id', 'accounting_account_id','bank_account_id']
         ]);
     }
 
@@ -268,11 +269,6 @@ class Funding extends \sale\pay\Funding {
                 'policies'      => [],
                 'function'      => 'doRefreshStatus'
             ],
-            'match_accounting_entries' => [
-                'description'   => 'Update status according to currently paid amount.',
-                'policies'      => [],
-                'function'      => 'doMatchAccountingEntries'
-            ]
         ]);
     }
 
@@ -361,72 +357,6 @@ class Funding extends \sale\pay\Funding {
 
             if($roleAssignment) {
                 self::id($id)->update(['assigned_employee_id' => $roleAssignment['employee_id']]);
-            }
-        }
-    }
-
-    /**
-     * Retrieve all accounting entry lines (records), either from accounting documents linked to funding, or from bank statement line
-     *
-     */
-    protected static function doMatchAccountingEntries($self) {
-        $self->read([
-                'condo_id',
-                'status',
-                // lines from Bank Statement
-                'accounting_entry_lines_ids',
-                // lines from accounting entries linked accounting documents
-                'funding_type',
-                'money_refund_id',
-                'money_transfer_id',
-                'purchase_invoice_id',
-                'expense_statement_id',
-                'fund_request_execution_id'
-            ]);
-
-        foreach($self as $id => $funding) {
-            if($funding['status'] === 'pending') {
-                continue;
-            }
-            $accounting_entry_lines_ids = $funding['accounting_entry_lines_ids'];
-            switch($funding['funding_type']) {
-                case 'expense_statement':
-                    $expenseStatement = ExpenseStatement::id($funding['expense_statement_id'])->read(['accounting_entry_id' => ['entry_lines_ids']])->first();
-                    $accounting_entry_lines_ids = array_merge($accounting_entry_lines_ids, $expenseStatement['accounting_entry_id']['entry_lines_ids']);
-                    break;
-                case 'fund_request':
-                    $fundRequest = FundRequestExecution::id($funding['fund_request_execution_id'])->read(['accounting_entry_id' => ['entry_lines_ids']])->first();
-                    $accounting_entry_lines_ids = array_merge($accounting_entry_lines_ids, $fundRequest['accounting_entry_id']['entry_lines_ids']);
-                    break;
-                case 'purchase_invoice':
-                    $purchaseInvoice = PurchaseInvoice::id($funding['purchase_invoice_id'])->read(['accounting_entry_id' => ['entry_lines_ids']])->first();
-                    $accounting_entry_lines_ids = array_merge($accounting_entry_lines_ids, $purchaseInvoice['accounting_entry_id']['entry_lines_ids']);
-                    break;
-                case 'refund':
-                    $refund = MoneyRefund::id($funding['money_refund_id'])->read(['fundings_ids' => ['accounting_entry_lines_ids']])->first();
-                    foreach($refund['fundings_ids'] as $extFunding) {
-                        $accounting_entry_lines_ids = array_merge($accounting_entry_lines_ids, $extFunding['accounting_entry_lines_ids']);
-                    }
-                    break;
-                case 'transfer':
-                    $transfer = MoneyTransfer::id($funding['money_transfer_id'])->read(['fundings_ids' => ['accounting_entry_lines_ids']])->first();
-                    foreach($transfer['fundings_ids'] as $extFunding) {
-                        $accounting_entry_lines_ids = array_merge($accounting_entry_lines_ids, $extFunding['accounting_entry_lines_ids']);
-                    }
-                    break;
-            }
-            $map_account_entry_lines = [];
-            $accountingEntryLines = AccountingEntryLine::ids($accounting_entry_lines_ids)->read(['account_id']);
-            foreach($accountingEntryLines as $accounting_entry_line_id => $accountingEntryLine) {
-                $map_account_entry_lines[$accountingEntryLine['account_id']][] = $accounting_entry_line_id;
-            }
-
-            foreach($map_account_entry_lines as $accounting_account_id => $accounting_entry_lines_ids) {
-                Matching::create([
-                        'condo_id'              => $funding['condo_id'],
-                        'accounting_account_id' => $accounting_account_id
-                    ])
-                    ->update(['accounting_entry_lines_ids' => $accounting_entry_lines_ids]);
             }
         }
     }

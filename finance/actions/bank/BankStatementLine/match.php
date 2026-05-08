@@ -141,7 +141,6 @@ if(count($map_matchings_ids)) {
 // refresh selected lines
 $accountingEntryLines->do('refresh_matching_level');
 
-
 $context->httpResponse()
         ->status(204)
         ->send();

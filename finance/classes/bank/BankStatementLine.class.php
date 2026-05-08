@@ -10,6 +10,7 @@ use equal\orm\Model;
 use finance\accounting\Account;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
+use finance\accounting\Matching;
 use realestate\sale\pay\Funding;
 use realestate\sale\pay\Payment;
 use finance\bank\BankStatement;
@@ -61,6 +62,12 @@ class BankStatementLine extends Model {
                 'foreign_object'    => 'finance\bank\BankStatement',
                 'description'       => 'The bank statement the line relates to.',
                 'required'          => true
+            ],
+
+            'accounting_entry_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\finance\accounting\AccountingEntry',
+                'description'       => "Accounting entry of the invoice."
             ],
 
             'payments_ids' => [
@@ -143,7 +150,7 @@ class BankStatementLine extends Model {
                 'usage'             => 'amount/money:2',
                 'description'       => 'Amount that still needs to be assigned to payments.',
                 'function'          => 'calcRemainingAmount',
-                // 'store'             => true
+                'store'             => false
             ],
 
             'account_iban' => [
@@ -195,7 +202,7 @@ class BankStatementLine extends Model {
                 'dependents'        => ['accounting_account_code', 'is_transfer', 'is_expense', 'is_income', 'is_supplier', 'is_owner', 'ownership_id', 'suppliership_id'],
                 'domain'            => [
                     [
-                        ['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['operation_assignment', 'not in', ['co_owners_reserve_fund³', 'co_owners_working_fund']]
+                        ['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['operation_assignment', 'not in', ['co_owners_reserve_fund', 'co_owners_working_fund']]
                     ],
                     [
                         ['condo_id', '=', 'object.condo_id'], ['ownership_id', '<>', null], ['is_control_account', '=', true]
@@ -216,8 +223,8 @@ class BankStatementLine extends Model {
             'matching_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Matching',
-                'description'       => 'Matching (lettering) to which the accounting entry is linked, if any.',
-                'help'              => "This value can only be set manually when doing reconciliation with a non balanced matching",
+                'description'       => 'Matching to which the accounting entry lines of the statement line must be linked, if any.',
+                'help'              => "If set, a single lettering reconciles manually picked non-balanced accounting entry lines with the statement line.",
                 'visible'           => ['accounting_account_id', '<>', null]
             ],
 
@@ -384,14 +391,9 @@ class BankStatementLine extends Model {
         return [
             'attempt_reconcile' => [
                 'description'   => 'Attempts to find a suitable Funding and, if so, creates a Payment to link the line to it.',
+                'help'          => 'Accepts an arbitrary funding for manual reconcile.',
                 'policies'      => [/* 'can_generate_accounting_entry' */],
                 'function'      => 'doAttemptReconcile'
-            ],
-            'reconcile_with_fundings' => [
-                'description'   => 'Creates Payments from the bank statement line and allocates the requested amount on candidate Fundings.',
-                'help'          => 'Abitrary reconcile with a given funding (auto or manual)',
-                'policies'      => [],
-                'function'      => 'doReconcileWithFundings'
             ],
             'generate_accounting_entry' => [
                 'description'   => 'Creates accounting entries according to operation lines.',
@@ -439,30 +441,30 @@ class BankStatementLine extends Model {
         return $result;
     }
 
-
     /**
-     * Reconcile the line by allocating the requested amount across candidate fundings.
+     * This method either links the line with a Funding through a Payment,
+     * or generates an orphan operation referencing current line as accounting document.
+     * If one or several fundings are found, action `reconcile_with_fundings` is called with them.
      */
-    protected static function doReconcileWithFundings($self, $values) {
-        $requested_amount = isset($values['amount']) ? round((float) $values['amount'], 2) : null;
-        $funding_ids = [];
-
-        if(isset($values['funding_ids']) && is_array($values['funding_ids'])) {
-            $funding_ids = array_values(array_filter($values['funding_ids']));
-        }
+    protected static function doAttemptReconcile($self, $values) {
 
         $self->read([
-                'condo_id', 'amount', 'communication', 'date', 'accounting_account_id',
-                'bank_statement_id' => ['bank_account_id' ]
+                'status',
+                'condo_id',
+                'communication',
+                'amount',
+                'date',
+                'account_iban',
+                'bank_statement_id' => ['bank_account_id'],
+                'accounting_account_id',
+                'is_supplier',
+                'is_owner',
+                'is_transfer'
             ]);
 
         foreach($self as $id => $bankStatementLine) {
-            if(!isset($bankStatementLine['condo_id'])) {
-                throw new \Exception('missing_bank_statement_line_condo', EQ_ERROR_INVALID_PARAM);
-            }
-
-            if(!isset($bankStatementLine['accounting_account_id'])) {
-                throw new \Exception('missing_bank_statement_line_account', EQ_ERROR_INVALID_PARAM);
+            if($bankStatementLine['status'] !== 'pending') {
+                continue;
             }
 
             // remove any pre-existing pending Payments related to the statement line
@@ -473,199 +475,137 @@ class BankStatementLine extends Model {
                 ])
                 ->delete(true);
 
-            $domain_fundings = [
-                ['is_cancelled', '=', false],
-                ['status', '<>', 'balanced'],
-                ['funding_type', '<>', 'due_balance']
-            ];
-
-            if(count($funding_ids)) {
-                $domain_fundings[] = ['id', 'in', $funding_ids];
+            if(isset($values['funding_ids']) && is_array($values['funding_ids']) && count($values['funding_ids'])) {
+                $funding_ids = $values['funding_ids'];
             }
             else {
-                $domain_fundings[] = ['condo_id', '=', $bankStatementLine['condo_id']];
-                $domain_fundings[] = ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']];
+                $funding_ids = self::computeFundingCandidates($bankStatementLine);
             }
 
-            $candidateFundings = Funding::search($domain_fundings, ['sort' => ['issue_date' => 'asc']])
-                ->read(['id', 'accounting_account_id', 'remaining_amount']);
-
-            if($candidateFundings->count() <= 0) {
-                if(count($funding_ids)) {
-                    throw new \Exception('provided_funding_not_found', EQ_ERROR_INVALID_PARAM);
-                }
-                continue;
-            }
+            $candidateFundings = Funding::ids($funding_ids)->read(['id', 'due_date', 'remaining_amount']);
+            $remaining_amount = round((float) $bankStatementLine['amount'], 2);
 
             foreach($candidateFundings as $funding) {
-                if($funding['accounting_account_id'] != $bankStatementLine['accounting_account_id']) {
-                    throw new \Exception('inconsistent_candidate_fundings_account', EQ_ERROR_INVALID_PARAM);
+                if(abs($remaining_amount) < 0.01) {
+                    break;
                 }
+
+                if(abs($funding['remaining_amount']) < 0.01) {
+                    continue;
+                }
+
+                if(($remaining_amount > 0 && $funding['remaining_amount'] <= 0) || ($remaining_amount < 0 && $funding['remaining_amount'] >= 0)) {
+                    continue;
+                }
+
+                $allocatable = min(abs($funding['remaining_amount']), abs($remaining_amount));
+                $allocated = round(($funding['remaining_amount'] > 0 ? 1 : -1) * $allocatable, 2);
+
+                if(abs($remaining_amount - $allocated) > abs($remaining_amount)) {
+                    continue;
+                }
+
+                if(abs($allocated) < 0.01) {
+                    continue;
+                }
+
+                Payment::create([
+                        'condo_id'                  => $bankStatementLine['condo_id'],
+                        'amount'                    => $allocated,
+                        // #memo - communication might not be a payment reference but an arbitrary comment or description
+                        'communication'             => $bankStatementLine['communication'],
+                        'receipt_date'              => $bankStatementLine['date'],
+                        'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id'],
+                        'payment_origin'            => 'bank',
+                        'payment_method'            => 'wire_transfer',
+                        'bank_statement_line_id'    => $id,
+                        'funding_id'                => $funding['id']
+                    ]);
+
+                $remaining_amount = round($remaining_amount - $allocated, 2);
             }
 
-            self::createPaymentsFromFundings(
-                $id,
-                $bankStatementLine,
-                $candidateFundings,
-                $requested_amount ?? round((float) $bankStatementLine['amount'], 2)
-            );
         }
 
-        $self->update(['is_reconciled' => null]);
     }
 
     /**
-     * This method either links the line with a Funding through a Payment,
-     * or generates an orphan operation referencing current line as accounting document.
-     * If one or several fundings are found, action `reconcile_with_fundings` is called with them.
+     * Identify candidate fundings for a statement line.
+     *
+     * Search logic depends on the nature of the selected accounting account.
      */
-    protected static function doAttemptReconcile($self) {
+    private static function computeFundingCandidates(array $bankStatementLine): array {
+        if(!isset($bankStatementLine['condo_id']) || !isset($bankStatementLine['accounting_account_id'])) {
+            return [];
+        }
 
-        $self->read([
-                'status',
-                'condo_id',
-                'accounting_account_id',
-                'payments_ids' => ['amount', 'status']
-            ]);
+        if($bankStatementLine['is_supplier']) {
+            $fundings_ids = Funding::search([
+                        ['condo_id', '=', $bankStatementLine['condo_id']],
+                        ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
+                        ['status', '<>', 'balanced'],
+                        ['payment_reference', '=', $bankStatementLine['communication']],
+                        ['is_cancelled', '=', false]
+                    ], ['sort' => ['issue_date' => 'asc']]
+                )
+                ->ids();
 
-        foreach($self as $id => $bankStatementLine) {
-            if($bankStatementLine['status'] !== 'pending') {
-                continue;
+            if(!count($fundings_ids)) {
+                $fundings_ids = Funding::search([
+                        [
+                            ['condo_id', '=', $bankStatementLine['condo_id']],
+                            ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
+                            ['status', '<>', 'balanced'],
+                            ['remaining_amount', '>=', $bankStatementLine['amount']],
+                            ['is_cancelled', '=', false]
+                        ],
+                        ], ['sort' => ['issue_date' => 'asc']]
+                    )
+                    ->read(['id', 'due_date', 'remaining_amount'])
+                    ->ids();
             }
 
-            // in all situations, abort attempt if some payment have already been created
-            // user must manually remove them in order to be able to retry reconciliation
-            if($bankStatementLine['payments_ids']->count() > 0) {
-                continue;
-            }
+            return $fundings_ids;
 
-            $matching_funding_ids = Funding::search([
+        }
+        elseif($bankStatementLine['is_owner']) {
+            return Funding::search([
                         ['condo_id', '=', $bankStatementLine['condo_id']],
                         ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
                         ['status', '<>', 'balanced'],
                         ['funding_type', '<>', 'due_balance'],
+                        ['is_cancelled', '=', false]
+                    ], ['sort' => ['issue_date' => 'asc']]
+                )
+                ->read(['id', 'due_date', 'remaining_amount'])
+                ->ids();
+        }
+        elseif($bankStatementLine['is_transfer']) {
+            return Funding::search([
+                        ['condo_id', '=', $bankStatementLine['condo_id']],
+                        ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
+                        ['bank_account_id', '=', $bankStatementLine['bank_statement_id']['bank_account_id']],
+                        ['counterpart_bank_account_iban', '=', $bankStatementLine['account_iban']],
+                        ['status', '<>', 'balanced'],
+                        ['funding_type', '<>', 'due_balance'],
+                        ['is_cancelled', '=', false]
+                    ], ['sort' => ['issue_date' => 'asc']]
+                )
+                ->read(['id', 'due_date', 'remaining_amount'])
+                ->ids();
+        }
+        else {
+            return Funding::search([
+                        ['condo_id', '=', $bankStatementLine['condo_id']],
+                        ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
+                        ['status', '<>', 'balanced'],
+                        ['funding_type', '<>', 'due_balance'],
+                        ['is_cancelled', '=', false]
                     ],
                     ['sort' => ['issue_date' => 'asc']]
                 )
-                ->read(['id', 'remaining_amount'])
+                ->read(['id', 'due_date', 'remaining_amount'])
                 ->ids();
-
-            if(count($matching_funding_ids)) {
-                self::id($id)->do('reconcile_with_fundings', ['funding_ids' => $matching_funding_ids]);
-            }
-        }
-
-    }
-
-    /**
-     * Attempt to reconcile:
-     *  - either by searching for matching Fundings (based on payment_reference) and, if found, by creating corresponding Payments
-     *  - or, if no funding and accounting_account provided, by handling the line as an orphan operation
-     *
-     */
-    /*
-    private static function computeMatchingFundings($amount, $communication, $account_iban, $counterpart_iban) {
-        $selected_funding_ids = [];
-        $reference = trim(str_replace(['+', '/', ' '], '', $communication));
-
-        // attempt to match with an existing Funding
-        if(strlen($reference) <= 0) {
-            return $selected_funding_ids;
-        }
-        // #memo - amount can be positive or negative
-        $domain = [
-            ['is_cancelled', '=', false],
-            ['status', '<>', 'balanced'],
-            ['funding_type', '<>', 'due_balance'],
-            // #memo - we support the possibility that the payment be made on another bank account than the one linked to the funding (see below)
-            // ['bank_account_iban', '=', $bankStatementLine['bank_statement_id']['bank_account_iban']],
-            // #memo - funding payment reference is computed (depends on funding_type)
-            ['payment_reference', '=', $reference]
-        ];
-
-        // #memo - this is not relevant for filtering, but must be verified, depending on the found Funding(s)
-        // $funding = Funding::search(array_merge($domain, [['counterpart_bank_account_iban', '=', $bankStatementLine['account_iban']]]))->first();
-
-        // pass-1 - preliminary match
-        $candidateFundings = Funding::search($domain, ['sort' => ['issue_date' => 'asc']])
-            ->read(['id', 'funding_type', 'bank_account_iban', 'counterpart_bank_account_iban', 'remaining_amount']);
-
-        // pass-2 - validate candidates based on remaining amount and counterpart_bank_account_iban, when mandatory
-        // #memo - the payment reference is the main criteria, additional checks can be applied but not sure yet how to handle manual encoding
-        foreach($candidateFundings as $funding_id => $funding) {
-            $valid = ($amount < 0 && $funding['remaining_amount'] < 0) || ($amount > 0 && $funding['remaining_amount'] > 0);
-
-            if($valid) {
-                if(strlen($account_iban) > 0 && in_array($funding['funding_type'], ['purchase_invoice','fund_request','expense_statement'], true)) {
-                    // payment was received on another bank account than the one expected
-                    // #memo - we accept a movement made to or from a distinct account than the one expected in the Funding (the actual account is referenced in the Payment as `receipt_bank_account_id`)
-                    if($funding['bank_account_iban'] <> $account_iban) {
-                        // $valid = false;
-                    }
-                }
-                if(strlen($counterpart_iban) > 0 && in_array($funding['funding_type'], ['refund','transfer'], true)) {
-                    // #memo - counterpart_bank_account_iban is computed from counterpart_bank_account_id
-                    // #memo - for manual encoding, statement line might not hold an account IBAN (might be unknown)
-                    if($funding['counterpart_bank_account_iban'] <> $counterpart_iban) {
-                        // $valid = false;
-                    }
-                }
-            }
-
-            if($valid) {
-                $selected_funding_ids[] = $funding_id;
-            }
-        }
-
-        if(count($selected_funding_ids)) {
-            trigger_error("APP::" . count($selected_funding_ids) . " matching funding(s) found for bank statement line with reference {$reference}.", EQ_REPORT_DEBUG);
-        }
-
-        return $selected_funding_ids;
-    }
-    */
-
-    private static function createPaymentsFromFundings($bank_statement_line_id, $bankStatementLine, $candidateFundings, $amount) {
-        $remaining_amount = round((float) $amount, 2);
-
-        foreach($candidateFundings as $funding) {
-            if(abs($remaining_amount) < 0.01) {
-                break;
-            }
-
-            if(abs($funding['remaining_amount']) < 0.01) {
-                continue;
-            }
-
-            if(($remaining_amount > 0 && $funding['remaining_amount'] <= 0) || ($remaining_amount < 0 && $funding['remaining_amount'] >= 0)) {
-                continue;
-            }
-
-            $allocatable = min(abs($funding['remaining_amount']), abs($remaining_amount));
-            $allocated = round(($funding['remaining_amount'] > 0 ? 1 : -1) * $allocatable, 2);
-
-            if(abs($remaining_amount - $allocated) > abs($remaining_amount)) {
-                continue;
-            }
-
-            if(abs($allocated) < 0.01) {
-                continue;
-            }
-
-            Payment::create([
-                    'condo_id'                  => $bankStatementLine['condo_id'],
-                    'amount'                    => $allocated,
-                    // #memo - communication might not be a payment reference but an arbitrary comment or description
-                    'communication'             => $bankStatementLine['communication'],
-                    'receipt_date'              => $bankStatementLine['date'],
-                    'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id'],
-                    'payment_origin'            => 'bank',
-                    'payment_method'            => 'wire_transfer',
-                    'bank_statement_line_id'    => $bank_statement_line_id,
-                    'funding_id'                => $funding['id']
-                ]);
-
-            $remaining_amount = round($remaining_amount - $allocated, 2);
         }
     }
 
@@ -839,20 +779,21 @@ class BankStatementLine extends Model {
     protected static function onbeforePost($self) {
         $self->read(['is_reconciled']);
         foreach($self as $id => $bankStatementLine) {
-            if(!$bankStatementLine['is_reconciled']) {
-                self::id($id)->do('attempt_reconcile');
-            }
+            // #memo - we cannot trust the user : business logic imposes the use of oldest Fundings first
+            // if(!$bankStatementLine['is_reconciled'])
+            self::id($id)->do('attempt_reconcile');
         }
 
         $self->do('generate_accounting_entry');
     }
 
     protected static function onafterPost($self) {
-        $self->read(['bank_statement_id', 'payments_ids']);
+        $self->read(['bank_statement_id', 'accounting_entry_id', 'payments_ids']);
         foreach($self as $id => $bankStatementLine) {
             if(!$bankStatementLine['bank_statement_id']) {
                 continue;
             }
+            AccountingEntry::id($bankStatementLine['accounting_entry_id'])->transition('validate');
             Payment::ids($bankStatementLine['payments_ids'])->transition('post');
             BankStatement::id($bankStatementLine['bank_statement_id'])->do('refresh_status');
         }
@@ -1049,6 +990,11 @@ class BankStatementLine extends Model {
      *
      * The entries to be made in the financial journal (BANK) .
      *
+     * Attempt auto-match : Retrieve accounting entry lines that could be used for automatic matching.
+     *  - start from Payments linked to the statement line
+     *  - retrieve related Fundings
+     *  - collect accounting entry lines attached to the Funding itself or to its source document
+     *
      * If there are payments, accounting entries are generated from them (they always take precedence over the selected account)
      * corollary: when performing a manual match with a funding, a payment must be created (= doReconcileWithFunding)
      * otherwise, entries are created using 'accounting_account_id'
@@ -1061,28 +1007,21 @@ class BankStatementLine extends Model {
                 'date',
                 'amount',
                 'communication',
-                'matching_id',
-                'accounting_account_id',
+                'matching_id' => ['id', 'accounting_entry_lines_ids' => ['debit', 'credit']],
+                'accounting_account_id' => ['is_control_account', 'ownership_id'],
                 'bank_statement_id' => ['bank_account_id'],
-                'payments_ids' => [
-                    'amount',
-                    'receipt_date',
-                    'fiscal_year_id',
-                    'fiscal_period_id',
-                    'funding_id' => [
-                        'name',
-                        'description',
-                        'due_amount',
-                        'bank_account_id',
-                        'ownership_id',
-                        'suppliership_id',
-                        'accounting_account_id'
-                    ]
-                ]
+                'payments_ids' => ['amount', 'funding_id']
             ]);
 
         foreach($self as $id => $bankStatementLine) {
-            $bankAccount = CondominiumBankAccount::id($bankStatementLine['bank_statement_id']['bank_account_id'])->read(['accounting_account_id'])->first();
+            // #todo - move to canGenerateAccountingEntry
+            if($bankStatementLine['status'] !== 'pending') {
+                continue;
+            }
+
+            $bankAccount = CondominiumBankAccount::id($bankStatementLine['bank_statement_id']['bank_account_id'])
+                ->read(['accounting_account_id'])
+                ->first();
 
             $journal = Journal::search([
                             ['condo_id', '=', $bankStatementLine['condo_id']],
@@ -1095,17 +1034,78 @@ class BankStatementLine extends Model {
                 throw new \Exception('missing_mandatory_journal', EQ_ERROR_INVALID_CONFIG);
             }
 
+            // keep track of the matching that will require a refresh
+            $map_matchings_ids = [];
+            $is_fully_matched = false;
+            $matching = null;
+
+            // #memo - we cannot use matching_level here since the accounting entry line from the statement line has not been added yet
+            if($bankStatementLine['matching_id']) {
+                if($bankStatementLine['matching_id']['accounting_entry_lines_ids']->count() > 0) {
+                    $lines_total = 0.0;
+                    foreach($bankStatementLine['matching_id']['accounting_entry_lines_ids'] as $accounting_entry_line_id => $accountingEntryLine) {
+                        $line_amount = round($accountingEntryLine['debit'] - $accountingEntryLine['credit'], 2);
+                        $lines_total += $line_amount;
+                    }
+                    if(abs($bankStatementLine['amount'] + $lines_total) < 0.01) {
+                        $is_fully_matched = true;
+                        $map_matchings_ids[$bankStatementLine['matching_id']['id']] = true;
+                        $matching = $bankStatementLine['matching_id'];
+                    }
+                }
+
+                if(!$is_fully_matched) {
+                    Matching::id($bankStatementLine['matching_id']['id'])->delete(true);
+                    $matching = null;
+                }
+            }
+
+            $debit_account_id = $bankAccount['accounting_account_id'];
+            $credit_account_id = $bankStatementLine['accounting_account_id']['id'];
+
+            $credit_accounts_ids = [$credit_account_id];
+
+            if($bankStatementLine['accounting_account_id']['is_control_account'] && $bankStatementLine['accounting_account_id']['ownership_id']) {
+                $credit_accounts_ids = Account::search([
+                        ['condo_id', '=', $bankStatementLine['condo_id']],
+                        ['parent_account_id', '=', $bankStatementLine['accounting_account_id']['id']],
+                        ['is_control_account', '=', false],
+                        ['ownership_id', '<>', null],
+                        ['operation_assignment', 'in', ['co_owners_reserve_fund', 'co_owners_working_fund']]
+                    ])
+                    ->ids();
+            }
+
+            $accountingEntry = AccountingEntry::create([
+                    'condo_id'               => $bankStatementLine['condo_id'],
+                    'entry_date'             => $bankStatementLine['date'],
+                    'origin_object_class'    => self::getType(),
+                    'origin_object_id'       => $id,
+                    'bank_statement_line_id' => $id,
+                    'bank_statement_id'      => $bankStatementLine['bank_statement_id']['id'],
+                    'journal_id'             => $journal['id'],
+                    'description'            => $bankStatementLine['communication']
+                ])
+                ->first();
+
+            // attach accounting entry to the statement line
+            self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
+
             if(count($bankStatementLine['payments_ids']) > 0) {
                 foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
-
                     try {
 
-                        $funding = $payment['funding_id'];
+                        if(!$payment['funding_id']) {
+                            continue;
+                        }
 
-                        $debit_account_id = $bankAccount['accounting_account_id'];
-                        $credit_account_id = $funding['accounting_account_id'];
+                        $funding = Funding::id($payment['funding_id'])
+                            ->read(['name', 'due_amount', 'description'])
+                            ->first();
 
-                        $amount = round($payment['amount'], 2);
+                        if(!$funding) {
+                            continue;
+                        }
 
                         $description = $bankStatementLine['communication'];
 
@@ -1116,25 +1116,84 @@ class BankStatementLine extends Model {
                             }
                         }
 
-                        $accountingEntry = AccountingEntry::create([
-                                'condo_id'               => $bankStatementLine['condo_id'],
-                                'entry_date'             => $payment['receipt_date'],
-                                'origin_object_class'    => self::getType(),
-                                'origin_object_id'       => $id,
-                                'bank_statement_line_id' => $id,
-                                'bank_statement_id'      => $bankStatementLine['bank_statement_id']['id'],
-                                'journal_id'             => $journal['id'],
-                                'description'            => $bankStatementLine['communication']
-                            ])
-                            ->first();
+                        // attempt to auto-match based on Payments
+                        if(!$is_fully_matched) {
+
+                            $matching = null;
+                            $candidate_accounting_entry_line_id = null;
+
+                            // en principe il doit y avoir une ligne d'écriture comptable correspondant à ce montant, puisque le Funding a été généré sur base d'un accounting document
+                            $funding_amount = round((float) $funding['due_amount'], 2);
+                            // il est possible que la ligne correspondait à un seul versement pour plusieurs Fundings, dans ce cas, elle aura  été découpée en plusueurs Payment
+                            $payment_amount = round((float) $payment['amount'], 2);
+
+
+                            foreach([$funding_amount, $payment_amount] as $target_amount) {
+                                if(abs($target_amount) < 0.01) {
+                                    continue;
+                                }
+
+                                $credit_account_id = $bankStatementLine['accounting_account_id']['id'];
+
+                                $accountingEntryLineCandidates = AccountingEntryLine::search(
+                                        [
+                                            // non matched accounting entry lines
+                                            [
+                                                ['condo_id', '=', $bankStatementLine['condo_id']],
+                                                ['account_id', 'in', $credit_accounts_ids],
+                                                ['matching_id', 'is', null]
+                                            ],
+                                            // partially matched accounting entry lines
+                                            [
+                                                ['condo_id', '=', $bankStatementLine['condo_id']],
+                                                ['account_id', 'in', $credit_accounts_ids],
+                                                ['matching_level', 'in', ['none', 'part']]
+                                            ]
+                                        ],
+                                        // pick oldest entries first
+                                        ['sort' => ['entry_date' => 'asc']]
+                                    )
+                                    ->read([
+                                        'id', 'account_id', 'debit', 'credit', 'matching_id'
+                                    ]);
+
+
+                                foreach($accountingEntryLineCandidates as $accountingEntryLineCandidate) {
+
+                                    $line_amount = round($accountingEntryLineCandidate['debit'] - $accountingEntryLineCandidate['credit'], 2);
+
+                                    if(abs($target_amount - $line_amount) < 0.01) {
+                                        $candidate_accounting_entry_line_id = $accountingEntryLineCandidate['id'];
+                                        $credit_account_id = $accountingEntryLineCandidate['account_id'];
+                                        if($accountingEntryLineCandidate['matching_id']) {
+                                            $map_matchings_ids[$accountingEntryLineCandidate['matching_id']] = true;
+                                        }
+                                        break 2;
+                                    }
+                                }
+
+                            }
+
+                            if($candidate_accounting_entry_line_id) {
+                                if(!$matching) {
+                                    $matching = Matching::create([
+                                            'condo_id'              => $bankStatementLine['condo_id'],
+                                            'accounting_account_id' => $credit_account_id
+                                        ])
+                                        ->first();
+                                }
+                                AccountingEntryLine::id($candidate_accounting_entry_line_id)->update(['matching_id' => $matching['id']]);
+
+                                $map_matchings_ids[$matching['id']] = true;
+                            }
+                        }
 
                         // debit line
                         AccountingEntryLine::create([
                                 'condo_id'               => $bankStatementLine['condo_id'],
                                 'account_id'             => $debit_account_id,
-                                'debit'                  => $amount > 0 ? abs($amount) : 0,
-                                'credit'                 => $amount < 0 ? abs($amount) : 0,
-                                'funding_id'             => $funding['id'],
+                                'debit'                  => $payment_amount > 0 ? abs($payment_amount) : 0,
+                                'credit'                 => $payment_amount < 0 ? abs($payment_amount) : 0,
                                 'accounting_entry_id'    => $accountingEntry['id'],
                                 'bank_statement_line_id' => $id,
                                 'description'            => $description
@@ -1144,17 +1203,13 @@ class BankStatementLine extends Model {
                         AccountingEntryLine::create([
                                 'condo_id'               => $bankStatementLine['condo_id'],
                                 'account_id'             => $credit_account_id,
-                                'debit'                  => $amount < 0 ? abs($amount) : 0,
-                                'credit'                 => $amount > 0 ? abs($amount) : 0,
-                                'funding_id'             => $funding['id'],
+                                'debit'                  => $payment_amount < 0 ? abs($payment_amount) : 0,
+                                'credit'                 => $payment_amount > 0 ? abs($payment_amount) : 0,
+                                'matching_id'            => $matching['id'] ?? null,
                                 'accounting_entry_id'    => $accountingEntry['id'],
                                 'bank_statement_line_id' => $id,
                                 'description'            => $description
                             ]);
-
-                        // instant validation of the created accounting entry
-                        // #todo - put this in onafterPost
-                        AccountingEntry::id($accountingEntry['id'])->transition('validate');
 
                         // Store the created accounting entry ID back to the payment
                         Payment::id($payment_id)->update(['accounting_entry_id' => $accountingEntry['id']]);
@@ -1170,22 +1225,7 @@ class BankStatementLine extends Model {
 
                 try {
 
-                    $debit_account_id = $bankAccount['accounting_account_id'];
-                    $credit_account_id = $bankStatementLine['accounting_account_id'];
-
                     $amount = round($bankStatementLine['amount'], 2);
-
-                    $accountingEntry = AccountingEntry::create([
-                            'condo_id'               => $bankStatementLine['condo_id'],
-                            'entry_date'             => $bankStatementLine['date'],
-                            'origin_object_class'    => self::getType(),
-                            'origin_object_id'       => $id,
-                            'bank_statement_line_id' => $id,
-                            'bank_statement_id'      => $bankStatementLine['bank_statement_id']['id'],
-                            'journal_id'             => $journal['id'],
-                            'description'            => $bankStatementLine['communication']
-                        ])
-                        ->first();
 
                     // debit line
                     AccountingEntryLine::create([
@@ -1204,33 +1244,26 @@ class BankStatementLine extends Model {
                             'account_id'             => $credit_account_id,
                             'debit'                  => $amount < 0 ? abs($amount) : 0,
                             'credit'                 => $amount > 0 ? abs($amount) : 0,
+                            'matching_id'            => $matching['id'] ?? null,
                             'accounting_entry_id'    => $accountingEntry['id'],
                             'bank_statement_line_id' => $id,
                             'description'            => $bankStatementLine['communication']
                         ]);
 
-
-                    // #todo - put this in onafterPost
-                    AccountingEntry::id($accountingEntry['id'])
-                        // instant validation of the created accounting entry
-                        ->transition('validate');
-
-
-                    if($bankStatementLine['matching_id']) {
-                        // arbitrary match entry with given (existing) match
-                        AccountingEntry::id($accountingEntry['id'])
-                            ->do('match_with_matching', ['matching_id' => $bankStatementLine['matching_id']]);
-                    }
-                    else {
+                    if(!$is_fully_matched) {
                         // attempt to match the entry with an existing match (will cascade to accounting entry lines)
-                        AccountingEntry::id($accountingEntry['id'])
-                            ->do('attempt_match');
+                        AccountingEntry::id($accountingEntry['id'])->do('attempt_match');
                     }
                 }
                 catch(\Exception $e) {
                     trigger_error("APP::doGenerateAccountingEntry: Error while creating accounting entries for Bank Statement Line #{$id} : " . $e->getMessage(), EQ_REPORT_ERROR);
                 }
 
+            }
+
+            if(count($map_matchings_ids)) {
+                Matching::ids(array_keys($map_matchings_ids))
+                    ->do('refresh_matching_level');
             }
         }
 

@@ -203,6 +203,12 @@ class Matching extends Model {
         }
     }
 
+    public function getIndexes(): array {
+        return [
+            // search_existing_index
+            ['condo_id', 'accounting_account_id', 'is_balanced']
+        ];
+    }
 
 /*
     public function getUnique() {

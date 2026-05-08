@@ -105,12 +105,13 @@ if($params['funding_id']) {
         ->first();
 }
 
+$args = [];
+
 if($funding ?? null) {
-    BankStatementLine::id($params['id'])->do('reconcile_with_fundings', ['funding_ids' => [$funding['id']]]);
+    $args = ['funding_ids' => [$funding['id']]];
 }
-else {
-    BankStatementLine::id($params['id'])->do('attempt_reconcile');
-}
+
+BankStatementLine::id($params['id'])->do('attempt_reconcile', $args);
 
 $context->httpResponse()
         ->status(204)

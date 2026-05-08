@@ -344,8 +344,8 @@ class AccountingEntryLine extends Model {
                 $matching = Matching::search([
                         ['condo_id', '=', $accountingEntryLine['condo_id']],
                         ['accounting_account_id', '=', $accountingEntryLine['account_id']['id']],
-                        ['balance_amount', '=', $amount],
-                        ['is_balanced', '=', false]
+                        ['is_balanced', '=', false],
+                        ['balance_amount', '=', $amount]
                     ],
                     [
                         'sort' => ['created' => 'desc']
@@ -491,7 +491,8 @@ class AccountingEntryLine extends Model {
             // `supplier_index`
             ['condo_id', 'suppliership_id', 'entry_date'],
             // `ownership_index`
-            ['condo_id', 'ownership_id', 'entry_date']
+            ['condo_id', 'ownership_id', 'entry_date'],
+            ['condo_id', 'account_id', 'matching_id']
         ];
     }
 }

@@ -276,7 +276,6 @@ class AccountingEntry extends Model {
         ];
     }
 
-
     public static function getActions() {
         return [
             'cancel' => [
