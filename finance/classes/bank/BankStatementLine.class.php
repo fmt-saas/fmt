@@ -1135,6 +1135,7 @@ class BankStatementLine extends Model {
             $logs[] = "Attached accounting entry {$accountingEntry['id']} to bank statement line";
 
             if(count($bankStatementLine['payments_ids']) > 0) {
+                $used_candidate_accounting_entry_line_ids = [];
                 $logs[] = 'Processing ' . count($bankStatementLine['payments_ids']) . ' payment(s)';
                 foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
                     try {
@@ -1211,6 +1212,10 @@ class BankStatementLine extends Model {
 
 
                                 foreach($accountingEntryLineCandidates as $accountingEntryLineCandidate) {
+                                    if(isset($used_candidate_accounting_entry_line_ids[$accountingEntryLineCandidate['id']])) {
+                                        continue;
+                                    }
+
                                     $line_amount = round($accountingEntryLineCandidate['debit'] - $accountingEntryLineCandidate['credit'], 2);
 
                                     $is_line_match = false;
@@ -1238,6 +1243,7 @@ class BankStatementLine extends Model {
                             }
 
                             if($candidate_accounting_entry_line_id) {
+                                $used_candidate_accounting_entry_line_ids[$candidate_accounting_entry_line_id] = true;
                                 $matching = Matching::create([
                                         'condo_id'              => $bankStatementLine['condo_id'],
                                         'accounting_account_id' => $credit_account_id

@@ -199,7 +199,11 @@ class Matching extends Model {
     protected static function onbeforedelete($self) {
         $self->read(['accounting_entry_lines_ids']);
         foreach($self as $id => $matching) {
-            AccountingEntryLine::ids($matching['accounting_entry_lines_ids'])->update(['matching_id' => null, 'matching_level' => null]);
+            AccountingEntryLine::ids($matching['accounting_entry_lines_ids'])
+                ->update([
+                    'matching_id' => null,
+                    'matching_level' => null
+                ]);
         }
     }
 
