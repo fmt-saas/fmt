@@ -1147,13 +1147,19 @@ class BankStatementLine extends Model {
                         }
 
                         $funding = Funding::id($payment['funding_id'])
-                            ->read(['name', 'due_amount', 'description'])
+                            ->read(['name', 'due_amount', 'description', 'funding_type', 'misc_operation_id' => ['has_opening_journal']])
                             ->first();
 
                         if(!$funding) {
                             $logs[] = "Skipped payment {$payment_id}: funding {$payment['funding_id']} not found";
                             continue;
                         }
+
+                        if($funding['funding_type'] === 'misc_operation' && ($funding['misc_operation_id']['has_opening_journal'] ?? false)) {
+                            $logs[] = "Skipping funding {$payment['funding_id']} relating to Opening Balance";
+                            continue;
+                        }
+
                         $logs[] = "Retrieved funding {$payment['funding_id']} with due amount {$funding['due_amount']}";
 
                         $description = $bankStatementLine['communication'];
@@ -1178,7 +1184,7 @@ class BankStatementLine extends Model {
                             $funding_amount = round((float) $funding['due_amount'], 2);
                             // il est possible que la ligne correspondait à un seul versement pour plusieurs Fundings, dans ce cas, elle aura  été découpée en plusueurs Payment
                             $payment_amount = round((float) $payment['amount'], 2);
-                            $logs[] = "Matching targets for payment {$payment_id}: funding_amount={$funding_amount}, payment_amount={$payment_amount}";
+                            $logs[] = "Matching targets for payment {$payment_id}: funding_amount {$funding_amount} EUR, payment_amount {$payment_amount} EUR";
 
 
                             $accountingEntryLineCandidates = AccountingEntryLine::search(
