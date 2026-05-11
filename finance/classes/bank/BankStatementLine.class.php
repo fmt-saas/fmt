@@ -364,9 +364,10 @@ class BankStatementLine extends Model {
             'reconciliation_status' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'pending',      // no Funding reconciliation has been performed yet; relevant mainly once the line is posted
-                    'part',         // part of the line amount is reconciled with Fundings and requires follow-up
-                    'full'          // the full line amount is reconciled with Fundings
+                    'pending',          // no Funding reconciliation has been performed yet; relevant mainly once the line is posted
+                    'part',             // part of the line amount is reconciled with Fundings and requires follow-up
+                    'full',             // the full line amount is reconciled with Fundings
+                    'not_applicable'    // line not candidate to reconciliation (not required)
                 ],
                 'description'       => 'Funding reconciliation status of the bank statement line. This status only reflects reconciliation with Fundings and does not represent accounting entry matching.',
                 'default'           => 'pending'

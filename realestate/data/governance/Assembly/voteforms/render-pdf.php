@@ -65,13 +65,18 @@ try {
         }
     }
 
+    if(empty($temp_files)) {
+        trigger_error('APP::No PDF files generated for assembly ' . $assembly['id'], EQ_REPORT_WARNING);
+        throw new Exception('no_pdf_files_to_merge', EQ_ERROR_UNKNOWN);
+    }
+
     $escaped_files = array_map('escapeshellarg', $temp_files);
     $escaped_output = escapeshellarg($output_file);
     $cmd = 'qpdf --empty --pages ' . implode(' ', $escaped_files) . ' -- ' . $escaped_output . ' 2>&1';
 
     exec($cmd, $output_lines, $result_code);
 
-    if ($result_code !== 0 || !file_exists($output_file)) {
+    if($result_code !== 0 || !file_exists($output_file)) {
         trigger_error("APP::qpdf merge failed:\n" . implode("\n", $output_lines), EQ_REPORT_ERROR);
         throw new Exception('pdf_merge_failed', EQ_ERROR_UNKNOWN);
     }
