@@ -711,10 +711,14 @@
             "label": "Voting forms",
             "icon": "print",
             "description": "View printable vote forms for each ownership.",
+            "help": "Requires ownerships_ids to be set (and, therefore, assembly to be published).",
             "route": "/?get=realestate_governance_Assembly_voteforms_render-pdf&id=object.id",
             "target": "_blank",
             "absolute": true,
             "visible": [
+                [
+                    "status", "<>", "pending"
+                ],
                 [
                     "step",
                     "in",
