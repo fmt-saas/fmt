@@ -311,10 +311,10 @@ class MiscOperation extends Model {
                 'policies'      => [/* 'can_validate_accounting_entry' */],
                 'function'      => 'doValidateAccountingEntry'
             ],
-            'generate_fundings' => [
+            'create_fundings' => [
                 'description'   => 'Generate fundings for lines related to Ownerships.',
                 'policies'      => [/* 'can_validate_accounting_entry' */],
-                'function'      => 'doGenerateFundings'
+                'function'      => 'doCreateFundings'
             ]
         ];
     }
@@ -753,7 +753,7 @@ class MiscOperation extends Model {
         }
     }
 
-    protected static function doGenerateFundings($self) {
+    protected static function doCreateFundings($self) {
 
         /* from finance\accounting\invoice\Invoice: */
         // 'condo_id'
@@ -839,13 +839,9 @@ class MiscOperation extends Model {
             // impacts only MiscOp with flag `has_opening_journal` set to false
             ->do('generate_accounting_entry')
             ->do('validate_accounting_entry')
-            ->do('generate_fundings')
+            ->do('create_fundings')
             // all MiscOp
             ->update(['name' => null]);
-    }
-
-    protected static function doCreateFundings($self) {
-        // #todo - not sure of this : stand alone Misc Operation should not be linked to Funding, to allow arbitrary movements
     }
 
     public static function onchange($event, $values) {

@@ -192,10 +192,10 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'policies'      => ['can_generate_accounting_entry'],
                 'function'      => 'doGenerateAccountingEntry'
             ],
-            'generate_fundings' => [
+            'create_fundings' => [
                 'description'   => 'Generate fundings for each involved ownership.',
                 'policies'      => [],
-                'function'      => 'doGenerateFundings'
+                'function'      => 'doCreateFundings'
             ],
             'cancel_execution' => [
                 'description'   => 'Void the execution, and cancel subsequent accounting entry.',
@@ -381,7 +381,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         $self
             ->do('assign_invoice_number')
             ->do('generate_accounting_entry')
-            ->do('generate_fundings')
+            ->do('create_fundings')
             ->do('generate_fund_request_execution_correspondences')
             ->do('send_fund_requests')
             // automatically validate accounting entry
@@ -660,7 +660,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
     }
 
-    public static function doGenerateFundings($self) {
+    protected static function doCreateFundings($self) {
 
         $self->read([
                 'posting_date',

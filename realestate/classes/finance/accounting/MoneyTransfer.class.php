@@ -151,7 +151,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return array_merge(parent::getActions(), [
             'create_fundings' => [
                 'description'   => 'Creates a funding for the transfer followup.',
-                'policies'      => [/* 'can_generate_fundings' */],
+                'policies'      => [/* 'can_create_fundings' */],
                 'function'      => 'doCreateFundings'
             ]
         ]);

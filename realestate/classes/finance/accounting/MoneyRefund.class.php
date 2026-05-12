@@ -209,7 +209,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
             ],
             'create_fundings' => [
                 'description'   => 'Creates a funding for the transfer followup.',
-                'policies'      => [/* 'can_generate_fundings' */],
+                'policies'      => [/* 'can_create_fundings' */],
                 'function'      => 'doCreateFundings'
             ]
         ]);

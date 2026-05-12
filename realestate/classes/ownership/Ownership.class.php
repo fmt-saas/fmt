@@ -684,6 +684,7 @@ class Ownership extends \equal\orm\Model {
                         'account_category'      => $assignmentAccount['account_category'],
                         'description'           => $ownership['name'],
                         'is_control_account'    => true,
+                        'operation_assignment'  => 'co_owners_owner',
                         'ownership_id'          => $id,
                         'parent_account_id'     => $assignmentAccount['id']
                     ])

@@ -428,10 +428,6 @@ class BankStatementLine extends Model {
                 'description' => 'Verifies that the bank statement line is fully reconciled.',
                 'function'    => 'policyCanPost'
             ],
-            'can_generate_orphan_operation' => [
-                'description' => 'Verifies that statement line can be reconciled as a stand alone operation.',
-                'function'    => 'policyCanGenerateOrphanOperation'
-            ],
             'can_generate_accounting_entry' => [
                 'description' => 'Verifies that the accounting entry for the stand alone statement line can be generated.',
                 'function'    => 'policyCanGenerateAccountingEntry'
@@ -574,25 +570,25 @@ class BankStatementLine extends Model {
         }
 
         if($bankStatementLine['is_supplier']) {
+            // first attempt to find a match with reference and amount
             $fundings_ids = Funding::search([
                         ['condo_id', '=', $bankStatementLine['condo_id']],
                         ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
                         ['status', '<>', 'balanced'],
+                        ['is_cancelled', '=', false],
+                        ['remaining_amount', '>=', $bankStatementLine['amount']],
                         ['payment_reference', '=', $bankStatementLine['communication']],
-                        ['is_cancelled', '=', false]
                     ], ['sort' => ['issue_date' => 'asc']]
                 )
                 ->ids();
 
             if(!count($fundings_ids)) {
                 $fundings_ids = Funding::search([
-                        [
                             ['condo_id', '=', $bankStatementLine['condo_id']],
                             ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
                             ['status', '<>', 'balanced'],
-                            ['remaining_amount', '>=', $bankStatementLine['amount']],
-                            ['is_cancelled', '=', false]
-                        ],
+                            ['is_cancelled', '=', false],
+                            ['remaining_amount', '>=', $bankStatementLine['amount']]
                         ], ['sort' => ['issue_date' => 'asc']]
                     )
                     ->read(['id', 'due_date', 'remaining_amount'])
@@ -813,6 +809,7 @@ class BankStatementLine extends Model {
     protected static function onbeforePost($self) {
         // #memo - we cannot trust the user : business logic imposes the use of oldest Fundings first
         $self
+            // find Fundings if applicable
             ->do('attempt_reconcile')
             ->do('generate_accounting_entry');
     }
@@ -981,48 +978,6 @@ class BankStatementLine extends Model {
                 continue;
             }
 
-        }
-        return $result;
-    }
-
-    // on ne doit pas générer une opération mais essayer de rattacher ce qui peut l'être
-    protected static function policyCanGenerateOrphanOperation($self) {
-        $result = [];
-
-
-        // si les écritures ne sont pas lettrées : pas de payment pour la ligne
-        // on prend toutes les écritures de la ligne, et on cherche un matching
-        // retrouver un matching dont le solde correspond au montant de la ligne
-
-        $self->read([
-                'condo_id', 'status', 'payments_ids',
-                'accounting_account_id'
-            ]);
-
-        foreach($self as $id => $bankStatementLine) {
-
-            if($bankStatementLine['status'] !== 'pending') {
-                $result[$id] = [
-                    'invalid_status' => 'Only pending bank statement lines can be modified.'
-                ];
-
-                continue;
-            }
-
-            if(count($bankStatementLine['payments_ids']) > 0) {
-                $result[$id] = [
-                    'invalid_status' => 'Only non-reconciled bank statement lines can be posted.'
-                ];
-
-                continue;
-            }
-
-            if(!$bankStatementLine['accounting_account_id']) {
-                $result[$id] = [
-                    'invalid_status' => 'Only bank statement lines assigned to an accounting account can be posted.'
-                ];
-                continue;
-            }
         }
         return $result;
     }

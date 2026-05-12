@@ -109,7 +109,7 @@ class AccountingEntryLine extends Model {
                 'readonly'          => true
             ],
 
-            // #deprecated - this field should not be used (no direct link between Funding and AccountingEntryLine)
+            // #deprecated - this field should not be used (direct link is between Funding and AccountingEntryLine)
             'funding_id' => [
                 'deprecated'        => true,
                 'type'              => 'many2one',

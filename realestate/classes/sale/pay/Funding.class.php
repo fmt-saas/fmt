@@ -52,13 +52,13 @@ class Funding extends \sale\pay\Funding {
                 'dependents'        => ['paid_amount', 'is_paid']
             ],
 
-            'accounting_entry_lines_ids' => [
-                'type'              => 'one2many',
+            'accounting_entry_line_id' => [
+                'type'              => 'many2one',
                 'foreign_object'    => 'realestate\finance\accounting\AccountingEntryLine',
-                'foreign_field'     => 'funding_id',
-                'description'       => "Accounting entry lines (records) of the Funding.",
+                'description'       => "Accounting entry line the Funding originates from.",
                 'domain'            => [
-                    ['condo_id', '=', 'object.condo_id']
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['account_id', '=', 'object.accounting_account_id']
                 ]
             ],
 

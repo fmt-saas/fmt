@@ -519,7 +519,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
     /**
      * Create the fundings according to the invoices.
      */
-    public static function doCreateFundings($self) {
+    protected static function doCreateFundings($self) {
         $self->read(['id', 'price', 'payment_reference', 'due_date', 'funding_id']);
 
         foreach($self as $invoice) {

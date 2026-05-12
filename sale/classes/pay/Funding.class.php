@@ -61,16 +61,6 @@ class Funding extends \equal\orm\Model {
                 'dependents'        => ['paid_amount', 'remaining_amount', 'is_paid']
             ],
 
-            'accounting_entry_lines_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'finance\accounting\AccountingEntryLine',
-                'foreign_field'     => 'funding_id',
-                'description'       => "Accounting entry of the Matching.",
-                'domain'            => [
-                    ['condo_id', '=', 'object.condo_id']
-                ]
-            ],
-
             'funding_type' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -181,6 +171,16 @@ class Funding extends \equal\orm\Model {
                 'relation'          => ['counterpart_bank_account_id' => 'bank_account_iban'],
                 'store'             => true,
                 'instant'           => true
+            ],
+
+            'accounting_entry_line_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\AccountingEntryLine',
+                'description'       => "Accounting entry line the Funding originates from.",
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['account_id', '=', 'object.accounting_account_id']
+                ]
             ],
 
             'sale_invoice_id' => [

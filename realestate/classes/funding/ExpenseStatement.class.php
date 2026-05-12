@@ -224,7 +224,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                             'is_balanced',
                             'can_generate_statement',
                             'can_generate_accounting_entries',
-                            'can_generate_fundings',
+                            'can_create_fundings',
                             'can_assign_invoice_number',
                             'can_clear_accounting_entry_lines',
                             'can_validate_accounting_entries',
@@ -270,10 +270,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'policies'      => ['can_generate_statement'],
                 'function'      => 'doGenerateExpenseStatementCorrespondences'
             ],
-            'generate_fundings' => [
+            'create_fundings' => [
                 'description'   => 'Generate fundings for each involved ownership.',
                 'policies'      => [],
-                'function'      => 'doGenerateFundings'
+                'function'      => 'doCreateFundings'
             ],
             'clear_accounting_entry_lines' => [
                 'description'   => 'Mark original accounting entries (records) as cleared by expense statement.',
@@ -324,7 +324,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'description' => 'Verifies that accounting entries can be generated for the statement.',
                 'function'    => 'policyCanGenerateAccountingEntries'
             ],
-            'can_generate_fundings' => [
+            'can_create_fundings' => [
                 'description' => 'Verifies that fundings can be generated for the statement.',
                 'function'    => 'policyCanGenerateFundings'
             ],
@@ -673,7 +673,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     // validate accounting entries (to be considered in financial statements)
                     ->do('validate_accounting_entries')
                     // generate payment request for each ownership
-                    ->do('generate_fundings')
+                    ->do('create_fundings')
                     // mark related fiscal period as closed (and fiscal year if last period)
                     ->do('close_fiscal_period');
             }
@@ -1089,7 +1089,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         }
     }
 
-    protected static function doGenerateFundings($self) {
+    protected static function doCreateFundings($self) {
 
 
         $self->read([
@@ -1198,81 +1198,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         }
     }
 
-
-/*
-    protected static function doGenerateFundings($self) {
-
-
-        $self->read([
-                'name',
-                'posting_date',
-                'due_date',
-                'statement_bank_account_id',
-                'fiscal_year_id' => ['date_from'],
-                'fiscal_period_id' => ['date_from'],
-                'condo_id' => ['code'],
-                'statement_owners_ids' => [
-                    'ownership_id' => ['code'],
-                    'statement_owner_lines_ids' => [
-                        'price'
-                    ]
-                ]
-            ]);
-
-        foreach($self as $id => $expenseStatement) {
-            // #todo - supprimer les funding déjà existant si'il y en a
-            foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
-
-
-                // Funding::search([
-                //         ['condo_id', '=', $expenseStatement['condo_id']['id']],
-                //         ['funding_type', '=', 'expense_statement'],
-                //         ['expense_statement_id', '=', $id],
-                //         ['ownership_id', '=', $ownership_id]
-                //     ])
-                //     ->delete(true);
-
-
-                $ownership_id = $statementOwner['ownership_id']['id'];
-
-                $due_amount = 0.0;
-                foreach($statementOwner['statement_owner_lines_ids'] as $line_id => $ownerLine) {
-                    // use both positive and negative amounts
-                    $due_amount += $ownerLine['price'];
-                }
-
-                $ownershipAccount = Account::search([
-                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
-                        ['ownership_id', '=', $ownership_id],
-                        ['operation_assignment', '=', 'co_owners_working_fund']
-                    ])
-                    ->first();
-
-                if(!$ownershipAccount) {
-                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
-                }
-
-                // a funding cannot be issued nor due in the past
-                $issue_date = max(strtotime('today'), $expenseStatement['posting_date']);
-                $due_date = $expenseStatement['due_date'];
-
-                Funding::create([
-                        'condo_id'                          => $expenseStatement['condo_id']['id'],
-                        'description'                       => $expenseStatement['name'],
-                        'funding_type'                      => 'expense_statement',
-                        'expense_statement_id'              => $id,
-                        'ownership_id'                      => $ownership_id,
-                        'bank_account_id'                   => $expenseStatement['statement_bank_account_id'],
-                        'accounting_account_id'             => $ownershipAccount['id'],
-                        'issue_date'                        => $issue_date,
-                        'due_date'                          => $due_date,
-                        'due_amount'                        => $due_amount
-                    ]);
-
-            }
-        }
-    }
-*/
     protected static function doClearAccountingEntryLines($self) {
         foreach($self as $id => $expenseStatement) {
             AccountingEntryLine::search(['clearing_expense_statement_id', '=', $id])
