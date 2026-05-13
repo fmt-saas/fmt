@@ -310,6 +310,45 @@ class Suppliership extends \equal\orm\Model {
             if(!$suppliership['condo_id']) {
                 continue;
             }
+
+            $assignmentAccount = Account::search([
+                    ['condo_id', '=', $suppliership['condo_id']],
+                    ['operation_assignment', '=', 'suppliers'],
+                    ['suppliership_id', '=', null]
+                ])
+                ->read(['code', 'account_category', 'account_chart_id'])
+                ->first();
+
+            if(!$assignmentAccount) {
+                trigger_error("APP::Could not find account candidate for condominium {$suppliership['condo_id']} for operation assignment `suppliers`", EQ_REPORT_ERROR);
+                throw new \Exception("missing_mandatory_account", EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $parentAccount = Account::search([
+                    ['condo_id', '=', $suppliership['condo_id']],
+                    ['code', '=', $assignmentAccount['code'] . $suppliership['code']]
+                ])
+                ->read(['id', 'code'])
+                ->first();
+
+            if(!$parentAccount) {
+                // #memo - a single account per Supplier
+                $parentAccount = Account::create([
+                        'code'                  => $assignmentAccount['code'] . $suppliership['code'],
+                        'condo_id'              => $suppliership['condo_id'],
+                        'account_chart_id'      => $assignmentAccount['account_chart_id'],
+                        'account_category'      => $assignmentAccount['account_category'],
+                        'description'           => $suppliership['name'],
+                        // 'is_control_account'    => true,
+                        'operation_assignment'  => 'suppliers_supplier',
+                        'suppliership_id'       => $id,
+                        'parent_account_id'     => $assignmentAccount['id']
+                    ])
+                    ->read(['id', 'code'])
+                    ->first();
+            }
+
+            /*
             $operation_assignments = [
                     'suppliers',
                 ];
@@ -348,7 +387,7 @@ class Suppliership extends \equal\orm\Model {
                 }
 
             }
-
+            */
         }
     }
 

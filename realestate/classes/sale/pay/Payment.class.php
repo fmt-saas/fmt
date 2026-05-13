@@ -40,6 +40,15 @@ class Payment extends \realestate\sale\pay\FundingAllocation {
                 'default'           => 'wire_transfer'
             ],
 
+            'receipt_bank_account_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\CondominiumBankAccount',
+                'description'       => 'The Bank account the payment relates to.',
+                'help'              => 'This is the bank account on which movement was actually performed (received or sent), and might differ from the Funding banK-account_id.',
+                'readonly'          => true,
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
             'bank_statement_line_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankStatementLine',

@@ -803,6 +803,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         $self->read([
                 'condo_id', 'name', 'price', 'payment_reference', 'emission_date', 'due_date', 'has_mandate', 'has_payment_on_hold',
                 'funding_id',
+                'accounting_entry_id',
                 'suppliership_id',
                 'suppliership_bank_account_id' => ['bank_account_id']
             ]);
@@ -812,12 +813,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             if($purchaseInvoice['funding_id']) {
                 continue;
             }
-            // retrieve the condo's current account
-            $bankAccount = CondominiumBankAccount::search([
-                    ['condo_id', '=', $purchaseInvoice['condo_id']],
-                    ['bank_account_type', '=', 'bank_current']
-                ])
-                ->first();
 
             $suppliershipAccount = Account::search([
                     ['condo_id', '=', $purchaseInvoice['condo_id']],
@@ -830,6 +825,26 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
             }
 
+            $accountingEntryLine = AccountingEntryLine::search([
+                    ['condo_id', '=', $purchaseInvoice['condo_id']],
+                    ['account_id', '=', $suppliershipAccount['id']],
+                    ['accounting_entry_id', '=', $purchaseInvoice['accounting_entry_id']]
+                ])
+                ->read([
+                    'id',
+                    'debit',
+                    'credit',
+                    'account_id' => ['suppliership_id', 'operation_assignment']
+                ])
+                ->first();
+
+            // retrieve the condo's current account
+            $bankAccount = CondominiumBankAccount::search([
+                    ['condo_id', '=', $purchaseInvoice['condo_id']],
+                    ['bank_account_type', '=', 'bank_current']
+                ])
+                ->first();
+
             $values = [
                     'condo_id'                          => $purchaseInvoice['condo_id'],
                     'description'                       => $purchaseInvoice['name'],
@@ -839,6 +854,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'suppliership_id'                   => $purchaseInvoice['suppliership_id'],
                     'counterpart_bank_account_id'       => $purchaseInvoice['suppliership_bank_account_id']['bank_account_id'],
                     'accounting_account_id'             => $suppliershipAccount['id'],
+                    'accounting_entry_line_id'          => $accountingEntryLine['id'],
                     'due_amount'                        => -$purchaseInvoice['price'],
                     'is_paid'                           => false,
                     'issue_date'                        => $purchaseInvoice['emission_date'],
@@ -1255,9 +1271,14 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             $suppliershipAccount = Account::search([
                     ['condo_id', '=', $invoice['condo_id']],
-                    ['suppliership_id', '=', $invoice['suppliership_id']]
+                    ['suppliership_id', '=', $invoice['suppliership_id']],
+                    ['operation_assignment', '=', 'suppliers']
                 ])
                 ->first();
+
+            if(!$suppliershipAccount) {
+                throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+            }
 
             // 1) create the credit line on the supplier account
             AccountingEntryLine::create([

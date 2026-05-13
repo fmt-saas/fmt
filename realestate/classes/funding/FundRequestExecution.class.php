@@ -17,6 +17,7 @@ use realestate\ownership\Ownership;
 use fmt\setting\Setting;
 use realestate\ownership\OwnershipCommunicationPreference;
 use realestate\sale\pay\Funding;
+use realestate\sale\pay\FundingAllocation;
 use sale\pay\Payment;
 
 #memo - Fund requests executions are handled as sales invoices
@@ -645,6 +646,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 AccountingEntryLine::create([
                         'condo_id'              => $requestExecution['condo_id'],
                         'accounting_entry_id'   => $accountingEntry['id'],
+                        // #memo - in realestate package, 'sale_invoice_line_id' targets `ExpenseStatementOwnerLine` and `FundRequestExecutionLine`
                         'sale_invoice_line_id'  => $execution_line_id,
                         'description'           => $requestExecution['name'],
                         'account_id'            => $ownershipAccount['id'],
@@ -663,15 +665,16 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
     protected static function doCreateFundings($self) {
 
         $self->read([
+                'condo_id',
                 'posting_date',
                 'due_date',
                 'fiscal_year_id' => ['date_from'],
                 'fiscal_period_id' => ['date_from', 'date_to'],
-                'condo_id' => ['id', 'code'],
+                'accounting_entry_id',
                 'fund_request_id' => [
                     'id', 'name', 'request_type', 'request_account_id', 'request_bank_account_id'
                 ],
-                'execution_lines_ids' => ['ownership_id' => ['code'], 'called_amount', 'funding_id']
+                'execution_lines_ids' => ['ownership_id', 'called_amount', 'funding_id']
             ]);
 
         foreach($self as $id => $requestExecution) {
@@ -679,66 +682,121 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             $debit_operation_assignment = static::MAP_DEBIT_OPERATION_ASSIGNMENTS[$requestExecution['fund_request_id']['request_type']];
 
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
-                $ownership_id = $executionLine['ownership_id']['id'];
+                $ownership_id = $executionLine['ownership_id'];
 
                 // find the account based on operation_assignment
                 $logs[] = "Fetching account for ownership {$ownership_id}";
 
                 // #memo - always use Ownership control_account for Fundings
                 $ownershipAccount = Account::search([
-                        ['condo_id', '=', $requestExecution['condo_id']['id']],
+                        ['condo_id', '=', $requestExecution['condo_id']],
                         ['ownership_id', '=', $ownership_id],
-                        ['is_control_account', '=', true]
-                        // ['operation_assignment', '=', $debit_operation_assignment]
+                        ['operation_assignment', '=', $debit_operation_assignment]
                     ])
                     ->first();
 
                 if(!$ownershipAccount) {
-                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                    throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
-                // retrieve detached-non-empty fundings relating to the targeted ownership and fund request, if any
-                $fund_request_id = $requestExecution['fund_request_id']['id'];
-                $fundings = Funding::search([
-                        ['ownership_id', '=', $ownership_id],
-                        ['funding_type', '=', 'fund_request'],
-                        ['fund_request_id', '=', $fund_request_id],
-                        ['fund_request_execution_id', '=', null]
+                $logs[] = "Retrieved owner account {$ownershipAccount['id']}";
+
+                $accountingEntryLine = AccountingEntryLine::search([
+                        ['condo_id', '=', $requestExecution['condo_id']],
+                        ['account_id', '=', $ownershipAccount['id']],
+                        ['accounting_entry_id', '=', $requestExecution['accounting_entry_id']]
                     ])
-                    ->read(['payments_ids']);
+                    ->first();
 
-                $paid_amount = 0;
-                foreach($fundings as $funding_id => $funding) {
-                    // #memo - empty fundings have been removed at cancellation of previous execution(s)
-                    // compute already paid/reimbursed amounts
-                    $payments = Payment::ids($funding['payments_ids'])->read(['amount'])->get(true);
-                    $paid_amount += round(array_sum(array_column($payments, 'amount')), 2);
-                    // attached funding to current execution
-                    Funding::id($funding_id)->update(['fund_request_execution_id' => $id]);
+                if(!$accountingEntryLine) {
+                    throw new \Exception('missing_accounting_entry_line', EQ_ERROR_INVALID_PARAM);
                 }
 
+                // #memo - Fundings always use Ownership control_account
+                $fundingOwnershipAccount = Account::search([
+                        ['condo_id', '=', $requestExecution['condo_id']],
+                        ['ownership_id', '=', $ownership_id],
+                        ['is_control_account', '=', true]
+                    ])
+                    ->first();
+
+                if(!$fundingOwnershipAccount) {
+                    throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                }
                 // #memo - for importing historical data, we must be able to issue a funding in the past
                 $issue_date = $requestExecution['posting_date'];
                 $due_date = $requestExecution['due_date'];
 
-                // 1) generate theoretical Funding
-                $due_amount = $executionLine['called_amount'] - $paid_amount;
+                $remaining_due_amount = $executionLine['called_amount'];
 
-                Funding::create([
-                        'condo_id'                          => $requestExecution['condo_id']['id'],
-                        'description'                       => $requestExecution['fund_request_id']['name'],
-                        'fund_request_id'                   => $requestExecution['fund_request_id']['id'],
-                        'fund_request_execution_id'         => $id,
-                        'ownership_id'                      => $ownership_id,
-                        'accounting_account_id'             => $ownershipAccount['id'],
-                        'bank_account_id'                   => $requestExecution['fund_request_id']['request_bank_account_id'],
-                        'issue_date'                        => $issue_date,
-                        'due_date'                          => $due_date,
-                        'due_amount'                        => $due_amount,
-                        'funding_type'                      => 'fund_request'
-                    ]);
+                $ownershipFunding = Funding::create([
+                        'condo_id'                  => $requestExecution['condo_id'],
+                        'description'               => $requestExecution['fund_request_id']['name'],
+                        'fund_request_id'           => $requestExecution['fund_request_id']['id'],
+                        'fund_request_execution_id' => $id,
+                        'ownership_id'              => $ownership_id,
+                        'accounting_account_id'     => $fundingOwnershipAccount['id'],
+                        'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                        'bank_account_id'           => $requestExecution['fund_request_id']['request_bank_account_id'],
+                        'issue_date'                => $issue_date,
+                        'due_date'                  => $due_date,
+                        'due_amount'                => $remaining_due_amount,
+                        'funding_type'              => 'fund_request'
+                    ])
+                    ->first();
+
+                // retrieve non-empty fundings relating to the targeted ownership with opposite sign
+                // #memo - called amounts for fund requests are always positive
+                $fundings = Funding::search(
+                        [
+                            ['condo_id', '=', $requestExecution['condo_id']],
+                            ['accounting_account_id', '=', $fundingOwnershipAccount['id']],
+                            ['status', '<>', 'balanced'],
+                            ['is_cancelled', '=', false],
+                            ['remaining_amount', '<', 0]
+                        ],
+                        ['sort' => ['issue_date' => 'asc']]
+                    )
+                    ->read(['remaining_amount', 'accounting_entry_line_id']);
+
+                foreach($fundings as $funding_id => $funding) {
+                    $delta = min($remaining_due_amount , abs($funding['remaining_amount']));
+                    FundingAllocation::create([
+                            'condo_id'                  => $requestExecution['condo_id'],
+                            'amount'                    => $delta,
+                            'receipt_date'              => $requestExecution['posting_date'],
+                            'origin_object_class'       => 'realestate\funding\FundRequestExecution',
+                            'origin_object_id'          => $id,
+                            'fund_request_execution_id' => $id,
+                            'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                            'funding_id'                => $funding_id
+                        ]);
+
+                    FundingAllocation::create([
+                            'condo_id'                  => $requestExecution['condo_id'],
+                            'amount'                    => -$delta,
+                            'receipt_date'              => $requestExecution['posting_date'],
+                            'origin_object_class'       => 'realestate\funding\FundRequestExecution',
+                            'origin_object_id'          => $id,
+                            'fund_request_execution_id' => $id,
+                            'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                            'funding_id'                => $ownershipFunding['id']
+                        ]);
+
+                    // merge Matching if applicable
+                    AccountingEntryLine::id($accountingEntryLine['id'])
+                        ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
+
+                    $remaining_due_amount  -= $delta;
+                    if($remaining_due_amount  < 0.01) {
+                        break;
+                    }
+                }
+
 
                 // 2) generate instant Funding based on current account statement
+                /*
+                // #todo - Matching logic change - no longer necessary - to confirm
                 $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
                     'ownership_id'      => $ownership_id,
                     'date_from'         => $requestExecution['fiscal_period_id']['date_from'],
@@ -764,11 +822,9 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         'due_date'                          => $due_date,
                         'due_amount'                        => $closing_balance
                     ]);
-
+                */
             }
         }
     }
-
-
 
 }

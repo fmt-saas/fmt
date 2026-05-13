@@ -126,7 +126,7 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
 
     public static function canupdate($self, $values) {
         $self->read(['is_cleared', 'accounting_entry_id' => ['status']]);
-        $allowed_fields = ['status', 'description', 'matching_id', 'matching_level', 'clearing_expense_statement_id', 'is_cleared', 'is_posted'];
+        $allowed_fields = ['status', 'description', 'old_matching_id', 'matching_id', 'matching_level', 'clearing_expense_statement_id', 'is_cleared', 'is_posted'];
 
         foreach($self as $id => $accountingEntryLine) {
             $self_allowed_fields = $allowed_fields;

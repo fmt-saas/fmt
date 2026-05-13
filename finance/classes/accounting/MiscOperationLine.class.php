@@ -195,7 +195,7 @@ class MiscOperationLine extends Model {
         ];
     }
 
-    // description de la MiscOperation
+    // Add MiscOperation description
     protected static function oncreate($self, $values, $lang) {
         if(isset($values['misc_operation_id'])) {
             $miscOperation = MiscOperation::id($values['misc_operation_id'])

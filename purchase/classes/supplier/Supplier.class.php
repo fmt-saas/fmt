@@ -6,7 +6,6 @@
 */
 namespace purchase\supplier;
 
-use finance\bank\BankAccount;
 use identity\Identity;
 
 class Supplier extends Identity {

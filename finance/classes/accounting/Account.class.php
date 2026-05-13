@@ -199,6 +199,7 @@ class Account extends Model {
                     'bank_tier',
                     'bank_transfer',
                     'co_owners',
+                    'co_owners_owner',                  // single Owner, parent account of specific co_owners_reserve_fund & co_owners_working_fund
                     'co_owners_former',
                     'co_owners_repayment',
                     'co_owners_reserve_fund',           // used for FundRequestExecution
@@ -223,6 +224,7 @@ class Account extends Model {
                     'special_reserve_fund_call',        // used for FundRequest
                     'special_reserve_fund_variation',
                     'suppliers',
+                    'suppliers_supplier',               // single Supplier
                     // not in imported Chart of Accounts
                     'work_expenses',
                     'work_provisions',                  // used for FundRequest
@@ -281,11 +283,20 @@ class Account extends Model {
                 'default'           => 100
             ],
 
+            'is_matchable' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => "Is an apportionment possible?",
+                'function'          => 'calcIsMatchable',
+                'store'             => true
+            ],
+
             'matchings_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'finance\accounting\Matching',
                 'foreign_field'     => 'accounting_account_id',
-                'description'       => "Matchings referencing the account.",
+                'description'       => 'Matchings targeting the account.',
+                'visible'           => ['is_matchable', '=', true],
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
@@ -386,6 +397,21 @@ class Account extends Model {
             }
         }
 
+        return $result;
+    }
+
+    protected static function calcIsMatchable($self) {
+        $result = [];
+        $self->read(['operation_assignment']);
+        foreach($self as $id => $account) {
+            $result[$id] = false;
+            if($account['operation_assignment']) {
+                $result[$id] = ($account['operation_assignment'] === 'suppliers_supplier'
+                        || $account['operation_assignment'] === 'co_owners_reserve_fund'
+                        || $account['operation_assignment'] === 'co_owners_working_fund'
+                    );
+            }
+        }
         return $result;
     }
 

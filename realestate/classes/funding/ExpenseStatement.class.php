@@ -1097,6 +1097,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'posting_date',
                 'date_to',
                 'due_date',
+                'accounting_entry_id',
                 'statement_bank_account_id',
                 'is_cutoff_at_period_end',
                 'fiscal_year_id' => ['date_from'],

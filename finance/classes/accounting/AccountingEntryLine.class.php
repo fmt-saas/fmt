@@ -127,6 +127,12 @@ class AccountingEntryLine extends Model {
                 'dependents'        => ['matching_level']
             ],
 
+            'old_matching_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\Matching',
+                'description'       => 'Previous attached Matching before an update occurs on marching_id.',
+            ],
+
             'matching_level' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -146,6 +152,7 @@ class AccountingEntryLine extends Model {
                 'foreign_object'    => 'finance\accounting\Account',
                 'description'       => "Accounting account the entry relates to.",
                 'required'          => true,
+                'onupdate'          => 'onupdateAccountId',
                 'ondelete'          => 'null',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
                 'dependents'        => ['account_code', 'account_operation_assignment', 'account_class']
@@ -292,6 +299,11 @@ class AccountingEntryLine extends Model {
                 'policies'      => [/* */],
                 'function'      => 'doAttemptMatch'
             ],
+            'attempt_match_with_line' => [
+                'description'   => 'Attempts to match line with another Accounting Entry Line. Result is either a single Matching or 2 distinct Matching objects.',
+                'policies'      => [/* */],
+                'function'      => 'doAttemptMatchWithLine'
+            ],
             'match_with_matching' => [
                 'description'   => 'Arbitrary link the entry line to a given Matching.',
                 'policies'      => [/* */],
@@ -316,6 +328,56 @@ class AccountingEntryLine extends Model {
         return $result;
     }
 
+    protected static function doAttemptMatchWithLine($self, $values) {
+        if(!isset($values['accounting_entry_line_id'])) {
+            throw new \Exception('missing_mandatory_accounting_entry_line', EQ_ERROR_INVALID_PARAM);
+        }
+        $targetAccountingEntryLine = self::id($values['accounting_entry_line_id'])
+            ->read(['id', 'condo_id', 'account_id', 'matching_id' => ['id', 'balance_amount']])
+            ->first();
+        if(!$targetAccountingEntryLine) {
+            throw new \Exception('unknown_target_accounting_entry_line', EQ_ERROR_INVALID_PARAM);
+        }
+        if(!$targetAccountingEntryLine['matching_id']) {
+            return;
+        }
+        if(abs($targetAccountingEntryLine['matching_id']['balance_amount']) < 0.01) {
+            return;
+        }
+
+        $matching_balance = $targetAccountingEntryLine['matching_id']['balance_amount'];
+        $old_sign = ($matching_balance < 0) ? -1 : 1;
+
+        $self->read(['id', 'condo_id', 'debit', 'credit', 'account_id', 'matching_id' => ['id', 'balance_amount']]);
+        foreach($self as $id => $sourceAccountingEntryLine) {
+            if($sourceAccountingEntryLine['account_id'] !== $targetAccountingEntryLine['account_id']) {
+                throw new \Exception('match_attempt_on_distinct_accounts', EQ_ERROR_INVALID_PARAM);
+            }
+
+            if($targetAccountingEntryLine['id'] === $id) {
+                continue;
+            }
+            if($sourceAccountingEntryLine['matching_id']['id'] === $targetAccountingEntryLine['matching_id']['id']) {
+                continue;
+            }
+
+            $line_balance = $sourceAccountingEntryLine['debit'] - $sourceAccountingEntryLine['credit'];
+
+            if(abs($line_balance + $matching_balance) < 0.01) {
+                $self::id($id)->update(['matching_id' => $targetAccountingEntryLine['matching_id']['id']]);
+                $matching_balance += $line_balance;
+                break;
+            }
+            else {
+                $new_sign = (($matching_balance + $line_balance) < 0) ? -1 : 1;
+                if($old_sign === $new_sign) {
+                    $self::id($id)->update(['matching_id' => $targetAccountingEntryLine['matching_id']['id']]);
+                    $matching_balance += $line_balance;
+                }
+            }
+        }
+    }
+
     protected static function doMatchWithMatching($self, $values) {
         if(!isset($values['matching_id'])) {
             throw new \Exception('missing_mandatory_matching_id', EQ_ERROR_INVALID_PARAM);
@@ -334,10 +396,6 @@ class AccountingEntryLine extends Model {
     protected static function doAttemptMatch($self) {
         $self->read(['condo_id', 'matching_id', 'account_id' => ['account_type'], 'debit', 'credit']);
         foreach($self as $id => $accountingEntryLine) {
-            // skip records that are already matched (matching cancellation must be done manually)
-            if($accountingEntryLine['matching_id']) {
-                continue;
-            }
             if($accountingEntryLine['account_id']['account_type'] === 'B') {
                 // If a Matching exists on this account and the delta matches the amount of the line, then assign the entry to this Matching
                 $amount = round($accountingEntryLine['debit'] - $accountingEntryLine['credit'], 2);
@@ -395,6 +453,36 @@ class AccountingEntryLine extends Model {
         $self->update(['matching_level' => null]);
     }
 
+    protected static function oncreate($self, $values) {
+        if(!array_key_exists('matching_id', $values)) {
+            $self->read(['condo_id', 'account_id', 'bank_statement_line_id']);
+            foreach($self as $id => $accountingEntryLine) {
+                if(isset($accountingEntryLine['condo_id'], $accountingEntryLine['account_id'])) {
+                    $matching = Matching::create([
+                            'condo_id'              => $accountingEntryLine['condo_id'],
+                            'accounting_account_id' => $accountingEntryLine['account_id']
+                        ])
+                        ->first();
+                    self::id($id)->update(['matching_id' => $matching['id']]);
+                }
+            }
+        }
+    }
+
+    protected static function onupdateAccountId($self) {
+        $self->read(['condo_id', 'account_id', 'bank_statement_line_id']);
+        foreach($self as $id => $accountingEntryLine) {
+            if(isset($accountingEntryLine['condo_id'], $accountingEntryLine['account_id'])) {
+                $matching = Matching::create([
+                        'condo_id'              => $accountingEntryLine['condo_id'],
+                        'accounting_account_id' => $accountingEntryLine['account_id']
+                    ])
+                    ->first();
+                self::id($id)->update(['matching_id' => $matching['id']]);
+            }
+        }
+    }
+
     public static function defaultCondoId($values) {
         $result = null;
         if(isset($values['accounting_entry_id'])) {
@@ -440,8 +528,13 @@ class AccountingEntryLine extends Model {
     }
 
     protected static function onupdateMatchingId($self) {
-        $self->read(['matching_id']);
+        $self->read(['matching_id', 'old_matching_id']);
         foreach($self as $id => $accountingEntryLine) {
+            if($accountingEntryLine['old_matching_id']) {
+                // matching will remove itself if empty
+                Matching::id($accountingEntryLine['old_matching_id'])->do('check_emptiness');
+                self::id($id)->update(['old_matching_id' => null]);
+            }
             if($accountingEntryLine['matching_id']) {
                 Matching::id($accountingEntryLine['matching_id'])->do('refresh_matching_level');
             }
@@ -453,12 +546,11 @@ class AccountingEntryLine extends Model {
     }
 
     protected static function onbeforeupdate($self, $values) {
-        // matching_id is about to be reset to null
-        if(array_key_exists('matching_id', $values) && !$values['matching_id']) {
+        // matching_id is about to be updated, store it as old_matching_id
+        if(array_key_exists('matching_id', $values)) {
             $self->read(['matching_id']);
             foreach($self as $id => $accountingEntryLine) {
-                // matching will remove itself if empty
-                Matching::id($accountingEntryLine['matching_id'])->do('check_emptiness');
+                self::id($id)->update(['old_matching_id' => $accountingEntryLine['matching_id']]);
             }
         }
     }
@@ -492,7 +584,8 @@ class AccountingEntryLine extends Model {
             ['condo_id', 'suppliership_id', 'entry_date'],
             // `ownership_index`
             ['condo_id', 'ownership_id', 'entry_date'],
-            ['condo_id', 'account_id', 'matching_id']
+            ['condo_id', 'account_id', 'matching_id'],
+            ['condo_id', 'account_id', 'accounting_entry_id']
         ];
     }
 }

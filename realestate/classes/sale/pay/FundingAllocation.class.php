@@ -68,15 +68,6 @@ class FundingAllocation extends Model {
                 'default'           => time()
             ],
 
-            'receipt_bank_account_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\bank\CondominiumBankAccount',
-                'description'       => 'The Bank account the payment relates to.',
-                'help'              => 'This is the bank account on which movement was actually performed (received or sent), and might differ from the Funding banK-account_id.',
-                'readonly'          => true,
-                'domain'            => ['condo_id', '=', 'object.condo_id']
-            ],
-
             'origin_object_class' => [
                 'type'              => 'string',
                 'description'       => 'Entity class that the entry originates from.',
@@ -161,8 +152,15 @@ class FundingAllocation extends Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'order'             => 'issue_date',
                 'sort'              => 'asc'
-            ]
+            ],
 
+            // #memo - for compatibility with Payment
+            'status' => [
+                'type'              => 'string',
+                'default'           => 'posted',
+                'description'       => 'Status of the Allocation (not meant to be set manually).',
+                'readonly'          => true
+            ]
         ];
     }
 

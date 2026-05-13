@@ -544,6 +544,13 @@ class BankStatementLine extends Model {
     }
 
     /**
+     * #memo - BankStatementLine objects are considered as accounting documents, but do not generate
+     *  Funding objects of their Own since the movement is inherent from a Bank operation.
+     */
+    protected static function doCreateFundings($self) {
+    }
+
+    /**
      * Identify candidate fundings for a statement line.
      *
      * Search logic depends on the nature of the selected accounting account.
@@ -570,7 +577,7 @@ class BankStatementLine extends Model {
         }
 
         if($bankStatementLine['is_supplier']) {
-            // first attempt to find a match with reference and amount
+            // first, attempt to find a match with reference AND amount
             $fundings_ids = Funding::search([
                         ['condo_id', '=', $bankStatementLine['condo_id']],
                         ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
@@ -583,6 +590,7 @@ class BankStatementLine extends Model {
                 ->ids();
 
             if(!count($fundings_ids)) {
+                // fallback to remaining amount match only
                 $fundings_ids = Funding::search([
                             ['condo_id', '=', $bankStatementLine['condo_id']],
                             ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
@@ -941,9 +949,9 @@ class BankStatementLine extends Model {
                 continue;
             }
 
-            if($bankStatementLine['payments_ids']->count() <= 0 && !$bankStatementLine['accounting_account_id']) {
+            if(!$bankStatementLine['accounting_account_id']) {
                 $result[$id] = [
-                    'invalid_status' => 'Bank statement without payment nor accounting account cannot be posted.'
+                    'invalid_status' => 'Bank statement without accounting account cannot be posted.'
                 ];
                 continue;
             }
@@ -1036,9 +1044,7 @@ class BankStatementLine extends Model {
             $logs[] = "Retrieved BANK journal id {$journal['id']}";
 
             // keep track of the matching that will require a refresh
-            $map_matchings_ids = [];
             $is_fully_matched = false;
-            $matching = null;
 
             // #memo - we cannot use matching_level here since the accounting entry line from the statement line has not been added yet
             if($bankStatementLine['matching_id']) {
@@ -1052,37 +1058,16 @@ class BankStatementLine extends Model {
                     $logs[] = "Existing matching total amount: {$lines_total}";
                     if(abs($bankStatementLine['amount'] + $lines_total) < 0.01) {
                         $is_fully_matched = true;
-                        $map_matchings_ids[$bankStatementLine['matching_id']['id']] = true;
-                        $matching = $bankStatementLine['matching_id'];
                         $logs[] = "Existing matching is fully compatible";
                     }
-                }
-
-                if(!$is_fully_matched) {
-                    Matching::id($bankStatementLine['matching_id']['id'])->delete(true);
-                    $matching = null;
-                    $logs[] = "Deleted incompatible existing matching {$bankStatementLine['matching_id']['id']}";
                 }
             }
 
             $debit_account_id = $bankAccount['accounting_account_id'];
+            // #memo - this account might be a control account
             $credit_account_id = $bankStatementLine['accounting_account_id']['id'];
             $logs[] = "Default debit account {$debit_account_id}";
             $logs[] = "Default credit account {$credit_account_id}";
-
-            $credit_accounts_ids = [$credit_account_id];
-
-            if($bankStatementLine['accounting_account_id']['is_control_account'] && $bankStatementLine['accounting_account_id']['ownership_id']) {
-                $credit_accounts_ids = Account::search([
-                        ['condo_id', '=', $bankStatementLine['condo_id']],
-                        ['parent_account_id', '=', $bankStatementLine['accounting_account_id']['id']],
-                        ['is_control_account', '=', false],
-                        ['ownership_id', '<>', null],
-                        ['operation_assignment', 'in', ['co_owners_reserve_fund', 'co_owners_working_fund']]
-                    ])
-                    ->ids();
-                $logs[] = 'Expanded credit accounts to ownership subaccounts: ' . implode(', ', $credit_accounts_ids);
-            }
 
             $accountingEntry = AccountingEntry::create([
                     'condo_id'               => $bankStatementLine['condo_id'],
@@ -1102,8 +1087,8 @@ class BankStatementLine extends Model {
             $logs[] = "Attached accounting entry {$accountingEntry['id']} to bank statement line";
 
             if(count($bankStatementLine['payments_ids']) > 0) {
-                $used_candidate_accounting_entry_line_ids = [];
                 $logs[] = 'Processing ' . count($bankStatementLine['payments_ids']) . ' payment(s)';
+                // create one AccountingEntryLine per Payment
                 foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
                     try {
                         $logs[] = "Processing payment {$payment_id}";
@@ -1114,7 +1099,11 @@ class BankStatementLine extends Model {
                         }
 
                         $funding = Funding::id($payment['funding_id'])
-                            ->read(['name', 'due_amount', 'description', 'funding_type', 'misc_operation_id' => ['has_opening_journal']])
+                            ->read([
+                                'name', 'due_amount', 'description', 'funding_type',
+                                'accounting_entry_line_id' => ['account_id'],
+                                'misc_operation_id' => ['has_opening_journal']
+                            ])
                             ->first();
 
                         if(!$funding) {
@@ -1122,10 +1111,12 @@ class BankStatementLine extends Model {
                             continue;
                         }
 
+                        /*
                         if($funding['funding_type'] === 'misc_operation' && ($funding['misc_operation_id']['has_opening_journal'] ?? false)) {
                             $logs[] = "Skipping funding {$payment['funding_id']} relating to Opening Balance";
                             continue;
                         }
+                        */
 
                         $logs[] = "Retrieved funding {$payment['funding_id']} with due amount {$funding['due_amount']}";
 
@@ -1138,104 +1129,8 @@ class BankStatementLine extends Model {
                             }
                         }
 
+                        $credit_account_id = $funding['accounting_entry_line_id']['account_id'];
                         $payment_amount = round((float) $payment['amount'], 2);
-
-                        // attempt to auto-match based on Payments
-                        if(!$is_fully_matched) {
-                            $logs[] = "Attempting auto-match for payment {$payment_id} ({$payment_amount} EUR)";
-
-                            $matching = null;
-                            $candidate_accounting_entry_line_id = null;
-
-                            // en principe il doit y avoir une ligne d'écriture comptable correspondant à ce montant, puisque le Funding a été généré sur base d'un accounting document
-                            $funding_amount = round((float) $funding['due_amount'], 2);
-                            // il est possible que la ligne correspondait à un seul versement pour plusieurs Fundings, dans ce cas, elle aura  été découpée en plusueurs Payment
-                            $payment_amount = round((float) $payment['amount'], 2);
-                            $logs[] = "Matching targets for payment {$payment_id}: funding_amount {$funding_amount} EUR, payment_amount {$payment_amount} EUR";
-
-
-                            $accountingEntryLineCandidates = AccountingEntryLine::search(
-                                    [
-                                        // non matched accounting entry lines
-                                        [
-                                            ['condo_id', '=', $bankStatementLine['condo_id']],
-                                            ['account_id', 'in', $credit_accounts_ids],
-                                            ['matching_id', 'is', null]
-                                        ],
-                                        // partially matched accounting entry lines
-                                        [
-                                            ['condo_id', '=', $bankStatementLine['condo_id']],
-                                            ['account_id', 'in', $credit_accounts_ids],
-                                            ['matching_level', 'in', ['none', 'part']]
-                                        ]
-                                    ],
-                                    // pick oldest entries first
-                                    ['sort' => ['entry_date' => 'asc']]
-                                )
-                                ->read([
-                                    'id', 'account_id', 'debit', 'credit', 'matching_id'
-                                ]);
-                            $logs[] = 'Retrieved ' . count($accountingEntryLineCandidates) . ' accounting entry line candidate(s)';
-
-                            // 3 tests : exact on due_amount, exact on payment amount, loose on payment amount
-                            foreach([$funding_amount, $payment_amount, $payment_amount] as $index => $target_amount) {
-
-                                $credit_account_id = $bankStatementLine['accounting_account_id']['id'];
-                                $logs[] = "Testing target amount {$target_amount} with strategy index {$index}";
-
-
-                                foreach($accountingEntryLineCandidates as $accountingEntryLineCandidate) {
-                                    if(isset($used_candidate_accounting_entry_line_ids[$accountingEntryLineCandidate['id']])) {
-                                        continue;
-                                    }
-
-                                    $line_amount = round($accountingEntryLineCandidate['debit'] - $accountingEntryLineCandidate['credit'], 2);
-
-                                    $is_line_match = false;
-                                    // partial amount match
-                                    if($index >= 2) {
-                                        $is_line_match = (abs($line_amount) > abs($target_amount));
-                                    }
-                                    // full amount match
-                                    else {
-                                        $is_line_match = (abs($target_amount - $line_amount) < 0.01);
-                                    }
-                                    if($is_line_match) {
-                                        $candidate_accounting_entry_line_id = $accountingEntryLineCandidate['id'];
-                                        $credit_account_id = $accountingEntryLineCandidate['account_id'];
-                                        $logs[] = "Matched accounting entry line {$candidate_accounting_entry_line_id} on account {$credit_account_id} with amount {$line_amount}";
-                                        if($accountingEntryLineCandidate['matching_id']) {
-                                            $map_matchings_ids[$accountingEntryLineCandidate['matching_id']] = true;
-                                            $logs[] = "Candidate line currently belongs to matching {$accountingEntryLineCandidate['matching_id']}";
-                                        }
-                                        break 2;
-                                    }
-
-                                }
-
-                            }
-
-                            if($candidate_accounting_entry_line_id) {
-                                $used_candidate_accounting_entry_line_ids[$candidate_accounting_entry_line_id] = true;
-                                $matching = Matching::create([
-                                        'condo_id'              => $bankStatementLine['condo_id'],
-                                        'accounting_account_id' => $credit_account_id
-                                    ])
-                                    ->first();
-                                $logs[] = "Created matching {$matching['id']} on account {$credit_account_id}";
-
-                                AccountingEntryLine::id($candidate_accounting_entry_line_id)->update(['matching_id' => $matching['id']]);
-                                $logs[] = "Attached candidate line {$candidate_accounting_entry_line_id} to matching {$matching['id']}";
-
-                                $map_matchings_ids[$matching['id']] = true;
-                            }
-                            else {
-                                $logs[] = "No accounting entry line candidate found for payment {$payment_id}";
-                            }
-                        }
-                        else {
-                            $logs[] = "Skipped auto-match for payment {$payment_id}: line already fully matched";
-                        }
 
                         // debit line
                         AccountingEntryLine::create([
@@ -1250,22 +1145,22 @@ class BankStatementLine extends Model {
                         $logs[] = "Created debit line for payment {$payment_id} with amount {$payment_amount}";
 
                         // credit line
-                        AccountingEntryLine::create([
+                        $creditAccountingEntryLine = AccountingEntryLine::create([
                                 'condo_id'               => $bankStatementLine['condo_id'],
                                 'account_id'             => $credit_account_id,
                                 'debit'                  => $payment_amount < 0 ? abs($payment_amount) : 0,
                                 'credit'                 => $payment_amount > 0 ? abs($payment_amount) : 0,
-                                'matching_id'            => $matching['id'] ?? null,
                                 'accounting_entry_id'    => $accountingEntry['id'],
                                 'bank_statement_line_id' => $id,
                                 'description'            => $description
-                            ]);
+                            ])
+                            ->first();
+
                         $logs[] = "Created credit line on account {$credit_account_id} for payment {$payment_id}";
 
                         // Store the created accounting entry ID back to the payment
-                        Payment::id($payment_id)->update(['accounting_entry_id' => $accountingEntry['id']]);
-                        $logs[] = "Attached accounting entry {$accountingEntry['id']} to payment {$payment_id}";
-
+                        Payment::id($payment_id)->update(['accounting_entry_line_id' => $creditAccountingEntryLine['id']]);
+                        $logs[] = "Attached accounting entry line {$creditAccountingEntryLine['id']} to payment {$payment_id}";
                     }
                     catch(\Exception $e) {
                         $logs[] = "ERROR on payment {$payment_id}: {$e->getMessage()}";
@@ -1278,6 +1173,22 @@ class BankStatementLine extends Model {
 
                 try {
                     $logs[] = 'No payment found, generating stand-alone accounting entry lines';
+
+                    if($bankStatementLine['accounting_account_id']['is_control_account'] && $bankStatementLine['accounting_account_id']['ownership_id']) {
+                        $ownershipWorkingFundAccount = Account::search([
+                                ['condo_id', '=', $bankStatementLine['condo_id']],
+                                ['parent_account_id', '=', $bankStatementLine['accounting_account_id']['id']],
+                                ['is_control_account', '=', false],
+                                ['ownership_id', '=', $bankStatementLine['accounting_account_id']['ownership_id']],
+                                ['operation_assignment', '=', 'co_owners_working_fund']
+                            ])
+                            ->first();
+                        if(!$ownershipWorkingFundAccount) {
+                            throw new \Exception('missing_ownership_working_fund_account', EQ_ERROR_INVALID_CONFIG);
+                        }
+                        $credit_account_id = $ownershipWorkingFundAccount['id'];
+                        $logs[] = "Retrieved credit account from ownership subaccount ({$credit_account_id})";
+                    }
 
                     $amount = round($bankStatementLine['amount'], 2);
 
@@ -1299,7 +1210,6 @@ class BankStatementLine extends Model {
                             'account_id'             => $credit_account_id,
                             'debit'                  => $amount < 0 ? abs($amount) : 0,
                             'credit'                 => $amount > 0 ? abs($amount) : 0,
-                            'matching_id'            => $matching['id'] ?? null,
                             'accounting_entry_id'    => $accountingEntry['id'],
                             'bank_statement_line_id' => $id,
                             'description'            => $bankStatementLine['communication']
@@ -1317,12 +1227,6 @@ class BankStatementLine extends Model {
                     trigger_error("APP::doGenerateAccountingEntry: Error while creating accounting entries for Bank Statement Line #{$id} : " . $e->getMessage(), EQ_REPORT_ERROR);
                 }
 
-            }
-
-            if(count($map_matchings_ids)) {
-                Matching::ids(array_keys($map_matchings_ids))
-                    ->do('refresh_matching_level');
-                $logs[] = 'Refreshed matching levels for ids: ' . implode(', ', array_keys($map_matchings_ids));
             }
 
             self::id($id)->update(['logs' => implode("\n", $logs)]);

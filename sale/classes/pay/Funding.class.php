@@ -306,7 +306,7 @@ class Funding extends \equal\orm\Model {
         return $result;
     }
 
-    public static function calcPaidAmount($self) {
+    protected static function calcPaidAmount($self) {
         $result = [];
         $self->read(['payments_ids' => ['status', 'amount']]);
         foreach($self as $id => $funding) {
@@ -317,7 +317,7 @@ class Funding extends \equal\orm\Model {
         return $result;
     }
 
-    public static function calcRemainingAmount($self) {
+    protected static function calcRemainingAmount($self) {
         $result = [];
         $self->read(['due_amount', 'paid_amount']);
         foreach($self as $id => $funding) {

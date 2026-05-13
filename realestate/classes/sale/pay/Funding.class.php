@@ -44,12 +44,22 @@ class Funding extends \sale\pay\Funding {
                 'store'             => true
             ],
 
-            'payments_ids' => [
+            'paid_amount' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => "Total amount that has been received or paid (can exceed due_amount).",
+                'function'          => 'calcPaidAmount',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'funding_allocations_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'realestate\sale\pay\Payment',
+                'foreign_object'    => 'realestate\sale\pay\FundingAllocation',
                 'foreign_field'     => 'funding_id',
-                'description'       => 'Payments of the funding.',
-                'dependents'        => ['paid_amount', 'is_paid']
+                'description'       => 'Allocations (payments) of the funding.',
+                'dependents'        => ['remaining_amount', 'paid_amount', 'is_paid']
             ],
 
             'accounting_entry_line_id' => [
@@ -94,7 +104,7 @@ class Funding extends \sale\pay\Funding {
                     'expense_statement',
                     'misc_operation',
                     'statement_line',
-                    // based on instant ownership accounting balance
+                    // #deprecated - based on instant ownership accounting balance
                     'due_balance',
                     'reminder'
                 ],
@@ -258,7 +268,8 @@ class Funding extends \sale\pay\Funding {
     public function getIndexes(): array {
         return array_merge(parent::getIndexes(), [
                 ['condo_id'],
-                ['condo_id', 'accounting_account_id','bank_account_id']
+                ['condo_id', 'accounting_account_id','bank_account_id'],
+                ['condo_id', 'accounting_account_id','status']
         ]);
     }
 
@@ -299,6 +310,17 @@ class Funding extends \sale\pay\Funding {
 
         }
 
+        return $result;
+    }
+
+    protected static function calcPaidAmount($self) {
+        $result = [];
+        $self->read(['funding_allocations_ids' => ['status', 'amount']]);
+        foreach($self as $id => $funding) {
+            $result[$id] = array_reduce($funding['funding_allocations_ids']->get(true), function ($c, $a) {
+                return ($a['status'] === 'posted') ? ($c + $a['amount']) : $c;
+            }, 0.0);
+        }
         return $result;
     }
 
