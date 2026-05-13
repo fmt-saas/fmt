@@ -65,7 +65,8 @@ class Funding extends \sale\pay\Funding {
             'accounting_entry_line_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\finance\accounting\AccountingEntryLine',
-                'description'       => "Accounting entry line the Funding originates from.",
+                'description'       => "Accounting entry line the Funding related to.",
+                'help'              => "From the accounting entry of the accounting document the Funding originates.",
                 'domain'            => [
                     ['condo_id', '=', 'object.condo_id'],
                     ['account_id', '=', 'object.accounting_account_id']

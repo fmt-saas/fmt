@@ -1101,7 +1101,7 @@ class BankStatementLine extends Model {
                         $funding = Funding::id($payment['funding_id'])
                             ->read([
                                 'name', 'due_amount', 'description', 'funding_type',
-                                'accounting_entry_line_id' => ['account_id'],
+                                'accounting_entry_line_id' => ['id', 'account_id'],
                                 'misc_operation_id' => ['has_opening_journal']
                             ])
                             ->first();
@@ -1117,6 +1117,10 @@ class BankStatementLine extends Model {
                             continue;
                         }
                         */
+
+                        if(!$funding['accounting_entry_line_id']) {
+                            throw new \Exception('missing_funding_accounting_entry_line', EQ_ERROR_INVALID_PARAM);
+                        }
 
                         $logs[] = "Retrieved funding {$payment['funding_id']} with due amount {$funding['due_amount']}";
 
@@ -1161,6 +1165,12 @@ class BankStatementLine extends Model {
                         // Store the created accounting entry ID back to the payment
                         Payment::id($payment_id)->update(['accounting_entry_line_id' => $creditAccountingEntryLine['id']]);
                         $logs[] = "Attached accounting entry line {$creditAccountingEntryLine['id']} to payment {$payment_id}";
+
+                        AccountingEntryLine::id($creditAccountingEntryLine['id'])
+                            ->do('attempt_match_with_line', [
+                                'accounting_entry_line_id' => $funding['accounting_entry_line_id']['id']
+                            ]);
+                        $logs[] = "Triggered attempt_match_with_line for payment {$payment_id} against funding entry line {$funding['accounting_entry_line_id']['id']}";
                     }
                     catch(\Exception $e) {
                         $logs[] = "ERROR on payment {$payment_id}: {$e->getMessage()}";

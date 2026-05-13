@@ -496,7 +496,7 @@ class AccountingEntryLine extends Model {
 
     public static function canupdate($self, $values) {
         $self->read(['accounting_entry_id' => ['status']]);
-        $allowed_fields = ['status', 'description', 'matching_id', 'matching_level', 'is_posted'];
+        $allowed_fields = ['status', 'description', 'old_matching_id', 'matching_id', 'matching_level', 'is_posted'];
         $updated_fields = array_keys($values);
 
         if(count(array_diff($updated_fields, $allowed_fields)) > 0) {
