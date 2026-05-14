@@ -18,7 +18,9 @@
             "label": "Reconcile",
             "icon": "list",
             "description": "Reconcile line.",
-            "visible": ["status", "<>", "posted"],
+            "visible": false,
+            "visible1": ["status", "<>", "posted"],
+            "visible_help": "This is not longer allowed : matching is fully automated and depends on the selected account.",
             "component": {
                 "name": "matchBankStatementLine",
                 "data": {

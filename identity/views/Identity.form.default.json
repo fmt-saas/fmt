@@ -1,6 +1,4 @@
 {
-    "name": "Identity",
-    "description": "An identity is any kind of person: moral (organisation) or physical (individual).",
     "layout": {
         "groups": [
             {

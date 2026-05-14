@@ -1086,6 +1086,7 @@ class BankStatementLine extends Model {
             self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
             $logs[] = "Attached accounting entry {$accountingEntry['id']} to bank statement line";
 
+            // #todo - if selected account imposes Matching, then BankStatementLine amount MUST be balanced with Payments/Allocations
             if(count($bankStatementLine['payments_ids']) > 0) {
                 $logs[] = 'Processing ' . count($bankStatementLine['payments_ids']) . ' payment(s)';
                 // create one AccountingEntryLine per Payment
@@ -1101,6 +1102,7 @@ class BankStatementLine extends Model {
                         $funding = Funding::id($payment['funding_id'])
                             ->read([
                                 'name', 'due_amount', 'description', 'funding_type',
+                                'accounting_account_id',
                                 'accounting_entry_line_id' => ['id', 'account_id'],
                                 'misc_operation_id' => ['has_opening_journal']
                             ])
@@ -1118,8 +1120,15 @@ class BankStatementLine extends Model {
                         }
                         */
 
-                        if(!$funding['accounting_entry_line_id']) {
-                            throw new \Exception('missing_funding_accounting_entry_line', EQ_ERROR_INVALID_PARAM);
+                        $fundingAccountingEntryLine = $funding['accounting_entry_line_id'] ?? null;
+                        $credit_account_id = $funding['accounting_account_id'] ?? null;
+
+                        if($fundingAccountingEntryLine) {
+                            $credit_account_id = $fundingAccountingEntryLine['account_id'];
+                        }
+
+                        if(!$credit_account_id) {
+                            throw new \Exception('missing_funding_accounting_account', EQ_ERROR_INVALID_PARAM);
                         }
 
                         $logs[] = "Retrieved funding {$payment['funding_id']} with due amount {$funding['due_amount']}";
@@ -1133,7 +1142,6 @@ class BankStatementLine extends Model {
                             }
                         }
 
-                        $credit_account_id = $funding['accounting_entry_line_id']['account_id'];
                         $payment_amount = round((float) $payment['amount'], 2);
 
                         // debit line
@@ -1166,11 +1174,16 @@ class BankStatementLine extends Model {
                         Payment::id($payment_id)->update(['accounting_entry_line_id' => $creditAccountingEntryLine['id']]);
                         $logs[] = "Attached accounting entry line {$creditAccountingEntryLine['id']} to payment {$payment_id}";
 
-                        AccountingEntryLine::id($creditAccountingEntryLine['id'])
-                            ->do('attempt_match_with_line', [
-                                'accounting_entry_line_id' => $funding['accounting_entry_line_id']['id']
-                            ]);
-                        $logs[] = "Triggered attempt_match_with_line for payment {$payment_id} against funding entry line {$funding['accounting_entry_line_id']['id']}";
+                        if($fundingAccountingEntryLine) {
+                            AccountingEntryLine::id($creditAccountingEntryLine['id'])
+                                ->do('attempt_match_with_line', [
+                                    'accounting_entry_line_id' => $fundingAccountingEntryLine['id']
+                                ]);
+                            $logs[] = "Triggered attempt_match_with_line for payment {$payment_id} against funding entry line {$fundingAccountingEntryLine['id']}";
+                        }
+                        else {
+                            $logs[] = "Skipped attempt_match_with_line for payment {$payment_id}: funding has no source accounting entry line";
+                        }
                     }
                     catch(\Exception $e) {
                         $logs[] = "ERROR on payment {$payment_id}: {$e->getMessage()}";
@@ -1180,7 +1193,7 @@ class BankStatementLine extends Model {
                 }
             }
             else {
-
+                // single AccountingEntryLine
                 try {
                     $logs[] = 'No payment found, generating stand-alone accounting entry lines';
 
