@@ -817,7 +817,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             $suppliershipAccount = Account::search([
                     ['condo_id', '=', $purchaseInvoice['condo_id']],
                     ['suppliership_id', '=', $purchaseInvoice['suppliership_id']],
-                    ['operation_assignment', '=', 'suppliers']
+                    ['operation_assignment', '=', 'suppliers_supplier']
                 ])
                 ->first();
 
@@ -1272,7 +1272,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             $suppliershipAccount = Account::search([
                     ['condo_id', '=', $invoice['condo_id']],
                     ['suppliership_id', '=', $invoice['suppliership_id']],
-                    ['operation_assignment', '=', 'suppliers']
+                    ['operation_assignment', '=', 'suppliers_supplier']
                 ])
                 ->first();
 

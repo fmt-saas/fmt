@@ -520,7 +520,7 @@ class MiscOperation extends Model {
                             'due_amount'                        => $line['debit'] - $line['credit']
                         ]);
                 }
-                elseif(in_array($map_accounts[$account_id]['operation_assignment'], ['suppliers'], true)) {
+                elseif($map_accounts[$account_id]['suppliership_id']) {
                     $suppliership_id = $map_accounts[$account_id]['suppliership_id'];
 
                     $issue_date = $miscOperation['posting_date'];
