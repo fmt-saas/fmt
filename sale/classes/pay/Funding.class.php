@@ -215,6 +215,7 @@ class Funding extends \equal\orm\Model {
 
             'status' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:20',
                 'selection'         => [
                     'pending',
                     'debit_balance',
