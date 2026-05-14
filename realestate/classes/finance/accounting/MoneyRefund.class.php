@@ -362,7 +362,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                     $counterpartAccount = Account::search([
                             ['condo_id', '=', $moneyRefund['condo_id']],
                             ['ownership_id', '=', $moneyRefund['suppliership_id']],
-                            ['operation_assignment', '=', 'suppliers']
+                            ['operation_assignment', '=', 'suppliers_supplier']
                         ])
                         ->first();
 
@@ -409,7 +409,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                     ->first();
 
                 if(!$ownershipAccount) {
-                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                    throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
                 $accountingEntry = AccountingEntry::create([

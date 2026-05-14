@@ -355,7 +355,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                     ->first();
 
                 if(!$privateExpenseAccount) {
-                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                    throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
                 MiscOperationLine::create([

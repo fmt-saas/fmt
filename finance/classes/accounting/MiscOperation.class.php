@@ -498,7 +498,7 @@ class MiscOperation extends Model {
                         ->first();
 
                     if(!$ownershipAccount) {
-                        throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                        throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                     }
 
                     // #todo - allow to choose
@@ -812,7 +812,7 @@ class MiscOperation extends Model {
                     ->first();
 
                 if(!$ownershipAccount) {
-                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                    throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
                 // a funding cannot be issued nor due in the past

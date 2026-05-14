@@ -536,7 +536,7 @@ class FiscalPeriod extends Model {
                         ->first();
 
                     if(!$ownershipAccount) {
-                        throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                        throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                     }
 
                     // debit account `expense_provisions` (7001)

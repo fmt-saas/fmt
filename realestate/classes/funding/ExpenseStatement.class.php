@@ -1142,7 +1142,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     ->first();
 
                 if(!$ownershipAccount) {
-                    throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                    throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
                 // #memo - for importing historical data, we must be able to issue a funding in the past
