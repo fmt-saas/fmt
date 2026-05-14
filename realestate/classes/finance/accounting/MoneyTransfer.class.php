@@ -428,6 +428,9 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
         return $result;
     }
 
+    /**
+     * #memo - unlike MiscOperation, MoneyTransfer do not generate an AccountingEntry but only Fundings.
+     */
     protected static function onafterPost($self) {
         $self->do('create_fundings');
     }

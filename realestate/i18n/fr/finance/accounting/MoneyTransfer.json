@@ -65,7 +65,7 @@
             "selection": {
                 "pending": "Brouillon",
                 "proforma": "Publié",
-                "posted": "Transfert initié"
+                "posted": "Intégré"
             }
         }
     },

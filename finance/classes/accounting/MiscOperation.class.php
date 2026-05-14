@@ -149,6 +149,15 @@ class MiscOperation extends Model {
                 'domain'            => [['origin_object_class', '=', 'finance\accounting\MiscOperation'], ['origin_object_id', '=', 'object.id']]
             ],
 
+            'accounting_entries_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'finance\accounting\AccountingEntry',
+                'foreign_field'     => 'origin_object_id',
+                'domain'            => ['origin_object_class', '=', 'finance\accounting\MiscOperation'],
+                'description'       => 'Accounting entries relating to the Misc Operation.',
+                'help'              => "Misc Operations might be subject to several accounting entries (in case of reversal or correction)."
+            ],
+
             'opening_balance_id' => [
                 'type'              => 'many2one',
                 'description'       => "The opening balance of the fiscal year.",

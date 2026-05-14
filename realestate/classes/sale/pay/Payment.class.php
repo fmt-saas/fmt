@@ -101,6 +101,16 @@ class Payment extends \realestate\sale\pay\FundingAllocation {
         ];
     }
 
+    public static function getPolicies(): array {
+        return [
+            'can_post' => [
+                'description' => 'Verifies that the state of the Payment allows posting.',
+                'function'    => 'policyCanPost'
+            ]
+        ];
+    }
+
+
     protected static function policyCanPost($self) {
         $result = [];
         $self->read([
