@@ -544,13 +544,13 @@ class BankStatementLine extends Model {
 
                 $funding = Funding::create([
                         'condo_id'                  => $bankStatementLine['condo_id'],
-                        'description'               => $bankStatementLine['communication'],
+                        'description'               => (strlen($bankStatementLine['communication']) > 0) ? $bankStatementLine['communication'] : 'trop payé',
                         'bank_statement_line_id'    => $id,
                         'accounting_account_id'     => $bankStatementLine['accounting_account_id'],
                         'ownership_id'              => $bankStatementLine['ownership_id']?? null,
                         'bank_account_id'           => $bankStatementLine['bank_statement_id']['bank_account_id'],
-                        'issue_date'                => strtotime('today'),
-                        'due_date'                  => time() + (365 * 86400),
+                        'issue_date'                => $bankStatementLine['date'],
+                        'due_date'                  => $bankStatementLine['date'],
                         'due_amount'                => 0.0,
                         'funding_type'              => 'statement_line'
                     ])
@@ -559,7 +559,7 @@ class BankStatementLine extends Model {
                 Payment::create([
                         'condo_id'                  => $bankStatementLine['condo_id'],
                         'amount'                    => $remaining_amount,
-                        'communication'             => $bankStatementLine['communication'],
+                        'communication'             => (strlen($bankStatementLine['communication']) > 0) ? $bankStatementLine['communication'] : 'trop payé',
                         'receipt_date'              => $bankStatementLine['date'],
                         'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id'],
                         'payment_origin'            => 'bank',
