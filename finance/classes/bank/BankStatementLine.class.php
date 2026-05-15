@@ -427,10 +427,6 @@ class BankStatementLine extends Model {
             'can_post' => [
                 'description' => 'Verifies that the bank statement line is fully reconciled.',
                 'function'    => 'policyCanPost'
-            ],
-            'can_generate_accounting_entry' => [
-                'description' => 'Verifies that the accounting entry for the stand alone statement line can be generated.',
-                'function'    => 'policyCanGenerateAccountingEntry'
             ]
         ];
     }
@@ -913,11 +909,13 @@ class BankStatementLine extends Model {
     protected static function policyCanPost($self) {
         $result = [];
         $self->read([
+            'condo_id',
+            'payments_ids' => ['funding_id'],
             'status',
             'fiscal_year_id',
             'accounting_account_id',
             'is_expense', 'is_income', 'apportionment_id',
-            'bank_statement_id' => ['is_balanced', 'fiscal_year_id']
+            'bank_statement_id' => ['id', 'bank_account_id', 'is_balanced', 'fiscal_year_id']
         ]);
         foreach($self as $id => $bankStatementLine) {
             if($bankStatementLine['status'] !== 'pending') {
@@ -931,6 +929,40 @@ class BankStatementLine extends Model {
                     'missing_accounting_account' => 'Accounting account is mandatory on Bank Statement Line.'
                 ];
             }
+
+            $bankAccount = CondominiumBankAccount::id($bankStatementLine['bank_statement_id']['bank_account_id'])->read(['condo_id'])->first();
+
+            if(!$bankAccount) {
+                $result[$id] = [
+                    'missing_bank_account_condominium' => 'No condominium found for Bank Statement IBAN.'
+                ];
+                continue;
+            }
+
+            if($bankAccount['condo_id'] != $bankStatementLine['condo_id']) {
+                $result[$id] = [
+                    'mismatch_bank_account_with_condominium' => 'Bank Statement IBAN not amongst targeted Condominium bank accounts.'
+                ];
+                continue;
+            }
+
+            if(!$bankStatementLine['accounting_account_id']) {
+                $result[$id] = [
+                    'invalid_status' => 'Bank statement without accounting account cannot be posted.'
+                ];
+                continue;
+            }
+
+            foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
+                $funding = Funding::id($payment['funding_id'])->first();
+                if(!$funding) {
+                    $result[$id] = [
+                        'missing_mandatory_funding' => 'Unexpected payment attached to statement line, not linked to any funding.'
+                    ];
+                    continue 2;
+                }
+            }
+
             // parent bank statement must be balanced before being able to post individual lines
             if(!$bankStatementLine['bank_statement_id']['is_balanced']) {
                 $result[$id] = [
@@ -960,67 +992,6 @@ class BankStatementLine extends Model {
                     continue;
                 }
             }
-        }
-        return $result;
-    }
-
-    /**
-     *
-     */
-    protected static function policyCanGenerateAccountingEntry($self) {
-        $result = [];
-        $self->read([
-                'condo_id',
-                'status',
-                'accounting_account_id',
-                'bank_statement_id',
-                'payments_ids' => ['funding_id']
-            ]);
-        foreach($self as $id => $bankStatementLine) {
-            if($bankStatementLine['status'] !== 'pending') {
-                $result[$id] = [
-                    'invalid_status' => 'Only pending bank statement lines can be posted.'
-                ];
-                continue;
-            }
-
-            if(!$bankStatementLine['accounting_account_id']) {
-                $result[$id] = [
-                    'invalid_status' => 'Bank statement without accounting account cannot be posted.'
-                ];
-                continue;
-            }
-
-            foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
-                $funding = Funding::id($payment['funding_id'])->first();
-                if(!$funding) {
-                    $result[$id] = [
-                        'missing_mandatory_funding' => 'Unexpected statement line not linked to any funding.'
-                    ];
-                    continue 2;
-                }
-            }
-
-            $bankStatement = BankStatement::id($bankStatementLine['bank_statement_id'])
-                ->read(['bank_account_id'])
-                ->first();
-
-            $bankAccount = CondominiumBankAccount::id($bankStatement['bank_account_id'])->read(['condo_id'])->first();
-
-            if(!$bankAccount) {
-                $result[$id] = [
-                    'missing_bank_account_condominium' => 'No condominium found for Bank Statement IBAN.'
-                ];
-                continue;
-            }
-
-            if($bankAccount['condo_id'] != $bankStatementLine['condo_id']) {
-                $result[$id] = [
-                    'mismatch_bank_account_with_condominium' => 'Bank Statement IBAN not amongst targeted Condominium bank accounts.'
-                ];
-                continue;
-            }
-
         }
         return $result;
     }

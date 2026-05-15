@@ -1170,6 +1170,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     ]);
 
                 // 2) generate instant Funding based on current account statement
+                /*
                 $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
                     'ownership_id'      => $ownership_id,
                     'date_from'         => $expenseStatement['fiscal_period_id']['date_from'],
@@ -1194,7 +1195,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'due_date'                          => $due_date,
                         'due_amount'                        => $closing_balance
                     ]);
-
+                */
             }
         }
     }

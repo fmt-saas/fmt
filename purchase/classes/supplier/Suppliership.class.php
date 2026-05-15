@@ -350,7 +350,7 @@ class Suppliership extends \equal\orm\Model {
 
             /*
             $operation_assignments = [
-                    'suppliers',
+                    'suppliers' => 'suppliers_supplier',
                 ];
 
             foreach($operation_assignments as $operation_assignment) {

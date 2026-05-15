@@ -685,6 +685,8 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             $debit_operation_assignment = static::MAP_DEBIT_OPERATION_ASSIGNMENTS[$requestExecution['fund_request_id']['request_type']];
 
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
+
+                // pass-1 : retrieve AEL from execution line, create a funding for the ownership, and assign it to the AEL
                 $ownership_id = $executionLine['ownership_id'];
 
                 // find the account based on operation_assignment
@@ -748,14 +750,16 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                     ])
                     ->first();
 
+                // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
+
                 // retrieve non-empty fundings relating to the targeted ownership with opposite sign
-                // #memo - called amounts for fund requests are always positive
                 $fundings = Funding::search(
                         [
                             ['condo_id', '=', $requestExecution['condo_id']],
                             ['accounting_account_id', '=', $fundingOwnershipAccount['id']],
                             ['status', '<>', 'balanced'],
                             ['is_cancelled', '=', false],
+                            // #memo - called amounts for fund requests are always positive
                             ['remaining_amount', '<', 0]
                         ],
                         ['sort' => ['issue_date' => 'asc']]
