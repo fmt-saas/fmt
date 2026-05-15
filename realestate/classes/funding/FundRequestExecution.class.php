@@ -692,7 +692,8 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 // find the account based on operation_assignment
                 $logs[] = "Fetching account for ownership {$ownership_id}";
 
-                // #memo - always use Ownership control_account for Fundings
+                // #memo - there is a distinction between Ownership accounting account to use:
+                //  co_owners_owner_xxx for AEL & control_account for Fundings
                 $ownershipAccount = Account::search([
                         ['condo_id', '=', $requestExecution['condo_id']],
                         ['ownership_id', '=', $ownership_id],
@@ -728,6 +729,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 if(!$fundingOwnershipAccount) {
                     throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
+
                 // #memo - when importing historical data, we must be able to issue a funding in the past
                 $issue_date = $requestExecution['posting_date'];
                 $due_date = $requestExecution['due_date'];

@@ -1089,10 +1089,14 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         }
     }
 
+    /**
+     * This method is called after AccountingEntry and AccountingEntryLines generation.
+     */
     protected static function doCreateFundings($self) {
 
 
         $self->read([
+                'condo_id' => ['code'],
                 'name',
                 'posting_date',
                 'date_to',
@@ -1102,7 +1106,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'is_cutoff_at_period_end',
                 'fiscal_year_id' => ['date_from'],
                 'fiscal_period_id' => ['date_from', 'date_to'],
-                'condo_id' => ['code'],
                 'statement_owners_ids' => [
                     'ownership_id' => ['code'],
                     'statement_owner_lines_ids' => [
@@ -1139,12 +1142,34 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $ownershipAccount = Account::search([
                         ['condo_id', '=', $expenseStatement['condo_id']['id']],
                         ['ownership_id', '=', $ownership_id],
-                        ['is_control_account', '=', true]
-                        // ['operation_assignment', '=', 'co_owners_owner_working_fund']
+                        ['operation_assignment', '=', 'co_owners_owner_working_fund']
                     ])
                     ->first();
 
                 if(!$ownershipAccount) {
+                    throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                }
+
+                $accountingEntryLine = AccountingEntryLine::search([
+                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                        ['account_id', '=', $ownershipAccount['id']],
+                        ['accounting_entry_id', '=', $expenseStatement['accounting_entry_id']]
+                    ])
+                    ->first();
+
+                if(!$accountingEntryLine) {
+                    throw new \Exception('missing_accounting_entry_line', EQ_ERROR_INVALID_PARAM);
+                }
+
+                // #memo - Fundings always use Ownership control_account
+                $fundingOwnershipAccount = Account::search([
+                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                        ['ownership_id', '=', $ownership_id],
+                        ['is_control_account', '=', true]
+                    ])
+                    ->first();
+
+                if(!$fundingOwnershipAccount) {
                     throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
@@ -1172,6 +1197,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'due_amount'                        => $remaining_due_amount
                     ])
                     ->first();
+
+                // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
+// todo
 
                 // 2) generate instant Funding based on current account statement
                 /*

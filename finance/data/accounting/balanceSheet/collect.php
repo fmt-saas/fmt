@@ -180,6 +180,8 @@ $accounts = Account::search([
     ])
     ->read(['code', 'parent_account_id', 'description', 'account_nature', 'is_control_account']);
 
+$map_accounts = [];
+
 foreach($accounts as $account_id => $account) {
     $map_accounts[$account_id] = [
         'id'                => $account_id,

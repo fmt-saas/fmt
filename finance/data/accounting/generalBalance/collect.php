@@ -340,6 +340,9 @@ elseif($params['ownerships_only']) {
     $domain->addCondition(new DomainCondition('ownership_id', '<>', null));
 }
 
+$openingJournal = Journal::search([['condo_id', '=', $params['condo_id']], ['journal_type', '=', 'OPEN']])->first();
+$domain->addCondition(new DomainCondition('journal_id', '<>', $openingJournal['id']));
+
 if(isset($params['journal_id']) && $params['journal_id'] > 0) {
     $journal = Journal::id($params['journal_id'])->read(['journal_type'])->first();
     if($journal && $journal['journal_type'] !== 'LEDG') {

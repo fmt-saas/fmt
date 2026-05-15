@@ -749,9 +749,12 @@ class MiscOperation extends Model {
 
         foreach($self as $id => $miscOperation) {
             // ignore MiscOperation that relate to an opening balance
+            /*
+            // @see comment above : no distinction
             if($miscOperation['has_opening_journal']) {
                 continue;
             }
+            */
 
             if($miscOperation['accounting_entry_id']['status'] == 'pending') {
                 AccountingEntry::id($miscOperation['accounting_entry_id']['id'])->transition('validate');
