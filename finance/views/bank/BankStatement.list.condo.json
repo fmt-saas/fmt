@@ -10,6 +10,12 @@
         "items": [
             {
                 "type": "field",
+                "value": "id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "condo_id",
                 "width": "30%",
                 "visible": false
