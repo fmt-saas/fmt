@@ -147,6 +147,10 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
 
     public function getIndexes(): array {
         return array_merge(parent::getIndexes(), [
+            // `supplier_index`
+            ['condo_id', 'suppliership_id', 'entry_date'],
+            // `ownership_index`
+            ['condo_id', 'ownership_id', 'entry_date'],
             ['clearing_expense_statement_id']
         ]);
     }

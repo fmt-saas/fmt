@@ -55,8 +55,12 @@ class MiscOperationLine extends Model {
                 'description'       => "Accounting account the entry relates to.",
                 'required'          => true,
                 'ondelete'          => 'null',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
-                'dependents'        => ['account_code', 'is_expense', 'is_income']
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['condo_id', '<>', null],
+                    ['is_control_account', '=', false]
+                ],
+                'dependents'        => ['account_code', 'is_expense', 'is_income', 'is_owner', 'is_supplier']
             ],
 
             'account_code' => [
@@ -79,16 +83,6 @@ class MiscOperationLine extends Model {
                 'readonly'          => true
             ],
 
-            'is_owner' => [
-                'type'              => 'computed',
-                'result_type'       => 'boolean',
-                'description'       => 'Flag marking the line as a payment from/to an owner(ship).',
-                'help'              => "When set to true, the line implies a link with a Funding.",
-                'function'          => 'calcIsOwner',
-                'store'             => true,
-                'instant'           => true
-            ],
-
             'is_expense' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
@@ -105,6 +99,26 @@ class MiscOperationLine extends Model {
                 'description'       => 'Flag marking the line as an unexpected expense or income.',
                 'help'              => "When set to true, the line implies a stand alone sale operation.",
                 'function'          => 'calcIsIncome',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'is_supplier' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'Flag marking the line as a payment from/to a supplier.',
+                'help'              => "When set to true, the line implies a link with a Funding.",
+                'function'          => 'calcIsSupplier',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'is_owner' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'Flag marking the line as a payment from/to an owner(ship).',
+                'help'              => "When set to true, the line implies a link with a Funding.",
+                'function'          => 'calcIsOwner',
                 'store'             => true,
                 'instant'           => true
             ],
@@ -167,7 +181,18 @@ class MiscOperationLine extends Model {
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'visible'           => ['is_private_expense', '=', true],
                 'ondelete'          => 'cascade',
-                'domain'            => [['condo_id', '=', 'object.condo_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+            ],
+
+            'suppliership_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'purchase\supplier\Suppliership',
+                'ondelete'          => 'cascade',
+                'description'       => 'The supplier the account relates to, if any.',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'function'          => 'calcSuppliershipId',
+                'store'             => true
             ],
 
             'property_lot_id' => [
@@ -235,6 +260,26 @@ class MiscOperationLine extends Model {
         return $result;
     }
 
+    protected static function calcSuppliershipId($self) {
+        $result = [];
+        $self->read(['condo_id', 'is_supplier', 'account_id' => ['suppliership_id']]);
+        foreach($self as $id => $miscOperationLine) {
+            if(!$miscOperationLine['is_supplier'] || !$miscOperationLine['account_id']['suppliership_id']) {
+                continue;
+            }
+            $result[$id] = $miscOperationLine['account_id']['suppliership_id'];
+        }
+        return $result;
+    }
+    protected static function calcIsSupplier($self) {
+        $result = [];
+        $self->read(['account_id']);
+        foreach($self as $id => $miscOperationLine) {
+            $result[$id] = self::computeIsSupplier($miscOperationLine['account_id']);
+        }
+        return $result;
+    }
+
     protected static function calcIsOwner($self) {
         $result = [];
         $self->read(['account_id']);
@@ -263,6 +308,18 @@ class MiscOperationLine extends Model {
             if($account) {
                 $account_class_digit = substr($account['code'], 0, 1);
                 $result = ($account_class_digit === '6');
+            }
+        }
+        return $result;
+    }
+
+    private static function computeIsSupplier($account_id) {
+        $result = false;
+        if($account_id) {
+            $account = Account::id($account_id)->read(['code'])->first();
+            if($account) {
+                $account_class_digits_two = substr($account['code'], 0, 2);
+                $result = ($account_class_digits_two === '44');
             }
         }
         return $result;
@@ -309,7 +366,10 @@ class MiscOperationLine extends Model {
 
         // update expense account
         if(isset($event['is_private_expense']) && $event['is_private_expense']) {
-            $account = Account::search([['condo_id', '=', $values['condo_id']], ['operation_assignment', '=', 'private_expenses']])
+            $account = Account::search([
+                    ['condo_id', '=', $values['condo_id']],
+                    ['operation_assignment', '=', 'private_expenses']
+                ])
                 ->read(['id', 'name'])
                 ->first();
             if($account) {
@@ -368,7 +428,9 @@ class MiscOperationLine extends Model {
             }
         }
         if(isset($event['account_id'])) {
-            $account = Account::id($event['account_id'])->read(['id', 'apportionment_id', 'tenant_share', 'owner_share'])->first();
+            $account = Account::id($event['account_id'])
+                ->read(['id', 'apportionment_id', 'tenant_share', 'owner_share', 'ownership_id', 'suppliership_id'])
+                ->first();
             if($account) {
                 $result['apportionment_id'] = $account['apportionment_id'];
                 $result['tenant_share'] = $account['tenant_share'];

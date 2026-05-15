@@ -102,7 +102,7 @@ class OpeningBalance extends Balance {
                 ->first();
 
             if(!$prevFiscalYear) {
-                // no previous fiscal year → empty opening balance
+                // no previous fiscal year : empty opening balance
                 continue;
             }
 

@@ -580,10 +580,6 @@ class AccountingEntryLine extends Model {
             ['condo_id','account_id','entry_date','id'],
             // `journal_index`
             ['condo_id','journal_id','entry_date'],
-            // `supplier_index`
-            ['condo_id', 'suppliership_id', 'entry_date'],
-            // `ownership_index`
-            ['condo_id', 'ownership_id', 'entry_date'],
             ['condo_id', 'account_id', 'matching_id'],
             ['condo_id', 'account_id', 'accounting_entry_id']
         ];

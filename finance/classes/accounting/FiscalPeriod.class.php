@@ -481,7 +481,12 @@ class FiscalPeriod extends Model {
             ]);
 
         foreach($self as $id => $fiscalPeriod) {
-            $miscJournal = Journal::search([['condo_id', '=', $fiscalPeriod['condo_id']], ['journal_type', '=', 'MISC']])->first();
+            $miscJournal = Journal::search([
+                    ['condo_id', '=', $fiscalPeriod['condo_id']],
+                    ['journal_type', '=', 'MISC']
+                ])
+                ->first();
+
             if(!$miscJournal) {
                 throw new \Exception('missing_misc_journal', EQ_ERROR_INVALID_CONFIG);
             }

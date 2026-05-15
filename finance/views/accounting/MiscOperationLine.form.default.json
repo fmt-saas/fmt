@@ -55,6 +55,24 @@
                                                 "value": "is_income",
                                                 "width": "50%",
                                                 "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_owner",
+                                                "width": "50%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_supplier",
+                                                "width": "50%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "suppliership_id",
+                                                "width": "50%",
+                                                "visible": false
                                             }
                                         ]
                                     }

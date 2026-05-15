@@ -77,4 +77,10 @@ class Balance extends Model {
 
         ];
     }
+
+    public function getIndexes(): array {
+        return [
+            ['condo_id', 'fiscal_year_id']
+        ];
+    }
 }

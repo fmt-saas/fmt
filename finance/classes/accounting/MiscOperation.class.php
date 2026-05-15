@@ -357,7 +357,6 @@ class MiscOperation extends Model {
             }
         }
         return $result;
-
     }
 
     protected static function doGenerateOpeningBalance($self) {
@@ -410,6 +409,8 @@ class MiscOperation extends Model {
                 ])
                 ->first();
 
+/*
+            // #memo - logic change : has_opening_balance puts AEL in OPEN journal and create an empty (first) Opening Balance
             $miscOperationLines = MiscOperationLine::ids($miscOperation['misc_operation_lines_ids'])
                 ->read(['account_id', 'debit', 'credit', 'description']);
 
@@ -560,6 +561,7 @@ class MiscOperation extends Model {
             FiscalYear::id($miscOperation['fiscal_year_id'])
                 ->update(['opening_balance_id' => $openingBalance['id']]);
 
+*/
             OpeningBalance::id($openingBalance['id'])->update(['status' => 'validated']);
 
             self::id($id)->update(['opening_balance_id' => $openingBalance['id']]);
@@ -774,15 +776,17 @@ class MiscOperation extends Model {
 
 
         $self->read([
+                'condo_id' => ['id', 'code'],
                 'name',
                 'posting_date',
                 'has_opening_journal',
                 'fiscal_year_id' => ['date_from'],
                 'fiscal_period_id' => ['date_from'],
-                'condo_id' => ['code'],
+                'accounting_entry_id',
                 'misc_operation_lines_ids' => [
                     'account_id',
                     'is_owner',
+                    'is_supplier',
                     'ownership_id',
                     'debit',
                     'credit'
@@ -791,28 +795,29 @@ class MiscOperation extends Model {
 
         foreach($self as $id => $miscOperation) {
             // ignore MiscOperation that relate to an opening balance
+            /*
             if($miscOperation['has_opening_journal']) {
                 continue;
             }
+            */
             foreach($miscOperation['misc_operation_lines_ids'] as $misc_operation_line_id => $miscOperationLine) {
-                if(!$miscOperationLine['is_owner']) {
+                if(!$miscOperationLine['is_owner'] && !$miscOperationLine['is_supplier'])  {
                     continue;
                 }
-                $ownership_id = $miscOperationLine['ownership_id'];
 
                 $due_amount = $miscOperationLine['debit'] - $miscOperationLine['credit'];
 
-                // #memo - always use Ownership control_account for Fundings
-                $ownershipAccount = Account::search([
+                $accounting_account_id = $miscOperationLine['account_id'];
+
+                $accountingEntryLine = AccountingEntryLine::search([
                         ['condo_id', '=', $miscOperation['condo_id']['id']],
-                        ['ownership_id', '=', $ownership_id],
-                        ['is_control_account', '=', true]
-                        // ['operation_assignment', '=', 'co_owners_owner_working_fund']
+                        ['account_id', '=', $miscOperationLine['account_id']],
+                        ['accounting_entry_id', '=', $miscOperation['accounting_entry_id']]
                     ])
                     ->first();
 
-                if(!$ownershipAccount) {
-                    throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                if(!$accountingEntryLine) {
+                    throw new \Exception('missing_accounting_entry_line', EQ_ERROR_INVALID_PARAM);
                 }
 
                 // a funding cannot be issued nor due in the past
@@ -822,33 +827,64 @@ class MiscOperation extends Model {
                 $due_date = $miscOperation['posting_date'] + 60*60*24 * 15;
 
                 // #todo - allow to choose
-                $bankAccount = CondominiumBankAccount::search([['condo_id', '=', $miscOperation['condo_id']['id']], ['is_primary', '=', true]])->first();
+                $condominiumBankAccount = CondominiumBankAccount::search([
+                        ['condo_id', '=', $miscOperation['condo_id']['id']],
+                        ['is_primary', '=', true]
+                    ])
+                    ->first();
 
-                Funding::create([
+                if(!$condominiumBankAccount) {
+                    throw new \Exception('missing_bank_account', EQ_ERROR_INVALID_CONFIG);
+                }
+
+                $funding_values = [
                         'condo_id'                          => $miscOperation['condo_id']['id'],
                         'description'                       => $miscOperation['name'],
                         'funding_type'                      => 'misc_operation',
                         'misc_operation_id'                 => $id,
-                        'ownership_id'                      => $ownership_id,
-                        'bank_account_id'                   => $bankAccount['id'],
-                        'accounting_account_id'             => $ownershipAccount['id'],
+                        'bank_account_id'                   => $condominiumBankAccount['id'],
+                        'accounting_account_id'             => $accounting_account_id,
+                        'accounting_entry_line_id'          => $accountingEntryLine['id'],
                         'issue_date'                        => $issue_date,
                         'due_date'                          => $due_date,
                         'due_amount'                        => $due_amount
-                    ]);
+                    ];
 
+                if($miscOperationLine['is_owner'])  {
+                    $ownership_id = $miscOperationLine['ownership_id'];
+
+                    // #memo - always use Ownership control_account for Fundings
+                    $fundingOwnershipAccount = Account::search([
+                            ['condo_id', '=', $miscOperation['condo_id']['id']],
+                            ['ownership_id', '=', $ownership_id],
+                            ['is_control_account', '=', true]
+                        ])
+                        ->first();
+
+                    if(!$fundingOwnershipAccount) {
+                        throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                    }
+
+                    $funding_values['ownership_id'] = $ownership_id;
+                    $funding_values['accounting_account_id'] = $fundingOwnershipAccount['id'];
+                }
+                elseif($miscOperationLine['is_supplier'])  {
+                    $funding_values['suppliership_id'] = $miscOperationLine['suppliership_id'];
+                }
+
+                Funding::create($funding_values);
             }
         }
     }
 
     protected static function onbeforePost($self) {
         $self
-            // impacts only MiscOp with flag `has_opening_journal` set to true
-            ->do('generate_opening_balance')
-            // impacts only MiscOp with flag `has_opening_journal` set to false
             ->do('generate_accounting_entry')
-            ->do('validate_accounting_entry')
+            // create fundings & opening balance (MiscOp with flag `has_opening_journal` set to true)
+            ->do('generate_opening_balance')
+            // create fundings for non opening balance (MiscOp with flag `has_opening_journal` set to false)
             ->do('create_fundings')
+            ->do('validate_accounting_entry')
             // all MiscOp
             ->update(['name' => null]);
     }
