@@ -1086,7 +1086,7 @@ class BankStatementLine extends Model {
             $logs[] = "Attached accounting entry {$accountingEntry['id']} to bank statement line";
 
             // #todo - if selected account imposes Matching, then BankStatementLine amount MUST be balanced with Payments/Allocations
-            if(count($bankStatementLine['payments_ids']) > 0) {
+            if($bankStatementLine['payments_ids']->count() > 0) {
                 $logs[] = 'Processing ' . count($bankStatementLine['payments_ids']) . ' payment(s)';
                 // create one AccountingEntryLine per Payment
                 foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
