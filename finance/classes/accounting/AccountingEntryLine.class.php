@@ -364,14 +364,14 @@ class AccountingEntryLine extends Model {
             $line_balance = $sourceAccountingEntryLine['debit'] - $sourceAccountingEntryLine['credit'];
 
             if(abs($line_balance + $matching_balance) < 0.01) {
-                $self::id($id)->update(['matching_id' => $targetAccountingEntryLine['matching_id']['id']]);
+                self::id($id)->update(['matching_id' => $targetAccountingEntryLine['matching_id']['id']]);
                 $matching_balance += $line_balance;
                 break;
             }
             else {
                 $new_sign = (($matching_balance + $line_balance) < 0) ? -1 : 1;
                 if($old_sign === $new_sign) {
-                    $self::id($id)->update(['matching_id' => $targetAccountingEntryLine['matching_id']['id']]);
+                    self::id($id)->update(['matching_id' => $targetAccountingEntryLine['matching_id']['id']]);
                     $matching_balance += $line_balance;
                 }
             }
