@@ -693,22 +693,22 @@ class Ownership extends \equal\orm\Model {
             }
 
             $operation_assignments = [
-                    'co_owners_owner_reserve_fund',
-                    'co_owners_owner_working_fund'
+                    'co_owners_reserve_fund' => 'co_owners_owner_reserve_fund',
+                    'co_owners_working_fund' => 'co_owners_owner_working_fund'
                 ];
 
-            foreach($operation_assignments as $operation_assignment) {
+            foreach($operation_assignments as $parent_operation_assignment => $operation_assignment) {
                 // find the account based on operation_assignment to use it as "template"
                 $assignmentAccount = Account::search([
                         ['condo_id', '=', $ownership['condo_id']],
-                        ['operation_assignment', '=', $operation_assignment],
+                        ['operation_assignment', '=', $parent_operation_assignment],
                         ['ownership_id', '=', null]
                     ])
                     ->read(['code', 'account_category', 'account_chart_id'])
                     ->first();
 
                 if(!$assignmentAccount) {
-                    trigger_error("APP::Could not find account candidate for condominium {$ownership['condo_id']} for operation assignment $operation_assignment", EQ_REPORT_ERROR);
+                    trigger_error("APP::Could not find account candidate for condominium {$ownership['condo_id']} for operation assignment $parent_operation_assignment", EQ_REPORT_ERROR);
                     throw new \Exception("missing_mandatory_account", EQ_ERROR_INVALID_CONFIG);
                 }
 
