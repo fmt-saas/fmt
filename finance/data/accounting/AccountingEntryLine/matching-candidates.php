@@ -69,7 +69,7 @@ if($account['is_control_account'] && $account['ownership_id']) {
             ['parent_account_id', '=', $account['id']],
             ['is_control_account', '=', false],
             ['ownership_id', '<>', null],
-            ['operation_assignment', 'in', ['co_owners_reserve_fund', 'co_owners_working_fund']]
+            ['operation_assignment', 'in', ['co_owners_owner_reserve_fund', 'co_owners_owner_working_fund']]
         ])
         ->ids();
 }

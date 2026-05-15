@@ -427,7 +427,7 @@ class MiscOperation extends Model {
                 $lines_by_account[$account_id]['description'] .= $line['description'] . ' ';
             }
 
-            // we'll need to check if account is co_owners_reserve_fund or co_owners_working_fund
+            // we'll need to check if account is co_owners_owner_reserve_fund or co_owners_owner_working_fund
             $map_accounts = Account::ids(array_keys($lines_by_account))
                 ->read(['operation_assignment', 'ownership_id', 'suppliership_id'])
                 ->get();
@@ -479,7 +479,7 @@ class MiscOperation extends Model {
                 }
 
                 // in case of ownership account, create a Funding
-                // if(in_array($map_accounts[$account_id]['operation_assignment'], ['co_owners_reserve_fund', 'co_owners_working_fund'], true)) {
+                // if(in_array($map_accounts[$account_id]['operation_assignment'], ['co_owners_owner_reserve_fund', 'co_owners_owner_working_fund'], true)) {
                 if($map_accounts[$account_id]['ownership_id']) {
                     $ownership_id = $map_accounts[$account_id]['ownership_id'];
 
@@ -493,7 +493,7 @@ class MiscOperation extends Model {
                             ['condo_id', '=', $condo_id],
                             ['ownership_id', '=', $ownership_id],
                             ['is_control_account', '=', true]
-                            // ['operation_assignment', '=', 'co_owners_working_fund']
+                            // ['operation_assignment', '=', 'co_owners_owner_working_fund']
                         ])
                         ->first();
 
@@ -807,7 +807,7 @@ class MiscOperation extends Model {
                         ['condo_id', '=', $miscOperation['condo_id']['id']],
                         ['ownership_id', '=', $ownership_id],
                         ['is_control_account', '=', true]
-                        // ['operation_assignment', '=', 'co_owners_working_fund']
+                        // ['operation_assignment', '=', 'co_owners_owner_working_fund']
                     ])
                     ->first();
 

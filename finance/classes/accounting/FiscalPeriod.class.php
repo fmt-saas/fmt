@@ -531,7 +531,7 @@ class FiscalPeriod extends Model {
                     $ownershipAccount = Account::search([
                             ['condo_id', '=', $fiscalPeriod['condo_id']],
                             ['ownership_id', '=', $ownership_id],
-                            ['operation_assignment', '=', 'co_owners_working_fund']
+                            ['operation_assignment', '=', 'co_owners_owner_working_fund']
                         ])
                         ->first();
 

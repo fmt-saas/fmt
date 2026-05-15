@@ -1332,7 +1332,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     $ownershipAccount = Account::search([
                             ['condo_id', '=', $invoice['condo_id']],
                             ['ownership_id', '=', $invoiceLine['ownership_id']],
-                            ['operation_assignment', '=', 'co_owners_working_fund']
+                            ['operation_assignment', '=', 'co_owners_owner_working_fund']
                         ])
                         ->first();
 

@@ -350,7 +350,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                     $counterpartAccount = Account::search([
                             ['condo_id', '=', $moneyRefund['condo_id']],
                             ['ownership_id', '=', $moneyRefund['ownership_id']],
-                            ['operation_assignment', '=', 'co_owners_working_fund']
+                            ['operation_assignment', '=', 'co_owners_owner_working_fund']
                         ])
                         ->first();
 
@@ -404,7 +404,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 $ownershipAccount = Account::search([
                         ['condo_id', '=', $moneyRefund['condo_id']],
                         ['ownership_id', '=', $moneyRefund['ownership_id']],
-                        ['operation_assignment', '=', 'co_owners_working_fund']
+                        ['operation_assignment', '=', 'co_owners_owner_working_fund']
                     ])
                     ->first();
 

@@ -405,7 +405,7 @@ $map_final_accounts_ids = [];
 $map_final_opening_balances = [];
 
 // some accounts (based on operation assignment) must be grouper on their parent control account ("compte collecteur")
-$grouped_operations = ['co_owners_reserve_fund', 'co_owners_working_fund', 'co_owners_former','co_owners_repayment'];
+$grouped_operations = ['co_owners_owner_reserve_fund', 'co_owners_owner_working_fund', 'co_owners_former','co_owners_repayment'];
 
 foreach($map_accounts_ids as $account_id => $_) {
     $balance = $map_opening_balances[$account_id] ?? 0;

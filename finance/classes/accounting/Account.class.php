@@ -199,11 +199,13 @@ class Account extends Model {
                     'bank_tier',
                     'bank_transfer',
                     'co_owners',
-                    'co_owners_owner',                  // single Owner, parent account of specific co_owners_reserve_fund & co_owners_working_fund
+                    'co_owners_reserve_fund',
+                    'co_owners_working_fund',
+                    'co_owners_owner',                  // single Owner, parent account of specific co_owners_owner_reserve_fund & co_owners_owner_working_fund
+                    'co_owners_owner_reserve_fund',     // used for FundRequestExecution
+                    'co_owners_owner_working_fund',     // used for FundRequestExecution
                     'co_owners_former',
                     'co_owners_repayment',
-                    'co_owners_reserve_fund',           // used for FundRequestExecution
-                    'co_owners_working_fund',           // used for FundRequestExecution
                     'consumption_statement',
                     'deferred_expenses',                // used for PurchaseInvoice over a date range
                     'deferred_income',
@@ -270,24 +272,24 @@ class Account extends Model {
             ],
 
             // #todo - this field is not handled yet
-            'usufruct_owner_share' => [
+            'owner_share_usufruct' => [
                 'type'              => 'integer',
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
                 'default'           => 0
             ],
 
             // #todo - this field is not handled yet
-            'bare_owner_share' => [
+            'owner_share_bare' => [
                 'type'              => 'integer',
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
                 'default'           => 100
             ],
 
-            'is_matchable' => [
+            'is_reconcilable' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
-                'description'       => "Is an apportionment possible?",
-                'function'          => 'calcIsMatchable',
+                'description'       => "Indicates whether entries posted on this account are expected to be reconciled with bank statement lines through funding records.",
+                'function'          => 'calcIsReconcilable',
                 'store'             => true
             ],
 
@@ -400,16 +402,17 @@ class Account extends Model {
         return $result;
     }
 
-    protected static function calcIsMatchable($self) {
+    protected static function calcIsReconcilable($self) {
         $result = [];
         $self->read(['operation_assignment']);
         foreach($self as $id => $account) {
             $result[$id] = false;
             if($account['operation_assignment']) {
-                $result[$id] = ($account['operation_assignment'] === 'suppliers_supplier'
-                        || $account['operation_assignment'] === 'co_owners_reserve_fund'
-                        || $account['operation_assignment'] === 'co_owners_working_fund'
-                    );
+                $result[$id] = in_array($account['operation_assignment'], [
+                    'suppliers_supplier',
+                    'co_owners_owner_reserve_fund',
+                    'co_owners_working_fund'
+                ]);
             }
         }
         return $result;

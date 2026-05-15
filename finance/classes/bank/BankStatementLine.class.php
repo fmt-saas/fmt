@@ -101,7 +101,7 @@ class BankStatementLine extends Model {
 
             'communication' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain:256',
+                'usage'             => 'text/plain:255',
                 'description'       => 'Message from the payer (or ref from the bank).',
                 'help'              => "A single communication is handled, since this is implied by the SEPA format (despite some bank allow both free and structured communication on a statement line)."
             ],
@@ -202,7 +202,7 @@ class BankStatementLine extends Model {
                 'dependents'        => ['accounting_account_code', 'is_transfer', 'is_expense', 'is_income', 'is_supplier', 'is_owner', 'ownership_id', 'suppliership_id'],
                 'domain'            => [
                     [
-                        ['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['operation_assignment', 'not in', ['co_owners_reserve_fund', 'co_owners_working_fund']]
+                        ['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['operation_assignment', 'not in', ['co_owners_owner_reserve_fund', 'co_owners_owner_working_fund']]
                     ],
                     [
                         ['condo_id', '=', 'object.condo_id'], ['ownership_id', '<>', null], ['is_control_account', '=', true]
@@ -456,8 +456,8 @@ class BankStatementLine extends Model {
     }
 
     /**
-     * This method either links the line with a Funding through a Payment,
-     * or generates an orphan operation referencing current line as accounting document.
+     * This method either links the line with a given Funding through a Payment,
+     * .
      * If one or several fundings are found, action `reconcile_with_fundings` is called with them.
      */
     protected static function doAttemptReconcile($self, $values) {
@@ -473,7 +473,8 @@ class BankStatementLine extends Model {
                 'accounting_account_id',
                 'is_supplier',
                 'is_owner',
-                'is_transfer'
+                'is_transfer',
+                'ownership_id'
             ]);
 
         foreach($self as $id => $bankStatementLine) {
@@ -482,6 +483,7 @@ class BankStatementLine extends Model {
             }
 
             // remove any pre-existing pending Payments related to the statement line
+            // #memo - payments are validated/posted in method `self::onafterPost`
             Payment::search([
                     ['condo_id', '=', $bankStatementLine['condo_id']],
                     ['bank_statement_line_id', '=', $id],
@@ -539,13 +541,46 @@ class BankStatementLine extends Model {
                 $remaining_amount = round($remaining_amount - $allocated, 2);
             }
 
+            // if some amount is remaining : an unexpected amount has been received
+            if(abs($remaining_amount) > 0.01) {
+                // -> create a Funding relating to the BankStatementLine with a due amount of 0.0 EUR
+                // -> attach a Payment to it with remaining_amount
+
+                $funding = Funding::create([
+                        'condo_id'                  => $bankStatementLine['condo_id'],
+                        'description'               => $bankStatementLine['communication'],
+                        'bank_statement_line_id'    => $id,
+                        'accounting_account_id'     => $bankStatementLine['accounting_account_id'],
+                        'ownership_id'              => $bankStatementLine['ownership_id']?? null,
+                        'bank_account_id'           => $bankStatementLine['bank_statement_id']['bank_account_id'],
+                        'issue_date'                => strtotime('today'),
+                        'due_date'                  => time() + (365 * 86400),
+                        'due_amount'                => 0.0,
+                        'funding_type'              => 'statement_line'
+                    ])
+                    ->first();
+
+                Payment::create([
+                        'condo_id'                  => $bankStatementLine['condo_id'],
+                        'amount'                    => $remaining_amount,
+                        'communication'             => $bankStatementLine['communication'],
+                        'receipt_date'              => $bankStatementLine['date'],
+                        'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id'],
+                        'payment_origin'            => 'bank',
+                        'payment_method'            => 'wire_transfer',
+                        'bank_statement_line_id'    => $id,
+                        'funding_id'                => $funding['id']
+                    ]);
+
+            }
+
         }
 
     }
 
     /**
      * #memo - BankStatementLine objects are considered as accounting documents, but do not generate
-     *  Funding objects of their Own since the movement is inherent from a Bank operation.
+     *  Funding objects of their own since the movement is inherent from a Bank operation.
      */
     protected static function doCreateFundings($self) {
     }
@@ -1043,6 +1078,7 @@ class BankStatementLine extends Model {
             }
             $logs[] = "Retrieved BANK journal id {$journal['id']}";
 
+            // #todo - keep handling manual matching on BankStatementLine ?
             // keep track of the matching that will require a refresh
             $is_fully_matched = false;
 
@@ -1095,7 +1131,7 @@ class BankStatementLine extends Model {
                         $logs[] = "Processing payment {$payment_id}";
 
                         if(!$payment['funding_id']) {
-                            $logs[] = "Skipped payment {$payment_id}: missing funding";
+                            $logs[] = "WARN - Skipped payment {$payment_id}: missing funding";
                             continue;
                         }
 
@@ -1125,6 +1161,22 @@ class BankStatementLine extends Model {
 
                         if($fundingAccountingEntryLine) {
                             $credit_account_id = $fundingAccountingEntryLine['account_id'];
+                        }
+                        else {
+                            // Payment might have been created for a unidentified money movement
+                            if($bankStatementLine['accounting_account_id']['is_control_account'] && $bankStatementLine['accounting_account_id']['ownership_id']) {
+                                // #memo - always use Ownership control_account for Fundings
+                                $ownershipAccount = Account::search([
+                                        ['condo_id', '=', $bankStatementLine['condo_id']],
+                                        ['ownership_id', '=', $bankStatementLine['accounting_account_id']['ownership_id']],
+                                        ['is_control_account', '=', false],
+                                        ['operation_assignment', '=', 'co_owners_owner_working_fund']
+                                    ])
+                                    ->first();
+                                if($ownershipAccount) {
+                                    $credit_account_id = $ownershipAccount['id'];
+                                }
+                            }
                         }
 
                         if(!$credit_account_id) {
@@ -1203,7 +1255,7 @@ class BankStatementLine extends Model {
                                 ['parent_account_id', '=', $bankStatementLine['accounting_account_id']['id']],
                                 ['is_control_account', '=', false],
                                 ['ownership_id', '=', $bankStatementLine['accounting_account_id']['ownership_id']],
-                                ['operation_assignment', '=', 'co_owners_working_fund']
+                                ['operation_assignment', '=', 'co_owners_owner_working_fund']
                             ])
                             ->first();
                         if(!$ownershipWorkingFundAccount) {
@@ -1239,6 +1291,7 @@ class BankStatementLine extends Model {
                         ]);
                     $logs[] = "Created stand-alone credit line on account {$credit_account_id}";
 
+                    // #todo - keep handling manual matching on BankStatementLine ?
                     if(!$is_fully_matched) {
                         // attempt to match the entry with an existing match (will cascade to accounting entry lines)
                         AccountingEntry::id($accountingEntry['id'])->do('attempt_match');
@@ -1315,8 +1368,9 @@ class BankStatementLine extends Model {
                 continue;
             }
 
+            // attempt to retrieve accounting account based on IBAN
 
-            // attempt to retrieve a ownership or suppliership for Condo with IBAN
+            // 1) search amongst ownerships
             $ownerBankAccount = OwnershipBankAccount::search([
                     ['condo_id', '=', $bankStatementLine['condo_id']],
                     ['bank_account_iban', '=', $bankStatementLine['account_iban']],
@@ -1340,6 +1394,7 @@ class BankStatementLine extends Model {
                 continue;
             }
 
+            // 2) search amongst suppliers
             $supplierBankAccount = SuppliershipBankAccount::search([
                     ['condo_id', '=', $bankStatementLine['condo_id']],
                     ['bank_account_iban', '=', $bankStatementLine['account_iban']],
@@ -1362,6 +1417,7 @@ class BankStatementLine extends Model {
                 continue;
             }
 
+            // 3) search amongst condominiums
             $condominiumBankAccount = CondominiumBankAccount::search([
                     ['condo_id', '=', $bankStatementLine['condo_id']],
                     ['object_class', '=', 'finance\bank\CondominiumBankAccount'],

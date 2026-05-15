@@ -99,16 +99,17 @@ if(!isset($bankStatementLine['accounting_account_id'])) {
     throw new Exception('missing_bank_statement_line_account', EQ_ERROR_INVALID_PARAM);
 }
 
-if($params['funding_id']) {
-    $funding = Funding::id($params['funding_id'])
+$args = [];
+$funding_id = $params['funding_id'] ?? null;
+
+if($funding_id) {
+    $funding = Funding::id($funding_id)
         ->read(['id'])
         ->first();
-}
 
-$args = [];
-
-if($funding ?? null) {
-    $args = ['funding_ids' => [$funding['id']]];
+    if($funding) {
+        $args = ['funding_ids' => [$funding['id']]];
+    }
 }
 
 BankStatementLine::id($params['id'])->do('attempt_reconcile', $args);

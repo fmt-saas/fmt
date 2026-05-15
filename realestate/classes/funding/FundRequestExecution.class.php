@@ -24,11 +24,11 @@ use sale\pay\Payment;
 class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoice {
 
     protected const MAP_DEBIT_OPERATION_ASSIGNMENTS = [
-        'reserve_fund'         => 'co_owners_reserve_fund',
-        'special_reserve_fund' => 'co_owners_reserve_fund',
-        'working_fund'         => 'co_owners_working_fund',
-        'expense_provisions'   => 'co_owners_working_fund',
-        'work_provisions'      => 'co_owners_working_fund',
+        'reserve_fund'         => 'co_owners_owner_reserve_fund',
+        'special_reserve_fund' => 'co_owners_owner_reserve_fund',
+        'working_fund'         => 'co_owners_owner_working_fund',
+        'expense_provisions'   => 'co_owners_owner_working_fund',
+        'work_provisions'      => 'co_owners_owner_working_fund',
     ];
 
     public static function getName() {
@@ -545,9 +545,11 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         ['ownership_id', '=', $executionLine['ownership_id']],
                         ['fund_request_id', '=', $requestExecution['fund_request_id']]
                     ])
-                    ->read(['payments_ids']);
+                    // ->read(['payments_ids']);
+                    ->delete(true);
 
                 foreach($fundings as $funding_id => $funding) {
+                    /*
                     // remove empty fundings
                     if(empty($funding['payments_ids'])) {
                         Funding::id($funding_id)->delete(true);
@@ -556,6 +558,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                     else {
                         Funding::id($funding_id)->update(['fund_request_execution_id' => null]);
                     }
+                    */
                 }
             }
         }

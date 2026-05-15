@@ -643,9 +643,9 @@ class Ownership extends \equal\orm\Model {
      * 4101 working funds
      *
      * Upon creation of an ownership, it is necessary to create accounts for:
-     * - 410xxxxx:         [Ownership collector] -> co_owners_reserve_fund + co_owners_working_fund
-     * - 4100xxxxx:        co_owners_reserve_fund
-     * - 4101xxxxx:        co_owners_working_fund
+     * - 410xxxxx:         [Ownership collector] -> co_owners_owner_reserve_fund + co_owners_owner_working_fund
+     * - 4100xxxxx:        co_owners_owner_reserve_fund
+     * - 4101xxxxx:        co_owners_owner_working_fund
      *
      */
     public static function doGenerateAccounts($self) {
@@ -693,8 +693,8 @@ class Ownership extends \equal\orm\Model {
             }
 
             $operation_assignments = [
-                    'co_owners_reserve_fund',
-                    'co_owners_working_fund'
+                    'co_owners_owner_reserve_fund',
+                    'co_owners_owner_working_fund'
                 ];
 
             foreach($operation_assignments as $operation_assignment) {

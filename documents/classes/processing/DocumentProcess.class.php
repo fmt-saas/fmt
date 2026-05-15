@@ -1939,7 +1939,7 @@ class DocumentProcess extends Model {
                                 }
                             }
                             else {
-                                $communication = substr($txn['unstructured_reference'], 0, 256);
+                                $communication = substr($txn['unstructured_reference'], 0, 255);
                                 $communication_type = 'free';
                             }
                         }
@@ -1967,7 +1967,7 @@ class DocumentProcess extends Model {
                                 }
                             }
                             else {
-                                $communication = substr($txn['transaction_message'], 0, 256);
+                                $communication = substr($txn['transaction_message'], 0, 255);
                                 $communication_type = 'free';
                             }
                         }

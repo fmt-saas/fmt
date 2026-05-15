@@ -507,7 +507,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $account = Account::search([
                         ['condo_id', '=', $expenseStatement['condo_id']],
                         ['ownership_id', '=', $statementOwner['ownership_id']],
-                        ['operation_assignment', '=', 'co_owners_working_fund']
+                        ['operation_assignment', '=', 'co_owners_owner_working_fund']
                     ])
                     ->first();
 
@@ -1037,7 +1037,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $ownershipAccount = Account::search([
                         ['condo_id', '=', $statement['condo_id']],
                         ['ownership_id', '=', $statementOwner['ownership_id']],
-                        ['operation_assignment', '=', 'co_owners_working_fund']
+                        ['operation_assignment', '=', 'co_owners_owner_working_fund']
                     ])
                     ->first();
 
@@ -1137,7 +1137,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         ['condo_id', '=', $expenseStatement['condo_id']['id']],
                         ['ownership_id', '=', $ownership_id],
                         ['is_control_account', '=', true]
-                        // ['operation_assignment', '=', 'co_owners_working_fund']
+                        // ['operation_assignment', '=', 'co_owners_owner_working_fund']
                     ])
                     ->first();
 
