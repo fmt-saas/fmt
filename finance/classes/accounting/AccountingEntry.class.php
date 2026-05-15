@@ -424,6 +424,9 @@ class AccountingEntry extends Model {
 
         foreach($self as $id => $accountingEntry) {
 
+/*
+// #memo - we cannot do that since Matching is made on AccountingEntryLine (according to debit & credit fields) and matching_id might already be set
+ // also, AccountingEntryLine could be referenced in Payment.accounting_entry_line_id and Funding.accounting_entry_line_id
             // consolidate entry lines by account (to avoid several lines targeting same account_id)
             $grouped_lines = [];
 
@@ -523,7 +526,7 @@ class AccountingEntry extends Model {
             if(!empty($lines_to_delete)) {
                 AccountingEntryLine::ids(array_values(array_unique($lines_to_delete)))->delete(true);
             }
-
+*/
             // #memo - the encoding of the purchase invoices is non chronological. We must maintain the sequence, but cannot force dates sequence without losing information.
 
             self::id($id)

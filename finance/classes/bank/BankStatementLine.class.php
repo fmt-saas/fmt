@@ -76,7 +76,7 @@ class BankStatementLine extends Model {
                 'foreign_field'     => 'bank_statement_line_id',
                 'description'       => 'The list of payments this line relates to.',
                 'ondetach'          => 'delete',
-                'domain'            => [['condo_id', '=', 'object.condo_id'],['condo_id', '<>', null]]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'date' => [
@@ -1021,12 +1021,12 @@ class BankStatementLine extends Model {
         foreach($self as $id => $bankStatementLine) {
             $logs = [];
 
-            $logs[] = "Start accounting entry generation for bank statement line {$id}";
+            $logs[] = "INFO - Start accounting entry generation for bank statement line {$id}";
 
             $bankAccount = CondominiumBankAccount::id($bankStatementLine['bank_statement_id']['bank_account_id'])
                 ->read(['accounting_account_id'])
                 ->first();
-            $logs[] = "Retrieved bank account accounting account {$bankAccount['accounting_account_id']}";
+            $logs[] = "INFO - Retrieved bank account accounting account {$bankAccount['accounting_account_id']}";
 
             $journal = Journal::search([
                             ['condo_id', '=', $bankStatementLine['condo_id']],
@@ -1039,7 +1039,7 @@ class BankStatementLine extends Model {
                 self::id($id)->update(['logs' => implode("\n", array_merge($logs, ['Missing mandatory BANK journal']))]);
                 throw new \Exception('missing_mandatory_journal', EQ_ERROR_INVALID_CONFIG);
             }
-            $logs[] = "Retrieved BANK journal id {$journal['id']}";
+            $logs[] = "INFO - Retrieved BANK journal id {$journal['id']}";
 
             // #todo - keep handling manual matching on BankStatementLine ?
             // keep track of the matching that will require a refresh
@@ -1047,17 +1047,17 @@ class BankStatementLine extends Model {
 
             // #memo - we cannot use matching_level here since the accounting entry line from the statement line has not been added yet
             if($bankStatementLine['matching_id']) {
-                $logs[] = "Existing matching detected: {$bankStatementLine['matching_id']['id']}";
+                $logs[] = "INFO - Existing matching detected: {$bankStatementLine['matching_id']['id']}";
                 if($bankStatementLine['matching_id']['accounting_entry_lines_ids']->count() > 0) {
                     $lines_total = 0.0;
                     foreach($bankStatementLine['matching_id']['accounting_entry_lines_ids'] as $accounting_entry_line_id => $accountingEntryLine) {
                         $line_amount = round($accountingEntryLine['debit'] - $accountingEntryLine['credit'], 2);
                         $lines_total += $line_amount;
                     }
-                    $logs[] = "Existing matching total amount: {$lines_total}";
+                    $logs[] = "INFO - Existing matching total amount: {$lines_total}";
                     if(abs($bankStatementLine['amount'] + $lines_total) < 0.01) {
                         $is_fully_matched = true;
-                        $logs[] = "Existing matching is fully compatible";
+                        $logs[] = "INFO - Existing matching is fully compatible";
                     }
                 }
             }
@@ -1065,8 +1065,8 @@ class BankStatementLine extends Model {
             $debit_account_id = $bankAccount['accounting_account_id'];
             // #memo - this account might be a control account
             $credit_account_id = $bankStatementLine['accounting_account_id']['id'];
-            $logs[] = "Default debit account {$debit_account_id}";
-            $logs[] = "Default credit account {$credit_account_id}";
+            $logs[] = "INFO - Default debit account {$debit_account_id}";
+            $logs[] = "INFO - Default credit account {$credit_account_id}";
 
             $accountingEntry = AccountingEntry::create([
                     'condo_id'               => $bankStatementLine['condo_id'],
@@ -1079,19 +1079,19 @@ class BankStatementLine extends Model {
                     'description'            => $bankStatementLine['communication']
                 ])
                 ->first();
-            $logs[] = "Created accounting entry {$accountingEntry['id']}";
+            $logs[] = "INFO - Created accounting entry {$accountingEntry['id']}";
 
             // attach accounting entry to the statement line
             self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
-            $logs[] = "Attached accounting entry {$accountingEntry['id']} to bank statement line";
+            $logs[] = "INFO - Attached accounting entry {$accountingEntry['id']} to bank statement line";
 
             // #todo - if selected account imposes Matching, then BankStatementLine amount MUST be balanced with Payments/Allocations
             if($bankStatementLine['payments_ids']->count() > 0) {
-                $logs[] = 'Processing ' . count($bankStatementLine['payments_ids']) . ' payment(s)';
+                $logs[] = 'INFO - Processing ' . count($bankStatementLine['payments_ids']) . ' payment(s)';
                 // create one AccountingEntryLine per Payment
                 foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
                     try {
-                        $logs[] = "Processing payment {$payment_id}";
+                        $logs[] = "INFO - Processing payment {$payment_id}";
 
                         if(!$payment['funding_id']) {
                             $logs[] = "WARN - Skipped payment {$payment_id}: missing funding";
@@ -1108,7 +1108,7 @@ class BankStatementLine extends Model {
                             ->first();
 
                         if(!$funding) {
-                            $logs[] = "Skipped payment {$payment_id}: funding {$payment['funding_id']} not found";
+                            $logs[] = "INFO - Skipped payment {$payment_id}: funding {$payment['funding_id']} not found";
                             continue;
                         }
 
@@ -1146,7 +1146,7 @@ class BankStatementLine extends Model {
                             throw new \Exception('missing_funding_accounting_account', EQ_ERROR_INVALID_PARAM);
                         }
 
-                        $logs[] = "Retrieved funding {$payment['funding_id']} with due amount {$funding['due_amount']}";
+                        $logs[] = "INFO - Retrieved funding {$payment['funding_id']} with due amount {$funding['due_amount']}";
 
                         $description = $bankStatementLine['communication'];
 
@@ -1169,7 +1169,7 @@ class BankStatementLine extends Model {
                                 'bank_statement_line_id' => $id,
                                 'description'            => $description
                             ]);
-                        $logs[] = "Created debit line for payment {$payment_id} with amount {$payment_amount}";
+                        $logs[] = "INFO - Created debit line for payment {$payment_id} with amount {$payment_amount}";
 
                         // credit line
                         $creditAccountingEntryLine = AccountingEntryLine::create([
@@ -1183,11 +1183,11 @@ class BankStatementLine extends Model {
                             ])
                             ->first();
 
-                        $logs[] = "Created credit line on account {$credit_account_id} for payment {$payment_id}";
+                        $logs[] = "INFO - Created credit line on account {$credit_account_id} for payment {$payment_id}";
 
                         // Store the created accounting entry ID back to the payment
                         Payment::id($payment_id)->update(['accounting_entry_line_id' => $creditAccountingEntryLine['id']]);
-                        $logs[] = "Attached accounting entry line {$creditAccountingEntryLine['id']} to payment {$payment_id}";
+                        $logs[] = "INFO - Attached accounting entry line {$creditAccountingEntryLine['id']} to payment {$payment_id}";
 
                         if($funding['funding_type'] === 'statement_line' && !$fundingAccountingEntryLine) {
                             $fundingAccountingEntryLine = $creditAccountingEntryLine;
@@ -1206,7 +1206,7 @@ class BankStatementLine extends Model {
                         }
                     }
                     catch(\Exception $e) {
-                        $logs[] = "ERROR on payment {$payment_id}: {$e->getMessage()}";
+                        $logs[] = "ERR  - Error on payment {$payment_id}: {$e->getMessage()}";
                         trigger_error("APP::doGenerateAccountingEntry: Error while creating accounting entries for Bank Statement Line #{$id} : " . $e->getMessage(), EQ_REPORT_ERROR);
                     }
 
