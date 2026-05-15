@@ -913,7 +913,7 @@ class BankStatementLine extends Model {
             'payments_ids' => ['funding_id'],
             'status',
             'fiscal_year_id',
-            'accounting_account_id' => ['is_apportionable'],
+            'accounting_account_id' => ['is_apportionable', 'is_reconcilable'],
             'is_expense', 'is_income', 'apportionment_id',
             'bank_statement_id' => ['id', 'bank_account_id', 'is_balanced', 'fiscal_year_id']
         ]);
@@ -965,7 +965,7 @@ class BankStatementLine extends Model {
                 continue;
             }
             // Check if: 1) the entry is reconciled 2) there are payments (which fully reconcile the line), or a counterpart accounting account is specified
-            if(!self::computeIsReconciled($id)) {
+            if($bankStatementLine['accounting_account_id']['is_reconcilable'] && !self::computeIsReconciled($id)) {
                 $result[$id] = [
                     'invalid_reconcile_state' => 'Only reconciled bank statement lines can be posted.'
                 ];
