@@ -767,10 +767,18 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                     ->read(['remaining_amount', 'accounting_entry_line_id']);
 
                 foreach($fundings as $funding_id => $funding) {
-                    $delta = min($remaining_due_amount , abs($funding['remaining_amount']));
+                    $sign = ($remaining_due_amount >= 0.0) ? 1.0 : -1.0;
+
+                    $delta = min(
+                        abs($remaining_due_amount),
+                        abs($funding['remaining_amount'])
+                    );
+
+                    $signed_delta = $sign * $delta;
+
                     FundingAllocation::create([
                             'condo_id'                  => $requestExecution['condo_id'],
-                            'amount'                    => $delta,
+                            'amount'                    => $signed_delta,
                             'receipt_date'              => $requestExecution['posting_date'],
                             'origin_object_class'       => 'realestate\funding\FundRequestExecution',
                             'origin_object_id'          => $id,
@@ -781,7 +789,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
                     FundingAllocation::create([
                             'condo_id'                  => $requestExecution['condo_id'],
-                            'amount'                    => -$delta,
+                            'amount'                    => -$signed_delta,
                             'receipt_date'              => $requestExecution['posting_date'],
                             'origin_object_class'       => 'realestate\funding\FundRequestExecution',
                             'origin_object_id'          => $id,
@@ -791,11 +799,13 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         ]);
 
                     // merge Matching if applicable
-                    AccountingEntryLine::id($accountingEntryLine['id'])
-                        ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
+                    if($funding['accounting_entry_line_id']) {
+                        AccountingEntryLine::id($accountingEntryLine['id'])
+                            ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
+                    }
 
-                    $remaining_due_amount  -= $delta;
-                    if($remaining_due_amount  < 0.01) {
+                    $remaining_due_amount  -= $signed_delta;
+                    if(abs($remaining_due_amount)  < 0.01) {
                         break;
                     }
                 }

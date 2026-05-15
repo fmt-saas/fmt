@@ -1189,6 +1189,11 @@ class BankStatementLine extends Model {
                         Payment::id($payment_id)->update(['accounting_entry_line_id' => $creditAccountingEntryLine['id']]);
                         $logs[] = "Attached accounting entry line {$creditAccountingEntryLine['id']} to payment {$payment_id}";
 
+                        if($funding['funding_type'] === 'statement_line' && !$fundingAccountingEntryLine) {
+                            $fundingAccountingEntryLine = $creditAccountingEntryLine;
+                            Funding::id($payment['funding_id'])->update(['accounting_entry_line_id' => $creditAccountingEntryLine['id']]);
+                        }
+
                         if($fundingAccountingEntryLine) {
                             AccountingEntryLine::id($creditAccountingEntryLine['id'])
                                 ->do('attempt_match_with_line', [

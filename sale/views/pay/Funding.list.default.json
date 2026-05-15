@@ -36,6 +36,12 @@
                 "label": "Amount Due",
                 "value": "due_amount",
                 "width": "10%"
+            },
+            {
+                "type": "field",
+                "label": "Amount Remaining",
+                "value": "remaining_amount",
+                "width": "10%"
             }
         ]
     }

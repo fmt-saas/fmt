@@ -74,6 +74,12 @@
             },
             {
                 "type": "field",
+                "label": "Amount Remaining",
+                "value": "remaining_amount",
+                "width": "10%"
+            },
+            {
+                "type": "field",
                 "label": "Mandate",
                 "value": "has_mandate",
                 "width": "10%"
