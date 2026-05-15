@@ -579,10 +579,7 @@ class MiscOperation extends Model {
 
         foreach ($self as $id => $miscOperation) {
 
-            // ignore MiscOperation that relate to an opening balance
-            if($miscOperation['has_opening_journal']) {
-                continue;
-            }
+            // #memo - `has_opening_journal` implies a MiscOp for an initial opening balance
 
             // remove any previously created accounting entry (resulting from an incomplete operation)
             AccountingEntry::search([

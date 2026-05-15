@@ -409,7 +409,7 @@ class BankStatementLine extends Model {
         return [
             'attempt_reconcile' => [
                 'description'   => 'Attempts to find a suitable Funding and, if so, creates a Payment to link the line to it.',
-                'help'          => 'Accepts an arbitrary funding for manual reconcile.',
+                // 'help'          => 'Accepts an arbitrary funding for manual reconcile.',
                 'policies'      => [],
                 'function'      => 'doAttemptReconcile'
             ],
@@ -913,7 +913,7 @@ class BankStatementLine extends Model {
             'payments_ids' => ['funding_id'],
             'status',
             'fiscal_year_id',
-            'accounting_account_id',
+            'accounting_account_id' => ['is_apportionable'],
             'is_expense', 'is_income', 'apportionment_id',
             'bank_statement_id' => ['id', 'bank_account_id', 'is_balanced', 'fiscal_year_id']
         ]);
@@ -928,6 +928,7 @@ class BankStatementLine extends Model {
                 $result[$id] = [
                     'missing_accounting_account' => 'Accounting account is mandatory on Bank Statement Line.'
                 ];
+                continue;
             }
 
             $bankAccount = CondominiumBankAccount::id($bankStatementLine['bank_statement_id']['bank_account_id'])->read(['condo_id'])->first();
@@ -942,13 +943,6 @@ class BankStatementLine extends Model {
             if($bankAccount['condo_id'] != $bankStatementLine['condo_id']) {
                 $result[$id] = [
                     'mismatch_bank_account_with_condominium' => 'Bank Statement IBAN not amongst targeted Condominium bank accounts.'
-                ];
-                continue;
-            }
-
-            if(!$bankStatementLine['accounting_account_id']) {
-                $result[$id] = [
-                    'invalid_status' => 'Bank statement without accounting account cannot be posted.'
                 ];
                 continue;
             }
@@ -971,7 +965,7 @@ class BankStatementLine extends Model {
                 continue;
             }
             // Check if: 1) the entry is reconciled 2) there are payments (which fully reconcile the line), or a counterpart accounting account is specified
-            if(!self::computeIsReconciled($id) && !$bankStatementLine['accounting_account_id']) {
+            if(!self::computeIsReconciled($id)) {
                 $result[$id] = [
                     'invalid_reconcile_state' => 'Only reconciled bank statement lines can be posted.'
                 ];
@@ -984,13 +978,11 @@ class BankStatementLine extends Model {
                 ];
                 continue;
             }
-            if($bankStatementLine['is_expense'] || $bankStatementLine['is_income']) {
-                if(!$bankStatementLine['apportionment_id']) {
-                    $result[$id] = [
-                        'missing_apportionment_id' => "Bank Statement Line ({$id}) not linked to an apportionment key."
-                    ];
-                    continue;
-                }
+            if($bankStatementLine['accounting_account_id']['is_apportionable'] && !$bankStatementLine['apportionment_id']) {
+                $result[$id] = [
+                    'missing_apportionment_id' => "Bank Statement Line ({$id}) not linked to an apportionment key."
+                ];
+                continue;
             }
         }
         return $result;
