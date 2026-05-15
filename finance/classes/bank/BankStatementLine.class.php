@@ -410,13 +410,13 @@ class BankStatementLine extends Model {
             'attempt_reconcile' => [
                 'description'   => 'Attempts to find a suitable Funding and, if so, creates a Payment to link the line to it.',
                 'help'          => 'Accepts an arbitrary funding for manual reconcile.',
-                'policies'      => [/* 'can_generate_accounting_entry' */],
+                'policies'      => [],
                 'function'      => 'doAttemptReconcile'
             ],
             'generate_accounting_entry' => [
                 'description'   => 'Creates accounting entries according to operation lines.',
                 'help'          => 'This is run only when posting (in `onbeforePost`).',
-                'policies'      => [ 'can_generate_accounting_entry' ],
+                'policies'      => [],
                 'function'      => 'doGenerateAccountingEntry'
             ]
         ];

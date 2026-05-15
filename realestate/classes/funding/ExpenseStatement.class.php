@@ -1114,11 +1114,14 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         foreach($self as $id => $expenseStatement) {
 
             foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
+
+                // pass-1 : retrieve AEL from statementOwner, create a funding for the ownership, and assign it to the AEL
                 $ownership_id = $statementOwner['ownership_id']['id'];
 
                 // remove previous Funding, if any
                 Funding::search([
                         ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                        // #todo - leave the condition if due_balance Funding are no longer required
                         // #memo - there are two types of Fundings involved
                         // ['funding_type', '=', 'expense_statement'],
                         ['expense_statement_id', '=', $id],
@@ -1145,18 +1148,18 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
-                // #memo - for importing historical data, we must be able to issue a funding in the past
+                // #memo - when importing historical data, we must be able to issue a funding in the past
                 $issue_date = $expenseStatement['posting_date'];
                 $due_date = $expenseStatement['due_date'];
 
-                // 1) generate theoretical Funding
-                $due_amount = 0.0;
+                $remaining_due_amount = 0.0;
                 foreach($statementOwner['statement_owner_lines_ids'] as $line_id => $ownerLine) {
                     // use both positive and negative amounts
-                    $due_amount += $ownerLine['price'];
+                    $remaining_due_amount += $ownerLine['price'];
                 }
 
-                Funding::create([
+                // generate theoretical Funding
+                $ownershipFunding = Funding::create([
                         'condo_id'                          => $expenseStatement['condo_id']['id'],
                         'description'                       => $expenseStatement['name'],
                         'funding_type'                      => 'expense_statement',
@@ -1166,8 +1169,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'accounting_account_id'             => $ownershipAccount['id'],
                         'issue_date'                        => $issue_date,
                         'due_date'                          => $due_date,
-                        'due_amount'                        => $due_amount
-                    ]);
+                        'due_amount'                        => $remaining_due_amount
+                    ])
+                    ->first();
 
                 // 2) generate instant Funding based on current account statement
                 /*

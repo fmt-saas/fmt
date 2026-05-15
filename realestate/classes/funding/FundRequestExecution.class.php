@@ -728,7 +728,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 if(!$fundingOwnershipAccount) {
                     throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
-                // #memo - for importing historical data, we must be able to issue a funding in the past
+                // #memo - when importing historical data, we must be able to issue a funding in the past
                 $issue_date = $requestExecution['posting_date'];
                 $due_date = $requestExecution['due_date'];
 
