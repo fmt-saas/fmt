@@ -1447,6 +1447,32 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             // 6) date range: split expenses across impacted periods
             else {
                 $total_days = ( ($date_to - $date_from) / 86400 ) + 1;
+                // Initial entry lines can include a gross expense line and correction lines on the same account/source.
+                // Queue them, to be able to limit useless lines in expense summaries by creating only lines with net amount.
+                $map_accounting_entry_lines = [];
+
+                $add_accounting_entry_line = function($values) use (&$map_accounting_entry_lines) {
+                    $group_key = implode(':', [
+                        $values['accounting_entry_id'],
+                        $values['account_id'],
+                        $values['purchase_invoice_line_id'] ?? 0
+                    ]);
+
+                    if(!isset($map_accounting_entry_lines[$group_key])) {
+                        $map_accounting_entry_lines[$group_key] = $values;
+                        $map_accounting_entry_lines[$group_key]['debit'] = 0.0;
+                        $map_accounting_entry_lines[$group_key]['credit'] = 0.0;
+                    }
+
+                    $map_accounting_entry_lines[$group_key]['debit'] = round(
+                        $map_accounting_entry_lines[$group_key]['debit'] + (float) $values['debit'],
+                        4
+                    );
+                    $map_accounting_entry_lines[$group_key]['credit'] = round(
+                        $map_accounting_entry_lines[$group_key]['credit'] + (float) $values['credit'],
+                        4
+                    );
+                };
 
                 // retrieve dates for allocating amounts to accounting entries
                 $allocation_dates = self::computeAllocationDates($date_from, $date_to, $invoice['condo_id']);
@@ -1479,8 +1505,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
                         // first date of the allocation range
                         if($i == 0) {
-                            // create the debit line for the whole common expense
-                            AccountingEntryLine::create([
+                            // queue the debit line for the whole common expense
+                            $add_accounting_entry_line([
                                     'condo_id'                  => $invoice['condo_id'],
                                     'accounting_entry_id'       => $accountingEntry['id'],
                                     'description'               => $invoiceLine['description'],
@@ -1527,8 +1553,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             $remaining_amount = round($remaining_amount - $amount, 2);
                         }
 
-                        // create the debit line for the deferred expense
-                        AccountingEntryLine::create([
+                        // queue the debit line for the deferred expense
+                        $add_accounting_entry_line([
                                 'condo_id'                  => $invoice['condo_id'],
                                 'accounting_entry_id'       => $accountingEntry['id'],
                                 'description'               => $description,
@@ -1538,8 +1564,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
                             ]);
 
-                        // create the credit line for the expense
-                        AccountingEntryLine::create([
+                        // queue the credit line for the expense
+                        $add_accounting_entry_line([
                                 'condo_id'                  => $invoice['condo_id'],
                                 'accounting_entry_id'       => $accountingEntry['id'],
                                 'description'               => $description,
@@ -1595,6 +1621,19 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             ]);
 
                     }
+                }
+
+                foreach($map_accounting_entry_lines as $values) {
+                    $net_amount = round($values['debit'] - $values['credit'], 2);
+
+                    if(abs($net_amount) < 0.01) {
+                        continue;
+                    }
+
+                    $values['debit'] = ($net_amount > 0.0) ? $net_amount : 0.0;
+                    $values['credit'] = ($net_amount < 0.0) ? abs($net_amount) : 0.0;
+
+                    AccountingEntryLine::create($values);
                 }
             }
 
