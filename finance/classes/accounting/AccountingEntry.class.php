@@ -259,6 +259,7 @@ class AccountingEntry extends Model {
 
             'status' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:20',
                 'selection'         => [
                     'pending',
                     'planned',
@@ -273,6 +274,14 @@ class AccountingEntry extends Model {
                 'dependents'        => ['name']
             ]
 
+        ];
+    }
+
+    public function getIndexes(): array {
+        return [
+            ['condo_id', 'purchase_invoice_id', 'status'],
+            ['condo_id', 'bank_statement_line_id', 'status'],
+            ['condo_id', 'misc_operation_id', 'status'],
         ];
     }
 

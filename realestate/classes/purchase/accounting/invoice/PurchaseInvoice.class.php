@@ -459,7 +459,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     protected static function doCancel($self) {
-        $self->read(['status', 'accounting_entry_id', 'document_process_id']);
+        $self->read(['condo_id', 'status', 'document_process_id']);
 
         foreach($self as $id => $purchaseInvoice) {
 
@@ -474,10 +474,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     ->transition('revert');
             }
 
-            // cancel accounting entry
-            if($purchaseInvoice['accounting_entry_id']) {
-                AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');
-            }
+            // cancel/reverse all accounting entries
+            AccountingEntry::search([
+                    ['condo_id', '=', $purchaseInvoice['condo_id']],
+                    ['purchase_invoice_id', '=', $id],
+                    ['status', '=', 'validated']
+                ])
+                ->do('cancel');
 
             // update invoice status
             self::id($id)->update([
@@ -497,7 +500,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     protected static function doUnlock($self) {
-        $self->read(['status', 'accounting_entry_id', 'document_process_id']);
+        $self->read(['condo_id', 'status', 'document_process_id']);
         foreach($self as $id => $purchaseInvoice) {
             if($purchaseInvoice['status'] !== 'posted') {
                 continue;
@@ -513,8 +516,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     ]);
             }
 
-            // reverse planned accounting entries, any
+            // reverse all accounting entries
             AccountingEntry::search([
+                    ['condo_id', '=', $purchaseInvoice['condo_id']],
                     ['purchase_invoice_id', '=', $id],
                     ['status', '=', 'validated']
                 ])
@@ -1179,7 +1183,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
      *
      * The accounting entry created is meant to be instantly validated (with invoice validation action).
      *
-     *
+     * This method is called within the `onbeforeInvoice` callback
+     * which calls:
+     * - generate_accounting_entries
+     * - assign_invoice_number
+     * - validate_accounting_entries
      */
     protected static function doGenerateAccountingEntries($self) {
         $self->read([
@@ -1266,7 +1274,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
 
-            // map for keeping track of scheduled accounting entries based on periods dates (ued as key)
+            // map for keeping track of deferred/scheduled accounting entries, with periods date_from as key
             $map_planned_accounting_entries = [];
 
             $suppliershipAccount = Account::search([
@@ -1295,7 +1303,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             // #memo - reserve fund use is always considered for a single date
             if($invoice['has_fund_usage']) {
                 foreach($invoice['fund_usage_lines_ids'] as $usage_line_id => $fundUsageLine) {
-
                     // pay with reserve fund : create the debit line on the reserve fund
                     AccountingEntryLine::create([
                             'condo_id'              => $invoice['condo_id'],

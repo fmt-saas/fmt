@@ -236,4 +236,11 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
 
         }
     }
+
+    public function getIndexes(): array {
+        return array_merge(parent::getIndexes(), [
+            ['condo_id', 'fund_request_execution_id', 'status'],
+            ['condo_id', 'expense_statement_id', 'status'],
+        ]);
+    }
 }
