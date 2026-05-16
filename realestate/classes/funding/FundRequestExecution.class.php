@@ -754,6 +754,12 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
                 // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
 
+                if(abs($remaining_due_amount) <= 0.01) {
+                    continue;
+                }
+
+                $sign = ($remaining_due_amount >= 0) ? 1.0 : -1.0;
+
                 // retrieve non-empty fundings relating to the targeted ownership with opposite sign
                 $fundings = Funding::search(
                         [
@@ -762,14 +768,13 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                             ['status', '<>', 'balanced'],
                             ['is_cancelled', '=', false],
                             // #memo - called amounts for fund requests are always positive
-                            ['remaining_amount', '<', 0]
+                            ['remaining_amount', ($sign > 0) ? '<' : '>', 0]
                         ],
                         ['sort' => ['issue_date' => 'asc']]
                     )
                     ->read(['remaining_amount', 'accounting_entry_line_id']);
 
                 foreach($fundings as $funding_id => $funding) {
-                    $sign = ($remaining_due_amount >= 0.0) ? 1.0 : -1.0;
 
                     $delta = min(
                         abs($remaining_due_amount),
@@ -806,8 +811,8 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                             ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
                     }
 
-                    $remaining_due_amount  -= $signed_delta;
-                    if(abs($remaining_due_amount)  < 0.01) {
+                    $remaining_due_amount -= $signed_delta;
+                    if(abs($remaining_due_amount) < 0.01) {
                         break;
                     }
                 }

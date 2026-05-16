@@ -24,6 +24,7 @@ use realestate\finance\accounting\AccountingEntryLine;
 use realestate\ownership\OwnershipCommunicationPreference;
 use realestate\purchase\accounting\invoice\PurchaseInvoiceLine;
 use realestate\sale\pay\Funding;
+use realestate\sale\pay\FundingAllocation;
 
 #memo - Expense statements are handled as sales invoices
 class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
@@ -1121,24 +1122,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 // pass-1 : retrieve AEL from statementOwner, create a funding for the ownership, and assign it to the AEL
                 $ownership_id = $statementOwner['ownership_id']['id'];
 
-                // remove previous Funding, if any
-                Funding::search([
-                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
-                        // #todo - leave the condition if due_balance Funding are no longer required
-                        // #memo - there are two types of Fundings involved
-                        // ['funding_type', '=', 'expense_statement'],
-                        ['expense_statement_id', '=', $id],
-                        ['ownership_id', '=', $ownership_id]
-                    ])
-                    ->delete(true);
-
-                // #todo
-                $date_to = $expenseStatement['posting_date'];
-                if($expenseStatement['is_cutoff_at_period_end']) {
-                    $date_to = $expenseStatement['date_to'];
-                }
-
-                // #memo - always use Ownership control_account for Fundings
+                // #memo - there is a distinction between Ownership accounting account to use:
+                //  co_owners_owner_xxx for AEL & control_account for Fundings
                 $ownershipAccount = Account::search([
                         ['condo_id', '=', $expenseStatement['condo_id']['id']],
                         ['ownership_id', '=', $ownership_id],
@@ -1173,6 +1158,12 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
+                // #todo - not sure how to handle this
+                $date_to = $expenseStatement['posting_date'];
+                if($expenseStatement['is_cutoff_at_period_end']) {
+                    $date_to = $expenseStatement['date_to'];
+                }
+
                 // #memo - when importing historical data, we must be able to issue a funding in the past
                 $issue_date = $expenseStatement['posting_date'];
                 $due_date = $expenseStatement['due_date'];
@@ -1199,7 +1190,68 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     ->first();
 
                 // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
-// todo
+
+                if(abs($remaining_due_amount) <= 0.01) {
+                    continue;
+                }
+
+                $sign = ($remaining_due_amount >= 0) ? 1.0 : -1.0;
+
+                // retrieve non-empty fundings relating to the targeted ownership with opposite sign
+                $fundings = Funding::search(
+                        [
+                            ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                            ['accounting_account_id', '=', $fundingOwnershipAccount['id']],
+                            ['status', '<>', 'balanced'],
+                            ['is_cancelled', '=', false],
+                            ['remaining_amount', ($sign > 0) ? '<' : '>', 0]
+                        ],
+                        ['sort' => ['issue_date' => 'asc']]
+                    )
+                    ->read(['remaining_amount', 'accounting_entry_line_id']);
+
+                foreach($fundings as $funding_id => $funding) {
+
+                    $delta = min(
+                        abs($remaining_due_amount),
+                        abs($funding['remaining_amount'])
+                    );
+
+                    $signed_delta = $sign * $delta;
+
+                    FundingAllocation::create([
+                            'condo_id'                  => $expenseStatement['condo_id']['id'],
+                            'amount'                    => $signed_delta,
+                            'receipt_date'              => $expenseStatement['posting_date'],
+                            'origin_object_class'       => 'realestate\funding\ExpenseStatement',
+                            'origin_object_id'          => $id,
+                            'expense_statement_id'      => $id,
+                            'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                            'funding_id'                => $funding_id
+                        ]);
+
+                    FundingAllocation::create([
+                            'condo_id'                  => $expenseStatement['condo_id']['id'],
+                            'amount'                    => -$signed_delta,
+                            'receipt_date'              => $expenseStatement['posting_date'],
+                            'origin_object_class'       => 'realestate\funding\ExpenseStatement',
+                            'origin_object_id'          => $id,
+                            'expense_statement_id'      => $id,
+                            'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                            'funding_id'                => $ownershipFunding['id']
+                        ]);
+
+                    // merge Matching if applicable
+                    if($funding['accounting_entry_line_id']) {
+                        AccountingEntryLine::id($accountingEntryLine['id'])
+                            ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
+                    }
+
+                    $remaining_due_amount -= $signed_delta;
+                    if(abs($remaining_due_amount) < 0.01) {
+                        break;
+                    }
+                }
 
                 // 2) generate instant Funding based on current account statement
                 /*
