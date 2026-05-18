@@ -151,6 +151,7 @@
                                                 "type": "field",
                                                 "value": "is_reconciled",
                                                 "width": "33%",
+                                                "visible": ["state", "<>", "draft"],
                                                 "widget": {
                                                     "readonly": true
                                                 }
