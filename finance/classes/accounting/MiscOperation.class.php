@@ -821,11 +821,11 @@ class MiscOperation extends Model {
                     throw new \Exception('missing_accounting_entry_line', EQ_ERROR_INVALID_PARAM);
                 }
 
-                // a funding cannot be issued nor due in the past
-                $issue_date = max(strtotime('today'), $miscOperation['posting_date']);
+                // #memo - when importing historical data, we must be able to issue a funding in the past
+                $issue_date = $miscOperation['posting_date'];
 
                 // #todo - make possible to customize
-                $due_date = $miscOperation['posting_date'] + 60*60*24 * 15;
+                $due_date = $miscOperation['posting_date'] + 86400 * 15;
 
                 // #todo - allow to choose
                 $condominiumBankAccount = CondominiumBankAccount::search([
