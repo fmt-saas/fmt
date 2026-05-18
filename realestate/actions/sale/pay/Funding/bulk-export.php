@@ -66,6 +66,7 @@ if(count($fundings) <= 0) {
 
 $map_bank_accounts = [];
 $map_bank_account_fundings = [];
+
 foreach($fundings as $funding) {
     $map_bank_accounts[$funding['bank_account_id']['id']] = $funding['bank_account_id'];
     $map_bank_account_fundings[$funding['bank_account_id']['id']][] = $funding;

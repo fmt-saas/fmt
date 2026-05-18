@@ -11,6 +11,7 @@ use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
 use finance\accounting\Journal;
 use finance\accounting\Account;
+use finance\accounting\FiscalYear;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\ownership\Ownership;
@@ -56,6 +57,23 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             // 'accounting_entry_id'
             // 'emission_date'
             // 'due_date'
+
+            'fiscal_year_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => "Fiscal year the fund request relates to.",
+                'function'          => 'calcFiscalYearId',
+                'store'             => true,
+                'instant'           => true
+            ],
+
+            'posting_date' => [
+                'type'              => 'date',
+                'description'       => 'The date on which the invoice is recorded in the accounting system.',
+                'default'           => function () { return time(); },
+                'dependents'        => ['emission_date', 'fiscal_year_id', 'fiscal_period_id']
+            ],
 
             'invoice_type' => [
                 'type'              => 'string',
@@ -373,6 +391,27 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         foreach($self as $id => $requestExecution) {
             if($requestExecution['fund_request_id']) {
                 $result[$id] = $requestExecution['fund_request_id']['name'] . ' ('. date('d/m/Y', $requestExecution['posting_date']) . ')';
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcFiscalYearId($self) {
+        $result = [];
+        $self->read(['condo_id', 'posting_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
+        foreach($self as $id => $invoice) {
+            if(!$invoice['posting_date']) {
+                continue;
+            }
+            $fiscalYear = FiscalYear::search([
+                    ['condo_id', '=', $invoice['condo_id']],
+                    ['date_from', '<=', $invoice['posting_date']],
+                    ['date_to', '>=', $invoice['posting_date']]
+                ])
+                ->first();
+
+            if($fiscalYear) {
+                $result[$id] = $fiscalYear['id'];
             }
         }
         return $result;

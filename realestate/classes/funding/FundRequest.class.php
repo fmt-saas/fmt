@@ -748,7 +748,6 @@ class FundRequest extends \equal\orm\Model {
             // create a request execution
             $execution_values = [
                     'condo_id'              => $fundRequest['condo_id'],
-                    'fiscal_year_id'        => $fundRequest['fiscal_year_id'],
                     'payment_terms_id'      => $fundRequest['payment_terms_id'],
                     'fund_request_id'       => $id
                 ];
