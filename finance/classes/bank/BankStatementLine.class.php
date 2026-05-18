@@ -394,7 +394,7 @@ class BankStatementLine extends Model {
                 'icon'        => 'draw',
                 'transitions' => [
                     'post' => [
-                        'policies'    => ['can_post'],
+                        'policies'    => [/*#memo - cannot check in advance : this action relies upon sub-actions policies */],
                         'description' => 'Update the payment status to `payment`.',
                         'onbefore'    => 'onbeforePost',
                         'onafter'     => 'onafterPost',
@@ -416,7 +416,7 @@ class BankStatementLine extends Model {
             'generate_accounting_entry' => [
                 'description'   => 'Creates accounting entries according to operation lines.',
                 'help'          => 'This is run only when posting (in `onbeforePost`).',
-                'policies'      => [],
+                'policies'      => ['can_generate_accounting_entry'],
                 'function'      => 'doGenerateAccountingEntry'
             ]
         ];
@@ -424,9 +424,10 @@ class BankStatementLine extends Model {
 
     public static function getPolicies(): array {
         return [
-            'can_post' => [
+            'can_generate_accounting_entry' => [
                 'description' => 'Verifies that the bank statement line is fully reconciled.',
-                'function'    => 'policyCanPost'
+                'help'        => 'Action `post ` attempts auto-reconcile upon onbeforePost. So reconciliation state cannot be tested before accounting entry generation.',
+                'function'    => 'policyCaGenerateAccountingEntry'
             ]
         ];
     }
@@ -498,9 +499,6 @@ class BankStatementLine extends Model {
             $remaining_amount = round((float) $bankStatementLine['amount'], 2);
 
             foreach($candidateFundings as $funding) {
-                if(abs($remaining_amount) < 0.01) {
-                    break;
-                }
 
                 if(abs($funding['remaining_amount']) < 0.01) {
                     continue;
@@ -535,6 +533,11 @@ class BankStatementLine extends Model {
                     ]);
 
                 $remaining_amount = round($remaining_amount - $allocated, 2);
+
+                if(abs($remaining_amount) < 0.01) {
+                    break;
+                }
+
             }
 
             // if some amount is remaining : an unexpected amount has been received
@@ -846,11 +849,17 @@ class BankStatementLine extends Model {
     }
 
     protected static function onbeforePost($self) {
-        // #memo - we cannot trust the user : business logic imposes the use of oldest Fundings first
-        $self
-            // find Fundings if applicable
-            ->do('attempt_reconcile')
-            ->do('generate_accounting_entry');
+        try {
+            // #memo - we cannot trust the user : business logic imposes the use of oldest Fundings first
+            $self
+                // find Fundings if applicable
+                ->do('attempt_reconcile')
+                ->do('generate_accounting_entry');
+        }
+        catch(\Exception $e) {
+            // there might have been an error at reconciliation
+            throw $e;
+        }
     }
 
     protected static function onafterPost($self) {
@@ -906,7 +915,7 @@ class BankStatementLine extends Model {
         return parent::canupdate($self);
     }
 
-    protected static function policyCanPost($self) {
+    protected static function policyCaGenerateAccountingEntry($self) {
         $result = [];
         $self->read([
             'condo_id',
