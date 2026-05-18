@@ -364,7 +364,7 @@ class BankStatement extends Model {
             }
 
             try {
-                $bankStatement['statement_lines_ids']->assert('can_generate_accounting_entry');
+                $bankStatement['statement_lines_ids']->assert('is_valid');
             }
             catch(\Exception $e) {
                 $result[$id] = [

@@ -394,7 +394,8 @@ class BankStatementLine extends Model {
                 'icon'        => 'draw',
                 'transitions' => [
                     'post' => [
-                        'policies'    => [/*#memo - cannot check in advance : this action relies upon sub-actions policies */],
+                        // #memo - cannot check reconciliation in advance : this action relies upon sub-actions policies
+                        'policies'    => [ 'is_valid' ],
                         'description' => 'Update the payment status to `payment`.',
                         'onbefore'    => 'onbeforePost',
                         'onafter'     => 'onafterPost',
@@ -416,7 +417,7 @@ class BankStatementLine extends Model {
             'generate_accounting_entry' => [
                 'description'   => 'Creates accounting entries according to operation lines.',
                 'help'          => 'This is run only when posting (in `onbeforePost`).',
-                'policies'      => ['can_generate_accounting_entry'],
+                'policies'      => [ 'can_generate_accounting_entry' ],
                 'function'      => 'doGenerateAccountingEntry'
             ]
         ];
@@ -424,10 +425,15 @@ class BankStatementLine extends Model {
 
     public static function getPolicies(): array {
         return [
+            'is_valid' => [
+                'description' => 'Verifies that the bank statement line is fully reconciled.',
+                'help'        => 'Action `post ` attempts auto-reconcile upon onbeforePost. So reconciliation state cannot be tested before accounting entry generation.',
+                'function'    => 'policyIsValid'
+            ],
             'can_generate_accounting_entry' => [
                 'description' => 'Verifies that the bank statement line is fully reconciled.',
                 'help'        => 'Action `post ` attempts auto-reconcile upon onbeforePost. So reconciliation state cannot be tested before accounting entry generation.',
-                'function'    => 'policyCaGenerateAccountingEntry'
+                'function'    => 'policyCanGenerateAccountingEntry'
             ]
         ];
     }
@@ -916,7 +922,7 @@ class BankStatementLine extends Model {
         return parent::canupdate($self);
     }
 
-    protected static function policyCaGenerateAccountingEntry($self) {
+    protected static function policyIsValid($self) {
         $result = [];
         $self->read([
             'condo_id',
@@ -957,6 +963,48 @@ class BankStatementLine extends Model {
                 continue;
             }
 
+            // The statement date must be in the same fiscal year (not period)
+            if($bankStatementLine['fiscal_year_id'] !== $bankStatementLine['bank_statement_id']['fiscal_year_id'] ) {
+                $result[$id] = [
+                    'incompatible_fiscal_year' => 'Fiscal year of the line must match parent bank statement fiscal year.'
+                ];
+                continue;
+            }
+            if($bankStatementLine['accounting_account_id']['is_apportionable'] && !$bankStatementLine['apportionment_id']) {
+                $result[$id] = [
+                    'missing_apportionment_id' => "Bank Statement Line ({$id}) not linked to an apportionment key."
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyCanGenerateAccountingEntry($self) {
+        $result = [];
+        $self->read([
+            'condo_id',
+            'payments_ids' => ['funding_id'],
+            'status',
+            'fiscal_year_id',
+            'accounting_account_id' => ['is_apportionable', 'is_reconcilable'],
+            'is_expense', 'is_income', 'apportionment_id',
+            'bank_statement_id' => ['id', 'bank_account_id', 'is_balanced', 'fiscal_year_id']
+        ]);
+        foreach($self as $id => $bankStatementLine) {
+            if($bankStatementLine['status'] !== 'pending') {
+                $result[$id] = [
+                    'invalid_status' => 'Only non-posted bank statement lines can be posted.'
+                ];
+                continue;
+            }
+            if(!$bankStatementLine['accounting_account_id']) {
+                $result[$id] = [
+                    'missing_accounting_account' => 'Accounting account is mandatory on Bank Statement Line.'
+                ];
+                continue;
+            }
+
             foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
                 $funding = Funding::id($payment['funding_id'])->first();
                 if(!$funding) {
@@ -967,13 +1015,6 @@ class BankStatementLine extends Model {
                 }
             }
 
-            // parent bank statement must be balanced before being able to post individual lines
-            if(!$bankStatementLine['bank_statement_id']['is_balanced']) {
-                $result[$id] = [
-                    'incomplete_bank_statement' => 'Parent bank statement is not balanced.'
-                ];
-                continue;
-            }
             // Check if: 1) the entry is reconciled 2) there are payments (which fully reconcile the line), or a counterpart accounting account is specified
             if($bankStatementLine['accounting_account_id']['is_reconcilable'] && !self::computeIsReconciled($id)) {
                 $result[$id] = [
