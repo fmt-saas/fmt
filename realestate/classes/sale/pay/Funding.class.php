@@ -286,12 +286,17 @@ class Funding extends \sale\pay\Funding {
 
     protected static function calcName($self) {
         $result = [];
-        $self->read(['state', 'due_amount', 'payment_reference', 'fund_request_execution_id' => ['name'],  'purchase_invoice_id' => ['name']]);
+        $self->read(['state', 'due_amount', 'payment_reference',
+                'fund_request_execution_id' => ['name'],
+                'expense_statement_id' => ['name'],
+                'purchase_invoice_id' => ['name']
+            ]);
         foreach($self as $id => $funding) {
             if($funding['state'] === 'draft') {
                 continue;
             }
-            if(!$funding['due_amount']) {
+
+            if(is_null($funding['due_amount'])) {
                 continue;
             }
 
@@ -307,6 +312,10 @@ class Funding extends \sale\pay\Funding {
 
             if($funding['fund_request_execution_id']) {
                 $result[$id] .= '  ' . $funding['fund_request_execution_id']['name'];
+            }
+
+            if($funding['expense_statement_id']) {
+                $result[$id] .= '  ' . $funding['expense_statement_id']['name'];
             }
 
         }

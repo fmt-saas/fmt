@@ -638,8 +638,7 @@ class BankStatementLine extends Model {
                             ['condo_id', '=', $bankStatementLine['condo_id']],
                             ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
                             ['status', '<>', 'balanced'],
-                            ['is_cancelled', '=', false],
-                            ['remaining_amount', '>=', $bankStatementLine['amount']]
+                            ['is_cancelled', '=', false]
                         ], ['sort' => ['issue_date' => 'asc']]
                     )
                     ->read(['id', 'due_date', 'remaining_amount'])
@@ -647,7 +646,6 @@ class BankStatementLine extends Model {
             }
 
             return $fundings_ids;
-
         }
         elseif($bankStatementLine['is_owner']) {
             return Funding::search([
