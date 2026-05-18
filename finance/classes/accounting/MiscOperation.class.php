@@ -558,10 +558,10 @@ class MiscOperation extends Model {
                 }
             }
 
+*/
             FiscalYear::id($miscOperation['fiscal_year_id'])
                 ->update(['opening_balance_id' => $openingBalance['id']]);
 
-*/
             OpeningBalance::id($openingBalance['id'])->update(['status' => 'validated']);
 
             self::id($id)->update(['opening_balance_id' => $openingBalance['id']]);
