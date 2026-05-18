@@ -785,7 +785,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
                     FundingAllocation::create([
                             'condo_id'                  => $requestExecution['condo_id'],
-                            'amount'                    => $signed_delta,
+                            'amount'                    => -$signed_delta,
                             'receipt_date'              => $requestExecution['posting_date'],
                             'origin_object_class'       => 'realestate\funding\FundRequestExecution',
                             'origin_object_id'          => $id,
@@ -796,7 +796,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
                     FundingAllocation::create([
                             'condo_id'                  => $requestExecution['condo_id'],
-                            'amount'                    => -$signed_delta,
+                            'amount'                    => $signed_delta,
                             'receipt_date'              => $requestExecution['posting_date'],
                             'origin_object_class'       => 'realestate\funding\FundRequestExecution',
                             'origin_object_id'          => $id,

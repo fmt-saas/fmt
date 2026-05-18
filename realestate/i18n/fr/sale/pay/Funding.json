@@ -67,7 +67,7 @@
             "help": ""
         },
         "remaining_amount": {
-            "label": "Reste à payer",
+            "label": "Solde",
             "description": "Différence entre le dû et les règlements enregistrés.",
             "help": ""
         },
