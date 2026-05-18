@@ -500,20 +500,21 @@ class BankStatementLine extends Model {
 
             foreach($candidateFundings as $funding) {
 
+                $funding_remaining_amount = round((float) $funding['remaining_amount'], 2);
+
                 if(abs($funding['remaining_amount']) < 0.01) {
                     continue;
                 }
 
-                if(($remaining_amount > 0 && $funding['remaining_amount'] <= 0) || ($remaining_amount < 0 && $funding['remaining_amount'] >= 0)) {
+                if(
+                    ($remaining_amount > 0 && $funding_remaining_amount <= 0) ||
+                    ($remaining_amount < 0 && $funding_remaining_amount >= 0)
+                ) {
                     continue;
                 }
 
-                $allocatable = min(abs($funding['remaining_amount']), abs($remaining_amount));
-                $allocated = round(($funding['remaining_amount'] > 0 ? 1 : -1) * $allocatable, 2);
-
-                if(abs($remaining_amount - $allocated) > abs($remaining_amount)) {
-                    continue;
-                }
+                $allocatable = min(abs($funding_remaining_amount), abs($remaining_amount));
+                $allocated = round(($remaining_amount > 0 ? 1 : -1) * $allocatable, 2);
 
                 if(abs($allocated) < 0.01) {
                     continue;
