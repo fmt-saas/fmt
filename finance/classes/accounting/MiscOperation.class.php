@@ -776,7 +776,7 @@ class MiscOperation extends Model {
 
 
         $self->read([
-                'condo_id' => ['id', 'code'],
+                'condo_id',
                 'name',
                 'posting_date',
                 'has_opening_journal',
@@ -788,6 +788,7 @@ class MiscOperation extends Model {
                     'is_owner',
                     'is_supplier',
                     'ownership_id',
+                    'suppliership_id',
                     'debit',
                     'credit'
                 ]
@@ -810,7 +811,7 @@ class MiscOperation extends Model {
                 $accounting_account_id = $miscOperationLine['account_id'];
 
                 $accountingEntryLine = AccountingEntryLine::search([
-                        ['condo_id', '=', $miscOperation['condo_id']['id']],
+                        ['condo_id', '=', $miscOperation['condo_id']],
                         ['account_id', '=', $miscOperationLine['account_id']],
                         ['accounting_entry_id', '=', $miscOperation['accounting_entry_id']]
                     ])
@@ -828,7 +829,7 @@ class MiscOperation extends Model {
 
                 // #todo - allow to choose
                 $condominiumBankAccount = CondominiumBankAccount::search([
-                        ['condo_id', '=', $miscOperation['condo_id']['id']],
+                        ['condo_id', '=', $miscOperation['condo_id']],
                         ['is_primary', '=', true]
                     ])
                     ->first();
@@ -838,7 +839,7 @@ class MiscOperation extends Model {
                 }
 
                 $funding_values = [
-                        'condo_id'                          => $miscOperation['condo_id']['id'],
+                        'condo_id'                          => $miscOperation['condo_id'],
                         'description'                       => $miscOperation['name'],
                         'funding_type'                      => 'misc_operation',
                         'misc_operation_id'                 => $id,
@@ -855,7 +856,7 @@ class MiscOperation extends Model {
 
                     // #memo - always use Ownership control_account for Fundings
                     $fundingOwnershipAccount = Account::search([
-                            ['condo_id', '=', $miscOperation['condo_id']['id']],
+                            ['condo_id', '=', $miscOperation['condo_id']],
                             ['ownership_id', '=', $ownership_id],
                             ['is_control_account', '=', true]
                         ])
