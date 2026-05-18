@@ -206,6 +206,12 @@ class Funding extends \equal\orm\Model {
                 'description'       => 'Message for identifying the purpose of the transaction.'
             ],
 
+            'has_payment_on_hold' => [
+                'type'              => 'boolean',
+                'description'       => 'Payment should not be made for now.',
+                'default'           => false
+            ],
+
             'is_cancelled' => [
                 'type'              => 'boolean',
                 'description'       => "Flag marking the funding as cancelled.",

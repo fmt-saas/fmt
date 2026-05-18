@@ -25,6 +25,7 @@ use realestate\property\Condominium;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\sale\pay\Funding;
+use realestate\sale\pay\FundingAllocation;
 
 class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
@@ -813,14 +814,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             ]);
 
         foreach($self as $id => $purchaseInvoice) {
-            // ignore invoices that already have a funding
-            if($purchaseInvoice['funding_id']) {
-                continue;
-            }
+
+            // pass-1 : retrieve AEL from execution line, create a funding for the ownership, and assign it to the AEL
+            $suppliership_id = $purchaseInvoice['suppliership_id'];
 
             $suppliershipAccount = Account::search([
                     ['condo_id', '=', $purchaseInvoice['condo_id']],
-                    ['suppliership_id', '=', $purchaseInvoice['suppliership_id']],
+                    ['suppliership_id', '=', $suppliership_id],
                     ['operation_assignment', '=', 'suppliers_supplier']
                 ])
                 ->first();
@@ -849,7 +849,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 ])
                 ->first();
 
-            $values = [
+            // #memo - when importing historical data, we must be able to issue a funding in the past
+            $issue_date = $purchaseInvoice['emission_date'];
+            $due_date = $purchaseInvoice['due_date'];
+
+            $remaining_due_amount = -$purchaseInvoice['price'];
+
+            $suppliershipFunding = Funding::create([
                     'condo_id'                          => $purchaseInvoice['condo_id'],
                     'description'                       => $purchaseInvoice['name'],
                     'funding_type'                      => 'purchase_invoice',
@@ -861,22 +867,84 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'accounting_entry_line_id'          => $accountingEntryLine['id'],
                     'due_amount'                        => -$purchaseInvoice['price'],
                     'is_paid'                           => false,
-                    'issue_date'                        => $purchaseInvoice['emission_date'],
-                    'due_date'                          => $purchaseInvoice['due_date'],
-                    'has_mandate'                       => $purchaseInvoice['has_mandate']
-                ];
+                    'issue_date'                        => $issue_date,
+                    'due_date'                          => $due_date,
+                    'has_mandate'                       => $purchaseInvoice['has_mandate'],
+                    'payment_reference'                 => $purchaseInvoice['payment_reference'] ?? null,
+                    // relay on_hold flag
+                    'has_payment_on_hold'               => $purchaseInvoice['has_payment_on_hold']
+                ])
+                ->first();
 
-            if($purchaseInvoice['payment_reference'] && strlen($purchaseInvoice['payment_reference']) > 0) {
-                // #memo - if not set, payment_reference will be computed based on invoice id
-                $values['payment_reference'] = $purchaseInvoice['payment_reference'];
+            // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
+
+            if(abs($remaining_due_amount) <= 0.01) {
+                continue;
             }
 
-            // no funding if payment on hold
-            if(!$purchaseInvoice['has_payment_on_hold']) {
-                $funding = Funding::create($values)->first();
-                self::id($purchaseInvoice['id'])
-                    ->update(['funding_id' => $funding['id']]);
+            $sign = ($remaining_due_amount >= 0) ? 1.0 : -1.0;
+
+            // retrieve non-empty fundings relating to the targeted ownership with opposite sign
+            $fundings = Funding::search(
+                    [
+                        ['condo_id', '=', $purchaseInvoice['condo_id']],
+                        ['accounting_account_id', '=', $suppliershipAccount['id']],
+                        ['status', '<>', 'balanced'],
+                        ['is_cancelled', '=', false],
+                        // #memo - called amounts for fund requests are always positive
+                        ['remaining_amount', ($sign > 0) ? '<' : '>', 0]
+                    ],
+                    ['sort' => ['issue_date' => 'asc']]
+                )
+                ->read(['remaining_amount', 'accounting_entry_line_id']);
+
+            foreach($fundings as $funding_id => $funding) {
+
+                $delta = min(
+                    abs($remaining_due_amount),
+                    abs($funding['remaining_amount'])
+                );
+
+                $signed_delta = $sign * $delta;
+
+                FundingAllocation::create([
+                        'condo_id'                  => $purchaseInvoice['condo_id'],
+                        'amount'                    => -$signed_delta,
+                        'receipt_date'              => $purchaseInvoice['emission_date'],
+                        'origin_object_class'       => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
+                        'origin_object_id'          => $id,
+                        'fund_request_execution_id' => $id,
+                        'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                        'funding_id'                => $funding_id
+                    ]);
+
+                FundingAllocation::create([
+                        'condo_id'                  => $purchaseInvoice['condo_id'],
+                        'amount'                    => $signed_delta,
+                        'receipt_date'              => $purchaseInvoice['emission_date'],
+                        'origin_object_class'       => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
+                        'origin_object_id'          => $id,
+                        'fund_request_execution_id' => $id,
+                        'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                        'funding_id'                => $suppliershipFunding['id']
+                    ]);
+
+                Funding::id($funding_id)->do('refresh_status');
+
+                // merge Matching if applicable
+                if($funding['accounting_entry_line_id']) {
+                    AccountingEntryLine::id($accountingEntryLine['id'])
+                        ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
+                }
+
+                $remaining_due_amount -= $signed_delta;
+                if(abs($remaining_due_amount) < 0.01) {
+                    break;
+                }
             }
+
+            Funding::id($suppliershipFunding['id'])->do('refresh_status');
+            self::id($purchaseInvoice['id'])->update(['funding_id' => $suppliershipFunding['id']]);
         }
     }
 

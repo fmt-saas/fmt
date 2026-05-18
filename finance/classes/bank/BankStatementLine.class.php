@@ -473,7 +473,7 @@ class BankStatementLine extends Model {
                 'date',
                 'account_iban',
                 'bank_statement_id' => ['bank_account_id'],
-                'accounting_account_id',
+                'accounting_account_id' => ['id', 'is_reconcilable'],
                 'is_supplier',
                 'is_owner',
                 'is_transfer',
@@ -483,6 +483,10 @@ class BankStatementLine extends Model {
 
         foreach($self as $id => $bankStatementLine) {
             if($bankStatementLine['status'] !== 'pending') {
+                continue;
+            }
+
+            if(!$bankStatementLine['accounting_account_id']['is_reconcilable']) {
                 continue;
             }
 
@@ -557,7 +561,7 @@ class BankStatementLine extends Model {
                         'condo_id'                  => $bankStatementLine['condo_id'],
                         'description'               => (strlen($bankStatementLine['communication']) > 0) ? $bankStatementLine['communication'] : 'trop payé',
                         'bank_statement_line_id'    => $id,
-                        'accounting_account_id'     => $bankStatementLine['accounting_account_id'],
+                        'accounting_account_id'     => $bankStatementLine['accounting_account_id']['id'],
                         'ownership_id'              => $bankStatementLine['ownership_id']?? null,
                         'suppliership_id'           => $bankStatementLine['suppliership_id']?? null,
                         'bank_account_id'           => $bankStatementLine['bank_statement_id']['bank_account_id'],
@@ -626,11 +630,23 @@ class BankStatementLine extends Model {
                         ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
                         ['status', '<>', 'balanced'],
                         ['is_cancelled', '=', false],
-                        ['remaining_amount', '>=', $bankStatementLine['amount']],
+                        ['remaining_amount', '=', $bankStatementLine['amount']],
                         ['payment_reference', '=', $bankStatementLine['communication']],
                     ], ['sort' => ['issue_date' => 'asc']]
                 )
                 ->ids();
+
+            if(!count($fundings_ids)) {
+                $fundings_ids = Funding::search([
+                            ['condo_id', '=', $bankStatementLine['condo_id']],
+                            ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
+                            ['status', '<>', 'balanced'],
+                            ['is_cancelled', '=', false],
+                            ['remaining_amount', '=', $bankStatementLine['amount']],
+                        ], ['sort' => ['issue_date' => 'asc']]
+                    )
+                    ->ids();
+            }
 
             if(!count($fundings_ids)) {
                 // fallback to remaining amount match only

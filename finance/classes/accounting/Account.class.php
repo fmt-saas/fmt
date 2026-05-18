@@ -409,6 +409,7 @@ class Account extends Model {
             $result[$id] = false;
             if($account['operation_assignment']) {
                 $result[$id] = in_array($account['operation_assignment'], [
+                        'bank_transfer',
                         'suppliers_supplier',
                         'co_owners_owner_reserve_fund',
                         'co_owners_owner_working_fund'

@@ -795,12 +795,6 @@ class MiscOperation extends Model {
             ]);
 
         foreach($self as $id => $miscOperation) {
-            // ignore MiscOperation that relate to an opening balance
-            /*
-            if($miscOperation['has_opening_journal']) {
-                continue;
-            }
-            */
             foreach($miscOperation['misc_operation_lines_ids'] as $misc_operation_line_id => $miscOperationLine) {
                 if(!$miscOperationLine['is_owner'] && !$miscOperationLine['is_supplier'])  {
                     continue;
@@ -881,12 +875,11 @@ class MiscOperation extends Model {
     protected static function onbeforePost($self) {
         $self
             ->do('generate_accounting_entry')
-            // create fundings & opening balance (MiscOp with flag `has_opening_journal` set to true)
+            // create empty opening balance (MiscOp with flag `has_opening_journal` set to true)
             ->do('generate_opening_balance')
-            // create fundings for non opening balance (MiscOp with flag `has_opening_journal` set to false)
             ->do('create_fundings')
             ->do('validate_accounting_entry')
-            // all MiscOp
+            // force refresh name
             ->update(['name' => null]);
     }
 
