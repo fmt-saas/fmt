@@ -805,6 +805,8 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                             'funding_id'                => $ownershipFunding['id']
                         ]);
 
+                    Funding::id($funding_id)->do('refresh_status');
+
                     // merge Matching if applicable
                     if($funding['accounting_entry_line_id']) {
                         AccountingEntryLine::id($accountingEntryLine['id'])
@@ -816,6 +818,8 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         break;
                     }
                 }
+
+                Funding::id($ownershipFunding['id'])->do('refresh_status');
 
 
                 // 2) generate instant Funding based on current account statement
