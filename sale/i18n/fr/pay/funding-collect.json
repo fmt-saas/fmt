@@ -4,7 +4,7 @@
     "model": {
         "invoice_id": {
             "label": "Facture",
-            "description": "La facture est liée au financement.",
+            "description": "La facture liée au financement.",
             "help": ""
         },
         "due_amount_min": {
@@ -19,7 +19,7 @@
         },
         "customer_id": {
             "label": "Client",
-            "description": "Le client est liée au financement",
+            "description": "Le client lié au financement",
             "help": ""
         },
         "payment_reference": {

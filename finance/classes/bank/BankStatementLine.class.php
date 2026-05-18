@@ -477,7 +477,8 @@ class BankStatementLine extends Model {
                 'is_supplier',
                 'is_owner',
                 'is_transfer',
-                'ownership_id'
+                'ownership_id',
+                'suppliership_id'
             ]);
 
         foreach($self as $id => $bankStatementLine) {
@@ -558,6 +559,7 @@ class BankStatementLine extends Model {
                         'bank_statement_line_id'    => $id,
                         'accounting_account_id'     => $bankStatementLine['accounting_account_id'],
                         'ownership_id'              => $bankStatementLine['ownership_id']?? null,
+                        'suppliership_id'           => $bankStatementLine['suppliership_id']?? null,
                         'bank_account_id'           => $bankStatementLine['bank_statement_id']['bank_account_id'],
                         'issue_date'                => $bankStatementLine['date'],
                         'due_date'                  => $bankStatementLine['date'],
@@ -1197,7 +1199,7 @@ class BankStatementLine extends Model {
                             throw new \Exception('missing_funding_accounting_account', EQ_ERROR_INVALID_PARAM);
                         }
 
-                        $logs[] = "INFO - Retrieved funding {$payment['funding_id']} with due amount {$funding['due_amount']}";
+                        $logs[] = "INFO - Retrieved funding Payment from Funding[{$payment['funding_id']}] with due amount {$funding['due_amount']}";
 
                         $description = $bankStatementLine['communication'];
 
