@@ -737,7 +737,7 @@ class MiscOperation extends Model {
         $result = [];
         $self->read(['description', 'operation_type', 'accounting_entry_id' => ['status', 'entry_number'], 'condo_id' => ['code']]);
         foreach($self as $id => $operation) {
-            if($operation['accounting_entry_id']['status'] === 'validated') {
+            if($operation['accounting_entry_id'] && $operation['accounting_entry_id']['status'] === 'validated') {
                 $result[$id] = $operation['accounting_entry_id']['entry_number'];
             }
             else {

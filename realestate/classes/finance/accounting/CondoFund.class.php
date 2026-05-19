@@ -334,6 +334,9 @@ class CondoFund extends \equal\orm\Model {
         $self->read(['fund_account_id' => ['code'], 'description']);
 
         foreach($self as $id => $condoFund) {
+            if(!$condoFund['fund_account_id']) {
+                continue;
+            }
             $result[$id] = $condoFund['fund_account_id']['code'] . ' - ' . $condoFund['description'];
         }
 
