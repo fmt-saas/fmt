@@ -476,6 +476,8 @@ foreach($map_final_accounts_ids as $account_id => $_) {
 
     // 2. Lines (if any)
     if(isset($map_account_lines[$account_id])) {
+        $account_rows = [];
+
         foreach($map_account_lines[$account_id] as $line) {
 
             $row = $line->toArray();
@@ -496,7 +498,27 @@ foreach($map_final_accounts_ids as $account_id => $_) {
 
             $row['entry_date'] = date('c', $line['entry_date']);
 
-            $current_balance[$account_id] += $line['debit'] - $line['credit'];
+            $account_rows[] = $row;
+        }
+
+        // 3. Group rows from the same account by accounting entry.
+        $grouped_rows = [];
+
+        foreach($account_rows as $row) {
+            $entry = $row['accounting_entry_id'] ?? null;
+            $entry_id = is_array($entry) ? ($entry['id'] ?? null) : $entry;
+
+            if(!isset($grouped_rows[$entry_id])) {
+                $grouped_rows[$entry_id] = $row;
+                continue;
+            }
+
+            $grouped_rows[$entry_id]['debit'] += $row['debit'];
+            $grouped_rows[$entry_id]['credit'] += $row['credit'];
+        }
+
+        foreach($grouped_rows as $row) {
+            $current_balance[$account_id] += $row['debit'] - $row['credit'];
             $row['balance'] = $current_balance[$account_id];
 
             $result[] = $row;

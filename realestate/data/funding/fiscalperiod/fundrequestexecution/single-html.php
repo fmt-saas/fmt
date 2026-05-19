@@ -188,6 +188,7 @@ $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution
         'date_to',
         'posting_date',
         'due_date',
+        'fiscal_period_id' => ['date_from', 'date_to'],
         'price',
         'status',
         // #memo - there should be only one funding matching the ownership
@@ -204,7 +205,7 @@ $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution
             'price'
         ],
         'condo_id' => [
-            'name', 'legal_name', 'address_street', 'address_zip', 'address_city',
+            'name', 'code', 'legal_name', 'address_street', 'address_zip', 'address_city',
             'registration_number', 'bank_account_iban', 'bank_account_bic',
             'managing_agent_id' => [
                 'name', 'address_street', 'address_dispatch', 'address_zip',
@@ -274,27 +275,6 @@ if($fundRequest['status'] === 'cancelled') {
 
 $execution = $fundRequestExecution->toArray();
 
-// either theoretical funding, or due_balance funding
-$funding = null;
-foreach($fundRequestExecution['fundings_ids'] as $candidate_funding_id => $candidateFunding) {
-    if($candidateFunding['funding_type'] === 'fund_request') {
-        $funding = $candidateFunding->toArray();
-        // continue
-    }
-    elseif($fundRequestExecution['with_due_balance'] && $candidateFunding['funding_type'] === 'due_balance') {
-        $funding = $candidateFunding->toArray();
-        // stop looping
-        break;
-    }
-}
-
-// #memo - in preview, fundings are not yet generated
-/*
-if(!$funding) {
-    throw new Exception('no_funding', EQ_ERROR_UNKNOWN_OBJECT);
-}
-*/
-
 $executions = $fundRequest['request_executions_ids']->get(true);
 
 $fund_request = [
@@ -346,7 +326,7 @@ else {
 }
 
 $owner = $ownerCollection->read([
-        'ownership_id' => ['address_recipient'],
+        'ownership_id' => ['code', 'address_recipient'],
         'identity_id' => [
             'name', 'address_street', 'address_dispatch', 'address_zip',
             'address_city', 'address_country', 'has_vat', 'vat_number',
@@ -360,6 +340,42 @@ if(!$owner) {
 }
 
 $lang = $owner['identity_id']['lang_id']['code'];
+
+// either theoretical funding, or due_balance funding
+$funding = null;
+
+if($fundRequestExecution['with_due_balance']) {
+    // generate pseudo instant Funding based on current account statement
+    $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
+        'ownership_id'      => $params['ownership_id'],
+        'date_from'         => $fundRequestExecution['fiscal_period_id']['date_from'],
+        'date_to'           => $fundRequestExecution['fiscal_period_id']['date_to']
+    ]);
+
+    $closing_balance = 0.0;
+
+    if(count($data)) {
+        $closing_balance = end($data)['balance'] ?? 0.0;
+    }
+
+    $reference = substr(str_pad((int) $fundRequestExecution['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
+                substr(str_pad((int) $owner['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+
+    $funding = [
+            'payment_reference'     => $reference,
+            'due_date'              => $fundRequestExecution['due_date'],
+            'remaining_amount'      => $closing_balance
+        ];
+}
+else {
+    foreach($fundRequestExecution['fundings_ids'] as $candidate_funding_id => $candidateFunding) {
+        if($candidateFunding['funding_type'] === 'fund_request') {
+            $funding = $candidateFunding->toArray();
+            break;
+        }
+    }
+}
+
 
 // retrieve template (subject & body)
 $subject = 'Appels de fonds';

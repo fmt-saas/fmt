@@ -8,7 +8,6 @@
 use communication\template\Template;
 use fmt\setting\Setting;
 use equal\data\DataFormatter;
-use realestate\sale\pay\Funding;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
@@ -413,38 +412,19 @@ if(!$owner) {
 }
 
 $lang = $owner['identity_id']['lang_id']['code'];
-
-// #memo - for expense statements, we always use due_balance fundings
-/*
-$funding = Funding::search([
-        ['expense_statement_id', '=', $statement['id']],
-        // ['funding_type', '=', 'due_balance'],
-        // #todo - Matching logic change - to confirm
-        ['funding_type', '=', 'expense_statement'],
-        ['ownership_id', '=', $params['ownership_id']]
-    ])
-    ->read(['payment_reference', 'remaining_amount', 'due_date'])
-    ->first();
-
-// #memo - in preview, fundings are not yet generated
-
-if(!$funding) {
-    throw new Exception('no_funding', EQ_ERROR_UNKNOWN_OBJECT);
-}
-*/
+$funding = null;
 
 // generate pseudo instant Funding based on current account statement
-
 $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
     'ownership_id'      => $params['ownership_id'],
     'date_from'         => $fiscalPeriod['date_from'],
     'date_to'           => $fiscalPeriod['date_to']
 ]);
 
-$closing_balance = 0;
+$closing_balance = 0.0;
 
 if(count($data)) {
-    $closing_balance = end($data)['balance'] ?? 0;
+    $closing_balance = end($data)['balance'] ?? 0.0;
 }
 
 $reference = substr(str_pad((int) $statement['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .

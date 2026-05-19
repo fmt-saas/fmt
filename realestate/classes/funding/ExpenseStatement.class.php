@@ -1257,33 +1257,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 Funding::id($ownershipFunding['id'])->do('refresh_status');
 
-                // 2) generate instant Funding based on current account statement
-                /*
-                $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
-                    'ownership_id'      => $ownership_id,
-                    'date_from'         => $expenseStatement['fiscal_period_id']['date_from'],
-                    'date_to'           => $expenseStatement['fiscal_period_id']['date_to']
-                ]);
-
-                $closing_balance = 0;
-
-                if(count($data)) {
-                    $closing_balance = end($data)['balance'] ?? 0;
-                }
-
-                Funding::create([
-                        'condo_id'                          => $expenseStatement['condo_id']['id'],
-                        'description'                       => $expenseStatement['name'],
-                        'funding_type'                      => 'due_balance',
-                        'expense_statement_id'              => $id,
-                        'ownership_id'                      => $ownership_id,
-                        'bank_account_id'                   => $expenseStatement['statement_bank_account_id'],
-                        'accounting_account_id'             => $ownershipAccount['id'],
-                        'issue_date'                        => $issue_date,
-                        'due_date'                          => $due_date,
-                        'due_amount'                        => $closing_balance
-                    ]);
-                */
             }
         }
     }

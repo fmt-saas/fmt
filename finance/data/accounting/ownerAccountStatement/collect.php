@@ -204,6 +204,8 @@ $accounting_entry_lines = AccountingEntryLine::search(
         ['sort' => ['entry_date' => 'asc', 'id' => 'asc']]
     )
     ->read([
+        'id',
+        'accounting_entry_id',
         'entry_date',
         'description',
         'debit',
@@ -229,7 +231,24 @@ $result[] = [
 
 /* transaction lines */
 
+// group lines by accounting entry
+$grouped_lines = [];
+
 foreach($accounting_entry_lines as $line) {
+    $entry = $line['accounting_entry_id'] ?? null;
+    $entry_id = is_array($entry) ? ($entry['id'] ?? null) : $entry;
+    $entry_id = $entry_id ?? ('line_' . $line['id']);
+
+    if(!isset($grouped_lines[$entry_id])) {
+        $grouped_lines[$entry_id] = $line;
+        continue;
+    }
+
+    $grouped_lines[$entry_id]['debit'] += $line['debit'];
+    $grouped_lines[$entry_id]['credit'] += $line['credit'];
+}
+
+foreach($grouped_lines as $line) {
     $debit = (float) $line['debit'];
     $credit = (float) $line['credit'];
 
