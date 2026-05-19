@@ -745,8 +745,7 @@ class BankStatementLine extends Model {
                 $fundings_ids = Funding::search([
                             ['condo_id', '=', $bankStatementLine['condo_id']],
                             ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
-                            ['due_amount', '=', $opposite_amount],
-                            ['remaining_amount', '=', 'due_amount'],
+                            ['remaining_amount', '=', $opposite_amount],
                             ['status', '<>', 'balanced'],
                             ['funding_type', '<>', 'due_balance'],
                             ['is_cancelled', '=', false]
