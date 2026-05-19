@@ -669,9 +669,6 @@ class BankStatementLine extends Model {
             return [];
         }
 
-        $sign = ($bankStatementLine['amount'] >= 0) ? 1.0 : -1.0;
-        $opposite_amount = -round($bankStatementLine['amount'], 2);
-
         if($bankStatementLine['is_supplier']) {
             // 1) attempt to find a match with reference AND amount
             $fundings_ids = Funding::search([
@@ -731,7 +728,7 @@ class BankStatementLine extends Model {
                         ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
                         ['bank_account_id', '=', $bankStatementLine['bank_statement_id']['bank_account_id']],
                         ['counterpart_bank_account_iban', '=', $bankStatementLine['account_iban']],
-                        ['due_amount', '=', $opposite_amount],
+                        ['due_amount', '=', round($bankStatementLine['amount'], 2)],
                         ['remaining_amount', '=', 'due_amount'],
                         ['status', '<>', 'balanced'],
                         ['funding_type', '<>', 'due_balance'],
@@ -745,7 +742,7 @@ class BankStatementLine extends Model {
                 $fundings_ids = Funding::search([
                             ['condo_id', '=', $bankStatementLine['condo_id']],
                             ['accounting_account_id', '=', $bankStatementLine['accounting_account_id']],
-                            ['remaining_amount', '=', $opposite_amount],
+                            ['remaining_amount', '=', round($bankStatementLine['amount'], 2)],
                             ['status', '<>', 'balanced'],
                             ['funding_type', '<>', 'due_balance'],
                             ['is_cancelled', '=', false]
