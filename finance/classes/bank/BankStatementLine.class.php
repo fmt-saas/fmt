@@ -427,12 +427,12 @@ class BankStatementLine extends Model {
         return [
             'is_valid' => [
                 'description' => 'Verifies that the bank statement line is fully reconciled.',
-                'help'        => 'Action `post ` attempts auto-reconcile upon onbeforePost. So reconciliation state cannot be tested before accounting entry generation.',
+                'help'        => 'Action `post` attempts auto-reconcile upon onbeforePost. So reconciliation state cannot be tested before accounting entry generation.',
                 'function'    => 'policyIsValid'
             ],
             'can_generate_accounting_entry' => [
                 'description' => 'Verifies that the bank statement line is fully reconciled.',
-                'help'        => 'Action `post ` attempts auto-reconcile upon onbeforePost. So reconciliation state cannot be tested before accounting entry generation.',
+                'help'        => 'Action `post` attempts auto-reconcile upon onbeforePost. So reconciliation state cannot be tested before accounting entry generation.',
                 'function'    => 'policyCanGenerateAccountingEntry'
             ]
         ];
@@ -482,82 +482,106 @@ class BankStatementLine extends Model {
             ]);
 
         foreach($self as $id => $bankStatementLine) {
-            if($bankStatementLine['status'] !== 'pending') {
-                continue;
-            }
+            $logs = [];
+            $logs[] = "INFO - Start reconciliation attempt for bank statement line {$id}";
 
-            if(!$bankStatementLine['accounting_account_id']['is_reconcilable']) {
-                continue;
-            }
-
-            // remove any pre-existing pending Payments related to the statement line
-            // #memo - payments are validated/posted in method `self::onafterPost`
-            Payment::search([
-                    ['condo_id', '=', $bankStatementLine['condo_id']],
-                    ['bank_statement_line_id', '=', $id],
-                    ['status', '=', 'proforma']
-                ])
-                ->delete(true);
-
-            if(isset($values['funding_ids']) && is_array($values['funding_ids']) && count($values['funding_ids'])) {
-                $funding_ids = $values['funding_ids'];
-            }
-            else {
-                $funding_ids = self::computeFundingCandidates($id);
-            }
-
-            $candidateFundings = Funding::ids($funding_ids)->read(['id', 'due_date', 'remaining_amount']);
-            $remaining_amount = round((float) $bankStatementLine['amount'], 2);
-
-            foreach($candidateFundings as $funding) {
-
-                $funding_remaining_amount = round((float) $funding['remaining_amount'], 2);
-
-                if(abs($funding['remaining_amount']) < 0.01) {
+            try {
+                if($bankStatementLine['status'] !== 'pending') {
+                    $logs[] = "WARN - Skipped reconciliation: status is {$bankStatementLine['status']}";
                     continue;
                 }
 
-                if(
-                    ($remaining_amount > 0 && $funding_remaining_amount <= 0) ||
-                    ($remaining_amount < 0 && $funding_remaining_amount >= 0)
-                ) {
+                if(!$bankStatementLine['accounting_account_id'] || !$bankStatementLine['accounting_account_id']['is_reconcilable']) {
+                    $logs[] = 'WARN - Skipped reconciliation: accounting account is not reconcilable';
                     continue;
                 }
 
-                $allocatable = min(abs($funding_remaining_amount), abs($remaining_amount));
-                $allocated = round(($remaining_amount > 0 ? 1 : -1) * $allocatable, 2);
+                // remove any pre-existing pending Payments related to the statement line
+                // #memo - payments are validated/posted in method `self::onafterPost`
+                $pending_payment_ids = Payment::search([
+                        ['condo_id', '=', $bankStatementLine['condo_id']],
+                        ['bank_statement_line_id', '=', $id],
+                        ['status', '=', 'proforma']
+                    ])
+                    ->ids();
 
-                if(abs($allocated) < 0.01) {
-                    continue;
+                if(count($pending_payment_ids)) {
+                    Payment::ids($pending_payment_ids)->delete(true);
+                }
+                $logs[] = 'INFO - Deleted ' . count($pending_payment_ids) . ' pre-existing proforma payment(s)';
+
+                if(isset($values['funding_ids']) && is_array($values['funding_ids']) && count($values['funding_ids'])) {
+                    $funding_ids = $values['funding_ids'];
+                    $logs[] = 'INFO - Using provided funding candidate(s): ' . implode(', ', $funding_ids);
+                }
+                else {
+                    $funding_ids = self::computeFundingCandidates($id);
+                    $logs[] = 'INFO - Computed funding candidate(s): ' . (count($funding_ids) ? implode(', ', $funding_ids) : 'none');
                 }
 
-                Payment::create([
-                        'condo_id'                  => $bankStatementLine['condo_id'],
-                        'amount'                    => $allocated,
-                        // #memo - communication might not be a payment reference but an arbitrary comment or description
-                        'communication'             => $bankStatementLine['communication'],
-                        'receipt_date'              => $bankStatementLine['date'],
-                        'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id'],
-                        'payment_origin'            => 'bank',
-                        'payment_method'            => 'wire_transfer',
-                        'bank_statement_line_id'    => $id,
-                        'funding_id'                => $funding['id']
-                    ]);
+                $candidateFundings = Funding::ids($funding_ids)->read(['id', 'due_date', 'remaining_amount']);
+                $remaining_amount = round((float) $bankStatementLine['amount'], 2);
+                $logs[] = "INFO - Initial remaining amount: {$remaining_amount}";
 
-                $remaining_amount = round($remaining_amount - $allocated, 2);
+                foreach($candidateFundings as $funding) {
 
-                if(abs($remaining_amount) < 0.01) {
-                    break;
+                    $funding_remaining_amount = round((float) $funding['remaining_amount'], 2);
+                    $logs[] = "INFO - Evaluating funding {$funding['id']} with remaining amount {$funding_remaining_amount}";
+
+                    if(abs($funding['remaining_amount']) < 0.01) {
+                        $logs[] = "INFO - Skipped funding {$funding['id']}: no remaining amount";
+                        continue;
+                    }
+
+                    // reconcilable fundings must have opposite signs
+                    if(
+                        ($remaining_amount > 0 && $funding_remaining_amount >= 0) ||
+                        ($remaining_amount < 0 && $funding_remaining_amount <= 0)
+                    ) {
+                        $logs[] = "INFO - Skipped funding {$funding['id']}: amount sign is not compatible";
+                        continue;
+                    }
+
+                    $allocatable = min(abs($funding_remaining_amount), abs($remaining_amount));
+                    $allocated = round(($remaining_amount > 0 ? 1 : -1) * $allocatable, 2);
+
+                    if(abs($allocated) < 0.01) {
+                        $logs[] = "INFO - Skipped funding {$funding['id']}: allocatable amount is too small";
+                        continue;
+                    }
+
+                    $payment = Payment::create([
+                            'condo_id'                  => $bankStatementLine['condo_id'],
+                            'amount'                    => $allocated,
+                            // #memo - communication might not be a payment reference but an arbitrary comment or description
+                            'communication'             => $bankStatementLine['communication'],
+                            'receipt_date'              => $bankStatementLine['date'],
+                            'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id'],
+                            'payment_origin'            => 'bank',
+                            'payment_method'            => 'wire_transfer',
+                            'bank_statement_line_id'    => $id,
+                            'funding_id'                => $funding['id']
+                        ])
+                        ->first();
+                    $logs[] = "INFO - Created payment {$payment['id']} for funding {$funding['id']} with amount {$allocated}";
+
+                    $remaining_amount = round($remaining_amount - $allocated, 2);
+                    $logs[] = "INFO - Remaining amount after funding {$funding['id']}: {$remaining_amount}";
+
+                    if(abs($remaining_amount) < 0.01) {
+                        $logs[] = 'INFO - Statement line amount fully allocated';
+                        break;
+                    }
+
                 }
 
-            }
+                // if some amount is remaining : an unexpected amount has been received
+                if(abs($remaining_amount) > 0.01) {
+                    $logs[] = "INFO - Remaining amount {$remaining_amount} requires a statement-line funding";
+                    // -> create a Funding relating to the BankStatementLine with a due amount of 0.0 EUR
+                    // -> attach a Payment to it with remaining_amount
 
-            // if some amount is remaining : an unexpected amount has been received
-            if(abs($remaining_amount) > 0.01) {
-                // -> create a Funding relating to the BankStatementLine with a due amount of 0.0 EUR
-                // -> attach a Payment to it with remaining_amount
-
-                $funding = Funding::create([
+                    $funding = Funding::create([
                         'condo_id'                  => $bankStatementLine['condo_id'],
                         'description'               => (strlen($bankStatementLine['communication']) > 0) ? $bankStatementLine['communication'] : 'trop payé',
                         'bank_statement_line_id'    => $id,
@@ -569,10 +593,11 @@ class BankStatementLine extends Model {
                         'due_date'                  => $bankStatementLine['date'],
                         'due_amount'                => 0.0,
                         'funding_type'              => 'statement_line'
-                    ])
-                    ->first();
+                        ])
+                        ->first();
+                    $logs[] = "INFO - Created statement-line funding {$funding['id']}";
 
-                Payment::create([
+                    $payment = Payment::create([
                         'condo_id'                  => $bankStatementLine['condo_id'],
                         'amount'                    => $remaining_amount,
                         'communication'             => (strlen($bankStatementLine['communication']) > 0) ? $bankStatementLine['communication'] : 'trop payé',
@@ -582,10 +607,25 @@ class BankStatementLine extends Model {
                         'payment_method'            => 'wire_transfer',
                         'bank_statement_line_id'    => $id,
                         'funding_id'                => $funding['id']
-                    ]);
+                        ])
+                        ->first();
+                    $logs[] = "INFO - Created payment {$payment['id']} for statement-line funding {$funding['id']} with amount {$remaining_amount}";
 
+                }
+                else {
+                    $logs[] = 'INFO - No remaining amount to reconcile';
+                }
+
+                $logs[] = 'INFO - Finished reconciliation attempt';
             }
-
+            catch(\Exception $e) {
+                $logs[] = "ERR  - Error during reconciliation attempt: {$e->getMessage()}";
+                trigger_error("APP::doAttemptReconcile: Error while reconciling Bank Statement Line #{$id} : " . $e->getMessage(), EQ_REPORT_ERROR);
+                throw $e;
+            }
+            finally {
+                self::id($id)->update(['logs' => implode("\n", $logs)]);
+            }
         }
 
     }
@@ -1079,6 +1119,7 @@ class BankStatementLine extends Model {
                 'date',
                 'amount',
                 'communication',
+                'logs',
                 'matching_id' => ['id', 'accounting_entry_lines_ids' => ['debit', 'credit']],
                 'accounting_account_id' => ['is_control_account', 'ownership_id'],
                 'bank_statement_id' => ['id', 'bank_account_id'],
@@ -1087,6 +1128,12 @@ class BankStatementLine extends Model {
 
         foreach($self as $id => $bankStatementLine) {
             $logs = [];
+            if(
+                isset($bankStatementLine['logs']) &&
+                strpos($bankStatementLine['logs'], 'INFO - Start reconciliation attempt') === 0
+            ) {
+                $logs = explode("\n", $bankStatementLine['logs']);
+            }
 
             $logs[] = "INFO - Start accounting entry generation for bank statement line {$id}";
 
