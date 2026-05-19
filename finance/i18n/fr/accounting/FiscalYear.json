@@ -64,6 +64,11 @@
             "description": "Balances de clôture liées à chaque période.",
             "help": ""
         },
+        "is_first": {
+            "label": "Premier exercice",
+            "description": "L'exercice est le premier pour la copropriété.",
+            "help": ""
+        },
         "status": {
             "label": "Statut",
             "description": "Workflow (draft, preopen, open, preclosed, closed).",
