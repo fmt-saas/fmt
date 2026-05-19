@@ -81,6 +81,7 @@ class MiscOperation extends Model {
                 'type'              => 'date',
                 'usage'             => 'date/plain',
                 'description'       => 'Date the operation is posted in the accounting system.',
+                'dependents'        => ['fiscal_year_id', 'fiscal_period_id'],
                 'default'           => function () { return time(); }
             ],
 
@@ -114,6 +115,7 @@ class MiscOperation extends Model {
                 'description'       => 'Fiscal year in which the operation is recorded.',
                 'function'          => 'calcFiscalYearId',
                 'store'             => true,
+                'instant'           => true,
                 'readonly'          => true,
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['status', 'in', ['preopen','open']] ]
             ],
@@ -126,6 +128,7 @@ class MiscOperation extends Model {
                 'help'              => 'Automatically computed when the operation is validated.',
                 'function'          => 'calcFiscalPeriodId',
                 'store'             => true,
+                'instant'           => true,
                 'readonly'          => true,
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['status', '<>', 'closed'] ]
             ],
@@ -138,8 +141,7 @@ class MiscOperation extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => 'Accounting journal used for this miscellaneous operation.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['journal_type', '=', 'MISC']],
-                'visible'           => ['has_opening_journal', '=', false]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['journal_type', '=', 'MISC']]
             ],
 
             'accounting_entry_id' => [
@@ -880,7 +882,7 @@ class MiscOperation extends Model {
             ->do('create_fundings')
             ->do('validate_accounting_entry')
             // force refresh name
-            ->update(['name' => null]);
+            ->update(['name' => null, 'fiscal_year_id' => null, 'fiscal_period_id' => null]);
     }
 
     public static function onchange($event, $values) {
@@ -893,9 +895,6 @@ class MiscOperation extends Model {
                         'id'    => $journal['id'],
                         'name'  => $journal['name']
                     ];
-            }
-            if(!isset($event['posting_date']) && isset($values['posting_date'])) {
-                $event['posting_date'] = $values['posting_date'];
             }
             $values['condo_id'] = $event['condo_id'];
         }
@@ -921,38 +920,6 @@ class MiscOperation extends Model {
                 $result['journal_id'] = [
                         'id'    => $journal['id'],
                         'name'  => $journal['name']
-                    ];
-            }
-        }
-
-        if(isset($event['posting_date'])) {
-            $fiscalYear = FiscalYear::search([
-                    ['condo_id', '=', $values['condo_id']],
-                    ['date_from', '<=', $event['posting_date']],
-                    ['date_to', '>=', $event['posting_date']]
-                ])
-                ->read(['id', 'name'])
-                ->first();
-
-            $fiscalPeriod = FiscalPeriod::search([
-                    ['condo_id', '=', $values['condo_id']],
-                    ['date_from', '<=', $event['posting_date']],
-                    ['date_to', '>=', $event['posting_date']]
-                ])
-                ->read(['id', 'name'])
-                ->first();
-
-            if($fiscalYear) {
-                $result['fiscal_year_id'] = [
-                        'id'    => $fiscalYear['id'],
-                        'name'  => $fiscalYear['name']
-                    ];
-            }
-
-            if($fiscalPeriod) {
-                $result['fiscal_period_id'] = [
-                        'id'    => $fiscalPeriod['id'],
-                        'name'  => $fiscalPeriod['name']
                     ];
             }
         }
