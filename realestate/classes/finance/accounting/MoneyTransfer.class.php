@@ -120,6 +120,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
+                    'pending',
                     'proforma',
                     'posted'
                 ],
