@@ -504,7 +504,7 @@ class BankStatement extends Model {
         foreach($self as $id => $bankStatement) {
             $domain = [
                 ['bank_account_iban', '=', $bankStatement['bank_account_iban']],
-                ['validated', '=', true]
+                ['status', '=', 'validated']
             ];
             if($bankStatement['bank_account_suffix']) {
                 $domain[] = ['bank_account_suffix', '=', $bankStatement['bank_account_suffix']];
