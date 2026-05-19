@@ -478,11 +478,17 @@ class BankStatementLine extends Model {
                 'is_owner',
                 'is_transfer',
                 'ownership_id',
-                'suppliership_id'
+                'suppliership_id',
+                'logs'
             ]);
 
         foreach($self as $id => $bankStatementLine) {
             $logs = [];
+
+            if(isset($bankStatementLine['logs']) && strlen($bankStatementLine['logs']) > 0) {
+                $logs = explode("\n", $bankStatementLine['logs']);
+            }
+
             $logs[] = "INFO - Start reconciliation attempt for bank statement line {$id}";
 
             try {
@@ -1128,10 +1134,7 @@ class BankStatementLine extends Model {
 
         foreach($self as $id => $bankStatementLine) {
             $logs = [];
-            if(
-                isset($bankStatementLine['logs']) &&
-                strpos($bankStatementLine['logs'], 'INFO - Start reconciliation attempt') === 0
-            ) {
+            if(isset($bankStatementLine['logs']) && strlen($bankStatementLine['logs']) > 0) {
                 $logs = explode("\n", $bankStatementLine['logs']);
             }
 
