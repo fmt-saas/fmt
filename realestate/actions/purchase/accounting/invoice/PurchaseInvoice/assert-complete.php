@@ -289,12 +289,14 @@ if($purchaseInvoice['document_id']) {
         && isset($existingDocument['document_process_id']['status'])
         && !in_array($existingDocument['document_process_id']['status'], ['cancelled', 'removed'])
     ) {
-        $dispatch->dispatch('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $id, 'important', $script, ['id' => $id]);
-        DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('cancel');
+        $dispatch->dispatch('documents.import.duplicate_document', $class, $id, 'important', $script, ['id' => $id]);
+        $dispatch->dispatch('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $purchaseInvoice['document_process_id'], 'important');
+        PurchaseInvoice::id($id)->do('mark_cancelled');
         throw new Exception("duplicate_document", EQ_ERROR_INVALID_PARAM);
     }
     else {
-        $dispatch->cancel('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $id);
+        $dispatch->cancel('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $purchaseInvoice['document_process_id']);
+        $dispatch->cancel('documents.import.duplicate_document', $class, $id);
     }
 }
 
@@ -317,7 +319,7 @@ if($previousPurchaseInvoice) {
     ];
     // invoice is considered as a duplicate : this is a blocking error (cancel processing)
     $dispatch->dispatch('purchase.accounting.invoice.duplicate_invoice', $class, $id, 'important', $script, ['id' => $id], $links);
-    DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('cancel');
+    PurchaseInvoice::id($id)->do('mark_cancelled');
     throw new Exception("duplicate_invoice", EQ_ERROR_INVALID_PARAM);
 }
 
@@ -337,6 +339,9 @@ if($previousPurchaseInvoice) {
     ];
     $dispatch->dispatch('purchase.accounting.invoice.possible_duplicate_invoice', $class, $id, 'important', null, [], $links);
 }
+else {
+    $dispatch->cancel('purchase.accounting.invoice.possible_duplicate_invoice', $class, $id);
+}
 
 // c) supplier_id & date & total amount -> alert only
 $previousPurchaseInvoice = PurchaseInvoice::search([
@@ -355,7 +360,9 @@ if($previousPurchaseInvoice) {
     ];
     $dispatch->dispatch('purchase.accounting.invoice.possible_duplicate_invoice', $class, $id, 'important', null, [], $links);
 }
-
+else {
+    $dispatch->cancel('purchase.accounting.invoice.possible_duplicate_invoice', $class, $id);
+}
 
 // #memo - the `alert` field should be forced to be refreshed upon each validation attempt
 

@@ -295,7 +295,9 @@ $fiscal_period_fields = [
     ];
 
 $expense_statement_fields = [
-        'condo_id' => ['name', 'total_shares'],
+        'condo_id' => ['name', 'code', 'total_shares'],
+        'name',
+        'due_date',
         'fiscal_period_id',
         'invoice_number',
         'common_total',
@@ -397,7 +399,7 @@ else {
 }
 
 $owner = $ownerCollection->read([
-        'ownership_id' => ['address_recipient'],
+        'ownership_id' => ['code', 'address_recipient'],
         'identity_id' => [
             'name', 'address_street', 'address_dispatch', 'address_zip',
             'address_city', 'address_country', 'has_vat', 'vat_number',
@@ -413,6 +415,7 @@ if(!$owner) {
 $lang = $owner['identity_id']['lang_id']['code'];
 
 // #memo - for expense statements, we always use due_balance fundings
+/*
 $funding = Funding::search([
         ['expense_statement_id', '=', $statement['id']],
         // ['funding_type', '=', 'due_balance'],
@@ -424,11 +427,35 @@ $funding = Funding::search([
     ->first();
 
 // #memo - in preview, fundings are not yet generated
-/*
+
 if(!$funding) {
     throw new Exception('no_funding', EQ_ERROR_UNKNOWN_OBJECT);
 }
 */
+
+// generate pseudo instant Funding based on current account statement
+
+$data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
+    'ownership_id'      => $params['ownership_id'],
+    'date_from'         => $fiscalPeriod['date_from'],
+    'date_to'           => $fiscalPeriod['date_to']
+]);
+
+$closing_balance = 0;
+
+if(count($data)) {
+    $closing_balance = end($data)['balance'] ?? 0;
+}
+
+$reference = substr(str_pad((int) $statement['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
+             substr(str_pad((int) $owner['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+
+$funding = [
+        'payment_reference'     => $reference,
+        'due_date'              => $statement['due_date'],
+        'remaining_amount'      => $closing_balance
+    ];
+
 
 // retrieve template (subject & body)
 $subject = 'Décompte Propriétaire';

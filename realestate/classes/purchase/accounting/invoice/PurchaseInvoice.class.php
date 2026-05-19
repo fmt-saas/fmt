@@ -661,7 +661,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             if(!$purchaseInvoice['document_process_id']) {
                 continue;
             }
-            self::id($id)->delete();
+            self::id($id)
+                ->update(['status' => 'cancelled']);
+
             if($purchaseInvoice['document_process_id']) {
                 DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('cancel');
             }

@@ -610,10 +610,7 @@ class DocumentProcess extends Model {
                 case 'invoice':
                 case 'credit_note':
 
-                    if(
-                        !$documentProcess['document_invoice_id']
-                        || $documentProcess['document_invoice_id']['status'] !== 'cancelled'
-                    ) {
+                    if($documentProcess['document_invoice_id'] && $documentProcess['document_invoice_id']['status'] !== 'cancelled') {
                         $result[$id] = [
                             'invalid_target_status' =>
                             'Processing cannot be cancelled while linked invoice is not cancelled.'
@@ -624,10 +621,7 @@ class DocumentProcess extends Model {
 
                 case 'bank_statement':
 
-                    if(
-                        !$documentProcess['document_bank_statement_id']
-                        || $documentProcess['document_bank_statement_id']['status'] !== 'cancelled'
-                    ) {
+                    if($documentProcess['document_bank_statement_id'] && $documentProcess['document_bank_statement_id']['status'] !== 'cancelled') {
                         $result[$id] = [
                             'invalid_target_status' =>
                             'Processing cannot be cancelled while linked bank statement is not cancelled.'

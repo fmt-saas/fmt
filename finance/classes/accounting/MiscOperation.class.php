@@ -797,6 +797,7 @@ class MiscOperation extends Model {
             ]);
 
         foreach($self as $id => $miscOperation) {
+
             foreach($miscOperation['misc_operation_lines_ids'] as $misc_operation_line_id => $miscOperationLine) {
                 if(!$miscOperationLine['is_owner'] && !$miscOperationLine['is_supplier'])  {
                     continue;
