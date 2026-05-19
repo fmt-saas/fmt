@@ -314,7 +314,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'completed',
                     'validated',
                     'integrated',
-                    'cancelled'
+                    'cancelled',
+                    'removed'
                 ],
                 'relation'          => ['document_process_id' => 'status'],
                 'store'             => true,
@@ -661,8 +662,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             if(!$purchaseInvoice['document_process_id']) {
                 continue;
             }
-            self::id($id)
-                ->update(['status' => 'cancelled']);
 
             if($purchaseInvoice['document_process_id']) {
                 DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('cancel');
@@ -704,6 +703,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
 
             self::id($id)->delete();
+
             if($purchaseInvoice['document_process_id']) {
                 DocumentProcess::id($purchaseInvoice['document_process_id'])
                     // #memo - this sets the DocumentProcess has_target_object to false
