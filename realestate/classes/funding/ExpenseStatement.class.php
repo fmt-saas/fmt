@@ -1097,7 +1097,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
 
         $self->read([
-                'condo_id' => ['code'],
+                'condo_id',
                 'name',
                 'posting_date',
                 'date_to',
@@ -1125,7 +1125,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 // #memo - there is a distinction between Ownership accounting account to use:
                 //  co_owners_owner_xxx for AEL & control_account for Fundings
                 $ownershipAccount = Account::search([
-                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                        ['condo_id', '=', $expenseStatement['condo_id']],
                         ['ownership_id', '=', $ownership_id],
                         ['operation_assignment', '=', 'co_owners_owner_working_fund']
                     ])
@@ -1136,7 +1136,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 }
 
                 $accountingEntryLine = AccountingEntryLine::search([
-                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                        ['condo_id', '=', $expenseStatement['condo_id']],
                         ['account_id', '=', $ownershipAccount['id']],
                         ['accounting_entry_id', '=', $expenseStatement['accounting_entry_id']]
                     ])
@@ -1148,7 +1148,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 // #memo - Fundings always use Ownership control_account
                 $fundingOwnershipAccount = Account::search([
-                        ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                        ['condo_id', '=', $expenseStatement['condo_id']],
                         ['ownership_id', '=', $ownership_id],
                         ['is_control_account', '=', true]
                     ])
@@ -1176,7 +1176,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 // generate theoretical Funding
                 $ownershipFunding = Funding::create([
-                        'condo_id'                          => $expenseStatement['condo_id']['id'],
+                        'condo_id'                          => $expenseStatement['condo_id'],
                         'description'                       => $expenseStatement['name'],
                         'funding_type'                      => 'expense_statement',
                         'expense_statement_id'              => $id,
@@ -1200,7 +1200,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 // retrieve non-empty fundings relating to the targeted ownership with opposite sign
                 $fundings = Funding::search(
                         [
-                            ['condo_id', '=', $expenseStatement['condo_id']['id']],
+                            ['condo_id', '=', $expenseStatement['condo_id']],
                             ['accounting_account_id', '=', $fundingOwnershipAccount['id']],
                             ['status', '<>', 'balanced'],
                             ['is_cancelled', '=', false],
@@ -1220,8 +1220,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     $signed_delta = $sign * $delta;
 
                     FundingAllocation::create([
-                            'condo_id'                  => $expenseStatement['condo_id']['id'],
-                            'amount'                    => $signed_delta,
+                            'condo_id'                  => $expenseStatement['condo_id'],
+                            'amount'                    => -$signed_delta,
                             'receipt_date'              => $expenseStatement['posting_date'],
                             'origin_object_class'       => 'realestate\funding\ExpenseStatement',
                             'origin_object_id'          => $id,
@@ -1231,8 +1231,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         ]);
 
                     FundingAllocation::create([
-                            'condo_id'                  => $expenseStatement['condo_id']['id'],
-                            'amount'                    => -$signed_delta,
+                            'condo_id'                  => $expenseStatement['condo_id'],
+                            'amount'                    => $signed_delta,
                             'receipt_date'              => $expenseStatement['posting_date'],
                             'origin_object_class'       => 'realestate\funding\ExpenseStatement',
                             'origin_object_id'          => $id,
