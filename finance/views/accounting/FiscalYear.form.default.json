@@ -193,8 +193,8 @@
                                                 "width": "50%"
                                             },
                                             {
-                                                "type": "label",
-                                                "value": "",
+                                                "type": "field",
+                                                "value": "is_first",
                                                 "width": "50%"
                                             },
                                             {

@@ -49,6 +49,11 @@
             "description": "Balance tenue à jour pendant l'exercice.",
             "help": ""
         },
+        "opening_balance_id": {
+            "label": "Balance d'ouverture",
+            "description": "Balance initiale (report année précédente).",
+            "help": ""
+        },
         "closing_balance_id": {
             "label": "Balance de clôture",
             "description": "Balance finale (générée lors de la fermeture).",

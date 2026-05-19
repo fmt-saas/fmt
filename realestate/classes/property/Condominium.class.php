@@ -665,9 +665,9 @@ class Condominium extends Identity {
             FiscalYear::search([['status', '=', 'draft'], ['condo_id', '=', $id]])->delete(true);
 
             // find farthest preopen fiscal year
-            $fiscalYear = FiscalYear::search([
-                    ['status', '=', 'preopen'],
-                    ['condo_id', '=', $id]
+            $nextFiscalYear = FiscalYear::search([
+                    ['condo_id', '=', $id],
+                    ['status', '=', 'preopen']
                 ],
                 [
                     'sort'  => ['created' => 'desc'],
@@ -677,8 +677,8 @@ class Condominium extends Identity {
                 ->first();
 
             // next fiscal year exists: compute date_from and date_to
-            if($fiscalYear) {
-                $fiscal_year_start = $fiscalYear['date_to'];
+            if($nextFiscalYear) {
+                $fiscal_year_start = $nextFiscalYear['date_to'];
                 $fiscal_year_start = strtotime('+1 day', $fiscal_year_start);
 
                 $day_end   = intval(date('d', $fiscal_year_end));
@@ -724,6 +724,7 @@ class Condominium extends Identity {
                     $values['date_from'] = time();
                 }
                 $values['date_to'] = $fiscal_year_end;
+                $values['is_first'] = true;
             }
 
             FiscalYear::create($values);

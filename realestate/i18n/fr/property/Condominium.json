@@ -200,7 +200,7 @@
             "description": "Plan comptable, journaux et comptes bancaires.",
             "routes": {
                 "route.fiscal_year": {
-                    "label": "Exercices fiscaux",
+                    "label": "Exercices comptables",
                     "description": ""
                 },
                 "route.condo_funds": {

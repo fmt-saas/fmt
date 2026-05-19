@@ -105,6 +105,13 @@ class FiscalYear extends Model {
                 'description'       => 'Code for identifying the fiscal year, based on start and nd dates.'
             ],
 
+            'is_first' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag marking the Fiscal Year as the very first for the condominium..',
+                'help'              => "If set, no previous fiscal year can be created. Opening MiscOp can only be made on first Fiscal Year.",
+                'default'           => false
+            ],
+
             'date_from' => [
                 'type'              => 'date',
                 'usage'             => 'date/plain',
