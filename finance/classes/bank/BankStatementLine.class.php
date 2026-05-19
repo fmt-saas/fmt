@@ -539,7 +539,7 @@ class BankStatementLine extends Model {
                         continue;
                     }
 
-                    // remaining amount and reconcilable fundings must have opposite signs
+                    // remaining amount and reconcilable fundings amounts must have the same sign
                     if(
                         ($remaining_amount > 0 && $funding_remaining_amount <= 0) ||
                         ($remaining_amount < 0 && $funding_remaining_amount >= 0)
