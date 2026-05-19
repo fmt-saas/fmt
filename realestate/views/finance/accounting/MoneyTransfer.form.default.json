@@ -29,7 +29,7 @@
             "label": "Post",
             "description": "Mark the transfer as posted/initiated.",
             "controller": "core_model_transition",
-            "visible": [ ["status", "=", "proforma"] ],
+            "visible": [ ["status", "in", ["pending", "proforma"]] ],
             "params": {
                 "entity": "realestate\\finance\\accounting\\MoneyTransfer",
                 "transition": "post",

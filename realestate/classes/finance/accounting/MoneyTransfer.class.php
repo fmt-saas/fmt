@@ -117,22 +117,29 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'instant'           => true
             ],
 
-            'status' => [
-                'type'              => 'string',
-                'selection'         => [
-                    'pending',
-                    'proforma',
-                    'posted'
-                ],
-                'default'           => 'proforma',
-                'description'       => 'Current status of the operation.',
-            ],
-
         ];
     }
 
     public static function getWorkflow() {
         return array_merge(parent::getWorkflow(), [
+            'pending' => [
+                'description' => 'Just created Money Transfer, waiting to be completed (manually or auto-analysis).',
+                'icon'        => 'draw',
+                'transitions' => [
+                    'proforma' => [
+                        'description' => 'Update the document to `completed`.',
+                        'policies'    => ['is_valid'],
+                        'status'      => 'proforma'
+                    ],
+                    'post' => [
+                        'description' => 'Update the document to `completed`.',
+                        'help'        => 'For Money Transfer, proforma step is optional.',
+                        'policies'    => ['is_valid', 'can_transfer'],
+                        'onafter'     => 'onafterPost',
+                        'status'      => 'posted'
+                    ]
+                ]
+            ],
             'proforma' => [
                 'description' => 'Just created Money Transfer, waiting to be completed (manually or auto-analysis).',
                 'icon'        => 'draw',
@@ -276,7 +283,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             foreach($moneyTransfer['fundings_ids'] as $funding_id => $funding) {
                 if($funding['status'] !== 'balanced') {
                     $result[$id] = [
-                        'funding_not_balanced' => "Money Transfer cannot be validated while bank statement havent' been received and processed."
+                        'funding_not_balanced' => "Money Transfer cannot be validated while bank statement haven't been received and processed."
                     ];
                 }
             }
