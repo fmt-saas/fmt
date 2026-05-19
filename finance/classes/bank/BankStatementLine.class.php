@@ -539,10 +539,10 @@ class BankStatementLine extends Model {
                         continue;
                     }
 
-                    // reconcilable fundings must have opposite signs
+                    // remaining amount and reconcilable fundings must have opposite signs
                     if(
-                        ($remaining_amount > 0 && $funding_remaining_amount >= 0) ||
-                        ($remaining_amount < 0 && $funding_remaining_amount <= 0)
+                        ($remaining_amount > 0 && $funding_remaining_amount <= 0) ||
+                        ($remaining_amount < 0 && $funding_remaining_amount >= 0)
                     ) {
                         $logs[] = "INFO - Skipped funding {$funding['id']}: amount sign is not compatible";
                         continue;
