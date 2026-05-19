@@ -886,31 +886,6 @@ class MiscOperation extends Model {
     public static function onchange($event, $values) {
         $result = [];
 
-        if(isset($event['has_opening_journal'])) {
-            if($event['has_opening_journal']) {
-                $journal = Journal::search([['condo_id', '=', $event['condo_id']], ['journal_type', '=', 'OPEN']])->read(['id', 'name'])->first();
-                // #memo - Opening MiscOp can only be made for first fiscal year
-                $firstFiscalYear = FiscalYear::search([
-                        ['condo_id', '=', $event['condo_id']],
-                        ['is_first', '=', true]
-                    ])
-                    ->read(['id', 'date_from'])
-                    ->first();
-                if($firstFiscalYear) {
-                    $result['posting_date'] = $firstFiscalYear['date_from'];
-                }
-            }
-            else {
-                $journal = Journal::search([['condo_id', '=', $event['condo_id']], ['journal_type', '=', 'MISC']])->read(['id', 'name'])->first();
-            }
-            if($journal) {
-                $result['journal_id'] = [
-                        'id'    => $journal['id'],
-                        'name'  => $journal['name']
-                    ];
-            }
-        }
-
         if(isset($event['condo_id'])) {
             $journal = Journal::search([['condo_id', '=', $event['condo_id']], ['journal_type', '=', 'MISC']])->read(['id', 'name'])->first();
             if($journal) {
@@ -923,6 +898,31 @@ class MiscOperation extends Model {
                 $event['posting_date'] = $values['posting_date'];
             }
             $values['condo_id'] = $event['condo_id'];
+        }
+
+        if(isset($event['has_opening_journal']) && isset($values['condo_id'])) {
+            if($event['has_opening_journal']) {
+                $journal = Journal::search([['condo_id', '=', $values['condo_id']], ['journal_type', '=', 'OPEN']])->read(['id', 'name'])->first();
+                // #memo - Opening MiscOp can only be made for first fiscal year
+                $firstFiscalYear = FiscalYear::search([
+                        ['condo_id', '=', $values['condo_id']],
+                        ['is_first', '=', true]
+                    ])
+                    ->read(['id', 'date_from'])
+                    ->first();
+                if($firstFiscalYear) {
+                    $result['posting_date'] = $firstFiscalYear['date_from'];
+                }
+            }
+            else {
+                $journal = Journal::search([['condo_id', '=', $values['condo_id']], ['journal_type', '=', 'MISC']])->read(['id', 'name'])->first();
+            }
+            if($journal) {
+                $result['journal_id'] = [
+                        'id'    => $journal['id'],
+                        'name'  => $journal['name']
+                    ];
+            }
         }
 
         if(isset($event['posting_date'])) {
