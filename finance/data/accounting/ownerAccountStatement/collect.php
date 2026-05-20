@@ -246,7 +246,8 @@ $result[] = [
 $grouped_lines = [];
 
 foreach($accounting_entry_lines as $line) {
-    $journal = $line['journal_id'] ?? null;
+    $journal_id = $line['journal_id'] ?? null;
+    $journal = $journals[$journal_id] ?? null;
     $journal_type = is_array($journal) ? ($journal['journal_type'] ?? null) : null;
 
     $entry = $line['accounting_entry_id'] ?? null;
