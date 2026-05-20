@@ -933,7 +933,7 @@ class MiscOperation extends Model {
 
 
                 }
-                elseif($miscOperationLine['is_owner']) {
+                elseif($miscOperationLine['is_supplier']) {
                     $suppliership_id = $miscOperationLine['suppliership_id'];
 
                     $suppliershipBankAccount = SuppliershipBankAccount::search([
