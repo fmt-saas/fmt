@@ -206,6 +206,12 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'description'       => "Indicates that the cutoff is applied based on the document issuance date.",
                 'default'           => true,
                 'onupdate'          => 'onupdateIsCutoffAtDocumentDate'
+            ],
+
+            'logs' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain',
+                'description'       => 'Logs of the funding generation.'
             ]
 
         ];
@@ -1113,14 +1119,17 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'price'
                     ]
                 ]
-            ]);
+        ]);
 
         foreach($self as $id => $expenseStatement) {
+            $logs = [];
+            $logs[] = "Starting fundings generation for expense statement {$id}";
 
             foreach($expenseStatement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
 
                 // pass-1 : retrieve AEL from statementOwner, create a funding for the ownership, and assign it to the AEL
                 $ownership_id = $statementOwner['ownership_id']['id'];
+                $logs[] = "Fetching account for ownership {$ownership_id}";
 
                 // #memo - there is a distinction between Ownership accounting account to use:
                 //  co_owners_owner_xxx for AEL & control_account for Fundings
@@ -1135,6 +1144,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
 
+                $logs[] = "Retrieved owner account {$ownershipAccount['id']}";
+
                 $accountingEntryLine = AccountingEntryLine::search([
                         ['condo_id', '=', $expenseStatement['condo_id']],
                         ['account_id', '=', $ownershipAccount['id']],
@@ -1145,6 +1156,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 if(!$accountingEntryLine) {
                     throw new \Exception('missing_accounting_entry_line', EQ_ERROR_INVALID_PARAM);
                 }
+
+                $logs[] = "Retrieved accounting entry line {$accountingEntryLine['id']}";
+                $logs[] = "Fetching control account for ownership {$ownership_id}";
 
                 // #memo - Fundings always use Ownership control_account
                 $fundingOwnershipAccount = Account::search([
@@ -1157,6 +1171,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 if(!$fundingOwnershipAccount) {
                     throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                 }
+
+                $logs[] = "Retrieved funding owner account {$fundingOwnershipAccount['id']}";
 
                 // #todo - not sure how to handle this
                 $date_to = $expenseStatement['posting_date'];
@@ -1174,28 +1190,35 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     $remaining_due_amount += $ownerLine['price'];
                 }
 
+                $logs[] = "Calculated due amount {$remaining_due_amount} for ownership {$ownership_id}";
+
                 // generate theoretical Funding
                 $ownershipFunding = Funding::create([
                         'condo_id'                          => $expenseStatement['condo_id'],
                         'description'                       => $expenseStatement['name'],
-                        'funding_type'                      => 'expense_statement',
                         'expense_statement_id'              => $id,
                         'ownership_id'                      => $ownership_id,
-                        'bank_account_id'                   => $expenseStatement['statement_bank_account_id'],
                         'accounting_account_id'             => $fundingOwnershipAccount['id'],
+                        'accounting_entry_line_id'          => $accountingEntryLine['id'],
+                        'bank_account_id'                   => $expenseStatement['statement_bank_account_id'],
                         'issue_date'                        => $issue_date,
                         'due_date'                          => $due_date,
-                        'due_amount'                        => $remaining_due_amount
+                        'due_amount'                        => $remaining_due_amount,
+                        'funding_type'                      => 'expense_statement'
                     ])
                     ->first();
+
+                $logs[] = "Created funding {$ownershipFunding['id']} for ownership {$ownership_id}";
 
                 // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
 
                 if(abs($remaining_due_amount) <= 0.01) {
+                    $logs[] = "Skipping allocation matching for funding {$ownershipFunding['id']} because remaining amount is {$remaining_due_amount}";
                     continue;
                 }
 
                 $sign = ($remaining_due_amount >= 0) ? 1.0 : -1.0;
+                $logs[] = "Searching pending opposite fundings for ownership {$ownership_id}";
 
                 // retrieve non-empty fundings relating to the targeted ownership with opposite sign
                 $fundings = Funding::search(
@@ -1245,10 +1268,14 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                             'funding_id'                => $ownershipFunding['id']
                         ]);
 
+                    $logs[] = "Created funding allocations between funding {$ownershipFunding['id']} and funding {$funding_id} for amount {$signed_delta}";
+
                     Funding::id($funding_id)->do('refresh_status');
+                    $logs[] = "Refreshed funding {$funding_id} status";
 
                     // merge Matching if applicable
                     if($funding['accounting_entry_line_id']) {
+                        $logs[] = "Attempting matching between accounting entry lines {$accountingEntryLine['id']} and {$funding['accounting_entry_line_id']}";
                         AccountingEntryLine::id($accountingEntryLine['id'])
                             ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
                     }
@@ -1260,8 +1287,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 }
 
                 Funding::id($ownershipFunding['id'])->do('refresh_status');
+                $logs[] = "Refreshed funding {$ownershipFunding['id']} status";
 
             }
+
+            self::id($id)->update([
+                    'logs' => implode("\n", $logs)
+                ]);
         }
     }
 

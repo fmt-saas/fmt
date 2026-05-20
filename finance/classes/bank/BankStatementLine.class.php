@@ -588,31 +588,31 @@ class BankStatementLine extends Model {
                     // -> attach a Payment to it with remaining_amount
 
                     $funding = Funding::create([
-                        'condo_id'                  => $bankStatementLine['condo_id'],
-                        'description'               => (strlen($bankStatementLine['communication']) > 0) ? $bankStatementLine['communication'] : 'trop payé',
-                        'bank_statement_line_id'    => $id,
-                        'accounting_account_id'     => $bankStatementLine['accounting_account_id']['id'],
-                        'ownership_id'              => $bankStatementLine['ownership_id']?? null,
-                        'suppliership_id'           => $bankStatementLine['suppliership_id']?? null,
-                        'bank_account_id'           => $bankStatementLine['bank_statement_id']['bank_account_id'],
-                        'issue_date'                => $bankStatementLine['date'],
-                        'due_date'                  => $bankStatementLine['date'],
-                        'due_amount'                => 0.0,
-                        'funding_type'              => 'statement_line'
+                            'condo_id'                  => $bankStatementLine['condo_id'],
+                            'description'               => (strlen($bankStatementLine['communication']) > 0) ? $bankStatementLine['communication'] : 'trop payé',
+                            'bank_statement_line_id'    => $id,
+                            'accounting_account_id'     => $bankStatementLine['accounting_account_id']['id'],
+                            'ownership_id'              => $bankStatementLine['ownership_id']?? null,
+                            'suppliership_id'           => $bankStatementLine['suppliership_id']?? null,
+                            'bank_account_id'           => $bankStatementLine['bank_statement_id']['bank_account_id'],
+                            'issue_date'                => $bankStatementLine['date'],
+                            'due_date'                  => $bankStatementLine['date'],
+                            'due_amount'                => 0.0,
+                            'funding_type'              => 'statement_line'
                         ])
                         ->first();
                     $logs[] = "INFO - Created statement-line funding {$funding['id']}";
 
                     $payment = Payment::create([
-                        'condo_id'                  => $bankStatementLine['condo_id'],
-                        'amount'                    => $remaining_amount,
-                        'communication'             => (strlen($bankStatementLine['communication']) > 0) ? $bankStatementLine['communication'] : 'trop payé',
-                        'receipt_date'              => $bankStatementLine['date'],
-                        'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id'],
-                        'payment_origin'            => 'bank',
-                        'payment_method'            => 'wire_transfer',
-                        'bank_statement_line_id'    => $id,
-                        'funding_id'                => $funding['id']
+                            'condo_id'                  => $bankStatementLine['condo_id'],
+                            'amount'                    => $remaining_amount,
+                            'communication'             => (strlen($bankStatementLine['communication']) > 0) ? $bankStatementLine['communication'] : 'trop payé',
+                            'receipt_date'              => $bankStatementLine['date'],
+                            'receipt_bank_account_id'   => $bankStatementLine['bank_statement_id']['bank_account_id'],
+                            'payment_origin'            => 'bank',
+                            'payment_method'            => 'wire_transfer',
+                            'bank_statement_line_id'    => $id,
+                            'funding_id'                => $funding['id']
                         ])
                         ->first();
                     $logs[] = "INFO - Created payment {$payment['id']} for statement-line funding {$funding['id']} with amount {$remaining_amount}";

@@ -33,6 +33,11 @@
             "description": "Appels de fonds créés après validation du relevé.",
             "help": ""
         },
+        "logs": {
+            "label": "Journal",
+            "description": "Trace textuelle de la generation des fundings (utilisee pour le depannage).",
+            "help": ""
+        },
         "common_total": {
             "label": "Total charges communes",
             "description": "Montant global imputé aux charges communes.",
