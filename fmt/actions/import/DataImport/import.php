@@ -292,7 +292,7 @@ try {
 
         $condominium = null;
         $map_ownership_representative_identity = [];
-        $map_ownership_representative_owner = [];
+        $map_ownership_representative_owner_id = [];
 
         $roles = Role::search()->read(['id', 'code']);
         foreach($roles as $role_id => $role) {
@@ -426,7 +426,7 @@ try {
 
             CondominiumBankAccount::create([
                     'condo_id'              => $condominium['id'],
-                    'owner_identity_id'     => $condominiumIdentity['id'],
+                    'owner_identity_id'     => $condominiumIdentity['id'] ?? null,
                     'description'           => $bank_account['description'],
                     'bank_account_type'     => $bank_account_type,
                     'bank_account_iban'     => $bank_account['iban'],
@@ -705,7 +705,8 @@ try {
         }
 
         // ownerships pass 2 - create owners and link to ownerships
-        $map_ownership_count_owners = [];
+        $map_ownership_owners_ids = [];
+
         foreach($data['Ownerships'] as $ownership) {
 
             $ownership_id = $map_ownerships[$ownership['code']] ?? null;
@@ -724,10 +725,6 @@ try {
                 continue;
             }
 
-            if(!isset($map_ownership_count_owners[$ownership['code']])) {
-                $map_ownership_count_owners[$ownership['code']] = 0;
-            }
-
             $ownerObject = Owner::create([
                     'condo_id'              => $condominium['id'],
                     'ownership_id'          => $ownership_id,
@@ -738,9 +735,7 @@ try {
                 ])
                 ->first();
 
-            $map_owners[$ownership['owner_code']] = $ownerObject['id'];
-
-            ++$map_ownership_count_owners[$ownership['code']];
+            $map_ownership_owners_ids[$ownership['code']][$ownership['owner_code']] = $ownerObject['id'];
         }
 
         // ownerships pass 3 - set ownership_type
@@ -753,7 +748,7 @@ try {
                 continue;
             }
 
-            if($map_ownership_count_owners[$ownership['code']] > 1) {
+            if(count(array_keys($map_ownership_owners_ids[$ownership['code']])) > 1) {
                 Ownership::id($ownership_id)->update(['ownership_type' => 'joint']);
             }
         }
@@ -770,7 +765,7 @@ try {
             }
 
             if(isset($ownership['representative_owner_code'])) {
-                $owner_id = $map_owners[$ownership['representative_owner_code']] ?? null;
+                $owner_id = $map_ownership_owners_ids[$ownership['code']][$ownership['representative_owner_code']] ?? null;
 
                 if(!$owner_id) {
                     // alert: should not happen
@@ -782,7 +777,7 @@ try {
 
                 if($representative_identity_id) {
                     $map_ownership_representative_identity[$ownership_id] = $representative_identity_id;
-                    $map_ownership_representative_owner[$ownership_id] = $owner_id;
+                    $map_ownership_representative_owner_id[$ownership_id] = $owner_id;
                     Ownership::id($ownership_id)
                         ->update([
                             'has_representative'        => true,
@@ -914,7 +909,7 @@ try {
             $preferences = ['general_assembly_call', 'general_assembly_minutes', 'expense_statement', 'fund_request', 'technical_communication'];
 
             $representative_identity_id = $map_ownership_representative_identity[$ownership_id] ?? null;
-            $representative_owner_id = $map_ownership_representative_owner[$ownership_id] ?? null;
+            $representative_owner_id = $map_ownership_representative_owner_id[$ownership_id] ?? null;
 
             foreach($preferences as $preference) {
                 if(!$communication_preferences[$preference]) {
