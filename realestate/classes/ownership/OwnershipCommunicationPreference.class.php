@@ -221,6 +221,7 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                         ]
                     ]);
                 if($postalMailPreferences->count() > 1) {
+                    trigger_error("APP::Duplicate found  while checking Ownership[{$ownership_id}] for {$ownershipCommunicationPreference['communication_reason']} on {$ownershipCommunicationPreference['identity_id']}", EQ_REPORT_WARNING);
                     return ['communication_reason' => ['not_allowed' => 'Only a single postal courier is allowed per communication reason.']];
                 }
             }
