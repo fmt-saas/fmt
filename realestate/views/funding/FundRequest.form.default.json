@@ -47,7 +47,7 @@
             "visible": ["status", "=", "draft"]
         },
         {
-            "id": "action.cancel",
+            "id": "action.revert",
             "label": "Revert",
             "description": "Revert the fund request to draft.",
             "controller": "core_model_transition",

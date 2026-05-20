@@ -157,7 +157,11 @@
                 },
                 "action.activate": {
                     "label": "Activer",
-                    "description": "Valider l'appel de fonds et le marquer actif (action irréversible)."
+                    "description": "Valider l'appel de fonds et le marquer actif."
+                },
+                "action.revert": {
+                    "label": "Repasser en brouillon",
+                    "description": "Repasser l'appel de fonds en brouillon."
                 },
                 "action.cancel": {
                     "label": "Annuler",

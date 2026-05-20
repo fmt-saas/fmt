@@ -11,7 +11,7 @@ use finance\bank\SuppliershipBankAccount;
 use realestate\sale\pay\Funding;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
-
+use realestate\sale\pay\FundingAllocation;
 
 class MiscOperation extends Model {
 
@@ -780,6 +780,7 @@ class MiscOperation extends Model {
         $self->read([
                 'condo_id',
                 'name',
+                'description',
                 'posting_date',
                 'has_opening_journal',
                 'fiscal_year_id' => ['date_from'],
@@ -798,60 +799,43 @@ class MiscOperation extends Model {
 
         foreach($self as $id => $miscOperation) {
 
+            $condominiumBankAccount = CondominiumBankAccount::search([
+                    ['condo_id', '=', $miscOperation['condo_id']],
+                    ['is_primary', '=', true]
+                ])
+                ->first();
+
+            if(!$condominiumBankAccount) {
+                throw new \Exception('missing_bank_account', EQ_ERROR_INVALID_CONFIG);
+            }
+
             foreach($miscOperation['misc_operation_lines_ids'] as $misc_operation_line_id => $miscOperationLine) {
                 if(!$miscOperationLine['is_owner'] && !$miscOperationLine['is_supplier'])  {
                     continue;
                 }
 
-                $due_amount = $miscOperationLine['debit'] - $miscOperationLine['credit'];
-
-                $accounting_account_id = $miscOperationLine['account_id'];
-
-                $accountingEntryLine = AccountingEntryLine::search([
-                        ['condo_id', '=', $miscOperation['condo_id']],
-                        ['account_id', '=', $miscOperationLine['account_id']],
-                        ['accounting_entry_id', '=', $miscOperation['accounting_entry_id']]
-                    ])
-                    ->first();
-
-                if(!$accountingEntryLine) {
-                    throw new \Exception('missing_accounting_entry_line', EQ_ERROR_INVALID_PARAM);
-                }
-
                 // #memo - when importing historical data, we must be able to issue a funding in the past
                 $issue_date = $miscOperation['posting_date'];
-
-                // #todo - make possible to customize
                 $due_date = $miscOperation['posting_date'] + 86400 * 15;
 
-                // #todo - allow to choose
-                $condominiumBankAccount = CondominiumBankAccount::search([
-                        ['condo_id', '=', $miscOperation['condo_id']],
-                        ['is_primary', '=', true]
-                    ])
-                    ->first();
+                $remaining_due_amount = $miscOperationLine['debit'] - $miscOperationLine['credit'];
 
-                if(!$condominiumBankAccount) {
-                    throw new \Exception('missing_bank_account', EQ_ERROR_INVALID_CONFIG);
-                }
-
-                $funding_values = [
-                        'condo_id'                          => $miscOperation['condo_id'],
-                        'description'                       => $miscOperation['name'],
-                        'funding_type'                      => 'misc_operation',
-                        'misc_operation_id'                 => $id,
-                        'bank_account_id'                   => $condominiumBankAccount['id'],
-                        'accounting_account_id'             => $accounting_account_id,
-                        'accounting_entry_line_id'          => $accountingEntryLine['id'],
-                        'issue_date'                        => $issue_date,
-                        'due_date'                          => $due_date,
-                        'due_amount'                        => $due_amount
-                    ];
-
-                if($miscOperationLine['is_owner'])  {
+                if($miscOperationLine['is_owner']) {
+                    // pass-1 : retrieve AEL from execution line, create a funding for the ownership, and assign it to the AEL
                     $ownership_id = $miscOperationLine['ownership_id'];
 
-                    // #memo - always use Ownership control_account for Fundings
+                    $accountingEntryLine = AccountingEntryLine::search([
+                            ['condo_id', '=', $miscOperation['condo_id']],
+                            ['account_id', '=', $miscOperationLine['account_id']],
+                            ['accounting_entry_id', '=', $miscOperation['accounting_entry_id']]
+                        ])
+                        ->first();
+
+                    if(!$accountingEntryLine) {
+                        throw new \Exception('missing_accounting_entry_line', EQ_ERROR_INVALID_PARAM);
+                    }
+
+                    // #memo - Fundings always use Ownership control_account
                     $fundingOwnershipAccount = Account::search([
                             ['condo_id', '=', $miscOperation['condo_id']],
                             ['ownership_id', '=', $ownership_id],
@@ -863,14 +847,212 @@ class MiscOperation extends Model {
                         throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
                     }
 
-                    $funding_values['ownership_id'] = $ownership_id;
-                    $funding_values['accounting_account_id'] = $fundingOwnershipAccount['id'];
+                    $ownershipFunding = Funding::create([
+                            'condo_id'                  => $miscOperation['condo_id'],
+                            'description'               => $miscOperation['description'],
+                            'misc_operation_id'         => $id,
+                            'ownership_id'              => $ownership_id,
+                            'accounting_account_id'     => $fundingOwnershipAccount['id'],
+                            'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                            'bank_account_id'           => $condominiumBankAccount['id'],
+                            'issue_date'                => $issue_date,
+                            'due_date'                  => $due_date,
+                            'due_amount'                => $remaining_due_amount,
+                            'funding_type'              => 'misc_operation'
+                        ])
+                        ->first();
+
+                    // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
+
+                    if(abs($remaining_due_amount) <= 0.01) {
+                        continue;
+                    }
+
+                    $sign = ($remaining_due_amount >= 0) ? 1.0 : -1.0;
+
+                    // retrieve non-empty fundings relating to the targeted ownership with opposite sign
+                    $fundings = Funding::search(
+                            [
+                                ['condo_id', '=', $miscOperation['condo_id']],
+                                ['accounting_account_id', '=', $fundingOwnershipAccount['id']],
+                                ['status', '<>', 'balanced'],
+                                ['is_cancelled', '=', false],
+                                // #memo - called amounts for fund requests are always positive
+                                ['remaining_amount', ($sign > 0) ? '<' : '>', 0]
+                            ],
+                            ['sort' => ['issue_date' => 'asc']]
+                        )
+                        ->read(['remaining_amount', 'accounting_entry_line_id']);
+
+                    foreach($fundings as $funding_id => $funding) {
+
+                        $delta = min(
+                            abs($remaining_due_amount),
+                            abs($funding['remaining_amount'])
+                        );
+
+                        $signed_delta = $sign * $delta;
+
+                        FundingAllocation::create([
+                                'condo_id'                  => $miscOperation['condo_id'],
+                                'amount'                    => -$signed_delta,
+                                'receipt_date'              => $miscOperation['posting_date'],
+                                'origin_object_class'       => 'finance\accounting\MiscOperation',
+                                'origin_object_id'          => $id,
+                                'misc_operation_id'         => $id,
+                                'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                                'funding_id'                => $funding_id
+                            ]);
+
+                        FundingAllocation::create([
+                                'condo_id'                  => $miscOperation['condo_id'],
+                                'amount'                    => $signed_delta,
+                                'receipt_date'              => $miscOperation['posting_date'],
+                                'origin_object_class'       => 'finance\accounting\MiscOperation',
+                                'origin_object_id'          => $id,
+                                'misc_operation_id'         => $id,
+                                'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                                'funding_id'                => $ownershipFunding['id']
+                            ]);
+
+                        Funding::id($funding_id)->do('refresh_status');
+
+                        // merge Matching if applicable
+                        if($funding['accounting_entry_line_id']) {
+                            AccountingEntryLine::id($accountingEntryLine['id'])
+                                ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
+                        }
+
+                        $remaining_due_amount -= $signed_delta;
+                        if(abs($remaining_due_amount) < 0.01) {
+                            break;
+                        }
+                    }
+
+                    Funding::id($ownershipFunding['id'])->do('refresh_status');
+
+
                 }
-                elseif($miscOperationLine['is_supplier'])  {
-                    $funding_values['suppliership_id'] = $miscOperationLine['suppliership_id'];
+                elseif($miscOperationLine['is_owner']) {
+                    $suppliership_id = $miscOperationLine['suppliership_id'];
+
+                    $suppliershipBankAccount = SuppliershipBankAccount::search([
+                            ['condo_id', '=', $miscOperation['condo_id']],
+                            ['suppliership_id', '=', $suppliership_id],
+                            // ['is_primary', '=', true]
+                        ])
+                        ->read(['bank_account_id'])
+                        ->first();
+
+                    if(!$suppliershipBankAccount) {
+                        throw new \Exception('missing_bank_account', EQ_ERROR_INVALID_CONFIG);
+                    }
+
+
+                    $accountingEntryLine = AccountingEntryLine::search([
+                            ['condo_id', '=', $miscOperation['condo_id']],
+                            ['account_id', '=', $miscOperationLine['account_id']],
+                            ['accounting_entry_id', '=', $miscOperation['accounting_entry_id']]
+                        ])
+                        ->read([
+                            'id',
+                            'debit',
+                            'credit',
+                            'account_id' => ['suppliership_id', 'operation_assignment']
+                        ])
+                        ->first();
+
+                    $suppliershipFunding = Funding::create([
+                            'condo_id'                          => $miscOperation['condo_id'],
+                            'description'                       => $miscOperation['description'],
+                            'funding_type'                      => 'purchase_invoice',
+                            'purchase_invoice_id'               => $id,
+                            'bank_account_id'                   => $condominiumBankAccount['id'],
+                            'suppliership_id'                   => $miscOperation['suppliership_id'],
+                            'counterpart_bank_account_id'       => $suppliershipBankAccount['bank_account_id'],
+                            'accounting_account_id'             => $miscOperationLine['account_id'],
+                            'accounting_entry_line_id'          => $accountingEntryLine['id'],
+                            'due_amount'                        => -$remaining_due_amount,
+                            'is_paid'                           => false,
+                            'issue_date'                        => $issue_date,
+                            'due_date'                          => $due_date,
+                            // 'payment_reference'                 => $purchaseInvoice['payment_reference'] ?? null,
+                            // relay on_hold flag
+                            // 'has_payment_on_hold'               => $purchaseInvoice['has_payment_on_hold']
+                        ])
+                        ->first();
+
+                    // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
+
+                    if(abs($remaining_due_amount) <= 0.01) {
+                        continue;
+                    }
+
+                    $sign = ($remaining_due_amount >= 0) ? 1.0 : -1.0;
+
+                    // retrieve non-empty fundings relating to the targeted ownership with opposite sign
+                    $fundings = Funding::search(
+                            [
+                                ['condo_id', '=', $miscOperation['condo_id']],
+                                ['accounting_account_id', '=', $miscOperationLine['account_id']],
+                                ['status', '<>', 'balanced'],
+                                ['is_cancelled', '=', false],
+                                // #memo - called amounts for fund requests are always positive
+                                ['remaining_amount', ($sign > 0) ? '<' : '>', 0]
+                            ],
+                            ['sort' => ['issue_date' => 'asc']]
+                        )
+                        ->read(['remaining_amount', 'accounting_entry_line_id']);
+
+                    foreach($fundings as $funding_id => $funding) {
+
+                        $delta = min(
+                            abs($remaining_due_amount),
+                            abs($funding['remaining_amount'])
+                        );
+
+                        $signed_delta = $sign * $delta;
+
+                        FundingAllocation::create([
+                                'condo_id'                  => $miscOperation['condo_id'],
+                                'amount'                    => -$signed_delta,
+                                'receipt_date'              => $miscOperation['posting_date'],
+                                'origin_object_class'       => 'finance\accounting\MiscOperation',
+                                'origin_object_id'          => $id,
+                                'misc_operation_id'         => $id,
+                                'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                                'funding_id'                => $funding_id
+                            ]);
+
+                        FundingAllocation::create([
+                                'condo_id'                  => $miscOperation['condo_id'],
+                                'amount'                    => $signed_delta,
+                                'receipt_date'              => $miscOperation['posting_date'],
+                                'origin_object_class'       => 'finance\accounting\MiscOperation',
+                                'origin_object_id'          => $id,
+                                'misc_operation_id'         => $id,
+                                'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                                'funding_id'                => $suppliershipFunding['id']
+                            ]);
+
+                        Funding::id($funding_id)->do('refresh_status');
+
+                        // merge Matching if applicable
+                        if($funding['accounting_entry_line_id']) {
+                            AccountingEntryLine::id($accountingEntryLine['id'])
+                                ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
+                        }
+
+                        $remaining_due_amount -= $signed_delta;
+                        if(abs($remaining_due_amount) < 0.01) {
+                            break;
+                        }
+                    }
+
+                    Funding::id($suppliershipFunding['id'])->do('refresh_status');
+
                 }
 
-                Funding::create($funding_values);
             }
         }
     }
