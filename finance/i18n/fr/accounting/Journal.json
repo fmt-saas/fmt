@@ -29,10 +29,12 @@
                 "LEDG": "Grand livre",
                 "SALE": "Ventes",
                 "PURC": "Achats",
-                "CASH": "trésorerie",
+                "BANK": "Banque",
+                "CASH": "Trésorerie",
                 "PAYR": "Paies",
                 "ASST": "Immobilisations",
-                "MISC": "opérations diverses"
+                "OPEN": "Ouvertures",
+                "MISC": "Opérations diverses"
             },
             "description": "",
             "help": ""
