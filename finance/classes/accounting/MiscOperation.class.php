@@ -814,6 +814,17 @@ class MiscOperation extends Model {
                     continue;
                 }
 
+                $accountingEntryLine = AccountingEntryLine::search([
+                        ['condo_id', '=', $miscOperation['condo_id']],
+                        ['account_id', '=', $miscOperationLine['account_id']],
+                        ['accounting_entry_id', '=', $miscOperation['accounting_entry_id']]
+                    ])
+                    ->first();
+
+                if(!$accountingEntryLine) {
+                    throw new \Exception('missing_accounting_entry_line', EQ_ERROR_INVALID_PARAM);
+                }
+
                 // #memo - when importing historical data, we must be able to issue a funding in the past
                 $issue_date = $miscOperation['posting_date'];
                 $due_date = $miscOperation['posting_date'] + 86400 * 15;
@@ -823,17 +834,6 @@ class MiscOperation extends Model {
                 if($miscOperationLine['is_owner']) {
                     // pass-1 : retrieve AEL from execution line, create a funding for the ownership, and assign it to the AEL
                     $ownership_id = $miscOperationLine['ownership_id'];
-
-                    $accountingEntryLine = AccountingEntryLine::search([
-                            ['condo_id', '=', $miscOperation['condo_id']],
-                            ['account_id', '=', $miscOperationLine['account_id']],
-                            ['accounting_entry_id', '=', $miscOperation['accounting_entry_id']]
-                        ])
-                        ->first();
-
-                    if(!$accountingEntryLine) {
-                        throw new \Exception('missing_accounting_entry_line', EQ_ERROR_INVALID_PARAM);
-                    }
 
                     // #memo - Fundings always use Ownership control_account
                     $fundingOwnershipAccount = Account::search([
@@ -948,34 +948,20 @@ class MiscOperation extends Model {
                         throw new \Exception('missing_bank_account', EQ_ERROR_INVALID_CONFIG);
                     }
 
-
-                    $accountingEntryLine = AccountingEntryLine::search([
-                            ['condo_id', '=', $miscOperation['condo_id']],
-                            ['account_id', '=', $miscOperationLine['account_id']],
-                            ['accounting_entry_id', '=', $miscOperation['accounting_entry_id']]
-                        ])
-                        ->read([
-                            'id',
-                            'debit',
-                            'credit',
-                            'account_id' => ['suppliership_id', 'operation_assignment']
-                        ])
-                        ->first();
-
                     $suppliershipFunding = Funding::create([
                             'condo_id'                          => $miscOperation['condo_id'],
                             'description'                       => $miscOperation['description'],
-                            'funding_type'                      => 'purchase_invoice',
-                            'purchase_invoice_id'               => $id,
+                            'misc_operation_id'                 => $id,
+                            'suppliership_id'                   => $suppliership_id,
                             'bank_account_id'                   => $condominiumBankAccount['id'],
-                            'suppliership_id'                   => $miscOperation['suppliership_id'],
-                            'counterpart_bank_account_id'       => $suppliershipBankAccount['bank_account_id'],
+                            'counterpart_bank_account_id'       => $suppliershipBankAccount['bank_account_id'] ?? null,
                             'accounting_account_id'             => $miscOperationLine['account_id'],
                             'accounting_entry_line_id'          => $accountingEntryLine['id'],
                             'due_amount'                        => -$remaining_due_amount,
                             'is_paid'                           => false,
                             'issue_date'                        => $issue_date,
                             'due_date'                          => $due_date,
+                            'funding_type'                      => 'misc_operation',
                             // 'payment_reference'                 => $purchaseInvoice['payment_reference'] ?? null,
                             // relay on_hold flag
                             // 'has_payment_on_hold'               => $purchaseInvoice['has_payment_on_hold']
