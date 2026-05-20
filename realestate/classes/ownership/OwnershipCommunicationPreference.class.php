@@ -195,27 +195,31 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                 'has_channel_postal',
                 'has_channel_postal_registered',
                 'has_channel_postal_registered_receipt',
-                'ownership_id' => ['representative_identity_id', 'owners_ids' => ['identity_id']]
+                'ownership_id' => ['id', 'representative_identity_id', 'owners_ids' => ['identity_id']]
             ]);
 
         foreach($self as $id => $ownershipCommunicationPreference) {
             $ownership_id = $ownershipCommunicationPreference['ownership_id']['id'];
+            $identity_id = $ownershipCommunicationPreference['identity_id'];
             if($ownershipCommunicationPreference['has_channel_postal']
                 || $ownershipCommunicationPreference['has_channel_postal_registered']
                 || $ownershipCommunicationPreference['has_channel_postal_registered_receipt']) {
                     $postalMailPreferences = self::search([
                         [
                             ['ownership_id', '=', $ownership_id],
+                            ['identity_id', '=', $identity_id],
                             ['communication_reason', '=', $ownershipCommunicationPreference['communication_reason']],
                             ['has_channel_postal', '=', true]
                         ],
                         [
                             ['ownership_id', '=', $ownership_id],
+                            ['identity_id', '=', $identity_id],
                             ['communication_reason', '=', $ownershipCommunicationPreference['communication_reason']],
                             ['has_channel_postal_registered', '=', true]
                         ],
                         [
                             ['ownership_id', '=', $ownership_id],
+                            ['identity_id', '=', $identity_id],
                             ['communication_reason', '=', $ownershipCommunicationPreference['communication_reason']],
                             ['has_channel_postal_registered_receipt', '=', true]
                         ]
