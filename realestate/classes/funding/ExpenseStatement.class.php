@@ -1212,6 +1212,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 foreach($fundings as $funding_id => $funding) {
 
+                    if($ownershipFunding['id'] === $funding_id) {
+                        continue;
+                    }
+
                     $delta = min(
                         abs($remaining_due_amount),
                         abs($funding['remaining_amount'])

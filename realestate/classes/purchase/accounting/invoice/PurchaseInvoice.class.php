@@ -901,6 +901,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 ->read(['remaining_amount', 'accounting_entry_line_id']);
 
             foreach($fundings as $funding_id => $funding) {
+                if($suppliershipFunding['id'] === $funding_id) {
+                    continue;
+                }
 
                 $delta = min(
                     abs($remaining_due_amount),

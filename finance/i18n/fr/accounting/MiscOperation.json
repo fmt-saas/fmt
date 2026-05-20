@@ -119,7 +119,7 @@
             "help": "",
             "selection": {
                 "pending": "Brouillon",
-                "proforma": "Pro-forma",
+                "proforma": "Proforma",
                 "posted": "Comptabilisé"
             }
         }

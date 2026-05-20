@@ -814,6 +814,9 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                     ->read(['remaining_amount', 'accounting_entry_line_id']);
 
                 foreach($fundings as $funding_id => $funding) {
+                    if($ownershipFunding['id'] === $funding_id) {
+                        continue;
+                    }
 
                     $delta = min(
                         abs($remaining_due_amount),

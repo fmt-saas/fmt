@@ -62,6 +62,14 @@ class Funding extends \sale\pay\Funding {
                 'dependents'        => ['remaining_amount', 'paid_amount', 'is_paid']
             ],
 
+            'payments_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\sale\pay\Payment',
+                'foreign_field'     => 'funding_id',
+                'description'       => 'Payments of the funding.',
+                'dependents'        => ['paid_amount', 'remaining_amount', 'is_paid']
+            ],
+
             'accounting_entry_line_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\finance\accounting\AccountingEntryLine',

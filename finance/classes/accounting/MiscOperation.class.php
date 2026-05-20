@@ -885,6 +885,9 @@ class MiscOperation extends Model {
                         ->read(['remaining_amount', 'accounting_entry_line_id']);
 
                     foreach($fundings as $funding_id => $funding) {
+                        if($ownershipFunding['id'] === $funding_id) {
+                            continue;
+                        }
 
                         $delta = min(
                             abs($remaining_due_amount),
@@ -930,8 +933,6 @@ class MiscOperation extends Model {
                     }
 
                     Funding::id($ownershipFunding['id'])->do('refresh_status');
-
-
                 }
                 elseif($miscOperationLine['is_supplier']) {
                     $suppliership_id = $miscOperationLine['suppliership_id'];
@@ -983,7 +984,6 @@ class MiscOperation extends Model {
                                 ['accounting_account_id', '=', $miscOperationLine['account_id']],
                                 ['status', '<>', 'balanced'],
                                 ['is_cancelled', '=', false],
-                                // #memo - called amounts for fund requests are always positive
                                 ['remaining_amount', ($sign > 0) ? '<' : '>', 0]
                             ],
                             ['sort' => ['issue_date' => 'asc']]
@@ -991,6 +991,9 @@ class MiscOperation extends Model {
                         ->read(['remaining_amount', 'accounting_entry_line_id']);
 
                     foreach($fundings as $funding_id => $funding) {
+                        if($suppliershipFunding['id'] === $funding_id) {
+                            continue;
+                        }
 
                         $delta = min(
                             abs($remaining_due_amount),
