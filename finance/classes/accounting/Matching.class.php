@@ -57,7 +57,7 @@ class Matching extends Model {
                 'foreign_object'    => 'finance\accounting\AccountingEntryLine',
                 'foreign_field'     => 'matching_id',
                 'description'       => 'Accounting entry lines (records) linked to the matching.',
-                'domain'            => ['account_id', '=', 'object.accounting_account_id'],
+                'domain'            => ['matching_account_id', '=', 'object.accounting_account_id'],
                 'onupdate'          => 'onupdateAccountingEntryLinesIds'
             ],
 
