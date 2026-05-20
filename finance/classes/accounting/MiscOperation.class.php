@@ -958,7 +958,7 @@ class MiscOperation extends Model {
                             'counterpart_bank_account_id'       => $suppliershipBankAccount['bank_account_id'] ?? null,
                             'accounting_account_id'             => $miscOperationLine['account_id'],
                             'accounting_entry_line_id'          => $accountingEntryLine['id'],
-                            'due_amount'                        => -$remaining_due_amount,
+                            'due_amount'                        => $remaining_due_amount,
                             'is_paid'                           => false,
                             'issue_date'                        => $issue_date,
                             'due_date'                          => $due_date,
