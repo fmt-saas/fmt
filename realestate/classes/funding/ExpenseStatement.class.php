@@ -1182,7 +1182,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'expense_statement_id'              => $id,
                         'ownership_id'                      => $ownership_id,
                         'bank_account_id'                   => $expenseStatement['statement_bank_account_id'],
-                        'accounting_account_id'             => $ownershipAccount['id'],
+                        'accounting_account_id'             => $fundingOwnershipAccount['id'],
                         'issue_date'                        => $issue_date,
                         'due_date'                          => $due_date,
                         'due_amount'                        => $remaining_due_amount
