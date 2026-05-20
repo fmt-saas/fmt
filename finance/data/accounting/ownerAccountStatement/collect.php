@@ -223,7 +223,7 @@ foreach($accounting_entry_lines as $line) {
     $map_journals_ids[$line['journal_id']] = true;
 }
 
-$journals = $orm->read(Journal::gettype(), array_keys($map_journals_ids), ['id', 'name', 'mnemo', 'journal_type']);
+$journals = $orm->read(Journal::getType(), array_keys($map_journals_ids), ['id', 'name', 'mnemo', 'journal_type']);
 
 $balance = $opening_balance;
 
@@ -248,7 +248,7 @@ $grouped_lines = [];
 foreach($accounting_entry_lines as $line) {
     $journal_id = $line['journal_id'] ?? null;
     $journal = $journals[$journal_id] ?? null;
-    $journal_type = is_array($journal) ? ($journal['journal_type'] ?? null) : null;
+    $journal_type = $journal['journal_type'] ?? null;
 
     $entry = $line['accounting_entry_id'] ?? null;
     $entry_id = is_array($entry) ? ($entry['id'] ?? null) : $entry;

@@ -394,9 +394,9 @@ foreach($lines as $line) {
     $map_entries_ids[$line['accounting_entry_id']] = true;
 }
 
-$accounts = $orm->read(Account::gettype(), array_keys($map_accounts_ids), ['id', 'name', 'ownership_id', 'suppliership_id']);
+$accounts = $orm->read(Account::getType(), array_keys($map_accounts_ids), ['id', 'name', 'ownership_id', 'suppliership_id']);
 
-$journals = $orm->read(Journal::gettype(), array_keys($map_journals_ids), ['id', 'name', 'mnemo', 'journal_type']);
+$journals = $orm->read(Journal::getType(), array_keys($map_journals_ids), ['id', 'name', 'mnemo', 'journal_type']);
 
 $entries = $orm->read(AccountingEntry::getType(), array_keys($map_entries_ids), ['id', 'name']);
 
