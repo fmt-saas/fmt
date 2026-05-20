@@ -945,10 +945,6 @@ class MiscOperation extends Model {
                         ->read(['bank_account_id'])
                         ->first();
 
-                    if(!$suppliershipBankAccount) {
-                        throw new \Exception('missing_bank_account', EQ_ERROR_INVALID_CONFIG);
-                    }
-
                     $suppliershipFunding = Funding::create([
                             'condo_id'                          => $miscOperation['condo_id'],
                             'description'                       => $miscOperation['description'],
