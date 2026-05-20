@@ -676,12 +676,12 @@ class MiscOperation extends Model {
     }
 
     protected static function onupdateDescription($self, $lang) {
-        $self->read(['description', 'invoice_lines_ids' => ['description']]);
+        $self->read(['description', 'misc_operation_lines_ids' => ['description']]);
         foreach($self as $id => $miscOperation) {
             if(!$miscOperation['description'] || strlen($miscOperation['description']) <= 0) {
                 continue;
             }
-            foreach($miscOperation['invoice_lines_ids'] as $misc_operation_line_id => $miscOperationLine) {
+            foreach($miscOperation['misc_operation_lines_ids'] as $misc_operation_line_id => $miscOperationLine) {
                 if(!$miscOperationLine['description'] || strlen($miscOperationLine['description']) <= 0) {
                     MiscOperationLine::id($misc_operation_line_id)->update(['description' => $miscOperation['description']], $lang);
                 }
