@@ -11,6 +11,7 @@ use finance\accounting\Account;
 use finance\accounting\AccountBalanceChange;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
+use finance\accounting\Journal;
 use finance\accounting\OpeningBalance;
 use finance\accounting\OpeningBalanceLine;
 use realestate\finance\accounting\AccountingEntryLine;
@@ -92,11 +93,12 @@ use realestate\ownership\Ownership;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context']
+    'providers'     => ['context', 'orm']
 ]);
 
-/** @var \equal\php\Context $context */
-['context' => $context] = $providers;
+/** @var \equal\php\Context $context **/
+/** @var \equal\orm\ObjectManager $orm **/
+['context' => $context, 'orm' => $orm] = $providers;
 
 
 $date_from = $params['date_from'];
@@ -205,6 +207,7 @@ $accounting_entry_lines = AccountingEntryLine::search(
     )
     ->read([
         'id',
+        'journal_id',
         'accounting_entry_id',
         'entry_date',
         'description',
@@ -213,6 +216,14 @@ $accounting_entry_lines = AccountingEntryLine::search(
     ])
     ->adapt('json')
     ->get(true);
+
+$map_journals_ids = [];
+
+foreach($accounting_entry_lines as $line) {
+    $map_journals_ids[$line['journal_id']] = true;
+}
+
+$journals = $orm->read(Journal::gettype(), array_keys($map_journals_ids), ['id', 'name', 'mnemo', 'journal_type']);
 
 $balance = $opening_balance;
 
@@ -231,21 +242,24 @@ $result[] = [
 
 /* transaction lines */
 
-// group lines by accounting entry
+// group bank lines by accounting entry
 $grouped_lines = [];
 
 foreach($accounting_entry_lines as $line) {
+    $journal = $line['journal_id'] ?? null;
+    $journal_type = is_array($journal) ? ($journal['journal_type'] ?? null) : null;
+
     $entry = $line['accounting_entry_id'] ?? null;
     $entry_id = is_array($entry) ? ($entry['id'] ?? null) : $entry;
-    $entry_id = $entry_id ?? ('line_' . $line['id']);
+    $group_key = ($journal_type === 'BANK' && !is_null($entry_id)) ? 'entry_' . $entry_id : 'line_' . $line['id'];
 
-    if(!isset($grouped_lines[$entry_id])) {
-        $grouped_lines[$entry_id] = $line;
+    if(!isset($grouped_lines[$group_key])) {
+        $grouped_lines[$group_key] = $line;
         continue;
     }
 
-    $grouped_lines[$entry_id]['debit'] += $line['debit'];
-    $grouped_lines[$entry_id]['credit'] += $line['credit'];
+    $grouped_lines[$group_key]['debit'] += $line['debit'];
+    $grouped_lines[$group_key]['credit'] += $line['credit'];
 }
 
 foreach($grouped_lines as $line) {
@@ -263,7 +277,6 @@ foreach($grouped_lines as $line) {
         'balance'     => round($balance, 2)
     ];
 }
-
 
 $context->httpResponse()
         ->body($result)

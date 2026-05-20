@@ -396,7 +396,7 @@ foreach($lines as $line) {
 
 $accounts = $orm->read(Account::gettype(), array_keys($map_accounts_ids), ['id', 'name', 'ownership_id', 'suppliership_id']);
 
-$journals = $orm->read(Journal::gettype(), array_keys($map_journals_ids), ['id', 'name', 'mnemo']);
+$journals = $orm->read(Journal::gettype(), array_keys($map_journals_ids), ['id', 'name', 'mnemo', 'journal_type']);
 
 $entries = $orm->read(AccountingEntry::getType(), array_keys($map_entries_ids), ['id', 'name']);
 
@@ -489,20 +489,24 @@ foreach($map_accounts_ids as $account_id => $_) {
             $account_rows[] = $row;
         }
 
-        // 3. Group rows from the same account by accounting entry.
+        // 3. Group bank rows from the same account by accounting entry.
         $grouped_rows = [];
 
-        foreach($account_rows as $row) {
+        foreach($account_rows as $index => $row) {
+            $journal = $row['journal_id'] ?? null;
+            $journal_type = is_array($journal) ? ($journal['journal_type'] ?? null) : null;
+
             $entry = $row['accounting_entry_id'] ?? null;
             $entry_id = is_array($entry) ? ($entry['id'] ?? null) : $entry;
+            $group_key = ($journal_type === 'BANK' && !is_null($entry_id)) ? 'entry_' . $entry_id : 'row_' . $index;
 
-            if(!isset($grouped_rows[$entry_id])) {
-                $grouped_rows[$entry_id] = $row;
+            if(!isset($grouped_rows[$group_key])) {
+                $grouped_rows[$group_key] = $row;
                 continue;
             }
 
-            $grouped_rows[$entry_id]['debit'] += $row['debit'];
-            $grouped_rows[$entry_id]['credit'] += $row['credit'];
+            $grouped_rows[$group_key]['debit'] += $row['debit'];
+            $grouped_rows[$group_key]['credit'] += $row['credit'];
         }
 
         foreach($grouped_rows as $row) {
