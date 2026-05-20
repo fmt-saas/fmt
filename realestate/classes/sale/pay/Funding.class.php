@@ -10,6 +10,7 @@ namespace realestate\sale\pay;
 use fmt\setting\Setting;
 use equal\data\DataFormatter;
 use finance\accounting\Matching;
+use finance\accounting\MiscOperation;
 use hr\role\RoleAssignment;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\finance\accounting\MoneyRefund;
@@ -409,6 +410,7 @@ class Funding extends \sale\pay\Funding {
                 'funding_type',
                 'money_refund_id',
                 'money_transfer_id',
+                'misc_operation_id',
                 'purchase_invoice_id',
                 'expense_statement_id',
                 'fund_request_execution_id'
@@ -427,6 +429,9 @@ class Funding extends \sale\pay\Funding {
                     break;
                 case 'purchase_invoice':
                     PurchaseInvoice::id($funding['purchase_invoice_id'])->update(['payment_status' => $funding['status']]);
+                    break;
+               case 'misc_operation':
+                    MiscOperation::id($funding['misc_operation_id'])->update(['payment_status' => $funding['status']]);
                     break;
                 case 'refund':
                     MoneyRefund::id($funding['money_refund_id'])->update(['payment_status' => $funding['status']]);

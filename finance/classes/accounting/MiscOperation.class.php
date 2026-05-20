@@ -816,8 +816,7 @@ class MiscOperation extends Model {
 
                 $accountingEntryLine = AccountingEntryLine::search([
                         ['condo_id', '=', $miscOperation['condo_id']],
-                        ['account_id', '=', $miscOperationLine['account_id']],
-                        ['accounting_entry_id', '=', $miscOperation['accounting_entry_id']]
+                        ['misc_operation_line_id', '=', $misc_operation_line_id]
                     ])
                     ->first();
 
@@ -832,6 +831,9 @@ class MiscOperation extends Model {
                 $remaining_due_amount = $miscOperationLine['debit'] - $miscOperationLine['credit'];
 
                 if($miscOperationLine['is_owner']) {
+                    if(!$miscOperationLine['ownership_id'])  {
+                        throw new \Exception('missing_ownership_id', EQ_ERROR_INVALID_PARAM);
+                    }
                     // pass-1 : retrieve AEL from execution line, create a funding for the ownership, and assign it to the AEL
                     $ownership_id = $miscOperationLine['ownership_id'];
 
@@ -935,6 +937,10 @@ class MiscOperation extends Model {
                     Funding::id($ownershipFunding['id'])->do('refresh_status');
                 }
                 elseif($miscOperationLine['is_supplier']) {
+                    if(!$miscOperationLine['suppliership_id'])  {
+                        throw new \Exception('missing_suppliership_id', EQ_ERROR_INVALID_PARAM);
+                    }
+
                     $suppliership_id = $miscOperationLine['suppliership_id'];
 
                     $suppliershipBankAccount = SuppliershipBankAccount::search([
