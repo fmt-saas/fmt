@@ -1907,7 +1907,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                                         'date_to'           => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['date_to'],
                                         'nb_days'           => $ownerships[$ownership_id]['property_lots'][$property_lot_id]['nb_days'],
                                         'shares'            => $account['shares'] ?? null,
-                                        'total_amount'      => self::normalizeMoneyAmount($account['total_amount']),
+                                        'total_amount'      => self::normalizeMoneyAmount($account['total_amount'] ?? 0.0),
                                     ];
                             }
                         }

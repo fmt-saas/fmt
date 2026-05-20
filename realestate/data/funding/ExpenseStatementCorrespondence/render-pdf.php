@@ -8,7 +8,7 @@
 use documents\Document;
 use documents\DocumentType;
 use finance\accounting\FiscalPeriod;
-use realestate\funding\FundRequestExecutionCorrespondence;
+use realestate\funding\ExpenseStatementCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate a PDF individual request for a given Expense Statement Correspondence (relates to a single Ownership).',
@@ -16,7 +16,7 @@ use realestate\funding\FundRequestExecutionCorrespondence;
         'id' => [
             'description'       => 'Identifier of the specific FundRequestExecutionCorrespondence to consider.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\funding\FundRequestExecutionCorrespondence',
+            'foreign_object'    => 'realestate\funding\ExpenseStatementCorrespondence',
             'required'          => true
         ]
     ],
@@ -34,18 +34,18 @@ use realestate\funding\FundRequestExecutionCorrespondence;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-$fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($params['id'])
+$expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id'])
     ->read([
         'status', 'condo_id', 'ownership_id', 'owner_id', 'name',
         'expense_statement_id' => ['id', 'fiscal_period_id', 'posting_date', 'is_cutoff_at_period_end']
     ])
     ->first();
 
-if(!$fundRequestExecutionCorrespondence) {
-    throw new Exception('unknown_fund_request_execution_correspondence', EQ_ERROR_UNKNOWN_OBJECT);
+if(!$expenseStatementCorrespondence) {
+    throw new Exception('unknown_expensestatement_correspondence', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$expenseStatement = $fundRequestExecutionCorrespondence['expense_statement_id'];
+$expenseStatement = $expenseStatementCorrespondence['expense_statement_id'];
 
 $fiscalPeriod = FiscalPeriod::id($expenseStatement['fiscal_period_id'])
     ->read(['date_from', 'date_to', 'condo_id' => ['ownerships_ids' => ['date_to']]])
@@ -66,7 +66,7 @@ if(!$fiscalPeriod) {
 
 // generate balance sheet for expense statement, if not generated yet
 $balanceSheetDocument = Document::search([
-        ['condo_id', '=', $fundRequestExecutionCorrespondence['condo_id']],
+        ['condo_id', '=', $expenseStatementCorrespondence['condo_id']],
         ['expense_statement_id', '=', $expenseStatement['id']],
         ['document_type_code', '=', 'balance_sheet']
     ])
@@ -77,11 +77,11 @@ if(!$balanceSheetDocument) {
     $data = eQual::run('get', 'finance_accounting_balanceSheet_render-pdf', ['params' => [
             'date_from' => date('c', $fiscalPeriod['date_from']),
             'date_to'   => date('c', $fiscalPeriod['date_to']),
-            'condo_id'  => $fundRequestExecutionCorrespondence['condo_id']
+            'condo_id'  => $expenseStatementCorrespondence['condo_id']
         ]]);
 
     $balanceSheetDocument = Document::create([
-            'condo_id'              => $fundRequestExecutionCorrespondence['condo_id'],
+            'condo_id'              => $expenseStatementCorrespondence['condo_id'],
             'expense_statement_id'  => $expenseStatement['id'],
             'name'                  => 'Bilan du ' . date('d/m/Y', $fiscalPeriod['date_to']),
             'data'                  => $data,
@@ -95,7 +95,7 @@ if(!$balanceSheetDocument) {
 
 // generate expense summary for expense statement, if not generated yet
 $expenseSummaryDocument = Document::search([
-        ['condo_id', '=', $fundRequestExecutionCorrespondence['condo_id']],
+        ['condo_id', '=', $expenseStatementCorrespondence['condo_id']],
         ['expense_statement_id', '=', $expenseStatement['id']],
         ['document_type_code', '=', 'expense_summary']
     ])
@@ -106,11 +106,11 @@ if(!$expenseSummaryDocument) {
     $data = eQual::run('get', 'finance_accounting_expenseSummary_render-pdf', [ 'params' => [
             'date_from' => date('c', $fiscalPeriod['date_from']),
             'date_to'   => date('c', $fiscalPeriod['date_to']),
-            'condo_id'  => $fundRequestExecutionCorrespondence['condo_id']
+            'condo_id'  => $expenseStatementCorrespondence['condo_id']
         ]]);
 
     $expenseSummaryDocument = Document::create([
-            'condo_id'              => $fundRequestExecutionCorrespondence['condo_id'],
+            'condo_id'              => $expenseStatementCorrespondence['condo_id'],
             'expense_statement_id'  => $expenseStatement['id'],
             'name'                  => 'Dépenses courantes au ' . date('d/m/Y', $fiscalPeriod['date_to']),
             'data'                  => $data,
@@ -131,8 +131,8 @@ try {
     try {
         $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-pdf', [
                 'expense_statement_id'  => $expenseStatement['id'],
-                'ownership_id'          => $fundRequestExecutionCorrespondence['ownership_id'],
-                'owner_id'              => $fundRequestExecutionCorrespondence['owner_id']
+                'ownership_id'          => $expenseStatementCorrespondence['ownership_id'],
+                'owner_id'              => $expenseStatementCorrespondence['owner_id']
             ]);
         $temp = tempnam(sys_get_temp_dir(), 'pdf_');
         file_put_contents($temp, $pdf);
@@ -154,7 +154,7 @@ try {
                 'date_from'         => $fiscalPeriod['date_from'],
                 'date_to'           => $fiscalPeriod['date_to'],
                 // 'date_to'           => $date_to,
-                'ownership_id'      => $fundRequestExecutionCorrespondence['ownership_id']
+                'ownership_id'      => $expenseStatementCorrespondence['ownership_id']
             ]);
         $temp = tempnam(sys_get_temp_dir(), 'pdf_');
         file_put_contents($temp, $pdf);

@@ -793,71 +793,69 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
                 // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
 
-                if(abs($remaining_due_amount) <= 0.01) {
-                    continue;
-                }
+                if(abs($remaining_due_amount) > 0.01) {
+                    $sign = ($remaining_due_amount >= 0) ? 1.0 : -1.0;
 
-                $sign = ($remaining_due_amount >= 0) ? 1.0 : -1.0;
+                    // retrieve non-empty fundings relating to the targeted ownership with opposite sign
+                    $fundings = Funding::search(
+                            [
+                                ['condo_id', '=', $requestExecution['condo_id']],
+                                ['accounting_account_id', '=', $fundingOwnershipAccount['id']],
+                                ['status', '<>', 'balanced'],
+                                ['is_cancelled', '=', false],
+                                // #memo - called amounts for fund requests are always positive
+                                ['remaining_amount', ($sign > 0) ? '<' : '>', 0]
+                            ],
+                            ['sort' => ['issue_date' => 'asc']]
+                        )
+                        ->read(['remaining_amount', 'accounting_entry_line_id']);
 
-                // retrieve non-empty fundings relating to the targeted ownership with opposite sign
-                $fundings = Funding::search(
-                        [
-                            ['condo_id', '=', $requestExecution['condo_id']],
-                            ['accounting_account_id', '=', $fundingOwnershipAccount['id']],
-                            ['status', '<>', 'balanced'],
-                            ['is_cancelled', '=', false],
-                            // #memo - called amounts for fund requests are always positive
-                            ['remaining_amount', ($sign > 0) ? '<' : '>', 0]
-                        ],
-                        ['sort' => ['issue_date' => 'asc']]
-                    )
-                    ->read(['remaining_amount', 'accounting_entry_line_id']);
+                    foreach($fundings as $funding_id => $funding) {
+                        if($ownershipFunding['id'] === $funding_id) {
+                            continue;
+                        }
 
-                foreach($fundings as $funding_id => $funding) {
-                    if($ownershipFunding['id'] === $funding_id) {
-                        continue;
-                    }
+                        $delta = min(
+                            abs($remaining_due_amount),
+                            abs($funding['remaining_amount'])
+                        );
 
-                    $delta = min(
-                        abs($remaining_due_amount),
-                        abs($funding['remaining_amount'])
-                    );
+                        $signed_delta = $sign * $delta;
 
-                    $signed_delta = $sign * $delta;
+                        FundingAllocation::create([
+                                'condo_id'                  => $requestExecution['condo_id'],
+                                'amount'                    => -$signed_delta,
+                                'receipt_date'              => $requestExecution['posting_date'],
+                                'origin_object_class'       => 'realestate\funding\FundRequestExecution',
+                                'origin_object_id'          => $id,
+                                'fund_request_execution_id' => $id,
+                                'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                                'funding_id'                => $funding_id
+                            ]);
 
-                    FundingAllocation::create([
-                            'condo_id'                  => $requestExecution['condo_id'],
-                            'amount'                    => -$signed_delta,
-                            'receipt_date'              => $requestExecution['posting_date'],
-                            'origin_object_class'       => 'realestate\funding\FundRequestExecution',
-                            'origin_object_id'          => $id,
-                            'fund_request_execution_id' => $id,
-                            'accounting_entry_line_id'  => $accountingEntryLine['id'],
-                            'funding_id'                => $funding_id
-                        ]);
+                        FundingAllocation::create([
+                                'condo_id'                  => $requestExecution['condo_id'],
+                                'amount'                    => $signed_delta,
+                                'receipt_date'              => $requestExecution['posting_date'],
+                                'origin_object_class'       => 'realestate\funding\FundRequestExecution',
+                                'origin_object_id'          => $id,
+                                'fund_request_execution_id' => $id,
+                                'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                                'funding_id'                => $ownershipFunding['id']
+                            ]);
 
-                    FundingAllocation::create([
-                            'condo_id'                  => $requestExecution['condo_id'],
-                            'amount'                    => $signed_delta,
-                            'receipt_date'              => $requestExecution['posting_date'],
-                            'origin_object_class'       => 'realestate\funding\FundRequestExecution',
-                            'origin_object_id'          => $id,
-                            'fund_request_execution_id' => $id,
-                            'accounting_entry_line_id'  => $accountingEntryLine['id'],
-                            'funding_id'                => $ownershipFunding['id']
-                        ]);
+                        Funding::id($funding_id)->do('refresh_status');
 
-                    Funding::id($funding_id)->do('refresh_status');
+                        // merge Matching if applicable
+                        if($funding['accounting_entry_line_id']) {
+                            AccountingEntryLine::id($accountingEntryLine['id'])
+                                ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
+                        }
 
-                    // merge Matching if applicable
-                    if($funding['accounting_entry_line_id']) {
-                        AccountingEntryLine::id($accountingEntryLine['id'])
-                            ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
-                    }
-
-                    $remaining_due_amount -= $signed_delta;
-                    if(abs($remaining_due_amount) < 0.01) {
-                        break;
+                        $remaining_due_amount -= $signed_delta;
+                        if(abs($remaining_due_amount) < 0.01) {
+                            break;
+                        }
                     }
                 }
 
