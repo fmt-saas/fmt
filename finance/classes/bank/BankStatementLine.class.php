@@ -358,7 +358,7 @@ class BankStatementLine extends Model {
             'logs' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain',
-                'description'       => 'Logs of the accounting entry generation.'
+                'description'       => 'Logs of accounting entry and fundings generation.'
             ],
 
             'reconciliation_status' => [

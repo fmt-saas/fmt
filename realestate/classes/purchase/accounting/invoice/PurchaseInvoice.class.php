@@ -343,6 +343,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'function'          => 'calcAlert',
                 'onrevert'          => 'onrevertAlert',
                 'store'             => true
+            ],
+
+            'logs' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain',
+                'description'       => 'Logs of accounting entry and fundings generation.'
             ]
 
         ];

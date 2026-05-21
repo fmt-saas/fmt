@@ -165,6 +165,8 @@
             {
                 "sections": [
                     {
+                        "id": "section.lines",
+                        "label": "Lines",
                         "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
@@ -176,6 +178,30 @@
                                                 "type": "field",
                                                 "value": "misc_operation_lines_ids",
                                                 "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.details",
+                        "label": "Details",
+                        "visible": ["operators", "in", "user.groups"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "logs",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "height": 400
+                                                }
                                             }
                                         ]
                                     }

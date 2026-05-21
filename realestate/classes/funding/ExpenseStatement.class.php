@@ -211,7 +211,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             'logs' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain',
-                'description'       => 'Logs of the funding generation.'
+                'description'       => 'Logs of accounting entry and fundings generation.'
             ]
 
         ];

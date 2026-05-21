@@ -239,6 +239,12 @@ class MiscOperation extends Model {
                 'function'          => 'calcIsBalanced'
             ],
 
+            'logs' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain',
+                'description'       => 'Logs of accounting entry and fundings generation.'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [

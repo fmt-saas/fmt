@@ -216,6 +216,30 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "id": "section.details",
+                        "label": "Details",
+                        "visible": ["operators", "in", "user.groups"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "logs",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "height": 400
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }

@@ -277,13 +277,10 @@
                     {
                         "id": "section.details",
                         "label": "Details",
+                        "visible": ["operators", "in", "user.groups"],
                         "rows": [
                             {
                                 "columns": [
-                                    {
-                                        "width": "25%",
-                                        "items": []
-                                    },
                                     {
                                         "width": "50%",
                                         "items": [
