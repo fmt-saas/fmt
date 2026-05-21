@@ -114,7 +114,8 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "header": {
-                                                        "layout": "inline"
+                                                        "layout": "inline",
+                                                        "actions": false
                                                     },
                                                     "view": "list.default"
                                                 }
