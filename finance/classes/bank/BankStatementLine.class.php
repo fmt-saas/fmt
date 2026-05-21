@@ -10,7 +10,6 @@ use equal\orm\Model;
 use finance\accounting\Account;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
-use finance\accounting\Matching;
 use realestate\sale\pay\Funding;
 use realestate\sale\pay\Payment;
 use finance\bank\BankStatement;
@@ -1247,13 +1246,6 @@ class BankStatementLine extends Model {
                             $logs[] = "INFO - Skipped payment {$payment_id}: funding {$payment['funding_id']} not found";
                             continue;
                         }
-
-                        /*
-                        if($funding['funding_type'] === 'misc_operation' && ($funding['misc_operation_id']['has_opening_journal'] ?? false)) {
-                            $logs[] = "Skipping funding {$payment['funding_id']} relating to Opening Balance";
-                            continue;
-                        }
-                        */
 
                         $fundingAccountingEntryLine = $funding['accounting_entry_line_id'] ?? null;
                         $credit_account_id = $funding['accounting_account_id'] ?? null;

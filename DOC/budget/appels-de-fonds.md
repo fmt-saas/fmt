@@ -238,6 +238,24 @@ Un **prévisionnel** est généré à partir des `FundRequest`, afin de détermi
    * une série de Fundings (contrairement à une facture de vente classique, qui ne peut en avoir qu'un seul)
 
 
+```mermaid
+flowchart TD
+    FR[<b>FundRequest</b><br/><i>Appel de fonds</i>]
+
+    FR --> FRL[<b>FundRequestLine</b><br/><i>amount + apportionment</i>]
+    FRL --> FRLE[<b>FundRequestLineEntry</b><br/><i>feedback Ownership</i>]
+    FRLE --> FRLEL[<b>FundRequestLineEntryLot</b><br/><i>PropertyLot</i>]
+
+    FR --> FRE[<b>FundRequestExecution</b><br/><i>SaleInvoice</i>]
+    FRE --> FREL[<b>FundRequestExecutionLine</b><br/><i>Ownership</i>]
+    FREL --> FRELE[<b>FundRequestExecutionLineEntry</b><br/><i>Ownership, PropertyLot</i>]
+
+    FR:::manual
+
+    classDef manual fill:#fff,stroke:#333,stroke-width:1px;
+
+```
+
 
 ##### Contraintes d'intégrité
 
