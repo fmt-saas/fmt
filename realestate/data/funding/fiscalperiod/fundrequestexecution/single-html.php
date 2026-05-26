@@ -191,6 +191,7 @@ $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution
         'fiscal_period_id' => ['date_from', 'date_to'],
         'price',
         'status',
+        'with_due_balance',
         // #memo - there should be only one funding matching the ownership
         'fundings_ids' => [
             '@domain' => ['ownership_id', '=', $params['ownership_id']],
@@ -240,7 +241,6 @@ $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id'])
         'request_amount',
         'request_type',
         'has_date_range',
-        'with_due_balance',
         'date_range_frequency',
         'date_from',
         'date_to',
