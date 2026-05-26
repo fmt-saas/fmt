@@ -6,6 +6,7 @@
             "ACTION.CREATE" : false
         }
     },
+    "domain": ["assembly_item_id", "is not", "null"],
     "layout": {
         "interactions": {
             "click": false
