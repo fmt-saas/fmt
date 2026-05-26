@@ -542,7 +542,7 @@
             "context": {
                 "entity": "documents\\Document",
                 "view": "list.assembly",
-                "domain": [ ["assembly_id", "=", "object.id"] ]
+                "domain": [ ["assembly_id", "=", "object.id"], ["assembly_item_id", "is not", null] ]
             }
         },
         {
@@ -695,7 +695,9 @@
                     ["is_assembly_minutes_attachment", "=", true]
                 ]
             },
-            "visible": [
+            "visible": false,
+            "visible_help": "Attachments must be linked to assembly item.",
+            "visible_1": [
                 [
                     [
                         "step",
@@ -1160,7 +1162,8 @@
                     {
                         "id": "section.minutes_attachments",
                         "label": "Minutes attachments",
-                        "visible": [
+                        "visible": false,
+                        "visible_1": [
                             [
                                 "status",
                                 "not in",

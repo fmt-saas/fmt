@@ -119,8 +119,8 @@ class Node extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'public',       // visible to all condo owners + syndic
-                    'protected',    // visible only to syndic
-                    'private'       // visible only to a single owner or supplier (to which the document is linked) + syndic
+                    'protected',    // visible only to a single owner or supplier (to which the document is linked) + syndic
+                    'private'       // visible only to syndic
                 ],
                 'default'           => 'public',
                 'description'       => 'Defines who can see the node.',

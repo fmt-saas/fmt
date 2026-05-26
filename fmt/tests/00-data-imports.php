@@ -66,17 +66,17 @@ $tests = [
             $data = file_get_contents(EQ_BASEDIR . '/packages/fmt/tests/' . 'suppliers_import.xlsx');
 
             $document = Document::create([
-                'name' => 'Suppliers import test 1'
-            ])
+                    'name' => 'Suppliers import test 1'
+                ])
                 ->update(['data' => $data])
                 ->read(['id'])
                 ->first();
 
             return DataImport::create([
-                'name'          => 'Suppliers import test 1',
-                'document_id'   => $document['id'],
-                'import_type'   => 'suppliers_import'
-            ])
+                    'name'          => 'Suppliers import test 1',
+                    'document_id'   => $document['id'],
+                    'import_type'   => 'suppliers_import'
+                ])
                 ->read(['id'])
                 ->first();
         },
@@ -149,17 +149,17 @@ $tests = [
             $data = file_get_contents(EQ_BASEDIR . '/packages/fmt/tests/' . 'banks_import.xlsx');
 
             $document = Document::create([
-                'name' => 'Banks import test 1'
-            ])
+                    'name' => 'Banks import test 1'
+                ])
                 ->update(['data' => $data])
                 ->read(['id'])
                 ->first();
 
             return DataImport::create([
-                'name'          => 'Banks import test 1',
-                'document_id'   => $document['id'],
-                'import_type'   => 'banks_import'
-            ])
+                    'name'          => 'Banks import test 1',
+                    'document_id'   => $document['id'],
+                    'import_type'   => 'banks_import'
+                ])
                 ->read(['id'])
                 ->first();
         },
@@ -187,17 +187,17 @@ $tests = [
             $data = file_get_contents(EQ_BASEDIR . '/packages/fmt/tests/' . 'banks_import.xlsx');
 
             $document = Document::create([
-                'name' => 'Banks import test 2'
-            ])
+                    'name' => 'Banks import test 2'
+                ])
                 ->update(['data' => $data])
                 ->read(['id'])
                 ->first();
 
             return DataImport::create([
-                'name'          => 'Banks import test 2',
-                'document_id'   => $document['id'],
-                'import_type'   => 'banks_import'
-            ])
+                    'name'          => 'Banks import test 2',
+                    'document_id'   => $document['id'],
+                    'import_type'   => 'banks_import'
+                ])
                 ->update(['status' => 'ready'])
                 ->read(['id'])
                 ->first();
@@ -232,17 +232,17 @@ $tests = [
             $data = file_get_contents(EQ_BASEDIR . '/packages/fmt/tests/' . 'condominium_import.xlsx');
 
             $document = Document::create([
-                'name' => 'Condominium import test 1'
-            ])
+                    'name' => 'Condominium import test 1'
+                ])
                 ->update(['data' => $data])
                 ->read(['id'])
                 ->first();
 
             return DataImport::create([
-                'name'          => 'Condominium import test 1',
-                'document_id'   => $document['id'],
-                'import_type'   => 'condominium_import'
-            ])
+                    'name'          => 'Condominium import test 1',
+                    'document_id'   => $document['id'],
+                    'import_type'   => 'condominium_import'
+                ])
                 ->read(['id'])
                 ->first();
         },

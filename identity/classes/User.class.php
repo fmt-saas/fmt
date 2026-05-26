@@ -172,6 +172,18 @@ class User extends \core\User {
                 'store'             => true,
                 'relation'          => ['identity_id' => 'employee_id'],
                 'description'       => 'The employee relating to the user, if set.',
+            ],
+
+            'is_employee' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'function'          => 'calcIsEmployee'
+            ],
+
+            'is_owners' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'function'          => 'calcIsOwner'
             ]
 
         ];
@@ -196,6 +208,30 @@ class User extends \core\User {
                 'function'      => 'doSyncUuidLinks'
             ]
         ];
+    }
+
+    protected static function calcIsEmployee($self) {
+        $result = [];
+        $self->read(['employee_id']);
+        foreach($self as $id => $user) {
+            $result[$id] = (bool) $user['employee_id'];
+        }
+        return $result;
+    }
+
+    protected static function calcIsOwner($self) {
+        $result = [];
+        $self->read(['role_assignments_ids' => ['role_code']]);
+        foreach($self as $id => $user) {
+            $result[$id] = false;
+            foreach($user['role_assignments_ids'] as $role_assignment) {
+                if($role_assignment['role_code'] === 'owner') {
+                    $result[$id] = true;
+                    break;
+                }
+            }
+        }
+        return $result;
     }
 
     public static function oncreate($self, $values, $orm = null) {

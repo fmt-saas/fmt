@@ -8,6 +8,7 @@
 use communication\template\Template;
 use equal\data\DataFormatter;
 use fmt\setting\Setting;
+use identity\Identity;
 use identity\Organisation;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecution;
@@ -328,8 +329,6 @@ else {
 $owner = $ownerCollection->read([
         'ownership_id' => ['code', 'address_recipient'],
         'identity_id' => [
-            'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
-            'address_city', 'address_country', 'has_vat', 'vat_number',
             'lang_id' => ['code']
         ]
     ])
@@ -340,6 +339,13 @@ if(!$owner) {
 }
 
 $lang = $owner['identity_id']['lang_id']['code'];
+
+$identity = Identity::id($owner['identity_id']['id'])
+    ->read([
+            'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
+            'address_city', 'address_country', 'has_vat', 'vat_number',
+        ], $lang)
+    ->first();
 
 // either theoretical funding, or due_balance funding
 $funding = null;
@@ -488,7 +494,7 @@ $values = [
 
     'condominium'         => $fundRequestExecution['condo_id'],
 
-    'recipient'           => $owner['identity_id'],
+    'recipient'           => $identity_id,
 
     'funding'             => $funding,
     'payment_qr_code_uri' => $getPaymentQrCodeUri(

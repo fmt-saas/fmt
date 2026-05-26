@@ -108,10 +108,11 @@ finally {
 
 // generate document and add it to EDMS
 $document = Document::create([
-        'name'          => 'Convocation Assemblée - ' . $assemblyInvitationCorrespondence['name'],
-        'data'          => $output,
-        'condo_id'      => $assemblyInvitationCorrespondence['condo_id'],
-        'assembly_id'   => $assemblyInvitationCorrespondence['assembly_id']
+        'name'                  => 'Convocation Assemblée - ' . $assemblyInvitationCorrespondence['name'],
+        'data'                  => $output,
+        'condo_id'              => $assemblyInvitationCorrespondence['condo_id'],
+        'assembly_id'           => $assemblyInvitationCorrespondence['assembly_id'],
+        'document_visibility'   => 'protected'
     ])
     ->update([
         // place node in dedicated folder

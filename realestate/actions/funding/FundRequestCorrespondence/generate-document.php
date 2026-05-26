@@ -54,9 +54,10 @@ $parentNode = Node::search([
 $data = eQual::run('get', 'realestate_funding_FundRequestExecutionCorrespondence_render-pdf', ['id' => $fundRequestExecutionCorrespondence['id']]);
 
 $document = Document::create([
-        'name'          => 'Appel de fonds - ' . $fundRequestExecutionCorrespondence['name'],
-        'data'          => $data,
-        'condo_id'      => $fundRequestExecutionCorrespondence['condo_id']
+        'name'                  => 'Appel de fonds - ' . $fundRequestExecutionCorrespondence['name'],
+        'data'                  => $data,
+        'condo_id'              => $fundRequestExecutionCorrespondence['condo_id'],
+        'document_visibility'   => 'protected'
     ])
     ->update([
         // place node in dedicated folder

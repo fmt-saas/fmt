@@ -57,16 +57,15 @@ $filename = $document['name'];
 $output = $document['data'];
 
 // #todo - restore - make sure to test with user relating to employee, and add extra rights for admins & ROOT users
-/*
-// check visibility rules
-switch($document['document_visibility']) {
-    case 'public':
-        // visible to all condo owners + syndic
-        // make sure user relates to condo_id of the document
-        $user = User::id($user_id)->read(['identity_id' => ['employee_id']])->first();
+$user = User::id($user_id)->read(['identity_id', 'employee_id'])->first();
 
-        if(!($user['identity_id']['employee_id'] ?? null)) {
-            $owners = Owner::search(['identity_id', '=', $user['identity_id']['id']])->read(['condo_id']);
+if(!$user['employee_id']) {
+    // check visibility rules
+    switch($document['document_visibility']) {
+        // visible to all condo owners + syndic
+        case 'public':
+            // make sure user relates to condo_id of the document
+            $owners = Owner::search(['identity_id', '=', $user['identity_id']])->read(['condo_id']);
             $found = false;
             foreach($owners as $owner_id => $owner) {
                 if($owner['condo_id'] === $document['condo_id']) {
@@ -77,38 +76,35 @@ switch($document['document_visibility']) {
             if(!$found) {
                 throw new Exception('protected_document', EQ_ERROR_NOT_ALLOWED);
             }
-        }
-        break;
-    case 'protected':
-        // visible only to syndic
-        // user must be linked to an employee
-        $user = User::id($user_id)->read(['employee_id'])->first();
-
-        if(!$user || !($user['employee_id'] ?? null)) {
-            throw new Exception('protected_document', EQ_ERROR_NOT_ALLOWED);
-        }
-        break;
-    case 'private':
+            break;
         // visible only a single owner (to which the document is linked) + syndic
-        // make sure the user relates to the ownership_id of the document
-        $user = User::id($user_id)->read(['identity_id' => ['employee_id']])->first();
-
-        if(!($user['identity_id']['employee_id'] ?? null)) {
-            $owners = Owner::search(['identity_id', '=', $user['identity_id']['id']])->read(['ownership_id']);
-            $found = false;
-            foreach($owners as $owner_id => $owner) {
-                if($owner['ownership_id'] === $document['ownership_id']) {
-                    $found = true;
-                    break;
+        case 'protected':
+            // make sure the user relates to the ownership_id of the document
+            if(!($user['identity_id']['employee_id'] ?? null)) {
+                $owners = Owner::search(['identity_id', '=', $user['identity_id']])->read(['ownership_id']);
+                $found = false;
+                foreach($owners as $owner_id => $owner) {
+                    if($owner['ownership_id'] === $document['ownership_id']) {
+                        $found = true;
+                        break;
+                    }
+                }
+                if(!$found) {
+                    throw new Exception('protected_document', EQ_ERROR_NOT_ALLOWED);
                 }
             }
-            if(!$found) {
+            break;
+        // visible only to syndic
+        case 'private':
+            // user must be linked to an employee
+            $user = User::id($user_id)->read(['employee_id'])->first();
+
+            if(!$user || !($user['employee_id'] ?? null)) {
                 throw new Exception('protected_document', EQ_ERROR_NOT_ALLOWED);
             }
-        }
-        break;
+            break;
+    }
 }
-*/
 
 
 // for accounting documents, relay to `add-overlay` to force output with additional information

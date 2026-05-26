@@ -195,10 +195,10 @@ class Document extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'public',       // visible to all condo owners + syndic
-                    'protected',    // visible only to syndic
-                    'private'       // visible only to a single owner (to which the document is linked) + syndic
+                    'protected',    // visible only to a single owner (to which the document is linked) + syndic
+                    'private'       // visible only to syndic
                 ],
-                'default'           => 'public',
+                'default'           => 'private',
                 'onupdate'          => 'onupdateDocumentVisibility',
                 'description'       => 'Defines who can access the document.',
                 'help'              => 'This field is synchronized with the node and updates automatically when the parent node visibility changes.'

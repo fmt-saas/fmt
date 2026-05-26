@@ -91,7 +91,7 @@ foreach($attachment_documents_ids as $document_id) {
     }
     $map_processed_documents_ids[$document_id] = true;
 
-    $document = Document::id($document_id)->read(['name', 'data', 'content_type']);
+    $document = Document::id($document_id)->read(['name', 'data', 'content_type'])->first();
     $emailAttachments[] = new EmailAttachment($document['name'], $document['data'], $document['content_type']);
 }
 
@@ -142,5 +142,5 @@ Mail::queue($message, 'realestate\property\OwnershipTransfer', $ownershipTransfe
 
 
 $context->httpResponse()
-        ->body($result)
+        ->status(204)
         ->send();

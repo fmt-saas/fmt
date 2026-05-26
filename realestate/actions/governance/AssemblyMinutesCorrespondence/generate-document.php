@@ -122,10 +122,11 @@ finally {
 
 // generate document and add it to EDMS
 $document = Document::create([
-        'name'          => 'Procès verbal Assemblée - ' . $assemblyMinutesCorrespondence['name'],
-        'data'          => $output,
-        'condo_id'      => $assemblyMinutesCorrespondence['condo_id'],
-        'assembly_id'   => $assemblyMinutesCorrespondence['assembly_id']['id']
+        'name'                  => 'Procès verbal Assemblée - ' . $assemblyMinutesCorrespondence['name'],
+        'data'                  => $output,
+        'condo_id'              => $assemblyMinutesCorrespondence['condo_id'],
+        'assembly_id'           => $assemblyMinutesCorrespondence['assembly_id']['id'],
+        'document_visibility'   => 'protected'
     ])
     ->update([
         // place node in dedicated folder

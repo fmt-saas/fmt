@@ -35,7 +35,7 @@ use realestate\property\Condominium;
     'providers'     => ['context', 'orm', 'auth']
 ]);
 
-['orm' => $orm] = $providers;
+['orm' => $orm, 'context' => $context] = $providers;
 
 
 // #todo - check header to retrieve JWT and confirm access

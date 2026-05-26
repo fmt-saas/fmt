@@ -4,8 +4,8 @@
     "lots_recap.table.th.quotas": "Quotités",
     "lots_recap.table.th.days": "Jours",
 
-    "funding.payment_amount": "Montant:",
-    "funding.communication": "Communication:",
+    "funding.payment_amount": "Montant :",
+    "funding.communication": "Communication :",
 
     "operations.table.th.nature": "Nature des opérations",
     "operations.table.th.apportionment_key": "Clé de répartition",

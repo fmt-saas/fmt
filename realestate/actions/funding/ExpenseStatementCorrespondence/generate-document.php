@@ -57,7 +57,8 @@ $document = Document::create([
         'name'                  => 'Décompte de charges - ' . $expenseStatementCorrespondence['name'],
         'data'                  => $data,
         'condo_id'              => $expenseStatementCorrespondence['condo_id'],
-        'expense_statement_id'  => $expenseStatementCorrespondence['expense_statement_id']
+        'expense_statement_id'  => $expenseStatementCorrespondence['expense_statement_id'],
+        'document_visibility'   => 'protected'
     ])
     ->update([
         // place node in dedicated folder

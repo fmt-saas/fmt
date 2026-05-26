@@ -51,6 +51,12 @@
             },
             {
                 "type": "field",
+                "label": "Visibility",
+                "value": "document_visibility",
+                "width": "15%"
+            },
+            {
+                "type": "field",
                 "value": "assembly_item_id",
                 "label": "Assembly item",
                 "width": "20%",

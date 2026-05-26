@@ -59,9 +59,10 @@ $parentNode = Node::search([
 $data = eQual::run('get', 'realestate_funding_PaymentReminderCorrespondence_render-pdf', ['id' => $paymentReminderCorrespondence['id']]);
 
 $document = Document::create([
-        'name'          => 'Rappel - ' . $paymentReminderCorrespondence['name'],
-        'data'          => $data,
-        'condo_id'      => $paymentReminderCorrespondence['condo_id']
+        'name'                  => 'Rappel - ' . $paymentReminderCorrespondence['name'],
+        'data'                  => $data,
+        'condo_id'              => $paymentReminderCorrespondence['condo_id'],
+        'document_visibility'   => 'protected'
     ])
     ->update([
         // place node in dedicated folder
