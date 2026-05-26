@@ -121,6 +121,7 @@
     </div>
 
     <!-- fund_requests start -->
+        {% if not funding %}
         <div class="fiscal_year-lines">
             <table class="inner" width="100%" cellpadding="4" cellspacing="0" style="page-break-inside: auto;">
                 <thead>
@@ -161,6 +162,7 @@
                 </tbody>
             </table>
         </div>
+        {% endif %}
 
         {% if funding %}
         <!-- payment-qr-code start -->

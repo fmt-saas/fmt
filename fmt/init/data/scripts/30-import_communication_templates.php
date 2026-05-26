@@ -521,9 +521,9 @@ $template = Template::create([
     ->first();
 TemplatePart::create([
     'name'          => 'subject',
-    'value'         => 'Appel de fonds',
+    'value'         => 'Appel de {type}',
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "label", "date_from", "date_to"]'
+    'variables'     => '["condo", "label", "type", "date_from", "date_to"]'
 ]);
 TemplatePart::create([
     'name'          => 'introduction',

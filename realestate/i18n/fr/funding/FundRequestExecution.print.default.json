@@ -15,7 +15,7 @@
     "operations.table.footer.th.total": "Total de l'appel",
 
     "payments-planning.summary.title": "Détail de l'appel pour la période du %s au %s :",
-    "payments-planning.table.title": "Planification des versements attendus :",
+    "payments-planning.table.title": "Planification des versements :",
     "payments-planning.table.th.date": "Date",
     "payments-planning.table.th.deadline": "Échéance",
     "payments-planning.table.th.call": "Appel période",

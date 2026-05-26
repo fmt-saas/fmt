@@ -393,6 +393,16 @@ if(!$template) {
     throw new Exception('template_not_found', EQ_ERROR_INVALID_CONFIG);
 }
 
+$map_types_translations = [
+    'fr' => [
+        'working_fund'        => 'fonds de roulement',
+        'reserve_fund'        => 'fonds de réserve',
+        'special_reserve_fund'=> 'fonds de réserve spécial',
+        'expense_provisions'  => 'provisions pour charge',
+        'work_provisions'     => 'provision pour charge exceptionnelle'
+    ],
+];
+
 foreach($template['parts_ids'] as $part_id => $part) {
     if($part['name'] == 'subject') {
         $subject = strip_tags($part['value']);
@@ -402,7 +412,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'period'            => $getFormattedDate($fundRequestExecution['date_from']) . ' - ' . $getFormattedDate($fundRequestExecution['date_to']),
             'date_from'         => $getFormattedDate($fundRequestExecution['date_from']),
             'date_to'           => $getFormattedDate($fundRequestExecution['date_to']),
-            'label'             => $fundRequest['name']
+            'label'             => $fundRequest['name'],
+            'type'              => $map_types_translations['fr'][$fundRequest['request_type']]
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -469,8 +480,8 @@ $values = [
     'fund_request'        => $fund_request,
     'execution'           => $execution,
     'executions'          => $executions,
-    'date_from'           => $getFormattedDate($fundRequestExecution['date_from']),
-    'date_to'             => $getFormattedDate($fundRequestExecution['date_to']),
+    'date_from'           => $getFormattedDate($fundRequest['date_from']),
+    'date_to'             => $getFormattedDate($fundRequest['date_to']),
 
     'organisation'        => $organisation,
     'organisation_logo'   => $getOrganisationLogo($organisation['id']),
