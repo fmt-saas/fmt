@@ -486,7 +486,7 @@ $values = [
                 $funding['remaining_amount'] ?? 0
             ),
 
-    'date'                => time(),
+    'date'                => $fundRequestExecution['posting_date'] ?? time(),
     'timezone'            => constant('L10N_TIMEZONE'),
     'locale'              => constant('L10N_LOCALE'),
     'date_format'         => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
