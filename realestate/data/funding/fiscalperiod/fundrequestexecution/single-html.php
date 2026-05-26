@@ -399,7 +399,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
 
         $map_values = [
             'condo'             => $fundRequestExecution['condo_id']['name'],
-            'period'            => $fundRequestExecution['fiscal_period_id']['name'],
+            'period'            => $getFormattedDate($fundRequestExecution['date_from']) . ' - ' . $getFormattedDate($fundRequestExecution['date_to']),
             'date_from'         => $getFormattedDate($fundRequestExecution['date_from']),
             'date_to'           => $getFormattedDate($fundRequestExecution['date_to']),
             'label'             => $fundRequest['name']
@@ -416,7 +416,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
 
         $map_values = [
             'condo'             => $fundRequestExecution['condo_id']['name'],
-            'period'            => $fundRequestExecution['fiscal_period_id']['name'],
+            'period'            => $getFormattedDate($fundRequestExecution['date_from']) . ' - ' . $getFormattedDate($fundRequestExecution['date_to']),
             'date_from'         => $getFormattedDate($fundRequestExecution['date_from']),
             'date_to'           => $getFormattedDate($fundRequestExecution['date_to'])
         ];
@@ -469,6 +469,8 @@ $values = [
     'fund_request'        => $fund_request,
     'execution'           => $execution,
     'executions'          => $executions,
+    'date_from'           => $getFormattedDate($fundRequestExecution['date_from']),
+    'date_to'             => $getFormattedDate($fundRequestExecution['date_to']),
 
     'organisation'        => $organisation,
     'organisation_logo'   => $getOrganisationLogo($organisation['id']),

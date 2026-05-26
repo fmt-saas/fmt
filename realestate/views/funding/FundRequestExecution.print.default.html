@@ -195,7 +195,7 @@
 
 
         <div style="margin: 20px 0; font-weight: bold;">
-            {{ labels['payments-planning.summary.title'] }}
+            {{ labels['payments-planning.summary.title'] | format(date_from, date_to) }}
         </div>
 
         <div class="fiscal_year-lines">
