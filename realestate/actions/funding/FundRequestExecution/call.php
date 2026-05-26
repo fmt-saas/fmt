@@ -41,7 +41,7 @@ $fundRequestExecution = FundRequestExecution::id($params['id'])
     ->read(['status', 'condo_id', 'name']);
 
 if($fundRequestExecution->count() <= 0) {
-    throw new Exception("unknown_assembly", EQ_ERROR_UNKNOWN_OBJECT);
+    throw new Exception("unknown_fund_request_execution", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 if(array_key_exists('with_due_balance', $params)) {

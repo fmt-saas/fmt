@@ -1,0 +1,22 @@
+{
+    "name": "Exécution de l'appel de fonds",
+    "plural": "Exécutions de l'appel de fonds",
+    "description": "Exécute l'appel de fonds, génère les écritures comptables et les demandes de paiement, puis envoie les correspondances.",
+    "model": {
+        "id": {
+            "label": "Exécution d'appel de fonds",
+            "description": "Exécution d'appel de fonds à valider.",
+            "help": "Doit correspondre à une exécution d'appel de fonds existante en préparation."
+        },
+        "with_due_balance": {
+            "label": "Tenir compte du solde dû",
+            "description": "Indique si la situation de compte des copropriétaires est prise en compte.",
+            "help": "Si activé, la demande de paiement est basée sur le solde dû de la propriété plutôt que sur le montant théorique du funding."
+        }
+    },
+    "error": {
+        "errors": {
+            "unknown_fund_request_execution": "Exécution d'appel de fonds inconnue."
+        }
+    }
+}
