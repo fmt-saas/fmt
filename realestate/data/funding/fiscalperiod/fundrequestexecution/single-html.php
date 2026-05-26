@@ -188,7 +188,7 @@ $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution
         'date_to',
         'posting_date',
         'due_date',
-        'fiscal_period_id' => ['date_from', 'date_to'],
+        'fiscal_period_id' => ['name', 'date_from', 'date_to'],
         'price',
         'status',
         'with_due_balance',
@@ -328,7 +328,7 @@ else {
 $owner = $ownerCollection->read([
         'ownership_id' => ['code', 'address_recipient'],
         'identity_id' => [
-            'name', 'address_street', 'address_dispatch', 'address_zip',
+            'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
             'address_city', 'address_country', 'has_vat', 'vat_number',
             'lang_id' => ['code']
         ]
@@ -399,7 +399,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
 
         $map_values = [
             'condo'             => $fundRequestExecution['condo_id']['name'],
-            'period'            => $fundRequest['fiscal_period_id']['name'],
+            'period'            => $fundRequestExecution['fiscal_period_id']['name'],
             'date_from'         => $getFormattedDate($fundRequestExecution['date_from']),
             'date_to'           => $getFormattedDate($fundRequestExecution['date_to']),
             'label'             => $fundRequest['name']
@@ -416,7 +416,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
 
         $map_values = [
             'condo'             => $fundRequestExecution['condo_id']['name'],
-            'period'            => $fundRequest['fiscal_period_id']['name'],
+            'period'            => $fundRequestExecution['fiscal_period_id']['name'],
             'date_from'         => $getFormattedDate($fundRequestExecution['date_from']),
             'date_to'           => $getFormattedDate($fundRequestExecution['date_to'])
         ];

@@ -26,7 +26,9 @@
             "date_to": "date"
         },
         "recipient": {
-            "name": "string",
+            "firstname": "string",
+            "lastname": "string",
+            "title": "string",
             "address_street": "string (optional)",
             "address_dispatch": "string (optional)",
             "address_zip": "string",
@@ -131,10 +133,10 @@
                         {% endif %}
                     </td>
                     <td style="padding-left: 40px;">
-                    {% if recipient is defined and recipient.name | length > 0 %}
+                    {% if recipient is defined %}
                         <!-- recipient-info start -->
                         <div style="padding-top: 25px; padding-bottom: 30px;" class="recipient-info {{ debug ? 'debug' : '' }}">
-                            <div>{{ recipient.name }}</div>
+                            <div>{{ recipient.title }} {{ recipient.firstname }} {{ recipient.lastname }}</div>
                             {% if recipient.address_street | length > 0 %}
                                 <div>{{ recipient.address_street }}</div>
                             {% endif %}

@@ -439,9 +439,9 @@ TemplatePart::create([
 ]);
 TemplatePart::create([
     'name'          => 'body',
-    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Veuillez trouver en pièce jointe le décompte de charges relatif à la copropriété <strong>{condo}</strong> pour la période <strong>{period}</strong>.</p><p><br></p><p>Ce document détaille les charges réparties conformément aux décisions de l'Assemblée Générale et au règlement de copropriété.</p><p><br></p><p>Nous restons à votre disposition pour toute question ou précision complémentaire.</p>",
+    'value'         => "<p>Bonjour,</p><p><br></p><p>Veuillez trouver en pièce jointe le décompte de charges relatif à la copropriété <strong>{condo}</strong> pour la période <strong>{period}</strong>.</p><p><br></p><p>Ce document détaille les charges réparties conformément aux décisions de l'Assemblée Générale et au règlement de copropriété.</p><p><br></p><p>Nous restons à votre disposition pour toute question ou précision complémentaire.</p>",
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "firstname", "lastname", "period"]'
+    'variables'     => '["condo", "period"]'
 ]);
 
 
@@ -506,9 +506,9 @@ TemplatePart::create([
 
 TemplatePart::create([
     'name'          => 'body',
-    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Veuillez trouver en pièce jointe l'appel de fonds concernant la copropriété <strong>{condo}</strong> pour la période <strong>{period}</strong>.</p><p><br></p><p>Le montant est payable pour le <strong>{due_date}</strong>, selon les modalités précisées dans le document annexé.</p><p><br></p><p>Nous vous remercions de votre attention et restons à votre disposition pour toute information complémentaire.</p>",
+    'value'         => "<p>Bonjour,</p><p><br></p><p>Veuillez trouver en pièce jointe l'appel de fonds concernant la copropriété <strong>{condo}</strong> pour la période <strong>{period}</strong>.</p><p><br></p><p>Le montant est payable pour le <strong>{due_date}</strong>, selon les modalités précisées dans le document annexé.</p><p><br></p><p>Nous vous remercions de votre attention et restons à votre disposition pour toute information complémentaire.</p>",
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "firstname", "lastname", "period"]'
+    'variables'     => '["condo", "period"]'
 ]);
 
 // correspondence
@@ -527,9 +527,9 @@ TemplatePart::create([
 ]);
 TemplatePart::create([
     'name'          => 'introduction',
-    'value'         => "<p>Bonjour {firstname} {lastname},</p><p><br></p><p>Veuillez trouver en pièce jointe l'appel de fonds concernant la copropriété <strong>{condo}</strong> pour la période <strong>{period}</strong>.</p><p><br></p><p>Le montant est payable pour le <strong>{due_date}</strong>, selon les modalités précisées dans le document annexé.</p><p><br></p><p>Nous vous remercions de votre attention et restons à votre disposition pour toute information complémentaire.</p>",
+    'value'         => "<p>Bonjour,</p><p><br></p><p>Veuillez trouver en pièce jointe l'appel de fonds concernant la copropriété <strong>{condo}</strong> pour la période <strong>{period}</strong>.</p><p><br></p><p>Le montant est payable pour le <strong>{due_date}</strong>, selon les modalités précisées dans le document annexé.</p><p><br></p><p>Nous vous remercions de votre attention et restons à votre disposition pour toute information complémentaire.</p>",
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "firstname", "lastname", "date_from", "date_to"]'
+    'variables'     => '["condo", "date_from", "date_to"]'
 ]);
 TemplatePart::create([
     'name'          => 'communication_payment_amount',

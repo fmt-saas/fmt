@@ -279,14 +279,14 @@ $invoice = SaleInvoice::id($params['id'])
     ->read([
         'invoice_number', 'emission_date', 'due_date', 'status', 'invoice_type', 'payment_reference', 'total', 'price', 'payment_status',
         'organisation_id' => [
-            'name', 'address_street', 'address_dispatch', 'address_zip',
+            'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
             'address_city', 'address_country', 'has_vat', 'vat_number',
             'legal_name', 'registration_number', 'bank_account_iban', 'bank_account_bic',
             'website', 'email', 'phone', 'has_vat', 'vat_number',
             'profile_image_print'
         ],
         'customer_id' => [
-            'name', 'address_street', 'address_dispatch', 'address_zip',
+            'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
             'address_city', 'address_country', 'has_vat', 'vat_number'
         ],
         'invoice_lines_ids' => [
