@@ -59,7 +59,7 @@ $output = $document['data'];
 // #todo - restore - make sure to test with user relating to employee, and add extra rights for admins & ROOT users
 $user = User::id($user_id)->read(['identity_id', 'employee_id'])->first();
 
-if(!$user['employee_id']) {
+if(!$user['employee_id'] && $user_id !== EQ_ROOT_USER_ID) {
     // check visibility rules
     switch($document['document_visibility']) {
         // visible to all condo owners + syndic
