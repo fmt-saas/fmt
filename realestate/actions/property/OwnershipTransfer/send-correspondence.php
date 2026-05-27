@@ -43,7 +43,12 @@ use realestate\property\OwnershipTransfer;
 $context = $providers['context'];
 
 $ownershipTransfer = OwnershipTransfer::id($params['id'])
-    ->read(['condo_id' => ['id', 'name'], 'old_ownership_id' => ['name'], 'status', 'attached_documents_ids', 'contacts_ids' => ['email']])
+    ->read([
+        'status', 'attached_documents_ids',
+        'condo_id' => ['id', 'name'],
+        'old_ownership_id' => ['name'],
+        'contacts_ids' => ['email']
+    ])
     ->first(true);
 
 if(!$ownershipTransfer) {
@@ -65,12 +70,15 @@ $data = eQual::run('get', 'realestate_property_OwnershipTransfer_render-pdf', ['
 $document = Document::create([
         'name'                  => 'Courrier de Mutation - ' . $ownershipTransfer['condo_id']['name'] . ' - ' . $ownershipTransfer['old_ownership_id']['name'] . ' - ' . $ownershipTransfer['status'],
         'data'                  => $data,
+        'condo_id'              => $ownershipTransfer['condo_id']['id'],
         'document_type_id'      => $documentType['id'],
-        // link document to ownership transfer
-        'ownership_transfer_id' => $ownershipTransfer['id']
+        'document_visibility'   => 'protected'
     ])
-    // assign condo_id in a second pass, so that document is sent to EDMS
-    ->update(['condo_id' => $ownershipTransfer['condo_id']['id']])
+    ->update([
+        // link document to ownership transfer
+        'ownership_transfer_id' => $ownershipTransfer['id'],
+        'ownership_id'          => $ownershipTransfer['old_ownership_id']['id']
+    ])
     ->first();
 
 

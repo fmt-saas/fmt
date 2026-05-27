@@ -919,10 +919,12 @@ class Assembly extends \equal\orm\Model {
             try {
                 $data = \eQual::run('get', 'realestate_governance_Assembly_attendanceregister_render-pdf', ['id' => $id]);
 
+                // #memo - original documents remain "invisible" (private & not linked to a Node), only signed version should be accessible through EDMS fs tree
                 $document = Document::create([
-                        'name'      => 'Liste de présences',
-                        'data'      => $data,
-                        'condo_id'  => $assembly['condo_id']
+                        'name'                  => 'Liste de présences',
+                        'data'                  => $data,
+                        'condo_id'              => $assembly['condo_id'],
+                        'document_visibility'   => 'private'
                     ])
                     ->first();
 
@@ -930,7 +932,6 @@ class Assembly extends \equal\orm\Model {
                     throw new \Exception('unable_to_create_register_document', EQ_ERROR_UNKNOWN);
                 }
 
-                // #memo - original documents remain "invisible", only signed version should be accessible through EDMS fs tree
                 self::id($id)
                     ->update([
                         'register_document_id' => $document['id']
@@ -971,9 +972,10 @@ class Assembly extends \equal\orm\Model {
                     ->first();
 
                 $document = Document::create([
-                        'name'           => 'Liste de présences signée',
-                        'data'           => $data,
-                        'condo_id'       => $assembly['condo_id'],
+                        'name'                  => 'Liste de présences signée',
+                        'data'                  => $data,
+                        'condo_id'              => $assembly['condo_id'],
+                        'document_visibility'   => 'public'
                     ])
                     ->update(['parent_node_id' => $parentNode['id'] ?? null])
                     ->first();
@@ -2478,9 +2480,10 @@ class Assembly extends \equal\orm\Model {
                     ->first();
 
                 $document = Document::create([
-                        'name'           => 'PV d\'Assemblée signé',
-                        'data'           => $data,
-                        'condo_id'       => $assembly['condo_id'],
+                        'name'                  => 'PV d\'Assemblée signé',
+                        'data'                  => $data,
+                        'condo_id'              => $assembly['condo_id'],
+                        'document_visibility'   => 'public'
                     ])
                     ->update(['parent_node_id' => $parentNode['id'] ?? null])
                     ->first();
@@ -2514,14 +2517,15 @@ class Assembly extends \equal\orm\Model {
             try {
                 $data = \eQual::run('get', 'realestate_governance_Assembly_minutes_render-pdf', ['id' => $id]);
 
+                // #memo - original documents remain "invisible" (private & not linked to a Node), only signed version should be accessible through EDMS fs tree
                 $document = Document::create([
-                        'name'      => 'PV d\'Assemblée',
-                        'data'      => $data,
-                        'condo_id'  => $assembly['condo_id']
+                        'name'                  => 'PV d\'Assemblée',
+                        'data'                  => $data,
+                        'condo_id'              => $assembly['condo_id'],
+                        'document_visibility'   => 'private'
                     ])
                     ->first();
 
-                // #memo - original documents remain "invisible", only signed version should be accessible through EDMS fs tree
                 self::id($id)
                     ->update([
                         'minutes_document_id' => $document['id']

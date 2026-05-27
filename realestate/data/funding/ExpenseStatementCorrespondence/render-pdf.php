@@ -87,7 +87,8 @@ if(!$balanceSheetDocument) {
             'data'                  => $data,
             'is_origin'             => true,
             'is_source'             => true,
-            'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'balance_sheet'])->first()) ? $dt['id'] : null
+            'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'balance_sheet'])->first()) ? $dt['id'] : null,
+            'document_visibility'   => 'public'
         ])
         ->read(['data'])
         ->first();
@@ -116,7 +117,8 @@ if(!$expenseSummaryDocument) {
             'data'                  => $data,
             'is_origin'             => true,
             'is_source'             => true,
-            'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'expense_summary'])->first()) ? $dt['id'] : null
+            'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'expense_summary'])->first()) ? $dt['id'] : null,
+            'document_visibility'   => 'public'
         ])
         ->read(['data'])
         ->first();
