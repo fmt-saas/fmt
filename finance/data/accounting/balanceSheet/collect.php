@@ -6,9 +6,7 @@
 */
 
 use equal\orm\Domain;
-use equal\orm\DomainCondition;
 use finance\accounting\Account;
-use realestate\finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalYear;
 use finance\accounting\AccountBalanceChange;
 use finance\accounting\OpeningBalance;

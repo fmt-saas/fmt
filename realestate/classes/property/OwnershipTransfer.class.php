@@ -853,31 +853,29 @@ class OwnershipTransfer extends \equal\orm\Model {
             $pivot_date = $fiscalYear['date_from'];
 
             // retrieve all funds
-            $funds = CondoFund::search(['condo_id', '=', $ownershipTransfer['condo_id']])
+            $condoFunds = CondoFund::search(['condo_id', '=', $ownershipTransfer['condo_id']])
                 ->read(['name', 'fund_type', 'fund_account_id']);
 
             // retrieve all accounting entries to consider, between pivot_date and date
-            foreach($funds as $fund_id => $fund) {
-                $balance = 0.0;
-
-                $accountingEntryLines = AccountingEntryLine::search([
-                        ['condo_id', '=', $ownershipTransfer['condo_id']],
-                        ['account_id', '=', $fund['fund_account_id']],
-                        ['entry_date', '>=', $pivot_date],
-                        ['entry_date', '<=', $date]
-                    ])
-                    ->read(['credit', 'debit']);
-
-                foreach($accountingEntryLines as $entryLine) {
-                    $balance += $entryLine['credit'] - $entryLine['debit'];
+            foreach($condoFunds as $condo_fund_id => $condoFund) {
+                if(!$condoFund['fund_account_id']) {
+                    continue;
                 }
+                $rows = \eQual::run('get', 'finance_accounting_generalBalance_collect', [
+                        'condo_id'    => $ownershipTransfer['condo_id'],
+                        'date_from'   => $pivot_date,
+                        'date_to'     => $date,
+                        'account_id'  => $condoFund['fund_account_id']
+                    ], true);
 
-                if($balance !== 0.0) {
+                if(count($rows)) {
+                    $last = end($rows);
+
                     OwnershipTransferFundBalanceLine::create([
                         'condo_id'              => $ownershipTransfer['condo_id'],
                         'ownership_transfer_id' => $id,
-                        'condo_fund_id'         => $fund_id,
-                        'condo_fund_balance'    => $balance
+                        'condo_fund_id'         => $condo_fund_id,
+                        'condo_fund_balance'    => $last['balance'] ?? 0.0
                     ]);
                 }
             }

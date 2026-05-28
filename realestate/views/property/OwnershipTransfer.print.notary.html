@@ -155,7 +155,7 @@
 
             <table>
                 <tr>
-                    <th></th>
+                    <th>{{ labels['fund_balances.table.th.fund'] }}</th>
                     <th>{{ labels['fund_balances.table.th.lot_shares'] }}</th>
                     <th>{{ labels['fund_balances.table.th.condo_shares'] }}</th>
                     <th>{{ labels['fund_balances.table.th.condominium'] }}</th>
@@ -315,9 +315,9 @@
 
         <h4>{{ labels['additional_information.title'] }}</h4>
 
-        <h5>{{ labels['additional_information.bank_loans'] }} : {status_loan}</h5>
+        <h5>{{ labels['additional_information.bank_loans'] }} : <!-- {status_loan} --></h5>
         <div>
-            {table_loans}
+            <!-- {table_loans} -->
         </div>
 
         <h5>{{ labels['additional_information.intervention_record.title'] }} :</h5>

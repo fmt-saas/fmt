@@ -31,6 +31,7 @@
     "article_3_94.section_3.notary_information_notice": "En cas de cession ou de démembrement du droit de propriété sur un lot privatif, le notaire instrumentant informe le syndic de la date de la passation de l'acte, de l'identification du lot privatif concerné, de l'identité et de l'adresse actuelle et, le cas échéant, future des personnes concernées.",
     "article_3_94.section_3.change_notification_request": "Nous nous prions de bien vouloir nous notifier ces changements dans les meilleurs délais.",
 
+    "fund_balances.table.th.fund": "Fonds",
     "fund_balances.table.th.lot_shares": "Quotités lot(s)",
     "fund_balances.table.th.condo_shares": "Quotités immeuble",
     "fund_balances.table.th.condominium": "Copropriété",

@@ -104,20 +104,6 @@ $labels = $getLabels(
     $params['lang'],
     sprintf('%s/packages/realestate/i18n/%s/property/%s.json', EQ_BASEDIR, $params['lang'], 'OwnershipTransfer.'.$params['view_id']),
     [
-        'header.registration_number'                                              => 'Company number',
-        'header.vat_number'                                                       => 'VAT',
-        'header.number'                                                           => 'No.',
-        'header.date'                                                             => 'Date',
-        'header.status'                                                           => 'Status',
-        'header.communication'                                                    => 'Communication',
-
-        'footer.registration_number'                                              => 'Company number',
-        'footer.iban'                                                             => 'IBAN',
-        'footer.email'                                                            => 'Email',
-        'footer.web'                                                              => 'Web',
-        'footer.tel'                                                              => 'Tel.',
-        'footer.fax'                                                              => 'Fax',
-
         'letter.date_line'                                                        => '%s, %s',
         'letter.subject.label'                                                    => 'Subject',
         'letter.subject.text'                                                     => 'Your request for information / Agreement for the transfer of ownership rights',
@@ -150,6 +136,7 @@ $labels = $getLabels(
         'article_3_94.section_3.notary_information_notice'                        => 'In the event of transfer or dismemberment of the ownership right over a private lot, the executing notary informs the managing agent of the date of execution of the deed, the identification of the private lot concerned, and the current and, where applicable, future identity and address of the persons concerned.',
         'article_3_94.section_3.change_notification_request'                      => 'Please notify us of these changes as soon as possible.',
 
+        'fund_balances.table.th.fund'                                             => 'Fund',
         'fund_balances.table.th.lot_shares'                                       => 'Lot shares',
         'fund_balances.table.th.condo_shares'                                     => 'Building shares',
         'fund_balances.table.th.condominium'                                      => 'Co-ownership',
@@ -311,37 +298,37 @@ elseif($ownershipTransfer['confirmation_notary_office_id']) {
 
 $values = [
 
-    'organisation'              => $organisation,
-    'organisation_logo'         => $getOrganisationLogo($organisation['id']),
-    'condominium'               => $ownershipTransfer['condo_id'],
+    'organisation'                          => $organisation,
+    'organisation_logo'                     => $getOrganisationLogo($organisation['id']),
+    'condominium'                           => $ownershipTransfer['condo_id'],
 
-    'property_lots'             => $ownershipTransfer['property_lots_ids'],
-    'funds_balances'            => $ownershipTransfer['fund_balances_ids'],
-    'funds_requests'            => $ownershipTransfer['fund_requests_ids'],
-    'arrear_fundings'           => $arrear_fundings,
-    'transfer_fees'             => $ownershipTransfer['transfer_fees_ids'],
-    'ownership'                 => $ownershipTransfer['old_ownership_id'],
-    'ownership_shares'          => $ownershipTransfer['ownership_shares'],
-    'condo_shares'              => $ownershipTransfer['condo_shares'],
-    'has_intervention_record'   => $ownershipTransfer['has_intervention_record'],
-    'has_fuel_tank'             => $ownershipTransfer['has_fuel_tank'],
-    'fuel_tank_capacity'        => $ownershipTransfer['fuel_tank_capacity'],
-    'request_date'              => $ownershipTransfer['request_date'],
-    'status'                    => $ownershipTransfer['status'],
+    'property_lots'                         => $ownershipTransfer['property_lots_ids'],
+    'funds_balances'                        => $ownershipTransfer['fund_balances_ids'],
+    'funds_requests'                        => $ownershipTransfer['fund_requests_ids'],
+    'arrear_fundings'                       => $arrear_fundings,
+    'transfer_fees'                         => $ownershipTransfer['transfer_fees_ids'],
+    'ownership'                             => $ownershipTransfer['old_ownership_id'],
+    'ownership_shares'                      => $ownershipTransfer['ownership_shares'],
+    'condo_shares'                          => $ownershipTransfer['condo_shares'],
+    'has_intervention_record'               => $ownershipTransfer['has_intervention_record'],
+    'has_fuel_tank'                         => $ownershipTransfer['has_fuel_tank'],
+    'fuel_tank_capacity'                    => $ownershipTransfer['fuel_tank_capacity'],
+    'request_date'                          => $ownershipTransfer['request_date'],
+    'status'                                => $ownershipTransfer['status'],
 
-    'request_contact_name'              => $request_contact_name,
-    'request_contact_address_street'    => $request_contact_address_street,
-    'request_contact_address_zip'       => $request_contact_address_zip,
-    'request_contact_address_city'      => $request_contact_address_city,
-    'request_contact_email'             => $request_contact_email,
+    'request_contact_name'                  => $request_contact_name,
+    'request_contact_address_street'        => $request_contact_address_street,
+    'request_contact_address_zip'           => $request_contact_address_zip,
+    'request_contact_address_city'          => $request_contact_address_city,
+    'request_contact_email'                 => $request_contact_email,
 
-    'today_date'                => time(),
-    'timezone'                  => constant('L10N_TIMEZONE'),
-    'locale'                    => constant('L10N_LOCALE'),
-    'date_format'               => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
-    'currency'                  => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
-    'labels'                    => $labels,
-    'debug'                     => $params['debug'],
+    'today_date'                            => time(),
+    'timezone'                              => constant('L10N_TIMEZONE'),
+    'locale'                                => constant('L10N_LOCALE'),
+    'date_format'                           => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
+    'currency'                              => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
+    'labels'                                => $labels,
+    'debug'                                 => $params['debug'],
     // 3.94.1.1
     'fund_balances_description'             => $ownershipTransfer['fund_balances_description'],
     // 3.94.1.2
@@ -363,9 +350,6 @@ $values = [
     // 3.94.2.4
     'condominium_debts_description'         => $ownershipTransfer['condominium_debts_description'],
 ];
-
-
-
 
 
 try {

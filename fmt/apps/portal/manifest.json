@@ -1,0 +1,19 @@
+{
+    "name": "My FMT",
+    "#todo": "customize name",
+    "description": "Espace propriétaire",
+    "version": "1.0",
+    "authors": ["Yesbabylon SA"],
+    "license": "LGPL-3",
+    "repository": "https://github.com/fmt-saas/apps-fmt-portal.git",
+    "url": "/portal",
+    "icon": "emoji_objects",
+    "color": "#8ca7a8",
+    "text_color": "white",
+    "access": {
+        "groups": [
+            "users"
+        ]
+    },
+    "show_in_apps": false
+}

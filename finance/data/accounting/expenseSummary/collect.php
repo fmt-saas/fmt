@@ -187,24 +187,6 @@ if(!isset($condo_id)) {
     throw new Exception('missing_condo_id', EQ_ERROR_MISSING_PARAM);
 }
 
-$fiscal_year_ids = FiscalYear::search([
-        ['status', '=', 'open'],
-        ['condo_id', '=', $condo_id],
-    ],  ['sort' => ['date_from' => 'desc']])
-    ->ids();
-
-if(count($fiscal_year_ids) <= 0) {
-    $fiscal_year_ids = FiscalYear::search([
-            ['status', '=', 'preopen'],
-            ['condo_id', '=', $condo_id],
-        ],  ['sort' => ['date_from' => 'asc']])
-        ->ids();
-}
-
-if(count($fiscal_year_ids)) {
-    $domain['fiscal_year_id'] = current($fiscal_year_ids);
-}
-
 // build domain
 $domain = new Domain($params['domain']);
 
