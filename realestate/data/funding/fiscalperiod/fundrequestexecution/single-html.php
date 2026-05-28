@@ -350,7 +350,7 @@ $identity = Identity::id($owner['identity_id']['id'])
 $data = eQual::run('get', 'core_config_i18n', ['entity' => 'realestate\identity\Identity', 'lang' => $lang]);
 
 $recipient = [
-        'title'             => $data['model']['title'][$identity['title']] ?? $identity['title'],
+        'title'             => $data['model']['title']['selection'][$identity['title']] ?? $identity['title'],
         'firstname'         => $identity['firstname'],
         'lastname'          => $identity['lastname'],
         'address_street'    => $identity['address_street'],
