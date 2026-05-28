@@ -181,6 +181,31 @@ $getLabels = function ($lang, $view_i18n_file_path) {
     );
 };
 
+$getRecipient = function($identity_id, $lang) {
+
+    $identity = Identity::id($identity_id)
+        ->read([
+                'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
+                'address_city', 'address_country', 'has_vat', 'vat_number',
+            ], $lang)
+        ->first();
+
+    $data = eQual::run('get', 'core_config_i18n', ['entity' => 'realestate\identity\Identity', 'lang' => $lang]);
+
+    return [
+            'title'             => $data['model']['title']['selection'][$identity['title']] ?? $identity['title'],
+            'firstname'         => $identity['firstname'],
+            'lastname'          => $identity['lastname'],
+            'address_street'    => $identity['address_street'],
+            'address_dispatch'  => $identity['address_dispatch'],
+            'address_zip'       => $identity['address_zip'],
+            'address_city'      => $identity['address_city'],
+            'address_country'   => $identity['address_country'],
+            'has_vat'           => $identity['has_vat'],
+            'vat_number'        => $identity['vat_number'],
+    ];
+};
+
 /** @var \realestate\funding\FundRequestExecution $fundRequestExecution */
 $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution_id'])
     ->read([
@@ -340,27 +365,7 @@ if(!$owner) {
 
 $lang = $owner['identity_id']['lang_id']['code'];
 
-$identity = Identity::id($owner['identity_id']['id'])
-    ->read([
-            'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
-            'address_city', 'address_country', 'has_vat', 'vat_number',
-        ], $lang)
-    ->first();
-
-$data = eQual::run('get', 'core_config_i18n', ['entity' => 'realestate\identity\Identity', 'lang' => $lang]);
-
-$recipient = [
-        'title'             => $data['model']['title']['selection'][$identity['title']] ?? $identity['title'],
-        'firstname'         => $identity['firstname'],
-        'lastname'          => $identity['lastname'],
-        'address_street'    => $identity['address_street'],
-        'address_dispatch'  => $identity['address_dispatch'],
-        'address_zip'       => $identity['address_zip'],
-        'address_city'      => $identity['address_city'],
-        'address_country'   => $identity['address_country'],
-        'has_vat'           => $identity['has_vat'],
-        'vat_number'        => $identity['vat_number'],
-];
+$recipient = $getRecipient($owner['identity_id']['id'], $lang);
 
 // either theoretical funding, or due_balance funding
 $funding = null;
