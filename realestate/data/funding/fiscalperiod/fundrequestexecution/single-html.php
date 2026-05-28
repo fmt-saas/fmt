@@ -494,7 +494,7 @@ $values = [
 
     'condominium'         => $fundRequestExecution['condo_id'],
 
-    'recipient'           => $identity_id,
+    'recipient'           => $identity,
 
     'funding'             => $funding,
     'payment_qr_code_uri' => $getPaymentQrCodeUri(
