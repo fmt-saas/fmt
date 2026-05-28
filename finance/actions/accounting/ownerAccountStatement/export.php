@@ -36,7 +36,11 @@ $context = $providers['context'];
 
 // pass data to PDF renderer
 $output = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
-        'params'    => $params['params'],
+        'params'    => [
+            'ownership_id'  => $params['params']['ownership_id'] ?? null,
+            'date_from'     => ($params['params']['date_from'] ?? null) ? strtotime($params['params']['date_from']) : null,
+            'date_to'       => ($params['params']['date_to'] ?? null) ? strtotime($params['params']['date_to']) : null
+        ],
         'domain'    => $params['domain']
     ]);
 
