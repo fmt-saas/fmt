@@ -52,7 +52,7 @@
         }
 
         h3 {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             text-align: center;
             text-decoration: underline;
@@ -114,33 +114,33 @@
     {% include 'header.html.twig' %}
 
         <p style="text-align: right;">
-            {{ organisation.address_city }}, le {{ today_date | date(date_format, timezone) }}
+            {{ labels['letter.date_line'] | format(organisation.address_city, today_date | date(date_format, timezone)) }}
         </p>
 
         <p>
-            <strong>Concerne :</strong> Votre demande d’informations / Convention de cession du droit de propriété
+            <strong>{{ labels['letter.subject.label'] }} :</strong> {{ labels['letter.subject.text'] }}
         </p>
 
         <table style="border: none; border-collapse: collapse;">
             <tr>
                 <td style="border: none; width: 50%;">
-                    <strong>Association des Copropriétaires :</strong><br>
+                    <strong>{{ labels['condominium_association.label'] }} :</strong><br>
                     {{ condominium.name }}<br>
                     {{ condominium.address_street }}<br>
                     {{ condominium.address_zip }} – {{ condominium.address_city }}
                 </td>
                 <td style="border: none; width: 50%;">
-                    <strong>Vente par :</strong>
+                    <strong>{{ labels['sale_by.label'] }} :</strong>
                     {% for owner in ownership.owners_ids %}
                         {{ owner.name }}{% if not loop.last %}, {% endif %}
                     {% endfor %}
                     <br>
-                    <strong>Lot(s) :</strong>
+                    <strong>{{ labels['lots.label'] }} :</strong>
                     {% for property_lot in property_lots %}
                         {{ property_lot.name }}{% if not loop.last %}, {% endif %}
                     {% endfor %}
                     <br>
-                    <strong>Quotité(s) totale(s) :</strong> {{ ownership_shares }} / {{ condo_shares }}
+                    <strong>{{ labels['total_shares.label'] }} :</strong> {{ ownership_shares }} / {{ condo_shares }}
                 </td>
             </tr>
         </table>
@@ -148,25 +148,25 @@
 
 
         <p>
-            Nous accusons bonne réception de votre lettre du {{ request_date | date(date_format, timezone) }} et vous prions de bien vouloir trouver ci-dessous les informations demandées.
+            {{ labels['introduction.request_received'] | format(request_date | date(date_format, timezone)) }}
         </p>
 
 
         <!-- 3.94 §1 -->
         {% if status != 'pending' %}
-        <h3>Conformément à l'article 3.94 §1</h3>
+        <h3>{{ labels['article_3_94.section_1.title'] }}</h3>
 
-        <h4>1° le montant du fonds de roulement et du fonds de réserve, au sens du § 5, alinéas 2 et 3;</h4>
+        <h4>{{ labels['article_3_94.section_1.fund_balances.title'] }}</h4>
         <div>
             {{ fund_balances_description | raw }}
 
             <table>
                 <tr>
                     <th></th>
-                    <th>Quotités lot(s)</th>
-                    <th>Quotités immeuble</th>
-                    <th>Copropriété</th>
-                    <th>Quote-part copropriétaire</th>
+                    <th>{{ labels['fund_balances.table.th.lot_shares'] }}</th>
+                    <th>{{ labels['fund_balances.table.th.condo_shares'] }}</th>
+                    <th>{{ labels['fund_balances.table.th.condominium'] }}</th>
+                    <th>{{ labels['fund_balances.table.th.owner_share'] }}</th>
                 </tr>
                 {% for fund_balance in funds_balances %}
                 <tr>
@@ -180,16 +180,16 @@
             </table>
         </div>
 
-        <h4>2° le montant des arriérés éventuels dus par le cédant;</h4>
+        <h4>{{ labels['article_3_94.section_1.seller_arrears.title'] }}</h4>
         <div>
             {{ seller_arrears_description | raw }}
 
             <table>
                 <tr>
-                    <th>Date d'échéance</th>
-                    <th>Libellé</th>
-                    <th>Type</th>
-                    <th>Restant</th>
+                    <th>{{ labels['arrears.table.th.due_date'] }}</th>
+                    <th>{{ labels['arrears.table.th.label'] }}</th>
+                    <th>{{ labels['arrears.table.th.type'] }}</th>
+                    <th>{{ labels['arrears.table.th.remaining'] }}</th>
                 </tr>
                 {% for arrear_funding in arrear_fundings %}
                 <tr>
@@ -202,10 +202,10 @@
             </table>
             <table>
                 <tr>
-                    <th>Frais de dossiers (3.94 §4)</th>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Montant</th>
+                    <th>{{ labels['transfer_fees.table.th.file_fees'] }}</th>
+                    <th>{{ labels['transfer_fees.table.th.date'] }}</th>
+                    <th>{{ labels['transfer_fees.table.th.description'] }}</th>
+                    <th>{{ labels['transfer_fees.table.th.amount'] }}</th>
                 </tr>
                 {% for transfer_fee in transfer_fees %}
                 <tr>
@@ -219,23 +219,23 @@
 
         </div>
 
-        <h4>3° la situation des appels de fonds, destinés au fonds de réserve et décidés par l'assemblée générale avant la date certaine du transfert de la propriété;</h4>
+        <h4>{{ labels['article_3_94.section_1.scheduled_fund_requests.title'] }}</h4>
         <div>
             {{ scheduled_fund_requests_description | raw }}
         </div>
 
-        <h4>4° le cas échéant, le relevé des procédures judiciaires en cours relatives à la copropriété;</h4>
+        <h4>{{ labels['article_3_94.section_1.judiciary_procedures.title'] }}</h4>
         <div>
             {{ judiciary_procedures_description | raw }}
         </div>
 
-        <h4>5° les procès-verbaux des assemblées générales ordinaires et extraordinaires des trois dernières années, ainsi que les décomptes périodiques des charges des deux dernières années;</h4>
-            Procès-verbaux des AG des 3 dernières années et décomptes de charges des 2 dernières années :
+        <h4>{{ labels['article_3_94.section_1.general_assembly_minutes.title'] }}</h4>
+            {{ labels['article_3_94.section_1.general_assembly_minutes.summary'] }} :
         <div>
             {{ general_assembly_minutes_description | raw }}
         </div>
 
-        <h4>6° une copie du dernier bilan approuvé par l'assemblée générale</h4>
+        <h4>{{ labels['article_3_94.section_1.latest_balance_sheet.title'] }}</h4>
         <div>
             {{ latest_balance_sheet_description | raw }}
         </div>
@@ -244,24 +244,24 @@
 
         <!-- 3.94 §2 -->
         {% if status in ['confirmed', 'financial_statement_sent', 'settled'] %}
-        <h3>Conformément à l'article 3.94 §2</h3>
+        <h3>{{ labels['article_3_94.section_2.title'] }}</h3>
 
-        <h4>1° le montant des dépenses de conservation, d'entretien, de réparation et de réfection décidées par l'assemblée générale ou le syndic avant la date certaine du transfert de la propriété mais dont le paiement est demandé par le syndic postérieurement à cette date;</h4>
+        <h4>{{ labels['article_3_94.section_2.maintenance_expenses.title'] }}</h4>
         <div>
             {{ maintenance_expenses_description | raw }}
         </div>
 
-        <h4>2° un état des appels de fonds approuvés par l'assemblée générale des copropriétaires avant la date certaine du transfert de propriété et le coût des travaux urgents dont le paiement est demandé par le syndic postérieurement à cette date;</h4>
+        <h4>{{ labels['article_3_94.section_2.fund_requests.title'] }}</h4>
         <div>
             {{ fund_requests_description | raw }}
 
             <table>
                 <tr>
-                    <th>Appel</th>
-                    <th>Déjà appelé</th>
-                    <th>Planifié</th>
-                    <th>Quote-part appelée</th>
-                    <th>Quote-part planifiée</th>
+                    <th>{{ labels['fund_requests.table.th.call'] }}</th>
+                    <th>{{ labels['fund_requests.table.th.called'] }}</th>
+                    <th>{{ labels['fund_requests.table.th.planned'] }}</th>
+                    <th>{{ labels['fund_requests.table.th.owner_called'] }}</th>
+                    <th>{{ labels['fund_requests.table.th.owner_planned'] }}</th>
                 </tr>
                 {% for fund_request in funds_requests %}
                 <tr>
@@ -275,27 +275,27 @@
             </table>
         </div>
         <div>
-            <small>Nous vous invitons à consulter PV de la dernière AGO afin de connaitre les modalités de ces appels et leurs échéances.</small>
+            <small>{{ labels['fund_requests.last_ago_notice'] }}</small>
         </div>
 
-        <h4>3° un état des frais liés à l'acquisition de parties communes, décidés par l'assemblée générale avant la date certaine du transfert de la propriété, mais dont le paiement est demandé par le syndic postérieurement à cette date;</h4>
+        <h4>{{ labels['article_3_94.section_2.commons_acquisitions.title'] }}</h4>
         <div>
             {{ commons_acquisitions_description | raw }}
         </div>
 
-        <h4>4° un état des dettes certaines dues par l'association des copropriétaires à la suite de litiges nés avant la date certaine du transfert de la propriété, mais dont le paiement est demandé par le syndic postérieurement à cette date.</h4>
+        <h4>{{ labels['article_3_94.section_2.condominium_debts.title'] }}</h4>
         <div>
             {{ condominium_debts_description | raw }}
         </div>
 
-        <h4>5° le montant des arriérés éventuels dus par le cédant;</h4>
+        <h4>{{ labels['article_3_94.section_2.seller_arrears.title'] }}</h4>
         <div>
             <table>
                 <tr>
-                    <th>Date d'échéance</th>
-                    <th>Libellé</th>
-                    <th>Type</th>
-                    <th>Restant</th>
+                    <th>{{ labels['arrears.table.th.due_date'] }}</th>
+                    <th>{{ labels['arrears.table.th.label'] }}</th>
+                    <th>{{ labels['arrears.table.th.type'] }}</th>
+                    <th>{{ labels['arrears.table.th.remaining'] }}</th>
                 </tr>
                 {% for arrear_funding in arrear_fundings %}
                 <tr>
@@ -308,46 +308,46 @@
             </table>
         </div>
         <div>
-            <small>Ces montants ne comprennent pas les majorations dues aux pénalités financières, intérêts, frais et dépens, que celles-ci résultent des statuts de la copropriété, de décisions d’assemblées générales ou de justice. Le calcul final ne pouvant être entrepris que le jour de la réception des montants dus. <br />
-        *Les provisions complémentaires sont réclamées au nom et pour compte de la copropriété en vue de s’assurer ne pas devoir réclamer un éventuel décompte de régularisation trop important au profit de la copropriété, celui-ci est calculé sur une moyenne de 3 mois de charges.</small>
+            <small>{{ labels['arrears.penalties_notice'] }}<br />
+        {{ labels['arrears.additional_provisions_notice'] }}</small>
         </div>
         <div>
-            <p>Ce montant ne tient pas compte du décompte de charge de l’exercice comptable en cours.</p>
-            <p>Tout paiement est à effectuer sur le compte de l’ACP <strong>{{ condominium.name }}</strong> :<br />
+            <p>{{ labels['payment.current_fiscal_year_notice'] }}</p>
+            <p>{{ labels['payment.account_instruction'] }} <strong>{{ condominium.name }}</strong> :<br />
                 {{ organisation.bank_account_iban }}<br />
                 {{ organisation.bank_account_bic }}<br />
-                avec la référence VCS renseignée.
+                {{ labels['payment.reference_instruction'] }}
             </p>
         </div>
 
-        <h4>Informations complémentaires</h4>
+        <h4>{{ labels['additional_information.title'] }}</h4>
 
-        <h5>Emprunt(s) bancaire(s) : {status_loan}</h5>
+        <h5>{{ labels['additional_information.bank_loans'] }} : {status_loan}</h5>
         <div>
             {table_loans}
         </div>
 
-        <h5>Dossier d’intervention ultérieure (D.I.U.) :</h5>
+        <h5>{{ labels['additional_information.intervention_record.title'] }} :</h5>
         <div>
             <strong>
             {%if has_intervention_record %}
-                Il existe un dossier D.I.U.
+                {{ labels['additional_information.intervention_record.exists'] }}
             {% else %}
-                Aucun dossier n’est en possession du syndic.
+                {{ labels['additional_information.intervention_record.missing'] }}
             {% endif %}
             </strong>
         </div>
         <div>
-            <small>Nous proposons aux futurs acquéreurs, dans la mesure où cela l’intéresse et dans la mesure où ce D.I.U. existe, d’en prendre connaissance, en nos bureaux, moyennant rendez-vous préalable.</small>
+            <small>{{ labels['additional_information.intervention_record.consultation_notice'] }}</small>
         </div>
 
-        <h5>Cuve à mazout :</h5>
+        <h5>{{ labels['additional_information.fuel_tank.title'] }} :</h5>
         <div>
             <strong>
             {% if has_fuel_tank %}
-                Il y a une cuve (capacité estimée à +/-  {{fuel_tank_capacity}} litres)
+                {{ labels['additional_information.fuel_tank.exists'] | format(fuel_tank_capacity) }}
             {% else %}
-                Il n’y a pas de cuve à mazout
+                {{ labels['additional_information.fuel_tank.missing'] }}
             {% endif %}
             </strong>
         </div>
@@ -355,18 +355,18 @@
 
         <!-- 3.94 §3 -->
         {% if status == 'settled' %}
-        <h3>Conformément à l'article 3.94 §3</h3>
+        <h3>{{ labels['article_3_94.section_3.title'] }}</h3>
 
-        <p>En cas de cession ou de démembrement du droit de propriété sur un lot privatif, le notaire instrumentant informe le syndic de la date de la passation de l'acte, de l'identification du lot privatif concerné, de l'identité et de l'adresse actuelle et, le cas échéant, future des personnes concernées.</p>
+        <p>{{ labels['article_3_94.section_3.notary_information_notice'] }}</p>
 
-        <p>Nous nous prions de bien vouloir nous notifier ces changements dans les meilleurs délais.</p>
+        <p>{{ labels['article_3_94.section_3.change_notification_request'] }}</p>
         {% endif %}
 
 
-        <p>Espérant avoir répondu à vos questions et restant à votre disposition pour de plus amples informations, nous vous prions de croire, Maître, en l’expression de notre parfaite considération.</p>
+        <p>{{ labels['letter.closing'] }}</p>
 
         <p>
-            <strong>Le Syndic</strong>
+            <strong>{{ labels['letter.signature'] }}</strong>
         </p>
 
     {% include 'footer.html.twig' %}

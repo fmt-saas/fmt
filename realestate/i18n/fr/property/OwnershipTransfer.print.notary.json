@@ -1,0 +1,71 @@
+{
+    "letter.date_line": "%s, le %s",
+    "letter.subject.label": "Concerne",
+    "letter.subject.text": "Votre demande d’informations / Convention de cession du droit de propriété",
+    "letter.closing": "Espérant avoir répondu à vos questions et restant à votre disposition pour de plus amples informations, nous vous prions de croire, Maître, en l’expression de notre parfaite considération.",
+    "letter.signature": "Le Syndic",
+
+    "condominium_association.label": "Association des Copropriétaires",
+    "sale_by.label": "Vente par",
+    "lots.label": "Lot(s)",
+    "total_shares.label": "Quotité(s) totale(s)",
+    "introduction.request_received": "Nous accusons bonne réception de votre lettre du %s et vous prions de bien vouloir trouver ci-dessous les informations demandées.",
+
+    "article_3_94.section_1.title": "Conformément à l'article 3.94 §1",
+    "article_3_94.section_1.fund_balances.title": "1° le montant du fonds de roulement et du fonds de réserve, au sens du § 5, alinéas 2 et 3;",
+    "article_3_94.section_1.seller_arrears.title": "2° le montant des arriérés éventuels dus par le cédant;",
+    "article_3_94.section_1.scheduled_fund_requests.title": "3° la situation des appels de fonds, destinés au fonds de réserve et décidés par l'assemblée générale avant la date certaine du transfert de la propriété;",
+    "article_3_94.section_1.judiciary_procedures.title": "4° le cas échéant, le relevé des procédures judiciaires en cours relatives à la copropriété;",
+    "article_3_94.section_1.general_assembly_minutes.title": "5° les procès-verbaux des assemblées générales ordinaires et extraordinaires des trois dernières années, ainsi que les décomptes périodiques des charges des deux dernières années;",
+    "article_3_94.section_1.general_assembly_minutes.summary": "Procès-verbaux des AG des 3 dernières années et décomptes de charges des 2 dernières années",
+    "article_3_94.section_1.latest_balance_sheet.title": "6° une copie du dernier bilan approuvé par l'assemblée générale",
+
+    "article_3_94.section_2.title": "Conformément à l'article 3.94 §2",
+    "article_3_94.section_2.maintenance_expenses.title": "1° le montant des dépenses de conservation, d'entretien, de réparation et de réfection décidées par l'assemblée générale ou le syndic avant la date certaine du transfert de la propriété mais dont le paiement est demandé par le syndic postérieurement à cette date;",
+    "article_3_94.section_2.fund_requests.title": "2° un état des appels de fonds approuvés par l'assemblée générale des copropriétaires avant la date certaine du transfert de propriété et le coût des travaux urgents dont le paiement est demandé par le syndic postérieurement à cette date;",
+    "article_3_94.section_2.commons_acquisitions.title": "3° un état des frais liés à l'acquisition de parties communes, décidés par l'assemblée générale avant la date certaine du transfert de la propriété, mais dont le paiement est demandé par le syndic postérieurement à cette date;",
+    "article_3_94.section_2.condominium_debts.title": "4° un état des dettes certaines dues par l'association des copropriétaires à la suite de litiges nés avant la date certaine du transfert de la propriété, mais dont le paiement est demandé par le syndic postérieurement à cette date.",
+    "article_3_94.section_2.seller_arrears.title": "5° le montant des arriérés éventuels dus par le cédant;",
+
+    "article_3_94.section_3.title": "Conformément à l'article 3.94 §3",
+    "article_3_94.section_3.notary_information_notice": "En cas de cession ou de démembrement du droit de propriété sur un lot privatif, le notaire instrumentant informe le syndic de la date de la passation de l'acte, de l'identification du lot privatif concerné, de l'identité et de l'adresse actuelle et, le cas échéant, future des personnes concernées.",
+    "article_3_94.section_3.change_notification_request": "Nous nous prions de bien vouloir nous notifier ces changements dans les meilleurs délais.",
+
+    "fund_balances.table.th.lot_shares": "Quotités lot(s)",
+    "fund_balances.table.th.condo_shares": "Quotités immeuble",
+    "fund_balances.table.th.condominium": "Copropriété",
+    "fund_balances.table.th.owner_share": "Quote-part copropriétaire",
+
+    "arrears.table.th.due_date": "Date d'échéance",
+    "arrears.table.th.label": "Libellé",
+    "arrears.table.th.type": "Type",
+    "arrears.table.th.remaining": "Restant",
+    "arrears.penalties_notice": "Ces montants ne comprennent pas les majorations dues aux pénalités financières, intérêts, frais et dépens, que celles-ci résultent des statuts de la copropriété, de décisions d’assemblées générales ou de justice. Le calcul final ne pouvant être entrepris que le jour de la réception des montants dus.",
+    "arrears.additional_provisions_notice": "*Les provisions complémentaires sont réclamées au nom et pour compte de la copropriété en vue de s’assurer ne pas devoir réclamer un éventuel décompte de régularisation trop important au profit de la copropriété, celui-ci est calculé sur une moyenne de 3 mois de charges.",
+
+    "transfer_fees.table.th.file_fees": "Frais de dossiers (3.94 §4)",
+    "transfer_fees.table.th.date": "Date",
+    "transfer_fees.table.th.description": "Description",
+    "transfer_fees.table.th.amount": "Montant",
+
+    "fund_requests.table.th.call": "Appel",
+    "fund_requests.table.th.called": "Déjà appelé",
+    "fund_requests.table.th.planned": "Planifié",
+    "fund_requests.table.th.owner_called": "Quote-part appelée",
+    "fund_requests.table.th.owner_planned": "Quote-part planifiée",
+    "fund_requests.last_ago_notice": "Nous vous invitons à consulter PV de la dernière AGO afin de connaitre les modalités de ces appels et leurs échéances.",
+
+    "payment.current_fiscal_year_notice": "Ce montant ne tient pas compte du décompte de charge de l’exercice comptable en cours.",
+    "payment.account_instruction": "Tout paiement est à effectuer sur le compte de l’ACP",
+    "payment.reference_instruction": "avec la référence VCS renseignée.",
+
+    "additional_information.title": "Informations complémentaires",
+    "additional_information.bank_loans": "Emprunt(s) bancaire(s)",
+    "additional_information.intervention_record.title": "Dossier d’intervention ultérieure (D.I.U.)",
+    "additional_information.intervention_record.exists": "Il existe un dossier D.I.U.",
+    "additional_information.intervention_record.missing": "Aucun dossier n’est en possession du syndic.",
+    "additional_information.intervention_record.consultation_notice": "Nous proposons aux futurs acquéreurs, dans la mesure où cela l’intéresse et dans la mesure où ce D.I.U. existe, d’en prendre connaissance, en nos bureaux, moyennant rendez-vous préalable.",
+    "additional_information.fuel_tank.title": "Cuve à mazout",
+    "additional_information.fuel_tank.exists": "Il y a une cuve (capacité estimée à +/- %s litres)",
+    "additional_information.fuel_tank.missing": "Il n’y a pas de cuve à mazout"
+}

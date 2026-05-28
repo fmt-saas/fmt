@@ -83,45 +83,112 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
     return $result;
 };
 
-$getLabels = function($lang) {
-    return [
-        'invoice'                        => Setting::get_value('sale', 'locale', 'label_invoice', 'Invoice', [], $lang),
-        'credit_note'                    => Setting::get_value('sale', 'locale', 'label_credit-note', 'Credit note', [], $lang),
-        'customer_name'                  => Setting::get_value('sale', 'locale', 'label_customer-name', 'Name', [], $lang),
-        'customer_address'               => Setting::get_value('sale', 'locale', 'label_customer-address', 'Address', [], $lang),
-        'registration_number'            => Setting::get_value('sale', 'locale', 'label_registration-number', 'Registration n°', [], $lang),
-        'vat_number'                     => Setting::get_value('sale', 'locale', 'label_vat-number', 'VAT n°', [], $lang),
-        'number'                         => Setting::get_value('sale', 'locale', 'label_number', 'N°', [], $lang),
-        'date'                           => Setting::get_value('sale', 'locale', 'label_date', 'Date', [], $lang),
-        'status'                         => Setting::get_value('sale', 'locale', 'label_status', 'Status', [], $lang),
-        'status_paid'                    => Setting::get_value('sale', 'locale', 'label_status-paid', 'Paid', [], $lang),
-        'status_to_pay'                  => Setting::get_value('sale', 'locale', 'label_status-to-pay', 'To pay', [], $lang),
-        'status_to_refund'               => Setting::get_value('sale', 'locale', 'label_status-to-refund', 'To refund', [], $lang),
-        'proforma_notice'                => Setting::get_value('sale', 'locale', 'label_proforma-notice', 'This is a proforma and must not be paid.', [], $lang),
-        'total_excl_vat'                 => Setting::get_value('sale', 'locale', 'label_total-ex-vat', 'Total VAT excl.', [], $lang),
-        'total_incl_vat'                 => Setting::get_value('sale', 'locale', 'label_total-inc-vat', 'Total VAT incl.', [], $lang),
-        'balance_of_must_be_paid_before' => Setting::get_value('sale', 'locale', 'label_balance-of-must-be-paid-before', 'Balance of %price% to be paid before %due_date%', [], $lang),
-        'communication'                  => Setting::get_value('sale', 'locale', 'label_communication', 'Communication', [], $lang),
-        'columns' => [
-            'product'                    => Setting::get_value('sale', 'locale', 'label_product-column', 'Product label', [], $lang),
-            'qty'                        => Setting::get_value('sale', 'locale', 'label_qty-column', 'Qty', [], $lang),
-            'free'                       => Setting::get_value('sale', 'locale', 'label_free-column', 'Free', [], $lang),
-            'unit_price'                 => Setting::get_value('sale', 'locale', 'label_unit-price-column', 'U. price', [], $lang),
-            'discount'                   => Setting::get_value('sale', 'locale', 'label_discount-column', 'Disc.', [], $lang),
-            'vat'                        => Setting::get_value('sale', 'locale', 'label_vat-column', 'VAT', [], $lang),
-            'taxes'                      => Setting::get_value('sale', 'locale', 'label_taxes-column', 'Taxes', [], $lang),
-            'price_ex_vat'               => Setting::get_value('sale', 'locale', 'label_price-ex-vat-column', 'Price ex. VAT', [], $lang),
-            'price'                      => Setting::get_value('sale', 'locale', 'label_price-column', 'Price', [], $lang)
-        ],
-        'footer' => [
-            'registration_number'        => Setting::get_value('sale', 'locale', 'label_footer-registration-number', 'Registration number', [], $lang),
-            'iban'                       => Setting::get_value('sale', 'locale', 'label_footer-iban', 'IBAN', [], $lang),
-            'email'                      => Setting::get_value('sale', 'locale', 'label_footer-email', 'Email', [], $lang),
-            'web'                        => Setting::get_value('sale', 'locale', 'label_footer-web', 'Web', [], $lang),
-            'tel'                        => Setting::get_value('sale', 'locale', 'label_footer-tel', 'Tel', [], $lang)
-        ]
-    ];
+$getLabels = function ($lang, $view_i18n_file_path, $default_labels = []) {
+    $readLabels = function($path) {
+        if(!$path || !file_exists($path)) {
+            return [];
+        }
+        $labels = json_decode(file_get_contents($path), true);
+        return is_array($labels) ? $labels : [];
+    };
+
+    return array_merge(
+        $default_labels,
+        $readLabels(sprintf('%s/packages/realestate/i18n/%s/_parts/header.json', EQ_BASEDIR, $lang)),
+        $readLabels(sprintf('%s/packages/realestate/i18n/%s/_parts/footer.json', EQ_BASEDIR, $lang)),
+        $readLabels($view_i18n_file_path)
+    );
 };
+
+$labels = $getLabels(
+    $params['lang'],
+    sprintf('%s/packages/realestate/i18n/%s/property/%s.json', EQ_BASEDIR, $params['lang'], 'OwnershipTransfer.'.$params['view_id']),
+    [
+        'header.registration_number'                                              => 'Company number',
+        'header.vat_number'                                                       => 'VAT',
+        'header.number'                                                           => 'No.',
+        'header.date'                                                             => 'Date',
+        'header.status'                                                           => 'Status',
+        'header.communication'                                                    => 'Communication',
+
+        'footer.registration_number'                                              => 'Company number',
+        'footer.iban'                                                             => 'IBAN',
+        'footer.email'                                                            => 'Email',
+        'footer.web'                                                              => 'Web',
+        'footer.tel'                                                              => 'Tel.',
+        'footer.fax'                                                              => 'Fax',
+
+        'letter.date_line'                                                        => '%s, %s',
+        'letter.subject.label'                                                    => 'Subject',
+        'letter.subject.text'                                                     => 'Your request for information / Agreement for the transfer of ownership rights',
+        'letter.closing'                                                          => 'We trust that we have answered your questions and remain at your disposal for any further information. Yours faithfully.',
+        'letter.signature'                                                        => 'The Managing Agent',
+
+        'condominium_association.label'                                           => 'Association of Co-owners',
+        'sale_by.label'                                                           => 'Sold by',
+        'lots.label'                                                              => 'Lot(s)',
+        'total_shares.label'                                                      => 'Total shares',
+        'introduction.request_received'                                           => 'We acknowledge receipt of your letter dated %s and ask you to find the requested information below.',
+
+        'article_3_94.section_1.title'                                            => 'In accordance with article 3.94, paragraph 1',
+        'article_3_94.section_1.fund_balances.title'                              => '1. the amount of the working capital fund and reserve fund, within the meaning of paragraph 5, subparagraphs 2 and 3;',
+        'article_3_94.section_1.seller_arrears.title'                             => '2. the amount of any arrears owed by the transferor;',
+        'article_3_94.section_1.scheduled_fund_requests.title'                    => '3. the status of fund calls intended for the reserve fund and decided by the general meeting before the certain date of transfer of ownership;',
+        'article_3_94.section_1.judiciary_procedures.title'                       => '4. where applicable, the list of ongoing judicial proceedings relating to the co-ownership;',
+        'article_3_94.section_1.general_assembly_minutes.title'                   => '5. the minutes of ordinary and extraordinary general meetings for the last three years, as well as periodic charge statements for the last two years;',
+        'article_3_94.section_1.general_assembly_minutes.summary'                 => 'Minutes of general meetings for the last 3 years and charge statements for the last 2 years',
+        'article_3_94.section_1.latest_balance_sheet.title'                       => '6. a copy of the latest balance sheet approved by the general meeting',
+
+        'article_3_94.section_2.title'                                            => 'In accordance with article 3.94, paragraph 2',
+        'article_3_94.section_2.maintenance_expenses.title'                       => '1. the amount of preservation, maintenance, repair and renovation expenses decided by the general meeting or the managing agent before the certain date of transfer of ownership but requested by the managing agent after that date;',
+        'article_3_94.section_2.fund_requests.title'                              => '2. a statement of fund calls approved by the general meeting of co-owners before the certain date of transfer of ownership and the cost of urgent works for which payment is requested by the managing agent after that date;',
+        'article_3_94.section_2.commons_acquisitions.title'                       => '3. a statement of costs relating to the acquisition of common parts, decided by the general meeting before the certain date of transfer of ownership, but for which payment is requested by the managing agent after that date;',
+        'article_3_94.section_2.condominium_debts.title'                          => '4. a statement of certain debts owed by the association of co-owners following disputes arising before the certain date of transfer of ownership, but for which payment is requested by the managing agent after that date.',
+        'article_3_94.section_2.seller_arrears.title'                             => '5. the amount of any arrears owed by the transferor;',
+
+        'article_3_94.section_3.title'                                            => 'In accordance with article 3.94, paragraph 3',
+        'article_3_94.section_3.notary_information_notice'                        => 'In the event of transfer or dismemberment of the ownership right over a private lot, the executing notary informs the managing agent of the date of execution of the deed, the identification of the private lot concerned, and the current and, where applicable, future identity and address of the persons concerned.',
+        'article_3_94.section_3.change_notification_request'                      => 'Please notify us of these changes as soon as possible.',
+
+        'fund_balances.table.th.lot_shares'                                       => 'Lot shares',
+        'fund_balances.table.th.condo_shares'                                     => 'Building shares',
+        'fund_balances.table.th.condominium'                                      => 'Co-ownership',
+        'fund_balances.table.th.owner_share'                                      => 'Co-owner share',
+
+        'arrears.table.th.due_date'                                               => 'Due date',
+        'arrears.table.th.label'                                                  => 'Label',
+        'arrears.table.th.type'                                                   => 'Type',
+        'arrears.table.th.remaining'                                              => 'Remaining',
+        'arrears.penalties_notice'                                                => 'These amounts do not include increases due to financial penalties, interest, costs and expenses, whether resulting from the co-ownership statutes, decisions of general meetings or court decisions. The final calculation can only be made on the day the amounts due are received.',
+        'arrears.additional_provisions_notice'                                    => '*Additional provisions are claimed in the name and on behalf of the co-ownership to ensure that no potentially significant adjustment statement has to be claimed in favor of the co-ownership; this amount is calculated on an average of 3 months of charges.',
+
+        'transfer_fees.table.th.file_fees'                                        => 'File fees (3.94 paragraph 4)',
+        'transfer_fees.table.th.date'                                             => 'Date',
+        'transfer_fees.table.th.description'                                      => 'Description',
+        'transfer_fees.table.th.amount'                                           => 'Amount',
+
+        'fund_requests.table.th.call'                                             => 'Call',
+        'fund_requests.table.th.called'                                           => 'Already called',
+        'fund_requests.table.th.planned'                                          => 'Planned',
+        'fund_requests.table.th.owner_called'                                     => 'Called owner share',
+        'fund_requests.table.th.owner_planned'                                    => 'Planned owner share',
+        'fund_requests.last_ago_notice'                                           => 'Please refer to the minutes of the latest ordinary general meeting for the terms and due dates of these calls.',
+
+        'payment.current_fiscal_year_notice'                                      => 'This amount does not include the charge statement for the current fiscal year.',
+        'payment.account_instruction'                                             => 'All payments must be made to the account of the Association of Co-owners',
+        'payment.reference_instruction'                                           => 'with the stated structured reference.',
+
+        'additional_information.title'                                            => 'Additional information',
+        'additional_information.bank_loans'                                       => 'Bank loan(s)',
+        'additional_information.intervention_record.title'                        => 'Post-intervention file',
+        'additional_information.intervention_record.exists'                       => 'A post-intervention file exists.',
+        'additional_information.intervention_record.missing'                      => 'No file is in the possession of the managing agent.',
+        'additional_information.intervention_record.consultation_notice'          => 'We offer future buyers, insofar as they are interested and insofar as this file exists, the opportunity to consult it at our offices by prior appointment.',
+        'additional_information.fuel_tank.title'                                  => 'Fuel oil tank',
+        'additional_information.fuel_tank.exists'                                 => 'There is a tank (estimated capacity of +/- %s liters)',
+        'additional_information.fuel_tank.missing'                                => 'There is no fuel oil tank'
+    ]
+);
 
 
 $ownershipTransfer = OwnershipTransfer::id($params['id'])
@@ -272,7 +339,7 @@ $values = [
     'locale'                    => constant('L10N_LOCALE'),
     'date_format'               => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
     'currency'                  => $getTwigCurrency(Setting::get_value('core', 'locale', 'currency', '€')),
-    'labels'                    => $getLabels($lang),
+    'labels'                    => $labels,
     'debug'                     => $params['debug'],
     // 3.94.1.1
     'fund_balances_description'             => $ownershipTransfer['fund_balances_description'],
