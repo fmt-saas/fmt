@@ -182,7 +182,6 @@ $getLabels = function ($lang, $view_i18n_file_path) {
 };
 
 $getRecipient = function($identity_id, $lang) {
-
     $identity = Identity::id($identity_id)
         ->read([
                 'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
@@ -190,7 +189,7 @@ $getRecipient = function($identity_id, $lang) {
             ], $lang)
         ->first();
 
-    $data = eQual::run('get', 'core_config_i18n', ['entity' => 'realestate\identity\Identity', 'lang' => $lang]);
+    $data = eQual::run('get', 'core_config_i18n', ['entity' => 'identity\Identity', 'lang' => $lang]);
 
     $title = $data['model']['title']['selection'][$identity['title']] ?? $identity['title'];
 
@@ -363,7 +362,7 @@ if(!$owner) {
     throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
 }
 
-$lang = $owner['identity_id']['lang_id']['code'];
+$lang = $owner['identity_id']['lang_id']['code'] ?? 'fr';
 
 $recipient = $getRecipient($owner['identity_id']['id'], $lang);
 

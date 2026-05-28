@@ -96,6 +96,14 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "has_free_payment_reference",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "readonly": true
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "free_payment_reference",
                                                 "width": "50%"
                                             },

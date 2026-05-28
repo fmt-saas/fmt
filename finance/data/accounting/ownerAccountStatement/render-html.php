@@ -7,6 +7,7 @@
 
 use communication\template\Template;
 use fmt\setting\Setting;
+use identity\Identity;
 use identity\Organisation;
 use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
@@ -127,6 +128,29 @@ $getLabels = function ($lang, $view_i18n_file_path, $default_labels = []) {
     );
 };
 
+$getRecipient = function($identity_id, $lang) {
+    $identity = Identity::id($identity_id)
+        ->read([
+                'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
+                'address_city', 'address_country', 'has_vat', 'vat_number',
+            ], $lang)
+        ->first();
+
+    $data = eQual::run('get', 'core_config_i18n', ['entity' => 'identity\Identity', 'lang' => $lang]);
+
+    $title = $data['model']['title']['selection'][$identity['title']] ?? $identity['title'];
+
+    return [
+            'name'              => $title . ' ' . ucfirst($identity['firstname']) . ' ' . strtoupper($identity['lastname']),
+            'address_street'    => $identity['address_street'],
+            'address_dispatch'  => $identity['address_dispatch'],
+            'address_zip'       => $identity['address_zip'],
+            'address_city'      => $identity['address_city'],
+            'address_country'   => $identity['address_country'],
+            'has_vat'           => $identity['has_vat'],
+            'vat_number'        => $identity['vat_number'],
+    ];
+};
 
 $ownership = Ownership::id($params['ownership_id'])
     ->read(['condo_id'])
@@ -140,8 +164,6 @@ $owner = Owner::search(['ownership_id', '=', $params['ownership_id']])
     ->read([
         'ownership_id' => ['address_recipient'],
         'identity_id' => [
-            'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
-            'address_city', 'address_country', 'has_vat', 'vat_number',
             'lang_id' => ['code']
         ]
     ])
@@ -149,6 +171,14 @@ $owner = Owner::search(['ownership_id', '=', $params['ownership_id']])
 
 if(!$owner) {
     throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
+}
+
+$lang = $owner['identity_id']['lang_id']['code'] ?? 'fr';
+
+$recipient = $getRecipient($owner['identity_id']['id'], $lang);
+
+if(!$params['owner_id'] && strlen($owner['ownership_id']['address_recipient'] ?? '') > 0) {
+    $recipient['name'] = $owner['ownership_id']['address_recipient'];
 }
 
 $condominium = Condominium::id($ownership['condo_id'])
@@ -248,7 +278,7 @@ $values = [
 
     'condominium'         => $condominium,
 
-    'recipient'           => $owner['identity_id'],
+    'recipient'           => $recipient,
 
     'lines'               => $data,
     'total_debit'         => $total_debit,

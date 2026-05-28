@@ -8,10 +8,12 @@
 use communication\template\Template;
 use fmt\setting\Setting;
 use documents\DocumentSignature;
+use identity\Identity;
 use identity\Organisation;
 use realestate\governance\Assembly;
 use realestate\governance\AssemblyMinutesCorrespondence;
 use realestate\governance\AssemblyItem;
+use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\property\PropertyLotApportionmentShare;
@@ -114,22 +116,34 @@ $getLabels = function ($lang, $view_i18n_file_path) {
     );
 };
 
+$getRecipient = function($identity_id, $lang) {
+    $identity = Identity::id($identity_id)
+        ->read([
+                'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
+                'address_city', 'address_country', 'has_vat', 'vat_number',
+            ], $lang)
+        ->first();
+
+    $data = eQual::run('get', 'core_config_i18n', ['entity' => 'identity\Identity', 'lang' => $lang]);
+
+    $title = $data['model']['title']['selection'][$identity['title']] ?? $identity['title'];
+
+    return [
+            'name'              => $title . ' ' . ucfirst($identity['firstname']) . ' ' . strtoupper($identity['lastname']),
+            'address_street'    => $identity['address_street'],
+            'address_dispatch'  => $identity['address_dispatch'],
+            'address_zip'       => $identity['address_zip'],
+            'address_city'      => $identity['address_city'],
+            'address_country'   => $identity['address_country'],
+            'has_vat'           => $identity['has_vat'],
+            'vat_number'        => $identity['vat_number'],
+    ];
+};
 
 $assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id'])
     ->read([
         'assembly_id',
-        'owner_id' => [
-            'name',
-            'firstname',
-            'lastname',
-            'address_street',
-            'address_dispatch',
-            'address_zip',
-            'address_city',
-            'address_country',
-            'has_vat',
-            'vat_number'
-        ],
+        'owner_id',
         'ownership_id'
     ])
     ->first(true);
@@ -138,6 +152,24 @@ if(!$assemblyMinutesCorrespondence) {
     throw new Exception('unknown_assembly_invitation', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+
+$owner = Owner::id($assemblyMinutesCorrespondence['owner_id'])
+    ->read([
+        'firstname', 'lastname',
+        'ownership_id' => ['code', 'address_recipient'],
+        'identity_id' => [
+            'lang_id' => ['code']
+        ]
+    ])
+    ->first();
+
+if(!$owner) {
+    throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
+}
+
+$lang = $owner['identity_id']['lang_id']['code'] ?? $params['lang'];
+
+$recipient = $getRecipient($owner['identity_id']['id'], $lang);
 
 $assembly = Assembly::id($assemblyMinutesCorrespondence['assembly_id'])
     ->read([
@@ -198,9 +230,6 @@ $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']]
     ])
     ->get();
 
-
-$lang = $params['lang'];
-
 // retrieve template (subject & body)
 $subject = 'Compte rendu';
 $introduction = '';
@@ -243,8 +272,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $introduction = $part['value'];
 
         $map_values = [
-            'firstname'         => $assemblyMinutesCorrespondence['owner_id']['firstname'],
-            'lastname'          => $assemblyMinutesCorrespondence['owner_id']['lastname'],
+            'firstname'         => $owner['firstname'],
+            'lastname'          => $owner['lastname'],
             'condo'             => $assembly['condo_id']['name'],
             'date'              => $getFormattedDate($assembly['assembly_date'])
         ];
@@ -270,7 +299,7 @@ $values = [
     'organisation_logo'         => $getOrganisationLogo($organisation['id']),
 
     'date'                      => $assembly['assembly_invitation_date'],
-    'recipient'                 => $assemblyMinutesCorrespondence['owner_id'],
+    'recipient'                 => $recipient,
 
     'map_assembly_items'        => $map_assembly_items,
 

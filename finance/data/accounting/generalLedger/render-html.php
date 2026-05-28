@@ -8,6 +8,7 @@
 use communication\template\Template;
 use fmt\setting\Setting;
 use finance\accounting\FiscalYear;
+use identity\Identity;
 use identity\Organisation;
 use realestate\property\Condominium;
 use Twig\TwigFilter;
@@ -122,6 +123,29 @@ $getLabels = function ($lang, $view_i18n_file_path, $default_labels = []) {
     );
 };
 
+$getRecipient = function($identity_id, $lang) {
+    $identity = Identity::id($identity_id)
+        ->read([
+                'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
+                'address_city', 'address_country', 'has_vat', 'vat_number',
+            ], $lang)
+        ->first();
+
+    $data = eQual::run('get', 'core_config_i18n', ['entity' => 'identity\Identity', 'lang' => $lang]);
+
+    $title = $data['model']['title']['selection'][$identity['title']] ?? $identity['title'];
+
+    return [
+            'name'              => $title . ' ' . ucfirst($identity['firstname']) . ' ' . strtoupper($identity['lastname']),
+            'address_street'    => $identity['address_street'],
+            'address_dispatch'  => $identity['address_dispatch'],
+            'address_zip'       => $identity['address_zip'],
+            'address_city'      => $identity['address_city'],
+            'address_country'   => $identity['address_country'],
+            'has_vat'           => $identity['has_vat'],
+            'vat_number'        => $identity['vat_number'],
+    ];
+};
 
 if(!isset($params['params']['condo_id'])) {
     throw new \Exception('missing_mandatory_condo_id', EQ_ERROR_MISSING_PARAM);

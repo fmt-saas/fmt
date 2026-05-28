@@ -8,6 +8,7 @@
 use communication\template\Template;
 use equal\data\DataFormatter;
 use fmt\setting\Setting;
+use identity\Identity;
 use identity\Organisation;
 use realestate\funding\PaymentReminder;
 use realestate\ownership\Owner;
@@ -172,6 +173,30 @@ $getLabels = function ($lang, $view_i18n_file_path) {
     );
 };
 
+$getRecipient = function($identity_id, $lang) {
+    $identity = Identity::id($identity_id)
+        ->read([
+                'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
+                'address_city', 'address_country', 'has_vat', 'vat_number',
+            ], $lang)
+        ->first();
+
+    $data = eQual::run('get', 'core_config_i18n', ['entity' => 'identity\Identity', 'lang' => $lang]);
+
+    $title = $data['model']['title']['selection'][$identity['title']] ?? $identity['title'];
+
+    return [
+            'name'              => $title . ' ' . ucfirst($identity['firstname']) . ' ' . strtoupper($identity['lastname']),
+            'address_street'    => $identity['address_street'],
+            'address_dispatch'  => $identity['address_dispatch'],
+            'address_zip'       => $identity['address_zip'],
+            'address_city'      => $identity['address_city'],
+            'address_country'   => $identity['address_country'],
+            'has_vat'           => $identity['has_vat'],
+            'vat_number'        => $identity['vat_number'],
+    ];
+};
+
 $paymentReminder = PaymentReminder::id($params['payment_reminder_id'])
     ->read([
         'name',
@@ -251,7 +276,14 @@ if(!$owner) {
     throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
 }
 
-$lang = $owner['identity_id']['lang_id']['code'];
+$lang = $owner['identity_id']['lang_id']['code'] ?? 'fr';
+
+$recipient = $getRecipient($owner['identity_id']['id'], $lang);
+
+if(!$params['owner_id'] && strlen($owner['ownership_id']['address_recipient'] ?? '') > 0) {
+    $recipient['name'] = $owner['ownership_id']['address_recipient'];
+}
+
 
 $due_fundings = [];
 $overdue_total = 0.0;
@@ -396,7 +428,7 @@ $values = [
 
     'condominium'         => $paymentReminder['condo_id'],
 
-    'recipient'           => $owner['identity_id'],
+    'recipient'           => $recipient,
 
     'payment_reminder'    => $paymentReminder,
     'owner_balance'       => $owner_balance,

@@ -7,9 +7,11 @@
 
 use communication\template\Template;
 use fmt\setting\Setting;
+use identity\Identity;
 use identity\Organisation;
 use realestate\governance\Assembly;
 use realestate\governance\AssemblyInvitationCorrespondence;
+use realestate\ownership\Owner;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
@@ -119,22 +121,34 @@ $getLabels = function ($lang, $view_i18n_file_path) {
     );
 };
 
+$getRecipient = function($identity_id, $lang) {
+    $identity = Identity::id($identity_id)
+        ->read([
+                'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
+                'address_city', 'address_country', 'has_vat', 'vat_number',
+            ], $lang)
+        ->first();
+
+    $data = eQual::run('get', 'core_config_i18n', ['entity' => 'identity\Identity', 'lang' => $lang]);
+
+    $title = $data['model']['title']['selection'][$identity['title']] ?? $identity['title'];
+
+    return [
+            'name'              => $title . ' ' . ucfirst($identity['firstname']) . ' ' . strtoupper($identity['lastname']),
+            'address_street'    => $identity['address_street'],
+            'address_dispatch'  => $identity['address_dispatch'],
+            'address_zip'       => $identity['address_zip'],
+            'address_city'      => $identity['address_city'],
+            'address_country'   => $identity['address_country'],
+            'has_vat'           => $identity['has_vat'],
+            'vat_number'        => $identity['vat_number'],
+    ];
+};
 
 $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params['id'])
     ->read([
         'assembly_id',
-        'owner_id' => [
-            'name',
-            'firstname',
-            'lastname',
-            'address_street',
-            'address_dispatch',
-            'address_zip',
-            'address_city',
-            'address_country',
-            'has_vat',
-            'vat_number'
-        ],
+        'owner_id',
         'ownership_id'
     ])
     ->first(true);
@@ -143,6 +157,23 @@ if(!$assemblyInvitationCorrespondence) {
     throw new Exception('unknown_assembly_invitation', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+$owner = Owner::id($assemblyInvitationCorrespondence['owner_id'])
+    ->read([
+        'firstname', 'lastname',
+        'ownership_id' => ['code', 'address_recipient'],
+        'identity_id' => [
+            'lang_id' => ['code']
+        ]
+    ])
+    ->first();
+
+if(!$owner) {
+    throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
+}
+
+$lang = $owner['identity_id']['lang_id']['code'] ?? $params['lang'];
+
+$recipient = $getRecipient($owner['identity_id']['id'], $lang);
 
 $assembly = Assembly::id($assemblyInvitationCorrespondence['assembly_id'])
     ->read([
@@ -190,8 +221,6 @@ $organisation = Organisation::id(1)
     ])
     ->first();
 
-
-$lang = $params['lang'];
 
 // retrieve template (subject & body)
 $subject = '';
@@ -250,8 +279,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
         ];
 
         $map_values = [
-            'firstname'         => $assemblyInvitationCorrespondence['owner_id']['firstname'],
-            'lastname'          => $assemblyInvitationCorrespondence['owner_id']['lastname'],
+            'firstname'         => $owner['firstname'],
+            'lastname'          => $owner['lastname'],
             'condo'             => $assembly['condo_id']['name'],
             'assembly'          => $assembly['name'],
             'date'              => $getFormattedDate($assembly['assembly_date']),
@@ -268,7 +297,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
     }
 }
 
-$labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $lang, 'AssemblyInvitationCorrespondence.'.$params['view_id']));
+$labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $lang, 'AssemblyInvitationCorrespondence.' . $params['view_id']));
 
 $values = [
     'title'                     => $subject,
@@ -281,7 +310,7 @@ $values = [
     'organisation_logo'         => $getOrganisationLogo($organisation['id']),
 
     'date'                      => $assembly['assembly_invitation_date'],
-    'recipient'                 => $assemblyInvitationCorrespondence['owner_id'],
+    'recipient'                 => $recipient,
 
     // 'today_date'                => time(),
     'timezone'                  => constant('L10N_TIMEZONE'),
