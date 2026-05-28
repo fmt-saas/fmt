@@ -11,23 +11,26 @@ use Dompdf\Options as DompdfOptions;
 [$params, $providers] = eQual::announce([
     'description'   => 'Renders the owner account statement as a PDF document for a given ownership and date range.',
     'params'        => [
+        'params' => [
+            'description'       => 'Optional identifier of a specific targeted Ownership to limit to rendering to.',
+            'help'              => 'Expected/possible keys are: ownership_id, date_from, date_to.',
+            'type'              => 'array'
+        ],
+
         'ownership_id' => [
             'type'              => 'many2one',
             'description'       => "The ownership that the owner refers to.",
-            'foreign_object'    => 'realestate\ownership\Ownership',
-            'required'          => true
+            'foreign_object'    => 'realestate\ownership\Ownership'
         ],
 
         'date_from' => [
             'type'              => 'date',
-            'description'       => "First date of the time interval.",
-            'required'          => true
+            'description'       => "First date of the time interval."
         ],
 
         'date_to' => [
             'type'              => 'date',
-            'description'       => "Last date of the time interval.",
-            'required'          => true
+            'description'       => "Last date of the time interval."
         ]
     ],
     'access'        => [
@@ -44,7 +47,26 @@ use Dompdf\Options as DompdfOptions;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
-$html = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-html', $params);
+$ownership_id = ($params['params']['ownership_id'] ?? null) ? $params['params']['ownership_id'] : ($params['ownership_id'] ?? null);
+$date_from = ($params['params']['date_from'] ?? null) ? strtotime($params['params']['date_from']) : ($params['date_from'] ?? null);
+$date_to = ($params['params']['date_to'] ?? null) ? strtotime($params['params']['date_to']) : ($params['date_to'] ?? null);
+
+if(!$ownership_id) {
+    throw new Exception('missing_ownership_id', EQ_ERROR_MISSING_PARAM);
+}
+if(!$date_from) {
+    throw new Exception('missing_date_from', EQ_ERROR_MISSING_PARAM);
+}
+
+if(!$date_to) {
+    throw new Exception('missing_date_to', EQ_ERROR_MISSING_PARAM);
+}
+
+$html = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-html', [
+    'ownership_id'  => $ownership_id,
+    'date_from'     => $date_from,
+    'date_to'       => $date_to
+]);
 
 try {
     /*
