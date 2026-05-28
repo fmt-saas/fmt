@@ -1,3 +1,6 @@
 [submodule "fmt/apps/app/source"]
 	path = fmt/apps/app/source
 	url = https://github.com/fmt-saas/apps-fmt-app.git
+[submodule "fmt/apps/portal/source"]
+	path = fmt/apps/portal/source
+	url = https://github.com/fmt-saas/apps-fmt-portal.git
