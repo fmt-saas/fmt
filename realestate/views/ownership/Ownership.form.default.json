@@ -46,6 +46,19 @@
             }
         }
     ],
+    "routes": [
+        {
+            "id": "route.owner_statement",
+            "label": "Owner Statement",
+            "description": "",
+            "icon": "balance",
+            "context": {
+                "entity": "finance\\accounting\\ownerAccountStatement\\collect",
+                "view": "list.default",
+                "domain": [["ownership_id", "=", "object.id"], ["condo_id", "=", "object.condo_id"]]
+            }
+        }
+    ],
     "layout": {
         "groups": [
             {
