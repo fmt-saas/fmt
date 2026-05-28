@@ -136,7 +136,7 @@
                     {% if recipient is defined %}
                         <!-- recipient-info start -->
                         <div style="padding-top: 25px; padding-bottom: 30px;" class="recipient-info {{ debug ? 'debug' : '' }}">
-                            <div>{{ recipient.title }} {{ recipient.firstname }} {{ recipient.lastname }}</div>
+                            <div>{{ recipient.name }} </div>
                             {% if recipient.address_street | length > 0 %}
                                 <div>{{ recipient.address_street }}</div>
                             {% endif %}

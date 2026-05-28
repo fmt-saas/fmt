@@ -192,10 +192,10 @@ $getRecipient = function($identity_id, $lang) {
 
     $data = eQual::run('get', 'core_config_i18n', ['entity' => 'realestate\identity\Identity', 'lang' => $lang]);
 
+    $title = $data['model']['title']['selection'][$identity['title']] ?? $identity['title'];
+
     return [
-            'title'             => $data['model']['title']['selection'][$identity['title']] ?? $identity['title'],
-            'firstname'         => $identity['firstname'],
-            'lastname'          => $identity['lastname'],
+            'name'              => $title . ' ' . ucfirst($identity['firstname']) . ' ' . strtoupper($identity['lastname']),
             'address_street'    => $identity['address_street'],
             'address_dispatch'  => $identity['address_dispatch'],
             'address_zip'       => $identity['address_zip'],
@@ -366,6 +366,10 @@ if(!$owner) {
 $lang = $owner['identity_id']['lang_id']['code'];
 
 $recipient = $getRecipient($owner['identity_id']['id'], $lang);
+
+if(!$params['owner_id'] && strlen($owner['ownership_id']['address_recipient'] ?? '') > 0) {
+    $recipient['name'] = $owner['ownership_id']['address_recipient'];
+}
 
 // either theoretical funding, or due_balance funding
 $funding = null;
