@@ -9,7 +9,6 @@ use equal\orm\Domain;
 use equal\orm\DomainCondition;
 use finance\accounting\Account;
 use finance\accounting\AccountBalanceChange;
-use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
 use finance\accounting\OpeningBalance;
@@ -72,7 +71,20 @@ use realestate\ownership\Ownership;
             'type'              => 'many2one',
             'description'       => "The ownership that the owner refers to.",
             'foreign_object'    => 'realestate\ownership\Ownership',
-            'required'          => true,
+            'default'           =>  function($domain=[]) {
+                $ownership_id = null;
+
+                $origDomain = new Domain($domain);
+                foreach($origDomain->getClauses() as $clause) {
+                    foreach($clause->getConditions() as $condition) {
+                        if($condition->getOperand() === 'ownership_id') {
+                            $ownership_id = $condition->getValue();
+                            break 2;
+                        }
+                    }
+                }
+                return $ownership_id;
+            }
         ],
 
         'date_from' => [
