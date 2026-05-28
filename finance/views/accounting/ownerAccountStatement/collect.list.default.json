@@ -11,6 +11,17 @@
             "submit": "manual"
         }
     },
+    "actions": [
+        {
+            "id": "action.export",
+            "label": "Export",
+            "icon": "list",
+            "description": "Export PDF document from filtered data.",
+            "controller": "finance_accounting_ownerAccountStatement_export",
+            "params": {
+            }
+        }
+    ],
     "operations": {
         "total": {
             "debit": {
