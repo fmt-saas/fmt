@@ -87,6 +87,7 @@ class Owner extends Identity {
             'user_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
+                'foreign_object'    => 'identity\User',
                 'relation'          => ['identity_id' => 'user_id'],
                 'store'             => false,
                 'description'       => "User the Owner relates to, if any (through identity)."
