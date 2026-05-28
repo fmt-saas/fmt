@@ -264,9 +264,7 @@ $arrear_fundings = Funding::search([ ['condo_id', '=', $ownershipTransfer['condo
 
 $lang = $params['lang'];
 
-// values to fetch from Condominium
-// expense_management_mode
-$organisation = Organisation::search()
+$organisation = Organisation::id(1)
     ->read([
         'name', 'address_street', 'address_dispatch', 'address_zip',
         'address_city', 'address_country', 'has_vat', 'vat_number',
@@ -276,7 +274,7 @@ $organisation = Organisation::search()
             'type', 'data'
         ]
     ])
-    ->first(true);
+    ->first();
 
 
 $organisation['bank_account_iban'] = DataFormatter::format($organisation['bank_account_iban'], 'iban');
@@ -312,8 +310,11 @@ elseif($ownershipTransfer['confirmation_notary_office_id']) {
 
 
 $values = [
+
     'organisation'              => $organisation,
+    'organisation_logo'         => $getOrganisationLogo($organisation['id']),
     'condominium'               => $ownershipTransfer['condo_id'],
+
     'property_lots'             => $ownershipTransfer['property_lots_ids'],
     'funds_balances'            => $ownershipTransfer['fund_balances_ids'],
     'funds_requests'            => $ownershipTransfer['fund_requests_ids'],
