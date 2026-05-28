@@ -55,7 +55,10 @@
             "context": {
                 "entity": "finance\\accounting\\ownerAccountStatement\\collect",
                 "view": "list.default",
-                "domain": [["ownership_id", "=", "object.id"], ["condo_id", "=", "object.condo_id"]]
+                "domain": [["ownership_id", "=", "object.id"], ["condo_id", "=", "object.condo_id"]],
+                "params": {
+                    "ownership_id": "object.id"
+                }
             }
         }
     ],
