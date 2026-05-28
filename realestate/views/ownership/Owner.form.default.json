@@ -9,7 +9,7 @@
             "description": "Create a user account relating to the Owner.",
             "controller": "realestate_ownership_Owner_create-user",
             "confirm": false,
-            "visible": ["operators", "in", "user.groups"]
+            "visible": [["operators", "in", "user.groups"], ["user_id", "=", null]]
         }
     ],
     "layout": {
@@ -32,9 +32,16 @@
                                                 }
                                             },
                                             {
+                                                "type": "field",
+                                                "value": "user_id",
+                                                "width": "50%",
+                                                "visible": ["user_id", "<>", null]
+                                            },
+                                            {
                                                 "type": "label",
                                                 "value": "",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "visible": ["user_id", "=", null]
                                             },
                                             {
                                                 "type": "field",

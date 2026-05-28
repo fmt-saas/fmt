@@ -84,6 +84,14 @@ class Owner extends Identity {
                 'visible'           => ['object_class', '<>', 'identity\Identity']
             ],
 
+            'user_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'relation'          => ['identity_id' => 'user_id'],
+                'store'             => false,
+                'description'       => "User the Owner relates to, if any (through identity)."
+            ],
+
             // #deprecated
             'owner_shares' => [
                 'type'              => 'integer',

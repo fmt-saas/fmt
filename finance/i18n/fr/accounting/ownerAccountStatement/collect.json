@@ -29,7 +29,7 @@
             "help": "Evolue ligne par ligne sur toute la periode selectionnee."
         },
         "ownership_id": {
-            "label": "Lot coproprietaire",
+            "label": "Dossier de propriété",
             "description": "Dossier de propriete pour lequel afficher la situation de compte.",
             "help": "Determine les comptes comptables et la copropriete associes."
         },
