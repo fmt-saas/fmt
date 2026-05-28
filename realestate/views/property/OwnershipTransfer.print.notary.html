@@ -16,33 +16,35 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 
-    <title>
-        {{ title }}
-    </title>
+    <title>{{ title }}</title>
 
+    {% include 'header.style.html.twig' %}
     {% include 'footer.style.html.twig' %}
+
 
     <style type="text/css">
         @page {
             margin: 1cm 1cm;
         }
 
+
         body {
             margin: 0;
             padding: 0;
             /* margin-top must match header::height */
-            margin-top: 40px;
+            margin-top: 100px;
             /* margin-bottom must match footer::height */
             margin-bottom: 50px;
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
+            font-size: 10px;
             text-align: justify;
             width: 100%;
         }
 
-        h1, h2, h3, h4 {
+
+        h1, h2, h3 {
             margin-top: 0;
-            margin-bottom: 0;
+            margin-bottom: 10px;
         }
 
         h2 {
@@ -68,19 +70,6 @@
         h5 {
             font-size: 12px;
             text-decoration: underline;
-        }
-
-        header table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 12px;
-            margin-bottom: 20px;
-        }
-
-        header table th, main table td {
-            border: none;
-            padding: 6px 10px;
-            text-align: left;
         }
 
         main.debug {
@@ -122,36 +111,7 @@
 
 <body>
 
-    <header>
-        <table>
-            <tr>
-                <td style="width: 50%; text-align: left;">
-                    {{ organisation.legal_name }}<br />
-                    {{ organisation.address_street }}<br />
-                    {{ organisation.address_zip }} {{ organisation.address_city }}<br />
-                    {% if organisation.registration_number %}
-                        {{ labels.footer.registration_number }}: {{ organisation.registration_number }}<br />
-                    {% endif %}
-                    {% if organisation.email %}
-                        {{ organisation.email }}<br />
-                    {% endif %}
-                    {% if organisation.phone %}
-                        {{ organisation.phone }}
-                    {% endif %}
-                </td>
-                <td style="width: 50%;">
-                    <div style="margin-left: 40%; text-align: left;">
-                        <strong>{{ request_contact_name }}</strong><br />
-                        {{ request_contact_address_street }}<br />
-                        {{ request_contact_address_zip }} {{ request_contact_address_city }}<br />
-                        {{ request_contact_email }}
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </header>
-
-    <main class="{{ debug ? 'debug' : '' }}">
+    {% include 'header.html.twig' %}
 
         <p style="text-align: right;">
             {{ organisation.address_city }}, le {{ today_date | date(date_format, timezone) }}
@@ -193,7 +153,7 @@
 
 
         <!-- 3.94 §1 -->
-        <!-- ["status", "<>", "pending"] -->
+        {% if status != 'pending' %}
         <h3>Conformément à l'article 3.94 §1</h3>
 
         <h4>1° le montant du fonds de roulement et du fonds de réserve, au sens du § 5, alinéas 2 et 3;</h4>
@@ -279,11 +239,11 @@
         <div>
             {{ latest_balance_sheet_description | raw }}
         </div>
-
+        {% endif %}
 
 
         <!-- 3.94 §2 -->
-        <!-- ["status", "in", ["confirmed", "financial_statement_sent", "settled"]] -->
+        {% if status in ['confirmed', 'financial_statement_sent', 'settled'] %}
         <h3>Conformément à l'article 3.94 §2</h3>
 
         <h4>1° le montant des dépenses de conservation, d'entretien, de réparation et de réfection décidées par l'assemblée générale ou le syndic avant la date certaine du transfert de la propriété mais dont le paiement est demandé par le syndic postérieurement à cette date;</h4>
@@ -391,16 +351,16 @@
             {% endif %}
             </strong>
         </div>
-
+        {% endif %}
 
         <!-- 3.94 §3 -->
-        <!-- ["status", "=", "settled"] -->
+        {% if status == 'settled' %}
         <h3>Conformément à l'article 3.94 §3</h3>
 
         <p>En cas de cession ou de démembrement du droit de propriété sur un lot privatif, le notaire instrumentant informe le syndic de la date de la passation de l'acte, de l'identification du lot privatif concerné, de l'identité et de l'adresse actuelle et, le cas échéant, future des personnes concernées.</p>
 
         <p>Nous nous prions de bien vouloir nous notifier ces changements dans les meilleurs délais.</p>
-
+        {% endif %}
 
 
         <p>Espérant avoir répondu à vos questions et restant à votre disposition pour de plus amples informations, nous vous prions de croire, Maître, en l’expression de notre parfaite considération.</p>
@@ -410,7 +370,7 @@
         </p>
 
     {% include 'footer.html.twig' %}
-    </main>
+
 </body>
 
 </html>

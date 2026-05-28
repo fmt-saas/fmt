@@ -259,6 +259,7 @@ $values = [
     'has_fuel_tank'             => $ownershipTransfer['has_fuel_tank'],
     'fuel_tank_capacity'        => $ownershipTransfer['fuel_tank_capacity'],
     'request_date'              => $ownershipTransfer['request_date'],
+    'status'                    => $ownershipTransfer['status'],
 
     'request_contact_name'              => $request_contact_name,
     'request_contact_address_street'    => $request_contact_address_street,
