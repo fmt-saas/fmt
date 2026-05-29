@@ -158,6 +158,11 @@
                                     {{ labels['header.vat_number'] }}: {{ recipient.vat_number }}
                                 </div>
                             {% endif %}
+                            {% if recipient.email and recipient.email | length > 0 %}
+                                <div>
+                                    {{ labels['header.email'] }}: {{ recipient.email }}
+                                </div>
+                            {% endif %}
                             {% if date is defined %}
                             <div style="margin-top: 10px;">
                                 {{ date | date(date_format, timezone) }}

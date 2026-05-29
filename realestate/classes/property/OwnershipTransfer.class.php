@@ -13,6 +13,7 @@ use finance\accounting\Account;
 use finance\accounting\AccountingEntryLine;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
+use finance\accounting\OpeningBalance;
 use finance\bank\CondominiumBankAccount;
 use finance\bank\OwnershipBankAccount;
 use realestate\finance\accounting\CondoFund;
@@ -407,7 +408,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'icon' => 'draft',
                 'transitions' => [
                     'open' => [
-                        'description'   => 'Update the document to `pending`.',
+                        'description'   => 'Update the document to `open`.',
                         'policies'      => ['is_valid'],
                         'onafter'       => 'onafterOpen',
                         'status'        => 'open',
@@ -834,6 +835,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             }
 
             // retrieve pivot date
+            /*
             $fiscalYear = FiscalYear::id($ownershipTransfer['fiscal_year_id'])->read(['status', 'date_from'])->first();
             if($fiscalYear['status'] !== 'open' && $fiscalYear['status'] !== 'preclosed') {
                 // current year might not hold some accounting entries: we must retrieve the first date of the latest fully open fiscal year
@@ -849,8 +851,13 @@ class OwnershipTransfer extends \equal\orm\Model {
                     $fiscalYear = $canditatefiscalYear;
                 }
             }
-
             $pivot_date = $fiscalYear['date_from'];
+            */
+            $openingBalance = OpeningBalance::search(['condo_id', '=', $ownershipTransfer['condo_id']], ['sort' => ['created' => 'desc'], 'limit' => 1])
+                ->read(['fiscal_year_id' => ['date_from']])
+                ->first();
+
+            $pivot_date = $openingBalance['fiscal_year_id']['date_from'];
 
             // retrieve all funds
             $condoFunds = CondoFund::search(['condo_id', '=', $ownershipTransfer['condo_id']])
