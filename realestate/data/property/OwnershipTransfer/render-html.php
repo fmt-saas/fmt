@@ -244,9 +244,19 @@ if(!$ownershipTransfer) {
     throw new Exception('unknown_ownership_transfer', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$arrear_fundings = Funding::search([ ['condo_id', '=', $ownershipTransfer['condo_id']['id']], ['is_paid', '=', false], ['ownership_id', '=', $ownershipTransfer['old_ownership_id']['id']]])
+$arrear_fundings = Funding::search([
+        ['condo_id', '=', $ownershipTransfer['condo_id']['id']],
+        ['is_paid', '=', false],
+        ['ownership_id', '=', $ownershipTransfer['old_ownership_id']['id']]
+    ])
     ->read(['due_date', 'name', 'funding_type', 'remaining_amount'])
     ->get(true);
+
+$arrears_amount = array_reduce(
+    $arrear_fundings,
+    fn($total, $funding) => $total + (float) ($funding['remaining_amount'] ?? 0),
+    0.0
+);
 
 $lang = $params['lang'];
 
@@ -332,6 +342,7 @@ $values = [
     'funds_balances'                        => $ownershipTransfer['fund_balances_ids'],
     'funds_requests'                        => $ownershipTransfer['fund_requests_ids'],
     'arrear_fundings'                       => $arrear_fundings,
+    'arrears_amount'                        => $arrears_amount,
     'transfer_fees'                         => $ownershipTransfer['transfer_fees_ids'],
     'ownership'                             => $ownershipTransfer['old_ownership_id'],
     'ownership_shares'                      => $ownershipTransfer['ownership_shares'],
