@@ -298,11 +298,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "seller_arrears_description",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "label": "Owner arrears",
                                                 "value": "arrear_fundings_ids",
                                                 "width": "100%",
@@ -315,6 +310,11 @@
                                                     },
                                                     "view": "list.arrears"
                                                 }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "seller_arrears_description",
+                                                "width": "100%"
                                             },
                                             {
                                                 "id": "label.transfer_file_fees",

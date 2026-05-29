@@ -212,10 +212,12 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'help'              => "As per 3.94.1.1"
             ],
 
+            // #todo - auto set + readonly
             'has_seller_arrears' => [
                 'type'              => 'boolean',
                 'description'       => "Are there any pending arrears owed by the seller?",
-                'default'           => true
+                'default'           => true,
+                'readonly'          => true
             ],
 
             'seller_arrears_description' => [
