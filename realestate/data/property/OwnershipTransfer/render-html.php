@@ -177,7 +177,6 @@ $labels = $getLabels(
     ]
 );
 
-
 $ownershipTransfer = OwnershipTransfer::id($params['id'])
     ->read([
         'status',
@@ -295,6 +294,15 @@ elseif($ownershipTransfer['confirmation_notary_office_id']) {
     $request_contact_email = $notaryOffice['email'];
 }
 
+$recipient = [
+    'name'              => $request_contact_name,
+    'address_street'    => $request_contact_address_street,
+    'address_dispatch'  => '',
+    'address_zip'       => $request_contact_address_zip,
+    'address_city'      => $request_contact_address_city,
+    'address_country'   => 'BE',
+    'email'             => $request_contact_email,
+];
 
 $values = [
 
@@ -316,11 +324,7 @@ $values = [
     'request_date'                          => $ownershipTransfer['request_date'],
     'status'                                => $ownershipTransfer['status'],
 
-    'request_contact_name'                  => $request_contact_name,
-    'request_contact_address_street'        => $request_contact_address_street,
-    'request_contact_address_zip'           => $request_contact_address_zip,
-    'request_contact_address_city'          => $request_contact_address_city,
-    'request_contact_email'                 => $request_contact_email,
+    'recipient'                             => $recipient,
 
     'today_date'                            => time(),
     'timezone'                              => constant('L10N_TIMEZONE'),
