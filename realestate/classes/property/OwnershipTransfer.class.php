@@ -1368,6 +1368,14 @@ class OwnershipTransfer extends \equal\orm\Model {
 
     public static function onchange($event, $values, $lang) {
         $result = [];
+
+        if(array_key_exists('condo_id', $event)) {
+            // upon change on condo_id, reset all fields
+            $result['property_lots_ids'] = [];
+            $result['old_ownership_id'] = null;
+            $result['property_lot_id'] = null;
+        }
+
         // synchronize ownership & property lots
         // #memo - we must be able to assign any ownership (not only active ones)
         if(array_key_exists('old_ownership_id', $event)) {
