@@ -138,6 +138,16 @@
             "description": "Résumé des arriérés en cours et des montants associés.",
             "help": ""
         },
+        "seller_arrears_none_message": {
+            "label": "Non, il n'y a pas d'arriérés à ce jour",
+            "description": "Résumé des arriérés en cours et des montants associés.",
+            "help": ""
+        },
+        "seller_arrears_some_message": {
+            "label": "OUI, il y a des arréirés qui s'élèvent à ",
+            "description": "Résumé des arriérés en cours et des montants associés.",
+            "help": ""
+        },
         "scheduled_fund_requests_description": {
             "label": "Appels programmés",
             "description": "Description des appels de fonds planifiés (section 3.94.1.3).",
