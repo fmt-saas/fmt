@@ -110,19 +110,21 @@
             {{ labels['letter.date_line'] | format(organisation.address_city, today_date | date(date_format, timezone)) }}
         </p>
 
+        <!--
         <p>
             <strong>{{ labels['letter.subject.label'] }} :</strong> {{ labels['letter.subject.text'] }}
         </p>
+        -->
 
         <table style="border: none; border-collapse: collapse;">
             <tr>
                 <td style="border: none; width: 50%;">
+                    <!--
                     <strong>{{ labels['condominium_association.label'] }} :</strong><br>
                     {{ condominium.name }}<br>
                     {{ condominium.address_street }}<br>
                     {{ condominium.address_zip }} – {{ condominium.address_city }}
-                </td>
-                <td style="border: none; width: 50%;">
+                    -->
                     <strong>{{ labels['sale_by.label'] }} :</strong>
                     {% for owner in ownership.owners_ids %}
                         {{ owner.name }}{% if not loop.last %}, {% endif %}
@@ -134,6 +136,22 @@
                     {% endfor %}
                     <br>
                     <strong>{{ labels['total_shares.label'] }} :</strong> {{ ownership_shares }} / {{ condo_shares }}
+
+                </td>
+                <td style="border: none; width: 50%;">
+                    <!--
+                    <strong>{{ labels['sale_by.label'] }} :</strong>
+                    {% for owner in ownership.owners_ids %}
+                        {{ owner.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                    <br>
+                    <strong>{{ labels['lots.label'] }} :</strong>
+                    {% for property_lot in property_lots %}
+                        {{ property_lot.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                    <br>
+                    <strong>{{ labels['total_shares.label'] }} :</strong> {{ ownership_shares }} / {{ condo_shares }}
+                    -->
                 </td>
             </tr>
         </table>
