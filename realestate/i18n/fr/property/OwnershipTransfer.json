@@ -284,7 +284,7 @@
                     "label": "Pièces jointes"
                 },
                 "section.information_documents": {
-                    "label": "Informations (3.94 §1)"
+                    "label": "3.94 §1"
                 },
                 "label.contact": {
                     "label": "Contact"
@@ -314,7 +314,7 @@
                     "label": "6) Dernier bilan validé en AG"
                 },
                 "section.information_statements": {
-                    "label": "Informations (3.94 §2)"
+                    "label": "3.94 §2"
                 },
                 "label.notary_confirmation_date": {
                     "label": "Date de confirmation du notaire"
@@ -341,7 +341,7 @@
                     "label": "Informations complémentaires"
                 },
                 "section.information_settlement": {
-                    "label": "Informations (3.94 §3)"
+                    "label": "3.94 §3"
                 }
             },
             "actions": {

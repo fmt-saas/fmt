@@ -300,6 +300,9 @@ if($opening_balance_id) {
             ->read(['account_id', 'debit', 'credit']);
 
         foreach($openingLines as $line) {
+            if(isset($params['account_id']) && $params['account_id'] != $line['account_id']) {
+                continue;
+            }
             $map_accounts_ids[$line['account_id']] = true;
             $map_opening_balances[$line['account_id']] =
                 ($map_opening_balances[$line['account_id']] ?? 0)
@@ -322,6 +325,9 @@ $changes = AccountBalanceChange::search([
 
 // compute opening balances : latest change overwrites previous ones
 foreach($changes as $change) {
+    if(isset($params['account_id']) && $params['account_id'] != $change['account_id']) {
+        continue;
+    }
     $map_accounts_ids[$change['account_id']] = true;
     $map_opening_balances[$change['account_id']] = $change['debit_balance'] - $change['credit_balance'];
 }
