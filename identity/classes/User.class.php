@@ -8,6 +8,7 @@ namespace identity;
 
 use equal\data\DataGenerator;
 use infra\server\Instance;
+use realestate\ownership\Owner;
 
 class User extends \core\User {
 
@@ -180,7 +181,7 @@ class User extends \core\User {
                 'function'          => 'calcIsEmployee'
             ],
 
-            'is_owners' => [
+            'is_owner' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
                 'function'          => 'calcIsOwner'
@@ -219,17 +220,30 @@ class User extends \core\User {
         return $result;
     }
 
+    /**
+     * There are two approaches to check this:
+     * either through specific assignments;
+     * or through the identity.
+     *
+     * Assignments are in principle intended for employees, so we prefer to use identities.
+     */
     protected static function calcIsOwner($self) {
         $result = [];
-        $self->read(['role_assignments_ids' => ['role_code']]);
+        $self->read(['identity_id']);
         foreach($self as $id => $user) {
             $result[$id] = false;
+            $owners = Owner::search(['identity_id', '=', $user['identity_id']])->ids();
+            if(count($owners)) {
+                $result[$id] = true;
+            }
+            /*
             foreach($user['role_assignments_ids'] as $role_assignment) {
                 if($role_assignment['role_code'] === 'owner') {
                     $result[$id] = true;
                     break;
                 }
             }
+            */
         }
         return $result;
     }

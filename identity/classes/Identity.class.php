@@ -17,7 +17,6 @@ use infra\server\Instance;
 use sale\customer\Customer;
 use purchase\supplier\Supplier;
 use realestate\management\ManagingAgent;
-use realestate\ownership\Owner;
 use realestate\property\Condominium;
 use realestate\property\Tenant;
 
@@ -743,6 +742,7 @@ class Identity extends Model {
     public function getIndexes(): array {
         return [
             ['type_id']
+            ['identity_id']
         ];
     }
 
