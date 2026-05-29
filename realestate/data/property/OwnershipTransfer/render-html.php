@@ -124,6 +124,8 @@ $labels = $getLabels(
         'article_3_94.section_1.general_assembly_minutes.title'                   => '5. the minutes of ordinary and extraordinary general meetings for the last three years, as well as periodic charge statements for the last two years;',
         'article_3_94.section_1.general_assembly_minutes.summary'                 => 'Minutes of general meetings for the last 3 years and charge statements for the last 2 years',
         'article_3_94.section_1.latest_balance_sheet.title'                       => '6. a copy of the latest balance sheet approved by the general meeting',
+        'article_3_94.section_1.seller_arrears.some_message'                      => 'YES, There are some arrears.',
+        'article_3_94.section_1.seller_arrears.none_message'                      => 'No, There are no arrears.',
 
         'article_3_94.section_2.title'                                            => 'In accordance with article 3.94, paragraph 2',
         'article_3_94.section_2.maintenance_expenses.title'                       => '1. the amount of preservation, maintenance, repair and renovation expenses decided by the general meeting or the managing agent before the certain date of transfer of ownership but requested by the managing agent after that date;',
