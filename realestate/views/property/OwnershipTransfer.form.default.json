@@ -320,12 +320,14 @@
                                                 "id": "label.transfer_file_fees",
                                                 "type": "label",
                                                 "value": "2° bis Transfer file fees",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "transfer_fees_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             },
                                             {
                                                 "id": "label.voted_fund_requests",
