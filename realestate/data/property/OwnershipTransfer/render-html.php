@@ -273,25 +273,43 @@ $request_contact_address_zip = $ownershipTransfer['request_contact_address_zip']
 $request_contact_address_city = $ownershipTransfer['request_contact_address_city'];
 $request_contact_email = $ownershipTransfer['request_contact_email'];
 
-if(in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent']) && $ownershipTransfer['is_notary_request']) {
-    $notaryOffice = NotaryOffice::id($ownershipTransfer['request_notary_office_id'])
-        ->read(['name', 'address_street', 'address_zip', 'address_city', 'email'])
-        ->first();
-    $request_contact_name = $notaryOffice['name'];
-    $request_contact_address_street = $notaryOffice['address_street'];
-    $request_contact_address_zip = $notaryOffice['address_zip'];
-    $request_contact_address_city = $notaryOffice['address_city'];
-    $request_contact_email = $notaryOffice['email'];
+if(in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'])) {
+    if($ownershipTransfer['is_notary_request']) {
+        $notaryOffice = NotaryOffice::id($ownershipTransfer['request_notary_office_id'])
+            ->read(['name', 'address_street', 'address_zip', 'address_city', 'email'])
+            ->first();
+        $request_contact_name = $notaryOffice['name'];
+        $request_contact_address_street = $notaryOffice['address_street'];
+        $request_contact_address_zip = $notaryOffice['address_zip'];
+        $request_contact_address_city = $notaryOffice['address_city'];
+        $request_contact_email = $notaryOffice['email'];
+    }
 }
-elseif($ownershipTransfer['confirmation_notary_office_id']) {
-    $notaryOffice = NotaryOffice::id($ownershipTransfer['confirmation_notary_office_id'])
-        ->read(['name', 'address_street', 'address_zip', 'address_city', 'email'])
-        ->first();
-    $request_contact_name = $notaryOffice['name'];
-    $request_contact_address_street = $notaryOffice['address_street'];
-    $request_contact_address_zip = $notaryOffice['address_zip'];
-    $request_contact_address_city = $notaryOffice['address_city'];
-    $request_contact_email = $notaryOffice['email'];
+
+if($ownershipTransfer['is_notary_request']) {
+    if(in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'])) {
+        $notaryOffice = NotaryOffice::id($ownershipTransfer['request_notary_office_id'])
+            ->read(['name', 'address_street', 'address_zip', 'address_city', 'email'])
+            ->first();
+        $request_contact_name = $notaryOffice['name'];
+        $request_contact_address_street = $notaryOffice['address_street'];
+        $request_contact_address_zip = $notaryOffice['address_zip'];
+        $request_contact_address_city = $notaryOffice['address_city'];
+        $request_contact_email = $notaryOffice['email'];
+    }
+}
+
+if(in_array($ownershipTransfer['status'], ['confirmed', 'financial_statement_sent', 'settled', 'closed'])) {
+    if($ownershipTransfer['confirmation_notary_office_id']) {
+        $notaryOffice = NotaryOffice::id($ownershipTransfer['confirmation_notary_office_id'])
+            ->read(['name', 'address_street', 'address_zip', 'address_city', 'email'])
+            ->first();
+        $request_contact_name = $notaryOffice['name'];
+        $request_contact_address_street = $notaryOffice['address_street'];
+        $request_contact_address_zip = $notaryOffice['address_zip'];
+        $request_contact_address_city = $notaryOffice['address_city'];
+        $request_contact_email = $notaryOffice['email'];
+    }
 }
 
 $recipient = [
