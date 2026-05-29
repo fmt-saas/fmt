@@ -882,7 +882,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                         'condo_id'              => $ownershipTransfer['condo_id'],
                         'ownership_transfer_id' => $id,
                         'condo_fund_id'         => $condo_fund_id,
-                        'condo_fund_balance'    => $last['balance'] ?? 0.0
+                        'condo_fund_balance'    => -$last['balance'] ?? 0.0
                     ]);
                 }
             }

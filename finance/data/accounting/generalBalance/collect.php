@@ -529,7 +529,7 @@ foreach($map_final_accounts_ids as $account_id => $_) {
 
         foreach($grouped_rows as $row) {
             $current_balance[$account_id] += $row['debit'] - $row['credit'];
-            $row['balance'] = $current_balance[$account_id];
+            $row['balance'] = round($current_balance[$account_id], 2);
 
             $result[] = $row;
         }
