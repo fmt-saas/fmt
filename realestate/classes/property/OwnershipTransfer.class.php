@@ -215,7 +215,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             'has_seller_arrears' => [
                 'type'              => 'boolean',
                 'description'       => "Are there any pending arrears owed by the seller?",
-                'default'           => false
+                'default'           => true
             ],
 
             'seller_arrears_description' => [
@@ -235,7 +235,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             'has_judiciary_procedures' => [
                 'type'              => 'boolean',
                 'description'       => "Are there any pending judiciary procedures affecting the condominium?",
-                'default'           => false
+                'default'           => true
             ],
 
             'judiciary_procedures_description' => [

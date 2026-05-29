@@ -293,7 +293,8 @@
                                             {
                                                 "type": "field",
                                                 "value": "has_seller_arrears",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
@@ -346,7 +347,8 @@
                                             {
                                                 "type": "field",
                                                 "value": "has_judiciary_procedures",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
@@ -485,7 +487,8 @@
                                             {
                                                 "type": "field",
                                                 "value": "has_seller_arrears_2",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
