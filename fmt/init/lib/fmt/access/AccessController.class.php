@@ -10,10 +10,13 @@ use equal\orm\ObjectManager;
 use core\Permission;
 use hr\role\Role;
 use hr\role\RoleAssignment;
+use identity\User;
+use realestate\ownership\Owner;
 
 class AccessController extends \equal\access\AccessController {
 
     private $cache_roles_map = [];
+    private $cache_owner_users_map = [];
 
     private function cacheRole($user_id, $condo_id, $role, $has_role) {
         if( !isset($this->cache_roles_map[$user_id]) ) {
@@ -104,6 +107,27 @@ class AccessController extends \equal\access\AccessController {
         return $this->isAllowed($operation, $object_class, $object_fields, $object_ids, $user_id);
     }
 
+    private function isOwnerUser($user_id): bool {
+        if(!isset($this->cache_owner_users_map[$user_id])) {
+            /** @var \equal\orm\ObjectManager */
+            $orm = $this->container->get('orm');
+
+            $users = $orm->read(User::getType(), [$user_id], ['identity_id']);
+            $user = is_array($users) ? current($users) : null;
+            $identity_id = $user['identity_id'] ?? null;
+
+            $has_owner = false;
+            if($identity_id) {
+                $owners_ids = $orm->search(Owner::getType(), ['identity_id', '=', $identity_id]);
+                $has_owner = is_array($owners_ids) && count($owners_ids) > 0;
+            }
+
+            $this->cache_owner_users_map[$user_id] = $has_owner;
+        }
+
+        return $this->cache_owner_users_map[$user_id];
+    }
+
     /**
      *  Check if current user (retrieved using Auth service) has rights to perform a given operation.
      *
@@ -128,6 +152,10 @@ class AccessController extends \equal\access\AccessController {
 
         if(!is_array($object_ids)) {
             $object_ids = (array) $object_ids;
+        }
+
+        if($user_id != EQ_ROOT_USER_ID && $this->isOwnerUser($user_id) && ($operation & ~EQ_R_READ) !== 0) {
+            return false;
         }
 
         if($object_class === '*') {

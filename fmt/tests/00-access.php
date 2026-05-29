@@ -5,10 +5,12 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 use identity\Group;
+use identity\Identity;
 use identity\User;
 use core\Permission;
 use hr\role\Role;
 use hr\role\RoleAssignment;
+use realestate\ownership\Owner;
 use realestate\property\Condominium;
 use realestate\property\PropertyLot;
 
@@ -348,6 +350,68 @@ $tests = [
                     User::search(['login', '=', 'user_test@example.com'])->delete(true);
                     Role::search(['code', '=', 'test'])->delete(true);
                     Group::search(['name', '=', 'test group'])->delete(true);
+                }
+        ],
+
+    '0211' => [
+            'description'       => "Owner user permissions are read-only.",
+            'help'              => "
+                    Granting READ and UPDATE permissions to a user linked to an Owner.
+                    Testing READ, UPDATE, and mixed READ|UPDATE rights.
+                    User should keep READ rights and be denied non-read rights.
+                ",
+            'return'            => ['boolean'],
+            'arrange'           => function() use($providers) {
+                    $identity = Identity::create([
+                        'type_id'   => 1,
+                        'type'      => 'IN',
+                        'firstname' => 'Owner',
+                        'lastname'  => 'Access Test',
+                        'lang_id'   => 2
+                    ])->first();
+                    $user = User::create(['login' => 'owner_access_test@example.com', 'password' => 'abcd1234', 'identity_id' => $identity['id']])->first();
+                    Owner::create(['identity_id' => $identity['id']])->first();
+                    $group = Group::create(['name' => 'test owner group'])->first();
+
+                    return [$user, $group];
+                },
+            'act'               => function($params) use($providers) {
+                    [$user, $group] = $params;
+                    /** @var \fmt\access\AccessController */
+                    $am = $providers['access'];
+                    $am->addGroup($group['id'], $user['id']);
+                    Permission::create(['class_name' => 'realestate\management\ManagingAgent', 'group_id' => $group['id'], 'rights' => EQ_R_READ|EQ_R_UPDATE]);
+
+                    return $user['id'];
+                },
+            'assert'            => function($user_id) use($providers) {
+                    /** @var \fmt\access\AccessController */
+                    $am = $providers['access'];
+
+                    return $am->userIsAllowed($user_id, EQ_R_READ, 'realestate\management\ManagingAgent')
+                        && !$am->userIsAllowed($user_id, EQ_R_UPDATE, 'realestate\management\ManagingAgent')
+                        && !$am->userIsAllowed($user_id, EQ_R_READ|EQ_R_UPDATE, 'realestate\management\ManagingAgent');
+                },
+            'rollback'          => function() use($providers) {
+                    $users = User::search(['login', '=', 'owner_access_test@example.com'])->read(['identity_id']);
+                    $identity_ids = [];
+                    foreach($users as $user) {
+                        if(isset($user['identity_id'])) {
+                            $identity_ids[] = $user['identity_id'];
+                        }
+                    }
+
+                    User::search(['login', '=', 'owner_access_test@example.com'])->delete(true);
+                    foreach($identity_ids as $identity_id) {
+                        Owner::search(['identity_id', '=', $identity_id])->delete(true);
+                        Identity::id($identity_id)->delete(true);
+                    }
+
+                    $groups_ids = Group::search(['name', '=', 'test owner group'])->ids();
+                    if(count($groups_ids)) {
+                        Permission::search(['group_id', 'in', $groups_ids])->delete(true);
+                        Group::ids($groups_ids)->delete(true);
+                    }
                 }
         ],
 ];
