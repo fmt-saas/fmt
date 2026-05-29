@@ -5,16 +5,17 @@
         "layout": "inline",
         "actions": false
     },
+    "order": "is_paid,due_date",
+    "sort": "asc,desc",
+    "domain": ["remaining_amount", "<>", 0],
+    "on_empty": {
+        "message": "Pas de paiement en attente. Tout est en ordre."
+    },
     "layout": {
         "items": [
             {
                 "type": "field",
                 "value": "due_date",
-                "width": "15%"
-            },
-            {
-                "type": "field",
-                "value": "name",
                 "width": "25%"
             },
             {
@@ -25,9 +26,15 @@
             },
             {
                 "type": "field",
+                "label": "Type",
+                "value": "is_paid",
+                "width": "10%"
+            },
+            {
+                "type": "field",
                 "label": "Remaining",
                 "value": "remaining_amount",
-                "width": "10%"
+                "width": "15%"
             }
         ]
     }

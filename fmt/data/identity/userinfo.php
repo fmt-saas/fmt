@@ -125,6 +125,8 @@ $user = User::id($user_id)
         'instance_id' => ['url'],
         'organisation_id',
         'employee_id',
+        'is_owner',
+        'is_employee',
         'role_assignments_ids' => ['condo_id', 'role_code', 'employee_id', 'is_external'],
         'selected_condo_id' => Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id])
     ])
@@ -132,43 +134,33 @@ $user = User::id($user_id)
     ->first(true);
 
 // #memo `Owner` is a link between an Identity and an Ownership
-$ownerships_ids = array_column(
-    Owner::search(['identity_id', '=', $user['identity_id']['id']])
-        ->read(['ownership_id'])
-        ->get(true),
-    'ownership_id'
-);
+$map_ownerships_ids = [];
+$map_condos_ids = [];
 
-$is_employee = false;
-$is_owner = false;
+$owners = Owner::search(['identity_id', '=', $user['identity_id']['id']])
+        ->read(['condo_id', 'ownership_id']);
+
+foreach($owners as $owner_id => $owner) {
+    $map_ownerships_ids[$owner['ownership_id']] = true;
+    $map_condos_ids[$owner['condo_id']] = true;
+}
 
 $map_roles = [];
-$map_condos = [];
-
-if($user['employee_id']) {
-    $is_employee = true;
-}
 
 foreach($user['role_assignments_ids'] as $role_assignment) {
-    if($role_assignment['role_code'] === 'owner') {
-        $is_owner = true;
-    }
     $map_roles[$role_assignment['role_code']] = true;
-    $map_condos[$role_assignment['condo_id']] = true;
 }
-
-
 
 $result = array_merge($user, [
         'groups'            => array_values(array_map(function ($a) {return $a['name'];}, $user['groups_ids'])),
         'roles'             => array_keys($map_roles),
-        'ownerships_ids'    => $ownerships_ids,
+        'ownerships_ids'    => array_keys($map_ownerships_ids),
+        'condos_ids'        => array_keys($map_condos_ids),
         'identity_id'       => $user['identity_id'],
         'organisation_id'   => $user['organisation_id'],
         'employee_id'       => $user['employee_id'],
-        'is_owner'          => $is_owner,
-        'is_employee'       => $is_employee,
-        'condos_ids'        => array_keys($map_condos),
+        'is_owner'          => $user['is_owner'],
+        'is_employee'       => $user['is_employee'],
         'selected_condo_id' => Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id])
     ]);
 

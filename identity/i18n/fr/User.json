@@ -17,7 +17,16 @@
 			"label": "Instance",
 			"description": "L'instance d'origine de l'utilisateur'.",
 			"help": ""
-		}
+		},
+        "status": {
+            "label": "Statut",
+            "selection": {
+                "created": "Créé",
+                "validated": "Validé",
+                "confirmed": "Confirmé",
+                "suspended": "Suspendu"
+            }
+        }
 	},
 	"view": {
 		"form.default": {

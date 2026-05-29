@@ -10,6 +10,9 @@ use identity\User;
 [$params, $providers] = eQual::announce([
     'description'   => 'Redirect authenticated user to default application.',
     'params'        => [],
+    'access' => [
+        'visibility'        => 'public'
+    ],
     'providers'     => ['auth', 'context']
 ]);
 
@@ -25,7 +28,6 @@ $user_id = $auth->userId();
 $user = User::id($user_id)->read(['is_owner'])->first();
 
 if($user) {
-
     if($user['is_owner']) {
         $location = '/portal/#/';
     }
@@ -37,6 +39,9 @@ if($user) {
         $location = '/accounting/#/';
     }
     */
+}
+else {
+    $location = '/auth/?redirect_to=' . urlencode('/?show=fmt_home');
 }
 
 // Exact API may vary depending on how eQual exposes the HTTP response.

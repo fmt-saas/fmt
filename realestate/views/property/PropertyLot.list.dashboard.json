@@ -9,9 +9,9 @@
         "items": [
             {
                 "type": "field",
-                "label": "Code",
-                "value": "code",
-                "width": "20%",
+                "label": "Condominium",
+                "value": "condo_id",
+                "width": "25%",
                 "sortable": true
             },
             {
@@ -24,15 +24,8 @@
             {
                 "type": "field",
                 "label": "Owner",
-                "value": "active_ownership_id",
+                "value": "is_primary",
                 "width": "20%",
-                "sortable": true
-            },
-            {
-                "type": "field",
-                "label": "Condominium",
-                "value": "condo_id",
-                "width": "25%",
                 "sortable": true
             },
             {

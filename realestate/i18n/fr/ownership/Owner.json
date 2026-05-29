@@ -74,13 +74,45 @@
             "name": "Nouveau propriétaire",
             "description": "Assistant de création d'un propriétaire et de ses parts."
         },
+        "form.error": {
+            "name": "Erreur propriétaire",
+            "description": "Message affiché lorsqu'une erreur inattendue survient côté portail propriétaire.",
+            "layout": {
+                "label.error_message": {
+                    "label": "Compte non marqué comme compte propriétaire.<br /><br />Une erreur inattendue est survenue. Veuillez contacter votre gestionnaire de compte."
+                }
+            }
+        },
         "list.default": {
             "name": "Liste des propriétaires",
             "description": "Vue tableau des propriétaires (identité, ownership et répartition des parts)."
         },
         "dashboard.default": {
+            "name": "Mon Espace Propriétaire",
+            "description": "Entrées et widgets consultés côté portail propriétaire.",
+            "layout": {
+                "group.main": {
+                    "label": "Tableau de bord"
+                },
+                "item.fundings": {
+                    "label": "Mes Paiements"
+                },
+                "item.property_lots": {
+                    "label": "Mes biens immobilier"
+                },
+                "item.general_assemblies": {
+                    "label": "Mes Assemblées générales"
+                }
+            }
+        },
+        "dashboard.error": {
             "name": "Tableau de bord propriétaire",
-            "description": "Entrées et widgets consultés côté portail propriétaire."
+            "description": "Entrées et widgets consultés côté portail propriétaire.",
+            "layout": {
+                "item.error": {
+                    "label": "Erreur inattendue"
+                }
+            }
         }
     }
 }
