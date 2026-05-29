@@ -1,0 +1,46 @@
+{
+    "name": "Assemblies",
+    "description": "Overview of scheduled assemblies and their status.",
+    "header": {
+        "layout": "inline",
+        "actions": false
+    },
+    "order": "assembly_date",
+    "sort": "desc",
+    "on_empty": {
+        "message": "Aucune assemblée générale planifiée."
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "assembly_type",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "assembly_date",
+                "width": "15%",
+                "widget": {
+                    "usage": "date/plain.short"
+                }
+            },
+            {
+                "type": "field",
+                "value": "is_second_session",
+                "width": "10%"
+            }
+        ]
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "name": "Owner error dashboard",
+    "description": "",
+    "layout": {
+        "groups": [
+			{
+                "label": "test",
+                "height": "100%",
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "height": "100%",
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "id": "item.error",
+                                                "label": "Unexpected situation",
+                                                "description": "",
+                                                "width": "100%",
+                                                "entity": "realestate\\ownership\\Owner",
+                                                "view": "form.error"
+                                            }
+
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -1,0 +1,44 @@
+{
+    "name": "Owner",
+    "description": "Owner error.",
+    "header": {
+        "actions": false
+    },
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "id": "label.error_message",
+                                                "value": "An unexpected error occurred. Please contact your account manager.",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "styles": {
+                                                        "text_color": "crimson"
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
