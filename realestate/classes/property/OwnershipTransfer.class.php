@@ -215,7 +215,8 @@ class OwnershipTransfer extends \equal\orm\Model {
             ],
 
             'arrears_amount' => [
-                'type'              => 'integer',
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
                 'description'       => "The total pending arrears owed by the seller."
             ],
 
