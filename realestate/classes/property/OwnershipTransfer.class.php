@@ -1485,11 +1485,11 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             if($event['condo_id']) {
                 $result['old_ownership_id'] = [
-                    'domain' => ['condo_id', '=', $values['condo_id']]
+                    'domain' => ['condo_id', '=', $event['condo_id']]
                 ];
                 $result['property_lot_id'] = [
                     'visible' => true,
-                    'domain' => ['condo_id', '=', $values['condo_id']]
+                    'domain' => ['condo_id', '=', $event['condo_id']]
                 ];
             }
         }
