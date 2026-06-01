@@ -232,8 +232,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             'has_seller_arrears' => [
                 'type'              => 'boolean',
                 'description'       => "Are there any pending arrears owed by the seller?",
-                'default'           => true,
-                'readonly'          => true
+                'default'           => true
             ],
 
             'seller_arrears_description' => [
