@@ -1477,7 +1477,7 @@ class OwnershipTransfer extends \equal\orm\Model {
     public static function onchange($event, $values, $lang) {
         $result = [];
 
-        if(array_key_exists('condo_id', $event) && $event['condo_id']) {
+        if(array_key_exists('condo_id', $event)) {
             // upon change on condo_id, reset all fields
             $result['property_lots_ids'] = [];
             $result['old_ownership_id'] = null;
@@ -1489,6 +1489,9 @@ class OwnershipTransfer extends \equal\orm\Model {
         if(array_key_exists('old_ownership_id', $event)) {
             $result['property_lots_ids'] = [];
             if($event['old_ownership_id']) {
+                $result['property_lot_id'] = [
+                    'visible' => false
+                ];
                 $propertyOwnerships = PropertyLotOwnership::search([['ownership_id', '=', $event['old_ownership_id']]])->read(['property_lot_id'])->get(true);
                 $property_lots_ids = array_map(function ($a) {return $a['property_lot_id'];}, $propertyOwnerships);
                 if(!$values['property_lot_id'] || !in_array($values['property_lot_id'], $property_lots_ids) ) {
