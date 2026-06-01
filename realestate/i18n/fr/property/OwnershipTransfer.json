@@ -248,6 +248,16 @@
             "description": "Destinataires enregistrés pour recevoir les communications.",
             "help": ""
         },
+        "with_additional_info_1": {
+            "label": "Avec infos complémentaires",
+            "description": "Ajouter les informations complémentaires en annexe.",
+            "help": ""
+        },
+        "with_additional_info_2": {
+            "label": "Avec infos complémentaires",
+            "description": "Ajouter les informations complémentaires en annexe.",
+            "help": ""
+        },
         "status": {
             "label": "Statut",
             "description": "Étape actuelle du processus (brouillon, ouvert, confirmé, etc.).",
