@@ -1477,7 +1477,7 @@ class OwnershipTransfer extends \equal\orm\Model {
     public static function onchange($event, $values, $lang) {
         $result = [];
 
-        if(array_key_exists('condo_id', $event)) {
+        if(array_key_exists('condo_id', $event) && $event['condo_id']) {
             // upon change on condo_id, reset all fields
             $result['property_lots_ids'] = [];
             $result['old_ownership_id'] = null;
