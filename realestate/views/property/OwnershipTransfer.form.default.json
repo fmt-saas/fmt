@@ -294,7 +294,8 @@
                                                 "type": "field",
                                                 "value": "has_seller_arrears",
                                                 "width": "100%",
-                                                "visible": false
+                                                "visible": true,
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",

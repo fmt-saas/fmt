@@ -6,6 +6,7 @@
 */
 namespace realestate\property;
 
+use communication\template\Template;
 use equal\text\TextTransformer;
 use fmt\setting\Setting;
 use identity\Identity;
@@ -24,6 +25,7 @@ use realestate\funding\FundRequestExecutionLine;
 use realestate\funding\FundRequestExecutionLineEntry;
 use realestate\funding\FundRequestLineEntryLot;
 use realestate\ownership\Ownership;
+use realestate\sale\pay\Funding;
 
 class OwnershipTransfer extends \equal\orm\Model {
 
@@ -212,6 +214,19 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'help'              => "As per 3.94.1.1"
             ],
 
+            'arrears_amount' => [
+                'type'              => 'integer',
+                'description'       => "The total pending arrears owed by the seller."
+            ],
+
+            'arrear_fundings_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\sale\pay\Funding',
+                // #memo - we do not use foreign_field here, since funding is not directly related to the transfer
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_paid', '=', false], ['ownership_id', '=', 'object.old_ownership_id']],
+                'description'       => 'Balances of the condominium funds with property lots shares.'
+            ],
+
             // #todo - auto set + readonly
             'has_seller_arrears' => [
                 'type'              => 'boolean',
@@ -344,14 +359,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description'       => 'Fund requests of the condominium funds (with property lots called amounts).'
             ],
 
-            'arrear_fundings_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'realestate\sale\pay\Funding',
-                // #memo - we do not use foreign_field here, since funding is not directly related to the transfer
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_paid', '=', false], ['ownership_id', '=', 'object.old_ownership_id']],
-                'description'       => 'Balances of the condominium funds with property lots shares.'
-            ],
-
             'mails_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'core\Mail',
@@ -454,10 +461,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                         'help' => 'The notary deed has been signed and the notary has sent the settlement documents to the accounting department.',
                         'onafter' => 'onafterSettle',
                         'status' => 'settled',
-                    ],
-                    'send' => [
-                        'description' => 'Update the document to `processed`.',
-                        'status' => 'financial_statement_sent',
                     ],
                 ],
             ],
@@ -571,7 +574,8 @@ class OwnershipTransfer extends \equal\orm\Model {
             // 3.94.1.1
             'fund_balances_description' => "Veuillez trouver la situation des différents fonds dans le récapitulatif suivant",
             // 3.94.1.2
-            'seller_arrears_description' => "Le montant à ce jour des arriérés dus par le cédant à la copropriété;",
+            // #todo - set based on actual arrears
+            // 'seller_arrears_description' => "Le montant à ce jour des arriérés dus par le cédant à la copropriété;",
             // 3.94.1.3
             'scheduled_fund_requests_description' => "Voir les points fonds de réserve, fonds de roulement et budget du dernier PV de l’AG.",
             // 3.94.1.4
@@ -597,7 +601,8 @@ class OwnershipTransfer extends \equal\orm\Model {
 
     protected static function onafterSettle($self) {
         $self
-            ->do('generate_adjustments');
+            ->do('generate_adjustments')
+            ->do('refresh_arrears');
     }
 
     public static function getPolicies(): array {
@@ -638,7 +643,13 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description'   => 'Generate the table of condo funds requests.',
                 'policies'      => [],
                 'function'      => 'doGenerateFundRequestLines'
+            ],
+            'refresh_arrears' => [
+                'description'   => 'Refresh values related to arrears owed by the seller.',
+                'policies'      => [],
+                'function'      => 'doRefreshArrears'
             ]
+
         ]);
     }
 
@@ -791,6 +802,94 @@ class OwnershipTransfer extends \equal\orm\Model {
             }
         }
         return $result;
+    }
+
+
+    protected static function doRefreshArrears($self) {
+        $self->read(['status', 'condo_id', 'old_ownership_id']);
+        foreach($self as $id => $ownershipTransfer) {
+            $arrear_fundings = Funding ::search([
+                    ['condo_id', '=', $ownershipTransfer['condo_id']],
+                    ['is_paid', '=', false],
+                    ['ownership_id', '=', $ownershipTransfer['old_ownership_id']]
+                ])
+                ->read(['due_date', 'name', 'funding_type', 'remaining_amount'])
+                ->get(true);
+
+            $arrears_amount = array_reduce(
+                $arrear_fundings,
+                fn($total, $funding) => $total + (float) ($funding['remaining_amount'] ?? 0),
+                0.0
+            );
+
+            $values = [
+                'arrears_amount' => $arrears_amount
+            ];
+
+            $domain_template = [
+                ['type', '=', 'document']
+            ];
+
+            if(in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'])) {
+                $domain_template[] = ['code', '=', 'ownership_transfer_paragraph_1'];
+            }
+            else {
+                $domain_template[] = ['code', '=', 'ownership_transfer_paragraph_2'];
+            }
+
+            $template = Template::search($domain_template)
+                ->read( ['id','parts_ids' => ['name', 'value']])
+                ->first(true);
+
+            if(round($arrears_amount, 2) > 0.01) {
+                $values['has_seller_arrears'] = true;
+
+                foreach($template['parts_ids'] as $part_id => $part) {
+                    if($part['name'] == 'seller_arrears_some_description') {
+                        $text = strip_tags($part['value']);
+
+                        $map_values = [
+                            'amount'             => $arrears_amount,
+                        ];
+
+                        // Replace {var} items with corresponding values, set in $map_values
+                        $text = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+                            $key = $matches[1];
+                            return $map_values[$key] ?? '';
+                        }, $text);
+
+                        $text = strip_tags($text);
+                        $values['seller_arrears_description'] = $text;
+                        break;
+                    }
+                }
+            }
+            else {
+                $values['has_seller_arrears'] = false;
+
+                foreach($template['parts_ids'] as $part_id => $part) {
+                    if($part['name'] == 'seller_arrears_none_description') {
+                        $text = strip_tags($part['value']);
+
+                        $map_values = [
+                        ];
+
+                        // Replace {var} items with corresponding values, set in $map_values
+                        $text = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+                            $key = $matches[1];
+                            return $map_values[$key] ?? '';
+                        }, $text);
+
+                        $text = strip_tags($text);
+                        $values['seller_arrears_description'] = $text;
+                        break;
+                    }
+                }
+
+            }
+
+            self::id($id)->update($values);
+        }
     }
 
     protected static function doGenerateFundRequestLines($self) {
@@ -1355,7 +1454,9 @@ class OwnershipTransfer extends \equal\orm\Model {
 
     protected static function onupdateOldOwnershipId($self) {
         // make sure no propertylots from other ownership
-        $self->read(['condo_id', 'property_lots_ids', 'old_ownership_id']);
+        $self
+            ->read(['condo_id', 'property_lots_ids', 'old_ownership_id'])
+            ->do('refresh_arrears');
         foreach($self as $id => $ownershipTransfer) {
             $changes = [];
             // retrieve all property lots that are not part of the ownership transfer

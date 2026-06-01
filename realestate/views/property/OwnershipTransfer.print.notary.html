@@ -194,14 +194,16 @@
         <h4>{{ labels['article_3_94.section_1.seller_arrears.title'] }}</h4>
         <div>
 
+            <!--
             {% if arrears_amount > 0.0 %}
                 {{ labels['article_3_94.section_1.seller_arrears.some_message'] }} {{ arrears_amount | format_money() }}<br />
             {% else %}
                 {{ labels['article_3_94.section_1.seller_arrears.none_message'] }}<br />
             {% endif %}
+            -->
 
             {% if seller_arrears_description is not empty %}
-                <small>{{ seller_arrears_description | raw }}</small>
+                {{ seller_arrears_description | raw }}
             {% endif %}
 
             <!--

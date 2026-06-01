@@ -20,7 +20,8 @@
                 "document": "Documents à traiter",
                 "invoice": "Factures d'achat",
                 "bank_statement": "Extraits bancaires",
-                "expense_statement": "Décomptes de charges"
+                "expense_statement": "Décomptes de charges",
+                "fund_request": "Appels de fonds"
             },
             "help": "Permet d'identifier le type de processing suivi dans la ligne."
         },
