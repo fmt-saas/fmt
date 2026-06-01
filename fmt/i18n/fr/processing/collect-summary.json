@@ -55,6 +55,10 @@
                 "route.expense_statement": {
                     "label": "Décomptes",
                     "description": ""
+                },
+                "route.fund_request": {
+                    "label": "Appels de fonds",
+                    "description": ""
                 }
             },
             "layout": {}

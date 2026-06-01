@@ -10,6 +10,7 @@ use documents\processing\DocumentProcess;
 use equal\orm\Domain;
 use finance\bank\BankStatement;
 use realestate\funding\ExpenseStatement;
+use realestate\funding\FundRequestExecution;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
@@ -193,7 +194,8 @@ if($bankStatements->count() > 0) {
 
 
 $domain = [
-    ['status', '=', 'proforma']
+    ['status', '=', 'proforma'],
+    ['invoice_type', '=', 'expense_statement']
 ];
 
 /*
@@ -223,6 +225,46 @@ if($expenseStatements->count() > 0) {
 
     $result[] = [
         'document_type_code'    => 'expense_statement',
+        'count'                 => $count,
+        // 'count_alerts'          => $alerts,
+        'count_alerts'          => 0,
+        'date_last'             => date('c', $date_last)
+    ];
+}
+
+
+$domain = [
+    ['status', '=', 'proforma'],
+    ['invoice_type', '=', 'fund_request']
+];
+
+/*
+// #todo
+if($employee_id) {
+    $domain[] = ['assigned_employee_id', '=', $employee_id];
+}
+*/
+
+$fundRequestExecutions = FundRequestExecution::search($domain)->read(['id', 'created']);
+
+if($fundRequestExecutions->count() > 0) {
+    $count = 0;
+    $alerts = 0;
+    $date_last = 0;
+    foreach($fundRequestExecutions as $fundRequestExecution) {
+        ++$count;
+        if($fundRequestExecution['created'] > $date_last) {
+            $date_last = $fundRequestExecution['created'];
+        }
+        /*
+        if($fundRequestExecution['alert'] && $fundRequestExecution['alert'] !== 'info') {
+            ++$alerts;
+        }
+        */
+    }
+
+    $result[] = [
+        'document_type_code'    => 'fund_request',
         'count'                 => $count,
         // 'count_alerts'          => $alerts,
         'count_alerts'          => 0,

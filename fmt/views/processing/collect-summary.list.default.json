@@ -47,7 +47,7 @@
         },
         {
             "id": "route.bank_statement",
-            "label": "Bank Statement",
+            "label": "Bank Statements",
             "inline": true,
             "description": "",
             "icon": "visibility",
@@ -65,7 +65,7 @@
         },
         {
             "id": "route.expense_statement",
-            "label": "Expense Statement",
+            "label": "Expense Statements",
             "inline": true,
             "description": "",
             "icon": "visibility",
@@ -79,6 +79,24 @@
             },
             "visible": [
                 ["expense_statement", "=", "object.document_type_code"]
+            ]
+        },
+        {
+            "id": "route.fund_request",
+            "label": "Fund Requests",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "realestate\\funding\\FundRequestExecution",
+                "view": "list.default",
+                "domain": [
+                    ["status", "in", ["proforma"]],
+                    ["invoice_type", "=", "fund_request"]
+                ]
+            },
+            "visible": [
+                ["fund_request", "=", "object.document_type_code"]
             ]
         }
     ],
