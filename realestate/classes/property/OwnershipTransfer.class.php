@@ -1504,7 +1504,9 @@ class OwnershipTransfer extends \equal\orm\Model {
                 ];
 
                 $result['property_lots_ids'] = [
-                    'domain' => [['ownership_id', '=', $event['old_ownership_id']]]
+                    'domain' => [
+                        ['active_ownership_id', '=', $event['old_ownership_id']]
+                    ]
                 ];
 
                 /*
