@@ -1482,6 +1482,16 @@ class OwnershipTransfer extends \equal\orm\Model {
             $result['property_lots_ids'] = [];
             $result['old_ownership_id'] = null;
             $result['property_lot_id'] = null;
+
+            if($event['condo_id']) {
+                $result['old_ownership_id'] = [
+                    'domain' => ['condo_id', '=', $values['condo_id']]
+                ];
+                $result['property_lot_id'] = [
+                    'visible' => true,
+                    'domain' => ['condo_id', '=', $values['condo_id']]
+                ];
+            }
         }
 
         // synchronize ownership & property lots
