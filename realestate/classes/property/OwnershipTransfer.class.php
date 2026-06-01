@@ -1508,6 +1508,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                     'domain' => ['condo_id', '=', $values['condo_id']]
                 ];
                 $result['property_lot_id'] = [
+                    'visible' => true,
                     'domain' => ['condo_id', '=', $values['condo_id']]
                 ];
             }
