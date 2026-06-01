@@ -1537,7 +1537,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 $ownerships_ids = array_map(function ($a) {return $a['ownership_id'];}, $propertyOwnerships);
                 if(!isset($values['old_ownership_id']) || !in_array($values['old_ownership_id'], $ownerships_ids)) {
                     $result['old_ownership_id'] = null;
-                    if(count($ownerships_ids) == 1) {
+                    if(count($ownerships_ids) === 1) {
                         $ownership_id = reset($ownerships_ids);
                         $ownership = Ownership::id($ownership_id)->read(['id', 'name'])->first();
                         $result['old_ownership_id'] = [
@@ -1555,9 +1555,11 @@ class OwnershipTransfer extends \equal\orm\Model {
                 }
             }
             else {
+                /*
                 $result['old_ownership_id'] = [
                     'domain' => ['condo_id', '=', $values['condo_id']]
                 ];
+                */
                 $result['property_lot_id'] = [
                     'domain' => ['condo_id', '=', $values['condo_id']]
                 ];
