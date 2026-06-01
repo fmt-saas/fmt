@@ -260,7 +260,7 @@
             "description": "Fiche complète du dossier (contacts, pièces, ajustements et processus).",
             "layout": {
                 "section.main": {
-                    "label": "Propriétaires & lots"
+                    "label": "Infos"
                 },
                 "label.information_request": {
                     "label": "Demande d'information"

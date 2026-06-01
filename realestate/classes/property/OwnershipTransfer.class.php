@@ -846,10 +846,10 @@ class OwnershipTransfer extends \equal\orm\Model {
 
                 foreach($template['parts_ids'] as $part_id => $part) {
                     if($part['name'] == 'seller_arrears_some_description') {
-                        $text = strip_tags($part['value']);
+                        $text = $part['value'];
 
                         $map_values = [
-                            'amount'             => $arrears_amount,
+                            'amount' => $arrears_amount,
                         ];
 
                         // Replace {var} items with corresponding values, set in $map_values
@@ -858,7 +858,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                             return $map_values[$key] ?? '';
                         }, $text);
 
-                        $text = strip_tags($text);
                         $values['seller_arrears_description'] = $text;
                         break;
                     }
@@ -869,7 +868,7 @@ class OwnershipTransfer extends \equal\orm\Model {
 
                 foreach($template['parts_ids'] as $part_id => $part) {
                     if($part['name'] == 'seller_arrears_none_description') {
-                        $text = strip_tags($part['value']);
+                        $text = $part['value'];
 
                         $map_values = [
                         ];
@@ -880,7 +879,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                             return $map_values[$key] ?? '';
                         }, $text);
 
-                        $text = strip_tags($text);
                         $values['seller_arrears_description'] = $text;
                         break;
                     }

@@ -763,16 +763,18 @@ $template = Template::create([
 
 TemplatePart::create([
     'name'          => 'seller_arrears_some_description',
-    'value'         => "<p>OUI, il y a des arriérés qui s'élèvent à {amount}. Ce montant ne comprend pas les majorations dues aux pénalités financières, intérêts, frais et dépens, que celles-ci résultent des statuts de la copropriété, de décisions d’assemblées générales ou de justice. Le calcul final ne pouvant être entrepris que le jour de la réception des montants dus.</p>
-        <p>De plus, ce montant ne comprend pas les honoraires pour les frais de transfert de propriété.</p>
-        <p>Ce montant ne tient pas compte du décompte de charge de l’exercice comptable en cours.</p>",
+    'value'         => "
+        <p>OUI, il existe des arriérés qui s’élèvent à ce jour au montant de <strong>{amount} €</strong>.</p><p><br /></p><p><em>Ce montant ne comprend pas les majorations, pénalités financières, intérêts, frais et dépens résultant des statuts de la copropriété, de décisions d’assemblées générales ou de décisions judiciaires. Le décompte définitif ne pourra être arrêté qu’au jour de la réception des sommes dues.</em></p><p>&nbsp;</p><p><em>Nous rappelons également que le copropriétaire cédant restera redevable de sa quote-part dans le(s) décompte(s) de charges à établir jusqu’à la date de signature de l’acte authentique, ainsi que des honoraires du syndic liés à la gestion du dossier de transfert de propriété.</em></p>
+    ",
     'template_id'   => $template['id'],
     'variables'     => '["amount"]'
 ]);
 
 TemplatePart::create([
     'name'          => 'seller_arrears_none_description',
-    'value'         => "<p>NON, il n'y a pas d'arriérés à ce jour.</p>",
+    'value'         => "
+        <p>NON, il n’existe aucun arriéré à ce jour.</p><p><br /></p><p><em>Nous rappelons toutefois que le copropriétaire cédant restera redevable de sa quote-part dans le(s) décompte(s) de charges à établir jusqu’à la date de signature de l’acte authentique, ainsi que des honoraires du syndic liés à la gestion du dossier de transfert de propriété.</em></p>
+    ",
     'template_id'   => $template['id'],
     'variables'     => '[]'
 ]);

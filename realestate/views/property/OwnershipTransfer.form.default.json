@@ -143,6 +143,27 @@
                                                         }
                                                     }
                                                 }
+                                            },
+                                            {
+                                                "id": "label.additional_information",
+                                                "type": "label",
+                                                "value": "Additional information",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_intervention_record",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_fuel_tank",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fuel_tank_capacity",
+                                                "width": "50%"
                                             }
                                         ]
                                     }
@@ -497,27 +518,6 @@
                                                 "type": "field",
                                                 "value": "seller_arrears_description_2",
                                                 "width": "100%"
-                                            },
-                                            {
-                                                "id": "label.additional_information",
-                                                "type": "label",
-                                                "value": "Additional information",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_intervention_record",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_fuel_tank",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "fuel_tank_capacity",
-                                                "width": "50%"
                                             }
                                         ]
                                     }
