@@ -1,0 +1,67 @@
+{
+    "name": "Ligne de crédit de copropriété",
+    "plural": "Lignes de crédit de copropriété",
+    "description": "Informations manuelles sur un crédit souscrit par la copropriété et sa quote-part pour un lot transféré.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété qui a souscrit le crédit.",
+            "help": ""
+        },
+        "name": {
+            "label": "Libellé",
+            "description": "Libellé calculé à partir de la description.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Description courte du crédit ou de l'emprunt.",
+            "help": ""
+        },
+        "ownership_transfer_id": {
+            "label": "Transfert lié",
+            "description": "Dossier de transfert auquel cette ligne de crédit est rattachée.",
+            "help": ""
+        },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé utilisée pour déterminer la quote-part du lot.",
+            "help": ""
+        },
+        "property_lot_id": {
+            "label": "Lot",
+            "description": "Lot concerné par la quote-part du crédit.",
+            "help": ""
+        },
+        "property_lot_shares": {
+            "label": "Quote-part du lot",
+            "description": "Nombre de parts du lot dans la clé de répartition sélectionnée.",
+            "help": ""
+        },
+        "total_shares": {
+            "label": "Total des quotes-parts",
+            "description": "Nombre total de parts de la clé de répartition sélectionnée.",
+            "help": ""
+        },
+        "total_amount": {
+            "label": "Montant total du crédit",
+            "description": "Montant total du crédit souscrit par la copropriété.",
+            "help": ""
+        },
+        "property_lot_amount": {
+            "label": "Montant attribué au lot",
+            "description": "Part du crédit attribuée au lot sélectionné.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Ligne de crédit de copropriété",
+            "description": "Formulaire d'encodage d'un crédit et de sa quote-part pour un lot."
+        },
+        "list.default": {
+            "name": "Crédits de copropriété",
+            "description": "Liste des crédits de copropriété liés au transfert, avec quote-part et montants par lot."
+        }
+    }
+}

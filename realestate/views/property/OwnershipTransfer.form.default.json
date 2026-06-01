@@ -203,6 +203,23 @@
                                                 "type": "field",
                                                 "value": "fuel_tank_capacity",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%",
+                                                "visible": ["has_fuel_tank", "=", false]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_bank_loan",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "bank_loan_lines_ids",
+                                                "width": "100%",
+                                                "visible": ["has_bank_loan", "=", true]
                                             }
                                         ]
                                     }

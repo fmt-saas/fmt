@@ -265,30 +265,37 @@
             </div>
 
             {% if with_additional_info_2 %}
-            <h5>{{ labels['additional_information.intervention_record.title'] }} :</h5>
-            <div>
-                <strong>
-                {%if has_intervention_record %}
-                    {{ labels['additional_information.intervention_record.exists'] }}
-                {% else %}
-                    {{ labels['additional_information.intervention_record.missing'] }}
-                {% endif %}
-                </strong>
-            </div>
-            <div>
-                <small>{{ labels['additional_information.intervention_record.consultation_notice'] }}</small>
-            </div>
 
-            <h5>{{ labels['additional_information.fuel_tank.title'] }} :</h5>
-            <div>
-                <strong>
-                {% if has_fuel_tank %}
-                    {{ labels['additional_information.fuel_tank.exists'] | format(fuel_tank_capacity) }}
-                {% else %}
-                    {{ labels['additional_information.fuel_tank.missing'] }}
-                {% endif %}
-                </strong>
-            </div>
+                <h4>{{ labels['additional_information.title'] }}</h4>
+
+                <h5>{{ labels['additional_information.bank_loans'] }} : <!-- {status_loan} --></h5>
+                <div>
+                    <!-- {table_loans} -->
+                </div>
+                <h5>{{ labels['additional_information.intervention_record.title'] }} :</h5>
+                <div>
+                    <strong>
+                    {%if has_intervention_record %}
+                        {{ labels['additional_information.intervention_record.exists'] }}
+                    {% else %}
+                        {{ labels['additional_information.intervention_record.missing'] }}
+                    {% endif %}
+                    </strong>
+                </div>
+                <div>
+                    <small>{{ labels['additional_information.intervention_record.consultation_notice'] }}</small>
+                </div>
+
+                <h5>{{ labels['additional_information.fuel_tank.title'] }} :</h5>
+                <div>
+                    <strong>
+                    {% if has_fuel_tank %}
+                        {{ labels['additional_information.fuel_tank.exists'] | format(fuel_tank_capacity) }}
+                    {% else %}
+                        {{ labels['additional_information.fuel_tank.missing'] }}
+                    {% endif %}
+                    </strong>
+                </div>
 
             {% endif %}
         {% endif %}
@@ -372,38 +379,40 @@
                 </p>
             </div>
 
-            <h4>{{ labels['additional_information.title'] }}</h4>
-
-            <h5>{{ labels['additional_information.bank_loans'] }} : <!-- {status_loan} --></h5>
-            <div>
-                <!-- {table_loans} -->
-            </div>
 
             {% if with_additional_info_2 %}
-            <h5>{{ labels['additional_information.intervention_record.title'] }} :</h5>
-            <div>
-                <strong>
-                {%if has_intervention_record %}
-                    {{ labels['additional_information.intervention_record.exists'] }}
-                {% else %}
-                    {{ labels['additional_information.intervention_record.missing'] }}
-                {% endif %}
-                </strong>
-            </div>
-            <div>
-                <small>{{ labels['additional_information.intervention_record.consultation_notice'] }}</small>
-            </div>
 
-            <h5>{{ labels['additional_information.fuel_tank.title'] }} :</h5>
-            <div>
-                <strong>
-                {% if has_fuel_tank %}
-                    {{ labels['additional_information.fuel_tank.exists'] | format(fuel_tank_capacity) }}
-                {% else %}
-                    {{ labels['additional_information.fuel_tank.missing'] }}
-                {% endif %}
-                </strong>
-            </div>
+                <h4>{{ labels['additional_information.title'] }}</h4>
+
+                <h5>{{ labels['additional_information.bank_loans'] }} : <!-- {status_loan} --></h5>
+                <div>
+                    <!-- {table_loans} -->
+                </div>
+
+                <h5>{{ labels['additional_information.intervention_record.title'] }} :</h5>
+                <div>
+                    <strong>
+                    {%if has_intervention_record %}
+                        {{ labels['additional_information.intervention_record.exists'] }}
+                    {% else %}
+                        {{ labels['additional_information.intervention_record.missing'] }}
+                    {% endif %}
+                    </strong>
+                </div>
+                <div>
+                    <small>{{ labels['additional_information.intervention_record.consultation_notice'] }}</small>
+                </div>
+
+                <h5>{{ labels['additional_information.fuel_tank.title'] }} :</h5>
+                <div>
+                    <strong>
+                    {% if has_fuel_tank %}
+                        {{ labels['additional_information.fuel_tank.exists'] | format(fuel_tank_capacity) }}
+                    {% else %}
+                        {{ labels['additional_information.fuel_tank.missing'] }}
+                    {% endif %}
+                    </strong>
+                </div>
 
             {% endif %}
 

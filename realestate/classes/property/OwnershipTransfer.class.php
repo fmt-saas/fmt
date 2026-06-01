@@ -353,6 +353,21 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'default'           => false
             ],
 
+            'has_bank_loan' => [
+                'type'              => 'boolean',
+                'description'       => "Does the condominium have an active bank loan?",
+                'default'           => false
+            ],
+
+            'bank_loan_lines_ids' => [
+                'type'              => 'one2many',
+                'description'       => 'Bank loans subscribed by the condominium and allocated to transferred property lots.',
+                'foreign_object'    => 'realestate\property\OwnershipTransferBankLoanLine',
+                'foreign_field'     => 'ownership_transfer_id',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'visible'           => ['has_bank_loan', '=', true]
+            ],
+
             'adjustments_ids' => [
                 'type'              => 'one2many',
                 'description'       => "The ownership transfer the line relates to .",

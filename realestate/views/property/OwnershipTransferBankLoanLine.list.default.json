@@ -1,0 +1,78 @@
+{
+    "name": "Ownership Transfer Bank Loan Lines",
+    "description": "List condominium bank loans allocated to transferred property lots.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": [
+                {
+                    "view": false,
+                    "edit": true
+                }
+            ]
+        }
+    },
+    "operations": {
+        "total": {
+            "total_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            },
+            "property_lot_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "ownership_transfer_id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "24%"
+            },
+            {
+                "type": "field",
+                "value": "property_lot_id",
+                "width": "18%"
+            },
+            {
+                "type": "field",
+                "value": "apportionment_id",
+                "width": "18%"
+            },
+            {
+                "type": "field",
+                "value": "property_lot_shares",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "total_shares",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "total_amount",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "property_lot_amount",
+                "width": "10%"
+            }
+        ]
+    }
+}

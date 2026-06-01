@@ -208,6 +208,16 @@
             "description": "Indique si un carnet d'entretien futur existe pour l'immeuble.",
             "help": ""
         },
+        "has_bank_loan": {
+            "label": "Crédit en cours",
+            "description": "Indique si la copropriété a un crédit bancaire en cours.",
+            "help": ""
+        },
+        "bank_loan_lines_ids": {
+            "label": "Crédits de copropriété",
+            "description": "Lignes de crédit bancaire et quote-parts associées aux lots transférés.",
+            "help": ""
+        },
         "adjustments_ids": {
             "label": "Ajustements",
             "description": "Calculs d'ajustements générés pour équilibrer le transfert.",
