@@ -87,7 +87,7 @@
                 "sections": [
                     {
                         "id": "section.main",
-                        "label": "Owner & Lots",
+                        "label": "General info",
                         "rows": [
                             {
                                 "columns": [
@@ -143,27 +143,6 @@
                                                         }
                                                     }
                                                 }
-                                            },
-                                            {
-                                                "id": "label.additional_information",
-                                                "type": "label",
-                                                "value": "Additional information",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_intervention_record",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_fuel_tank",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "fuel_tank_capacity",
-                                                "width": "50%"
                                             }
                                         ]
                                     }
@@ -194,6 +173,36 @@
                                                         }
                                                     }
                                                 }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "id": "label.additional_information",
+                                                "type": "label",
+                                                "value": "Additional information",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_intervention_record",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_fuel_tank",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "fuel_tank_capacity",
+                                                "width": "50%"
                                             }
                                         ]
                                     }
