@@ -165,6 +165,7 @@
                                                 "value": "property_lots_ids",
                                                 "width": "100%",
                                                 "widget": {
+                                                    "view": "list.select",
                                                     "header": {
                                                         "layout": "inline",
                                                         "actions": {
