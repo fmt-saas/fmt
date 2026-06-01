@@ -12,9 +12,12 @@ use documents\DocumentType;
 
 class DataImport extends \equal\orm\Model {
 
-    /**
-     * 	Tasks are executed by the CRON service if moment (timestamp) is lower or equal to the current time
-     */
+    public static function getDescription() {
+        return "DataImport is a technical staging entity used by import workflows to receive an uploaded structured data file,
+            create the associated Document, select the import parser (banks, suppliers, condominium),
+            and track validation/import status and logs before the final business objects are created.";
+    }
+
     public static function getColumns() {
         return [
             'condo_id' => [
@@ -55,15 +58,6 @@ class DataImport extends \equal\orm\Model {
                 'description'       => 'Targeted type of the import.',
                 'required'          => true
             ],
-
-/*
-            'exporting_task_lines_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'documents\export\ExportingTaskLine',
-                'foreign_field'     => 'exporting_task_id',
-                'description'       => 'Lines of the task.'
-            ],
-*/
 
             'logs' => [
                 'type'              => 'string',

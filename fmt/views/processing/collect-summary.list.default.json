@@ -73,7 +73,8 @@
                 "entity": "realestate\\funding\\ExpenseStatement",
                 "view": "list.default",
                 "domain": [
-                    ["status", "in", ["proforma"]]
+                    ["status", "in", ["proforma"]],
+                    ["invoice_type", "=", "expense_statement"]
                 ]
             },
             "visible": [

@@ -1,7 +1,7 @@
 {
     "name": "Import de données",
     "plural": "Imports de données",
-    "description": "",
+    "description": "Entité technique de pré-import utilisée par les workflows d'import pour recevoir un fichier de données structurées, créer le Document associé, sélectionner le parseur (banques, fournisseurs, copropriété) et suivre les statuts et journaux de validation/import avant création des objets métier.",
     "view": {
         "form.default": {
             "actions": {
