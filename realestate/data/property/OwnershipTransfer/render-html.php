@@ -191,6 +191,8 @@ $ownershipTransfer = OwnershipTransfer::id($params['id'])
         'request_notary_office_id',
         'request_date',
         'confirmation_notary_office_id',
+        'with_additional_info_1',
+        'with_additional_info_2',
         'has_intervention_record',
         'has_fuel_tank',
         'fuel_tank_capacity',
@@ -344,6 +346,9 @@ $values = [
     'ownership'                             => $ownershipTransfer['old_ownership_id'],
     'ownership_shares'                      => $ownershipTransfer['ownership_shares'],
     'condo_shares'                          => $ownershipTransfer['condo_shares'],
+
+    'with_additional_info_1'                => $ownershipTransfer['with_additional_info_1'],
+    'with_additional_info_2'                => $ownershipTransfer['with_additional_info_2'],
     'has_intervention_record'               => $ownershipTransfer['has_intervention_record'],
     'has_fuel_tank'                         => $ownershipTransfer['has_fuel_tank'],
     'fuel_tank_capacity'                    => $ownershipTransfer['fuel_tank_capacity'],

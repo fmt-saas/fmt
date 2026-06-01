@@ -306,6 +306,18 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'help'              => "As per 3.94.2.4"
             ],
 
+            'with_additional_info_1' => [
+                'type'              => 'boolean',
+                'description'       => "Should additional info be added to courier §1?",
+                'default'           => true
+            ],
+
+            'with_additional_info_2' => [
+                'type'              => 'boolean',
+                'description'       => "Should additional info be added to courier §2?",
+                'default'           => true
+            ],
+
             'has_seller_arrears_2' => [
                 'type'              => 'boolean',
                 'description'       => "Are there any pending arrears owed by the seller?",
@@ -319,6 +331,9 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'help'              => "As per 3.94.2.5",
                 'visible'           => ['has_seller_arrears', '=', true]
             ],
+
+
+            // additional information that might be requested by the notary office
 
             'has_fuel_tank' => [
                 'type'              => 'boolean',
@@ -1499,7 +1514,8 @@ class OwnershipTransfer extends \equal\orm\Model {
         // synchronize ownership & property lots
         // #memo - we must be able to assign any ownership (not only active ones)
         if(array_key_exists('old_ownership_id', $event)) {
-            // $result['property_lots_ids'] = [];
+            $result['property_lots_ids'] = [];
+
             if($event['old_ownership_id']) {
                 /*
                 $result['property_lot_id'] = [

@@ -165,216 +165,248 @@
 
         <!-- 3.94 §1 -->
         {% if status != 'pending' %}
-        <h3>{{ labels['article_3_94.section_1.title'] }}</h3>
+            <h3>{{ labels['article_3_94.section_1.title'] }}</h3>
 
-        <h4>{{ labels['article_3_94.section_1.fund_balances.title'] }}</h4>
-        <div>
-            {{ fund_balances_description | raw }}
+            <h4>{{ labels['article_3_94.section_1.fund_balances.title'] }}</h4>
+            <div>
+                {{ fund_balances_description | raw }}
 
-            <table>
-                <tr>
-                    <th>{{ labels['fund_balances.table.th.fund'] }}</th>
-                    <th>{{ labels['fund_balances.table.th.lot_shares'] }}</th>
-                    <th>{{ labels['fund_balances.table.th.condo_shares'] }}</th>
-                    <th>{{ labels['fund_balances.table.th.condominium'] }}</th>
-                    <th>{{ labels['fund_balances.table.th.owner_share'] }}</th>
-                </tr>
-                {% for fund_balance in funds_balances %}
-                <tr>
-                    <td>{{ fund_balance.condo_fund_id.name }}</td>
-                    <td>{{ fund_balance.property_lots_shares }}</td>
-                    <td>{{ fund_balance.condo_fund_shares }}</td>
-                    <td>{{ fund_balance.condo_fund_balance  | format_money() }}</td>
-                    <td>{{ fund_balance.property_lots_amount  | format_money() }}</td>
-                </tr>
-            {% endfor %}
-            </table>
-        </div>
-
-        <h4>{{ labels['article_3_94.section_1.seller_arrears.title'] }}</h4>
-        <div>
-
-            <!--
-            {% if arrears_amount > 0.0 %}
-                {{ labels['article_3_94.section_1.seller_arrears.some_message'] }} {{ arrears_amount | format_money() }}<br />
-            {% else %}
-                {{ labels['article_3_94.section_1.seller_arrears.none_message'] }}<br />
-            {% endif %}
-            -->
-
-            {% if seller_arrears_description is not empty %}
-                {{ seller_arrears_description | raw }}
-            {% endif %}
-
-            <!--
-            <table>
-                <tr>
-                    <th>{{ labels['arrears.table.th.due_date'] }}</th>
-                    <th>{{ labels['arrears.table.th.label'] }}</th>
-                    <th>{{ labels['arrears.table.th.type'] }}</th>
-                    <th>{{ labels['arrears.table.th.remaining'] }}</th>
-                </tr>
-                {% for arrear_funding in arrear_fundings %}
-                <tr>
-                    <td>{{ arrear_funding.due_date | date(date_format, timezone) }}</td>
-                    <td>{{ arrear_funding.name }}</td>
-                    <td>{{ arrear_funding.funding_type }}</td>
-                    <td>{{ arrear_funding.remaining_amount  | format_money() }}</td>
-                </tr>
+                <table>
+                    <tr>
+                        <th>{{ labels['fund_balances.table.th.fund'] }}</th>
+                        <th>{{ labels['fund_balances.table.th.lot_shares'] }}</th>
+                        <th>{{ labels['fund_balances.table.th.condo_shares'] }}</th>
+                        <th>{{ labels['fund_balances.table.th.condominium'] }}</th>
+                        <th>{{ labels['fund_balances.table.th.owner_share'] }}</th>
+                    </tr>
+                    {% for fund_balance in funds_balances %}
+                    <tr>
+                        <td>{{ fund_balance.condo_fund_id.name }}</td>
+                        <td>{{ fund_balance.property_lots_shares }}</td>
+                        <td>{{ fund_balance.condo_fund_shares }}</td>
+                        <td>{{ fund_balance.condo_fund_balance  | format_money() }}</td>
+                        <td>{{ fund_balance.property_lots_amount  | format_money() }}</td>
+                    </tr>
                 {% endfor %}
-            </table>
-            <table>
-                <tr>
-                    <th>{{ labels['transfer_fees.table.th.file_fees'] }}</th>
-                    <th>{{ labels['transfer_fees.table.th.date'] }}</th>
-                    <th>{{ labels['transfer_fees.table.th.description'] }}</th>
-                    <th>{{ labels['transfer_fees.table.th.amount'] }}</th>
-                </tr>
-                {% for transfer_fee in transfer_fees %}
-                <tr>
-                    <td></td>
-                    <td>{{ transfer_fee.fee_date | date(date_format, timezone) }}</td>
-                    <td>{{ transfer_fee.description }}</td>
-                    <td>{{ transfer_fee.price  | format_money() }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-            -->
+                </table>
+            </div>
 
-        </div>
+            <h4>{{ labels['article_3_94.section_1.seller_arrears.title'] }}</h4>
+            <div>
 
-        <h4>{{ labels['article_3_94.section_1.scheduled_fund_requests.title'] }}</h4>
-        <div>
-            {{ scheduled_fund_requests_description | raw }}
-        </div>
+                <!--
+                {% if arrears_amount > 0.0 %}
+                    {{ labels['article_3_94.section_1.seller_arrears.some_message'] }} {{ arrears_amount | format_money() }}<br />
+                {% else %}
+                    {{ labels['article_3_94.section_1.seller_arrears.none_message'] }}<br />
+                {% endif %}
+                -->
 
-        <h4>{{ labels['article_3_94.section_1.judiciary_procedures.title'] }}</h4>
-        <div>
-            {{ judiciary_procedures_description | raw }}
-        </div>
+                {% if seller_arrears_description is not empty %}
+                    {{ seller_arrears_description | raw }}
+                {% endif %}
 
-        <h4>{{ labels['article_3_94.section_1.general_assembly_minutes.title'] }}</h4>
-            {{ labels['article_3_94.section_1.general_assembly_minutes.summary'] }} :
-        <div>
-            {{ general_assembly_minutes_description | raw }}
-        </div>
+                <!--
+                <table>
+                    <tr>
+                        <th>{{ labels['arrears.table.th.due_date'] }}</th>
+                        <th>{{ labels['arrears.table.th.label'] }}</th>
+                        <th>{{ labels['arrears.table.th.type'] }}</th>
+                        <th>{{ labels['arrears.table.th.remaining'] }}</th>
+                    </tr>
+                    {% for arrear_funding in arrear_fundings %}
+                    <tr>
+                        <td>{{ arrear_funding.due_date | date(date_format, timezone) }}</td>
+                        <td>{{ arrear_funding.name }}</td>
+                        <td>{{ arrear_funding.funding_type }}</td>
+                        <td>{{ arrear_funding.remaining_amount  | format_money() }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <table>
+                    <tr>
+                        <th>{{ labels['transfer_fees.table.th.file_fees'] }}</th>
+                        <th>{{ labels['transfer_fees.table.th.date'] }}</th>
+                        <th>{{ labels['transfer_fees.table.th.description'] }}</th>
+                        <th>{{ labels['transfer_fees.table.th.amount'] }}</th>
+                    </tr>
+                    {% for transfer_fee in transfer_fees %}
+                    <tr>
+                        <td></td>
+                        <td>{{ transfer_fee.fee_date | date(date_format, timezone) }}</td>
+                        <td>{{ transfer_fee.description }}</td>
+                        <td>{{ transfer_fee.price  | format_money() }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                -->
 
-        <h4>{{ labels['article_3_94.section_1.latest_balance_sheet.title'] }}</h4>
-        <div>
-            {{ latest_balance_sheet_description | raw }}
-        </div>
+            </div>
+
+            <h4>{{ labels['article_3_94.section_1.scheduled_fund_requests.title'] }}</h4>
+            <div>
+                {{ scheduled_fund_requests_description | raw }}
+            </div>
+
+            <h4>{{ labels['article_3_94.section_1.judiciary_procedures.title'] }}</h4>
+            <div>
+                {{ judiciary_procedures_description | raw }}
+            </div>
+
+            <h4>{{ labels['article_3_94.section_1.general_assembly_minutes.title'] }}</h4>
+                {{ labels['article_3_94.section_1.general_assembly_minutes.summary'] }} :
+            <div>
+                {{ general_assembly_minutes_description | raw }}
+            </div>
+
+            <h4>{{ labels['article_3_94.section_1.latest_balance_sheet.title'] }}</h4>
+            <div>
+                {{ latest_balance_sheet_description | raw }}
+            </div>
+
+            {% if with_additional_info_2 %}
+            <h5>{{ labels['additional_information.intervention_record.title'] }} :</h5>
+            <div>
+                <strong>
+                {%if has_intervention_record %}
+                    {{ labels['additional_information.intervention_record.exists'] }}
+                {% else %}
+                    {{ labels['additional_information.intervention_record.missing'] }}
+                {% endif %}
+                </strong>
+            </div>
+            <div>
+                <small>{{ labels['additional_information.intervention_record.consultation_notice'] }}</small>
+            </div>
+
+            <h5>{{ labels['additional_information.fuel_tank.title'] }} :</h5>
+            <div>
+                <strong>
+                {% if has_fuel_tank %}
+                    {{ labels['additional_information.fuel_tank.exists'] | format(fuel_tank_capacity) }}
+                {% else %}
+                    {{ labels['additional_information.fuel_tank.missing'] }}
+                {% endif %}
+                </strong>
+            </div>
+
+            {% endif %}
         {% endif %}
 
 
         <!-- 3.94 §2 -->
         {% if status in ['confirmed', 'financial_statement_sent', 'settled'] %}
-        <h3>{{ labels['article_3_94.section_2.title'] }}</h3>
+            <h3>{{ labels['article_3_94.section_2.title'] }}</h3>
 
-        <h4>{{ labels['article_3_94.section_2.maintenance_expenses.title'] }}</h4>
-        <div>
-            {{ maintenance_expenses_description | raw }}
-        </div>
+            <h4>{{ labels['article_3_94.section_2.maintenance_expenses.title'] }}</h4>
+            <div>
+                {{ maintenance_expenses_description | raw }}
+            </div>
 
-        <h4>{{ labels['article_3_94.section_2.fund_requests.title'] }}</h4>
-        <div>
-            {{ fund_requests_description | raw }}
+            <h4>{{ labels['article_3_94.section_2.fund_requests.title'] }}</h4>
+            <div>
+                {{ fund_requests_description | raw }}
 
-            <table>
-                <tr>
-                    <th>{{ labels['fund_requests.table.th.call'] }}</th>
-                    <th>{{ labels['fund_requests.table.th.called'] }}</th>
-                    <th>{{ labels['fund_requests.table.th.planned'] }}</th>
-                    <th>{{ labels['fund_requests.table.th.owner_called'] }}</th>
-                    <th>{{ labels['fund_requests.table.th.owner_planned'] }}</th>
-                </tr>
-                {% for fund_request in funds_requests %}
-                <tr>
-                    <td>{{ fund_request.fund_request_id.name }}</td>
-                    <td>{{ fund_request.condo_called_amount | format_money() }}</td>
-                    <td>{{ fund_request.condo_planned_amount | format_money() }}</td>
-                    <td>{{ fund_request.property_lots_called_amount  | format_money() }}</td>
-                    <td>{{ fund_request.property_lots_planned_amount  | format_money() }}</td>
-                </tr>
-            {% endfor %}
-            </table>
-        </div>
-        <div>
-            <small>{{ labels['fund_requests.last_ago_notice'] }}</small>
-        </div>
-
-        <h4>{{ labels['article_3_94.section_2.commons_acquisitions.title'] }}</h4>
-        <div>
-            {{ commons_acquisitions_description | raw }}
-        </div>
-
-        <h4>{{ labels['article_3_94.section_2.condominium_debts.title'] }}</h4>
-        <div>
-            {{ condominium_debts_description | raw }}
-        </div>
-
-        <h4>{{ labels['article_3_94.section_2.seller_arrears.title'] }}</h4>
-        <div>
-            <table>
-                <tr>
-                    <th>{{ labels['arrears.table.th.due_date'] }}</th>
-                    <th>{{ labels['arrears.table.th.label'] }}</th>
-                    <th>{{ labels['arrears.table.th.type'] }}</th>
-                    <th>{{ labels['arrears.table.th.remaining'] }}</th>
-                </tr>
-                {% for arrear_funding in arrear_fundings %}
-                <tr>
-                    <td>{{ arrear_funding.due_date | date(date_format, timezone) }}</td>
-                    <td>{{ arrear_funding.name }}</td>
-                    <td>{{ arrear_funding.funding_type }}</td>
-                    <td>{{ arrear_funding.remaining_amount  | format_money() }}</td>
-                </tr>
+                <table>
+                    <tr>
+                        <th>{{ labels['fund_requests.table.th.call'] }}</th>
+                        <th>{{ labels['fund_requests.table.th.called'] }}</th>
+                        <th>{{ labels['fund_requests.table.th.planned'] }}</th>
+                        <th>{{ labels['fund_requests.table.th.owner_called'] }}</th>
+                        <th>{{ labels['fund_requests.table.th.owner_planned'] }}</th>
+                    </tr>
+                    {% for fund_request in funds_requests %}
+                    <tr>
+                        <td>{{ fund_request.fund_request_id.name }}</td>
+                        <td>{{ fund_request.condo_called_amount | format_money() }}</td>
+                        <td>{{ fund_request.condo_planned_amount | format_money() }}</td>
+                        <td>{{ fund_request.property_lots_called_amount  | format_money() }}</td>
+                        <td>{{ fund_request.property_lots_planned_amount  | format_money() }}</td>
+                    </tr>
                 {% endfor %}
-            </table>
-        </div>
-        <div>
-            <small>{{ labels['arrears.penalties_notice'] }}<br />
-        {{ labels['arrears.additional_provisions_notice'] }}</small>
-        </div>
-        <div>
-            <p>{{ labels['payment.current_fiscal_year_notice'] }}</p>
-            <p>{{ labels['payment.account_instruction'] }} <strong>{{ condominium.name }}</strong> :<br />
-                {{ organisation.bank_account_iban }}<br />
-                {{ organisation.bank_account_bic }}<br />
-                {{ labels['payment.reference_instruction'] }}
-            </p>
-        </div>
+                </table>
+            </div>
+            <div>
+                <small>{{ labels['fund_requests.last_ago_notice'] }}</small>
+            </div>
 
-        <h4>{{ labels['additional_information.title'] }}</h4>
+            <h4>{{ labels['article_3_94.section_2.commons_acquisitions.title'] }}</h4>
+            <div>
+                {{ commons_acquisitions_description | raw }}
+            </div>
 
-        <h5>{{ labels['additional_information.bank_loans'] }} : <!-- {status_loan} --></h5>
-        <div>
-            <!-- {table_loans} -->
-        </div>
+            <h4>{{ labels['article_3_94.section_2.condominium_debts.title'] }}</h4>
+            <div>
+                {{ condominium_debts_description | raw }}
+            </div>
 
-        <h5>{{ labels['additional_information.intervention_record.title'] }} :</h5>
-        <div>
-            <strong>
-            {%if has_intervention_record %}
-                {{ labels['additional_information.intervention_record.exists'] }}
-            {% else %}
-                {{ labels['additional_information.intervention_record.missing'] }}
+            <h4>{{ labels['article_3_94.section_2.seller_arrears.title'] }}</h4>
+            <div>
+                <table>
+                    <tr>
+                        <th>{{ labels['arrears.table.th.due_date'] }}</th>
+                        <th>{{ labels['arrears.table.th.label'] }}</th>
+                        <th>{{ labels['arrears.table.th.type'] }}</th>
+                        <th>{{ labels['arrears.table.th.remaining'] }}</th>
+                    </tr>
+                    {% for arrear_funding in arrear_fundings %}
+                    <tr>
+                        <td>{{ arrear_funding.due_date | date(date_format, timezone) }}</td>
+                        <td>{{ arrear_funding.name }}</td>
+                        <td>{{ arrear_funding.funding_type }}</td>
+                        <td>{{ arrear_funding.remaining_amount  | format_money() }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div>
+                <small>{{ labels['arrears.penalties_notice'] }}<br />
+            {{ labels['arrears.additional_provisions_notice'] }}</small>
+            </div>
+            <div>
+                <p>{{ labels['payment.current_fiscal_year_notice'] }}</p>
+                <p>{{ labels['payment.account_instruction'] }} <strong>{{ condominium.name }}</strong> :<br />
+                    {{ organisation.bank_account_iban }}<br />
+                    {{ organisation.bank_account_bic }}<br />
+                    {{ labels['payment.reference_instruction'] }}
+                </p>
+            </div>
+
+            <h4>{{ labels['additional_information.title'] }}</h4>
+
+            <h5>{{ labels['additional_information.bank_loans'] }} : <!-- {status_loan} --></h5>
+            <div>
+                <!-- {table_loans} -->
+            </div>
+
+            {% if with_additional_info_2 %}
+            <h5>{{ labels['additional_information.intervention_record.title'] }} :</h5>
+            <div>
+                <strong>
+                {%if has_intervention_record %}
+                    {{ labels['additional_information.intervention_record.exists'] }}
+                {% else %}
+                    {{ labels['additional_information.intervention_record.missing'] }}
+                {% endif %}
+                </strong>
+            </div>
+            <div>
+                <small>{{ labels['additional_information.intervention_record.consultation_notice'] }}</small>
+            </div>
+
+            <h5>{{ labels['additional_information.fuel_tank.title'] }} :</h5>
+            <div>
+                <strong>
+                {% if has_fuel_tank %}
+                    {{ labels['additional_information.fuel_tank.exists'] | format(fuel_tank_capacity) }}
+                {% else %}
+                    {{ labels['additional_information.fuel_tank.missing'] }}
+                {% endif %}
+                </strong>
+            </div>
+
             {% endif %}
-            </strong>
-        </div>
-        <div>
-            <small>{{ labels['additional_information.intervention_record.consultation_notice'] }}</small>
-        </div>
 
-        <h5>{{ labels['additional_information.fuel_tank.title'] }} :</h5>
-        <div>
-            <strong>
-            {% if has_fuel_tank %}
-                {{ labels['additional_information.fuel_tank.exists'] | format(fuel_tank_capacity) }}
-            {% else %}
-                {{ labels['additional_information.fuel_tank.missing'] }}
-            {% endif %}
-            </strong>
-        </div>
         {% endif %}
 
         <!-- 3.94 §3 -->

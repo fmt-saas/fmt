@@ -409,6 +409,11 @@
                                                 "type": "field",
                                                 "value": "latest_balance_sheet_description",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "with_additional_info_1",
+                                                "width": "100%"
                                             }
                                         ]
                                     }
@@ -526,6 +531,11 @@
                                             {
                                                 "type": "field",
                                                 "value": "seller_arrears_description_2",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "with_additional_info_2",
                                                 "width": "100%"
                                             }
                                         ]
