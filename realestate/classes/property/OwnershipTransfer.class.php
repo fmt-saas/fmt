@@ -167,7 +167,9 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'rel_foreign_key'   => 'lot_id',
                 'rel_local_key'     => 'transfer_id',
                 'description'       => 'Property Lots that are part of the ownership transfer.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['active_ownership_id', '=', 'object.old_ownership_id']]
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'], ['active_ownership_id', '=', 'object.old_ownership_id']
+                ]
             ],
 
             'old_ownership_id' => [
@@ -1497,7 +1499,7 @@ class OwnershipTransfer extends \equal\orm\Model {
         // synchronize ownership & property lots
         // #memo - we must be able to assign any ownership (not only active ones)
         if(array_key_exists('old_ownership_id', $event)) {
-            $result['property_lots_ids'] = [];
+            // $result['property_lots_ids'] = [];
             if($event['old_ownership_id']) {
                 /*
                 $result['property_lot_id'] = [
@@ -1553,7 +1555,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                             'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $ownerships_ids]]
                         ];
                     }
-
                 }
             }
             else {
