@@ -1499,9 +1499,11 @@ class OwnershipTransfer extends \equal\orm\Model {
         if(array_key_exists('old_ownership_id', $event)) {
             $result['property_lots_ids'] = [];
             if($event['old_ownership_id']) {
+                /*
                 $result['property_lot_id'] = [
                     'visible' => false
                 ];
+                */
 
                 $result['property_lots_ids'] = [
                     'domain' => [
