@@ -1494,11 +1494,13 @@ class OwnershipTransfer extends \equal\orm\Model {
                 ];
                 $propertyOwnerships = PropertyLotOwnership::search([['ownership_id', '=', $event['old_ownership_id']]])->read(['property_lot_id'])->get(true);
                 $property_lots_ids = array_map(function ($a) {return $a['property_lot_id'];}, $propertyOwnerships);
+                /*
                 if(!$values['property_lot_id'] || !in_array($values['property_lot_id'], $property_lots_ids) ) {
                     $result['property_lot_id'] = [
                         'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $property_lots_ids]]
                     ];
                 }
+                */
                 $result['property_lots_ids'] = $property_lots_ids;
             }
             else {
