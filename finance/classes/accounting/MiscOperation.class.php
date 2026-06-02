@@ -30,7 +30,8 @@ class MiscOperation extends Model {
                 'description'       => "The condominium the accounting journal refers to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 'readonly'          => true,
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
             ],
 
             'name' => [
@@ -307,6 +308,14 @@ class MiscOperation extends Model {
             'is_valid' => [
                 'description' => 'Verifies that the state of the Money Transfer allows validation.',
                 'function'    => 'policyIsValid'
+            ],
+            'can_generate_opening_balance' => [
+                'description' => 'Verifies that an opening balance can be generated from the misc operation.',
+                'function'    => 'policyCanGenerateOpeningBalance'
+            ],
+            'can_generate_accounting_entry' => [
+                'description' => 'Verifies that an accounting entry can be generated from the misc operation.',
+                'function'    => 'policyCanGenerateAccountingEntry'
             ]
         ];
     }
@@ -315,12 +324,12 @@ class MiscOperation extends Model {
         return [
             'generate_opening_balance' => [
                 'description'   => 'Creates an opening balance according to operation lines.',
-                'policies'      => [/* 'can_generate_accounting_entry' */],
+                'policies'      => ['can_generate_opening_balance'],
                 'function'      => 'doGenerateOpeningBalance'
             ],
             'generate_accounting_entry' => [
                 'description'   => 'Creates accounting entries according to operation lines.',
-                'policies'      => [/* 'can_generate_accounting_entry' */],
+                'policies'      => ['can_generate_accounting_entry'],
                 'function'      => 'doGenerateAccountingEntry'
             ],
             'validate_accounting_entry' => [
@@ -370,8 +379,8 @@ class MiscOperation extends Model {
     protected static function doGenerateOpeningBalance($self) {
         $self->read([
                 'condo_id',
-                'fiscal_year_id',
                 'posting_date',
+                'fiscal_year_id',
                 'has_opening_journal',
                 'misc_operation_lines_ids'
             ]);
@@ -381,38 +390,23 @@ class MiscOperation extends Model {
                 continue;
             }
 
-            if(!$miscOperation['condo_id']) {
-                throw new \Exception('missing_condominium', EQ_ERROR_INVALID_PARAM);
-            }
-
-            if(!$miscOperation['fiscal_year_id']) {
-                throw new \Exception('missing_fiscal_year', EQ_ERROR_INVALID_PARAM);
-            }
-
-            if(!self::computeIsBalanced($miscOperation['misc_operation_lines_ids'])) {
-                throw new \Exception('non_balanced', EQ_ERROR_INVALID_PARAM);
-            }
-
             $condo_id = $miscOperation['condo_id'];
+            $fiscal_year_id = $miscOperation['fiscal_year_id'];
 
             $existingOpeningBalance = OpeningBalance::search([
                     ['condo_id', '=', $condo_id],
-                    ['fiscal_year_id', '=', $miscOperation['fiscal_year_id']]
+                    ['fiscal_year_id', '=', $fiscal_year_id]
                 ])
                 ->read(['status'])
                 ->first();
 
             if($existingOpeningBalance) {
-                if($existingOpeningBalance['status'] === 'validated') {
-                    throw new \Exception('existing_validated_opening_balance', EQ_ERROR_INVALID_PARAM);
-                }
                 OpeningBalance::id($existingOpeningBalance['id'])->delete(true);
             }
 
-            $fiscalYear = FiscalYear::id($miscOperation['fiscal_year_id'])->read(['date_from'])->first();
             $openingBalance = OpeningBalance::create([
                     'condo_id'          => $condo_id,
-                    'fiscal_year_id'    => $miscOperation['fiscal_year_id'],
+                    'fiscal_year_id'    => $fiscal_year_id,
                     'misc_operation_id' => $id
                 ])
                 ->first();
@@ -567,7 +561,7 @@ class MiscOperation extends Model {
             }
 
 */
-            FiscalYear::id($miscOperation['fiscal_year_id'])
+            FiscalYear::id($fiscal_year_id)
                 ->update(['opening_balance_id' => $openingBalance['id']]);
 
             OpeningBalance::id($openingBalance['id'])->update(['status' => 'validated']);
@@ -590,6 +584,8 @@ class MiscOperation extends Model {
         foreach ($self as $id => $miscOperation) {
 
             // #memo - `has_opening_journal` implies a MiscOp for an initial opening balance
+            $fiscal_year_id = $miscOperation['fiscal_year_id'];
+            $fiscal_period_id = $miscOperation['fiscal_period_id'];
 
             // remove any previously created accounting entry (resulting from an incomplete operation)
             AccountingEntry::search([
@@ -607,8 +603,8 @@ class MiscOperation extends Model {
                     'misc_operation_id'     => $id,
                     'description'           => $miscOperation['description'],
                     'journal_id'            => $miscOperation['journal_id'],
-                    'fiscal_year_id'        => $miscOperation['fiscal_year_id'],
-                    'fiscal_period_id'      => $miscOperation['fiscal_period_id']
+                    'fiscal_year_id'        => $fiscal_year_id,
+                    'fiscal_period_id'      => $fiscal_period_id
                 ])
                 ->first();
 
@@ -632,7 +628,6 @@ class MiscOperation extends Model {
         $result = null;
 
         $fiscalYear = FiscalYear::search([['condo_id', '=', $condo_id], ['date_from', '<=', $posting_date], ['date_to', '>=', $posting_date]])
-            ->read(['fiscal_periods_ids' => ['date_from', 'date_to']])
             ->first();
 
         if($fiscalYear) {
@@ -699,17 +694,20 @@ class MiscOperation extends Model {
         $result = [];
         $self->read(['status', 'posting_date', 'condo_id', 'fiscal_year_id', 'fiscal_period_id', 'journal_id', 'misc_operation_lines_ids' => ['debit', 'credit']]);
         foreach($self as $id => $miscOperation) {
+            $fiscal_year_id = $miscOperation['fiscal_year_id'];
+            $fiscal_period_id = $miscOperation['fiscal_period_id'];
+
             if($miscOperation['posting_date'] >= strtotime('tomorrow midnight')) {
                 $result[$id] = [
                     'invalid_posting_date' => 'Posting date cannot be in the future.'
                 ];
             }
-            if(!isset($miscOperation['fiscal_year_id'])) {
+            if(!$fiscal_year_id) {
                 $result[$id] = [
                     'missing_fiscal_year' => 'Fiscal year is missing.'
                 ];
             }
-            if(!isset($miscOperation['fiscal_period_id'])) {
+            if(!$fiscal_period_id) {
                 $result[$id] = [
                     'missing_fiscal_period' => 'Fiscal period is missing.'
                 ];
@@ -733,6 +731,95 @@ class MiscOperation extends Model {
             if(abs($debit - $credit) >= 0.01) {
                 $result[$id] = [
                     'non_balanced' => 'The lines of the operation are not balanced.'
+                ];
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyCanGenerateOpeningBalance($self): array {
+        $result = [];
+        $self->read(['has_opening_journal', 'condo_id', 'posting_date', 'fiscal_period_id', 'misc_operation_lines_ids' => ['debit', 'credit']]);
+        foreach($self as $id => $miscOperation) {
+            if(!$miscOperation['has_opening_journal']) {
+                continue;
+            }
+
+            if(!$miscOperation['condo_id']) {
+                $result[$id] = [
+                    'missing_condominium' => 'The target condominium must be specified.'
+                ];
+                continue;
+            }
+
+            if(!self::computeIsBalanced($miscOperation['misc_operation_lines_ids'])) {
+                $result[$id] = [
+                    'non_balanced' => 'The lines of the operation are not balanced.'
+                ];
+                continue;
+            }
+
+            $fiscal_year_id = $miscOperation['fiscal_period_id'];
+            if(!$fiscal_year_id) {
+                $result[$id] = [
+                    'missing_fiscal_year' => 'Fiscal year is missing.'
+                ];
+                continue;
+            }
+
+            $existingOpeningBalance = OpeningBalance::search([
+                    ['condo_id', '=', $miscOperation['condo_id']],
+                    ['fiscal_year_id', '=', $fiscal_year_id]
+                ])
+                ->read(['status'])
+                ->first();
+
+            if($existingOpeningBalance && $existingOpeningBalance['status'] === 'validated') {
+                $result[$id] = [
+                    'existing_validated_opening_balance' => 'An opening balance already exists for the fiscal year.'
+                ];
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyCanGenerateAccountingEntry($self): array {
+        $result = [];
+        $self->read(['condo_id', 'posting_date', 'fiscal_year_id', 'fiscal_period_id', 'journal_id', 'misc_operation_lines_ids' => ['debit', 'credit']]);
+        foreach($self as $id => $miscOperation) {
+            if(!$miscOperation['condo_id']) {
+                $result[$id] = [
+                    'missing_condominium' => 'The target condominium must be specified.'
+                ];
+                continue;
+            }
+
+            if(!isset($miscOperation['journal_id'])) {
+                $result[$id] = [
+                    'missing_journal' => 'Accounting journal is missing.'
+                ];
+                continue;
+            }
+
+            if(!self::computeIsBalanced($miscOperation['misc_operation_lines_ids'])) {
+                $result[$id] = [
+                    'non_balanced' => 'The lines of the operation are not balanced.'
+                ];
+                continue;
+            }
+
+            $fiscal_year_id = $miscOperation['fiscal_year_id'];
+            if(!$fiscal_year_id) {
+                $result[$id] = [
+                    'missing_fiscal_year' => 'Fiscal year is missing.'
+                ];
+                continue;
+            }
+
+            $fiscal_period_id = $miscOperation['fiscal_period_id'];
+            if(!$fiscal_period_id) {
+                $result[$id] = [
+                    'missing_fiscal_period' => 'Fiscal period is missing.'
                 ];
             }
         }
@@ -804,6 +891,7 @@ class MiscOperation extends Model {
             ]);
 
         foreach($self as $id => $miscOperation) {
+            $operationFunding = null;
 
             $condominiumBankAccount = CondominiumBankAccount::search([
                     ['condo_id', '=', $miscOperation['condo_id']],
@@ -929,7 +1017,7 @@ class MiscOperation extends Model {
                         ->read(['remaining_amount', 'accounting_entry_line_id']);
 
                     foreach($fundings as $funding_id => $funding) {
-                        if($operationFunding['id'] === $funding_id) {
+                        if(!$operationFunding || $operationFunding['id'] === $funding_id) {
                             continue;
                         }
 
@@ -991,7 +1079,7 @@ class MiscOperation extends Model {
             ->do('create_fundings')
             ->do('validate_accounting_entry')
             // force refresh name
-            ->update(['name' => null, 'fiscal_year_id' => null, 'fiscal_period_id' => null]);
+            ->update(['name' => null]);
     }
 
     public static function onchange($event, $values) {
@@ -1048,7 +1136,7 @@ class MiscOperation extends Model {
 
     public static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['name', 'accounting_entry_id', 'opening_balance_id', 'payment_status', 'has_date_range', 'date_from', 'date_to', 'fiscal_year_id', 'fiscal_period_id'];
+        $allowed_fields = ['name', 'accounting_entry_id', 'opening_balance_id', 'payment_status', 'has_date_range', 'date_from', 'date_to'];
         foreach($self as $id => $miscOperation) {
             // only allow editable fields
             if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
