@@ -402,6 +402,8 @@ $values = [
     'commons_acquisitions_description'      => $ownershipTransfer['commons_acquisitions_description'],
     // 3.94.2.4
     'condominium_debts_description'         => $ownershipTransfer['condominium_debts_description'],
+    // additional
+    'bank_loan_description'                 => $ownershipTransfer['bank_loan_description']
 ];
 
 

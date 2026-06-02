@@ -264,7 +264,7 @@
                 {{ latest_balance_sheet_description | raw }}
             </div>
 
-            {% if with_additional_info_2 %}
+            {% if with_additional_info_1 %}
 
                 <h4>{{ labels['additional_information.title'] }}</h4>
 
@@ -402,17 +402,17 @@
                 </p>
             </div>
 
-
             {% if with_additional_info_2 %}
 
                 <h4>{{ labels['additional_information.title'] }}</h4>
 
                 <h5>{{ labels['additional_information.bank_loans'] }} : </h5>
                 <div>
+                    {{ bank_loan_description | raw }}
                     <table>
                         <tr>
                             <th>{{ labels['bank_loans.table.th.description'] }}</th>
-                            <th>{{ labels['bank_loans.table.th.apportionment'] }}</th>
+                            <!--<th>{{ labels['bank_loans.table.th.apportionment'] }}</th>-->
                             <th>{{ labels['bank_loans.table.th.lot'] }}</th>
                             <th>{{ labels['bank_loans.table.th.lot_shares'] }}</th>
                             <th>{{ labels['bank_loans.table.th.condo_shares'] }}</th>
@@ -422,10 +422,10 @@
                         {% for bank_loan in bank_loans %}
                         <tr>
                             <td>{{ bank_loan.description }}</td>
-                            <td>{{ bank_loan.property_lot_id.name }}</td>
-                            <td>{{ bank_loan.apportionment_id.name }}</td>
-                            <td>{{ bank_loan.total_shares }}</td>
+                            <!--<td>{{ bank_loan.apportionment_id.name }}</td>-->
+                            <td>{{ bank_loan.property_lot_id.property_lot_ref }} - {{ bank_loan.property_lot_id.code }}</td>
                             <td>{{ bank_loan.property_lot_shares }}</td>
+                            <td>{{ bank_loan.total_shares }}</td>
                             <td>{{ bank_loan.total_amount | format_money() }}</td>
                             <td>{{ bank_loan.property_lot_amount | format_money() }}</td>
                         </tr>
