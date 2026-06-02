@@ -273,7 +273,7 @@
                     <table>
                         <tr>
                             <th>{{ labels['bank_loans.table.th.description'] }}</th>
-                            <th>{{ labels['bank_loans.table.th.apportionment'] }}</th>
+                            <!--<th>{{ labels['bank_loans.table.th.apportionment'] }}</th>-->
                             <th>{{ labels['bank_loans.table.th.lot'] }}</th>
                             <th>{{ labels['bank_loans.table.th.lot_shares'] }}</th>
                             <th>{{ labels['bank_loans.table.th.condo_shares'] }}</th>
@@ -283,8 +283,8 @@
                         {% for bank_loan in bank_loans %}
                         <tr>
                             <td>{{ bank_loan.description }}</td>
-                            <td>{{ bank_loan.property_lot_id.name }}</td>
-                            <td>{{ bank_loan.apportionment_id.name }}</td>
+                            <!--<td>{{ bank_loan.apportionment_id.name }}</td>-->
+                            <td>{{ bank_loan.property_lot_id.code }}</td>
                             <td>{{ bank_loan.total_shares }}</td>
                             <td>{{ bank_loan.property_lot_shares }}</td>
                             <td>{{ bank_loan.total_amount | format_money() }}</td>
