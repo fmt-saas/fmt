@@ -152,7 +152,7 @@ DocumentType::create([
 
 DocumentType::create([
     'id'            => 13,
-    'name'          => 'État des dépenses',
+    'name'          => 'Décompte de charges',
     'code'          => 'expense_statement',
     'folder_code'   => 'operation_statements',
     'description'   => "Détail ou synthèse des charges engagées."
@@ -231,7 +231,7 @@ $documentType = DocumentType::create([
 
 DocumentSubtype::create([
     'name'              => 'PV d\'assemblées générales',
-    'code'              => 'general_assembly',
+    'code'              => 'general_assembly_minutes',
     'document_type_id'  => $documentType['id'],
     'description'       => 'Procès Verbaux d\'assemblées générales ordinaires.'
 ]);

@@ -103,6 +103,18 @@
                         }
                     },
                     {
+                        "id": "item.imports.documents.import",
+                        "type": "entry",
+                        "label": "Other document",
+                        "icon": "description",
+                        "description": "Import and reconcile other documents.",
+                        "context": {
+                            "view": "form.import",
+                            "entity": "documents\\import\\DocumentImport",
+                            "purpose": "create"
+                        }
+                    },
+                    {
                         "id": "item.imports.data_import.condominium",
                         "type": "entry",
                         "label": "Import Condo",

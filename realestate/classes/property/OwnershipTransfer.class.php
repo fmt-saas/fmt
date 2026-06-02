@@ -1529,16 +1529,21 @@ class OwnershipTransfer extends \equal\orm\Model {
         // synchronize ownership & property lots
         // #memo - we must be able to assign any ownership (not only active ones)
         if(array_key_exists('old_ownership_id', $event)) {
-            $result['property_lots_ids'] = [];
+            $result['property_lots_ids'] = [
+                'value' => []
+            ];
 
             if($event['old_ownership_id']) {
-                /*
+
                 $result['property_lot_id'] = [
-                    'visible' => false
+                    'visible' => false,
+                    'domain' => [
+                        ['active_ownership_id', '=', $event['old_ownership_id']]
+                    ]
                 ];
-                */
 
                 $result['property_lots_ids'] = [
+                    'value' => [],
                     'domain' => [
                         ['active_ownership_id', '=', $event['old_ownership_id']]
                     ]
@@ -1571,7 +1576,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                 $propertyOwnerships = PropertyLotOwnership::search([['property_lot_id', '=', $event['property_lot_id']]])->read(['ownership_id'])->get(true);
                 $ownerships_ids = array_map(function ($a) {return $a['ownership_id'];}, $propertyOwnerships);
                 if(!isset($values['old_ownership_id']) || !in_array($values['old_ownership_id'], $ownerships_ids)) {
-                    $result['old_ownership_id'] = null;
                     if(count($ownerships_ids) === 1) {
                         $ownership_id = reset($ownerships_ids);
                         $ownership = Ownership::id($ownership_id)->read(['id', 'name'])->first();
@@ -1579,7 +1583,15 @@ class OwnershipTransfer extends \equal\orm\Model {
                             'id'    => $ownership['id'],
                             'name'  => $ownership['name']
                         ];
-                        $result['property_lots_ids'] = [$event['property_lot_id']];
+                        $result['property_lot_id'] = [
+                            'visible'  => false
+                        ];
+                        $result['property_lots_ids'] = [
+                            'value' => [$event['property_lot_id']],
+                            'domain' => [
+                                ['active_ownership_id', '=', $ownership_id]
+                            ]
+                        ];
                     }
                     else {
                         $result['old_ownership_id'] = [
@@ -1595,7 +1607,10 @@ class OwnershipTransfer extends \equal\orm\Model {
                 ];
                 */
                 $result['property_lot_id'] = [
-                    'domain' => ['condo_id', '=', $values['condo_id']]
+                    'domain' => [
+                        ['condo_id', '=', $values['condo_id']],
+                        ['active_ownership_id', '=', $values['old_ownership_id']]
+                    ]
                 ];
             }
         }
