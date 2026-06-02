@@ -88,6 +88,11 @@
             "description": "Indique si l'opération vise un journal d'ouverture.",
             "help": ""
         },
+        "opening_balance_id": {
+            "label": "Balance d'ouverture",
+            "description": "Balance d'ouverture liée.",
+            "help": ""
+        },
         "misc_operation_lines_ids": {
             "label": "Lignes",
             "description": "Détail des lignes débit/crédit qui alimentent l'écriture.",
