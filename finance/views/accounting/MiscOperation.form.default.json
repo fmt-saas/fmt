@@ -52,6 +52,32 @@
             },
             "confirm": false,
             "visible": ["status", "=", "proforma"]
+        },
+        {
+            "id": "action.cancel",
+            "label": "Cancel",
+            "description": "Cancel misc operation.",
+            "controller": "core_model_do",
+            "confirm": true,
+            "visible": ["status", "=", "posted"],
+            "params": {
+                "entity": "finance\\accounting\\MiscOperation",
+                "action": "cancel",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.unlock",
+            "label": "Unlock",
+            "description": "Unlock misc operation.",
+            "controller": "core_model_do",
+            "confirm": true,
+            "visible": ["status", "=", "posted"],
+            "params": {
+                "entity": "finance\\accounting\\MiscOperation",
+                "action": "unlock",
+                "ids": []
+            }
         }
     ],
     "layout": {

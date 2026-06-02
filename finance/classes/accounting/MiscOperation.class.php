@@ -251,7 +251,8 @@ class MiscOperation extends Model {
                 'selection'         => [
                     'pending',
                     'proforma',
-                    'posted'
+                    'posted',
+                    'cancelled'
                 ],
                 'default'           => 'pending',
                 'description'       => 'Current status of the operation.',
@@ -295,10 +296,16 @@ class MiscOperation extends Model {
                 'icon' => 'receipt_long',
                 'transitions' => [
                     'cancel' => [
-                        'description' => '',
+                        'description' => 'Set the miscellaneous operation as cancelled.',
+                        'policies'    => [],
                         'status' => 'cancelled',
                     ]
                 ],
+            ],
+            'cancelled' => [
+                'description' => 'The Miscellaneous Operation is cancelled. There are no transitions available.',
+                'icon'        => 'cancel',
+                'transitions' => []
             ],
         ];
     }
@@ -341,8 +348,45 @@ class MiscOperation extends Model {
                 'description'   => 'Generate fundings for lines related to Ownerships.',
                 'policies'      => [/* 'can_validate_accounting_entry' */],
                 'function'      => 'doCreateFundings'
+            ],
+            'cancel' => [
+                'description'   => 'Cancel the miscellaneous operation. No further change will be possible.',
+                'help'          => 'Void the accounting entry and set status to `cancelled`.',
+                'policies'      => [],
+                'function'      => 'doCancel'
+            ],
+            'unlock' => [
+                'description'   => 'Unlock the miscellaneous operation, to allow re-posting after modifications.',
+                'help'          => 'Self voiding accounting entries will be left as `reversed`, and operation will be set back to `proforma`.',
+                'policies'      => [/* can_unlock */],
+                'function'      => 'doUnlock'
             ]
         ];
+    }
+
+    protected static function doCancel($self) {
+        $self->read(['status', 'accounting_entry_id']);
+        foreach($self as $id => $miscOperation) {
+            if($miscOperation['status'] !== 'posted') {
+                continue;
+            }
+            AccountingEntry::id($miscOperation['accounting_entry_id'])->do('cancel');
+            self::id($id)
+                ->update(['status' => 'cancelled']);
+        }
+    }
+
+    protected static function doUnlock($self) {
+        $self->read(['status', 'accounting_entry_id']);
+        foreach($self as $id => $miscOperation) {
+            if($miscOperation['status'] !== 'posted') {
+                continue;
+            }
+            AccountingEntry::id($miscOperation['accounting_entry_id'])->do('cancel');
+            self::id($id)
+                ->update(['status' => 'proforma'])
+                ->update(['accounting_entry_id' => null]);
+        }
     }
 
     private static function computeIsBalanced($misc_operation_lines_ids) {
@@ -1136,7 +1180,7 @@ class MiscOperation extends Model {
 
     public static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['name', 'accounting_entry_id', 'opening_balance_id', 'payment_status', 'has_date_range', 'date_from', 'date_to'];
+        $allowed_fields = ['status', 'name', 'accounting_entry_id', 'opening_balance_id', 'payment_status', 'has_date_range', 'date_from', 'date_to'];
         foreach($self as $id => $miscOperation) {
             // only allow editable fields
             if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {

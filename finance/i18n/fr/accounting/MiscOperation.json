@@ -125,7 +125,8 @@
             "selection": {
                 "pending": "Brouillon",
                 "proforma": "Proforma",
-                "posted": "Comptabilisé"
+                "posted": "Comptabilisé",
+                "cancelled": "Annulé"
             }
         }
     },
@@ -145,6 +146,22 @@
                 "action.post": {
                     "label": "Intégrer",
                     "description": "Intégrer l'OD à la comptabilité."
+                },
+                "action.cancel": {
+                    "label": "Annuler",
+                    "description": "Annuler l'opération diverse et contrepasser l'écriture comptable."
+                },
+                "action.unlock": {
+                    "label": "Déverrouiller",
+                    "description": "Contrepasser l'écriture comptable et remettre l'opération diverse en proforma."
+                }
+            },
+            "layout": {
+                "section.lines": {
+                    "label": "Lignes"
+                },
+                "section.details": {
+                    "label": "Détails"
                 }
             }
         },
