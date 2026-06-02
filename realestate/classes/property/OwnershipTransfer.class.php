@@ -604,6 +604,9 @@ class OwnershipTransfer extends \equal\orm\Model {
         $commons_acquisitions_description = '';
         $condominium_debts_description = '';
 
+        // additional
+        $bank_loan_description = '';
+
         $templates = Template::search([
                 ['type', '=', 'document'],
                 ['code', 'in', ['ownership_transfer_paragraph_1', 'ownership_transfer_paragraph_2']]
@@ -648,6 +651,11 @@ class OwnershipTransfer extends \equal\orm\Model {
                     $condominium_debts_description = $part['value'];
                     break;
                 }
+                elseif($part['name'] === 'bank_loan_description') {
+                    $bank_loan_description = $part['value'];
+                    break;
+                }
+
             }
         }
 
@@ -671,7 +679,9 @@ class OwnershipTransfer extends \equal\orm\Model {
             // 3.94.2.3
             'commons_acquisitions_description' => $commons_acquisitions_description,
             // 3.94.2.4
-            'condominium_debts_description' => $condominium_debts_description
+            'condominium_debts_description' => $condominium_debts_description,
+            // additional
+            'bank_loan_description' => $bank_loan_description
         ]);
 
         $self

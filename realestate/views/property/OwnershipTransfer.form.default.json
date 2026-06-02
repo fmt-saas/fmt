@@ -217,6 +217,12 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "bank_loan_description",
+                                                "width": "100%",
+                                                "visible": ["has_bank_loan", "=", true]
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "bank_loan_lines_ids",
                                                 "width": "100%",
                                                 "visible": ["has_bank_loan", "=", true]
