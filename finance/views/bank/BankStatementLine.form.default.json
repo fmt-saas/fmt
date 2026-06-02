@@ -151,7 +151,9 @@
                                                 "type": "field",
                                                 "value": "is_reconciled",
                                                 "width": "33%",
-                                                "visible": ["state", "<>", "draft"],
+                                                "visible_1": ["state", "<>", "draft"],
+                                                "visible": false,
+                                                "visible_help": "This is not longer relevant : validated lines are always reconciled.",
                                                 "widget": {
                                                     "readonly": true
                                                 }

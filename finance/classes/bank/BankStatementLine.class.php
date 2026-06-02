@@ -185,6 +185,7 @@ class BankStatementLine extends Model {
                 'result_type'       => 'boolean',
                 'description'       => 'A line is reconciled if the sum of its payments matches its amount.',
                 'help'              => "This flag is used as indicator for granting the posting of the line.",
+                'deprecated'        => 'now lines are always reconciled',
                 'function'          => 'calcIsReconciled',
                 'store'             => true,
                 'instant'           => true
@@ -361,6 +362,7 @@ class BankStatementLine extends Model {
             ],
 
             'reconciliation_status' => [
+                'deprecated'        => true,
                 'type'              => 'string',
                 'selection'         => [
                     'pending',          // no Funding reconciliation has been performed yet; relevant mainly once the line is posted
@@ -395,10 +397,21 @@ class BankStatementLine extends Model {
                     'post' => [
                         // #memo - cannot check reconciliation in advance : this action relies upon sub-actions policies
                         'policies'    => [ 'is_valid' ],
-                        'description' => 'Update the payment status to `payment`.',
+                        'description' => 'Update the payment status to `posted`.',
                         'onbefore'    => 'onbeforePost',
                         'onafter'     => 'onafterPost',
                         'status'      => 'posted'
+                    ]
+                ]
+            ],
+            'posted' => [
+                'description' => 'Payment being created.',
+                'help'        => 'Status change is triggered by the parent BankStatementLine, which also generates the subsequent accounting entries.',
+                'icon'        => 'draw',
+                'transitions' => [
+                    'unpost' => [
+                        'description' => 'Update the payment status to `pending`.',
+                        'status'      => 'pending'
                     ]
                 ]
             ]

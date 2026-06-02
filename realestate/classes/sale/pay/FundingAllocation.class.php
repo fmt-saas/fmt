@@ -182,6 +182,20 @@ class FundingAllocation extends Model {
         }
     }
 
+    /**
+     * Revoke link between accounting entries & matching.
+     *
+     */
+    protected static function onbeforedelete($self) {
+        $self->read(['bank_statement_line_id']);
+        foreach($self as $id => $fundingAllocation) {
+            if(!$fundingAllocation['bank_statement_line_id']) {
+                continue;
+            }
+            BankStatementLine::id($fundingAllocation['bank_statement_line_id'])->transition('unpost');
+        }
+    }
+
     protected static function onafterupdate($self) {
         $self->read(['funding_id', 'bank_statement_line_id']);
         foreach($self as $id => $fundingAllocation) {

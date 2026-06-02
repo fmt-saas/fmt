@@ -5,7 +5,10 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 namespace finance\accounting;
+
 use equal\orm\Model;
+use realestate\sale\pay\Funding;
+use realestate\sale\pay\FundingAllocation;
 
 class AccountingEntryLine extends Model {
 
@@ -300,6 +303,19 @@ class AccountingEntryLine extends Model {
         ];
     }
 
+    public static function getPolicies(): array {
+        return array_merge(parent::getPolicies(), [
+            'can_detach_matching' => [
+                'description' => 'Checks that the accounting entry line is reversed before detaching its matching.',
+                'function'    => 'policyCanDetachMatching'
+            ],
+            'can_remove_funding' => [
+                'description' => 'Checks that the accounting entry line is reversed before removing related fundings.',
+                'function'    => 'policyCanRemoveFunding'
+            ]
+        ]);
+    }
+
     public static function getActions() {
         return [
             'attempt_match' => [
@@ -321,8 +337,48 @@ class AccountingEntryLine extends Model {
                 'description'   => 'Update status according to currently paid amount.',
                 'policies'      => [],
                 'function'      => 'doRefreshMatchingLevel'
+            ],
+            'detach_matching' => [
+                'description'   => 'Detach the entry line from its Matching.',
+                'policies'      => ['can_detach_matching'],
+                'function'      => 'doDetachMatching'
+            ],
+            'remove_funding' => [
+                'description'   => 'Remove fundings and funding allocations related to the entry line.',
+                'policies'      => ['can_remove_funding'],
+                'function'      => 'doRemoveFunding'
             ]
         ];
+    }
+
+    protected static function policyCanDetachMatching($self): array {
+        $result = [];
+        $self->read(['status']);
+
+        foreach($self as $id => $accountingEntryLine) {
+            if(($accountingEntryLine['status'] ?? null) !== 'reversed') {
+                $result[$id] = [
+                    'accounting_entry_line_not_reversed' => 'Accounting entry line must be reversed.'
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanRemoveFunding($self): array {
+        $result = [];
+        $self->read(['status']);
+
+        foreach($self as $id => $accountingEntryLine) {
+            if(($accountingEntryLine['status'] ?? null) !== 'reversed') {
+                $result[$id] = [
+                    'accounting_entry_line_not_reversed' => 'Accounting entry line must be reversed.'
+                ];
+            }
+        }
+
+        return $result;
     }
 
     protected static function calcAccountClass($self) {
@@ -460,6 +516,31 @@ class AccountingEntryLine extends Model {
 
     protected static function doRefreshMatchingLevel($self) {
         $self->update(['matching_level' => null]);
+    }
+
+    protected static function doDetachMatching($self) {
+        $self->read(['status', 'matching_id']);
+
+        foreach($self as $id => $accountingEntryLine) {
+            if($accountingEntryLine['matching_id']) {
+                self::id($id)->update(['matching_id' => null]);
+            }
+        }
+    }
+
+    protected static function doRemoveFunding($self, $orm) {
+        $self->read(['status']);
+
+        foreach($self as $id => $accountingEntryLine) {
+            $fundings_ids = Funding::search([
+                    ['accounting_entry_line_id', '=', $id]
+                ])
+                ->ids();
+
+            if(count($fundings_ids) > 0) {
+                Funding::ids($fundings_ids)->delete(true);
+            }
+        }
     }
 
     protected static function oncreate($self, $values) {
@@ -600,7 +681,7 @@ class AccountingEntryLine extends Model {
         $self->read(['matching_id', 'old_matching_id']);
         foreach($self as $id => $accountingEntryLine) {
             if($accountingEntryLine['old_matching_id']) {
-                // matching will remove itself if empty
+                // #memo - matching will remove itself if empty
                 Matching::id($accountingEntryLine['old_matching_id'])->do('check_emptiness');
                 self::id($id)->update(['old_matching_id' => null]);
             }

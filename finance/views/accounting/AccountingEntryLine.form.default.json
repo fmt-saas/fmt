@@ -6,6 +6,8 @@
             "label": "Match",
             "icon": "list",
             "description": "Match recording.",
+            "visible": false,
+            "visible_help": "This is not longer allowed : matching is fully automated and depends on the selected account.",
             "component": {
                 "name": "matchAccountingEntry",
                 "data": {

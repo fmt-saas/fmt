@@ -192,9 +192,12 @@ class Payment extends \realestate\sale\pay\FundingAllocation {
     public static function candelete($self) {
         $self->read(['status']);
         foreach($self as $payment) {
+            /*
+            // #memo - always allow Payment removal (controlled by Funding & BankStatementLine)
             if($payment['status'] != 'proforma') {
                 return ['status' => ['non_removable' => 'Non-proforma payments cannot be deleted manually.']];
             }
+            */
         }
         return parent::candelete($self);
     }

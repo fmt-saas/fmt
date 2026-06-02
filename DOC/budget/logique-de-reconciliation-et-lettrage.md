@@ -8,16 +8,18 @@ Le modèle repose sur une séparation stricte entre trois niveaux :
 
 Cette séparation évite de créer deux vérités concurrentes entre la logique métier de rapprochement et la logique comptable de lettrage.
 
-Le principe directeur est le suivant : le `Funding` porte la vérité métier du montant ouvert à suivre ; le `FundingAllocation` porte l’affectation ou l’apurement de ce montant ; le `Payment` est un `FundingAllocation` particulier issu d’un mouvement bancaire ; le `Matching` est la projection comptable automatique de cette affectation entre les lignes comptables concernées.
+Le principe directeur est le suivant : le `Funding` porte le suivi administratif et métier des montants dus, attendus ou crédités ; le `FundingAllocation` et le `Payment` expliquent administrativement comment une source d’apurement est affectée à ces `Funding` ; le `Matching` porte le lettrage comptable des `AccountingEntryLine` dans un périmètre donné.
+
+Ces niveaux doivent rester cohérents, mais ils ne portent pas nécessairement la même granularité. Un paiement peut être affecté administrativement à plusieurs `Funding`, tandis que la comptabilité peut conserver une ligne agrégée qui rejoint un `Matching` actif plus large. Le `Matching` ne doit donc pas être présenté comme la projection stricte et systématique d’une `FundingAllocation` vers la ligne source d’un `Funding`.
 
 En résumé :
 
 ```text
-Funding = montant ouvert à suivre
-FundingAllocation = montant affecté à un Funding
+Funding = suivi administratif des montants dus, attendus ou crédités
+FundingAllocation = explication administrative d’un montant affecté à un Funding
 Payment = FundingAllocation issue d’une ligne d’extrait bancaire
-Matching = projection comptable automatique d’une affectation
-AccountingEntryLine = ligne comptable source du Funding ou de l’affectation
+Matching = position comptable ouverte d’un périmètre de lettrage
+AccountingEntryLine = ligne comptable qui rejoint un Matching selon son périmètre
 ```
 
 ## Vue d’ensemble des concepts
@@ -27,14 +29,14 @@ AccountingEntryLine = ligne comptable source du Funding ou de l’affectation
 | Métier            | `Funding`                          | Quel montant est dû, attendu, à justifier, à compenser ou à conserver ? |
 | Affectation       | `FundingAllocation`                | Quel montant est affecté à quel `Funding`, et depuis quelle origine ? |
 | Paiement bancaire | `Payment`                          | Quelle affectation provient d’une ligne d’extrait bancaire ? |
-| Comptable         | `Matching` / `AccountingEntryLine` | Quelles lignes comptables sont liées entre elles par cette affectation ? |
+| Comptable         | `Matching` / `AccountingEntryLine` | Quelles lignes comptables composent la position comptable ouverte ? |
 
 | Notion                  | Objet concerné                              | Sens                                                         |
 | ----------------------- | ------------------------------------------- | ------------------------------------------------------------ |
 | Montant ouvert          | `Funding`                                   | Montant dû, attendu, disponible, à compenser ou à conserver. |
 | Affectation             | `FundingAllocation`                         | Montant atomique appliqué à un `Funding`.                    |
 | Paiement bancaire       | `Payment`                                   | `FundingAllocation` dont l’origine est une `BankStatementLine`. |
-| Lettrage comptable      | `AccountingEntryLine` + `Matching`          | Rapprochement comptable entre lignes d’écriture.             |
+| Lettrage comptable      | `AccountingEntryLine` + `Matching`          | Regroupement comptable de lignes d’écriture dans un périmètre de matching. |
 | Réconciliation bancaire | `BankStatementLine` + `Payment` + `Funding` | Explication d’un mouvement bancaire par un ou plusieurs montants ouverts. |
 | Compte réconciliable    | `Account.is_reconcilable`                   | Compte dont les écritures doivent être suivies pour pouvoir être rapprochées avec des lignes d’extrait bancaire via des `Funding`. |
 
@@ -166,7 +168,17 @@ Cette règle permet notamment de rapprocher des paiements reçus sur le compte c
 
 ## Rôle du Funding
 
-Le `Funding` représente un montant ouvert à suivre.
+Le `Funding` représente le niveau administratif et métier du modèle.
+
+Il sert notamment à :
+
+- suivre les montants dus, attendus ou crédités ;
+- gérer les échéances ;
+- suivre les retards de paiement ;
+- fournir une base éventuelle pour les rappels et les frais de retard ;
+- affecter logiquement un paiement ou une autre source d’apurement à une dette ou à un montant ouvert.
+
+Le `Funding` porte donc la granularité métier : appels de fonds, soldes d’ouverture, factures, crédits résiduels, trop-payés ou montants à conserver. Cette granularité peut être plus fine que la granularité comptable retenue dans le `Matching`.
 
 Il peut représenter :
 
@@ -216,7 +228,9 @@ La règle structurante est donc :
 Funding.accounting_entry_line_id = ligne comptable qui crée le montant ouvert à suivre
 ```
 
-Une `AccountingEntryLine` sur un compte réconciliable doit toujours être analysée. Elle ne crée toutefois pas nécessairement un nouveau `Funding` indépendant. Elle peut créer un `Funding`, apurer un `Funding` existant, compenser un `Funding` de sens inverse, générer un solde résiduel ou provoquer une réaffectation d’allocations existantes.
+Cette origine comptable est un lien de traçabilité. Elle ne signifie pas que le `Matching` doit être créé à la même granularité que le `Funding`, ni que toute allocation sur ce `Funding` doit être ajoutée telle quelle au `Matching` de cette ligne source.
+
+Une `AccountingEntryLine` sur un compte réconciliable doit toujours être analysée. Elle ne crée toutefois pas nécessairement un nouveau `Funding` indépendant. Elle peut créer un `Funding`, apurer un `Funding` existant, compenser un `Funding` de sens inverse, générer un solde résiduel, provoquer une réaffectation d’allocations existantes ou rejoindre un `Matching` actif du même périmètre comptable.
 
 ## Rôle du FundingAllocation
 
@@ -265,22 +279,30 @@ La règle est donc :
 FundingAllocation.accounting_entry_line_id = ligne comptable source du montant affecté
 ```
 
-## Atomicité des allocations
+## Atomicité administrative des allocations
 
-Un `FundingAllocation`, et donc aussi un `Payment`, est toujours atomique.
+Un `FundingAllocation`, et donc aussi un `Payment`, reste atomique au niveau administratif.
 
-Cela signifie qu’il correspond à un seul montant affecté à un seul `Funding`, et qu’il doit correspondre exactement au montant de la `AccountingEntryLine` qu’il réconcilie.
+Cela signifie qu’il correspond à un seul montant affecté à un seul `Funding`. Cette règle permet d’expliquer précisément comment une dette, un appel de fonds, un solde d’ouverture ou un crédit résiduel est apuré.
 
-La cardinalité cible est :
+Cette atomicité administrative ne doit pas être confondue avec la granularité comptable. Une ou plusieurs allocations peuvent s’appuyer sur une même ligne comptable source lorsque la comptabilité est enregistrée à un niveau agrégé. Réciproquement, une ligne comptable peut rejoindre un `Matching` actif qui regroupe plusieurs `Funding` du même périmètre.
+
+La cardinalité cible est donc :
 
 ```text
-1 FundingAllocation → 1 AccountingEntryLine
-1 Payment → 1 AccountingEntryLine
+1 FundingAllocation → 1 Funding
+1 Payment → 1 origine bancaire
+1 AccountingEntryLine → 1 Matching actif du périmètre, si la ligne est lettrable
 ```
 
-Il ne peut donc pas y avoir plusieurs `AccountingEntryLine` pour un même `Payment`.
+Il ne faut pas en déduire :
 
-Réciproquement, dans le flux de réconciliation bancaire, lorsqu’un paiement bancaire est ventilé sur plusieurs `Funding`, le système crée plusieurs `Payment`, chacun avec sa propre ligne comptable.
+```text
+1 FundingAllocation → 1 Matching
+FundingAllocation.amount → ajout obligatoire tel quel dans le Matching du Funding
+```
+
+Dans le flux de réconciliation bancaire, lorsqu’un paiement bancaire est ventilé sur plusieurs `Funding`, le système peut créer plusieurs `Payment` ou `FundingAllocation` pour expliquer l’affectation administrative. Cela n’impose pas de découper la ligne comptable bancaire au même niveau si la position comptable est suivie dans un `Matching` plus large.
 
 Exemple :
 
@@ -291,15 +313,22 @@ Funding B : 350 €
 Funding C : 250 €
 ```
 
-Résultat :
+Résultat administratif :
 
 ```text
-Payment A : 400 € → AccountingEntryLine A : 400 €
-Payment B : 350 € → AccountingEntryLine B : 350 €
-Payment C : 250 € → AccountingEntryLine C : 250 €
+Payment A : 400 € → Funding A
+Payment B : 350 € → Funding B
+Payment C : 250 € → Funding C
 ```
 
-Ces trois lignes comptables peuvent appartenir à la même `AccountingEntry` de la ligne bancaire.
+Résultat comptable possible :
+
+```text
+AccountingEntryLine bancaire : -1 000 €
+    → rejoint le Matching actif du périmètre
+```
+
+Selon les règles d’écriture retenues, ces allocations peuvent aussi être représentées par plusieurs lignes comptables. Le point structurant est que cette décision relève de la granularité comptable, pas de l’existence des `FundingAllocation`.
 
 ## 10. Rôle du Payment
 
@@ -349,7 +378,7 @@ La cardinalité structurante est :
 
 Une `BankStatementLine` génère toujours une seule `AccountingEntry`.
 
-En revanche, cette `AccountingEntry` peut contenir plusieurs `AccountingEntryLine`, y compris plusieurs lignes pour un même compte comptable. Cela se produit lorsque le montant bancaire est réparti entre plusieurs `Funding`.
+En revanche, cette `AccountingEntry` peut contenir plusieurs `AccountingEntryLine`, y compris plusieurs lignes pour un même compte comptable. Cela peut se produire lorsque le montant bancaire est réparti entre plusieurs `Funding`, sans imposer ce découpage lorsque la comptabilité reste agrégée.
 
 Le flux de traitement est :
 
@@ -357,9 +386,9 @@ Le flux de traitement est :
 1. La BankStatementLine est analysée.
 2. Le système identifie les Funding candidats.
 3. Le montant bancaire est ventilé sur ces Funding.
-4. Un Payment atomique est créé pour chaque montant affecté.
-5. Chaque Payment génère une AccountingEntryLine correspondante.
-6. Toutes ces AccountingEntryLine appartiennent à l’unique AccountingEntry de la BankStatementLine.
+4. Les Payment ou FundingAllocation expliquent l’affectation administrative.
+5. La BankStatementLine génère l’AccountingEntry comptable.
+6. Les AccountingEntryLine générées rejoignent le Matching actif de leur périmètre comptable.
 ```
 
 ## Découpage bancaire
@@ -368,11 +397,9 @@ Le découpage bancaire ne se fait pas directement au niveau du `Matching`. Il se
 
 Pour une ligne bancaire donnée, le système identifie les `Funding` ouverts pouvant être apurés. Il calcule ensuite, pour chaque `Funding`, le montant pouvant lui être affecté. Cette ventilation respecte les règles applicables, notamment la priorité chronologique FIFO lorsqu’elle s’applique.
 
-Chaque part calculée donne lieu à un `Payment` distinct.
+Chaque part calculée peut donner lieu à un `Payment` ou à une `FundingAllocation` distincte pour conserver l’explication administrative de l’affectation.
 
-Chaque `Payment` donne lieu à une `AccountingEntryLine` distincte.
-
-Il peut donc y avoir plusieurs `AccountingEntryLine` pour un même compte comptable au sein de l’unique `AccountingEntry` générée par la `BankStatementLine`.
+Cette ventilation ne force pas le même découpage au niveau comptable. L’unique `AccountingEntry` générée par la `BankStatementLine` peut contenir une ligne agrégée par compte et périmètre de matching, ou plusieurs lignes si les règles comptables l’exigent.
 
 Exemple :
 
@@ -385,34 +412,47 @@ Funding B :   900 €
 Funding C :   600 €
 ```
 
-Résultat :
+Résultat administratif :
 
 ```text
-Payment A : 1 000 € → AccountingEntryLine A
-Payment B :   900 € → AccountingEntryLine B
-Payment C :   600 € → AccountingEntryLine C
+Payment A : 1 000 € → Funding A
+Payment B :   900 € → Funding B
+Payment C :   600 € → Funding C
 ```
 
-Les trois lignes appartiennent à la même `AccountingEntry`.
+Résultat comptable possible :
+
+```text
+AccountingEntryLine bancaire : -2 500 €
+    → rejoint le Matching actif du périmètre
+```
+
+Si la comptabilité exige trois lignes, elles peuvent toutes appartenir à la même `AccountingEntry` et rejoindre le même `Matching` dès lors qu’elles partagent le même périmètre.
 
 ## Rôle du Matching
 
-Le `Matching` est une structure comptable de lettrage.
+Le `Matching` représente le niveau comptable du modèle.
 
-Il ne porte pas la décision métier d’affectation. Cette décision appartient aux `Funding` et aux `FundingAllocation`.
+Il sert notamment à :
 
-Le `Matching` est la projection comptable automatique de cette décision.
+- lettrer des `AccountingEntryLine` ;
+- regrouper les lignes comptables d’un même périmètre ;
+- calculer le solde comptable ouvert ;
+- identifier une position débitrice, soldée ou créditrice.
 
-Il relie la ligne comptable source du `Funding` avec la ligne comptable source de l’allocation.
+Il ne porte pas la décision métier d’affectation. Cette décision appartient aux `Funding`, aux `FundingAllocation` et aux `Payment`.
 
-La relation conceptuelle est :
+Le `Matching` ne doit pas être compris comme une projection stricte d’une `FundingAllocation` vers la ligne comptable source d’un `Funding`. Il agrège les `AccountingEntryLine` pertinentes selon un périmètre de matching.
+
+La relation conceptuelle cible est :
 
 ```text
-Funding.accounting_entry_line_id
-FundingAllocation.accounting_entry_line_id
-FundingAllocation.amount
-    ↓
-Matching
+AccountingEntryLine
+    → identification du périmètre comptable
+    → Matching actif du périmètre
+
+Funding / FundingAllocation / Payment
+    → explication administrative des montants ouverts et apurés
 ```
 
 Un `Matching` est balancé lorsque les lignes comptables qu’il regroupe s’annulent :
@@ -427,42 +467,89 @@ ou :
 balance_amount = 0
 ```
 
-S’il reste un solde, le `Matching` représente un lettrage partiel.
+S’il reste un solde, le `Matching` représente la position comptable ouverte du périmètre.
 
 Le `Matching` ne doit pas être manipulé arbitrairement par l’utilisateur. Si une correction est nécessaire, elle doit être faite au niveau de la cause métier ou comptable : `Funding`, `FundingAllocation`, `Payment`, ligne bancaire, pièce source, OD ou imputation comptable. Le `Matching` est ensuite recalculé ou ajusté.
 
+## Matching actif par copropriétaire
+
+Pour les copropriétaires, l’approche cible est d’avoir au maximum un `Matching` actif par périmètre comptable.
+
+Le périmètre est défini au minimum par :
+
+- `organization_id` ou copropriété ;
+- `owner_id`, `partner_id` ou `ownership_id` selon le modèle disponible ;
+- `matching_account_id` ;
+- `currency`.
+
+Ce `Matching` représente la position comptable ouverte du copropriétaire dans ce périmètre.
+
+Il peut regrouper :
+
+- soldes d’ouverture ;
+- appels de fonds ;
+- paiements ;
+- corrections ;
+- opérations diverses ;
+- trop-payés ;
+- crédits résiduels.
+
+Cette approche permet de conserver la granularité administrative sur les `Funding`, tout en regroupant la granularité comptable dans une position ouverte plus large.
+
+## Interprétation du solde du Matching
+
+Dans un `Matching` actif par copropriétaire, le signe du solde a un sens comptable :
+
+```text
+balance_amount > 0 : le copropriétaire est débiteur
+balance_amount = 0 : la position comptable est soldée
+balance_amount < 0 : le copropriétaire est créditeur
+```
+
+Une inversion de signe ne constitue donc pas nécessairement une erreur. Elle peut représenter une situation comptable normale, par exemple un trop-payé ou un crédit résiduel disponible.
+
+## Cycle de vie du Matching actif
+
+La logique cible n’est pas de créer un `Matching` par `Funding`.
+
+Le cycle est le suivant :
+
+```text
+1. Il existe au maximum un Matching actif par copropriétaire et par périmètre.
+2. Une nouvelle AccountingEntryLine rejoint le Matching actif si elle appartient au même périmètre.
+3. Si aucun Matching actif n’existe, un nouveau Matching actif est créé.
+4. Lorsque balance_amount revient à zéro, le Matching peut être clôturé.
+5. Au prochain mouvement du même périmètre, un nouveau Matching actif est créé.
+```
+
+Cette règle évite deux écueils :
+
+- créer un `Matching` atomique pour chaque `Funding` ou chaque `FundingAllocation` ;
+- conserver un `Matching` éternel qui grossirait indéfiniment.
+
 ## Création et tentative de Matching
 
-La tentative de matching est faite entre :
-
-- la `AccountingEntryLine` source du `Funding` à apurer ;
-- la `AccountingEntryLine` créée ou utilisée par le `Payment` ou le `FundingAllocation`.
+La tentative de matching est faite à partir d’une `AccountingEntryLine` lettrable.
 
 Le flux est :
 
 ```text
-Payment / FundingAllocation
-    → funding_id
-        → Funding.accounting_entry_line_id
-    → accounting_entry_line_id
-        → AccountingEntryLine source de l’allocation
-
-Puis :
-AccountingEntryLine source de l’allocation
-    → attempt_match_with_line(Funding.accounting_entry_line_id)
+AccountingEntryLine
+    → identifier organization / copropriété
+    → identifier copropriétaire, partner ou ownership
+    → identifier matching_account_id
+    → identifier currency
+    → rechercher le Matching actif du périmètre
+    → créer un Matching actif si nécessaire
+    → rattacher la ligne au Matching
+    → recalculer balance_amount
 ```
 
-La méthode `attempt_match_with_line` ne crée pas un `Matching` depuis rien. Elle suppose que la ligne cible, c’est-à-dire la ligne source du `Funding`, possède déjà un `matching_id` actif.
-
-Si la ligne cible n’a pas de `matching_id`, la tentative ne fait rien.
-
-Si le `Matching` cible est déjà balancé, la tentative ne fait rien.
-
-Cela implique que les lignes comptables éligibles au lettrage doivent recevoir un `Matching` potentiel dès leur création ou dans une étape préparatoire.
+Les `FundingAllocation` et `Payment` peuvent aider à expliquer pourquoi la ligne existe ou comment elle est affectée administrativement, mais ils ne déterminent pas seuls le `Matching`. Le rattachement comptable dépend du périmètre de la `AccountingEntryLine`.
 
 ## Conditions de compatibilité pour le Matching
 
-Deux `AccountingEntryLine` ne peuvent être rapprochées que si elles partagent le même `matching_account_id`.
+Deux `AccountingEntryLine` ne peuvent être regroupées dans un même `Matching` que si elles partagent le même périmètre comptable.
 
 La règle n’est donc pas :
 
@@ -478,48 +565,73 @@ les deux lignes doivent avoir le même matching_account_id
 
 Cette distinction est essentielle pour les copropriétaires. Une ligne peut être imputée sur un compte réel de fonds de réserve ou de fonds de roulement, tout en étant lettrée via le compte collecteur `co_owners_owner`.
 
-La tentative de matching applique les règles suivantes :
+Les règles de compatibilité à conserver sont :
 
 ```text
-1. La ligne cible doit exister.
-2. La ligne cible doit avoir un matching_id.
-3. Le Matching cible ne doit pas déjà être balancé.
-4. La ligne source et la ligne cible doivent avoir le même matching_account_id.
-5. La ligne source ne doit pas être la ligne cible.
-6. La ligne source ne doit pas déjà appartenir au même Matching.
-7. L’ajout de la ligne source doit équilibrer le Matching ou réduire son solde sans en inverser le signe.
+1. Même matching_account_id.
+2. Même copropriété / organisation.
+3. Même copropriétaire, partner ou ownership selon le modèle disponible.
+4. Même devise.
+5. Ligne source différente.
+6. Ligne pas déjà rattachée au même Matching.
 ```
 
-Si l’ajout de la ligne source ferait basculer le solde du `Matching` de l’autre côté, la ligne n’est pas ajoutée. Dans ce cas, le montant aurait dû être découpé en amont au niveau des `Payment` ou `FundingAllocation`.
-
-Exemple accepté :
+Les règles suivantes doivent être supprimées ou limitées aux cas où le modèle fonctionnel exige explicitement un matching strict par dette :
 
 ```text
-Matching cible : +1 000
-Ligne source   : -400
-Résultat       : +600
-→ accepté, matching partiel
+interdire systématiquement l’inversion de signe du Matching
+exiger que chaque ajout réduise uniquement le solde sans le dépasser
+dépendre strictement de Funding.accounting_entry_line_id pour choisir le Matching
 ```
 
-Exemple accepté :
+Dans le modèle cible par copropriétaire, une ligne peut faire passer le solde de positif à négatif. Ce basculement signifie que la position comptable devient créditrice.
+
+Exemple :
 
 ```text
-Matching cible : +1 000
-Ligne source   : -1 000
-Résultat       : 0
-→ accepté, matching balancé
-```
-
-Exemple refusé :
-
-```text
-Matching cible : +1 000
+Matching actif : +1 000
 Ligne source   : -1 200
 Résultat       : -200
-→ refusé, car le solde changerait de signe
+→ accepté, le copropriétaire devient créditeur de 200
 ```
 
-Cette règle confirme l’importance de l’atomicité des allocations.
+L’atomicité administrative des allocations reste utile pour expliquer les `Funding` apurés, mais elle ne doit pas forcer une bijection entre `FundingAllocation` et `Matching`.
+
+## Exemple copropriétaire avec trop-payé
+
+```text
+Solde d’ouverture : 2 300 €
+Appel de fonds    :   500 €
+Paiement bancaire : 3 000 €
+```
+
+Ancienne logique à éviter :
+
+```text
+Matching ouverture : +2 300
+Matching appel     :   +500
+Paiement découpé   : -2 500 + -500
+Résultat           : impossibilité de matcher -2 500 avec +2 300
+Conséquence        : deux Matchings non balancés et incohérents
+```
+
+Nouvelle logique cible :
+
+```text
+Matching actif copropriétaire
+    Ligne d’ouverture : +2 300
+    Ligne d’appel     :   +500
+    Ligne de paiement : -3 000
+
+Solde du Matching : -200
+Interprétation    : copropriétaire créditeur de 200 €
+```
+
+Le `Funding` reste utilisé pour déterminer administrativement que :
+
+- le solde d’ouverture de 2 300 € est payé ;
+- l’appel de fonds de 500 € est payé ;
+- le surplus de 200 € constitue un trop-payé ou un crédit disponible.
 
 ## Paiements partiels
 
@@ -536,14 +648,14 @@ Résultat :
 
 ```text
 Funding restant ouvert : 600 €
-Matching partiel       : 400 €
+Position comptable     : solde encore débiteur de 600 € si aucun autre mouvement n’existe dans le périmètre
 ```
 
 Il ne faut pas confondre :
 
 - une ligne bancaire entièrement expliquée ;
 - un `Funding` partiellement soldé ;
-- un `Matching` partiel.
+- une position comptable ouverte dans le `Matching`.
 
 Une `BankStatementLine` de 400 € peut être entièrement rapprochée au niveau bancaire même si elle ne solde qu’une partie d’un `Funding` de 1 000 €.
 
@@ -560,17 +672,17 @@ Funding B      :   900 €
 Funding C      :   600 €
 ```
 
-Résultat :
+Résultat administratif :
 
 ```text
-Payment A : 1 000 €
-Payment B :   900 €
-Payment C :   600 €
+Payment A : 1 000 € → Funding A
+Payment B :   900 € → Funding B
+Payment C :   600 € → Funding C
 ```
 
-Chaque `Payment` est atomique, correspond à un seul `Funding`, et génère une seule `AccountingEntryLine`.
+Chaque `Payment` est atomique au niveau administratif et correspond à un seul `Funding`.
 
-La relation n-à-n entre une source bancaire et plusieurs `Funding` est donc portée par les `Payment`, pas par une manipulation manuelle du `Matching`.
+La relation n-à-n entre une source bancaire et plusieurs `Funding` est portée par les `Payment` ou `FundingAllocation`, pas par une manipulation manuelle du `Matching`. La ou les `AccountingEntryLine` issues du paiement rejoignent ensuite le `Matching` actif selon leur périmètre.
 
 ## Trop-payés, paiements anticipés et résiduels
 
@@ -590,6 +702,7 @@ Résultat :
 ```text
 Payment sur Funding dû      : 800 €
 Funding créditeur résiduel  : 200 €
+Matching actif              : solde éventuellement créditeur selon les autres lignes du périmètre
 ```
 
 Ce `Funding` créditeur pourra être utilisé plus tard pour apurer un nouveau `Funding` débiteur, en respectant les règles d’affectation applicables.
@@ -629,7 +742,7 @@ Cela concerne notamment :
 
 La compensation se matérialise par un `FundingAllocation`.
 
-La compensation doit être traitée comme une affectation normale : elle est soumise aux mêmes contraintes d’ordre, de traçabilité, d’atomicité et de projection comptable que les paiements bancaires.
+La compensation doit être traitée comme une affectation normale : elle est soumise aux mêmes contraintes d’ordre, de traçabilité et d’atomicité administrative que les paiements bancaires. Son effet comptable est porté par les `AccountingEntryLine`, qui rejoignent le `Matching` actif de leur périmètre.
 
 Exemple :
 
@@ -680,7 +793,7 @@ Cette règle vaut pour toutes les sources d’apurement :
 - corrections ;
 - compensations entre `Funding`.
 
-En pratique, les `Funding` de copropriétaire sont portés par le compte collecteur `co_owners_owner`. Le `Matching` utilise également ce compte collecteur via `matching_account_id`.
+En pratique, les `Funding` de copropriétaire sont portés par le compte collecteur `co_owners_owner`. Le `Matching` utilise également ce compte collecteur via `matching_account_id`, mais il peut regrouper plusieurs `Funding` du même copropriétaire et du même périmètre.
 
 Le périmètre exact de la file FIFO doit rester cohérent avec les règles métier applicables à l’ownership, à la copropriété et au type de montant suivi. Lorsque plusieurs comptes économiques sont ramenés au même compte collecteur, le système doit conserver l’information d’origine via la `AccountingEntryLine` source afin de pouvoir expliquer le fonds concerné.
 
@@ -694,8 +807,8 @@ Cela peut impliquer :
 - découper une allocation existante ;
 - invalider une allocation existante ;
 - créer plusieurs nouvelles allocations atomiques ;
-- recalculer les soldes ;
-- régénérer ou ajuster les `Matching`.
+- recalculer les soldes administratifs ;
+- recalculer ou ajuster les `Matching` concernés à partir des lignes comptables.
 
 Exemple :
 
@@ -724,7 +837,7 @@ Elle peut :
 3. compenser un `Funding` de sens inverse ;
 4. générer un `Funding` résiduel ;
 5. provoquer une réaffectation d’allocations existantes ;
-6. déclencher une tentative de `Matching`.
+6. rejoindre le `Matching` actif de son périmètre comptable.
 
 La séquence logique n’est donc pas simplement :
 
@@ -740,7 +853,7 @@ AccountingEntryLine
     → analyse de la position ouverte existante
     → création ou apurement de Funding
     → création éventuelle de FundingAllocation
-    → tentative de Matching
+    → rattachement au Matching actif du périmètre comptable
 ```
 
 ## Ordre logique de traitement d’une ligne bancaire
@@ -753,18 +866,18 @@ Pour une `BankStatementLine`, l’ordre logique cible est :
 3. Rechercher les Funding candidats.
 4. Classer les Funding selon les règles applicables, notamment FIFO.
 5. Calculer le montant atomique affectable à chaque Funding.
-6. Créer un Payment pour chaque montant affecté.
+6. Créer les Payment ou FundingAllocation nécessaires pour expliquer l’affectation administrative.
 7. Générer l’unique AccountingEntry de la BankStatementLine.
-8. Générer une AccountingEntryLine par Payment.
-9. Associer chaque Payment à sa AccountingEntryLine.
-10. Pour chaque Payment, tenter le Matching avec la AccountingEntryLine source du Funding.
+8. Générer les AccountingEntryLine selon la granularité comptable retenue.
+9. Associer les Payment ou FundingAllocation à leur origine et, si disponible, à la ligne comptable source.
+10. Rattacher les AccountingEntryLine lettrables au Matching actif de leur périmètre.
 11. Calculer le résiduel éventuel.
 12. Créer un Funding résiduel si nécessaire.
 13. Mettre à jour le statut de rapprochement de la BankStatementLine.
 14. Historiser le traitement.
 ```
 
-L’ordre réel peut varier selon les contraintes d’implémentation, notamment si l’écriture comptable doit exister avant la création des `Payment`. La contrainte fonctionnelle reste toutefois : chaque `Payment` doit correspondre exactement à une `AccountingEntryLine`.
+L’ordre réel peut varier selon les contraintes d’implémentation, notamment si l’écriture comptable doit exister avant la création des `Payment`. La contrainte fonctionnelle reste toutefois : chaque `Payment` doit expliquer une affectation administrative traçable. Il ne doit pas nécessairement correspondre à une `AccountingEntryLine` distincte.
 
 ## Ordre logique de traitement d’une pièce comptable classique
 
@@ -781,7 +894,7 @@ Pour une pièce comptable non bancaire, l’ordre logique est :
    - ou compenser un Funding de sens inverse ;
    - ou créer un résiduel.
 4. Créer ou ajuster les FundingAllocation correspondantes.
-5. Tenter les Matching.
+5. Rattacher les AccountingEntryLine lettrables au Matching actif de leur périmètre.
 6. Mettre à jour les statuts.
 7. Historiser les changements.
 ```
@@ -807,7 +920,7 @@ Les soldes d’ouverture doivent être traités comme une origine comptable iden
 
 Un `Funding` provenant d’une opening balance doit être lié à une ligne comptable d’ouverture identifiable.
 
-Cela permet ensuite de générer des `FundingAllocation` et des `Matching` cohérents lorsque ce solde est apuré.
+Cela permet ensuite de générer des `FundingAllocation` cohérents lorsque ce solde est apuré, et de faire rejoindre la ligne d’ouverture au `Matching` actif du périmètre comptable.
 
 À défaut, le système risquerait de matcher un paiement avec une autre écriture uniquement parce que le montant correspond.
 
@@ -843,7 +956,6 @@ L’état cible d’une ligne bancaire traitée est :
 
 ```text
 status = posted
-reconciliation_status = full
 ```
 
 Cela signifie que la ligne est comptabilisée et entièrement expliquée au niveau métier.
@@ -889,9 +1001,27 @@ Les traitements doivent être idempotents : un second appel ne doit pas créer d
 Exemples :
 
 - une même `AccountingEntryLine` ne doit pas créer deux fois le même `Funding` ;
-- une même allocation ne doit pas générer deux fois la même ligne comptable ;
-- une même allocation ne doit pas être projetée plusieurs fois dans le `Matching` ;
+- une même allocation ne doit pas générer de doublon comptable ;
+- une même `AccountingEntryLine` ne doit pas être ajoutée plusieurs fois au même `Matching` ;
 - un recalcul doit pouvoir remplacer proprement ou invalider l’état précédent.
+
+La traçabilité administrative est portée par :
+
+- `Funding` ;
+- `FundingAllocation` ;
+- `Payment` ;
+- `origin_object_class` ;
+- `origin_object_id`.
+
+La traçabilité comptable est portée par :
+
+- `AccountingEntry` ;
+- `AccountingEntryLine` ;
+- `Matching` ;
+- `matching_account_id` ;
+- le périmètre de matching.
+
+Les deux niveaux doivent rester cohérents, mais ils ne doivent pas être confondus.
 
 Les liens de traçabilité principaux sont :
 
@@ -920,18 +1050,21 @@ Pour `Payment` :
 Payment = FundingAllocation
 origin_object_class = 'finance\bank\BankStatementLine'
 origin_object_id = bank_statement_line_id
-accounting_entry_line_id = ligne comptable générée pour ce Payment
+accounting_entry_line_id = ligne comptable source ou associée, si disponible
 ```
 
 Pour `Matching` :
 
 ```text
-Matching.account_id ou matching account de référence
+Matching.matching_account_id ou matching account de référence
+Matching.organization_id / copropriété
+Matching.owner_id, partner_id ou ownership_id selon le modèle disponible
+Matching.currency
 AccountingEntryLine.matching_id
 AccountingEntryLine.matching_account_id
 ```
 
-Le `Matching` peut regrouper plusieurs lignes comptables, mais les justifications métier restent portées par les `FundingAllocation` / `Payment`.
+Le `Matching` peut regrouper plusieurs lignes comptables et plusieurs mouvements administratifs. Les justifications métier restent portées par les `Funding`, `FundingAllocation` et `Payment`.
 
 ## Diagramme de modèle de données
 
@@ -946,7 +1079,7 @@ erDiagram
         int accounting_entry_id
         int account_id
         decimal amount
-        string reconciliation_status
+        string status
     }
 
     ACCOUNTING_ENTRY {
@@ -959,6 +1092,11 @@ erDiagram
         int account_id
         int matching_account_id
         int matching_id
+        int organization_id
+        int owner_id
+        int partner_id
+        int ownership_id
+        string currency
         decimal debit
         decimal credit
     }
@@ -986,9 +1124,15 @@ erDiagram
     }
 
     MATCHING {
-        int account_id
+        int matching_account_id
+        int organization_id
+        int owner_id
+        int partner_id
+        int ownership_id
+        string currency
         decimal balance_amount
         boolean is_balanced
+        boolean is_active
     }
 
     ACCOUNT ||--o{ ACCOUNTING_ENTRY_LINE : "real account via account_id"
@@ -999,12 +1143,12 @@ erDiagram
 
     ACCOUNTING_ENTRY_LINE ||--o| FUNDING : "creates open amount"
     FUNDING ||--o{ FUNDING_ALLOCATION : "is settled by"
-    FUNDING_ALLOCATION ||--|| ACCOUNTING_ENTRY_LINE : "has atomic source line"
+    FUNDING_ALLOCATION }o--o| ACCOUNTING_ENTRY_LINE : "may reference source line"
 
     PAYMENT ||--|| FUNDING_ALLOCATION : "is bank-origin allocation"
-    BANK_STATEMENT_LINE ||--o{ PAYMENT : "is split into"
+    BANK_STATEMENT_LINE ||--o{ PAYMENT : "is explained by"
 
-    MATCHING ||--o{ ACCOUNTING_ENTRY_LINE : "groups by matching_account_id"
+    MATCHING ||--o{ ACCOUNTING_ENTRY_LINE : "groups by scope"
 ```
 
 ## Diagramme synthétique de la logique métier
@@ -1014,17 +1158,20 @@ flowchart LR
     AE["AccountingEntry<br/>Pièce comptable"]
     AEL["AccountingEntryLine<br/>Ligne comptable"]
     F["Funding<br/>Montant ouvert à suivre"]
+    FS["Suivi administratif<br/>montants, échéances, retards"]
     FA["FundingAllocation<br/>Affectation atomique"]
     P["Payment<br/>Allocation bancaire"]
-    M["Matching<br/>Lettrage comptable"]
+    M["Matching actif<br/>Position comptable ouverte"]
+    BAL["Solde comptable<br/>débiteur, soldé ou créditeur"]
 
     AE -->|"contains"| AEL
-    AEL -->|"creates / references"| F
-    FA -->|"settles"| F
+    AEL -->|"may create / justify"| F
+    AEL -->|"joins active scope"| M
+    F -->|"tracks"| FS
     P -->|"specializes"| FA
-    FA -->|"uses one"| AEL
-    AEL -->|"belongs to"| M
-    FA -->|"triggers matching between source lines"| M
+    FA -->|"settles / credits"| F
+    FA -.->|"may reference source line"| AEL
+    M -->|"calculates"| BAL
 ```
 
 ## Diagramme du découpage bancaire
@@ -1035,22 +1182,17 @@ flowchart TD
     AE["AccountingEntry<br/>unique for the BankStatementLine"]
 
     FIND["Identify candidate Fundings"]
-    SPLIT["Split bank amount<br/>into atomic Payments"]
+    SPLIT["Explain bank amount<br/>with administrative allocations"]
 
     P1["Payment A<br/>FundingAllocation<br/>atomic amount"]
     P2["Payment B<br/>FundingAllocation<br/>atomic amount"]
 
-    AEL1["AccountingEntryLine A<br/>same amount as Payment A"]
-    AEL2["AccountingEntryLine B<br/>same amount as Payment B"]
+    AEL["AccountingEntryLine(s)<br/>accounting granularity"]
 
     F1["Funding A"]
     F2["Funding B"]
 
-    FAEL1["Funding A source<br/>AccountingEntryLine"]
-    FAEL2["Funding B source<br/>AccountingEntryLine"]
-
-    M1["Matching A<br/>active on Funding source line"]
-    M2["Matching B<br/>active on Funding source line"]
+    M["Active Matching<br/>co-owner accounting scope"]
 
     BSL -->|"generates exactly one"| AE
     BSL --> FIND
@@ -1062,46 +1204,55 @@ flowchart TD
     P1 -->|"settles"| F1
     P2 -->|"settles"| F2
 
-    P1 -->|"generates exactly one"| AEL1
-    P2 -->|"generates exactly one"| AEL2
+    AE --> AEL
 
-    AE --> AEL1
-    AE --> AEL2
-
-    F1 -->|"source line"| FAEL1
-    F2 -->|"source line"| FAEL2
-
-    FAEL1 --> M1
-    FAEL2 --> M2
-
-    AEL1 -->|"attempt_match_with_line<br/>same matching_account_id"| FAEL1
-    AEL2 -->|"attempt_match_with_line<br/>same matching_account_id"| FAEL2
+    AEL -->|"same organization<br/>same co-owner / ownership<br/>same matching_account_id<br/>same currency"| M
 ```
 
 ## Diagramme de tentative de Matching
 
 ```mermaid
 flowchart TD
-    FA["FundingAllocation / Payment"]
-    F["Funding"]
-    SRC["Allocation source AccountingEntryLine<br/>FundingAllocation.accounting_entry_line_id"]
-    TGT["Funding source AccountingEntryLine<br/>Funding.accounting_entry_line_id"]
-    CHECK1{"Same matching_account_id?"}
-    CHECK2{"Target has active<br/>unbalanced Matching?"}
-    CHECK3{"Adding source line balances<br/>or reduces without sign inversion?"}
-    M["Target Matching<br/>created / completed / merged"]
+    AEL["AccountingEntryLine"]
+    SCOPE["Determine matching scope"]
+    CHECK1{"Same organization<br/>/ copropriété?"}
+    CHECK2{"Same co-owner<br/>partner or ownership?"}
+    CHECK3{"Same matching_account_id<br/>and currency?"}
+    ACTIVE{"Active Matching<br/>exists?"}
+    CREATE["Create new active Matching"]
+    JOIN["Attach line to active Matching"]
+    BAL["Recalculate balance_amount"]
+    CLOSE{"balance_amount = 0?"}
+    CLOSED["Close Matching<br/>if cycle complete"]
+    OPEN["Keep Matching active"]
     STOP["No matching update"]
 
-    FA --> F
-    FA --> SRC
-    F --> TGT
-    SRC --> CHECK1
-    TGT --> CHECK1
+    AEL --> SCOPE
+    SCOPE --> CHECK1
     CHECK1 -- "no" --> STOP
     CHECK1 -- "yes" --> CHECK2
     CHECK2 -- "no" --> STOP
     CHECK2 -- "yes" --> CHECK3
     CHECK3 -- "no" --> STOP
-    CHECK3 -- "yes" --> M
+    CHECK3 -- "yes" --> ACTIVE
+    ACTIVE -- "no" --> CREATE
+    ACTIVE -- "yes" --> JOIN
+    CREATE --> JOIN
+    JOIN --> BAL
+    BAL --> CLOSE
+    CLOSE -- "yes" --> CLOSED
+    CLOSE -- "no" --> OPEN
 ```
+
+## Synthèse finale
+
+```text
+Funding = suivi administratif des dettes, échéances, retards, frais et affectations métier.
+
+FundingAllocation / Payment = explication administrative d’un paiement ou d’une source d’apurement par rapport aux Funding.
+
+Matching = position comptable ouverte d’un copropriétaire dans un périmètre donné, regroupant les AccountingEntryLine pertinentes.
+```
+
+Il ne faut pas forcer une bijection stricte entre `FundingAllocation` et `Matching`.
 
