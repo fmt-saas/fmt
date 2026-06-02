@@ -29,6 +29,10 @@
             "label": "Extraits bancaires",
             "description": "Importer et rapprocher les extraits."
         },
+        "item.imports.documents.import": {
+            "label": "Autres documents",
+            "description": "Import d'autres documents."
+        },
         "item.imports.data_import.condominium": {
             "label": "Import copropriété",
             "description": "Importer des données depuis un fichier XLS."

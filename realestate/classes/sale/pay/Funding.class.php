@@ -522,7 +522,7 @@ class Funding extends \sale\pay\Funding {
     public static function candelete($self) {
         $self->read(['is_paid', 'paid_amount']);
         foreach($self as $funding) {
-            // #memo - always allow removal - payments, if any, will be considered through their accountingentries in next Funding
+            // #memo - always allow removal - payments, if any, will be considered through their accounting entries in future Funding
             /*
             if($funding['is_paid'] || $funding['paid_amount'] != 0) {
                 return ['payments_ids' => ['non_removable_funding' => 'Funding paid or partially paid cannot be deleted.']];

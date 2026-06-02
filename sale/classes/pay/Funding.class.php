@@ -371,7 +371,7 @@ class Funding extends \equal\orm\Model {
     public static function candelete($self) {
         $self->read(['is_paid', 'paid_amount', 'invoice_id' => ['status', 'invoice_type'], 'payments_ids']);
         foreach($self as $funding) {
-            // #memo - always allow removal - payments, if any, will be considered through their accountingentries in next Funding
+            // #memo - always allow removal - payments, if any, will be considered through their accounting entries in future Funding
             // #todo - new paradigm - Funding are always handled automatically
             /*
             if($funding['is_paid'] || $funding['paid_amount'] != 0 || count($funding['payments_ids']) > 0) {

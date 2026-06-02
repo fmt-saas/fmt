@@ -155,6 +155,7 @@ class FundingAllocation extends Model {
                 'foreign_object'    => 'realestate\sale\pay\Funding',
                 'description'       => 'The funding the payment relates to, if any.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'ondelete'          => 'cascade',
                 'order'             => 'issue_date',
                 'sort'              => 'asc'
             ],
