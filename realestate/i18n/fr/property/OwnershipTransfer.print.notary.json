@@ -35,6 +35,13 @@
     "fund_balances.table.th.condo_shares": "Quotités immeuble",
     "fund_balances.table.th.condominium": "Copropriété",
     "fund_balances.table.th.owner_share": "Quote-part copropriétaire",
+    "bank_loans.table.th.description": "Emprunt",
+    "bank_loans.table.th.apportionment": "Répartition",
+    "bank_loans.table.th.lot": "Lot",
+    "bank_loans.table.th.lot_shares": "Quotités lot",
+    "bank_loans.table.th.condo_shares": "Quotités immeuble",
+    "bank_loans.table.th.total_amount": "Solde copropriété",
+    "bank_loans.table.th.property_lot_amount": "Solde Lot",
 
     "arrears.table.th.due_date": "Date d'échéance",
     "arrears.table.th.label": "Libellé",
