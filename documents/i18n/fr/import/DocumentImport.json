@@ -1,0 +1,76 @@
+{
+    "name": "Import de document",
+    "plural": "Imports de documents",
+    "description": "Entite technique temporaire utilisee pour deposer un document historique, renseigner ses metadonnees GED et creer le document final.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriete",
+            "description": "Copropriete a laquelle le document est rattache.",
+            "help": "Cette valeur determine le dossier GED dans lequel le document sera classe."
+        },
+        "ownership_id": {
+            "label": "Coproprietaire",
+            "description": "Dossier de propriete concerne par le document, si applicable.",
+            "help": "A renseigner pour les documents propres a un coproprietaire."
+        },
+        "supplier_id": {
+            "label": "Fournisseur",
+            "description": "Fournisseur a l'origine du document, si applicable.",
+            "help": "A renseigner pour les documents lies a un fournisseur."
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Nom du document importe.",
+            "help": "Le nom est alimente automatiquement a partir du fichier depose."
+        },
+        "data": {
+            "label": "Fichier",
+            "description": "Contenu binaire du document depose.",
+            "help": "Le fichier est utilise pour creer le document final, puis l'objet d'import temporaire est supprime."
+        },
+        "document_type_id": {
+            "label": "Type de document",
+            "description": "Type GED attribue au document.",
+            "help": "Le type determine le dossier de classement automatique."
+        },
+        "document_subtype_id": {
+            "label": "Sous-type",
+            "description": "Sous-type GED attribue au document, si applicable.",
+            "help": "Le sous-type precise la categorie du document lorsque le type le permet."
+        },
+        "document_type_code": {
+            "label": "Code type",
+            "description": "Code calcule du type de document.",
+            "help": "Champ technique utilise pour les automatismes."
+        },
+        "document_subtype_code": {
+            "label": "Code sous-type",
+            "description": "Code calcule du sous-type de document.",
+            "help": "Champ technique utilise pour les automatismes."
+        },
+        "document_visibility": {
+            "label": "Visibilite",
+            "description": "Niveau d'acces au document dans la GED.",
+            "help": "Definit les utilisateurs autorises a consulter le document.",
+            "selection": {
+                "public": "Public",
+                "protected": "Protege",
+                "private": "Prive"
+            }
+        }
+    },
+    "view": {
+        "form.import": {
+            "name": "Importer un document",
+            "description": "Formulaire de depot d'un document avec ses metadonnees de classement."
+        },
+        "form.default": {
+            "name": "Document importe",
+            "description": "Ecran de confirmation utilise avant redirection vers la liste des documents."
+        },
+        "list.default": {
+            "name": "Imports de documents",
+            "description": "Liste technique des objets temporaires d'import de documents."
+        }
+    }
+}

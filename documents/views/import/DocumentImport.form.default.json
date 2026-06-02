@@ -1,0 +1,41 @@
+{
+    "name": "Document Import",
+    "description": "Document import confirmation.",
+    "on_error": {
+        "missing": {
+            "context": {
+                "entity": "documents\\Document",
+                "view": "list.default",
+                "order": "created",
+                "sort": "desc"
+            },
+            "label": "Documents"
+        }
+    },
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "Document imported",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
