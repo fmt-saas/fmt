@@ -183,16 +183,6 @@
             "description": "Résumé des dettes vis-à-vis des fournisseurs ou tiers (3.94.2.4).",
             "help": ""
         },
-        "has_seller_arrears_2": {
-            "label": "Arriérés vendeur (post-acte)",
-            "description": "Indique si d'autres montants restent dus par le vendeur (3.94.2.5).",
-            "help": ""
-        },
-        "seller_arrears_description_2": {
-            "label": "Détails arriérés post-acte",
-            "description": "Informations complémentaires sur les arriérés détectés après facturation.",
-            "help": ""
-        },
         "has_fuel_tank": {
             "label": "Citerne présente",
             "description": "Spécifie si la copropriété dispose d'une citerne (mazout, gaz…).",

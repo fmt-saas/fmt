@@ -318,21 +318,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'default'           => true
             ],
 
-            'has_seller_arrears_2' => [
-                'type'              => 'boolean',
-                'description'       => "Are there any pending arrears owed by the seller?",
-                'default'           => false
-            ],
-
-            'seller_arrears_description_2' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain.small',
-                'description'       => "Short description of the current procedures, along with involved amounts.",
-                'help'              => "As per 3.94.2.5",
-                'visible'           => ['has_seller_arrears', '=', true]
-            ],
-
-
             // additional information that might be requested by the notary office
 
             'has_fuel_tank' => [
@@ -366,6 +351,12 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'foreign_field'     => 'ownership_transfer_id',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'visible'           => ['has_bank_loan', '=', true]
+            ],
+
+            'bank_loan_description' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Short description about ba&nk loan(s), if any."
             ],
 
             'adjustments_ids' => [
@@ -601,29 +592,86 @@ class OwnershipTransfer extends \equal\orm\Model {
     }
 
     protected static function onafterOpen($self) {
+        // 3.94.1
+        $fund_balances_description = '';
+        $scheduled_fund_requests_description = '';
+        $judiciary_procedures_description = '';
+        $general_assembly_minutes_description = '';
+        $latest_balance_sheet_description = '';
+        // 3.94.2
+        $maintenance_expenses_description = '';
+        $fund_requests_description = '';
+        $commons_acquisitions_description = '';
+        $condominium_debts_description = '';
+
+        $templates = Template::search([
+                ['type', '=', 'document'],
+                ['code', 'in', ['ownership_transfer_paragraph_1', 'ownership_transfer_paragraph_2']]
+            ])
+            ->read( ['id','parts_ids' => ['name', 'value']]);
+
+        foreach($templates as $template_id => $template) {
+            foreach($template['parts_ids'] as $part_id => $part) {
+                if($part['name'] === 'fund_balances_description') {
+                    $fund_balances_description = $part['value'];
+                    break;
+                }
+                elseif($part['name'] === 'scheduled_fund_requests_description') {
+                    $scheduled_fund_requests_description = $part['value'];
+                    break;
+                }
+                elseif($part['name'] === 'judiciary_procedures_description') {
+                    $judiciary_procedures_description = $part['value'];
+                    break;
+                }
+                elseif($part['name'] === 'general_assembly_minutes_description') {
+                    $general_assembly_minutes_description = $part['value'];
+                    break;
+                }
+                elseif($part['name'] === 'latest_balance_sheet_description') {
+                    $latest_balance_sheet_description = $part['value'];
+                    break;
+                }
+                elseif($part['name'] === 'maintenance_expenses_description') {
+                    $maintenance_expenses_description = $part['value'];
+                    break;
+                }
+                elseif($part['name'] === 'fund_requests_description') {
+                    $fund_requests_description = $part['value'];
+                    break;
+                }
+                elseif($part['name'] === 'commons_acquisitions_description') {
+                    $commons_acquisitions_description = $part['value'];
+                    break;
+                }
+                elseif($part['name'] === 'condominium_debts_description') {
+                    $condominium_debts_description = $part['value'];
+                    break;
+                }
+            }
+        }
 
         $self->update([
             // 3.94.1.1
-            'fund_balances_description' => "Veuillez trouver la situation des différents fonds dans le récapitulatif suivant",
-            // 3.94.1.2
-            // #todo - set based on actual arrears
+            'fund_balances_description' => $fund_balances_description,
+            // #memo - set based on actual arrears
             // 'seller_arrears_description' => "Le montant à ce jour des arriérés dus par le cédant à la copropriété;",
             // 3.94.1.3
-            'scheduled_fund_requests_description' => "Voir les points fonds de réserve, fonds de roulement et budget du dernier PV de l’AG.",
+            'scheduled_fund_requests_description' => $scheduled_fund_requests_description,
             // 3.94.1.4
-            'judiciary_procedures_description' => "voir le point « procédures judiciaires encours » du dernier PV de l’AG.",
+            'judiciary_procedures_description' => $judiciary_procedures_description,
             // 3.94.1.5
-            'general_assembly_minutes_description' => "Voir annexes ci-jointes.",
+            'general_assembly_minutes_description' => $general_assembly_minutes_description,
             // 3.94.1.6
-            'latest_balance_sheet_description' => "Voir annexes ci-jointes.",
+            'latest_balance_sheet_description' => $latest_balance_sheet_description,
             // 3.94.2.1
-            'maintenance_expenses_description' => "Voir annexes ci-jointes, dernier PV de l’AG.",
+            'maintenance_expenses_description' => $maintenance_expenses_description,
             // 3.94.2.2
-            'fund_requests_description' => "Voici un tableau récapitulatif des appels relatifs à l'exercice en cours (montants appelés et planifiés)",
+            'fund_requests_description' => $fund_requests_description,
             // 3.94.2.3
-            'commons_acquisitions_description' => "Veuillez-vous référer aux derniers procès-verbaux d’assemblée générale.",
+            'commons_acquisitions_description' => $commons_acquisitions_description,
             // 3.94.2.4
-            'condominium_debts_description' => "Veuillez-vous référer aux derniers procès-verbaux d’assemblée générale."
+            'condominium_debts_description' => $condominium_debts_description
         ]);
 
         $self
