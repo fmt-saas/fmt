@@ -199,6 +199,10 @@ class OwnershipTransferBankLoanLine extends \equal\orm\Model {
         $result = [];
         $allocation_fields = ['property_lot_id', 'apportionment_id', 'total_amount'];
 
+        if(array_key_exists('property_lot_id', $event)) {
+            $result['property_lot_shares'] = 0.0;
+            $result['property_lot_amount'] = 0.0;
+        }
         if(count(array_intersect(array_keys($event), $allocation_fields)) > 0) {
             $property_lot_id = array_key_exists('property_lot_id', $event) ? $event['property_lot_id'] : ($values['property_lot_id'] ?? null);
             $apportionment_id = array_key_exists('apportionment_id', $event) ? $event['apportionment_id'] : ($values['apportionment_id'] ?? null);
