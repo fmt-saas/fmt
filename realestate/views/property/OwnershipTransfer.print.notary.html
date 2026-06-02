@@ -284,7 +284,7 @@
                         <tr>
                             <td>{{ bank_loan.description }}</td>
                             <!--<td>{{ bank_loan.apportionment_id.name }}</td>-->
-                            <td>{{ bank_loan.property_lot_id.code }}</td>
+                            <td>{{ bank_loan.property_lot_id.code }} {{ bank_loan.property_lot_id.property_lot_ref }}</td>
                             <td>{{ bank_loan.total_shares }}</td>
                             <td>{{ bank_loan.property_lot_shares }}</td>
                             <td>{{ bank_loan.total_amount | format_money() }}</td>

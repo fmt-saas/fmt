@@ -227,7 +227,7 @@ $ownershipTransfer = OwnershipTransfer::id($params['id'])
         'bank_loan_lines_ids' => [
             'description',
             'apportionment_id' => ['name', 'code', 'description'],
-            'property_lot_id' => ['name', 'code'],
+            'property_lot_id' => ['name', 'code', 'property_lot_ref'],
             'property_lot_shares',
             'total_shares',
             'total_amount',
