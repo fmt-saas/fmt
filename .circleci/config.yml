@@ -21,7 +21,7 @@ jobs:
           name: Clone equal (#todo - use dockerhub image)
           command: |
             git clone https://github.com/equalframework/equal.git ~/repo
-            git checkout dev-2.0
+            git checkout 2.0.1
             mv ~/repo/packages ~/repo/packages.core
       - checkout:
           path: ~/repo/packages
