@@ -659,14 +659,14 @@ class AccountingEntry extends Model {
             self::id($id)
                 ->update([
                     'reversed_entry_id'  => $reversal['id'],
-                    'status'            => 'reversed'
+                    'status'             => 'reversed'
                 ]);
 
             // 5) Link reversal to original
             self::id($reversal['id'])
                 ->update([
                     'reversed_entry_id'  => $id,
-                    'status'            => 'reversed'
+                    'status'             => 'reversed'
                 ]);
 
             // 6) Mark all lines as reversed

@@ -179,13 +179,19 @@
             "description": "Écritures générées à partir de la ligne.",
             "help": "Renseigné après comptabilisation."
         },
+        "logs": {
+            "label": "Journal",
+            "description": "Trace textuelle de la génération comptable et du rapprochement.",
+            "help": ""
+        },
         "status": {
             "label": "Statut",
             "description": "État de traitement de la ligne.",
             "help": "Détermine si la ligne peut encore être rapprochée ou modifiée.",
             "selection": {
                 "pending": "À traiter",
-                "posted": "Comptabilisée"
+                "posted": "Comptabilisée",
+                "cancelled": "Annulée"
             }
         }
     },
@@ -201,6 +207,10 @@
                 "action.validate": {
                     "label": "Valider",
                     "description": "Valider et comptabiliser la ligne."
+                },
+                "action.unlock": {
+                    "label": "Déverrouiller",
+                    "description": "Contrepasser l'écriture comptable et remettre la ligne en attente."
                 }
             },
             "layout": {
@@ -273,11 +283,13 @@
             "incomplete_bank_statement": "Le relevé parent n'est pas équilibré.",
             "invalid_reconcile_state": "Seules les lignes rapprochées peuvent être comptabilisées.",
             "incompatible_fiscal_year": "L'exercice comptable de la ligne doit correspondre à celui du relevé.",
-            "posted_line": "La ligne est comptabilisée et ne peut plus être modifiée."
+            "posted_line": "La ligne est comptabilisée et ne peut plus être modifiée.",
+            "cancelled_line": "La ligne est annulée et ne peut plus être modifiée."
         },
         "errors": {
             "missing_mandatory_funding": "Ligne inattendue non liée à un funding.",
             "missing_mandatory_funding_id": "Funding requis pour cette opération.",
+            "missing_accounting_entry": "Aucune écriture comptable n'est liée à cette ligne.",
             "missing_mandatory_journal": "Aucun journal bancaire configuré pour cette copropriété.",
             "missing_bank_account_condominium": "Aucune copropriété trouvée pour l'IBAN du relevé.",
             "mismatch_bank_account_with_condominium": "L'IBAN du relevé ne correspond à aucun compte bancaire de la copropriété.",

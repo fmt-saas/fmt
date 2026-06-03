@@ -8,9 +8,55 @@
             "description": "Nom calculé du relevé (période, exercice, type).",
             "help": ""
         },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée par le décompte.",
+            "help": ""
+        },
+        "organisation_id": {
+            "label": "Organisation",
+            "description": "Organisation qui émet le décompte.",
+            "help": ""
+        },
+        "fiscal_year_id": {
+            "label": "Exercice comptable",
+            "description": "Exercice auquel le décompte se rattache.",
+            "help": ""
+        },
         "fiscal_period_id": {
             "label": "période comptable",
             "description": "Période couverte par le relevé (détermine la date de comptabilisation).",
+            "help": ""
+        },
+        "posting_date": {
+            "label": "Date de comptabilisation",
+            "description": "Date utilisée pour générer les écritures du décompte.",
+            "help": "Par défaut, la date de fin de la période comptable sélectionnée."
+        },
+        "payment_terms_id": {
+            "label": "Conditions de paiement",
+            "description": "Échéance appliquée aux copropriétaires pour solder le décompte.",
+            "help": ""
+        },
+        "invoice_type": {
+            "label": "Type de document",
+            "description": "Nature du document comptable.",
+            "help": "",
+            "selection": {
+                "invoice": "Facture",
+                "credit_note": "Note de crédit",
+                "fund_request": "Appel de fonds",
+                "expense_statement": "Décompte de charges"
+            }
+        },
+        "invoice_number": {
+            "label": "Numéro",
+            "description": "Numéro attribué lors de la validation du décompte.",
+            "help": ""
+        },
+        "accounting_entry_id": {
+            "label": "Écriture comptable",
+            "description": "Écriture générée après validation du décompte.",
             "help": ""
         },
         "statement_bank_account_id": {
@@ -31,6 +77,16 @@
         "fundings_ids": {
             "label": "Fundings générés",
             "description": "Appels de fonds créés après validation du relevé.",
+            "help": ""
+        },
+        "exporting_tasks_ids": {
+            "label": "Tâches d'export",
+            "description": "Tâches d'export des courriers papier liées au décompte.",
+            "help": ""
+        },
+        "expense_statement_correspondences_ids": {
+            "label": "Correspondances",
+            "description": "Correspondances générées pour ce décompte.",
             "help": ""
         },
         "logs": {
@@ -92,6 +148,18 @@
                 },
                 "section.accounting_entry": {
                     "label": "Écriture comptable"
+                },
+                "section.correspondences": {
+                    "label": "Correspondances"
+                },
+                "section.details": {
+                    "label": "Détails"
+                },
+                "label.exporting_tasks": {
+                    "label": "Tâches d'export"
+                },
+                "label.expense_statement_correspondences": {
+                    "label": "Correspondances par e-mail"
                 }
             },
             "actions": {
@@ -106,6 +174,10 @@
                 "action.print_pdf": {
                     "label": "Télécharger le relevé",
                     "description": "Générer un document pour tous les copropriétaires du relevé."
+                },
+                "action.unlock": {
+                    "label": "Déverrouiller",
+                    "description": "Contrepasser l'écriture comptable et remettre le décompte en proforma."
                 }
             },
             "routes": {

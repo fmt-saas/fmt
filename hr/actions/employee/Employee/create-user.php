@@ -32,15 +32,20 @@ use identity\User;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context', 'dispatch']
+    'providers'     => ['context', 'dispatch', 'auth']
 ]);
 
 /**
- * @var \equal\php\Context                 $context
- * @var \equal\dispatch\Dispatcher         $dispatch
+ * @var \equal\php\Context                  $context
+ * @var \equal\dispatch\Dispatcher          $dispatch
+ * @var \equal\auth\AuthenticationManager   $auth
  */
-['context' => $context, 'dispatch' => $dispatch] = $providers;
+['context' => $context, 'dispatch' => $dispatch, 'auth' => $auth] = $providers;
 
+
+$user_id = $auth->userId();
+// we need root privilege
+$auth->su();
 
 $ids = array_merge((array) ($params['id'] ?? []), $params['ids'] ?? []);
 
@@ -69,6 +74,8 @@ foreach($employees as $employee_id => $employee) {
     // force refreshing role assignments
     RoleAssignment::ids($employee['role_assignments_ids'])->read(['user_id']);
 }
+
+$auth->su($user_id);
 
 $context->httpResponse()
         ->status(201)

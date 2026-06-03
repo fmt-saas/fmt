@@ -134,8 +134,10 @@ class Instance extends Model {
         ];
     }
 
-    protected static function doCreateUser($self) {
+    protected static function doCreateUser($self, $auth) {
         $self->read(['name', 'instance_type']);
+        $user_id = $auth->userId();
+        $auth->su();
         foreach($self as $id => $instance) {
             $domain = parse_url(constant('BACKEND_URL'), PHP_URL_HOST);
             $login = $instance['name'] . '@' . $domain;
@@ -148,6 +150,7 @@ class Instance extends Model {
 
             self::id($id)->update(['user_id' => $user['id']]);
         }
+        $auth->su($user_id);
     }
 
     public static function getActions() {

@@ -42,6 +42,19 @@
             "controller": "realestate_funding_ExpenseStatement_render-pdf",
             "visible_help": "Download relies on related Exporting Task",
             "visible": false
+        },
+        {
+            "id": "action.unlock",
+            "label": "Unlock",
+            "description": "Unlock misc operation.",
+            "controller": "core_model_do",
+            "confirm": true,
+            "visible": ["status", "=", "posted"],
+            "params": {
+                "entity": "realestate\\funding\\ExpenseStatement",
+                "action": "unlock",
+                "ids": []
+            }
         }
     ],
     "routes": [

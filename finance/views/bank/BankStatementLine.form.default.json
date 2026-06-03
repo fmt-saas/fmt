@@ -35,6 +35,19 @@
                 "ids": []
             },
             "confirm": true
+        },
+        {
+            "id": "action.unlock",
+            "label": "Unlock",
+            "description": "Unlock misc operation.",
+            "controller": "core_model_do",
+            "confirm": true,
+            "visible": ["status", "=", "posted"],
+            "params": {
+                "entity": "finance\\bank\\BankStatementLine",
+                "action": "unlock",
+                "ids": []
+            }
         }
     ],
     "layout": {
