@@ -465,12 +465,14 @@ class BankStatement extends Model {
     protected static function doRefreshStatus($self) {
         $self->read(['statement_lines_ids' => ['status']]);
         foreach($self as $id => $bankStatement) {
+            $status = 'posted';
             foreach($bankStatement['statement_lines_ids'] as $bank_statement_line_id => $bankStatementLine) {
                 if($bankStatementLine['status'] === 'pending') {
+                    $status = 'pending';
                     continue 2;
                 }
             }
-            self::id($id)->update(['status' => 'posted']);
+            self::id($id)->update(['status' => $status]);
         }
     }
 

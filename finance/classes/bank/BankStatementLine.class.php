@@ -378,7 +378,8 @@ class BankStatementLine extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'pending',              // requires a review
-                    'posted'                // has been posted to accounting and cannot be changed anymore
+                    'posted',               // has been posted to accounting and cannot be changed anymore
+                    'cancelled'
                 ],
                 'description'       => 'Status of the line.',
                 'default'           => 'pending'
@@ -403,17 +404,6 @@ class BankStatementLine extends Model {
                         'status'      => 'posted'
                     ]
                 ]
-            ],
-            'posted' => [
-                'description' => 'Payment being created.',
-                'help'        => 'Status change is triggered by the parent BankStatementLine, which also generates the subsequent accounting entries.',
-                'icon'        => 'draw',
-                'transitions' => [
-                    'unpost' => [
-                        'description' => 'Update the payment status to `pending`.',
-                        'status'      => 'pending'
-                    ]
-                ]
             ]
         ];
     }
@@ -431,6 +421,18 @@ class BankStatementLine extends Model {
                 'help'          => 'This is run only when posting (in `onbeforePost`).',
                 'policies'      => [ 'can_generate_accounting_entry' ],
                 'function'      => 'doGenerateAccountingEntry'
+            ],
+            'cancel' => [
+                'description'   => 'Cancel the bank statement line. No further change will be possible.',
+                'help'          => 'Void the accounting entry, remove linked payments and set status to `cancelled`.',
+                'policies'      => ['can_cancel'],
+                'function'      => 'doCancel'
+            ],
+            'unlock' => [
+                'description'   => 'Unlock the bank statement line, to allow re-posting after modifications.',
+                'help'          => 'Self voiding accounting entries will be left as `reversed`, and line will be set back to `pending`.',
+                'policies'      => ['can_unlock'],
+                'function'      => 'doUnlock'
             ]
         ];
     }
@@ -446,6 +448,14 @@ class BankStatementLine extends Model {
                 'description' => 'Verifies that the bank statement line is fully reconciled.',
                 'help'        => 'Action `post` attempts auto-reconcile upon onbeforePost. So reconciliation state cannot be tested before accounting entry generation.',
                 'function'    => 'policyCanGenerateAccountingEntry'
+            ],
+            'can_cancel' => [
+                'description' => 'Verifies that the bank statement line can be cancelled.',
+                'function'    => 'policyCanCancel'
+            ],
+            'can_unlock' => [
+                'description' => 'Verifies that the bank statement line can be unlocked.',
+                'function'    => 'policyCanUnlock'
             ]
         ];
     }
@@ -653,6 +663,90 @@ class BankStatementLine extends Model {
      *  Funding objects of their own since the movement is inherent from a Bank operation.
      */
     protected static function doCreateFundings($self) {
+    }
+
+    protected static function doCancel($self) {
+        $self->read([
+            'status',
+            'accounting_entry_id',
+            'bank_statement_id',
+            'payments_ids' => [
+                'funding_id'
+            ],
+            'logs'
+        ]);
+
+        foreach($self as $id => $bankStatementLine) {
+            if($bankStatementLine['status'] !== 'posted') {
+                continue;
+            }
+
+            // Set the line out of `posted` before deleting payments to prevent payment delete hooks from unlocking it.
+            self::id($id)
+                ->do('unlock')
+                ->update(['status' => 'cancelled']);
+        }
+    }
+
+    protected static function doUnlock($self, $orm) {
+        $self->read([
+            'status',
+            'accounting_entry_id',
+            'bank_statement_id',
+            'payments_ids' => [
+                'funding_id',
+            ],
+            'logs'
+        ]);
+
+        foreach($self as $id => $bankStatementLine) {
+            if($bankStatementLine['status'] !== 'posted') {
+                continue;
+            }
+
+            $logs = [];
+            if(isset($bankStatementLine['logs']) && strlen($bankStatementLine['logs']) > 0) {
+                $logs = explode("\n", $bankStatementLine['logs']);
+            }
+
+            $logs[] = "INFO - Unlocking bank statement line {$id}";
+
+            AccountingEntry::id($bankStatementLine['accounting_entry_id'])->do('cancel');
+            $logs[] = "INFO - Cancelled accounting entry {$bankStatementLine['accounting_entry_id']}";
+
+            $payment_ids = [];
+            $map_funding_ids = [];
+
+            foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
+                $payment_ids[] = $payment_id;
+
+                if(isset($payment['funding_id'])) {
+                    $map_funding_ids[$payment['funding_id']] = true;
+                }
+            }
+
+            self::id($id)->update([
+                'status'              => 'pending',
+                'accounting_entry_id' => null,
+                'remaining_amount'    => null
+            ]);
+
+            if(count($payment_ids) > 0) {
+                Payment::ids($payment_ids)->delete(true);
+                $logs[] = 'INFO - Deleted ' . count($payment_ids) . ' linked payment(s)';
+            }
+
+            if(count($map_funding_ids) > 0) {
+                Funding::ids(array_keys($map_funding_ids))->do('refresh_status');
+                $logs[] = 'INFO - Refreshed ' . count($map_funding_ids) . ' linked funding(s)';
+            }
+
+            self::id($id)->update(['logs' => implode("\n", $logs)]);
+
+            if($bankStatementLine['bank_statement_id']) {
+                BankStatement::id($bankStatementLine['bank_statement_id'])->do('refresh_status');
+            }
+        }
     }
 
     /**
@@ -1003,16 +1097,30 @@ class BankStatementLine extends Model {
         return $result;
     }
 
-    public static function canupdate($self) {
+    public static function canupdate($self, $values = []) {
         $self->read(['status']);
 
+        $updated_fields = array_keys($values);
+        $posted_allowed_fields = ['status', 'accounting_entry_id', 'remaining_amount', 'logs'];
+        $cancelled_allowed_fields = ['remaining_amount', 'logs'];
+
         foreach($self as $id => $bankStatementLine) {
-            if($bankStatementLine['status'] === 'posted') {
+            if(
+                $bankStatementLine['status'] === 'posted'
+                && count(array_diff($updated_fields, $posted_allowed_fields)) > 0
+            ) {
                 return ['status' => ['posted_line' => "The line is posted and cannot be changed."]];
+            }
+
+            if(
+                $bankStatementLine['status'] === 'cancelled'
+                && count(array_diff($updated_fields, $cancelled_allowed_fields)) > 0
+            ) {
+                return ['status' => ['cancelled_line' => "The line is cancelled and cannot be changed."]];
             }
         }
 
-        return parent::canupdate($self);
+        return parent::canupdate($self, $values);
     }
 
     protected static function policyIsValid($self) {
@@ -1131,6 +1239,53 @@ class BankStatementLine extends Model {
         }
         return $result;
     }
+
+    protected static function policyCanCancel($self): array {
+        $result = [];
+
+        $self->read(['status', 'accounting_entry_id']);
+        foreach($self as $id => $bankStatementLine) {
+            if($bankStatementLine['status'] !== 'posted') {
+                $result[$id] = [
+                    'invalid_status' => 'Only posted bank statement lines can be cancelled or unlocked.'
+                ];
+                continue;
+            }
+
+            if(!$bankStatementLine['accounting_entry_id']) {
+                $result[$id] = [
+                    'missing_accounting_entry' => 'Bank statement line has no accounting entry to cancel.'
+                ];
+                continue;
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanUnlock($self): array {
+        $result = [];
+
+        $self->read(['status', 'accounting_entry_id']);
+        foreach($self as $id => $bankStatementLine) {
+            if($bankStatementLine['status'] !== 'posted') {
+                $result[$id] = [
+                    'invalid_status' => 'Only posted bank statement lines can be cancelled or unlocked.'
+                ];
+                continue;
+            }
+
+            if(!$bankStatementLine['accounting_entry_id']) {
+                $result[$id] = [
+                    'missing_accounting_entry' => 'Bank statement line has no accounting entry to cancel.'
+                ];
+                continue;
+            }
+        }
+
+        return $result;
+    }
+
 
     /**
      * Generate and validate accounting entry, based on existing Payments.
