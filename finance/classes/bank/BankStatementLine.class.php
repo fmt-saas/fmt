@@ -205,6 +205,9 @@ class BankStatementLine extends Model {
                         ['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['operation_assignment', 'not in', ['co_owners_owner_reserve_fund', 'co_owners_owner_working_fund']]
                     ],
                     [
+                        ['condo_id', '=', 'object.condo_id'], ['is_control_account', '=', false], ['operation_assignment', 'is', null]
+                    ],
+                    [
                         ['condo_id', '=', 'object.condo_id'], ['ownership_id', '<>', null], ['is_control_account', '=', true]
                     ]
                 ],

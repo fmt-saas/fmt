@@ -362,6 +362,8 @@ Cas : immeuble neuf / première mise en comptabilité.
 * le premier exercice démarre à une date réelle (réception provisoire parties communes ou 1ère partie privative)
 * l’exercice se termine à une date fixée en AG
 * le premier exercice peut être plus long ou plus court que 12 mois
+* le premier exercice est automatiquement marqué `is_first` lors de l’action `Condominium::create_draft_fiscal_year`
+* une OD d’ouverture ne peut être faite que sur ce premier exercice
 * ensuite, les exercices reviennent à 12 mois à partir de la date de fin du premier exercice
 * si décompte trimestriel :
 

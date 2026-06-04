@@ -18,6 +18,12 @@
         "items": [
             {
                 "type": "field",
+                "value": "id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "parent_id",
                 "width": "0%",
                 "visible": false
@@ -27,6 +33,7 @@
                 "label": "type",
                 "value": "node_type",
                 "width": "10%",
+                "sortable": true,
                 "widget": {
                     "type": "string",
                     "usage": "icon"
@@ -35,13 +42,15 @@
             {
                 "type": "field",
                 "value": "name",
-                "width": "14%"
+                "width": "14%",
+                "sortable": true
             },
             {
                 "type": "field",
                 "label": "Items",
                 "value": "nodes_count",
                 "width": "10%",
+                "sortable": true,
                 "widget": {
                     "align": "center",
                     "margin": "auto",

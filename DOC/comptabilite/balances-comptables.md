@@ -117,7 +117,7 @@ Une fois validée, une `ClosingBalance` est **immuable**.
 
 Elle correspond au **bilan d’ouverture de l’exercice**.
 
-Dans le système, une `OpeningBalance` est générée automatiquement à partir de la `ClosingBalance` de l’exercice précédent.
+Dans le système, une `OpeningBalance` est normalement générée automatiquement à partir de la `ClosingBalance` de l’exercice précédent.
 
 Relation logique :
 
@@ -125,13 +125,17 @@ Relation logique :
 OpeningBalance(Y+1) = ClosingBalance(Y)
 ```
 
+Cas particulier : pour le premier exercice comptable, il n’existe pas encore de `ClosingBalance` précédente. Une OD d’ouverture (`MiscOperation` marquée comme OD d’ouverture, champ technique `has_opening_journal`, correspondant à la règle métier `has_journal`) génère alors l’`AccountingEntry` et les `AccountingEntryLine` correspondantes, et crée par convention une `OpeningBalance` vide pour ce premier exercice.
+
+Cette convention conserve la précision de l’OD d’ouverture dans les écritures comptables tout en gardant l’`OpeningBalance` comme snapshot d’ancrage. Elle évite de confondre la distinction entre les comptes comptables et la découpe détaillée des montants encodés dans l’OD.
+
 Cette balance permet :
 
 * d’afficher le **bilan d’ouverture**
 * d’avoir un point d’ancrage pour les états comptables
 * de maintenir la continuité comptable entre exercices
 
-Contrairement aux systèmes comptables classiques, le moteur **ne génère pas d’écritures de report dans les journaux**.
+Hors OD d’ouverture du premier exercice, le moteur **ne génère pas d’écritures de report dans les journaux**.
 
 La continuité comptable est assurée par les snapshots :
 
@@ -288,10 +292,14 @@ Cela garantit la continuité comptable.
 
 ### Cas du premier exercice
 
-Pour le premier exercice d’une copropriété, une `OpeningBalance` peut être créée manuellement.
+Pour le premier exercice d’une copropriété, une `OpeningBalance` vide est créée par convention lorsqu’une OD d’ouverture est postée.
 
-Elle correspond à l’**OD d’ouverture** initiale.
-²
+L’OD d’ouverture est une `MiscOperation` marquée comme OD d’ouverture (`has_opening_journal`, règle métier `has_journal`). Elle crée l’`AccountingEntry` et les `AccountingEntryLine` correspondantes. L’`OpeningBalance` du premier exercice reste vide afin que la précision de la découpe des montants reste portée par les lignes comptables.
+
+Pour garantir la cohérence, une OD d’ouverture ne peut être faite que sur le premier exercice comptable.
+
+Les premiers exercices comptables sont automatiquement marqués `is_first` lors de l’action `Condominium::create_draft_fiscal_year`.
+
 Les exercices suivants utilisent automatiquement la logique :
 
 ```
@@ -418,7 +426,8 @@ Le moteur repose sur les invariants suivants :
 3. une ligne postée n’est jamais repostée
 4. une ligne postée ne redevient jamais non postée
 5. `ClosingBalance` est immuable
-6. `OpeningBalance` correspond toujours à la `ClosingBalance` précédente
-7. `AccountBalanceChange` est reconstructible
-8. les écritures `reversed` n’ont plus d’effet actif
+6. `OpeningBalance` correspond à la `ClosingBalance` précédente, sauf pour le premier exercice où l’`OpeningBalance` conventionnelle est vide et liée à l’OD d’ouverture
+7. une OD d’ouverture ne peut concerner que le premier exercice comptable (`FiscalYear.is_first = true`)
+8. `AccountBalanceChange` est reconstructible
+9. les écritures `reversed` n’ont plus d’effet actif
 

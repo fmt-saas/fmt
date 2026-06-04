@@ -107,6 +107,22 @@ Si document.status = 'posted'
 → accounting_entry.status = 'validated'
 ```
 
+#### Cas particulier : OD d’ouverture
+
+Une OD d’ouverture est une `MiscOperation` marquée comme OD d’ouverture (`has_opening_journal`, règle métier `has_journal`).
+
+Lorsqu’elle est postée :
+
+- elle crée une `AccountingEntry` ;
+- elle crée les `AccountingEntryLine` correspondantes ;
+- elle crée par convention une `OpeningBalance` vide pour le premier exercice comptable.
+
+Cette convention garde la précision dans les lignes comptables de l’OD, notamment la distinction entre les comptes comptables et la découpe détaillée des montants, sans dupliquer ces montants dans l’`OpeningBalance`.
+
+Pour garantir la cohérence, une OD d’ouverture ne peut être faite que sur le premier exercice comptable (`FiscalYear.is_first = true`).
+
+Les premiers exercices comptables sont automatiquement marqués `is_first` lors de l’action `Condominium::create_draft_fiscal_year`.
+
 
 
 ### 4.3 Cancelled
