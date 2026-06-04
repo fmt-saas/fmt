@@ -343,11 +343,6 @@ class AccountingEntryLine extends Model {
                 'description'   => 'Detach the entry line from its Matching.',
                 'policies'      => ['can_detach_matching'],
                 'function'      => 'doDetachMatching'
-            ],
-            'remove_funding' => [
-                'description'   => 'Remove fundings and funding allocations related to the entry line.',
-                'policies'      => ['can_remove_funding'],
-                'function'      => 'doRemoveFunding'
             ]
         ];
     }
@@ -532,65 +527,6 @@ class AccountingEntryLine extends Model {
             if($accountingEntryLine['matching_id']) {
                 self::id($id)->update(['matching_id' => null]);
             }
-        }
-    }
-
-    protected static function doRemoveFunding($self) {
-        $self->read(['condo_id', 'status']);
-
-        foreach($self as $accountingEntryLine) {
-            if(($accountingEntryLine['status'] ?? null) !== 'reversed') {
-                throw new \Exception('accounting_entry_line_not_reversed', EQ_ERROR_NOT_ALLOWED);
-            }
-        }
-
-        foreach($self as $id => $accountingEntryLine) {
-
-
-            // 1) search all related fundings
-            $fundings_ids = Funding::search([
-                    ['accounting_entry_line_id', '=', $id]
-                ])
-                ->ids();
-
-            // distinction entre FundingAllocation (lié à un funding arbitraire) et Payment (lié à une bank_statement_line)
-            $payments = Payment::search([
-                    ['accounting_entry_line_id', '=', $id]
-                ])
-                ->read(['bank_statement_line_id']);
-
-            foreach($payments as $payment_id => $payment) {
-                if($payment['bank_statement_line_id']) {
-                    BankStatementLine::id($payment['bank_statement_line_id'])->do('assert_funding');
-                    $funding = Funding::search([
-                            ['condo_id', '=', $accountingEntryLine['condo_id']],
-                            ['bank_statement_line_id', '=', $payment['bank_statement_line_id']],
-                            ['funding_type', '=', 'statement_line']
-                        ])
-                        ->first();
-
-                    if($funding) {
-                        // reattach payment to bank statement line funding
-                        Payment::id($payment_id)
-                            ->update([
-                                'accounting_entry_line_id' => null,
-                                'funding_id' => $funding['id']
-                            ]);
-                    }
-                }
-                else {
-                    Payment::id($payment_id)
-                        ->update(['status' => 'proforma']);
-                        // ->delete(true);
-                }
-            }
-
-            // 2) remove fundings
-            if(count($fundings_ids) > 0) {
-                // Funding::ids($fundings_ids)->delete(true);
-            }
-
-
         }
     }
 

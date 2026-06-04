@@ -672,8 +672,7 @@ class AccountingEntry extends Model {
             // 6) Mark all lines as reversed
             AccountingEntryLine::search(['accounting_entry_id', 'in', [$id, $reversal['id']]])
                 ->update(['status' => 'reversed'])
-                ->do('detach_matching')
-                ->do('remove_funding');
+                ->do('detach_matching');
         }
     }
 

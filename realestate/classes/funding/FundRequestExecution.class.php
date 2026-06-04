@@ -591,7 +591,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
     }
 
     public static function doCancelExecution($self) {
-        $self->read(['execution_lines_ids' => ['ownership_id'], 'fund_request_id', 'accounting_entry_id']);
+        $self->read(['condo_id', 'execution_lines_ids' => ['ownership_id'], 'fund_request_id', 'accounting_entry_id']);
 
         foreach($self as $id => $requestExecution) {
             // retrieve accounting entry and cancel it
@@ -600,30 +600,49 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
                 // remove related fundings with no payments
                 $fundings = Funding::search([
+                        ['condo_id', '=', $executionLine['condo_id']],
                         ['ownership_id', '=', $executionLine['ownership_id']],
                         ['fund_request_id', '=', $requestExecution['fund_request_id']]
                     ])
-                    // ->read(['payments_ids']);
-                    ->delete(true);
+                    ->read(['payments_ids' => ['bank_statement_line_id']]);
 
                 foreach($fundings as $funding_id => $funding) {
-                    /*
-                    // remove empty fundings
-                    if(empty($funding['payments_ids'])) {
-                        Funding::id($funding_id)->delete(true);
+
+                    foreach($funding['payments_ids'] as $payment_id => $payment) {
+                        if($payment['bank_statement_line_id']) {
+                            BankStatementLine::id($payment['bank_statement_line_id'])->do('assert_funding');
+                            $funding = Funding::search([
+                                    ['condo_id', '=', $accountingEntryLine['condo_id']],
+                                    ['bank_statement_line_id', '=', $payment['bank_statement_line_id']],
+                                    ['funding_type', '=', 'statement_line']
+                                ])
+                                ->first();
+
+                            if($funding) {
+                                // reattach payment to bank statement line funding
+                                Payment::id($payment_id)
+                                    ->update([
+                                        'funding_id' => $funding['id']
+                                    ]);
+                                Funding::id($funding['id'])->do('refresh_status');
+                            }
+                        }
+                        else {
+                            Payment::id($payment_id)
+                                ->update(['status' => 'proforma'])
+                                ->delete(true);
+                        }
                     }
-                    // detach non-empty ones from current execution
-                    else {
-                        Funding::id($funding_id)->update(['fund_request_execution_id' => null]);
-                    }
-                    */
+
+                    Funding::id($funding_id)->delete(true);
+
                 }
             }
         }
 
         self::id($id)->update([
-            'status' => 'cancelled',
-            'accounting_entry_id' => null
+            'status'                => 'cancelled',
+            'accounting_entry_id'   => null
         ]);
     }
 
