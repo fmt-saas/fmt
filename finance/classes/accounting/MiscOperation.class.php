@@ -316,6 +316,10 @@ class MiscOperation extends Model {
                 'description' => 'Verifies that the state of the Money Transfer allows validation.',
                 'function'    => 'policyIsValid'
             ],
+            'can_post' => [
+                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'function'    => 'policyCanPost'
+            ],
             'can_generate_opening_balance' => [
                 'description' => 'Verifies that an opening balance can be generated from the misc operation.',
                 'function'    => 'policyCanGenerateOpeningBalance'
@@ -362,6 +366,45 @@ class MiscOperation extends Model {
                 'function'      => 'doUnlock'
             ]
         ];
+    }
+
+    public static function policyCanPost($self): array {
+        $result = [];
+        $self->read([
+                'status', 'posting_date',
+                'fiscal_period_id' => ['status', 'fiscal_year_status']
+            ]);
+
+        foreach($self as $id => $requestExecution) {
+            if($requestExecution['status'] != 'proforma') {
+                $result[$id] = [
+                    'invalid_status' => 'Misc Operation status must be proforma.'
+                ];
+                continue;
+            }
+            if(!$requestExecution['fiscal_period_id']) {
+                $result[$id] = [
+                    'missing_fiscal_period' => 'Fiscal period is mandatory (could not resolve).'
+                ];
+                continue;
+            }
+
+            if($requestExecution['fiscal_period_id']['status'] !== 'open') {
+                $result[$id] = [
+                    'invalid_fiscal_period' => 'Cannot perform fund request on a non-open fiscal period.'
+                ];
+                continue;
+            }
+
+            if(!in_array($requestExecution['fiscal_period_id']['fiscal_year_status'], ['preopen', 'open', 'preclosed'], true)) {
+                $result[$id] = [
+                    'invalid_fiscal_year' => 'Cannot perform Misc Operation on a non-open fiscal year.'
+                ];
+                continue;
+            }
+
+        }
+        return $result;
     }
 
     protected static function doCancel($self) {

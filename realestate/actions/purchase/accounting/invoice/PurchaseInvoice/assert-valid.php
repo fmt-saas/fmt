@@ -175,7 +175,7 @@ if($purchaseInvoice['date_from'] != $purchaseInvoice['date_to']) {
         ->read(['id', 'status'])
         ->first();
 
-    if(!$dateToFiscalYear || !in_array($dateToFiscalYear['status'], ['preopen', 'open'], true)) {
+    if(!$dateToFiscalYear || !in_array($dateToFiscalYear['status'], ['preopen', 'open', 'preclosed'], true)) {
         $dispatch->dispatch('purchase.accounting.invoice.invalid_date_to_fiscal_year', $class, $id, 'important', $script, ['id' => $id]);
         throw new Exception("invalid_date_to_fiscal_year", EQ_ERROR_INVALID_PARAM);
     }

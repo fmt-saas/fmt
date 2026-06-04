@@ -177,7 +177,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                     'call' => [
                         'description' => 'Update the fund request execution to `invoice`.',
                         'help'        => 'This is a substitute to the parent sale invoice workflow (there is a single accounting entry for a fund request execution).',
-                        'policies'    => ['is_proforma', 'can_perform_execution'],
+                        'policies'    => ['is_proforma', 'can_post'],
                         'onbefore'    => 'onbeforeCall',
                         'status'      => 'posted'
                     ]
@@ -203,7 +203,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             'perform_execution' => [
                 'description'   => 'Perform the fund request execution by creating and validating resulting Accounting entries and Fundings.',
                 'help'          => 'This action is for emitting the invoice, and can be either called by `onbeforeCall` or through UI.',
-                'policies'      => ['can_perform_execution'],
+                'policies'      => ['can_post'],
                 'function'      => 'doPerformExecution'
             ],
             'generate_accounting_entry' => [
@@ -243,9 +243,9 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
     public static function getPolicies(): array {
         return [
-            'can_perform_execution' => [
+            'can_post' => [
                 'description' => 'Verifies that a fiscal year can be opened according its configuration.',
-                'function'    => 'policyCanPerformExecution'
+                'function'    => 'policyCanPost'
             ],
             'can_generate_accounting_entry' => [
                 'description' => 'Verifies that an FundRequest execution invoice is still a draft (proforma).',
@@ -308,7 +308,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         return $result;
     }
 
-    public static function policyCanPerformExecution($self): array {
+    public static function policyCanPost($self): array {
         $result = [];
         $self->read([
                 'status', 'emission_date', 'posting_date',
@@ -342,7 +342,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 continue;
             }
 
-            if(!in_array($requestExecution['fiscal_period_id']['fiscal_year_status'], ['preopen', 'open'], true)) {
+            if(!in_array($requestExecution['fiscal_period_id']['fiscal_year_status'], ['preopen', 'open', 'preclosed'], true)) {
                 $result[$id] = [
                     'invalid_fiscal_year' => 'Cannot perform fund request on a non-open fiscal year.'
                 ];
