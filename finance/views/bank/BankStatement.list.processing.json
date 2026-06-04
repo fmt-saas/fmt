@@ -49,6 +49,12 @@
             },
             {
                 "type": "field",
+                "value": "expected_opening_balance",
+                "width": "30%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "label": "name",
                 "value": "bank_account_id",
                 "width": "30%"

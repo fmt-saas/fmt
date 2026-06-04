@@ -48,7 +48,7 @@ class BankStatement extends Model {
                     ['object_class', '=', 'finance\bank\CondominiumBankAccount']
                 ],
                 'onupdate'          => 'onupdateBankAccountId',
-                'dependents'        => ['name']
+                'dependents'        => ['name', 'expected_opening_balance']
             ],
 
             'bank_id' => [
@@ -122,6 +122,15 @@ class BankStatement extends Model {
                 'required'          => true,
                 'default'           => 0.0,
                 'dependents'        => ['name']
+            ],
+
+            'expected_opening_balance' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => 'Expected Account balance based on selected bank account.',
+                'readonly'          => true,
+                'function'          => 'calcExpectedOpeningBalance'
             ],
 
             'bank_account_iban' => [
@@ -450,6 +459,19 @@ class BankStatement extends Model {
         return $result;
     }
 
+    protected static function calcExpectedOpeningBalance($self): array {
+        $result = [];
+        $self->read(['bank_account_id']);
+        foreach($self as $id => $bankStatement) {
+            if(!$bankStatement['bank_account_id']) {
+                continue;
+            }
+            $bankAccount = CondominiumBankAccount::id($bankStatement['bank_account_id'])->read(['current_balance'])->first();
+            $result[$id] = $bankAccount['current_balance'];
+        }
+        return $result;
+    }
+
     protected static function calcFiscalYearId($self) {
         $result = [];
         $self->read(['condo_id', 'opening_date']);
@@ -472,7 +494,10 @@ class BankStatement extends Model {
                     continue 2;
                 }
             }
-            self::id($id)->update(['status' => $status]);
+            self::id($id)->update([
+                    'status' => $status,
+                    'expected_opening_balance' => null
+                ]);
         }
     }
 
