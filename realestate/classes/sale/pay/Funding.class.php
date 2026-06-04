@@ -422,7 +422,7 @@ class Funding extends \sale\pay\Funding {
             }
             switch($funding['funding_type']) {
                 case 'expense_statement':
-                    ExpenseStatement::id($funding['money_refund_id'])->update(['payment_status' => $funding['status']]);
+                    ExpenseStatement::id($funding['expense_statement_id'])->update(['payment_status' => $funding['status']]);
                     break;
                 case 'fund_request':
                     FundRequestExecution::id($funding['fund_request_execution_id'])->update(['payment_status' => $funding['status']]);
