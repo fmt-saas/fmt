@@ -335,7 +335,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 continue;
             }
 
-            if($requestExecution['fiscal_period_id']['status'] !== 'open') {
+            if(!in_array($requestExecution['fiscal_period_id']['status'], ['open', 'preclosed'], true)) {
                 $result[$id] = [
                     'invalid_fiscal_period' => 'Cannot perform fund request on a non-open fiscal period.'
                 ];
