@@ -254,11 +254,29 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             'is_proforma' => [
                 'description' => 'Verifies that an FundRequest execution invoice is still a draft (proforma).',
                 'function'    => 'policyIsProforma'
+            ],
+            'can_cancel' => [
+                'description' => 'Verifies that execution is not already invoiced.',
+                'function'    => 'policyCanCancel'
             ]
         ];
     }
 
-    public static function policyIsProforma($self): array {
+    protected static function policyCanCancel($self): array {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $requestExecution) {
+            if($requestExecution['status'] === 'cancelled') {
+                $result[$id] = [
+                    'invalid_status' => 'Already cancelled.'
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyIsProforma($self): array {
         $result = [];
         $self->read(['status']);
         foreach($self as $id => $requestExecution) {
@@ -275,7 +293,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
     /**
      * For FundRequestExecution invoices, accounting entry is generated upon funds being called, i.e. when invoice is validated and assigned to a number (there is no draft accounting entry).
      */
-    public static function policyCanGenerateAccountingEntry($self): array {
+    protected static function policyCanGenerateAccountingEntry($self): array {
         $result = [];
         $self->read(['status', 'accounting_entry_id']);
         foreach($self as $id => $requestExecution) {

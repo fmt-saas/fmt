@@ -88,7 +88,7 @@
                 },
                 "action.cancel_execution": {
                     "label": "Annuler l'exécution",
-                    "description": "Exécuter l'appel de fonds en créant et validant les écritures et encaissements associés (action irréversible)."
+                    "description": "Annuler l'exécution de l'appel de fonds, annuler l'écriture comptable associée et supprimer les fundings générés."
                 }
             },
             "routes": {
