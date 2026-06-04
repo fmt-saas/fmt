@@ -63,14 +63,8 @@
             {
                 "type": "field",
                 "value": "name",
-                "width": "33%",
+                "width": "30%",
                 "readonly": true
-            },
-            {
-                "type": "field",
-                "label": "Sequence",
-                "value": "statement_number",
-                "width": "15%"
             },
             {
                 "type": "field",
@@ -79,8 +73,14 @@
             },
             {
                 "type": "field",
+                "label": "Sequence",
+                "value": "statement_number",
+                "width": "10%"
+            },
+            {
+                "type": "field",
                 "value": "opening_balance",
-                "width": "10%",
+                "width": "15%",
                 "widget": {
                     "styles": [
                         {
@@ -103,20 +103,20 @@
             {
                 "type": "field",
                 "value": "closing_balance",
-                "width": "10%"
+                "width": "15%"
             },
             {
                 "type": "field",
                 "label": "Assigned Employee",
                 "value": "assigned_employee_id",
-                "width": "25%",
+                "width": "15%",
                 "readonly": true
             },
             {
                 "type": "field",
                 "label": "Document",
                 "value": "document_id",
-                "width": "25%",
+                "width": "20%",
                 "readonly": true
             },
             {
