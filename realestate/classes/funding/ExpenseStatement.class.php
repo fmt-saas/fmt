@@ -226,7 +226,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'validate' => [
                         'description' => 'Update the invoice status based on the `invoice` field. Assign invoice number, generate accounting entries and validate accounting entries.',
                         'policies'    => [
-                            'can_be_invoiced',
+                            'can_post',
                             'is_valid',
                             'is_balanced',
                             'can_generate_statement',

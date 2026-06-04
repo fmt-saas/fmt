@@ -364,7 +364,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         'description' => 'Update the invoice status based on the `invoice` field.',
                         'help'        => 'Assign invoice number, generate accounting entries and validate accounting entries.',
                         'policies'    => [
-                            'can_be_invoiced',
+                            'can_post',
                             'can_be_allocated'
                         ],
                         'onbefore'  => 'onbeforePost',
@@ -964,7 +964,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
      * #memo - this policy does not check everything - PurchaseInvoice are controlled through DocumentProcess and we use ValidationRule and a `validate` controller
      *
      */
-    protected static function policyCanBeInvoiced($self, $dispatch): array {
+    protected static function policyCanPost($self, $dispatch): array {
         $result = [];
 
         $self->read([

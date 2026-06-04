@@ -62,7 +62,7 @@ class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
                     'invoice' => [
                         'description' => 'Update the invoice status to `invoice`.',
                         'policies'    => [
-                            'can_be_invoiced',
+                            'can_post',
                         ],
                         'onbefore'  => 'onbeforeInvoice',
                         'onafter'   => 'onafterInvoice',

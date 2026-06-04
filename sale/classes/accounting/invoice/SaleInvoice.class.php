@@ -184,14 +184,14 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
 
     public static function getPolicies(): array {
         return [
-            'can_be_invoiced' => [
+            'can_post' => [
                 'description' => 'Verifies that the proforma can be invoiced.',
-                'function'    => 'policyCanBeInvoiced'
+                'function'    => 'policyCanPost'
             ]
         ];
     }
 
-    public static function policyCanBeInvoiced($self): array {
+    public static function policyCanPost($self): array {
         $result = [];
         $self->read(['fiscal_year_id' => ['status'], 'fiscal_period_id' => ['status'], 'invoice_type', 'invoice_lines_ids']);
         foreach($self as $id => $invoice) {
@@ -235,7 +235,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
                     'invoice' => [
                         'description' => 'Update the invoice status to `invoice`.',
                         'policies'    => [
-                            'can_be_invoiced',
+                            'can_post',
                         ],
                         'onbefore'  => 'onbeforeInvoice',
                         'onafter'   => 'onafterInvoice',

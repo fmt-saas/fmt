@@ -275,7 +275,7 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
                     'post' => [
                         'description' => 'Update the invoice status based on the `invoice` field.',
                         'policies'    => [
-                            'is_proforma', 'can_be_invoiced',
+                            'is_proforma', 'can_post',
                         ],
                         'onbefore'  => 'onbeforeInvoice',
                         'status'    => 'posted',
@@ -304,9 +304,9 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
 
     public static function getPolicies(): array {
         return array_merge(parent::getPolicies(), [
-            'can_be_invoiced' => [
+            'can_post' => [
                 'description' => 'Verifies that the proforma can be invoiced.',
-                'function'    => 'policyCanBeInvoiced'
+                'function'    => 'policyCanPost'
             ],
             'is_proforma' => [
                 'description' => 'Verifies that the invoice is still a proforma.',
@@ -365,7 +365,7 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
         return $result;
     }
 
-    protected static function policyCanBeInvoiced($self, $dispatch): array {
+    protected static function policyCanPost($self, $dispatch): array {
         $result = [];
         $self->read(['due_date', 'invoice_lines_ids' => ['vat_rate']]);
         foreach($self as $id => $invoice) {
