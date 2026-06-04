@@ -9,6 +9,7 @@ namespace finance\accounting;
 use equal\orm\Model;
 use realestate\sale\pay\Funding;
 use realestate\sale\pay\FundingAllocation;
+use sale\pay\Payment;
 
 class AccountingEntryLine extends Model {
 
@@ -540,6 +541,18 @@ class AccountingEntryLine extends Model {
             if(count($fundings_ids) > 0) {
                 Funding::ids($fundings_ids)->delete(true);
             }
+
+            $payment_ids = Payment::search([
+                    ['accounting_entry_line_id', '=', $id]
+                ])
+                ->ids();
+
+            if(count($payment_ids) > 0) {
+                Payment::ids($payment_ids)
+                    ->update(['status' => 'proforma'])
+                    ->delete(true);
+            }
+
         }
     }
 

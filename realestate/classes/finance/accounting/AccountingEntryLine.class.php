@@ -125,17 +125,6 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
         ];
     }
 
-    public static function getActions() {
-        return array_merge(parent::getActions(), [
-            'remove_funding' => [
-                'description'   => 'Remove fundings and funding allocations related to the entry line.',
-                'help'          => "This callback overwrite parent's since target realestate\sale\pay\FundingAllocation instead of sale\pay\Payment.",
-                'policies'      => ['can_remove_funding'],
-                'function'      => 'doRemoveFunding'
-            ]
-        ]);
-    }
-
     public static function canupdate($self, $values) {
         $self->read(['is_cleared', 'accounting_entry_id' => ['status']]);
         $allowed_fields = ['status', 'description', 'old_matching_id', 'matching_id', 'matching_level', 'clearing_expense_statement_id', 'is_cleared', 'is_posted'];
@@ -154,21 +143,6 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
         }
         // do not call parent which raises an error on unknown fields of the class
         return [];
-    }
-
-    protected static function doRemoveFunding($self, $orm) {
-        $self->read(['status']);
-
-        foreach($self as $id => $accountingEntryLine) {
-            $fundings_ids = Funding::search([
-                    ['accounting_entry_line_id', '=', $id]
-                ])
-                ->ids();
-
-            if(count($fundings_ids) > 0) {
-                Funding::ids($fundings_ids)->delete(true);
-            }
-        }
     }
 
     public function getIndexes(): array {

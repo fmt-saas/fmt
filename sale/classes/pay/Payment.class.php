@@ -133,7 +133,7 @@ class Payment extends Model {
                 'foreign_object'    => 'sale\pay\Funding',
                 'description'       => 'The funding the payment relates to, if any.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
-                'ondelete'          => 'null'
+                'ondelete'          => 'cascade'
             ],
 
             'invoice_id' => [
