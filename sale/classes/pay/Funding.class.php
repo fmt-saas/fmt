@@ -286,13 +286,23 @@ class Funding extends \equal\orm\Model {
                 $status = 'balanced';
             }
             elseif($due == 0.0) {
-                $status = ($paid > 0.0) ? 'credit_balance' : 'debit_balance';
+                $status = ($paid < 0.0) ? 'credit_balance' : 'debit_balance';
             }
-            elseif(($due > 0.0 && $paid > $due) || ($due < 0.0 && $paid < $due)) {
-                $status = 'credit_balance';
+            elseif($due > 0.0) {
+                if($paid < $due) {
+                    $status = 'debit_balance';
+                }
+                else {
+                    $status = 'credit_balance';
+                }
             }
             else {
-                $status = 'debit_balance';
+                if($paid < $due) {
+                    $status = 'credit_balance';
+                }
+                else {
+                    $status = 'debit_balance';
+                }
             }
 
             self::id($id)->update(['status' => $status]);

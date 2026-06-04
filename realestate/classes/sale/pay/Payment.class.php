@@ -145,8 +145,10 @@ class Payment extends \realestate\sale\pay\FundingAllocation {
     protected static function onafterPost($self) {
         $self->read(['funding_id']);
         foreach($self as $id => $payment) {
-            Funding::id($payment['funding_id'])
-                ->do('refresh_status');
+            if(!$payment['funding_id']) {
+                continue;
+            }
+            Funding::id($payment['funding_id'])->do('refresh_status');
         }
     }
 
