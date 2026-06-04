@@ -280,30 +280,16 @@ class Funding extends \equal\orm\Model {
             ->read(['due_amount', 'is_paid', 'paid_amount', 'remaining_amount']);
 
         foreach($self as $id => $funding) {
-            $due = round((float) $funding['due_amount'], 2);
-            $paid = round((float) $funding['paid_amount'], 2);
+            $balance = round((float) $funding['remaining_amount'] ?? 0.0, 2);
 
-            if($paid === $due) {
+            if($balance === 0) {
                 $status = 'balanced';
             }
-            elseif($due == 0.0) {
-                $status = ($paid < 0.0) ? 'credit_balance' : 'debit_balance';
-            }
-            elseif($due > 0.0) {
-                if($paid < $due) {
-                    $status = 'credit_balance';
-                }
-                else {
-                    $status = 'debit_balance';
-                }
+            elseif($remaining > 0) {
+                $status = 'debit_balance';
             }
             else {
-                if($paid < $due) {
-                    $status = 'debit_balance';
-                }
-                else {
-                    $status = 'credit_balance';
-                }
+                $status = 'credit_balance';
             }
 
             self::id($id)->update(['status' => $status]);
