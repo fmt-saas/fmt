@@ -695,7 +695,9 @@ class AccountingEntryLine extends Model {
         foreach($self as $id => $accountingEntryLine) {
             if($accountingEntryLine['old_matching_id']) {
                 // #memo - matching will remove itself if empty
-                Matching::id($accountingEntryLine['old_matching_id'])->do('check_emptiness');
+                Matching::id($accountingEntryLine['old_matching_id'])
+                    ->do('check_emptiness')
+                    ->do('refresh_matching_level');
                 self::id($id)->update(['old_matching_id' => null]);
             }
             if($accountingEntryLine['matching_id']) {
