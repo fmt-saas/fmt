@@ -189,7 +189,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'transitions' => [
                     'cancel' => [
                         'description' => 'Update the fund request execution to `cancelled`.',
-                        'policies'    => [],
+                        'policies'    => ['can_cancel'],
                         'onafter'     => 'onafterCancelled',
                         'status'      => 'cancelled'
                     ]

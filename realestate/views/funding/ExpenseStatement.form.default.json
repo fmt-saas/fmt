@@ -49,7 +49,9 @@
             "description": "Unlock misc operation.",
             "controller": "core_model_do",
             "confirm": true,
-            "visible": ["status", "=", "posted"],
+            "visible": false,
+            "visible_1": ["status", "=", "posted"],
+            "visible_help": "Expense Statement reversal is controlled by Fiscal Year.",
             "params": {
                 "entity": "realestate\\funding\\ExpenseStatement",
                 "action": "unlock",

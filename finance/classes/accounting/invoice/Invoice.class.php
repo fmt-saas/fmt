@@ -328,11 +328,18 @@ class Invoice extends Model {
      */
     protected static function policyCanCancel($self) {
         $result = [];
-        $self->read(['status', 'accounting_entry_id' => ['status', 'has_cleared_lines']]);
+        $self->read(['status', 'fiscal_year_id' => ['status'], 'accounting_entry_id' => ['status', 'has_cleared_lines']]);
         foreach($self as $id => $purchaseInvoice) {
             if($purchaseInvoice['status'] !== 'posted') {
                 $result[$id] = [
                         'non_posted_invoice' => 'Only posted invoice can be cancelled or unlocked.'
+                    ];
+                continue;
+            }
+
+            if($purchaseInvoice['fiscal_year_id']['status'] !== 'open') {
+                $result[$id] = [
+                        'non_open_fiscal_year' => 'Fiscal year must be open to perform this operation.'
                     ];
                 continue;
             }
