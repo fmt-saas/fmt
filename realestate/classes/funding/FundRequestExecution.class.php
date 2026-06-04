@@ -17,6 +17,7 @@ use realestate\finance\accounting\AccountingEntryLine;
 use realestate\ownership\Ownership;
 use fmt\setting\Setting;
 use realestate\ownership\OwnershipCommunicationPreference;
+use finance\bank\BankStatementLine;
 use realestate\sale\pay\Funding;
 use realestate\sale\pay\FundingAllocation;
 use sale\pay\Payment;
