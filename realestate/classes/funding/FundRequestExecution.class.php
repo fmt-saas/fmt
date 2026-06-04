@@ -308,7 +308,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         return $result;
     }
 
-    public static function policyCanPost($self): array {
+    protected static function policyCanPost($self): array {
         $result = [];
         $self->read([
                 'status', 'emission_date', 'posting_date',

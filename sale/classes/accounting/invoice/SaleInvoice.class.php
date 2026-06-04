@@ -191,7 +191,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
         ];
     }
 
-    public static function policyCanPost($self): array {
+    protected static function policyCanPost($self): array {
         $result = [];
         $self->read(['fiscal_year_id' => ['status'], 'fiscal_period_id' => ['status'], 'invoice_type', 'invoice_lines_ids']);
         foreach($self as $id => $invoice) {

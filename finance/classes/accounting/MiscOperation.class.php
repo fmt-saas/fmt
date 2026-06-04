@@ -368,7 +368,7 @@ class MiscOperation extends Model {
         ];
     }
 
-    public static function policyCanPost($self): array {
+    protected static function policyCanPost($self): array {
         $result = [];
         $self->read([
                 'status', 'posting_date',
