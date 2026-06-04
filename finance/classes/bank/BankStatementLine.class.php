@@ -1159,7 +1159,7 @@ class BankStatementLine extends Model {
         $self->read(['status']);
 
         $updated_fields = array_keys($values);
-        $posted_allowed_fields = ['status', 'accounting_entry_id', 'remaining_amount', 'logs'];
+        $posted_allowed_fields = ['status', 'accounting_entry_id', 'remaining_amount', 'payment_status', 'logs'];
         $cancelled_allowed_fields = ['remaining_amount', 'logs'];
 
         foreach($self as $id => $bankStatementLine) {
