@@ -235,7 +235,6 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 ->update(['status' => 'reversed'])
                 ->do('detach_matching')
                 ->do('remove_funding');
-
         }
     }
 

@@ -177,6 +177,7 @@ class Funding extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountingEntryLine',
                 'description'       => "Accounting entry line the Funding originates from.",
+                'help'              => "From the accounting entry of the accounting document the Funding originates.",
                 'domain'            => [
                     ['condo_id', '=', 'object.condo_id'],
                     ['account_id', '=', 'object.accounting_account_id']

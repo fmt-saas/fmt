@@ -291,9 +291,11 @@ class Payment extends Model {
                 return ['is_exported' => ['non_editable' => 'Once exported a payment can no longer be updated.']];
             }
 
+            /*
             if($payment['status'] != 'proforma' && (count($values) > 1 || !isset($values['status']) ) ) {
                 return ['status' => ['non_editable' => 'Non proforma payment cannot be updated.']];
             }
+            */
 
             $payment_origin = $values['payment_origin'] ?? $payment['payment_origin'];
 

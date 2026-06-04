@@ -674,7 +674,6 @@ class AccountingEntry extends Model {
                 ->update(['status' => 'reversed'])
                 ->do('detach_matching')
                 ->do('remove_funding');
-
         }
     }
 
