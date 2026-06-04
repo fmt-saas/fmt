@@ -545,17 +545,8 @@ class AccountingEntryLine extends Model {
         }
 
         foreach($self as $id => $accountingEntryLine) {
-            $fundings_ids = Funding::search([
-                    ['accounting_entry_line_id', '=', $id]
-                ])
-                ->ids();
 
-            if(count($fundings_ids) > 0) {
-                Funding::ids($fundings_ids)->delete(true);
-            }
-
-
-            // distinction entre FundingAllocation (lié à un funding arbitraire) et Payment (lié à une bank_statement_line)
+            // 1) distinction entre FundingAllocation (lié à un funding arbitraire) et Payment (lié à une bank_statement_line)
             $payments = Payment::search([
                     ['accounting_entry_line_id', '=', $id]
                 ])
@@ -586,6 +577,17 @@ class AccountingEntryLine extends Model {
                         ->delete(true);
                 }
             }
+
+            // 2) remove fundings and cascade on remaining Payments / Allocations
+            $fundings_ids = Funding::search([
+                    ['accounting_entry_line_id', '=', $id]
+                ])
+                ->ids();
+
+            if(count($fundings_ids) > 0) {
+                Funding::ids($fundings_ids)->delete(true);
+            }
+
 
         }
     }
