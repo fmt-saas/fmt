@@ -57,7 +57,20 @@
                 "type": "field",
                 "label": "name",
                 "value": "bank_account_id",
-                "width": "30%"
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "33%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "label": "Sequence",
+                "value": "statement_number",
+                "width": "15%"
             },
             {
                 "type": "field",
@@ -66,10 +79,31 @@
             },
             {
                 "type": "field",
-                "label": "Description",
-                "value": "name",
-                "width": "33%",
-                "readonly": true
+                "value": "opening_balance",
+                "width": "10%",
+                "widget": {
+                    "styles": [
+                        {
+                            "visible": ["opening_balance", "=", "object.expected_opening_balance"],
+                            "apply": {
+                                "border_radius": "5px",
+                                "text_color": "#27b727"
+                            }
+                        },
+                        {
+                            "visible": ["opening_balance", "<>", "object.expected_opening_balance"],
+                            "apply": {
+                                "border_radius": "5px",
+                                "text_color": "#ff4500"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "type": "field",
+                "value": "closing_balance",
+                "width": "10%"
             },
             {
                 "type": "field",
