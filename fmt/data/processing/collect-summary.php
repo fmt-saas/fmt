@@ -178,7 +178,7 @@ if($bankStatements->count() > 0) {
         if($bankStatement['created'] > $date_last) {
             $date_last = $bankStatement['created'];
         }
-        if($bankStatement['alert'] && $bankStatement['alert'] !== 'info') {
+        if($bankStatement['alert'] && !in_array($bankStatement['alert'], ['info', 'success'], true)) {
             ++$alerts;
         }
     }

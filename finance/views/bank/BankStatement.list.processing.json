@@ -20,7 +20,7 @@
         },
         {
             "id": "route.bank_statement",
-            "label": "Invoice",
+            "label": "Bank Statement",
             "inline": true,
             "description": "",
             "icon": "visibility",
@@ -68,7 +68,10 @@
             {
                 "type": "field",
                 "value": "date",
-                "width": "15%"
+                "width": "15%",
+                "widget": {
+                    "usage": "date"
+                }
             },
             {
                 "type": "field",
