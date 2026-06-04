@@ -182,22 +182,6 @@ class FundingAllocation extends Model {
         }
     }
 
-    /**
-     * Revoke link between accounting entries & matching.
-     * #memo - this applies to FundingAllocation and Payment (child class)
-     */
-    protected static function onbeforedelete($self) {
-        $self->read(['bank_statement_line_id' => ['status']]);
-        foreach($self as $id => $fundingAllocation) {
-            if(!$fundingAllocation['bank_statement_line_id']) {
-                continue;
-            }
-            if($fundingAllocation['bank_statement_line_id']['status'] === 'posted') {
-                BankStatementLine::id($fundingAllocation['bank_statement_line_id']['id'])->do('unlock');
-            }
-        }
-    }
-
     protected static function onafterupdate($self) {
         $self->read(['funding_id', 'bank_statement_line_id']);
         foreach($self as $id => $fundingAllocation) {

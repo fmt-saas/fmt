@@ -7,8 +7,8 @@
 namespace finance\accounting;
 
 use equal\orm\Model;
+use finance\bank\BankStatementLine;
 use realestate\sale\pay\Funding;
-use realestate\sale\pay\FundingAllocation;
 use sale\pay\Payment;
 
 class AccountingEntryLine extends Model {
@@ -522,6 +522,12 @@ class AccountingEntryLine extends Model {
     protected static function doDetachMatching($self) {
         $self->read(['status', 'matching_id']);
 
+        foreach($self as $accountingEntryLine) {
+            if(($accountingEntryLine['status'] ?? null) !== 'reversed') {
+                throw new \Exception('accounting_entry_line_not_reversed', EQ_ERROR_NOT_ALLOWED);
+            }
+        }
+
         foreach($self as $id => $accountingEntryLine) {
             if($accountingEntryLine['matching_id']) {
                 self::id($id)->update(['matching_id' => null]);
@@ -529,8 +535,14 @@ class AccountingEntryLine extends Model {
         }
     }
 
-    protected static function doRemoveFunding($self, $orm) {
-        $self->read(['status']);
+    protected static function doRemoveFunding($self) {
+        $self->read(['condo_id', 'status']);
+
+        foreach($self as $accountingEntryLine) {
+            if(($accountingEntryLine['status'] ?? null) !== 'reversed') {
+                throw new \Exception('accounting_entry_line_not_reversed', EQ_ERROR_NOT_ALLOWED);
+            }
+        }
 
         foreach($self as $id => $accountingEntryLine) {
             $fundings_ids = Funding::search([
@@ -542,15 +554,37 @@ class AccountingEntryLine extends Model {
                 Funding::ids($fundings_ids)->delete(true);
             }
 
-            $payment_ids = Payment::search([
+
+            // distinction entre FundingAllocation (lié à un funding arbitraire) et Payment (lié à une bank_statement_line)
+            $payments = Payment::search([
                     ['accounting_entry_line_id', '=', $id]
                 ])
-                ->ids();
+                ->read(['bank_statement_line_id']);
 
-            if(count($payment_ids) > 0) {
-                Payment::ids($payment_ids)
-                    ->update(['status' => 'proforma'])
-                    ->delete(true);
+            foreach($payments as $payment_id => $payment) {
+                if($payment['bank_statement_line_id']) {
+                    BankStatementLine::id($payment['bank_statement_line_id'])->do('assert_funding');
+                    $funding = Funding::search([
+                            ['condo_id', '=', $accountingEntryLine['condo_id']],
+                            ['bank_statement_line_id', '=', $payment['bank_statement_line_id']],
+                            ['funding_type', '=', 'statement_line']
+                        ])
+                        ->first();
+
+                    if($funding) {
+                        // reattach payment to bank statement line funding
+                        Payment::id($payment_id)
+                            ->update([
+                                'accounting_entry_line_id' => null,
+                                'funding_id' => $funding['id']
+                            ]);
+                    }
+                }
+                else {
+                    Payment::id($payment_id)
+                        ->update(['status' => 'proforma'])
+                        ->delete(true);
+                }
             }
 
         }
