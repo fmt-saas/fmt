@@ -218,7 +218,8 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             ],
             'cancel_execution' => [
                 'description'   => 'Void the execution, and cancel subsequent accounting entry.',
-                'policies'      => ['can_cancel'],
+                'help'          => 'This is called after a transition to `cancel`.',
+                'policies'      => [/*'can_cancel'*/],
                 'function'      => 'doCancelExecution'
             ],
             'assign_invoice_number' => [
@@ -268,7 +269,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         foreach($self as $id => $requestExecution) {
             if($requestExecution['status'] === 'cancelled') {
                 $result[$id] = [
-                    'invalid_status' => 'Already cancelled.'
+                    'invalid_status' => "Already cancelled."
                 ];
                 continue;
             }
@@ -280,7 +281,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         $result = [];
         $self->read(['status']);
         foreach($self as $id => $requestExecution) {
-            if($requestExecution['status'] != 'proforma') {
+            if($requestExecution['status'] !== 'proforma') {
                 $result[$id] = [
                     'invalid_status' => 'Request Execution status must be proforma.'
                 ];
