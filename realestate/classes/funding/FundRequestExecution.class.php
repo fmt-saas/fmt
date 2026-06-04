@@ -593,7 +593,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
     public static function doCancelExecution($self) {
         $self->read([
-                'condo_id', 'fund_request_id', 'accounting_entry_id'
+                'condo_id', 'fund_request_id', 'accounting_entry_id',
                 'execution_lines_ids' => ['ownership_id']
             ]);
 
