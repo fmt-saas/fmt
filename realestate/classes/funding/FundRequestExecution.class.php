@@ -637,7 +637,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                             ['origin_object_class', '=', 'realestate\funding\FundRequestExecution'],
                             ['origin_object_id', '=', $id],
                         ])
-                        ->transition(['revert'])
+                        ->transition('revert')
                         ->delete(true);
 
                     Funding::id($funding_id)->delete(true);
