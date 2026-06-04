@@ -15,6 +15,7 @@ use hr\role\RoleAssignment;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\finance\accounting\MoneyRefund;
 use realestate\finance\accounting\MoneyTransfer;
+use finance\bank\BankStatementLine;
 use realestate\funding\ExpenseStatement;
 use realestate\funding\FundRequestExecution;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
@@ -413,7 +414,8 @@ class Funding extends \sale\pay\Funding {
                 'misc_operation_id',
                 'purchase_invoice_id',
                 'expense_statement_id',
-                'fund_request_execution_id'
+                'fund_request_execution_id',
+                'bank_statement_line_id'
             ]);
 
         foreach($self as $id => $funding) {
@@ -421,6 +423,9 @@ class Funding extends \sale\pay\Funding {
                 continue;
             }
             switch($funding['funding_type']) {
+                case 'statement_line':
+                    BankStatementLine::id($funding['bank_statement_line_id'])->update(['payment_status' => $funding['status']]);
+                    break;
                 case 'expense_statement':
                     ExpenseStatement::id($funding['expense_statement_id'])->update(['payment_status' => $funding['status']]);
                     break;

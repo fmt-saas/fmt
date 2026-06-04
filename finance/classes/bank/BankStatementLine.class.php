@@ -78,6 +78,17 @@ class BankStatementLine extends Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
+            'payment_status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'debit_balance',    // buyer still has to pay something
+                    'credit_balance',   // reimbursement to buyer is required
+                    'balanced'          // fully paid and balanced
+                ],
+                'visible'           => ['status', '=', 'posted'],
+                'default'           => 'pending'
+            ],
+
             'date' => [
                 'type'              => 'date',
                 'description'       => 'Date of the transaction as provided by the bank.',

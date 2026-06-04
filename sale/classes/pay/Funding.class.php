@@ -291,18 +291,18 @@ class Funding extends \equal\orm\Model {
             }
             elseif($due > 0.0) {
                 if($paid < $due) {
-                    $status = 'debit_balance';
+                    $status = 'credit_balance';
                 }
                 else {
-                    $status = 'credit_balance';
+                    $status = 'debit_balance';
                 }
             }
             else {
                 if($paid < $due) {
-                    $status = 'credit_balance';
+                    $status = 'debit_balance';
                 }
                 else {
-                    $status = 'debit_balance';
+                    $status = 'credit_balance';
                 }
             }
 
