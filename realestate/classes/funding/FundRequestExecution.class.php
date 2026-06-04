@@ -631,12 +631,14 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                                 Funding::id($funding['id'])->do('refresh_status');
                             }
                         }
-                        else {
-                            Payment::id($payment_id)
-                                ->update(['status' => 'proforma'])
-                                ->delete(true);
-                        }
                     }
+
+                    Payment::search([
+                            ['origin_object_class', '=', 'realestate\funding\FundRequestExecution'],
+                            ['origin_object_id', '=', $id],
+                        ])
+                        ->update(['status' => 'proforma'])
+                        ->delete(true);
 
                     Funding::id($funding_id)->delete(true);
 

@@ -115,6 +115,19 @@ class Payment extends Model {
                 'visible'           => ['payment_origin', '=', 'bank']
             ],
 
+            'origin_object_class' => [
+                'type'              => 'string',
+                'description'       => 'Entity class that the entry originates from.',
+                'help'              => "The accounting document the accounting entry originates from.
+                    Possible classes are (stored with full namespace):
+                    PurchaseInvoice, FundRequestExecution, ExpenseStatement, BankStatementLine, MiscOperation (virtual document).",
+            ],
+
+            'origin_object_id' => [
+                'type'              => 'integer',
+                'description'       => 'Object identifier, as a complement to `origin_object_class`, the entry originates from.'
+            ],
+
             'accounting_entry_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountingEntry',

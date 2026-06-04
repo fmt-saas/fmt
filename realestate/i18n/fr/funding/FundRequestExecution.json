@@ -78,7 +78,10 @@
                     "label": "Ventilations"
                 },
                 "section.fundings_ids": {
-                    "label": "Fundings"
+                    "label": "Financements"
+                },
+                "section.details": {
+                    "label": "Détails"
                 }
             },
             "actions": {
