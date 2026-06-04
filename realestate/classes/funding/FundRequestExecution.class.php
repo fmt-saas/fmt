@@ -591,7 +591,10 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
     }
 
     public static function doCancelExecution($self) {
-        $self->read(['condo_id', 'execution_lines_ids' => ['ownership_id'], 'fund_request_id', 'accounting_entry_id']);
+        $self->read([
+                'condo_id', 'fund_request_id', 'accounting_entry_id'
+                'execution_lines_ids' => ['ownership_id']
+            ]);
 
         foreach($self as $id => $requestExecution) {
             // retrieve accounting entry and cancel it
@@ -600,7 +603,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
                 // remove related fundings with no payments
                 $fundings = Funding::search([
-                        ['condo_id', '=', $executionLine['condo_id']],
+                        ['condo_id', '=', $requestExecution['condo_id']],
                         ['ownership_id', '=', $executionLine['ownership_id']],
                         ['fund_request_id', '=', $requestExecution['fund_request_id']]
                     ])
@@ -612,7 +615,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         if($payment['bank_statement_line_id']) {
                             BankStatementLine::id($payment['bank_statement_line_id'])->do('assert_funding');
                             $funding = Funding::search([
-                                    ['condo_id', '=', $accountingEntryLine['condo_id']],
+                                    ['condo_id', '=', $requestExecution['condo_id']],
                                     ['bank_statement_line_id', '=', $payment['bank_statement_line_id']],
                                     ['funding_type', '=', 'statement_line']
                                 ])
