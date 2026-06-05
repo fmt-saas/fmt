@@ -282,7 +282,7 @@ class Funding extends \equal\orm\Model {
         foreach($self as $id => $funding) {
             $balance = round((float) $funding['remaining_amount'] ?? 0.0, 2);
 
-            if($balance <= 0.01) {
+            if(abs($balance) <= 0.01) {
                 $status = 'balanced';
             }
             elseif($balance > 0) {
