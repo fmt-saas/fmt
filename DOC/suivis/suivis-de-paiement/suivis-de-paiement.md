@@ -156,8 +156,11 @@ counterpart_bank_account_id = compte de destination
 
 Lorsqu’un document de référence (appel, décompte…) est annulé :
 
-- Tous les `Funding` associés sont marqués comme **annulés** (`is_cancelled = true`)
-- Les `Payments` affectés à ces financements sont **détachés** (`funding_id = null`) et redeviennent disponibles pour être affectés à d’autres `Funding`, existants ou futurs.
+- Les `Funding` associés à la pièce sont supprimés.
+- Les `Payment` et `FundingAllocation` qui se rapportent uniquement à cette pièce sont supprimés avec ces `Funding`.
+- Les allocations qui proviennent d’une `BankStatementLine` ne sont pas laissées orphelines : elles sont détachées de la ligne d’écriture comptable annulée, puis rattachées au `Funding` propre à la ligne d’extrait bancaire.
+
+Si ce `Funding` de ligne bancaire n’existe pas encore, il est créé par `BankStatementLine::assert_funding` avec le type `statement_line`.
 
 #### Génération d’un ordre bancaire (SEPA)
 
@@ -249,7 +252,7 @@ Un Payment représente la contre partie d'une écriture liée à une pièce comp
 Notes : 
 
 * Une ligne d'extrait peut être liée à plusieurs paiements (dans le cas où le montant versé est partiel ou correspond à plusieurs montants attendus), et donc à plusieurs financements.
-* Un financement peut avoir été annulé, et il peut donc y avoir des Payment orphelins.
+* Lorsqu’un financement de pièce est supprimé à la suite d’une annulation, les paiements issus d’une ligne d’extrait bancaire sont conservés en les rattachant au `Funding` de cette ligne d’extrait.
 
 #### Règles
 
@@ -263,7 +266,7 @@ Notes :
 1. Création d’un Payment (automatique ou manuelle)
 2. Attribution à un Funding
 3. Validation → rattachement à une écriture comptable
-4. En cas d’annulation de Funding → Payments détachés et réaffectables
+4. En cas d’annulation de la pièce source → suppression du `Funding` de pièce, puis réaffectation des paiements bancaires au `Funding` de la ligne d’extrait
 
 #### À la création du paiement
 
@@ -274,11 +277,12 @@ Notes :
 
 #### Création d’un Funding
 
-Lors de la création d'un nouveau financement, tous les `Payments` orphelins ou en crédit disponibles pour le copropriétaire sont **réaffectés automatiquement** au nouveau `Funding` (leur champ `funding_id` est mis à jour).
+Lors de la création d'un nouveau financement, les `Payments` disponibles pour le copropriétaire, notamment les crédits non encore affectés à un financement actif, peuvent être **réaffectés automatiquement** au nouveau `Funding` (leur champ `funding_id` est mis à jour).
 
 #### En cas d’annulation d’un Funding
 
-- Tous les `Payments` liés sont **détachés** (`funding_id = NULL`), et peuvent alors être **réaffectés** manuellement ou automatiquement à un autre `Funding` actif (par défaut, au premier `Funding` non totalement payé)
+- Si le `Funding` supprimé provient d’une pièce annulée, les `Payments` et `FundingAllocation` internes à cette pièce sont supprimés.
+- Les `Payments` ou `FundingAllocation` liés à une `BankStatementLine` sont conservés : ils sont détachés de l’`AccountingEntryLine` annulée et rattachés au `Funding` de type `statement_line` de la ligne d’extrait, créé si nécessaire par `BankStatementLine::assert_funding`.
 
 ### Logique entre Financements (`Funding`) et écritures comptables (`AccountingEntry`)
 

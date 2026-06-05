@@ -650,6 +650,7 @@ class BankStatementLine extends Model {
                             'funding_id'                => $funding['id']
                         ])
                         ->first();
+
                     $logs[] = "INFO - Created payment {$payment['id']} for funding {$funding['id']} with amount {$allocated}";
 
                     $remaining_amount = round($remaining_amount - $allocated, 2);

@@ -983,6 +983,19 @@ Cela peut impliquer :
 
 La logique doit être réversible, idempotente et historisée.
 
+### Annulation d’une pièce comptable source
+
+Lorsqu’une pièce comptable est annulée, les `Funding` générés par cette pièce sont supprimés. Les `Payment` et `FundingAllocation` qui s’y rapportent sont également supprimés, sauf lorsqu’ils matérialisent un mouvement bancaire déjà identifié par une `BankStatementLine`.
+
+Pour une allocation bancaire rattachée à une `AccountingEntryLine` de la pièce annulée, la ligne d’extrait devient la nouvelle origine fonctionnelle à conserver :
+
+1. l’allocation est détachée de l’`AccountingEntryLine` annulée ;
+2. le système appelle `BankStatementLine::assert_funding` pour garantir un `Funding` de type `statement_line` sur la ligne d’extrait ;
+3. l’allocation est rattachée à ce `Funding` de ligne d’extrait ;
+4. les `Funding` impactés sont recalculés.
+
+Cette règle maintient la traçabilité du mouvement bancaire tout en supprimant les liens vers la pièce et les écritures annulées. Une annulation de pièce ne doit donc jamais laisser une allocation pointant vers une `AccountingEntryLine` neutralisée.
+
 Le système doit pouvoir expliquer :
 
 - quel événement a déclenché le recalcul ;

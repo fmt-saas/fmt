@@ -374,6 +374,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         ]);
     }
 
+    /**
+     * This id for completion but should not be called (expense statements can never be fully cancelled).
+     */
     protected static function doCancel($self) {
         $self->do('unlock');
 
@@ -2047,7 +2050,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
     protected static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['status'];
+        $allowed_fields = ['status', 'payment_status'];
 
         foreach($self as $id => $invoice) {
             if($invoice['status'] === 'posted') {

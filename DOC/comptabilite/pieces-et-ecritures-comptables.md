@@ -147,15 +147,33 @@ Les premiers exercices comptables sont automatiquement marqués `is_first` lors 
 3. Création automatique d’une écriture inverse.
 4. Liaison bidirectionnelle via `reversal_entry_id`.
 5. Passage des deux écritures en `reversed`.
-6. Passage de la pièce en `cancelled`.
-7. Suppression de `accounting_entry_id` (plus d’écriture active).
+6. Traitement des `Funding`, `Payment` et `FundingAllocation` liés à la pièce.
+7. Passage de la pièce en `cancelled`.
+8. Suppression de `accounting_entry_id` (plus d’écriture active).
 
-### 5.3 Résultat
+### 5.3 Conséquences sur les financements et paiements
+
+L’annulation d’une pièce supprime les `Funding` générés par cette pièce, ainsi que les `Payment` ou `FundingAllocation` qui s’y rapportent.
+
+Cas particulier : si une allocation liée à une `AccountingEntryLine` de la pièce annulée provient d’une ligne d’extrait bancaire (`BankStatementLine`), le mouvement bancaire doit rester explicable indépendamment de la pièce annulée.
+
+Dans ce cas :
+
+1. L’allocation est détachée de la `AccountingEntryLine` annulée.
+2. Le système garantit l’existence d’un `Funding` propre à la ligne d’extrait via `BankStatementLine::assert_funding`.
+3. L’allocation est rattachée au `Funding` de type `statement_line` de cette ligne d’extrait.
+4. Les statuts des `Funding` impactés sont recalculés.
+
+Cette règle évite qu’une ligne d’extrait bancaire postée ou réconciliée reste liée à une écriture neutralisée par l’annulation de la pièce.
+
+### 5.4 Résultat
 
 - Aucune écriture `validated`.
 - La séquence comptable reste continue.
 - Historique complet conservé.
 - Impact comptable nul.
+- Aucun `Funding` de la pièce annulée ne subsiste.
+- Les allocations issues d’extraits bancaires restent rattachées à la ligne bancaire qui les justifie.
 
 
 
