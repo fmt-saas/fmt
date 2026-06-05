@@ -13,7 +13,7 @@ use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\sale\pay\FundingAllocation;
 use finance\bank\BankStatementLine;
-
+use sale\pay\Payment;
 
 class MiscOperation extends Model {
 
