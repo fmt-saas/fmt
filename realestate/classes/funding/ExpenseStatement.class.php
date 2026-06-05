@@ -535,7 +535,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     ['condo_id', '=', $expenseStatement['condo_id']],
                     ['invoice_type', '=', 'expense_statement'],
                     ['status', '=', 'posted'],
-                    ['posting_date', '>', $expenseStatement['status']]
+                    ['posting_date', '>', $expenseStatement['posting_date']]
                 ], ['limit' => 1])
                 ->first();
 

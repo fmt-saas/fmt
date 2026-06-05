@@ -279,7 +279,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                     ['condo_id', '=', $fundRequestExecution['condo_id']],
                     ['invoice_type', '=', 'fund_request'],
                     ['status', '=', 'posted'],
-                    ['posting_date', '>', $fundRequestExecution['status']]
+                    ['posting_date', '>', $fundRequestExecution['posting_date']]
                 ], ['limit' => 1])
                 ->first();
 
