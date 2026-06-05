@@ -498,8 +498,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             // remove related fundings with no payments
             $fundings = Funding::search([
                     ['condo_id', '=', $purchaseInvoice['condo_id']],
-                    ['funding_type', '=', 'misc_operation'],
-                    ['misc_operation_id', '=', $id]
+                    ['funding_type', '=', 'purchase_invoice'],
+                    ['purchase_invoice_id', '=', $id]
                 ])
                 ->read(['payments_ids' => ['bank_statement_line_id']]);
 
