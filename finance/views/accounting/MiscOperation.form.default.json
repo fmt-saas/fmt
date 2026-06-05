@@ -222,6 +222,60 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "id": "section.accounting_entries",
+                        "label": "Accounting Entries",
+                        "visible": ["status", "in", ["posted", "cancelled"]],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "accounting_entries_ids",
+                                                "width": "100%",
+                                                "header": {
+                                                    "actions": {
+                                                        "ACTION.SELECT": false,
+                                                        "ACTION.CREATE": false
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.fundings",
+                        "label": "Fundings",
+                        "visible": ["status", "=", "posted"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "fundings_ids",
+                                                "width": "100%",
+                                                "header": {
+                                                    "actions": {
+                                                        "ACTION.SELECT": false,
+                                                        "ACTION.CREATE": false
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }

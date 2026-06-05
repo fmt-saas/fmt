@@ -752,28 +752,28 @@ class MiscOperation extends Model {
             $fiscal_year_id = $miscOperation['fiscal_year_id'];
             $fiscal_period_id = $miscOperation['fiscal_period_id'];
 
-            // remove any previously created accounting entry (resulting from an incomplete operation)
+            // #memo - a Misc Operation can be unlocked and therefore have several accounting entries (@see `accounting_entries_ids`)
+            /*
             $accountingEntry = AccountingEntry::search([
                     ['condo_id', '=', $miscOperation['condo_id']],
                     ['origin_object_class', '=', self::getType()],
                     ['origin_object_id', '=', $id]
                 ])
                 ->first();
+            */
 
-            if(!$accountingEntry) {
-                $accountingEntry = AccountingEntry::create([
-                        'condo_id'              => $miscOperation['condo_id'],
-                        'entry_date'            => $miscOperation['posting_date'],
-                        'origin_object_class'   => self::getType(),
-                        'origin_object_id'      => $id,
-                        'misc_operation_id'     => $id,
-                        'description'           => $miscOperation['description'],
-                        'journal_id'            => $miscOperation['journal_id'],
-                        'fiscal_year_id'        => $fiscal_year_id,
-                        'fiscal_period_id'      => $fiscal_period_id
-                    ])
-                    ->first();
-            }
+            $accountingEntry = AccountingEntry::create([
+                    'condo_id'              => $miscOperation['condo_id'],
+                    'entry_date'            => $miscOperation['posting_date'],
+                    'origin_object_class'   => self::getType(),
+                    'origin_object_id'      => $id,
+                    'misc_operation_id'     => $id,
+                    'description'           => $miscOperation['description'],
+                    'journal_id'            => $miscOperation['journal_id'],
+                    'fiscal_year_id'        => $fiscal_year_id,
+                    'fiscal_period_id'      => $fiscal_period_id
+                ])
+                ->first();
 
             foreach($miscOperation['misc_operation_lines_ids'] as $line_id => $line) {
                 AccountingEntryLine::create([

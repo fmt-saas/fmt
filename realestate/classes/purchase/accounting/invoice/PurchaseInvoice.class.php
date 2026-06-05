@@ -1331,28 +1331,28 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             // #memo - use of the `reinvoiced_private_expense_account` has been deprecated
 
 
-            // remove previously created entries, if any (there should be none)
+            // #memo - a Misc Operation can be unlocked and therefore have several accounting entries (@see `accounting_entries_ids`)
+            /*
             $accountingEntry = AccountingEntry::search([
                     ['status', '=', 'pending'],
                     ['origin_object_class', '=', 'realestate\purchase\accounting\invoice\PurchaseInvoice'],
                     ['origin_object_id', '=', $id]
                 ])
                 ->first();
+            */
 
-            if(!$accountingEntry) {
-                // create the accounting entry for the purchase invoice
-                $accountingEntry = AccountingEntry::create([
-                        'condo_id'              => $invoice['condo_id'],
-                        'journal_id'            => $journal['id'],
-                        'fiscal_year_id'        => $invoice['fiscal_year_id'],
-                        // #memo - if necessary, entry_date will be reassigned based on selected fiscal year and matching period (so that dates remain in ascending order)
-                        'entry_date'            => $invoice['posting_date'],
-                        'origin_object_class'   => self::getType(),
-                        'origin_object_id'      => $id,
-                        'purchase_invoice_id'   => $id
-                    ])
-                    ->first();
-            }
+            // create the accounting entry for the purchase invoice
+            $accountingEntry = AccountingEntry::create([
+                    'condo_id'              => $invoice['condo_id'],
+                    'journal_id'            => $journal['id'],
+                    'fiscal_year_id'        => $invoice['fiscal_year_id'],
+                    // #memo - if necessary, entry_date will be reassigned based on selected fiscal year and matching period (so that dates remain in ascending order)
+                    'entry_date'            => $invoice['posting_date'],
+                    'origin_object_class'   => self::getType(),
+                    'origin_object_id'      => $id,
+                    'purchase_invoice_id'   => $id
+                ])
+                ->first();
 
             self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
 
