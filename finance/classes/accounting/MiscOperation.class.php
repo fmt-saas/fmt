@@ -1367,7 +1367,7 @@ class MiscOperation extends Model {
 
     public static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['status', 'name', 'accounting_entry_id', 'opening_balance_id', 'payment_status', 'has_date_range', 'date_from', 'date_to'];
+        $allowed_fields = ['status', 'name', 'operation_number', 'accounting_entry_id', 'opening_balance_id', 'payment_status', 'has_date_range', 'date_from', 'date_to'];
         foreach($self as $id => $miscOperation) {
             // only allow editable fields
             if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
