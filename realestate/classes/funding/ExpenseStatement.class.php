@@ -1524,7 +1524,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         // retrieve applicable reserve funds
         $reserveFunds = CondoFund::search([
                 ['condo_id', '=', $fiscalPeriod['condo_id']],
-                ['fund_type', '=', 'reserve_fund']
+                // #memo - all fund_type are allowed
             ])
             ->read(['expense_account_code', 'call_account_code', 'fund_account_id', 'expense_account_id', 'apportionment_id'])
             ->get(true);
@@ -1784,7 +1784,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 // retrieve account according to account_id and ReserveFund
                 $reserveFund = $map_reserve_funds[$accountingEntryLine['account_code']] ?? null;
                 if(!$reserveFund) {
-                    trigger_error("APP::unable to retrieve reserve fund with code {$accountingEntryLine['account_code']}", EQ_REPORT_ERROR);
+                    trigger_error("APP::unable to retrieve Condominium Fund with code {$accountingEntryLine['account_code']}", EQ_REPORT_ERROR);
                     throw new \Exception('missing_mandatory_reserve_fund', EQ_ERROR_INVALID_CONFIG);
                 }
 
