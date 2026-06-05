@@ -788,6 +788,7 @@ class Condominium extends Identity {
             Setting::assert_value('finance', 'accounting', 'fiscal_year', date('Y'), ['condo_id' => $id]);
             Setting::assert_value('sale', 'accounting', 'invoice.sequence_format', '%2d{year}/%02d{period}/%05d{sequence}', ['condo_id' => $id]);
             Setting::assert_value('purchase', 'accounting', 'invoice.sequence_format', '%2d{year}/%02d{period}/%05d{sequence}', ['condo_id' => $id]);
+            Setting::assert_value('finance', 'accounting', 'misc_operation.sequence_format', '%2d{year}/%02d{period}/%05d{sequence}', ['condo_id' => $id]);
             // #memo - sequences for sale and purchase invoices & accounting entries are set in FiscalYear (since they rely on year and period)
         }
     }

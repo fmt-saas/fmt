@@ -170,6 +170,14 @@ class MiscOperation extends Model {
                 'help'              => "Misc Operations might be subject to several accounting entries (in case of reversal or correction)."
             ],
 
+            'fundings_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\sale\pay\Funding',
+                'foreign_field'     => 'misc_operation_id',
+                'domain'            => ['funding_type', '=', 'misc_operation'],
+                'description'       => 'Fundings created from the misc operation.'
+            ],
+
             'opening_balance_id' => [
                 'type'              => 'many2one',
                 'description'       => "The opening balance of the fiscal year.",
@@ -1008,12 +1016,12 @@ class MiscOperation extends Model {
     protected static function calcName($self) {
         $result = [];
         $self->read(['status', 'operation_number']);
-        foreach($self as $id => $invoice) {
-            if($invoice['status'] === 'proforma') {
+        foreach($self as $id => $miscOperation) {
+            if(in_array($miscOperation['status'], ['pending', 'proforma'], true)) {
                 $result[$id] = '[proforma]';
             }
-            elseif($invoice['operation_number']) {
-                $result[$id] = $invoice['operation_number'];
+            elseif($miscOperation['operation_number']) {
+                $result[$id] = $miscOperation['operation_number'];
             }
         }
         return $result;
@@ -1022,7 +1030,7 @@ class MiscOperation extends Model {
     protected static function doAssignOperationNumber($self) {
         $self->read(['condo_id', 'operation_number', 'fiscal_year_id' => ['code'], 'fiscal_period_id' => ['code']]);
         foreach($self as $id => $miscOperation) {
-            // #memo - unlocked invoices are set to status `proforma`, but keep their invoice number
+            // #memo - unlocked misc operations are set to status `proforma`, but keep their operation number
             if($miscOperation['operation_number']) {
                 continue;
             }
@@ -1031,7 +1039,7 @@ class MiscOperation extends Model {
                     'finance',
                     'accounting',
                     'misc_operation.sequence_format',
-                    '%s{journal}/%02d{year}/%02d{period}/%05d{sequence}',
+                    '%02d{year}/%02d{period}/%05d{sequence}',
                     [
                         'condo_id'          => $miscOperation['condo_id']
                     ]
@@ -1066,9 +1074,10 @@ class MiscOperation extends Model {
         $self->read(['has_opening_journal', 'accounting_entry_id' => ['status']]);
 
         foreach($self as $id => $miscOperation) {
-            // ignore MiscOperation that relate to an opening balance
+
             /*
             // @see comment above : no distinction
+            // ignore MiscOperation that relate to an opening balance
             if($miscOperation['has_opening_journal']) {
                 continue;
             }
