@@ -1734,6 +1734,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             if($invoice['invoice_number']) {
                 continue;
             }
+
             $format = Setting::get_value(
                     'purchase',
                     'accounting',

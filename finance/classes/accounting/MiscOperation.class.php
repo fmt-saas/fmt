@@ -13,6 +13,7 @@ use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\sale\pay\FundingAllocation;
 use finance\bank\BankStatementLine;
+use fmt\setting\Setting;
 use sale\pay\Payment;
 
 class MiscOperation extends Model {
@@ -134,6 +135,12 @@ class MiscOperation extends Model {
                 'instant'           => true,
                 'readonly'          => true,
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['status', '<>', 'closed'] ]
+            ],
+
+            'invoice_number' => [
+                'type'              => 'string',
+                'description'       => 'Number of the misc operation, according to organization logic.',
+                'dependents'        => ['name']
             ],
 
             /**
@@ -358,6 +365,11 @@ class MiscOperation extends Model {
                 'description'   => 'Generate fundings for lines related to Ownerships.',
                 'policies'      => [/* 'can_validate_accounting_entry' */],
                 'function'      => 'doCreateFundings'
+            ],
+            'assign_operation_number' => [
+                'description'   => 'Assign MiscOp name according to config.',
+                'policies'      => [],
+                'function'      => 'doAssignOperationNumber'
             ],
             'cancel' => [
                 'description'   => 'Cancel the miscellaneous operation. No further change will be possible.',
@@ -995,17 +1007,59 @@ class MiscOperation extends Model {
 
     protected static function calcName($self) {
         $result = [];
-        $self->read(['description', 'operation_type', 'accounting_entry_id' => ['status', 'entry_number'], 'condo_id' => ['code']]);
-        foreach($self as $id => $operation) {
-            if($operation['accounting_entry_id'] && $operation['accounting_entry_id']['status'] === 'validated') {
-                $result[$id] = $operation['accounting_entry_id']['entry_number'];
+        $self->read(['status', 'operation_number']);
+        foreach($self as $id => $invoice) {
+            if($invoice['status'] === 'proforma') {
+                $result[$id] = '[proforma]';
             }
-            else {
-                // $result[$id] = sprintf("%05d - %s - %s (%s)", $id, $operation['condo_id']['code'], $operation['description'], $operation['operation_type']);
-                $result[$id] = sprintf("%05d - %s (%s)", $id, $operation['description'], $operation['operation_type']);
+            elseif($invoice['operation_number']) {
+                $result[$id] = $invoice['operation_number'];
             }
         }
         return $result;
+    }
+
+    protected static function doAssignOperationNumber($self) {
+        $self->read(['condo_id', 'operation_number', 'fiscal_year_id' => ['code'], 'fiscal_period_id' => ['code']]);
+        foreach($self as $id => $miscOperation) {
+            // #memo - unlocked invoices are set to status `proforma`, but keep their invoice number
+            if($miscOperation['operation_number']) {
+                continue;
+            }
+
+            $format = Setting::get_value(
+                    'finance',
+                    'accounting',
+                    'misc_operation.sequence_format',
+                    '%s{journal}/%02d{year}/%02d{period}/%05d{sequence}',
+                    [
+                        'condo_id'          => $miscOperation['condo_id']
+                    ]
+                );
+
+            $sequence = Setting::fetch_and_add(
+                    'finance',
+                    'accounting',
+                    "misc_operation.sequence.{$miscOperation['fiscal_year_id']['code']}.{$miscOperation['fiscal_period_id']['code']}",
+                    1,
+                    [
+                        'condo_id'          => $miscOperation['condo_id']
+                    ]
+                );
+
+            if($sequence) {
+                $operation_number = Setting::parse_format($format, [
+                        'year'      => substr($miscOperation['fiscal_year_id']['code'] ?? '', 0, 2),
+                        'period'    => $miscOperation['fiscal_period_id']['code'] ?? 0,
+                        'condo'     => $miscOperation['condo_id'],
+                        'sequence'  => $sequence
+                    ]);
+                self::id($id)->update([
+                        'operation_number' => $operation_number,
+                        'name'             => null
+                    ]);
+            }
+        }
     }
 
     protected static function doValidateAccountingEntry($self) {
@@ -1244,6 +1298,7 @@ class MiscOperation extends Model {
             // create empty opening balance (MiscOp with flag `has_opening_journal` set to true)
             ->do('generate_opening_balance')
             ->do('create_fundings')
+            ->do('assign_operation_number')
             ->do('validate_accounting_entry')
             // force refresh name
             ->update(['name' => null]);

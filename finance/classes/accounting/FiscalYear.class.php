@@ -867,8 +867,9 @@ class FiscalYear extends Model {
 
     /**
      * Upon creation of a fiscal year (onafterOpen), it is necessary to create sequences for:
-     * - sale invoices:        sale.accounting.invoice.sequence.{fiscal_year_code}                                                  [condo_id]
+     * - sale invoices:        sale.accounting.invoice.sequence.{fiscal_year_code}.{fiscal_period_code}                             [condo_id]
      * - purchase invoices:    purchase.accounting.invoice.sequence.{fiscal_year_code}.{fiscal_period_code}                         [condo_id]
+     * - misc operation:       finance.accounting.misc_operation.sequence.{fiscal_year_code}                                        [condo_id]
      * - accounting entries:   finance.accounting.accounting_entry.sequence.{fiscal_year_code}.{fiscal_period_code}.{journal_code}  [condo_id]
      */
     public static function doGenerateSequences($self) {
@@ -888,6 +889,9 @@ class FiscalYear extends Model {
 
                 // purchase invoices
                 Setting::assert_sequence('purchase', 'accounting', "invoice.sequence.{$fiscal_year_code}.{$fiscal_period_code}", 1, ['condo_id' => $fiscalYear['condo_id']]);
+
+                // misc operations
+                Setting::assert_sequence('finance', 'accounting', "misc_operation.sequence.{$fiscal_year_code}.{$fiscal_period_code}", 1, ['condo_id' => $fiscalYear['condo_id']]);
 
                 // create accounting entries sequences for all existing journals
                 foreach($journals as $journal) {
