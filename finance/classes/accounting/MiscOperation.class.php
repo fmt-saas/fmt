@@ -1325,7 +1325,9 @@ class MiscOperation extends Model {
     public static function onchange($event, $values) {
         $result = [];
 
-        if(isset($event['condo_id'])) {
+        $condo_id = $event['condo_id'] ?? $values['condo_id'] ?? null;
+
+        if($condo_id) {
             $journal = Journal::search([['condo_id', '=', $event['condo_id']], ['journal_type', '=', 'MISC']])->read(['id', 'name'])->first();
             if($journal) {
                 $result['journal_id'] = [
@@ -1336,7 +1338,7 @@ class MiscOperation extends Model {
             $values['condo_id'] = $event['condo_id'];
         }
 
-        if(isset($event['has_opening_journal']) && isset($values['condo_id'])) {
+        if(isset($event['has_opening_journal']) && $condo_id) {
             if($event['has_opening_journal']) {
                 $journal = Journal::search([['condo_id', '=', $values['condo_id']], ['journal_type', '=', 'OPEN']])->read(['id', 'name'])->first();
                 // #memo - Opening MiscOp can only be made for first fiscal year
