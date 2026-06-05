@@ -82,7 +82,7 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "type": "upload",
-                                                    "auto_save": false,
+                                                    "autosave": false,
                                                     "required": true,
                                                     "height": "600"
                                                 }

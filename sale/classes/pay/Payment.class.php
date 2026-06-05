@@ -206,7 +206,7 @@ class Payment extends Model {
                     'revert' => [
                         'description' => 'Update the payment status to `proforma`.',
                         'onafter'     => 'onafterRevert',
-                        'status'      => 'posted'
+                        'status'      => 'proforma'
                     ]
                 ]
             ]
