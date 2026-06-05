@@ -606,6 +606,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 $fundings = Funding::search([
                         ['condo_id', '=', $requestExecution['condo_id']],
                         ['ownership_id', '=', $executionLine['ownership_id']],
+                        ['funding_type', '=', 'fund_request'],
                         ['fund_request_id', '=', $requestExecution['fund_request_id']]
                     ])
                     ->read(['payments_ids' => ['bank_statement_line_id']]);
@@ -641,12 +642,11 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         ->delete(true);
 
                     Funding::id($funding_id)->delete(true);
-
                 }
             }
         }
 
-        self::id($id)->update([
+        $self->update([
             'status'                => 'cancelled',
             'accounting_entry_id'   => null
         ]);

@@ -12,6 +12,8 @@ use realestate\sale\pay\Funding;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\sale\pay\FundingAllocation;
+use finance\bank\BankStatementLine;
+
 
 class MiscOperation extends Model {
 
@@ -420,16 +422,62 @@ class MiscOperation extends Model {
     }
 
     protected static function doUnlock($self) {
-        $self->read(['status', 'accounting_entry_id']);
+        $self
+            ->read(['condo_id'])
+            ->do('cancel');
+
         foreach($self as $id => $miscOperation) {
-            if($miscOperation['status'] !== 'posted') {
+            if($miscOperation['status'] !== 'cancelled') {
                 continue;
             }
-            AccountingEntry::id($miscOperation['accounting_entry_id'])->do('cancel');
-            self::id($id)
-                ->update(['status' => 'proforma'])
-                ->update(['accounting_entry_id' => null]);
+
+            // remove related fundings with no payments
+            $fundings = Funding::search([
+                    ['condo_id', '=', $miscOperation['condo_id']],
+                    ['funding_type', '=', 'misc_operation'],
+                    ['misc_operation_id', '=', $$id]
+                ])
+                ->read(['payments_ids' => ['bank_statement_line_id']]);
+
+            foreach($fundings as $funding_id => $funding) {
+
+                foreach($funding['payments_ids'] as $payment_id => $payment) {
+                    if($payment['bank_statement_line_id']) {
+                        BankStatementLine::id($payment['bank_statement_line_id'])->do('assert_funding');
+                        $funding = Funding::search([
+                                ['condo_id', '=', $miscOperation['condo_id']],
+                                ['bank_statement_line_id', '=', $payment['bank_statement_line_id']],
+                                ['funding_type', '=', 'statement_line']
+                            ])
+                            ->first();
+
+                        if($funding) {
+                            // reattach payment to bank statement line funding
+                            Payment::id($payment_id)
+                                ->update([
+                                    'funding_id' => $funding['id']
+                                ]);
+                            Funding::id($funding['id'])->do('refresh_status');
+                        }
+                    }
+                }
+
+                Payment::search([
+                        ['origin_object_class', '=', 'finance\accounting\MiscOperation'],
+                        ['origin_object_id', '=', $id],
+                    ])
+                    ->transition('revert')
+                    ->delete(true);
+
+                Funding::id($funding_id)->delete(true);
+            }
+
         }
+        $self->update([
+                'status' => 'proforma',
+                'accounting_entry_id' => null
+            ]);
+
     }
 
     private static function computeIsBalanced($misc_operation_lines_ids) {
