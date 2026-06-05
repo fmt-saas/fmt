@@ -322,6 +322,10 @@ class MiscOperation extends Model {
                 'description' => 'Verifies that a fiscal year can be opened according its configuration.',
                 'function'    => 'policyCanPost'
             ],
+            'can_unlock' => [
+                'description' => 'Verifies that a fiscal year can be opened according its configuration.',
+                'function'    => 'policyCanUnlock'
+            ],
             'can_generate_opening_balance' => [
                 'description' => 'Verifies that an opening balance can be generated from the misc operation.',
                 'function'    => 'policyCanGenerateOpeningBalance'
@@ -364,7 +368,7 @@ class MiscOperation extends Model {
             'unlock' => [
                 'description'   => 'Unlock the miscellaneous operation, to allow re-posting after modifications.',
                 'help'          => 'Self voiding accounting entries will be left as `reversed`, and operation will be set back to `proforma`.',
-                'policies'      => [/* can_unlock */],
+                'policies'      => [ 'can_unlock' ],
                 'function'      => 'doUnlock'
             ]
         ];
@@ -409,33 +413,62 @@ class MiscOperation extends Model {
         return $result;
     }
 
-    protected static function doCancel($self) {
-        $self->read(['status', 'accounting_entry_id']);
+    protected static function policyCanUnlock($self): array {
+    $result = [];
+        $self->read([
+                'status', 'posting_date',
+                'fiscal_period_id' => ['status', 'fiscal_year_status']
+            ]);
+
         foreach($self as $id => $miscOperation) {
-            if($miscOperation['status'] !== 'posted') {
+            if($miscOperation['status'] != 'posted') {
+                $result[$id] = [
+                    'invalid_status' => 'Misc Operation status must be posted.'
+                ];
                 continue;
             }
-            AccountingEntry::id($miscOperation['accounting_entry_id'])->do('cancel');
-            self::id($id)
-                ->update(['status' => 'cancelled']);
+
+            if(!in_array($miscOperation['fiscal_period_id']['status'], ['open', 'preclosed'], true)) {
+                $result[$id] = [
+                    'invalid_fiscal_period' => 'Cannot perform fund request on a non-open fiscal period.'
+                ];
+                continue;
+            }
+
+            if(!in_array($miscOperation['fiscal_period_id']['fiscal_year_status'], ['preopen', 'open', 'preclosed'], true)) {
+                $result[$id] = [
+                    'invalid_fiscal_year' => 'Cannot perform Misc Operation on a non-open fiscal year.'
+                ];
+                continue;
+            }
+
         }
+        return $result;
+    }
+
+    protected static function doCancel($self) {
+        $self
+            ->read(['status', 'accounting_entry_id'])
+            ->do('unlock')
+            ->update([
+                'status' => 'cancelled',
+                'accounting_entry_id' => null
+            ]);
+
     }
 
     protected static function doUnlock($self) {
-        $self
-            ->read(['condo_id'])
-            ->do('cancel');
+        $self->read(['condo_id', 'status', 'accounting_entry_id']);
 
         foreach($self as $id => $miscOperation) {
-            if($miscOperation['status'] !== 'cancelled') {
-                continue;
-            }
+
+            AccountingEntry::id($miscOperation['accounting_entry_id'])->do('cancel');
 
             // remove related fundings with no payments
             $fundings = Funding::search([
                     ['condo_id', '=', $miscOperation['condo_id']],
                     ['funding_type', '=', 'misc_operation'],
-                    ['misc_operation_id', '=', $$id]
+                    ['misc_operation_id', '=', $id]
                 ])
                 ->read(['payments_ids' => ['bank_statement_line_id']]);
 
@@ -473,10 +506,7 @@ class MiscOperation extends Model {
             }
 
         }
-        $self->update([
-                'status' => 'proforma',
-                'accounting_entry_id' => null
-            ]);
+        $self->update(['status' => 'proforma']);
 
     }
 
@@ -723,25 +753,27 @@ class MiscOperation extends Model {
             $fiscal_period_id = $miscOperation['fiscal_period_id'];
 
             // remove any previously created accounting entry (resulting from an incomplete operation)
-            AccountingEntry::search([
+            $accountingEntry = AccountingEntry::search([
                     ['condo_id', '=', $miscOperation['condo_id']],
                     ['origin_object_class', '=', self::getType()],
                     ['origin_object_id', '=', $id]
                 ])
-                ->delete(true);
-
-            $accountingEntry = AccountingEntry::create([
-                    'condo_id'              => $miscOperation['condo_id'],
-                    'entry_date'            => $miscOperation['posting_date'],
-                    'origin_object_class'   => self::getType(),
-                    'origin_object_id'      => $id,
-                    'misc_operation_id'     => $id,
-                    'description'           => $miscOperation['description'],
-                    'journal_id'            => $miscOperation['journal_id'],
-                    'fiscal_year_id'        => $fiscal_year_id,
-                    'fiscal_period_id'      => $fiscal_period_id
-                ])
                 ->first();
+
+            if(!$accountingEntry) {
+                $accountingEntry = AccountingEntry::create([
+                        'condo_id'              => $miscOperation['condo_id'],
+                        'entry_date'            => $miscOperation['posting_date'],
+                        'origin_object_class'   => self::getType(),
+                        'origin_object_id'      => $id,
+                        'misc_operation_id'     => $id,
+                        'description'           => $miscOperation['description'],
+                        'journal_id'            => $miscOperation['journal_id'],
+                        'fiscal_year_id'        => $fiscal_year_id,
+                        'fiscal_period_id'      => $fiscal_period_id
+                    ])
+                    ->first();
+            }
 
             foreach($miscOperation['misc_operation_lines_ids'] as $line_id => $line) {
                 AccountingEntryLine::create([
