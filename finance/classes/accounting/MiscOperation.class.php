@@ -137,7 +137,7 @@ class MiscOperation extends Model {
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['status', '<>', 'closed'] ]
             ],
 
-            'invoice_number' => [
+            'operation_number' => [
                 'type'              => 'string',
                 'description'       => 'Number of the misc operation, according to organization logic.',
                 'dependents'        => ['name']
