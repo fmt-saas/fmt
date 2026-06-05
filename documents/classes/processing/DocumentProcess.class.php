@@ -555,7 +555,7 @@ class DocumentProcess extends Model {
                     if($documentProcess['document_invoice_id']) {
                         $result[$id] = [
                             'existing_target_invoice' =>
-                            'Processing cannot be cancelled while linked invoice still exists.'
+                            'Document Processing cannot be removed while linked invoice still exists.'
                         ];
                     }
 
@@ -566,7 +566,7 @@ class DocumentProcess extends Model {
                     if($documentProcess['document_bank_statement_id']) {
                         $result[$id] = [
                             'existing_target_statement' =>
-                            'Processing cannot be cancelled while linked bank statement still exists.'
+                            'Document Processing cannot be removed while linked bank statement still exists.'
                         ];
                     }
 
@@ -610,7 +610,7 @@ class DocumentProcess extends Model {
                 case 'invoice':
                 case 'credit_note':
 
-                    if($documentProcess['document_invoice_id'] && $documentProcess['document_invoice_id']['status'] !== 'cancelled') {
+                    if($documentProcess['document_invoice_id'] && !in_array($documentProcess['document_invoice_id']['status'], ['proforma', 'cancelled'], true)) {
                         $result[$id] = [
                             'invalid_target_status' =>
                             'Processing cannot be cancelled while linked invoice is not cancelled.'
@@ -621,7 +621,7 @@ class DocumentProcess extends Model {
 
                 case 'bank_statement':
 
-                    if($documentProcess['document_bank_statement_id'] && $documentProcess['document_bank_statement_id']['status'] !== 'cancelled') {
+                    if($documentProcess['document_bank_statement_id'] && !in_array($documentProcess['document_bank_statement_id']['status'], ['proforma', 'cancelled'], true)) {
                         $result[$id] = [
                             'invalid_target_status' =>
                             'Processing cannot be cancelled while linked bank statement is not cancelled.'
