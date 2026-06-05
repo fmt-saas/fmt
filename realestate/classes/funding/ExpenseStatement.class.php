@@ -1526,10 +1526,12 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 ['condo_id', '=', $fiscalPeriod['condo_id']],
                 ['fund_type', '=', 'reserve_fund']
             ])
-            ->read(['expense_account_code', 'fund_account_id', 'expense_account_id', 'apportionment_id']);
+            ->read(['expense_account_code', 'call_account_code', 'fund_account_id', 'expense_account_id', 'apportionment_id']);
+
         $map_reserve_funds = [];
         foreach($reserveFunds as $reserve_fund_id => $reserveFund) {
             $map_reserve_funds[$reserveFund['expense_account_code']] = $reserveFund;
+            $map_reserve_funds[$reserveFund['call_account_code']] = $reserveFund;
         }
 
         // map all condo apportionment by property lot

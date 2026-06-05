@@ -77,7 +77,7 @@ class CondoFund extends \equal\orm\Model {
                 'description'       => "Accounting account for fund call (if through MiscOp).",
                 'ondelete'          => 'null',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
-                'dependents'        => ['expense_account_code']
+                'dependents'        => ['call_account_id']
             ],
 
             'call_account_code' => [
