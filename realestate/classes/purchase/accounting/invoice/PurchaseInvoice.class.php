@@ -527,7 +527,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 }
 
                 Payment::search([
-                        ['origin_object_class', '=', 'finance\accounting\MiscOperation'],
+                        ['origin_object_class', '=', 'realestate\purchase\accounting\invoice\PurchaseInvoice'],
                         ['origin_object_id', '=', $id],
                     ])
                     ->transition('revert')
