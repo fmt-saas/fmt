@@ -16,6 +16,7 @@ use finance\accounting\Account;
 use finance\accounting\Journal;
 use finance\accounting\MiscOperation;
 use finance\accounting\MiscOperationLine;
+use finance\bank\BankStatementLine;
 use finance\bank\CondominiumBankAccount;
 use finance\bank\SuppliershipBankAccount;
 use fmt\setting\Setting;
@@ -26,6 +27,7 @@ use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\sale\pay\Funding;
 use realestate\sale\pay\FundingAllocation;
+use sale\pay\Payment;
 
 class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
@@ -467,75 +469,83 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     protected static function doCancel($self) {
-        $self->read(['condo_id', 'status', 'document_process_id']);
+        $self
+            ->read(['status', 'document_process_id'])
+            ->do('unlock');
 
         foreach($self as $id => $purchaseInvoice) {
-
-            if($purchaseInvoice['status'] !== 'posted') {
-                continue;
-            }
-
-            // revert document workflow if any
-            if($purchaseInvoice['document_process_id']) {
-                DocumentProcess::id($purchaseInvoice['document_process_id'])
-                    // revert back to 'validated'
-                    ->transition('revert');
-            }
-
-            // cancel/reverse all accounting entries
-            AccountingEntry::search([
-                    ['condo_id', '=', $purchaseInvoice['condo_id']],
-                    ['purchase_invoice_id', '=', $id],
-                    ['status', '=', 'validated']
-                ])
-                ->do('cancel');
-
-            // update invoice status
-            self::id($id)->update([
-                'status' => 'cancelled',
-                'accounting_entry_id' => null,
-                'document_process_status' => null,
-                'alert' => null
-            ]);
-
-            // revert document workflow if any
+            // cancel document workflow if any
             if($purchaseInvoice['document_process_id']) {
                 DocumentProcess::id($purchaseInvoice['document_process_id'])
                     ->transition('cancel');
             }
-
         }
+
+        $self->update([
+                'status'                    => 'cancelled',
+                'accounting_entry_id'       => null,
+                'document_process_status'   => null,
+                'alert'                     => null
+            ]);
     }
 
     protected static function doUnlock($self) {
-        $self->read(['condo_id', 'status', 'document_process_id']);
+        $self->read(['condo_id', 'status', 'accounting_entry_id', 'document_process_id']);
         foreach($self as $id => $purchaseInvoice) {
-            if($purchaseInvoice['status'] !== 'posted') {
-                continue;
+
+            AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');
+
+            // remove related fundings with no payments
+            $fundings = Funding::search([
+                    ['condo_id', '=', $purchaseInvoice['condo_id']],
+                    ['funding_type', '=', 'misc_operation'],
+                    ['misc_operation_id', '=', $id]
+                ])
+                ->read(['payments_ids' => ['bank_statement_line_id']]);
+
+            foreach($fundings as $funding_id => $funding) {
+
+                foreach($funding['payments_ids'] as $payment_id => $payment) {
+                    if($payment['bank_statement_line_id']) {
+                        BankStatementLine::id($payment['bank_statement_line_id'])->do('assert_funding');
+                        $funding = Funding::search([
+                                ['condo_id', '=', $purchaseInvoice['condo_id']],
+                                ['bank_statement_line_id', '=', $payment['bank_statement_line_id']],
+                                ['funding_type', '=', 'statement_line']
+                            ])
+                            ->first();
+
+                        if($funding) {
+                            // reattach payment to bank statement line funding
+                            Payment::id($payment_id)
+                                ->update([
+                                    'funding_id' => $funding['id']
+                                ]);
+                            Funding::id($funding['id'])->do('refresh_status');
+                        }
+                    }
+                }
+
+                Payment::search([
+                        ['origin_object_class', '=', 'finance\accounting\MiscOperation'],
+                        ['origin_object_id', '=', $id],
+                    ])
+                    ->transition('revert')
+                    ->delete(true);
+
+                Funding::id($funding_id)->delete(true);
             }
 
             if($purchaseInvoice['document_process_id']) {
                 DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('revert');
-                // reset computed relation fields
-                self::id($id)
-                    ->update([
-                        'document_process_status' => null,
-                        'alert' => null
-                    ]);
             }
-
-            // reverse all accounting entries
-            AccountingEntry::search([
-                    ['condo_id', '=', $purchaseInvoice['condo_id']],
-                    ['purchase_invoice_id', '=', $id],
-                    ['status', '=', 'validated']
-                ])
-                ->do('cancel');
-
-            self::id($id)
-                ->update(['status' => 'proforma'])
-                ->update(['accounting_entry_id' => null]);
         }
+
+        $self->update([
+                'status'                    => 'proforma',
+                'document_process_status'   => null,
+                'alert'                     => null
+            ]);
     }
 
     protected static function policyCanMarkCancelled($self) {
@@ -745,7 +755,14 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
      */
     protected static function policyCanCancel($self) {
         $result = [];
-        $self->read(['status', 'accounting_entries_ids' => ['status', 'has_cleared_lines']]);
+
+        $self->read([
+                'status',
+                'posting_date',
+                'accounting_entries_ids' => ['status', 'has_cleared_lines'],
+                'fiscal_period_id' => ['status', 'fiscal_year_status']
+            ]);
+
         foreach($self as $id => $purchaseInvoice) {
             if($purchaseInvoice['status'] !== 'posted') {
                 $result[$id] = [
@@ -753,6 +770,21 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     ];
                 continue;
             }
+
+            if(!in_array($purchaseInvoice['fiscal_period_id']['status'], ['open', 'preclosed'], true)) {
+                $result[$id] = [
+                    'invalid_fiscal_period' => 'Cannot cancel Purchase Invoice on a non-open fiscal period.'
+                ];
+                continue;
+            }
+
+            if(!in_array($purchaseInvoice['fiscal_period_id']['fiscal_year_status'], ['preopen', 'open', 'preclosed'], true)) {
+                $result[$id] = [
+                    'invalid_fiscal_year' => 'Cannot post Purchase Invoice on a non-open fiscal year.'
+                ];
+                continue;
+            }
+
             $has_validated = false;
             $has_cleared_lines = false;
             foreach($purchaseInvoice['accounting_entries_ids'] as $accounting_entry_id => $accountingEntry) {
@@ -778,6 +810,64 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         return $result;
     }
 
+    protected static function policyCanUnlock($self): array {
+        $result = [];
+
+        $self->read([
+                'status',
+                'posting_date',
+                'accounting_entries_ids' => ['status', 'has_cleared_lines'],
+                'fiscal_period_id' => ['status', 'fiscal_year_status']
+            ]);
+
+        foreach($self as $id => $purchaseInvoice) {
+            if($purchaseInvoice['status'] != 'posted') {
+                $result[$id] = [
+                    'invalid_status' => 'Purchase Invoice status must be posted.'
+                ];
+                continue;
+            }
+
+            if(!in_array($purchaseInvoice['fiscal_period_id']['status'], ['open', 'preclosed'], true)) {
+                $result[$id] = [
+                    'invalid_fiscal_period' => 'Cannot cancel Purchase Invoice on a non-open fiscal period.'
+                ];
+                continue;
+            }
+
+            if(!in_array($purchaseInvoice['fiscal_period_id']['fiscal_year_status'], ['preopen', 'open', 'preclosed'], true)) {
+                $result[$id] = [
+                    'invalid_fiscal_year' => 'Cannot post Purchase Invoice on a non-open fiscal year.'
+                ];
+                continue;
+            }
+
+            $has_validated = false;
+            $has_cleared_lines = false;
+            foreach($purchaseInvoice['accounting_entries_ids'] as $accounting_entry_id => $accountingEntry) {
+                if($accountingEntry['status'] === 'validated') {
+                    $has_validated = true;
+                }
+                if($accountingEntry['has_cleared_lines']) {
+                    $has_cleared_lines = true;
+                    break;
+                }
+            }
+            if(!$has_validated) {
+                $result[$id] = [
+                        'non_validated_entry' => 'Only invoice with validated entry can be cancelled or unlocked.'
+                    ];
+            }
+            if($has_cleared_lines) {
+                $result[$id] = [
+                        'has_cleared_lines' => 'Accounting entry has already been cleared.'
+                    ];
+            }
+
+        }
+        return $result;
+    }
+
     public static function getPolicies(): array {
 
         // #todo - make sure VCS ['payment_reference'] is valid
@@ -790,6 +880,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'description' => 'Checks if the invoice can be cancelled.',
                 'help'        => 'Ensures the (posted) invoice can be permanently cancelled: none of its accounting entries may be cleared, the invoice must not already be cancelled, and the fiscal period must allow cancellation.',
                 'function'    => 'policyCanCancel'
+            ],
+            'can_unlock' => [
+                'description' => 'Checks if the invoice can be unlocked.',
+                'help'        => 'Ensures the (posted) invoice can be unlocked: none of its accounting entries may be cleared, the invoice must not already be cancelled, and the fiscal period must allow cancellation.',
+                'function'    => 'policyCanUnlock'
             ],
             'can_remove' => [
                 'description' => 'Checks if the invoice can be removed.',

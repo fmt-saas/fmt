@@ -434,7 +434,7 @@ class MiscOperation extends Model {
     }
 
     protected static function policyCanUnlock($self): array {
-    $result = [];
+        $result = [];
         $self->read([
                 'status', 'posting_date',
                 'fiscal_period_id' => ['status', 'fiscal_year_status']
@@ -468,13 +468,11 @@ class MiscOperation extends Model {
 
     protected static function doCancel($self) {
         $self
-            ->read(['status', 'accounting_entry_id'])
             ->do('unlock')
             ->update([
-                'status' => 'cancelled',
-                'accounting_entry_id' => null
+                'status'                => 'cancelled',
+                'accounting_entry_id'   => null
             ]);
-
     }
 
     protected static function doUnlock($self) {
