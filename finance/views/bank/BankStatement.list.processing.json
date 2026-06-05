@@ -86,14 +86,14 @@
                 "widget": {
                     "styles": [
                         {
-                            "visible": ["opening_balance", "=", "object.expected_opening_balance"],
+                            "visible": [["status", "=", "pending"], ["opening_balance", "=", "object.expected_opening_balance"]],
                             "apply": {
                                 "border_radius": "5px",
                                 "text_color": "#27b727"
                             }
                         },
                         {
-                            "visible": ["opening_balance", "<>", "object.expected_opening_balance"],
+                            "visible": [["status", "=", "pending"], ["opening_balance", "<>", "object.expected_opening_balance"]],
                             "apply": {
                                 "border_radius": "5px",
                                 "text_color": "#ff4500"
