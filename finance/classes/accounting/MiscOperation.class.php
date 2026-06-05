@@ -1028,7 +1028,14 @@ class MiscOperation extends Model {
     }
 
     protected static function doAssignOperationNumber($self) {
-        $self->read(['condo_id', 'operation_number', 'fiscal_year_id' => ['code'], 'fiscal_period_id' => ['code']]);
+        $self->read([
+                'condo_id',
+                'operation_number',
+                'journal_id'        => ['code'],
+                'fiscal_year_id'    => ['code'],
+                'fiscal_period_id'  => ['code']
+            ]);
+
         foreach($self as $id => $miscOperation) {
             // #memo - unlocked misc operations are set to status `proforma`, but keep their operation number
             if($miscOperation['operation_number']) {
@@ -1045,10 +1052,14 @@ class MiscOperation extends Model {
                     ]
                 );
 
+            $fiscal_year_code = $miscOperation['fiscal_year_id']['code'];
+            $fiscal_period_code = $miscOperation['fiscal_period_id']['code'];
+            $journal_code = $miscOperation['journal_id']['code'];
+
             $sequence = Setting::fetch_and_add(
                     'finance',
                     'accounting',
-                    "misc_operation.sequence.{$miscOperation['fiscal_year_id']['code']}.{$miscOperation['fiscal_period_id']['code']}",
+                    "misc_operation.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}",
                     1,
                     [
                         'condo_id'          => $miscOperation['condo_id']
