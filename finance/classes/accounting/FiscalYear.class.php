@@ -734,7 +734,7 @@ class FiscalYear extends Model {
     protected static function onafterRePreclose($self) {
         $self->read(['condo_id', 'date_to', 'fiscal_periods_ids' => ['id', 'name', '@sort' => ['date_to' => 'desc'], '@limit' => 1]]);
         foreach($self as $id => $fiscalYear) {
-            // set back last period to preclosed status
+            // set back last period to preclosed status : will unlock related ExpenseStatement
             $fiscalYear['fiscal_periods_ids']->transition('repreclose');
             // take the year that immediately succeeds the current one, whatever its status
             $nextFiscalYear = self::search([

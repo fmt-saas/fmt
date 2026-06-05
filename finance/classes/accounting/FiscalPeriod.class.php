@@ -245,7 +245,7 @@ class FiscalPeriod extends Model {
     protected static function onafterRePreclose($self) {
         $self->read(['condo_id', 'fiscal_year_id']);
         foreach($self as $id => $fiscalPeriod) {
-            // Cancel ExpenseStatement:
+            // Unlock ExpenseStatement:
             // - void accounting entry relating to the ExpenseStatement
             // - set back to proforma
             ExpenseStatement::search([

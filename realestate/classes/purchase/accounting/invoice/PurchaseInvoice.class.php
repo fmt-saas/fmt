@@ -490,7 +490,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     protected static function doUnlock($self) {
-        $self->read(['condo_id', 'status', 'accounting_entry_id', 'document_process_id']);
+        $self->read(['condo_id', 'accounting_entry_id', 'document_process_id']);
         foreach($self as $id => $purchaseInvoice) {
 
             AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');

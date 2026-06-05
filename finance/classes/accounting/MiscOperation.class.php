@@ -476,7 +476,7 @@ class MiscOperation extends Model {
     }
 
     protected static function doUnlock($self) {
-        $self->read(['condo_id', 'status', 'accounting_entry_id']);
+        $self->read(['condo_id', 'accounting_entry_id']);
 
         foreach($self as $id => $miscOperation) {
 

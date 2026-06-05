@@ -25,6 +25,7 @@ use realestate\ownership\OwnershipCommunicationPreference;
 use realestate\purchase\accounting\invoice\PurchaseInvoiceLine;
 use realestate\sale\pay\Funding;
 use realestate\sale\pay\FundingAllocation;
+use sale\pay\Payment;
 
 #memo - Expense statements are handled as sales invoices
 class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
@@ -300,14 +301,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             'cancel' => [
                 'description'   => 'Cancel the sale invoice. No further change will be possible.',
                 'help'          => 'Void the accounting entry and set status to `cancelled`. By default (optional), a credit note can be create.',
-                'policies'      => [],
+                'policies'      => ['can_cancel'],
                 'function'      => 'doCancel'
             ],
             'unlock' => [
                 'description'   => 'Unlock the sale invoice, to allow re-posting after modifications.',
                 'help'          => 'Self voiding accounting entries will be left as `reversed`, and invoice will be set back to `proforma`.',
-                // #todo
-                'policies'      => [/*can_unlock*/],
+                'policies'      => ['can_unlock'],
                 'function'      => 'doUnlock'
             ]
         ]);
@@ -322,6 +322,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             'can_cancel' => [
                 'description' => 'Verifies that there are no invoiced executions.',
                 'function'    => 'policyCanCancel'
+            ],
+            'can_unlock' => [
+                'description' => 'Verifies that there are no invoiced executions.',
+                'function'    => 'policyCanUnlock'
             ],
             'can_generate_statement' => [
                 'description' => 'Verifies that the allocation of a fund request can still be updated.',
@@ -371,34 +375,70 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
     }
 
     protected static function doCancel($self) {
-        $self->read(['status', 'accounting_entry_id']);
-        foreach($self as $id => $expenseStatement) {
-            if($expenseStatement['status'] !== 'posted') {
-                continue;
-            }
-            AccountingEntry::id($expenseStatement['accounting_entry_id'])->do('cancel');
-            self::id($id)
-                ->update(['status' => 'cancelled']);
+        $self->do('unlock');
 
-            AccountingEntryLine::search(['clearing_expense_statement_id', '=', $id])
-                ->update(['is_cleared' => false, 'clearing_expense_statement_id' => null]);
-        }
+        $self->update([
+                'status'                => 'cancelled',
+                'accounting_entry_id'   => null
+            ]);
     }
 
     protected static function doUnlock($self) {
-        $self->read(['status', 'accounting_entry_id']);
+        $self->read(['condo_id', 'accounting_entry_id']);
+
         foreach($self as $id => $expenseStatement) {
-            if($expenseStatement['status'] !== 'posted') {
-                continue;
-            }
+
             AccountingEntry::id($expenseStatement['accounting_entry_id'])->do('cancel');
-            self::id($id)
-                ->update(['status' => 'proforma'])
-                ->update(['accounting_entry_id' => null]);
 
             AccountingEntryLine::search(['clearing_expense_statement_id', '=', $id])
-                ->update(['is_cleared' => false, 'clearing_expense_statement_id' => null]);
+                ->update([
+                    'is_cleared' => false,
+                    'clearing_expense_statement_id' => null
+                ]);
+
+            // remove related fundings with no payments
+            $fundings = Funding::search([
+                    ['condo_id', '=', $expenseStatement['condo_id']],
+                    ['funding_type', '=', 'expense_statement'],
+                    ['expense_statement_id', '=', $id]
+                ])
+                ->read(['payments_ids' => ['bank_statement_line_id']]);
+
+            foreach($fundings as $funding_id => $funding) {
+
+                foreach($funding['payments_ids'] as $payment_id => $payment) {
+                    if($payment['bank_statement_line_id']) {
+                        BankStatementLine::id($payment['bank_statement_line_id'])->do('assert_funding');
+                        $funding = Funding::search([
+                                ['condo_id', '=', $expenseStatement['condo_id']],
+                                ['bank_statement_line_id', '=', $payment['bank_statement_line_id']],
+                                ['funding_type', '=', 'statement_line']
+                            ])
+                            ->first();
+
+                        if($funding) {
+                            // reattach payment to bank statement line funding
+                            Payment::id($payment_id)
+                                ->update([
+                                    'funding_id' => $funding['id']
+                                ]);
+                            Funding::id($funding['id'])->do('refresh_status');
+                        }
+                    }
+                }
+
+                Payment::search([
+                        ['origin_object_class', '=', 'realestate\funding\ExpenseStatement'],
+                        ['origin_object_id', '=', $id],
+                    ])
+                    ->transition('revert')
+                    ->delete(true);
+
+                Funding::id($funding_id)->delete(true);
+            }
         }
+
+        $self->update(['status' => 'proforma']);
     }
 
     private static function normalizeMoneyAmount($amount): float {
@@ -466,7 +506,21 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         $result = [];
         $self->read(['status']);
         foreach($self as $id => $expenseStatement) {
-            if($expenseStatement['status'] === 'cancelled') {
+            if($expenseStatement['status'] !== 'posted') {
+                $result[$id] = [
+                    'invalid_status' => 'Already cancelled.'
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyCanUnlock($self): array {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $expenseStatement) {
+            if($expenseStatement['status'] !== 'posted') {
                 $result[$id] = [
                     'invalid_status' => 'Already cancelled.'
                 ];
