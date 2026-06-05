@@ -527,18 +527,25 @@ class BankStatement extends Model {
     }
 
     protected static function onupdateBankAccountIban($self) {
-        $self->read(['bank_account_iban', 'bank_account_suffix', 'condo_id']);
+        $self->read(['condo_id', 'bank_account_iban', 'bank_account_suffix', 'condo_id']);
         foreach($self as $id => $bankStatement) {
+            if(!$bankStatement['condo_id']) {
+                continue;
+            }
+
             $domain = [
+                ['condo_id', '=', $bankStatement['condo_id']],
                 ['bank_account_iban', '=', $bankStatement['bank_account_iban']],
                 ['status', '=', 'validated']
             ];
+
             if($bankStatement['bank_account_suffix']) {
                 $domain[] = ['bank_account_suffix', '=', $bankStatement['bank_account_suffix']];
             }
+
             $bankAccount = CondominiumBankAccount::search($domain)
-                ->read(['condo_id'])
                 ->first();
+
             if($bankAccount) {
                 self::id($id)->update(['bank_account_id' => $bankAccount['id']]);
             }
