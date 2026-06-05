@@ -598,15 +598,15 @@ class BankStatementLine extends Model {
                 $logs[] = 'INFO - Deleted ' . count($pending_payment_ids) . ' pre-existing proforma payment(s)';
 
                 if(isset($values['funding_ids']) && is_array($values['funding_ids']) && count($values['funding_ids'])) {
-                    $funding_ids = $values['funding_ids'];
-                    $logs[] = 'INFO - Using provided funding candidate(s): ' . implode(', ', $funding_ids);
+                    $candidate_funding_ids = $values['funding_ids'];
+                    $logs[] = 'INFO - Using provided funding candidate(s): ' . implode(', ', $candidate_funding_ids);
                 }
                 else {
-                    $funding_ids = self::computeFundingCandidates($id);
-                    $logs[] = 'INFO - Computed funding candidate(s): ' . (count($funding_ids) ? implode(', ', $funding_ids) : 'none');
+                    $candidate_funding_ids = self::computeFundingCandidates($id);
+                    $logs[] = 'INFO - Computed funding candidate(s): ' . (count($candidate_funding_ids) ? implode(', ', $candidate_funding_ids) : 'none');
                 }
 
-                $candidateFundings = Funding::ids($funding_ids)->read(['id', 'due_date', 'remaining_amount']);
+                $candidateFundings = Funding::ids($candidate_funding_ids)->read(['id', 'due_date', 'remaining_amount']);
                 $remaining_amount = round((float) $bankStatementLine['amount'], 2);
                 $logs[] = "INFO - Initial remaining amount: {$remaining_amount}";
 

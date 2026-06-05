@@ -521,11 +521,27 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
     protected static function policyCanUnlock($self): array {
         $result = [];
-        $self->read(['status']);
+        $self->read(['condo_id', 'status', 'posting_date']);
+
         foreach($self as $id => $expenseStatement) {
             if($expenseStatement['status'] !== 'posted') {
                 $result[$id] = [
                     'invalid_status' => 'Already cancelled.'
+                ];
+                continue;
+            }
+
+            $nextPostedExpenseStatement = self::search([
+                    ['condo_id', '=', $expenseStatement['condo_id']],
+                    ['invoice_type', '=', 'expense_statement'],
+                    ['status', '=', 'posted'],
+                    ['posting_date', '>', $expenseStatement['status']]
+                ], ['limit' => 1])
+                ->first();
+
+            if($nextPostedExpenseStatement) {
+                $result[$id] = [
+                    'non_latest_statement' => 'A more recent posted Expense Statement exists.'
                 ];
                 continue;
             }

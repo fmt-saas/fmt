@@ -52,7 +52,7 @@ if(!$expenseStatement) {
 
 // fetch correspondences relating to given communication_method
 $expenseStatementCorrespondences = ExpenseStatementCorrespondence::search([
-        [ 'fund_request_execution_id', '=', $expenseStatement['id'] ],
+        [ 'expense_statement_id', '=', $expenseStatement['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
     ->read(['is_sent', 'document_id']);

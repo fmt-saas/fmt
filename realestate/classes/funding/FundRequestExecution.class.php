@@ -266,14 +266,30 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
     protected static function policyCanCancel($self): array {
         $result = [];
-        $self->read(['status']);
-        foreach($self as $id => $requestExecution) {
-            if($requestExecution['status'] === 'cancelled') {
+        $self->read(['condo_id', 'status', 'posting_date']);
+        foreach($self as $id => $fundRequestExecution) {
+            if($fundRequestExecution['status'] !== 'posted') {
                 $result[$id] = [
                     'invalid_status' => "Already cancelled."
                 ];
                 continue;
             }
+
+            $nextFundRequestExecution = self::search([
+                    ['condo_id', '=', $fundRequestExecution['condo_id']],
+                    ['invoice_type', '=', 'fund_request'],
+                    ['status', '=', 'posted'],
+                    ['posting_date', '>', $fundRequestExecution['status']]
+                ], ['limit' => 1])
+                ->first();
+
+            if($nextFundRequestExecution) {
+                $result[$id] = [
+                    'non_latest_execution' => 'A more recent posted FundRequest Execution exists.'
+                ];
+                continue;
+            }
+
         }
         return $result;
     }
