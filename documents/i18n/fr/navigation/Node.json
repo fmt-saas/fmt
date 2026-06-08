@@ -85,11 +85,11 @@
     },
     "view": {
         "form.default": {
-            "name": "Arborescence",
+            "name": "Fichier",
             "description": "Formulaire pour gérer le dossier/document, sa visibilité et les éléments imbriqués."
         },
         "list.default": {
-            "name": "Arborescence",
+            "name": "Fichiers",
             "description": "Vue tabulaire mixte dossiers/documents (type, description, lien de téléchargement).",
             "actions": {
                 "action.download": {

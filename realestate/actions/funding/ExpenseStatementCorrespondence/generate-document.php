@@ -6,6 +6,7 @@
 */
 
 use documents\Document;
+use documents\DocumentType;
 use documents\navigation\Node;
 use realestate\funding\ExpenseStatementCorrespondence;
 
@@ -46,23 +47,29 @@ if($expenseStatementCorrespondence['document_id']) {
 }
 
 
+
+// generate document and add it to EDMS
+$data = eQual::run('get', 'realestate_funding_ExpenseStatementCorrespondence_render-pdf', ['id' => $expenseStatementCorrespondence['id']]);
+
+$documentType = DocumentType::search(['code', '=', 'expense_statement'])
+    ->read(['folder_code'])
+    ->first();
+
 // retrieve FS Node relating to expense statements
 $parentNode = Node::search([
         ['condo_id', '=', $expenseStatementCorrespondence['condo_id'] ],
         ['node_type', '=', 'folder'],
-        ['code', '=', 'operation_statements']
+        ['code', '=', $documentType['folder_code'] ?? 'operation_statements']
     ])
     ->first();
-
-// generate document and add it to EDMS
-$data = eQual::run('get', 'realestate_funding_ExpenseStatementCorrespondence_render-pdf', ['id' => $expenseStatementCorrespondence['id']]);
 
 $document = Document::create([
         'name'                  => 'Décompte de charges - ' . $expenseStatementCorrespondence['name'],
         'data'                  => $data,
         'condo_id'              => $expenseStatementCorrespondence['condo_id'],
         'expense_statement_id'  => $expenseStatementCorrespondence['expense_statement_id'],
-        'document_visibility'   => 'protected'
+        'document_visibility'   => 'protected',
+        'document_type_id'      => $documentType['id']
     ])
     ->update([
         // place node in dedicated folder

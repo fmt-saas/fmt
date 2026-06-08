@@ -120,15 +120,19 @@ if($document['purchase_invoice_id']) {
 elseif($document['expense_statement_id']) {
     $expenseStatement = ExpenseStatement::id($document['expense_statement_id'])->read(['status', 'invoice_number', 'posting_date'])->first();
     if($expenseStatement['status'] === 'posted') {
+        /*
         $doc_info[] = date('Y-m-d', $expenseStatement['posting_date']);
         $doc_info[] = $expenseStatement['invoice_number'];
+        */
     }
 }
 elseif($document['fund_request_execution_id']) {
     $fundRequestExecution = FundRequestExecution::id($document['fund_request_execution_id'])->read(['status', 'invoice_number', 'posting_date'])->first();
     if($fundRequestExecution['status'] === 'posted') {
+        /*
         $doc_info[] = date('Y-m-d', $fundRequestExecution['posting_date']);
         $doc_info[] = $fundRequestExecution['invoice_number'];
+        */
     }
 }
 elseif($document['bank_statement_id']) {

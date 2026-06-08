@@ -6,6 +6,7 @@
 */
 
 use documents\Document;
+use documents\DocumentType;
 use documents\navigation\Node;
 use realestate\funding\FundRequestExecutionCorrespondence;
 
@@ -45,23 +46,27 @@ if($fundRequestExecutionCorrespondence['document_id']) {
     throw new Exception("document_already_generated", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+// generate document and add it to EDMS
+$data = eQual::run('get', 'realestate_funding_FundRequestExecutionCorrespondence_render-pdf', ['id' => $fundRequestExecutionCorrespondence['id']]);
+
+$documentType = DocumentType::search(['code', '=', 'fund_request'])
+    ->read(['folder_code'])
+    ->first();
 
 // retrieve FS Node relating to general meetings (assemblies)
 $parentNode = Node::search([
         ['condo_id', '=', $fundRequestExecutionCorrespondence['condo_id'] ],
         ['node_type', '=', 'folder'],
-        ['code', '=', 'operation_statements']
+        ['code', '=', $documentType['folder_code'] ?? 'operation_statements']
     ])
     ->first();
-
-// generate document and add it to EDMS
-$data = eQual::run('get', 'realestate_funding_FundRequestExecutionCorrespondence_render-pdf', ['id' => $fundRequestExecutionCorrespondence['id']]);
 
 $document = Document::create([
         'name'                  => 'Appel de fonds - ' . $fundRequestExecutionCorrespondence['name'],
         'data'                  => $data,
         'condo_id'              => $fundRequestExecutionCorrespondence['condo_id'],
-        'document_visibility'   => 'protected'
+        'document_visibility'   => 'protected',
+        'document_type_id'      => $documentType['id']
     ])
     ->update([
         // place node in dedicated folder
