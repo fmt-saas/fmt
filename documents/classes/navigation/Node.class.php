@@ -51,7 +51,7 @@ class Node extends Model {
 
             'code' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain:25',
+                'usage'             => 'text/plain:40',
                 'description'       => 'Code for identifying the folder (for auto assignments).',
                 'visible'           => ['node_type', '=', 'folder']
             ],
