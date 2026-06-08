@@ -84,6 +84,19 @@ class DocumentSubtype extends Model {
                 'foreign_object'    => 'documents\Document',
                 'foreign_field'     => 'document_subtype_id',
                 'description'       => 'Documents matching the document subtype.'
+            ],
+
+            'document_visibility' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'public',       // visible to all condo owners + syndic
+                    'protected',    // visible only to a single owner (to which the document is linked) + syndic
+                    'private'       // visible only to syndic
+                ],
+                'default'           => 'private',
+                'onupdate'          => 'onupdateDocumentVisibility',
+                'description'       => 'Defines who can access the document.',
+                'help'              => 'This field is synchronized with the node and updates automatically when the parent node visibility changes.'
             ]
 
         ];

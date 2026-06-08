@@ -9,9 +9,16 @@ use documents\DocumentSubtype;
 use documents\DocumentType;
 
 $createDocumentType = function(array $type, array $subtypes = []) {
+    if(empty($type['description'])) {
+        $type['description'] = 'Type de document : ' . $type['name'] . '.';
+    }
+
     $documentType = DocumentType::create($type)->first();
 
     foreach($subtypes as $subtype) {
+        if(empty($subtype['description'])) {
+            $subtype['description'] = 'Sous-type de document : ' . $subtype['name'] . '.';
+        }
         $subtype['document_type_id'] = $documentType['id'];
         DocumentSubtype::create($subtype);
     }

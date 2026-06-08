@@ -8,6 +8,7 @@
 namespace documents\import;
 
 use documents\Document;
+use documents\DocumentSubtype;
 use documents\DocumentType;
 use equal\orm\Model;
 use purchase\supplier\Suppliership;
@@ -71,7 +72,8 @@ class DocumentImport extends Model {
                 'description'       => 'Document type associated with the document.',
                 'onupdate'          => 'onupdateDocumentTypeId',
                 'domain'            => ['code', 'not in', ['supplier_invoice', 'bank_statement']],
-                'dependents'        => ['document_type_code']
+                'dependents'        => ['document_type_code'],
+                'required'          => true
             ],
 
             'document_subtype_id' => [
@@ -180,15 +182,45 @@ class DocumentImport extends Model {
             $result['name'] = $event['data']['name'];
         }
 
+        if(isset($event['supplier_id'])) {
+            $condo_id = $event['condo_id'] ?? $values['condo_id'] ?? null;
+            $suppliership = Suppliership::search([['condo_id', '=', $condo_id], ['supplier_id', '=', $event['supplier_id']]])->first();
+            $result['suppliership_id'] = $suppliership['id'] ?? null;
+        }
+
         // gestion du change de type de document -> visibility
+        if(isset($event['document_type_id'])) {
+            $documentType = DocumentType::id($event['document_type_id'])->read(['document_visibility'])->first();
+            if($documentType) {
+                $result['document_visibility'] = $documentType['document_visibility'];
+            }
+        }
+
+        if(isset($event['document_subtype_id'])) {
+            $documentSubtype = DocumentSubtype::id($event['document_subtype_id'])->read(['document_visibility'])->first();
+            if($documentSubtype) {
+                $result['document_visibility'] = $documentSubtype['document_visibility'];
+            }
+        }
 
         return $result;
     }
 
+    public static function getPolicies(): array {
+        return [
+            'is_valid' => [
+                'description' => 'Checks that the accounting entry line is reversed before detaching its matching.',
+                'function'    => 'policyIsValid'
+            ]
+        ];
+    }
 
     protected static function canupdate($self, $values) {
         $result = [];
-        $self->read(['condo_id', 'ownership_id']);
+        $self
+            ->assert('is_valid')
+            ->read(['condo_id', 'ownership_id', 'suppliership_id', 'document_type_id', 'document_visibility']);
+
         foreach ($self as $id => $documentImport) {
 
             if(!array_key_exists('condo_id', $values) || !$values['condo_id']) {
@@ -200,34 +232,38 @@ class DocumentImport extends Model {
                 }
             }
 
+            $document_visibility = $values['document_visibility'] ?? $documentImport['document_visibility'] ?? 'private';
+
+            if($document_visibility === 'protected') {
+                $ownership_id = $values['ownership_id'] ?? $documentImport['ownership_id'] ?? null;
+                $suppliership_id = $values['suppliership_id'] ?? $documentImport['suppliership_id'] ?? null;
+
+                if(!$ownership_id && !$suppliership_id) {
+                    return [
+                        'missing_protected_visibility_target' => "Ownership or suppliership is mandatory for protected documents."
+                    ];
+                }
+            }
+
             if(array_key_exists('document_type_id', $values)) {
 
                 $excluded_document_types_ids = DocumentType::search(['code', 'in', ['supplier_invoice', 'bank_statement']])->ids();
 
                 if(in_array($values['document_type_id'], $excluded_document_types_ids)) {
-                    if(!$ownership_id) {
-                        $result[$id] = [
-                            'forbidden_document_type' => "This type of document cannot be uploaded this way."
-                        ];
-                        continue;
-                    }
+                    $result[$id] = [
+                        'forbidden_document_type' => "This type of document cannot be uploaded this way."
+                    ];
+                    continue;
                 }
 
-                if(in_array($values['document_type_id'], ['expense_statement', 'fund_request'])) {
-                    $ownership_id = $values['ownership_id'] ?? $documentImport['ownership_id'] ?? null;
-                    if(!$ownership_id) {
-                        $result[$id] = [
-                            'missing_ownership_id' => "Ownership is mandatory for this kind of document."
-                        ];
-                        continue;
-                    }
-                }
             }
         }
 
         return $result;
     }
 
-
+    protected static function policyIsValid($self): array {
+        return [];
+    }
 
 }
