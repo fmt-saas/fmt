@@ -42,7 +42,7 @@
                 ]
             },
             "visible": [
-                ["invoice", "=", "object.document_type_code"]
+                ["supplier_invoice", "=", "object.document_type_code"]
             ]
         },
         {

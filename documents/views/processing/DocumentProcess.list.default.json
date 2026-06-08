@@ -35,7 +35,7 @@
             },
             "visible": [
                 [true, "=", "object.has_target_object"],
-                ["invoice", "=", "object.document_type_code"]
+                ["supplier_invoice", "=", "object.document_type_code"]
             ]
         },
         {
