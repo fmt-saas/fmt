@@ -27,6 +27,13 @@
                 "type": "field",
                 "value": "json_schema",
                 "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "document_visibility",
+                "width": "15%",
+                "readonly": true,
+                "sortable": true
             }
         ]
     }

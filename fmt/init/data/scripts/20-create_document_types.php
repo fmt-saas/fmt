@@ -77,13 +77,13 @@ $createDocumentType([
         'name'                  => 'Convocation',
         'code'                  => 'invite',
         'folder_code'           => 'general_meetings',
-        'document_visibility'   => 'public',
+        'document_visibility'   => 'protected'
     ],
     [
         'name'                  => 'Annexe de convocation',
         'code'                  => 'appendix',
         'folder_code'           => 'general_meetings',
-        'document_visibility'   => 'public',
+        'document_visibility'   => 'public'
     ],
     [
         'name'                  => 'Liste des présences',
@@ -103,7 +103,7 @@ $createDocumentType([
     'name'                  => 'Document bancaire',
     'code'                  => 'bank_document',
     'folder_code'           => 'bank_documents',
-    'document_visibility'   => 'public',
+    'document_visibility'   => 'private',
     'has_subtype'           => true
 ], [
     [

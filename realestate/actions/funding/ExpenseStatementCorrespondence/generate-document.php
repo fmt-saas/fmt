@@ -52,7 +52,7 @@ if($expenseStatementCorrespondence['document_id']) {
 $data = eQual::run('get', 'realestate_funding_ExpenseStatementCorrespondence_render-pdf', ['id' => $expenseStatementCorrespondence['id']]);
 
 $documentType = DocumentType::search(['code', '=', 'expense_statement'])
-    ->read(['folder_code'])
+    ->read(['folder_code', 'visibility'])
     ->first();
 
 // retrieve FS Node relating to expense statements
@@ -69,7 +69,7 @@ $document = Document::create([
         'condo_id'              => $expenseStatementCorrespondence['condo_id'],
         'expense_statement_id'  => $expenseStatementCorrespondence['expense_statement_id'],
         'document_visibility'   => 'protected',
-        'document_type_id'      => $documentType['id']
+        'document_type_id'      => $documentType['id'] ?? null
     ])
     ->update([
         // place node in dedicated folder

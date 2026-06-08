@@ -6,6 +6,8 @@
 */
 
 use documents\Document;
+use documents\DocumentSubtype;
+use documents\DocumentType;
 use documents\navigation\Node;
 use realestate\governance\AssemblyMinutesCorrespondence;
 
@@ -48,11 +50,19 @@ if(!($assemblyMinutesCorrespondence['assembly_id']['signed_minutes_document_id']
     throw new Exception('missing_signed_minutes_document', EQ_ERROR_INVALID_CONFIG);
 }
 
+$documentType = DocumentType::search(['code', '=', 'general_assembly_document'])
+    ->read(['folder_code', 'visibility'])
+    ->first();
+
+$documentSubtype = DocumentSubtype::search([['document_type_id', '=', $documentType['id']], ['code', '=', 'minutes']])
+    ->read(['folder_code', 'visibility'])
+    ->first();
+
 // retrieve FS Node relating to general meetings (assemblies)
 $parentNode = Node::search([
         ['condo_id', '=', $assemblyMinutesCorrespondence['condo_id'] ],
         ['node_type', '=', 'folder'],
-        ['code', '=', 'general_meetings']
+        ['code', '=', $documentSubtype['folder_code'] ?? 'general_meetings']
     ])
     ->first();
 
@@ -126,7 +136,9 @@ $document = Document::create([
         'data'                  => $output,
         'condo_id'              => $assemblyMinutesCorrespondence['condo_id'],
         'assembly_id'           => $assemblyMinutesCorrespondence['assembly_id']['id'],
-        'document_visibility'   => 'protected'
+        'document_visibility'   => 'protected',
+        'document_type_id'      => $documentType['id'] ?? null,
+        'document_subtype_id'   => $documentSubtype['id'] ?? null
     ])
     ->update([
         // place node in dedicated folder

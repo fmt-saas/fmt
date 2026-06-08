@@ -22,6 +22,13 @@
                 "type": "field",
                 "value": "description",
                 "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "document_visibility",
+                "width": "15%",
+                "readonly": true,
+                "sortable": true
             }
         ]
     }

@@ -6,6 +6,8 @@
 */
 
 use documents\Document;
+use documents\DocumentSubtype;
+use documents\DocumentType;
 use documents\navigation\Node;
 use realestate\governance\AssemblyInvitationCorrespondence;
 
@@ -34,7 +36,7 @@ use realestate\governance\AssemblyInvitationCorrespondence;
 
 
 $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params['id'])
-    ->read(['status', 'condo_id', 'assembly_id', 'ownership_id', 'name'])
+    ->read(['status', 'condo_id', 'document_id', 'assembly_id', 'ownership_id', 'name'])
     ->first();
 
 if(!$assemblyInvitationCorrespondence) {
@@ -42,11 +44,19 @@ if(!$assemblyInvitationCorrespondence) {
 }
 
 
+$documentType = DocumentType::search(['code', '=', 'general_assembly_document'])
+    ->read(['folder_code', 'visibility'])
+    ->first();
+
+$documentSubtype = DocumentSubtype::search([['document_type_id', '=', $documentType['id']], ['code', '=', 'invite']])
+    ->read(['folder_code', 'visibility'])
+    ->first();
+
 // retrieve FS Node relating to general meetings (assemblies)
 $parentNode = Node::search([
         ['condo_id', '=', $assemblyInvitationCorrespondence['condo_id'] ],
         ['node_type', '=', 'folder'],
-        ['code', '=', 'general_meetings']
+        ['code', '=', $$documentSubtype['folder_code'] ?? 'general_meetings']
     ])
     ->first();
 
@@ -112,7 +122,9 @@ $document = Document::create([
         'data'                  => $output,
         'condo_id'              => $assemblyInvitationCorrespondence['condo_id'],
         'assembly_id'           => $assemblyInvitationCorrespondence['assembly_id'],
-        'document_visibility'   => 'protected'
+        'document_visibility'   => 'protected',
+        'document_type_id'      => $documentType['id'] ?? null,
+        'document_subtype_id'   => $documentSubtype['id'] ?? null
     ])
     ->update([
         // place node in dedicated folder
