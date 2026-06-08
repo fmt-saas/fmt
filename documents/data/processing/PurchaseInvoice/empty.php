@@ -27,7 +27,7 @@ $localeTaxPercent = 21;
 
 
 $output = [
-    'document_type'     => 'invoice',
+    'document_type'     => 'supplier_invoice',
     'invoice_number'    => '',
     'invoice_type'      => 'INVOICE',
     'issue_date'        => gmdate("Y-m-d\TH:i:s\Z"),

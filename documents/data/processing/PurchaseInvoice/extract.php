@@ -25,6 +25,7 @@ use documents\Document;
     'providers'     => ['context']
 ]);
 
+['context' => $context] = $providers;
 
 $computeBicFromIban = function($iban) {
     static $map_bic;

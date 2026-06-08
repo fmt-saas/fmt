@@ -305,7 +305,7 @@ foreach($entities as $entity) {
 }
 
 $map_document_type = [
-    'invoice_statement'    => 'invoice',
+    'invoice_statement'    => 'supplier_invoice',
     // 'invoice_statement'    => 'credit_note',
 ];
 

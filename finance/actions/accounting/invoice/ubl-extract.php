@@ -66,7 +66,7 @@ if($ubl_version_code && $ubl_version_code !== '2.1') {
 
 $data = [];
 
-$data['document_type'] = strtolower($xpathValue($xml, '//sh:StandardBusinessDocument/sh:StandardBusinessDocumentHeader/sh:DocumentIdentification/sh:Type', 'invoice'));
+$data['document_type'] = strtolower($xpathValue($xml, '//sh:StandardBusinessDocument/sh:StandardBusinessDocumentHeader/sh:DocumentIdentification/sh:Type', 'supplier_invoice'));
 
 // main fields
 $data['invoice_number'] = $xpathValue($xml, '//cbc:ID', '');
