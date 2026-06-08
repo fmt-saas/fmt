@@ -34,11 +34,15 @@ use realestate\funding\FundRequestExecutionCorrespondence;
 
 
 $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($params['id'])
-    ->read(['status', 'condo_id', 'ownership_id', 'name', 'fund_request_execution_id' => ['id', 'fund_request_id']])
+    ->read(['status', 'condo_id', 'document_id', 'ownership_id', 'name', 'fund_request_execution_id' => ['id', 'fund_request_id']])
     ->first();
 
 if(!$fundRequestExecutionCorrespondence) {
-    throw new Exception("unknown_assembly_invitation", EQ_ERROR_UNKNOWN_OBJECT);
+    throw new Exception("unknown_fund_request_execution_correspondence", EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+if($fundRequestExecutionCorrespondence['document_id']) {
+    throw new Exception("document_already_generated", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 

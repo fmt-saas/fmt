@@ -64,11 +64,15 @@ $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
 foreach($expenseStatementCorrespondences as $expense_statement_correspondence_id => $expenseStatementCorrespondence) {
-
     // #memo - `export-statements` and `send-invitation` is the only controller where documents are generated for Export Statements
     if(!$expenseStatementCorrespondence['document_id']) {
-        // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_funding_ExpenseStatementCorrespondence_generate-document', ['id' => $expense_statement_correspondence_id]);
+        try {
+            // generate document, add it to EDMS, and attach it to invitation
+            eQual::run('do', 'realestate_funding_ExpenseStatementCorrespondence_generate-document', ['id' => $expense_statement_correspondence_id]);
+        }
+        catch(\Exception $e) {
+            // error while rendering or duplicate
+        }
     }
 
     $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($expense_statement_correspondence_id)

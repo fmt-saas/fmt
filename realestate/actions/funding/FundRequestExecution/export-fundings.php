@@ -63,11 +63,15 @@ $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
 foreach($fundRequestExecutionCorrespondences as $fund_request_execution_correspondence_id => $fundRequestExecutionCorrespondence) {
-
     // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
     if(!$fundRequestExecutionCorrespondence['document_id']) {
-        // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_funding_FundRequestExecutionCorrespondence_generate-document', ['id' => $fund_request_execution_correspondence_id]);
+        try {
+            // generate document, add it to EDMS, and attach it to invitation
+            eQual::run('do', 'realestate_funding_FundRequestExecutionCorrespondence_generate-document', ['id' => $fund_request_execution_correspondence_id]);
+        }
+        catch(\Exception $e) {
+            // error while rendering or duplicate
+        }
     }
 
     $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($fund_request_execution_correspondence_id)

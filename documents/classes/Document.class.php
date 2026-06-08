@@ -580,6 +580,9 @@ class Document extends Model {
     protected static function onupdateParentNodeId($self) {
         $self->read(['name', 'parent_node_id', 'node_id', 'condo_id', 'document_visibility', 'supplier_id', 'ownership_id']);
         foreach($self as $id => $document) {
+            if(!$document['parent_node_id']) {
+                continue;
+            }
             if(!$document['node_id']) {
                 $node = Node::create([
                         'name'              => $document['name'],

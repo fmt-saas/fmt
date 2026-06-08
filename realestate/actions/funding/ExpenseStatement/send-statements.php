@@ -62,8 +62,13 @@ $expense_statement_correspondences_ids = [];
 foreach($expenseStatementCorrespondences as $expense_statement_correspondence_id => $expenseStatementCorrespondence) {
     // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
     if(!$expenseStatementCorrespondence['document_id']) {
-        // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_funding_ExpenseStatementCorrespondence_generate-document', ['id' => $expense_statement_correspondence_id]);
+        try {
+            // generate document, add it to EDMS, and attach it to invitation
+            eQual::run('do', 'realestate_funding_ExpenseStatementCorrespondence_generate-document', ['id' => $expense_statement_correspondence_id]);
+        }
+        catch(\Exception $e) {
+            // error while rendering or duplicate
+        }
     }
 
     $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($expense_statement_correspondence_id)

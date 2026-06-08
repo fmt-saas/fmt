@@ -126,8 +126,8 @@ Node::create([
 Node::create([
     'code'          => 'maintenance_logs',
     'node_type'     => 'folder',
-    'name'          => "Carnets d\'entretien",
-    'description'   => "Carnets d\'entretien, suivis périodiques et historiques de maintenance."
+    'name'          => 'Carnets d\'entretien',
+    'description'   => 'Carnets d\'entretien, suivis périodiques et historiques de maintenance.'
 ]);
 
 Node::create([
@@ -169,7 +169,7 @@ Node::create([
     'code'          => 'imports',
     'node_type'     => 'folder',
     'name'          => 'Imports',
-    'description'   => "Documents d\'import de données temporaires ou historiques."
+    'description'   => 'Documents d\'import de données temporaires ou historiques.'
 ]);
 
 /*

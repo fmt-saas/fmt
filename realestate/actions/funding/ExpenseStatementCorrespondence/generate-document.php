@@ -34,11 +34,15 @@ use realestate\funding\ExpenseStatementCorrespondence;
 
 
 $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id'])
-    ->read(['status', 'condo_id', 'ownership_id', 'expense_statement_id', 'name'])
+    ->read(['status', 'condo_id', 'document_id', 'ownership_id', 'expense_statement_id', 'name'])
     ->first();
 
 if(!$expenseStatementCorrespondence) {
     throw new Exception("unknown_expense_statement_correspondence", EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+if($expenseStatementCorrespondence['document_id']) {
+    throw new Exception("document_already_generated", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 

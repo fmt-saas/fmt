@@ -74,23 +74,27 @@ $createDocumentType([
     'has_subtype'           => true
 ], [
     [
-        'name'          => 'Convocation',
-        'code'          => 'invite',
-        'folder_code'   => 'general_meetings'
+        'name'                  => 'Convocation',
+        'code'                  => 'invite',
+        'folder_code'           => 'general_meetings',
+        'document_visibility'   => 'public',
     ],
     [
-        'name'          => 'Annexe de convocation',
-        'code'          => 'appendix',
-        'folder_code'   => 'general_meetings'
+        'name'                  => 'Annexe de convocation',
+        'code'                  => 'appendix',
+        'folder_code'           => 'general_meetings',
+        'document_visibility'   => 'public',
     ],
     [
-        'name'          => 'Liste des présences',
-        'code'          => 'attendance_register'
+        'name'                  => 'Liste des présences',
+        'code'                  => 'attendance_register',
+        'document_visibility'   => 'public'
     ],
     [
-        'name'          => 'PV d\'assemblée générale',
-        'code'          => 'minutes',
-        'folder_code'   => 'general_meetings'
+        'name'                  => 'PV d\'assemblée générale',
+        'code'                  => 'minutes',
+        'folder_code'           => 'general_meetings',
+        'document_visibility'   => 'public'
     ]
 ]);
 
