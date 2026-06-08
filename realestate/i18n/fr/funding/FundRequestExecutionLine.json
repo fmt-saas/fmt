@@ -14,7 +14,7 @@
             "help": ""
         },
         "ownership_id": {
-            "label": "Propriété",
+            "label": "Dossier de propriété",
             "description": "Copropriétaire impacté.",
             "help": ""
         },

@@ -18,7 +18,7 @@ use realestate\governance\AssemblyInvitationCorrespondence;
             'type'             => 'many2one',
             'foreign_object'   => 'realestate\governance\AssemblyInvitationCorrespondence',
             'description'      => 'Identifier of the Assembly invitation.',
-            'required'          => true
+            'required'         => true
         ]
     ],
     'response'      => [
@@ -34,112 +34,138 @@ use realestate\governance\AssemblyInvitationCorrespondence;
  */
 ['context' => $context] = $providers;
 
+$document_id = null;
 
 $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params['id'])
-    ->read(['status', 'condo_id', 'document_id', 'assembly_id', 'ownership_id', 'name'])
+    ->read(['status', 'condo_id', 'document_id', 'assembly_id', 'ownership_id', 'owner_id', 'name'])
     ->first();
 
 if(!$assemblyInvitationCorrespondence) {
     throw new Exception("unknown_assembly_invitation", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+if($assemblyInvitationCorrespondence['document_id']) {
+    throw new Exception("document_already_generated", EQ_ERROR_INVALID_PARAM);
+}
 
-$documentType = DocumentType::search(['code', '=', 'general_assembly_document'])
-    ->read(['folder_code', 'visibility'])
-    ->first();
-
-$documentSubtype = DocumentSubtype::search([['document_type_id', '=', $documentType['id']], ['code', '=', 'invite']])
-    ->read(['folder_code', 'visibility'])
-    ->first();
-
-// retrieve FS Node relating to general meetings (assemblies)
-$parentNode = Node::search([
-        ['condo_id', '=', $assemblyInvitationCorrespondence['condo_id'] ],
-        ['node_type', '=', 'folder'],
-        ['code', '=', $$documentSubtype['folder_code'] ?? 'general_meetings']
+$siblingAssemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::search([
+        ['condo_id', '=', $assemblyInvitationCorrespondence['condo_id']],
+        ['assembly_id', '=', $assemblyInvitationCorrespondence['assembly_id']],
+        ['ownership_id', '=', $assemblyInvitationCorrespondence['ownership_id']],
+        ['owner_id', '=', $assemblyInvitationCorrespondence['owner_id']],
+        ['document_id', '<>', null]
     ])
+    ->read(['document_id'])
     ->first();
 
-
-$temp_files = [];
-$output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
-
-$data1 = eQual::run('get', 'realestate_governance_AssemblyInvitationCorrespondence_render-pdf', ['id' => $assemblyInvitationCorrespondence['id']]);
-
-$temp = tempnam(sys_get_temp_dir(), 'pdf_');
-file_put_contents($temp, $data1 ?? '');
-$temp_files[] = $temp;
-
-$data2 = eQual::run('get', 'realestate_governance_Assembly_agenda_render-pdf', ['id' => $assemblyInvitationCorrespondence['assembly_id']]);
-
-$temp = tempnam(sys_get_temp_dir(), 'pdf_');
-file_put_contents($temp, $data2 ?? '');
-$temp_files[] = $temp;
-
-$data3 = eQual::run('get', 'realestate_governance_Assembly_mandate_render-pdf', ['id' => $assemblyInvitationCorrespondence['assembly_id'], 'ownership_id' => $assemblyInvitationCorrespondence['ownership_id']]);
-
-$temp = tempnam(sys_get_temp_dir(), 'pdf_');
-file_put_contents($temp, $data3 ?? '');
-$temp_files[] = $temp;
-
-
-// merge all generated documents
-try {
-    if(!count($temp_files)) {
-        throw new Exception('no_files_generated', EQ_ERROR_UNKNOWN);
-    }
-    $escaped_files = array_map('escapeshellarg', $temp_files);
-    $escaped_output = escapeshellarg($output_file);
-    $cmd = 'qpdf --empty --pages ' . implode(' ', $escaped_files) . ' -- ' . $escaped_output . ' 2>&1';
-
-    exec($cmd, $output_lines, $result_code);
-
-    if($result_code !== 0 || !file_exists($output_file)) {
-        trigger_error("APP::qpdf merge failed:\n" . implode("\n", $output_lines), EQ_REPORT_ERROR);
-        throw new Exception('pdf_merge_failed', EQ_ERROR_UNKNOWN);
-    }
-
-    $output = file_get_contents($output_file);
+if($siblingAssemblyInvitationCorrespondence) {
+    $document_id = $siblingAssemblyInvitationCorrespondence['document_id'];
 }
-catch(Exception $e) {
-    trigger_error('APP::Error while merging documents ' . $e->getMessage(), EQ_REPORT_ERROR);
-    throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
-}
-finally {
-    foreach($temp_files as $file) {
-        if(isset($file) && is_file($file)) {
-            @unlink($file);
+
+if(!$document_id) {
+    $documentType = DocumentType::search(['code', '=', 'general_assembly_document'])
+        ->read(['folder_code', 'visibility'])
+        ->first();
+
+    $documentSubtype = DocumentSubtype::search([['document_type_id', '=', $documentType['id']], ['code', '=', 'invite']])
+        ->read(['folder_code', 'visibility'])
+        ->first();
+
+    // retrieve FS Node relating to general meetings (assemblies)
+    $parentNode = Node::search([
+            ['condo_id', '=', $assemblyInvitationCorrespondence['condo_id'] ],
+            ['node_type', '=', 'folder'],
+            ['code', '=', $$documentSubtype['folder_code'] ?? 'general_meetings']
+        ])
+        ->first();
+
+    // generate document and add it to EDMS
+    $temp_files = [];
+    $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
+
+    $data1 = eQual::run('get', 'realestate_governance_AssemblyInvitationCorrespondence_render-pdf', ['id' => $assemblyInvitationCorrespondence['id']]);
+
+    $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+    file_put_contents($temp, $data1 ?? '');
+    $temp_files[] = $temp;
+
+    $data2 = eQual::run('get', 'realestate_governance_Assembly_agenda_render-pdf', ['id' => $assemblyInvitationCorrespondence['assembly_id']]);
+
+    $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+    file_put_contents($temp, $data2 ?? '');
+    $temp_files[] = $temp;
+
+    $data3 = eQual::run('get', 'realestate_governance_Assembly_mandate_render-pdf', ['id' => $assemblyInvitationCorrespondence['assembly_id'], 'ownership_id' => $assemblyInvitationCorrespondence['ownership_id']]);
+
+    $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+    file_put_contents($temp, $data3 ?? '');
+    $temp_files[] = $temp;
+
+
+    // merge all generated documents
+    try {
+        if(!count($temp_files)) {
+            throw new Exception('no_files_generated', EQ_ERROR_UNKNOWN);
+        }
+        $escaped_files = array_map('escapeshellarg', $temp_files);
+        $escaped_output = escapeshellarg($output_file);
+        $cmd = 'qpdf --empty --pages ' . implode(' ', $escaped_files) . ' -- ' . $escaped_output . ' 2>&1';
+
+        exec($cmd, $output_lines, $result_code);
+
+        if($result_code !== 0 || !file_exists($output_file)) {
+            trigger_error("APP::qpdf merge failed:\n" . implode("\n", $output_lines), EQ_REPORT_ERROR);
+            throw new Exception('pdf_merge_failed', EQ_ERROR_UNKNOWN);
+        }
+
+        $output = file_get_contents($output_file);
+    }
+    catch(Exception $e) {
+        trigger_error('APP::Error while merging documents ' . $e->getMessage(), EQ_REPORT_ERROR);
+        throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
+    }
+    finally {
+        foreach($temp_files as $file) {
+            if(isset($file) && is_file($file)) {
+                @unlink($file);
+            }
+        }
+        if(isset($output_file) && is_file($output_file)) {
+            @unlink($output_file);
         }
     }
-    if(isset($output_file) && is_file($output_file)) {
-        @unlink($output_file);
+
+    // generate document and add it to EDMS
+    $document = Document::create([
+            'name'                  => 'Convocation Assemblée - ' . $assemblyInvitationCorrespondence['name'],
+            'data'                  => $output,
+            'condo_id'              => $assemblyInvitationCorrespondence['condo_id'],
+            'assembly_id'           => $assemblyInvitationCorrespondence['assembly_id'],
+            'document_visibility'   => 'protected',
+            'document_type_id'      => $documentType['id'] ?? null,
+            'document_subtype_id'   => $documentSubtype['id'] ?? null
+        ])
+        ->update([
+            // place node in dedicated folder
+            'parent_node_id'    => $parentNode['id'] ?? null,
+            // make node private
+            'ownership_id'      => $assemblyInvitationCorrespondence['ownership_id'],
+            'owner_id'          => $assemblyInvitationCorrespondence['owner_id']
+        ])
+        ->first();
+
+    if(!$document) {
+        throw new Exception('document_creation_failed', EQ_ERROR_UNKNOWN);
     }
+
+    $document_id = $document['id'];
 }
 
-// generate document and add it to EDMS
-$document = Document::create([
-        'name'                  => 'Convocation Assemblée - ' . $assemblyInvitationCorrespondence['name'],
-        'data'                  => $output,
-        'condo_id'              => $assemblyInvitationCorrespondence['condo_id'],
-        'assembly_id'           => $assemblyInvitationCorrespondence['assembly_id'],
-        'document_visibility'   => 'protected',
-        'document_type_id'      => $documentType['id'] ?? null,
-        'document_subtype_id'   => $documentSubtype['id'] ?? null
-    ])
-    ->update([
-        // place node in dedicated folder
-        'parent_node_id'    => $parentNode['id'] ?? null,
-        // make node private
-        'ownership_id'      => $assemblyInvitationCorrespondence['ownership_id']
-    ])
-    ->first();
 
-if(!$document) {
-    throw new Exception('document_creation_failed', EQ_ERROR_UNKNOWN);
+if($document_id) {
+    // attach generated/retrieved document to invitation
+    AssemblyInvitationCorrespondence::id($assemblyInvitationCorrespondence['id'])->update(['document_id' => $document_id]);
 }
-
-// attach generated document to invitation
-AssemblyInvitationCorrespondence::id($assemblyInvitationCorrespondence['id'])->update(['document_id' => $document['id']]);
 
 
 $context->httpResponse()

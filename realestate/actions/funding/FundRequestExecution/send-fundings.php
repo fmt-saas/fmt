@@ -66,7 +66,7 @@ foreach($fundRequestExecutionCorrespondences as $fund_request_execution_correspo
             // generate document, add it to EDMS, and attach it to invitation
             eQual::run('do', 'realestate_funding_FundRequestExecutionCorrespondence_generate-document', ['id' => $fund_request_execution_correspondence_id]);
         }
-        catch(\Exception $e) {
+        catch(Exception $e) {
             // error while rendering or duplicate
         }
     }

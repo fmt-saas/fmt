@@ -50,6 +50,12 @@ class Document extends Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'owner_id' => [
+                'type'              => 'many2one',
+                'description'       => "The owner concerned by the document, if any.",
+                'foreign_object'    => 'realestate\ownership\Owner'
+            ],
+
             'supplier_id' => [
                 'type'              => 'many2one',
                 'description'       => "The supplier the document originates from.",
@@ -552,7 +558,6 @@ class Document extends Model {
         }
     }
 
-    
 
     protected static function onupdateOwnershipId($self) {
         $self

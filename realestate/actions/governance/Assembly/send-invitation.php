@@ -65,8 +65,13 @@ foreach($assemblyInvitationCorrespondences as $assembly_invitation_id => $assemb
 
     // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
     if(!$assemblyInvitationCorrespondence['document_id']) {
-        // generate document, add it to EDMS, and attach it to invitation
-        eQual::run('do', 'realestate_governance_AssemblyInvitationCorrespondence_generate-document', ['id' => $assembly_invitation_id]);
+        try {
+            // generate document, add it to EDMS, and attach it to invitation
+            eQual::run('do', 'realestate_governance_AssemblyInvitationCorrespondence_generate-document', ['id' => $assembly_invitation_id]);
+        }
+        catch(Exception $e) {
+            // error while rendering or duplicate
+        }
     }
 
     $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($assembly_invitation_id)

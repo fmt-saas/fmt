@@ -21,7 +21,7 @@ class DocumentCorrespondence extends \equal\orm\Model {
             'owner_id' => [
                 'type'              => 'many2one',
                 'description'       => "The owner concerned by the invitation.",
-                'help'              => 'A single invite is generated for each Ownership (representative).',
+                'help'              => 'Correspondences are generated for each Owner of each Ownership.',
                 'foreign_object'    => 'realestate\ownership\Owner',
                 'required'          => true,
                 'dependents'        => ['email_address']

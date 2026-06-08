@@ -59,7 +59,7 @@
             "help": ""
         },
         "ownership_id": {
-            "label": "Propriété",
+            "label": "Dossier de propriété",
             "description": "Propriétaire concerné (cas copropriété).",
             "help": ""
         },

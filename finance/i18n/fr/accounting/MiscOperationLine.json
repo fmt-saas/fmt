@@ -79,7 +79,7 @@
             "help": ""
         },
         "ownership_id": {
-            "label": "Propriété",
+            "label": "Dossier de propriété",
             "description": "Propriété ciblée lorsque la charge est privative.",
             "help": ""
         },

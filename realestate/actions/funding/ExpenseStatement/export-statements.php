@@ -70,7 +70,7 @@ foreach($expenseStatementCorrespondences as $expense_statement_correspondence_id
             // generate document, add it to EDMS, and attach it to invitation
             eQual::run('do', 'realestate_funding_ExpenseStatementCorrespondence_generate-document', ['id' => $expense_statement_correspondence_id]);
         }
-        catch(\Exception $e) {
+        catch(Exception $e) {
             // error while rendering or duplicate
         }
     }

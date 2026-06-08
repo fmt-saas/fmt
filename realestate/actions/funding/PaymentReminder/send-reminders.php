@@ -59,7 +59,12 @@ $payment_reminder_correspondences_ids = [];
 
 foreach($paymentReminderCorrespondences as $payment_reminder_correspondence_id => $paymentReminderCorrespondence) {
     if(!$paymentReminderCorrespondence['document_id']) {
-        eQual::run('do', 'realestate_funding_PaymentReminderCorrespondence_generate-document', ['id' => $payment_reminder_correspondence_id]);
+        try {
+            eQual::run('do', 'realestate_funding_PaymentReminderCorrespondence_generate-document', ['id' => $payment_reminder_correspondence_id]);
+        }
+        catch(Exception $e) {
+            // error while rendering or duplicate
+        }
     }
 
     $paymentReminderCorrespondence = PaymentReminderCorrespondence::id($payment_reminder_correspondence_id)

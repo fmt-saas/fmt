@@ -19,7 +19,7 @@
             "help": ""
         },
         "ownership_id": {
-            "label": "Propriété",
+            "label": "Dossier de propriété",
             "description": "Copropriétaire associé à cette entrée.",
             "help": ""
         },
