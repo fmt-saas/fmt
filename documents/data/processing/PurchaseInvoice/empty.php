@@ -49,7 +49,7 @@ $output = [
             'street'         => '',
             'city'           => '',
             'postal_code'    => '',
-            'country'        => '',
+            'country'        => 'BE',
         ]
     ],
     'lines' => [],
