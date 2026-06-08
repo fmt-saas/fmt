@@ -246,7 +246,7 @@ $mapPaymentTextToCode = function (string $text = '') {
 $localeCountry = 'BE';
 
 
-$invoiceType        = $getValue($getEntity('invoice_type'));
+$invoiceType        = strtolower($getValue($getEntity('invoice_type')));
 $issueDate          = $getValue($getEntity('invoice_date'));
 $dueDate            = $getValue($getEntity('due_date'));
 $totalNet           = $getValue($getEntity('net_amount'), 0.0, 'float');
@@ -309,6 +309,9 @@ $map_document_type = [
     // 'invoice_statement'    => 'credit_note',
 ];
 
+$map_invoice_type = [
+    'invoice_statement'    => 'invoice'
+];
 
 /**
  * Extract payment info (payment_terms → payment_method / payment_means_code / payment_due_date)
@@ -350,7 +353,7 @@ if (!$paymentMeansCode && $paymentTerms) {
 $output = [
     'document_type'     => $map_document_type[$invoiceType] ?? 'unknown',
     'invoice_number'    => $getValue($getEntity('invoice_id'), ''),
-    'invoice_type'      => $map_document_type[$invoiceType] ?? 'unknown',
+    'invoice_type'      => $map_invoice_type[$invoiceType] ?? 'unknown',
     'issue_date'        => $formatDate($issueDate),
     'due_date'          => $formatDate($dueDate),
     'currency'          => $currency,

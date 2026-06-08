@@ -95,6 +95,7 @@ class DocumentProcess extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentSubtype',
                 'description'       => 'Document subtype associated with the document.',
+                'domain'            => ['document_type_id', '=', 'object.document_type_id'],
                 'onupdate'          => 'onupdateDocumentSubtypeId',
             ],
 
