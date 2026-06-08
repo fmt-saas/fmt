@@ -39,6 +39,7 @@ class DocumentType extends Model {
 
             'code' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:40',
                 'description'       => 'Unique code identifier of the document Type.',
                 'required'          => true,
                 'unique'            => true

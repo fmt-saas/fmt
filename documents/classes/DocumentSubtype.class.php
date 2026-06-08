@@ -33,6 +33,7 @@ class DocumentSubtype extends Model {
 
             'code' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:40',
                 'description'       => 'Unique code identifier of the document Subtype.',
                 'required'          => true
             ],
