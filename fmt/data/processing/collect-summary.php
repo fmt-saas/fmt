@@ -40,7 +40,7 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
             'type'              => 'string',
             'selection'         => [
                 'document',
-                'invoice',
+                'supplier_invoice',
                 'bank_statement'
             ],
             'description'       => 'Code identifier of the document type.',
@@ -160,7 +160,7 @@ if($purchaseInvoices->count() > 0) {
     }
 
     $result[] = [
-        'document_type_code'    => 'invoice',
+        'document_type_code'    => 'supplier_invoice',
         'count'                 => $count,
         'count_alerts'          => $alerts,
         'date_last'             => date('c', $date_last)

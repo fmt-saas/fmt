@@ -39,13 +39,13 @@ class Node extends Model {
         "code": "syndic_contracts",
         "code": "works_and_repairs",
         "code": "sepa_mandates",
-        "code": "regulations",
+        "code": "reference_documents",
         "code": "operation_statements",
         "code": "bank_statements",
         "code": "supplier_contracts",
-        "code": "justifications",
         "code": "internal_memos",
         "code": "supplier_invoices",
+        "code": "ownership_transfers",
         "code": "ownership_transfers",
 */
 

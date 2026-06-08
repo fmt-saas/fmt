@@ -216,7 +216,7 @@ class DocumentProcess extends Model {
             'document_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
-                'visible'           => [['has_target_object', '=', true], ['document_type_code', '=', 'invoice']],
+                'visible'           => [['has_target_object', '=', true], ['document_type_code', '=', 'supplier_invoice']],
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['supplier_id', '=', 'object.supplier_id']],
                 'ondelete'          => 'null',
                 'onupdate'          => 'onupdateDocumentInvoiceId'
@@ -549,8 +549,7 @@ class DocumentProcess extends Model {
 
             switch($documentProcess['document_type_code']) {
 
-                case 'invoice':
-                case 'credit_note':
+                case 'supplier_invoice':
 
                     if($documentProcess['document_invoice_id']) {
                         $result[$id] = [
@@ -607,8 +606,7 @@ class DocumentProcess extends Model {
 
             switch($documentProcess['document_type_code']) {
 
-                case 'invoice':
-                case 'credit_note':
+                case 'supplier_invoice':
 
                     if($documentProcess['document_invoice_id'] && !in_array($documentProcess['document_invoice_id']['status'], ['proforma', 'cancelled'], true)) {
                         $result[$id] = [
@@ -792,7 +790,7 @@ class DocumentProcess extends Model {
             }
 
             // #todo - to complete
-            $is_recording_rule_mandatory = in_array($documentProcess['document_type_code'], ['invoice', 'credit_note']);
+            $is_recording_rule_mandatory = in_array($documentProcess['document_type_code'], ['supplier_invoice']);
 
             // #memo - recording rules might not be mandatory
             /*
@@ -849,7 +847,7 @@ class DocumentProcess extends Model {
             // #todo - handle other document types (apart from purchaseInvoice & BankStatement)
 
             // duplicate invoice amongst purchase invoice of the Condominium
-            if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
+            if($documentProcess['document_type_code'] === 'supplier_invoice') {
                 // check if there is a non-cancelled DocumentProcess concerning an invoice with the same characteristics
                 $documentProcess = self::id($id)->read(['document_invoice_id'])->first();
                 $purchaseInvoice = PurchaseInvoice::id($documentProcess['document_invoice_id'])->read(['id', 'suppliership_id', 'supplier_invoice_number'])->first();
@@ -1025,7 +1023,7 @@ class DocumentProcess extends Model {
         $self->read(['document_type_code', 'document_invoice_id' => ['status'], 'document_bank_statement_id' => ['status']]);
         foreach($self as $id => $documentProcess) {
             switch($documentProcess['document_type_code']) {
-                case 'invoice':
+                case 'supplier_invoice':
                     if($documentProcess['document_invoice_id']['status'] === 'proforma') {
                         PurchaseInvoice::id($documentProcess['document_invoice_id']['id'])->transition('post');
                     }
@@ -1446,8 +1444,7 @@ class DocumentProcess extends Model {
             // extract data based on document type
             try {
                 switch($documentProcess['document_type_id']['code']) {
-                    case 'invoice':
-                    case 'credit_note':
+                    case 'supplier_invoice':
                         $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_extract', ['document_id' => $documentProcess['document_id']]);
                         break;
                     case 'bank_statement':
@@ -1518,8 +1515,7 @@ class DocumentProcess extends Model {
                 $logs[] = "Attempting to fall back to default document descriptor.";
                 // extraction failed : populat with empty document_json descriptor
                 switch($documentProcess['document_type_id']['code']) {
-                    case 'invoice':
-                    case 'credit_note':
+                    case 'supplier_invoice':
                         $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_empty');
                         break;
                     case 'bank_statement':
@@ -1578,14 +1574,8 @@ class DocumentProcess extends Model {
                 $data = json_decode($documentProcess['document_id']['document_json'], true);
 
                 switch($documentProcess['document_type_code']) {
-                    case 'invoice':
-                    case 'credit_note':
-                        if($documentProcess['document_type_code'] === 'invoice') {
-                            $logs[] = "attempting to match invoice data";
-                        }
-                        else {
-                            $logs[] = "attempting to match credit note data";
-                        }
+                    case 'supplier_invoice':
+                        $logs[] = "attempting to match invoice data";
 
                         // attempt to retrieve supplier
                         if(!$values['supplier_id']) {
@@ -1791,7 +1781,7 @@ class DocumentProcess extends Model {
                     trigger_error("APP::No matching Recording Rule found for Process {$documentProcess['id']} - Document {$documentProcess['document_id']['name']} ({$documentProcess['document_id']['id']}) of type {$documentProcess['document_type_code']}/{$documentProcess['document_subtype_id']}", EQ_REPORT_INFO);
                 }
 
-                if($documentProcess['document_type_code'] === 'invoice' || $documentProcess['document_type_code'] === 'credit_note') {
+                if($documentProcess['document_type_code'] === 'supplier_invoice') {
                     $bankAccount = SuppliershipBankAccount::search([['suppliership_id', '=', $suppliership['id']], ['bank_account_iban', '=', $data['payment']['iban']]])->first();
 
                     $condoBankAccount = CondominiumBankAccount::search([

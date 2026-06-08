@@ -100,7 +100,7 @@ $tests = [
                 ->read(['suppliers_ids'])
                 ->first(true);
 
-            $documentType = DocumentType::search(['code', '=', 'invoice'])
+            $documentType = DocumentType::search(['code', '=', 'supplier_invoice'])
                 ->read(['id'])
                 ->first();
 

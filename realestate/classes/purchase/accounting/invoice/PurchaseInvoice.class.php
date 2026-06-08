@@ -1980,7 +1980,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
      */
     protected static function onupdateDocumentData($self, $auth) {
         $self->read(['document_process_id', 'document_name', 'document_data']);
-        $documentType = DocumentType::search(['code', '=', 'invoice'])->first();
+        $documentType = DocumentType::search(['code', '=', 'supplier_invoice'])->first();
         $user = User::id($auth->userId())->read(['employee_id'])->first();
 
         foreach($self as $id => $invoice) {
@@ -2251,7 +2251,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
         foreach($self as $id => $purchaseInvoice) {
             if($purchaseInvoice['state'] === 'instance' && !$purchaseInvoice['document_id']) {
-                $documentType = DocumentType::search(['code', '=', 'invoice'])->first();
+                $documentType = DocumentType::search(['code', '=', 'supplier_invoice'])->first();
                 $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_empty');
 
                 $document = Document::create([

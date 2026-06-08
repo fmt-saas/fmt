@@ -33,7 +33,8 @@ class DocumentImport extends Model {
                 'help'              => "At first, this value can be left to null (might be assigned manually or retrieved from document filename).",
                 'foreign_object'    => 'realestate\property\Condominium',
                 'onupdate'          => 'onupdateCondoId',
-                'dependents'        => ['suppliership_id']
+                'dependents'        => ['suppliership_id'],
+                'required'          => true
             ],
 
             'ownership_id' => [
@@ -69,7 +70,7 @@ class DocumentImport extends Model {
                 'foreign_object'    => 'documents\DocumentType',
                 'description'       => 'Document type associated with the document.',
                 'onupdate'          => 'onupdateDocumentTypeId',
-                'domain'            => ['code', 'not in', ['invoice', 'bank_statement']],
+                'domain'            => ['code', 'not in', ['supplier_invoice', 'bank_statement']],
                 'dependents'        => ['document_type_code']
             ],
 
@@ -145,7 +146,9 @@ class DocumentImport extends Model {
                     'is_origin'             => true
                 ])
                 ->update([
-                    'document_type_id'      => $documentImport['document_type_id'],
+                    'document_type_id'      => $documentImport['document_type_id']
+                ])
+                ->update([
                     'document_subtype_id'   => $documentImport['document_subtype_id']
                 ])
                 ->first();
@@ -177,6 +180,8 @@ class DocumentImport extends Model {
             $result['name'] = $event['data']['name'];
         }
 
+        // gestion du change de type de document -> visibility
+
         return $result;
     }
 
@@ -197,7 +202,7 @@ class DocumentImport extends Model {
 
             if(array_key_exists('document_type_id', $values)) {
 
-                $excluded_document_types_ids = DocumentType::search(['code', 'in', ['invoice', 'bank_statement']])->ids();
+                $excluded_document_types_ids = DocumentType::search(['code', 'in', ['supplier_invoice', 'bank_statement']])->ids();
 
                 if(in_array($values['document_type_id'], $excluded_document_types_ids)) {
                     if(!$ownership_id) {

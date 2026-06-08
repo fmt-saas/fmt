@@ -55,7 +55,7 @@ if(!$ownershipTransfer) {
     throw new Exception('unknown_ownership_transfer', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$documentType = DocumentType::search(['code', '=', 'ownership_transfer_correspondence'])
+$documentType = DocumentType::search(['code', '=', 'ownership_transfer_document'])
     ->read(['folder_code'])
     ->first();
 

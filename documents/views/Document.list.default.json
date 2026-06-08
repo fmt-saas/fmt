@@ -40,6 +40,7 @@
                 "value": "created",
                 "width": "10%",
                 "readonly": true,
+                "sortable": true,
                 "widget": {
                     "usage": "date"
                 }
@@ -70,7 +71,8 @@
                 "value": "is_origin",
                 "label": "Origin?",
                 "width": "20%",
-                "readonly": true
+                "readonly": true,
+                "sortable": true
             }
         ]
     }

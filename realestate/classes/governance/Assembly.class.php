@@ -8,6 +8,8 @@ namespace realestate\governance;
 
 use documents\Document;
 use documents\DocumentSignature;
+use documents\DocumentSubtype;
+use documents\DocumentType;
 use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
 use documents\navigation\Node;
@@ -971,11 +973,16 @@ class Assembly extends \equal\orm\Model {
                     ])
                     ->first();
 
+                $documentType = DocumentType::search(['code', '=', 'general_assembly_document'])->first();
+                $documentSubtype = DocumentSubtype::search([['document_type_id', '=', $documentType['id'] ?? null], ['code', '=', 'attendance_register']])->first();
+
                 $document = Document::create([
                         'name'                  => 'Liste de présences signée',
                         'data'                  => $data,
                         'condo_id'              => $assembly['condo_id'],
-                        'document_visibility'   => 'public'
+                        'document_visibility'   => 'public',
+                        'document_type_id'      => $documentType['id'] ?? null,
+                        'document_subtype_id'   => $documentSubtype['id'] ?? null
                     ])
                     ->update(['parent_node_id' => $parentNode['id'] ?? null])
                     ->first();
@@ -2479,11 +2486,16 @@ class Assembly extends \equal\orm\Model {
                     ])
                     ->first();
 
+                $documentType = DocumentType::search(['code', '=', 'general_assembly_document'])->first();
+                $documentSubtype = DocumentSubtype::search([['document_type_id', '=', $documentType['id'] ?? null], ['code', '=', 'minutes']])->first();
+
                 $document = Document::create([
                         'name'                  => 'PV d\'Assemblée signé',
                         'data'                  => $data,
                         'condo_id'              => $assembly['condo_id'],
-                        'document_visibility'   => 'public'
+                        'document_visibility'   => 'public',
+                        'document_type_id'      => $documentType['id'] ?? null,
+                        'document_subtype_id'   => $documentSubtype['id'] ?? null,
                     ])
                     ->update(['parent_node_id' => $parentNode['id'] ?? null])
                     ->first();

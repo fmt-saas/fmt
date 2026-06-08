@@ -49,7 +49,7 @@ class PurchaseInvoiceImport extends Model {
     protected static function onupdateData($self, $auth) {
         $self->read(['name', 'data']);
 
-        $documentType = DocumentType::search(['code', '=', 'invoice'])->first();
+        $documentType = DocumentType::search(['code', '=', 'supplier_invoice'])->first();
         $user = User::id($auth->userId())->read(['employee_id'])->first();
 
         // make sure there is no filter for current user on condo_id

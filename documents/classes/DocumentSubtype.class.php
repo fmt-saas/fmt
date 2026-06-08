@@ -34,8 +34,7 @@ class DocumentSubtype extends Model {
             'code' => [
                 'type'              => 'string',
                 'description'       => 'Unique code identifier of the document Subtype.',
-                'required'          => true,
-                'unique'            => true
+                'required'          => true
             ],
 
             'folder_code' => [
@@ -90,6 +89,11 @@ class DocumentSubtype extends Model {
         ];
     }
 
+    public function getUnique() {
+        return [
+            ['document_type_id', 'code']
+        ];
+    }
     /**
      * This is a "private class": upon creation, assign a unique UUID if on GLOBAL instance
      */

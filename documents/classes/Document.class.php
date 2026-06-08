@@ -118,30 +118,6 @@ class Document extends Model {
                 'help'              => 'This field is meant to receive the result of the document parsing (whatever the method) and might remain empty (depending on the feeding strategy associated to the document type).'
             ],
 
-            /*
-            // #memo - non exhaustive document types codes
-                invoice
-                bank_statement
-                fund_request
-                expense_statement
-                quote
-                purchase_order
-                delivery_note
-                incident_report
-                maintenance_report
-                contract
-                certificate
-                terms_and_conditions
-                reconciliation_report
-                legal_document
-                ownership_transfer_correspondence
-                supporting_document
-                internal_memo
-                suppliers_import
-                condominium_import
-                balance_sheet
-                expense_summary
-            */
             'document_type_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentType',
@@ -155,6 +131,7 @@ class Document extends Model {
                 'foreign_object'    => 'documents\DocumentSubtype',
                 'description'       => 'Document subtype associated with the document, if any.',
                 'domain'            => ['document_type_id', '=', 'object.document_type_id'],
+                'onupdate'          => 'onupdateDocumentSubtypeId',
                 'dependents'        => ['document_subtype_code']
             ],
 
@@ -351,7 +328,7 @@ class Document extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
                 'description'       => 'Optional link to the related purchase invoice.',
-                'visible'           => ['document_type_code', '=', 'invoice']
+                'visible'           => ['document_type_code', '=', 'supplier_invoice']
             ],
 
             'bank_statement_id' => [
@@ -401,7 +378,7 @@ class Document extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\OwnershipTransfer',
                 'description'       => 'Optional link to the related bank statement.',
-                'visible'           => ['document_type_code', '=', 'ownership_transfer_correspondence']
+                'visible'           => ['document_type_code', '=', 'ownership_transfer_document']
             ],
 
             'assembly_id' => [
@@ -554,6 +531,28 @@ class Document extends Model {
             }
         }
     }
+
+    protected static function onupdateDocumentSubtypeId($self) {
+        $self->read(['condo_id', 'document_type_id', 'document_subtype_id']);
+        foreach($self as $id => $document) {
+            if(isset($document['document_subtype_id'], $document['condo_id'])) {
+                // assign the folder
+                $documentSubtype = DocumentSubtype::id($document['document_subtype_id'])->read(['folder_code'])->first();
+                if($documentSubtype) {
+                    continue;
+                }
+                if($documentSubtype['folder_code'] || strlen($documentSubtype['folder_code']) <= 0) {
+                    continue;
+                }
+                $node = Node::search([['condo_id', '=', $document['condo_id']], ['code', '=', $documentSubtype['folder_code']]])->first();
+                if($node) {
+                    self::id($id)->update(['parent_node_id' => $node['id']]);
+                }
+            }
+        }
+    }
+
+    
 
     protected static function onupdateOwnershipId($self) {
         $self

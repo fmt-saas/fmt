@@ -10,7 +10,7 @@ use documents\recording\RecordingRuleLine;
 $events = $orm->disableEvents();
 
 
-$documentType = DocumentType::search(['code', '=', 'invoice'])->first();
+$documentType = DocumentType::search(['code', '=', 'supplier_invoice'])->first();
 $documentSubtype = DocumentSubtype::search(['code', '=', 'advance_invoice'])->first();
 
 $recordingRule = RecordingRule::create([

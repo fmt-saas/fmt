@@ -775,7 +775,7 @@ class BankStatement extends Model {
                         'condo_id'          => $bankStatement['condo_id'],
                         'name'              => sprintf("%s %06d", 'extrait bancaire', $id),
                         'bank_statement_id' => $id,
-                        'document_type_id'  => $documentType['id'],
+                        'document_type_id'  => $documentType['id'] ?? null,
                         'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
                         'is_origin'         => true,
                         'is_source'         => false
