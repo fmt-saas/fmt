@@ -52,17 +52,7 @@
                                                 "entity": "realestate\\governance\\Assembly",
                                                 "view": "list.dashboard",
                                                 "domain": ["condo_id", "in", "user.condos_ids"]
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "height": "50%",
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
+                                            },
                                             {
                                                 "id": "item.documents",
                                                 "label": "Documents",
