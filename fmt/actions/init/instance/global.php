@@ -57,7 +57,7 @@ if($map_init_packages['fmt']) {
 eQual::run('do', 'init_package', [
     'package'           => 'core',
     'ignore_platform'   => true,
-    'force'             => !$map_init_packages['core']
+    'force'             => $map_init_packages['core']
 ]);
 
 # init identity
@@ -66,7 +66,7 @@ eQual::run('do', 'init_package', [
     'import'            => true,
     'import_cascade'    => false,
     'ignore_platform'   => true,
-    'force'             => !$map_init_packages['identity']
+    'force'             => $map_init_packages['identity']
 ]);
 
 # init communication
@@ -75,7 +75,7 @@ eQual::run('do', 'init_package', [
     'import'            => true,
     'import_cascade'    => false,
     'ignore_platform'   => true,
-    'force'             => !$map_init_packages['communication']
+    'force'             => $map_init_packages['communication']
 ]);
 
 # init fmt (with data)
