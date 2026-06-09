@@ -23,7 +23,11 @@
                                                 "width": "50%",
                                                 "entity": "realestate\\sale\\pay\\Funding",
                                                 "view": "list.dashboard",
-                                                "domain": [ ["ownership_id", "in", "user.ownerships_ids"], ["status", "<>", "pending"], ["funding_type", "in", ["fund_request", "expense_statement", "reminder"]] ]
+                                                "domain": [
+                                                    ["ownership_id", "in", "user.ownerships_ids"],
+                                                    ["status", "<>", "pending"],
+                                                    ["funding_type", "in", ["fund_request", "expense_statement", "reminder"]]
+                                                ]
                                             },
                                             {
                                                 "id": "item.property_lots",
@@ -60,7 +64,10 @@
                                                 "width": "50%",
                                                 "entity": "documents\\Document",
                                                 "view": "list.dashboard",
-                                                "domain": [["condo_id", "in", "user.condos_ids"], ["owner_id", "in", "user.owners_ids"]]
+                                                "domain": [
+                                                    ["condo_id", "in", "user.condos_ids"],
+                                                    ["owner_id", "in", "user.owners_ids"]
+                                                ]
                                             }
                                         ]
                                     }

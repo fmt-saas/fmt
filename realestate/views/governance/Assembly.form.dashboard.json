@@ -61,7 +61,12 @@
                                                 "type": "field",
                                                 "label": "Assembly Organizer",
                                                 "value": "assembly_organizer_identity_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": false
+                                                    }
+                                                }
                                             }
                                         ]
                                     },
@@ -76,7 +81,12 @@
                                                 "type": "field",
                                                 "label": "Condominium",
                                                 "value": "condo_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": false
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
@@ -101,12 +111,22 @@
                                             {
                                                 "type": "field",
                                                 "value": "second_session_assembly_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": false
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "related_assembly_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": false
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
@@ -156,15 +176,8 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "header": {
-                                                        "actions": {
-                                                            "ACTION.CREATE": [
-                                                                {
-                                                                    "view": "form.create",
-                                                                    "description": "#todo - visibility conditions not implemented",
-                                                                    "visible": true
-                                                                }
-                                                            ]
-                                                        }
+                                                        "layout": "inline",
+                                                        "actions": false
                                                     }
                                                 }
                                             }
@@ -177,8 +190,7 @@
                     {
                         "id": "section.minutes_attachments",
                         "label": "Minutes attachments",
-                        "visible": false,
-                        "visible_1": [
+                        "visible": [
                             [
                                 "status",
                                 "not in",
@@ -200,7 +212,14 @@
                                             {
                                                 "type": "field",
                                                 "value": "minutes_attachment_documents_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.dashboard",
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": false
+                                                    }
+                                                }
                                             }
                                         ]
                                     }
