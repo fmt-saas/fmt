@@ -1,0 +1,215 @@
+{
+    "name": "Assembly",
+    "description": "Assembly information, agenda, and logistics.",
+    "header": {
+        "actions": false
+    },
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "id": "section.details",
+                        "label": "Details",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_type",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "name",
+                                                "width": "66%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_date",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "session_time_start",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "session_time_end",
+                                                "width": "33%",
+                                                "visible": [
+                                                    "status",
+                                                    "not in",
+                                                    [
+                                                        "pending",
+                                                        "published",
+                                                        "sending",
+                                                        "sent"
+                                                    ]
+                                                ]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_location",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Assembly Organizer",
+                                                "value": "assembly_organizer_identity_id",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "16%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Condominium",
+                                                "value": "condo_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "step",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_second_session",
+                                                "width": "100%",
+                                                "visible": false,
+                                                "widget": {
+                                                    "readonly": true
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_second_session",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "second_session_assembly_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "related_assembly_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_valid",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "readonly": true
+                                                },
+                                                "visible": [
+                                                    "step",
+                                                    "in",
+                                                    [
+                                                        "assembly_validation",
+                                                        "agenda_processing"
+                                                    ]
+                                                ]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "invalidity_reason",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_complete",
+                                                "width": "100%",
+                                                "visible": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.resolutions",
+                        "label": "Resolutions",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_items_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": [
+                                                                {
+                                                                    "view": "form.create",
+                                                                    "description": "#todo - visibility conditions not implemented",
+                                                                    "visible": true
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.minutes_attachments",
+                        "label": "Minutes attachments",
+                        "visible": false,
+                        "visible_1": [
+                            [
+                                "status",
+                                "not in",
+                                [
+                                    "pending",
+                                    "published",
+                                    "sending",
+                                    "sent"
+                                ]
+                            ],
+                            ["step", "=", "assembly_closing"]
+                        ],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "minutes_attachment_documents_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

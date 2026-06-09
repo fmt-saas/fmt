@@ -56,6 +56,25 @@
                                         ]
                                     }
                                 ]
+                            },
+                            {
+                                "height": "50%",
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "id": "item.documents",
+                                                "label": "Documents",
+                                                "description": "",
+                                                "width": "50%",
+                                                "entity": "documents\\Document",
+                                                "view": "list.dashboard",
+                                                "domain": [["condo_id", "in", "user.condos_ids"], ["owner_id", "in", "user.owners_ids"]]
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     }

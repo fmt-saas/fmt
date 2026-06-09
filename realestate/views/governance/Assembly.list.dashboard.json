@@ -5,6 +5,7 @@
         "layout": "inline",
         "actions": false
     },
+    "domain": ["status", "not in", ["pending"]],
     "order": "assembly_date",
     "sort": "desc",
     "on_empty": {
