@@ -171,6 +171,7 @@ class User extends \core\User {
                 'result_type'       => 'many2one',
                 'foreign_object'    => 'hr\employee\Employee',
                 'store'             => true,
+                'readonly'          => true,
                 'relation'          => ['identity_id' => 'employee_id'],
                 'description'       => 'The employee relating to the user, if set.',
             ],
@@ -178,7 +179,9 @@ class User extends \core\User {
             'is_system' => [
                 'type'              => 'boolean',
                 'default'           => false,
-                'readonly'          => false
+                'readonly'          => false,
+                'description'       => 'The user is related to system administration.',
+                'help'              => 'The user has system-administration purpose and must not be shown to business-users.'
             ],
 
             'is_employee' => [

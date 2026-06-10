@@ -7,6 +7,7 @@
 
 use documents\Document;
 use documents\DocumentType;
+use documents\DocumentSubtype;
 use documents\navigation\Node;
 use realestate\funding\ExpenseStatementCorrespondence;
 

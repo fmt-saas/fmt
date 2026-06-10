@@ -75,7 +75,7 @@ if(!$document_id) {
     $parentNode = Node::search([
             ['condo_id', '=', $assemblyInvitationCorrespondence['condo_id'] ],
             ['node_type', '=', 'folder'],
-            ['code', '=', $$documentSubtype['folder_code'] ?? 'general_meetings']
+            ['code', '=', $documentSubtype['folder_code'] ?? 'general_meetings']
         ])
         ->first();
 

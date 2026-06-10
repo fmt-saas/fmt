@@ -66,6 +66,7 @@ foreach($employees as $employee_id => $employee) {
                 'language'      => 'fr',
                 'validated'     => true,
                 'is_employee'   => true,
+                'is_owner'      => false,
                 // users
                 'groups_ids'    => [2]
             ])
