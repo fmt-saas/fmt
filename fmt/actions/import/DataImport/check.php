@@ -230,13 +230,13 @@ if($dataImport['import_type'] == 'condominium_import') {
 
         }
 
-        if(!preg_match('/^([_a-z0-9-\.]+)(\+([_a-z0-9]+))?@(([a-z0-9-]+\.)*)([a-z0-9-]{1,63})(\.[a-z-]{2,24})$/i', $owner['email_1'])) {
+        if(strlen($owner['email_1']) > 0 && !preg_match('/^([_a-z0-9-\.]+)(\+([_a-z0-9]+))?@(([a-z0-9-]+\.)*)([a-z0-9-]{1,63})(\.[a-z-]{2,24})$/i', $owner['email_1'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - invalid `email_1` ({$owner['email_1']}) in Owner sheet at row " . ($index + 2);
 
         }
 
-        if(!preg_match('/^([_a-z0-9-\.]+)(\+([_a-z0-9]+))?@(([a-z0-9-]+\.)*)([a-z0-9-]{1,63})(\.[a-z-]{2,24})$/i', $owner['email_2'])) {
+        if(strlen($owner['email_2']) > 0 && !preg_match('/^([_a-z0-9-\.]+)(\+([_a-z0-9]+))?@(([a-z0-9-]+\.)*)([a-z0-9-]{1,63})(\.[a-z-]{2,24})$/i', $owner['email_2'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - invalid `email_2` ({$owner['email_2']}) in Owner sheet at row " . ($index + 2);
 

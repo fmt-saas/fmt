@@ -627,6 +627,7 @@
                         "description": "Manage application user accounts.",
                         "context": {
                             "entity": "identity\\User",
+                            "domain": ["id", ">", 3],
                             "view": "list.default"
                         }
                     },
