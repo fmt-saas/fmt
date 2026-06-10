@@ -19,6 +19,8 @@ Ownership::create([
     "representative_identity_id"=> null,
     "has_representative"=> false,
     "date_from"=> strtotime("2020-01-01T00:00:00+00:00"),
+    // #memo - cannot be empty
+    'address_recipient' =>  ' '
 ]);
 
 Ownership::create([
@@ -32,6 +34,8 @@ Ownership::create([
     "representative_identity_id"=> null,
     "has_representative"=> false,
     "date_from"=> strtotime("2010-01-01T00:00:00+00:00"),
+    // #memo - cannot be empty
+    'address_recipient' =>  ' '
 ]);
 
 Ownership::create([
@@ -45,6 +49,8 @@ Ownership::create([
     "representative_identity_id"=> null,
     "has_representative"=> false,
     "date_from"=> strtotime("2020-01-01T00:00:00+00:00"),
+    // #memo - cannot be empty
+    'address_recipient' =>  ' '
 ]);
 
 Ownership::create([
@@ -58,7 +64,10 @@ Ownership::create([
     "representative_identity_id"=> null,
     "has_representative"=> false,
     "date_from"=> strtotime("2020-01-01T00:00:00+00:00"),
+    // #memo - cannot be empty
+    'address_recipient' =>  ' '
 ]);
+
 Ownership::create([
     "id"=> 6,
     "description"=> "Raoul Ménart",
@@ -70,7 +79,10 @@ Ownership::create([
     "representative_identity_id"=> null,
     "has_representative"=> false,
     "date_from"=> strtotime("2020-01-01T00:00:00+00:00"),
+    // #memo - cannot be empty
+    'address_recipient' =>  ' '
 ]);
+
 Ownership::create([
     "id"=> 7,
     "description"=> "Roland Dupuis",
@@ -82,6 +94,8 @@ Ownership::create([
     "representative_identity_id"=> null,
     "has_representative"=> false,
     "date_from"=> strtotime("2020-01-01T00:00:00+00:00"),
+    // #memo - cannot be empty
+    'address_recipient' =>  ' '
 ]);
 
 

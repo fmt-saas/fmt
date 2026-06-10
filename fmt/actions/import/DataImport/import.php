@@ -696,7 +696,7 @@ try {
                         'condo_id'          => $condominium['id'],
                         'date_from'         => strtotime($ownership_history['date_from']),
                         'date_to'           => $date_to,
-                        // "memo - cannot be empty
+                        // #memo - cannot be empty
                         'address_recipient' =>  ' '
                     ])
                     ->first();
