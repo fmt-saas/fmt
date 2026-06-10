@@ -5,6 +5,10 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use core\Group;
+use hr\employee\Employee;
+use identity\Identity;
+use identity\User;
 use infra\server\Instance;
 
 [$params, $providers] = eQual::announce([
@@ -38,6 +42,11 @@ use infra\server\Instance;
                 'demo'
             ],
             'default'           => 'recommended'
+        ],
+        'create_users' => [
+            'type'              => 'boolean',
+            'description'       => "Create default users.",
+            'default'           => true
         ]
     ],
     'access' => [
@@ -55,6 +64,49 @@ use infra\server\Instance;
  * @var \equal\php\Context  $context
  */
 ['context' => $context] = $providers;
+
+/**
+ * Methods
+ */
+
+$createUser = function($user) {
+    $employee = Employee::create()->first();
+
+    $identity = Identity::create([
+        'type_id'           => 1,
+        'type'              => 'IN',
+        'firstname'         => $user['firstname'],
+        'lastname'          => $user['lastname'],
+        'email'             => $user['email'],
+        'has_parent'        => false,
+        'nationality'       => 'BE',
+        'lang_id'           => 2,
+        'address_country'   => 'BE',
+        'has_vat'           => false,
+        'is_active'         => true,
+        'employee_id'       => $employee['id']
+    ])
+        ->read(['name', 'email'])
+        ->first();
+
+    Employee::id($employee['id'])
+        ->update(['identity_id' => $identity['id']])
+        ->do('sync_from_identity');
+
+    User::create([
+        'login'         => $identity['email'],
+        'language'      => 'fr',
+        'validated'     => true,
+        'instance_id'   => 1,
+        'groups_ids'    => $user['groups_ids']
+    ])
+        ->update(['identity_id' => $identity['id']])
+        ->do('sync_from_identity');
+};
+
+/**
+ * Action
+ */
 
 if($params['sync']) {
     if(empty($params['instance_uuid'])) {
@@ -158,6 +210,49 @@ if(!empty($params['instance_uuid'])) {
 
         // pull data from global depending on the sync policies
         eQual::run('do', 'fmt_sync_pull-from-global', ['accept' => true, 'level' => $params['level']]);
+    }
+}
+
+if($params['create_users']) {
+    $instance = Instance::id(1)
+        ->read(['name'])
+        ->first();
+
+    $group_admins = Group::search(['name', '=', 'admins'])
+        ->read(['id'])
+        ->first();
+
+    $group_operators = Group::search(['name', '=', 'operators'])
+        ->read(['id'])
+        ->first();
+
+    $group_users = Group::search(['name', '=', 'users'])
+        ->read(['id'])
+        ->first();
+
+    $users = [
+        [
+            'firstname'     => 'First',
+            'lastname'      => 'Admin',
+            'email'         => "admin@{$instance['name']}",
+            'groups_ids'    => [$group_admins['id'], $group_operators['id'], $group_users['id']]
+        ],
+        [
+            'firstname'     => 'First',
+            'lastname'      => 'Operator',
+            'email'         => "operator@{$instance['name']}",
+            'groups_ids'    => [$group_operators['id'], $group_users['id']]
+        ],
+        [
+            'firstname'     => 'First',
+            'lastname'      => 'Accountant',
+            'email'         => "accountant@{$instance['name']}",
+            'groups_ids'    => [$group_admins['id'], $group_users['id']]
+        ]
+    ];
+
+    foreach($users as $user) {
+        $createUser($user);
     }
 }
 
