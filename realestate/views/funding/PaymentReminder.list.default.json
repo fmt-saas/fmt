@@ -21,6 +21,9 @@
             ]
         }
     },
+    "on_empty": {
+        "message": "Pas de rappel envoyé."
+    },
     "layout": {
         "items": [
             {

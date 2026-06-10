@@ -10,8 +10,6 @@
             {
                 "sections": [
                     {
-                        "label": "General Info",
-                        "id": "section.funding_section",
                         "rows": [
                             {
                                 "columns": [
@@ -99,17 +97,28 @@
                                                 "value": "remaining_amount",
                                                 "width": "100%",
                                                 "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_paid",
+                                                "width": "100%",
+                                                "visible": false,
+                                                "readonly": true
                                             }
                                         ]
                                     }
                                 ]
                             }
                         ]
-                    },
+                    }
+                ]
+            },
+            {
+                "sections": [
                     {
                         "label": "Payments",
                         "id": "section.payments_section",
-                        "visible": ["state", "<>", "draft"],
+                        "visible": ["due_amount", "<>", "object.remaining_amount"],
                         "rows": [
                             {
                                 "columns": [
@@ -136,7 +145,7 @@
                     {
                         "label": "Reminders",
                         "id": "section.reminders_section",
-                        "visible": ["state", "<>", "draft"],
+                        "visible": ["is_paid", "=", false],
                         "rows": [
                             {
                                 "columns": [
