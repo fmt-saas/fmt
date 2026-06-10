@@ -49,6 +49,18 @@ class Instance extends Model {
                 'description'       => 'Short description of the instance.'
             ],
 
+            'synced' => [
+                'type'              => 'datetime',
+                'description'       => 'Date of last automatic status update.',
+                'help'              => 'The "up" field can be auto updated by the action "infra_server_Instance_fetch-status".'
+            ],
+
+            'up' => [
+                'type'              => 'boolean',
+                'description'       => 'Is the instance currently up, is set according to the last infra\server\Status retrieval.',
+                'default'           => false
+            ],
+
             'instance_type' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -101,6 +113,13 @@ class Instance extends Model {
                 'description'       => "Has the user access token been generated yet.",
                 'store'             => false,
                 'function'          => 'calcUserTokenGenerated'
+            ],
+
+            'statuses_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'infra\server\Status',
+                'foreign_field'     => 'instance_id',
+                'description'       => 'Statuses of the instance.'
             ]
 
         ];
