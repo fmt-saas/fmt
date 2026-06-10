@@ -59,6 +59,7 @@ foreach($owners as $owner_id => $owner) {
                 'login'         => $identity['email'],
                 'language'      => 'fr',
                 'validated'     => true,
+                'is_owner'      => true,
                 // users
                 'groups_ids'    => [2]
             ])

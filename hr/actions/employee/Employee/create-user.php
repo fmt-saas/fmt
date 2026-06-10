@@ -65,6 +65,7 @@ foreach($employees as $employee_id => $employee) {
                 'login'         => $identity['email'],
                 'language'      => 'fr',
                 'validated'     => true,
+                'is_employee'   => true,
                 // users
                 'groups_ids'    => [2]
             ])

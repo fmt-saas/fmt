@@ -71,6 +71,18 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "has_free_payment_reference",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "free_payment_reference",
+                                                "width": "100%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "payment_reference",
                                                 "width": "100%",
                                                 "readonly": true

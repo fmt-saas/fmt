@@ -175,18 +175,24 @@ class User extends \core\User {
                 'description'       => 'The employee relating to the user, if set.',
             ],
 
+            'is_system' => [
+                'type'              => 'boolean',
+                'default'           => false,
+                'readonly'          => false
+            ],
+
             'is_employee' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
                 'function'          => 'calcIsEmployee',
-                'store'             => false
+                'store'             => true
             ],
 
             'is_owner' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
                 'function'          => 'calcIsOwner',
-                'store'             => false
+                'store'             => true
             ]
 
         ];
