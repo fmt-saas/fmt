@@ -95,21 +95,27 @@ $createUser = function($user) {
         ->update(['identity_id' => $identity['id']])
         ->do('sync_from_identity');
 
-    $role_assignment = RoleAssignment::create([
-        'employee_id'   => $employee['id'],
-        'role_id'       => $user['role_id'],
-    ])
-        ->read(['id'])
-        ->first();
+    $user_data = [
+        'login'         => $identity['email'],
+        'language'      => 'fr',
+        'validated'     => true,
+        'instance_id'   => 1,
+        'groups_ids'    => $user['groups_ids'],
+    ];
 
-    User::create([
-        'login'                 => $identity['email'],
-        'language'              => 'fr',
-        'validated'             => true,
-        'instance_id'           => 1,
-        'groups_ids'            => $user['groups_ids'],
-        'role_assignments_ids'  => [$role_assignment['id']]
-    ])
+    if($user['role_id']) {
+        $role_assignment = RoleAssignment::create([
+            'employee_id'   => $employee['id'],
+            'role_id'       => $user['role_id'],
+            'is_primary'    => true
+        ])
+            ->read(['id'])
+            ->first();
+
+        $user_data['role_assignments_ids'] = [$role_assignment['id']];
+    }
+
+    User::create($user_data)
         ->update(['identity_id' => $identity['id']])
         ->do('sync_from_identity');
 };
