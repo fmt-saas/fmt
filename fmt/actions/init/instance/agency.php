@@ -98,7 +98,6 @@ $createUser = function($user) {
         'language'      => 'fr',
         'validated'     => true,
         'instance_id'   => 1,
-        // users
         'groups_ids'    => $user['groups_ids']
     ])
         ->update(['identity_id' => $identity['id']])
