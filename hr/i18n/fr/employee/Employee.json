@@ -52,13 +52,30 @@
             "label": "Absences",
             "description": "Liste des absences de l'employé.",
             "help": ""
+        },
+        "teams_ids": {
+            "label": "Équipes",
+            "description": "Liste des équipes dont fait partie l'employé.",
+            "help": ""
+        },
+        "role_assignements_ids": {
+            "label": "Roles",
+            "description": "Liste des roles de l'employé.",
+            "help": ""
         }
     },
     "view": {
         "form.default": {
             "name": "Employé",
             "description": "Formulaire de base pour afficher un employé (Partenaire).",
-            "layout": {},
+            "layout": {
+                "section.teams": {
+                    "label": "Équipes"
+                },
+                "section.assignments": {
+                    "label": "Roles"
+                }
+            },
             "actions": {
                 "action.create_account": {
                     "label": "Créer un compte utilisateur",
