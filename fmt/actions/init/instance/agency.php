@@ -7,6 +7,8 @@
 
 use core\Group;
 use hr\employee\Employee;
+use hr\role\Role;
+use hr\role\RoleAssignment;
 use identity\Identity;
 use identity\User;
 use infra\server\Instance;
@@ -93,12 +95,20 @@ $createUser = function($user) {
         ->update(['identity_id' => $identity['id']])
         ->do('sync_from_identity');
 
+    $role_assignment = RoleAssignment::create([
+        'employee_id'   => $employee['id'],
+        'role_id'       => $user['role_id'],
+    ])
+        ->read(['id'])
+        ->first();
+
     User::create([
-        'login'         => $identity['email'],
-        'language'      => 'fr',
-        'validated'     => true,
-        'instance_id'   => 1,
-        'groups_ids'    => $user['groups_ids']
+        'login'                 => $identity['email'],
+        'language'              => 'fr',
+        'validated'             => true,
+        'instance_id'           => 1,
+        'groups_ids'            => $user['groups_ids'],
+        'role_assignments_ids'  => [$role_assignment['id']]
     ])
         ->update(['identity_id' => $identity['id']])
         ->do('sync_from_identity');
@@ -218,41 +228,70 @@ if($params['create_users']) {
         ->read(['name'])
         ->first();
 
-    $group_admins = Group::search(['name', '=', 'admins'])
-        ->read(['id'])
-        ->first();
+    $group_names = ['operators', 'users'];
+    $groups = Group::search(['name', 'in', $group_names])
+        ->read(['name'])
+        ->get();
+    $map_name_groups_ids = [];
+    foreach($groups as $id => $role) {
+        $map_name_groups_ids[$role['name']] = $id;
+    }
 
-    $group_operators = Group::search(['name', '=', 'operators'])
-        ->read(['id'])
-        ->first();
+    $role_codes = ['director', 'manager', 'accountant', 'condo_manager', 'assistant'];
+    $roles = Role::search(['code', 'in', $role_codes])
+        ->read(['code'])
+        ->get();
+    $map_codes_roles_ids = [];
+    foreach($roles as $id => $role) {
+        $map_codes_roles_ids[$role['code']] = $id;
+    }
 
-    $group_users = Group::search(['name', '=', 'users'])
-        ->read(['id'])
-        ->first();
-
-    $users = [
+    $users_data = [
         [
-            'firstname'     => 'First',
-            'lastname'      => 'Admin',
-            'email'         => "admin@{$instance['name']}",
-            'groups_ids'    => [$group_admins['id'], $group_operators['id'], $group_users['id']]
+            'firstname'             => 'First',
+            'lastname'              => 'Operator',
+            'email'                 => "operator@{$instance['name']}",
+            'groups_ids'            => [$map_name_groups_ids['operators'], $map_name_groups_ids['users']]
         ],
         [
-            'firstname'     => 'First',
-            'lastname'      => 'Operator',
-            'email'         => "operator@{$instance['name']}",
-            'groups_ids'    => [$group_operators['id'], $group_users['id']]
+            'firstname'             => 'First',
+            'lastname'              => 'Director',
+            'email'                 => "director@{$instance['name']}",
+            'groups_ids'            => [$map_name_groups_ids['users']],
+            'role_id'               => $map_codes_roles_ids['director']
         ],
         [
-            'firstname'     => 'First',
-            'lastname'      => 'Accountant',
-            'email'         => "accountant@{$instance['name']}",
-            'groups_ids'    => [$group_admins['id'], $group_users['id']]
+            'firstname'             => 'First',
+            'lastname'              => 'Manager',
+            'email'                 => "manager@{$instance['name']}",
+            'groups_ids'            => [$map_name_groups_ids['users']],
+            'role_id'               => $map_codes_roles_ids['manager']
+        ],
+        [
+            'firstname'             => 'First',
+            'lastname'              => 'Accountant',
+            'email'                 => "accountant@{$instance['name']}",
+            'groups_ids'            => [$map_name_groups_ids['users']],
+            'role_id'               => $map_codes_roles_ids['accountant']
+        ],
+        [
+            'firstname'             => 'First',
+            'lastname'              => 'Condo Manager',
+            'email'                 => "condo-manager@{$instance['name']}",
+            'groups_ids'            => [$map_name_groups_ids['users']],
+            'role_id'               => $map_codes_roles_ids['condo_manager']
+        ],
+        [
+            'firstname'             => 'First',
+            'lastname'              => 'Assistant',
+            'email'                 => "assistant@{$instance['name']}",
+            'groups_ids'            => [$map_name_groups_ids['users']],
+            'role_id'               => $map_codes_roles_ids['assistant']
         ]
     ];
 
-    foreach($users as $user) {
-        $createUser($user);
+    foreach($users_data as $user_data) {
+        $createUser($user_data);
     }
 }
 
