@@ -290,6 +290,10 @@ if($dataImport['import_type'] == 'condominium_import') {
             ++$result['errors'];
             $result['logs'][] = "ERR - unknown `ownership_code` '" . $ownership['ownership_code'] . "' in Ownership_com sheet at row " . ($index + 2);
         }
+        if(strlen($ownership_communication['ownership_title']) <= 0) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing `ownership_title` '" . $ownership['ownership_code'] . "' in Ownership_com sheet at row " . ($index + 2);
+        }
     }
 
     foreach($data['Entrances'] as $index => $owner) {

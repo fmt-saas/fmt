@@ -166,11 +166,8 @@ class Ownership extends \equal\orm\Model {
             ],
 
             'address_recipient' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'store'             => true,
-                'function'          => 'calcAddressRecipient',
-                // #memo - on n'a pas le lien de parenté
+                'type'              => 'string',
+                'required'          => true,
                 'description'       => "Line to be used for sending courier to the Ownership representative(s)."
             ],
 
@@ -301,16 +298,18 @@ class Ownership extends \equal\orm\Model {
         ];
     }
 
+
+    // #todo - move this to calcName
     protected static function calcAddressRecipient($self) {
         $result = [];
 
-        $self->read(['owners_ids' => ['firstname', 'lastname', 'gender', 'lang_id']]);
+        $self->read(['address_recipient', 'owners_ids' => ['firstname', 'lastname', 'gender', 'lang_id']]);
 
         foreach($self as $id => $ownership) {
             $owners = $ownership['owners_ids'];
 
             if(empty($owners)) {
-                $result[$id] = '';
+                $result[$id] = $ownership['address_recipient'];
                 continue;
             }
 
