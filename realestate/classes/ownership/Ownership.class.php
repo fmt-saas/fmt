@@ -202,8 +202,7 @@ class Ownership extends \equal\orm\Model {
                 'help'              => "Owner (amongst the owners) designated by the joint ownership for representing the ownership.
                     As of BE Law on Co-ownership - Article 3.87, § 1.",
                 'foreign_object'    => 'realestate\ownership\Owner',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.id']],
-                'dependents'        => ['address_recipient']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.id']]
             ],
 
             // représentants secondaires (pour générer d'autres lignes de communication) - uniquement
