@@ -17,16 +17,22 @@ use infra\server\Status;
             'type'              => 'many2one',
             'foreign_object'    => 'infra\server\Server',
             'required'          => true
+        ],
+        'sync_instances' => [
+            'type'              => 'boolean',
+            'description'       => 'Synchronize statuses of all the instances of the server.',
+            'default'           => false
         ]
     ],
     'access'            => [
-        'visibility'        => 'private'
+        'visibility'        => 'protected'
     ],
     'response'          => [
         'content-type'      => 'application/json',
         'charset'           => 'utf-8',
         'accept-origin'     => '*'
     ],
+    'constants'         => ['FMT_INSTANCE_TYPE'],
     'providers'         => ['context']
 ]);
 
@@ -35,8 +41,12 @@ use infra\server\Status;
  */
 ['context' => $context] = $providers;
 
+if(constant('FMT_INSTANCE_TYPE') !== 'global') {
+    throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
+}
+
 $server = Server::id($params['id'])
-    ->read(['id'])
+    ->read(['instances_ids'])
     ->first();
 
 if(!$server) {
@@ -44,7 +54,7 @@ if(!$server) {
 }
 
 try {
-    $status = eQual::run('get', 'infra_server_Server_status', ['id' => $params['id']]);
+    $status = eQual::run('get', 'infra_server_Server_status', ['id' => $server['id']]);
 
     Status::create([
         'server_id'     => $params['id'],
@@ -57,13 +67,19 @@ try {
 
     // server is up
     Server::id($params['id'])->update(['up' => true, 'synced' => time()]);
+
+    if($params['sync_instances']) {
+        foreach($server['instances_ids'] as $instance_id) {
+            eQual::run('do', 'infra_server_Instance_sync-status', ['id' => $instance_id]);
+        }
+    }
 }
 catch(Exception $e) {
     // server is down (will cascade to instances)
     Server::id($params['id'])->update(['up' => false, 'synced' => time()]);
 }
 
-
-$context->httpResponse()
-        ->status(204)
-        ->send();
+$context
+    ->httpResponse()
+    ->status(204)
+    ->send();
