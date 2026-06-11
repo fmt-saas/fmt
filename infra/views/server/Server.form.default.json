@@ -66,11 +66,7 @@
                                 ]
                             }
                         ]
-                    }
-                ]
-            },
-            {
-                "sections": [
+                    },
                     {
                         "id": "section.instances",
                         "label": "Instances",
