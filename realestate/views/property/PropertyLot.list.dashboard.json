@@ -3,9 +3,14 @@
     "description": "List of property lots.",
     "header": {
         "layout": "inline",
-        "actions": false
+        "actions": false,
+        "exports": false,
+        "advanced_search": false
     },
     "layout": {
+        "interactions": {
+            "click": false
+        },
         "items": [
             {
                 "type": "field",

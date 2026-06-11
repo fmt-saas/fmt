@@ -3,11 +3,36 @@
     "description": "This view is intended for displaying the list of documents.",
     "header": {
         "layout": "inline",
-        "actions": false
+        "actions": false,
+        "exports": false,
+        "advanced_search": false
     },
     "order": "created",
     "sort": "desc",
+    "domain": ["document_visibility", "in", ["condo"]],
+    "on_empty": {
+        "message": "Aucun document disponible."
+    },
+    "routes": [
+        {
+            "id": "route.document",
+            "label": "Document",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "documents\\Document",
+                "view": "form.dashboard",
+                "domain": [
+                    ["id", "=", "object.id"]
+                ]
+            }
+        }
+    ],
     "layout": {
+        "interactions": {
+            "click": false
+        },
         "items": [
             {
                 "type": "field",

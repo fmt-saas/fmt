@@ -3,15 +3,36 @@
     "description": "Overview of scheduled assemblies and their status.",
     "header": {
         "layout": "inline",
-        "actions": false
+        "actions": false,
+        "exports": false,
+        "advanced_search": false
     },
-    "domain": ["status", "not in", ["pending"]],
     "order": "assembly_date",
     "sort": "desc",
+    "domain": ["status", "not in", ["pending"]],
     "on_empty": {
         "message": "Aucune assemblée générale planifiée."
     },
+    "routes": [
+        {
+            "id": "route.assembly",
+            "label": "Assembly",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "realestate\\governance\\Assembly",
+                "view": "form.dashboard",
+                "domain": [
+                    ["id", "=", "object.id"]
+                ]
+            }
+        }
+    ],
     "layout": {
+        "interactions": {
+            "click": false
+        },
         "items": [
             {
                 "type": "field",
