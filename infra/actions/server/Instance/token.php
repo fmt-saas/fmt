@@ -13,8 +13,8 @@ use infra\server\Instance;
     'params' 		=> [
         'id' => [
             'type'              => 'many2one',
-            'description'       => "Instance id for which a token is requested.",
             'foreign_object'    => 'infra\server\Instance',
+            'description'       => "Instance id for which a token is requested.",
             'required'          => true
         ],
 

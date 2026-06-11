@@ -5,12 +5,12 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 
+use core\User;
+use equal\http\HttpRequest;
 use infra\server\Instance;
-use infra\server\Status;
 
 [$params, $providers] = eQual::announce([
-    'description'       => "Fetches and saves statuses for a given instance.",
-    'help'              => "Calls hosts API to fetch 'instant' statuses and updates instance 'up' field accordingly.",
+    'description'       => "Stop instance using the b2 API.",
     'params'            => [
         'id' =>  [
             'type'              => 'many2one',
@@ -27,7 +27,7 @@ use infra\server\Status;
         'charset'           => 'utf-8',
         'accept-origin'     => '*'
     ],
-    'constants'         => ['FMT_INSTANCE_TYPE'],
+    'constants'         => ['BACKEND_URL', 'FMT_INSTANCE_TYPE'],
     'providers'         => ['context']
 ]);
 
@@ -41,32 +41,34 @@ if(constant('FMT_INSTANCE_TYPE') !== 'global') {
 }
 
 $instance = Instance::id($params['id'])
-    ->read(['id'])
+    ->read(['name', 'server_id' => ['b2_api_url', 'b2_api_password']])
     ->first();
 
 if(!$instance) {
     throw new Exception('unknown_instance', EQ_ERROR_INVALID_PARAM);
 }
 
-try {
-    $status = eQual::run('get', 'infra_server_Instance_status', ['id' => $instance['id']]);
-
-    Status::create([
-        'instance_id'   => $instance['id'],
-        'status_data'   => json_encode($status, JSON_PRETTY_PRINT),
-        'dsk_use'       => (float) str_replace(['%', ','], ['', '.'], $status['instant']['dsk_use'] ?? 0) / 100,
-        'cpu_use'       => (float) str_replace(['%', ','], ['', '.'], $status['instant']['cpu_use'] ?? 0) / 100,
-        'ram_use'       => (float) str_replace(['%', ','], ['', '.'], $status['instant']['ram_use'] ?? 0) / 100,
-        'total_proc'    => intval($status['instant']['total_proc'] ?? 0)
-    ]);
-
-    // instance is up
-    Instance::id($instance['id'])->update(['up' => true, 'synced' => time()]);
+if(empty($instance['server_id']['b2_api_url']) || empty($instance['server_id']['b2_api_password'])) {
+    throw new Exception('invalid_b2_conf', EQ_ERROR_INVALID_CONFIG);
 }
-catch(Exception $e) {
-    // instance is down
-    Instance::id($instance['id'])->update(['up' => false, 'synced' => time()]);
+
+$request = new HttpRequest("POST {$instance['server_id']['b2_api_url']}/instance/stop", [], json_encode(['instance' => $instance['name']]));
+
+$credentials = base64_encode("root:{$instance['server_id']['b2_api_password']}");
+
+$request
+    ->header('Content-Type', 'application/json')
+    ->header('Authorization', "Basic $credentials");
+
+$response = $request->send();
+
+$status = $response->getStatusCode();
+
+if($status < 200 || $status > 299) {
+    throw new Exception('unable_to_stop_b2_instance', EQ_ERROR_UNKNOWN);
 }
+
+Instance::id($instance['id'])->update(['up' => false, 'synced' => time()]);
 
 $context
     ->httpResponse()
