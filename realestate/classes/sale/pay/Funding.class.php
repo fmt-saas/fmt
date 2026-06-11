@@ -327,7 +327,7 @@ class Funding extends \sale\pay\Funding {
             }
 
             // first search for exact owner
-            $document = Document::search(array_merge($domain, ['owner_id', '=', $owner['id']]))
+            $document = Document::search(array_merge($domain, [['owner_id', '=', $owner['id']]]))
                 ->read(['hash'])
                 ->first();
 
