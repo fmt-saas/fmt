@@ -49,9 +49,9 @@ use identity\User;
 
 $user_id = $auth->userId();
 
-// #memo - Capabilities are on 'creator' context
+
 // we need root privilege
-// $auth->su();
+$auth->su();
 
 $ids = array_merge((array) ($params['id'] ?? []), $params['ids'] ?? []);
 
@@ -68,6 +68,8 @@ foreach($employees as $employee_id => $employee) {
         }
         // search for an email address
         User::create([
+                // #memo - Capabilities for EQ_R_UPDATE are based on 'creator' context
+                'creator'       => $user_id,
                 'login'         => $identity['email'],
                 'language'      => 'fr',
                 'validated'     => true,
@@ -83,7 +85,7 @@ foreach($employees as $employee_id => $employee) {
     RoleAssignment::ids($employee['role_assignments_ids'])->read(['user_id']);
 }
 
-// $auth->su($user_id);
+$auth->su($user_id);
 
 $context->httpResponse()
         ->status(201)
