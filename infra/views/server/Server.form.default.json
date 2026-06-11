@@ -34,6 +34,11 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "b2_api_password",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "description",
                                                 "width": "100%"
                                             }
