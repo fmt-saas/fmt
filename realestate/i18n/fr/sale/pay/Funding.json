@@ -41,6 +41,11 @@
             "description": "Indique si le paiement doit être exécuté via un mandat SEPA actif.",
             "help": ""
         },
+        "has_free_payment_reference": {
+            "label": "Référence libre",
+            "description": "Indique si la communication de paiement est saisie manuellement.",
+            "help": ""
+        },
         "payment_reference": {
             "label": "Référence de paiement",
             "description": "Message communiqué au débiteur/créditeur (référence SEPA, communication structurée...).",
@@ -66,6 +71,16 @@
             "description": "Indique si le funding est entièrement réglé.",
             "help": ""
         },
+        "has_payment_on_hold": {
+            "label": "Paiement suspendu",
+            "description": "Indique que le paiement ne doit pas encore être exécuté.",
+            "help": ""
+        },
+        "is_cancelled": {
+            "label": "Annulé",
+            "description": "Indique que le suivi de paiement a été annulé.",
+            "help": ""
+        },
         "remaining_amount": {
             "label": "Solde",
             "description": "Différence entre le dû et les règlements enregistrés.",
@@ -86,6 +101,16 @@
             "description": "Liste des paiements ou remboursements rattachés.",
             "help": ""
         },
+        "funding_allocations_ids": {
+            "label": "Allocations",
+            "description": "Allocations de paiement rattachées au suivi.",
+            "help": ""
+        },
+        "accounting_entry_line_id": {
+            "label": "Ligne d'écriture",
+            "description": "Ligne comptable à l'origine du suivi de paiement.",
+            "help": ""
+        },
         "accounting_entry_lines_ids": {
             "label": "Écritures liées",
             "description": "Lignes comptables marquées comme couvrant ce funding.",
@@ -96,9 +121,24 @@
             "description": "Compte de trésorerie attendu pour le règlement.",
             "help": ""
         },
+        "bank_account_iban": {
+            "label": "IBAN",
+            "description": "IBAN du compte bancaire attendu pour le règlement.",
+            "help": ""
+        },
         "counterpart_bank_account_id": {
             "label": "Compte de contrepartie",
             "description": "Compte utilisé en face (transferts internes, remboursements).",
+            "help": ""
+        },
+        "counterpart_bank_account_iban": {
+            "label": "IBAN de contrepartie",
+            "description": "IBAN du compte bancaire utilisé en contrepartie.",
+            "help": ""
+        },
+        "fund_request_id": {
+            "label": "Appel de fonds",
+            "description": "Appel de fonds concerné par le suivi, le cas échéant.",
             "help": ""
         },
         "fund_request_execution_id": {
@@ -119,6 +159,11 @@
         "purchase_invoice_id": {
             "label": "Facture fournisseur",
             "description": "Facture à rembourser (mandat SEPA éventuel).",
+            "help": ""
+        },
+        "sale_invoice_id": {
+            "label": "Facture client",
+            "description": "Facture client associée au suivi de paiement.",
             "help": ""
         },
         "money_transfer_id": {
@@ -155,6 +200,21 @@
             "label": "Envoyé",
             "description": "Marqué `vrai` quand l'ordre SEPA a été généré.",
             "help": ""
+        },
+        "assigned_employee_id": {
+            "label": "Assigné à",
+            "description": "Collaborateur actuellement responsable du traitement.",
+            "help": ""
+        },
+        "alert": {
+            "label": "Alerte",
+            "description": "Indicateur signalant l'existence d'un point d'attention.",
+            "help": ""
+        },
+        "download_link": {
+            "label": "Document",
+            "description": "Lien de téléchargement du document associé.",
+            "help": "Disponible lorsqu'un document correspondant existe pour le copropriétaire."
         },
         "payment_reminders_ids": {
             "label": "Rappels",
@@ -200,13 +260,44 @@
                 }
             }
         },
+        "form.dashboard": {
+            "name": "Suivi de paiement",
+            "description": "Vue synthétique d'un suivi de paiement depuis le tableau de bord.",
+            "layout": {
+                "section.payments_section": {
+                    "label": "Paiements"
+                },
+                "section.reminders_section": {
+                    "label": "Rappels"
+                }
+            }
+        },
+        "list.default": {
+            "name": "Suivis de paiement",
+            "description": "Liste des suivis de paiement avec copropriété, tiers, échéance, montant et statut.",
+            "header": {
+                "header.selection.actions.export": {
+                    "label": "Exporter en SEPA",
+                    "description": "Générer un fichier SEPA XML pour les suivis sélectionnés."
+                }
+            },
+            "layout": {}
+        },
         "list.arrears": {
-            "name": "Funding en retard",
-            "description": "Vue dédiée aux échéances en souffrance (copropriétaires, montants restant)."
+            "name": "Suivis de paiement en retard",
+            "description": "Vue dédiée aux échéances en souffrance (copropriétaires, montants restant).",
+            "layout": {}
         },
         "list.dashboard": {
-            "name": "Funding tableau de bord",
-            "description": "Liste synthétique pour le tableau de bord (statut, échéance, montant dû)."
+            "name": "Suivis de paiement",
+            "description": "Liste synthétique pour le tableau de bord (statut, échéance, montant dû).",
+            "routes": {
+                "route.funding": {
+                    "label": "Voir le suivi",
+                    "description": "Ouvrir le détail du suivi de paiement."
+                }
+            },
+            "layout": {}
         }
     }
 }
