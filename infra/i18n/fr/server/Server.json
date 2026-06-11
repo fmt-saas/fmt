@@ -58,6 +58,11 @@
         "form.default": {
             "name": "serveur",
             "description": "",
+            "actions": {
+                "action.create-instance": {
+                    "label": "Créer instance"
+                }
+            },
             "layout": {
                 "section.instances": {
                     "label": "Instances"
