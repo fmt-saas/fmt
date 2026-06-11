@@ -44,7 +44,7 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 $user_id = $auth->userId();
 
-$document = Document::search(['hash', '=', $params['hash']])
+$document = Document::search(['hash', '=', $params['id']])
     ->read([
         'document_visibility', 'condo_id', 'ownership_id', 'owner_id', 'name', 'data', 'content_type',
         'purchase_invoice_id', 'expense_statement_id', 'fund_request_execution_id', 'bank_statement_id'
