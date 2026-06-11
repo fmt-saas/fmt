@@ -115,7 +115,10 @@ $create_params = [
 $request = new HttpRequest("POST {$server['b2_api_url']}/instance/fmt/create", [], json_encode($create_params));
 
 $credentials = base64_encode("root:{$server['b2_api_password']}");
-$request->setHeader('Authorization', "Basic $credentials");
+
+$request
+    ->header('Content-Type', 'application/json')
+    ->header('Authorization', "Basic $credentials");
 
 $response = $request->send();
 
