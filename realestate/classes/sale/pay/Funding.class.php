@@ -324,7 +324,7 @@ class Funding extends \sale\pay\Funding {
             }
             $document = Document::search($domain)->first();
             if($document) {
-                $result[$id] = '/document/' . $id;
+                $result[$id] = '/document/' . $document['id'];
             }
         }
         return $result;

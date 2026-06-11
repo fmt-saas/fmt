@@ -99,10 +99,18 @@
                                                 "readonly": true
                                             },
                                             {
+                                                "type": "label",
+                                                "value": "Document",
+                                                "width": "50%"
+                                            },
+                                            {
                                                 "type": "field",
                                                 "value": "download_link",
-                                                "width": "100%",
-                                                "readonly": true
+                                                "width": "50%",
+                                                "readonly": true,
+                                                "widget": {
+                                                    "link": "icon"
+                                                }
                                             },
                                             {
                                                 "type": "field",
