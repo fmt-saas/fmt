@@ -12,6 +12,14 @@
                 "save_in_description": true
             },
             "visible": ["user_token_generated", "=", false]
+        },
+        {
+            "id": "action.delete",
+            "label": "Remove instance",
+            "icon": "",
+            "description": "Remove instance and b2 instance if server configured with b2 API access.",
+            "controller": "infra_server_Instance_delete",
+            "visible": ["user_token_generated", "=", false]
         }
     ],
     "layout": {
