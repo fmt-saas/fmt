@@ -54,23 +54,11 @@
             "name": "serveur",
             "description": "",
             "layout": {
-                "section.description": {
-                    "label": "Description"
-                },
-                "section.accesses": {
-                    "label": "Accès"
-                },
-                "section.ip-addresses": {
-                    "label": "Adresses IP"
-                },
-                "section.products": {
-                    "label": "Produits"
-                },
                 "section.instances": {
                     "label": "Instances"
                 },
-                "section.softwares": {
-                    "label": "Logiciels"
+                "section.statuses": {
+                    "label": "Statuts"
                 }
             }
         },
