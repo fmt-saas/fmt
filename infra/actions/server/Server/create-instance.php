@@ -95,22 +95,25 @@ $instance = Instance::create([
     ->read(['uuid'])
     ->first();
 
-$token = eQual::run('do', 'infra_server_Instance_token', [
-    'id' => $instance['id']
-]);
-
 $create_params = [
     'USERNAME'              => $params['instance_name'],
     'PASSWORD'              => substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 14),
     'CIPHER_KEY'            => bin2hex(random_bytes(16)),
     'INSTANCE_SUBTYPE'      => 'agency',
     'INSTANCE_UUID'         => $instance['uuid'],
-    'GLOBAL_ACCESS_TOKEN'   => $token,
-    'GLOBAL_URL'            => constant('BACKEND_URL'),
-    'SYNC'                  => $params['sync'],
-    'SYNC_LEVEL'            => $params['sync_level'],
-    'INIT'                  => $params['init']
+    'INIT'                  => $params['init'],
+    'SYNC'                  => $params['sync']
 ];
+
+if($params['sync']) {
+    $token_res = eQual::run('do', 'infra_server_Instance_token', [
+        'id' => $instance['id']
+    ]);
+
+    $create_params['SYNC_LEVEL'] = $params['sync_level'];
+    $create_params['GLOBAL_ACCESS_TOKEN'] = $token_res['token'];
+    $create_params['GLOBAL_URL'] = constant('BACKEND_URL');
+}
 
 $request = new HttpRequest("POST {$server['b2_api_url']}/instance/fmt/create", [], json_encode($create_params));
 
