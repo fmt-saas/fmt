@@ -36,15 +36,16 @@ use identity\User;
         'visibility'        => 'protected',
         'groups'            => ['admins', 'operators']
     ],
-    'providers'     => ['context', 'dispatch', 'auth']
+    'providers'     => ['context', 'dispatch', 'auth', 'orm']
 ]);
 
 /**
  * @var \equal\php\Context                  $context
  * @var \equal\dispatch\Dispatcher          $dispatch
  * @var \equal\auth\AuthenticationManager   $auth
+ * @var \equal\orm\ObjectManager            $orm
  */
-['context' => $context, 'dispatch' => $dispatch, 'auth' => $auth] = $providers;
+['context' => $context, 'dispatch' => $dispatch, 'auth' => $auth, 'orm' => $orm] = $providers;
 
 
 $user_id = $auth->userId();
@@ -67,9 +68,7 @@ foreach($employees as $employee_id => $employee) {
             continue;
         }
         // search for an email address
-        User::create([
-                // #memo - Capabilities for EQ_R_UPDATE are based on 'creator' context
-                'creator'       => $user_id,
+        $createdUser = User::create([
                 'login'         => $identity['email'],
                 'language'      => 'fr',
                 'validated'     => true,
@@ -79,7 +78,11 @@ foreach($employees as $employee_id => $employee) {
                 'groups_ids'    => [2]
             ])
             ->update(['identity_id' => $identity['id']])
-            ->do('sync_from_identity');
+            ->do('sync_from_identity')
+            ->first();
+
+        // #memo - Capabilities for EQ_R_UPDATE are based on 'creator' context
+        $orm->update(User::getType(), [$createdUser['id']], ['creator' => $user_id]);
     }
     // force refreshing role assignments
     RoleAssignment::ids($employee['role_assignments_ids'])->read(['user_id']);
