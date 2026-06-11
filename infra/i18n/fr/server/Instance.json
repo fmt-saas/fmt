@@ -13,6 +13,21 @@
             "description": "Courte description de l'instance.",
             "help": ""
         },
+        "synced": {
+            "label": "Synchronisation",
+            "description": "Date de synchronisation du status de l'instance.",
+            "help": ""
+        },
+        "up": {
+            "label": "En ligne",
+            "description": "Est-ce que l'instance est en ligne.",
+            "help": ""
+        },
+        "uuid": {
+            "label": "UUID",
+            "description": "Identifiant de l'instance.",
+            "help": ""
+        },
         "instance_type": {
             "label": "Type",
             "description": "Type d'instance.",

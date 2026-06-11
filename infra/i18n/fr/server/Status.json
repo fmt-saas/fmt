@@ -1,0 +1,54 @@
+{
+    "name": "Statut",
+    "plural": "Statuts",
+    "description": "Données de statut d'un serveur ou d'une instance.",
+    "model": {
+        "server_id": {
+            "label": "Serveur",
+            "description": "Serveur que le statut concerne.",
+            "help": ""
+        },
+        "instance_id": {
+            "label": "Instance",
+            "description": "Instance que le statut concerne.",
+            "help": ""
+        },
+        "status_data": {
+            "label": "Données",
+            "description": "Données statut JSON.",
+            "help": ""
+        },
+        "dsk_use": {
+            "label": "Usage DISK",
+            "description": "Usage du disque.",
+            "help": ""
+        },
+        "cpu_use": {
+            "label": "Usage CPU",
+            "description": "Usage du CPU.",
+            "help": ""
+        },
+        "ram_use": {
+            "label": "Usage RAM",
+            "description": "Usage de la RAM.",
+            "help": ""
+        },
+        "total_proc": {
+            "label": "Qty PROCESS",
+            "description": "Quantité de PROCESS.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Statut",
+            "description": "Affiche le formulaire de modification d'un statut.",
+            "layout": {}
+        },
+        "list.default": {
+            "name": "Statuts",
+            "description": "Affiche la liste des statuts.",
+            "layout": {}
+        }
+    }
+}

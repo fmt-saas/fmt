@@ -13,23 +13,19 @@
             "description": "Description du serveur.",
             "help": ""
         },
-        "server_type": {
-            "label": "Type",
-            "description": "Type du serveur.",
-            "selection": {
-                "front": "Front",
-                "node": "Nœud",
-                "storage": "Stockage",
-                "b2": "Host (b2)",
-                "k2": "Backup (k2)",
-                "s2": "Stats (s2)",
-                "admin": "Admin"
-            },
+        "synced": {
+            "label": "Synchronisation",
+            "description": "Date de synchronisation du status du serveur.",
             "help": ""
         },
-        "accesses_ids": {
-            "label": "Accès",
-            "description": "Accès au serveur.",
+        "up": {
+            "label": "En ligne",
+            "description": "Est-ce que le serveur est en ligne.",
+            "help": ""
+        },
+        "uuid": {
+            "label": "UUID",
+            "description": "Identifiant du serveur.",
             "help": ""
         },
         "instances_ids": {
@@ -42,24 +38,14 @@
             "description": "Nombre d'instances executées sur le serveur.",
             "help": ""
         },
-        "products_ids": {
-            "label": "Produits",
-            "description": "Liste des produits qui utilisent ce serveur.",
-            "help": ""
+        "b2_api_url": {
+            "label": "Url API b2",
+            "description": "Url d'accès à l'API b2 du serveur.",
+            "help": "Utilisée pour mettre à jour le statut du serveur."
         },
-        "products_count": {
-            "label": "Nombre de produits",
-            "description": "Nombre de produits utilisant ce serveur.",
-            "help": ""
-        },
-        "ip_address_ids": {
-            "label": "Adresses IP",
-            "description": "Adresses IP du serveur.",
-            "help": ""
-        },
-        "softwares_ids": {
-            "label": "Logiciels",
-            "description": "Logiciels installé sur le serveur.",
+        "statuses_ids": {
+            "label": "Status",
+            "description": "Liste des status qui utilisent ce serveur.",
             "help": ""
         }
     },
