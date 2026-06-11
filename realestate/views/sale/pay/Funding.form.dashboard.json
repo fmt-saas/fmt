@@ -89,12 +89,18 @@
                                                 "type": "field",
                                                 "label": "Amount Due",
                                                 "value": "due_amount",
-                                                "width": "100%",
+                                                "width": "50%",
                                                 "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "remaining_amount",
+                                                "width": "50%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "download_link",
                                                 "width": "100%",
                                                 "readonly": true
                                             },

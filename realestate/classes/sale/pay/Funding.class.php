@@ -7,6 +7,7 @@
 
 namespace realestate\sale\pay;
 
+use documents\Document;
 use fmt\setting\Setting;
 use equal\data\DataFormatter;
 use finance\accounting\MiscOperation;
@@ -14,8 +15,10 @@ use hr\role\RoleAssignment;
 use realestate\finance\accounting\MoneyRefund;
 use realestate\finance\accounting\MoneyTransfer;
 use finance\bank\BankStatementLine;
+use identity\User;
 use realestate\funding\ExpenseStatement;
 use realestate\funding\FundRequestExecution;
+use realestate\ownership\Owner;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 class Funding extends \sale\pay\Funding {
@@ -257,7 +260,19 @@ class Funding extends \sale\pay\Funding {
                 'foreign_object'    => 'realestate\funding\PaymentReminder',
                 'foreign_field'     => 'funding_id',
                 'description'       => 'Reminders of the funding.'
+            ],
+
+            'download_link' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'uri/url.relative',
+                'description'       => 'URL for downloading the export.',
+                'function'          => 'calcDownloadLink',
+                'store'             => false,
+                'readonly'          => true,
+                'visible'           => ['ownership_id', '<>', null]
             ]
+
         ];
     }
 
@@ -277,6 +292,42 @@ class Funding extends \sale\pay\Funding {
                 'function'      => 'doRefreshStatus'
             ],
         ]);
+    }
+
+    protected static function calcDownloadLink($self, $auth) {
+        $result = [];
+        $user_id = $auth->userId();
+        $user = User::id($user_id)->read(['identity_id'])->first();
+
+        $self->read(['condo_id', 'ownership_id', 'funding_type', 'expense_statement_id', 'fund_request_execution_id']);
+        foreach($self as $id => $funding) {
+            if($funding['ownership_id']) {
+                continue;
+            }
+            if(!in_array($funding['funding_type'], ['fund_request', 'expense_statement', 'reminder'])) {
+                continue;
+            }
+            $owner = Owner::search([['ownership_id', '=', $funding['ownership_id']], ['identity_id', '=', $user['identity_id']]])->first();
+            if(!$owner) {
+                continue;
+            }
+            $domain = [
+                ['condo_id', '=', $funding['condo_id']],
+                ['ownership_id', '=', $funding['ownership_id']],
+                ['owner_id', '=', $owner['id']]
+            ];
+            if($funding['funding_type'] === 'fund_request') {
+                $domain[] = ['fund_request_execution_id', '=', $funding['fund_request_execution_id']];
+            }
+            elseif($funding['funding_type'] === 'expense_statement') {
+                $domain[] = ['expense_statement_id', '=', $funding['expense_statement_id']];
+            }
+            $document = Document::search($domain)->first();
+            if($document) {
+                $result[$id] = '/document/' . $id;
+            }
+        }
+        return $result;
     }
 
     protected static function calcName($self) {
