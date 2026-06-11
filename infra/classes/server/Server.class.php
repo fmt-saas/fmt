@@ -45,6 +45,25 @@ class Server extends Model {
                 'description'       => 'Short description of the Server.',
             ],
 
+            'synced' => [
+                'type'              => 'datetime',
+                'description'       => 'Date of last automatic status update.',
+                'help'              => 'The "up" field can be auto updated by the action "infra_server_Server_fetch-status".'
+            ],
+
+            'up' => [
+                'type'              => 'boolean',
+                'description'       => 'Is the server currently up, is set according to the last infra\server\Status retrieval.',
+                'default'           => false,
+                'onupdate'          => 'onupdateUp'
+            ],
+
+            'b2_api_url' => [
+                'type'              => 'string',
+                'usage'             => 'uri/url',
+                'description'       => 'The b2 API URL of the server.'
+            ],
+
             'instances_ids' => [
                 'type'              => 'one2many',
                 'foreign_field'     => 'server_id',
@@ -58,6 +77,13 @@ class Server extends Model {
                 'result_type'       => 'integer',
                 'function'          => 'calcInstancesCount'
             ],
+
+            'statuses_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'infra\server\Status',
+                'foreign_field'     => 'server_id',
+                'description'       => 'Statuses of the server.'
+            ]
 
         ];
     }
@@ -77,8 +103,6 @@ class Server extends Model {
         ];
     }
 
-
-
     /**
      * This is a "private class": upon creation, assign a unique UUID if on GLOBAL instance
      */
@@ -95,4 +119,12 @@ class Server extends Model {
         }
     }
 
+    public static function onupdateUp($self) {
+        $self->read(['up', 'instances_ids']);
+        foreach($self as $server) {
+            if(!$server['up']) {
+                Instance::ids($server['instances_ids'])->update(['up' => false]);
+            }
+        }
+    }
 }
