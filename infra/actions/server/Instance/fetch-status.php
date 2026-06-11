@@ -48,7 +48,11 @@ try {
 
     Status::create([
         'instance_id'   => $instance['id'],
-        'status_data'   => json_encode($status, JSON_PRETTY_PRINT)
+        'status_data'   => json_encode($status, JSON_PRETTY_PRINT),
+        'dsk_use'       => (float) str_replace(['%', ','], ['', '.'], $status['instant']['dsk_use'] ?? 0) / 100,
+        'cpu_use'       => (float) str_replace(['%', ','], ['', '.'], $status['instant']['cpu_use'] ?? 0) / 100,
+        'ram_use'       => (float) str_replace(['%', ','], ['', '.'], $status['instant']['ram_use'] ?? 0) / 100,
+        'total_proc'    => intval($status['instant']['total_proc'] ?? 0)
     ]);
 
     // instance is up
