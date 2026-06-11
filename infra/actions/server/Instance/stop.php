@@ -68,6 +68,8 @@ if($status < 200 || $status > 299) {
     throw new Exception('unable_to_stop_b2_instance', EQ_ERROR_UNKNOWN);
 }
 
+Instance::id($instance['id'])->update(['up' => false, 'synced' => time()]);
+
 $context
     ->httpResponse()
     ->status(204)
