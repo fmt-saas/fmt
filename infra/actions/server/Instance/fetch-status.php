@@ -44,7 +44,7 @@ if(!$instance) {
 }
 
 try {
-    $status = eQual::run('get', 'inventory_server_Instance_status', ['id' => $instance['id']]);
+    $status = eQual::run('get', 'infra_server_Instance_status', ['id' => $instance['id']]);
 
     Status::create([
         'instance_id'   => $instance['id'],
