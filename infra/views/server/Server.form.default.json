@@ -1,6 +1,16 @@
 {
     "name": "Model",
     "description": "A Server hosts one or more instances.",
+    "actions": [
+        {
+            "id": "action.create-instance",
+            "label": "Create instance",
+            "description": "Create a new instance on the server using b2 API.",
+            "controller": "infra_server_Server_create-instance",
+            "confirm": true,
+            "visible": ["global", "=", "env.instance_type"]
+        }
+    ],
     "layout": {
         "groups": [
             {
