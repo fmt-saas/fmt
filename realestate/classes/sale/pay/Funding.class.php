@@ -301,7 +301,7 @@ class Funding extends \sale\pay\Funding {
 
         $self->read(['condo_id', 'ownership_id', 'funding_type', 'expense_statement_id', 'fund_request_execution_id']);
         foreach($self as $id => $funding) {
-            if($funding['ownership_id']) {
+            if(!$funding['ownership_id']) {
                 continue;
             }
             if(!in_array($funding['funding_type'], ['fund_request', 'expense_statement', 'reminder'])) {
