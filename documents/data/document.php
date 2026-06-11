@@ -101,7 +101,7 @@ if(!$user['employee_id'] && $user_id !== EQ_ROOT_USER_ID) {
             $owners = Owner::search(['identity_id', '=', $user['identity_id']]);
             $found = false;
             foreach($owners as $owner_id => $owner) {
-                if($owner['id'] === $document['owner_id']) {
+                if($owner_id === $document['owner_id']) {
                     $found = true;
                     break;
                 }

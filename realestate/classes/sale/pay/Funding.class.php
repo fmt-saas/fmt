@@ -307,22 +307,33 @@ class Funding extends \sale\pay\Funding {
             if(!in_array($funding['funding_type'], ['fund_request', 'expense_statement', 'reminder'])) {
                 continue;
             }
+
             $owner = Owner::search([['ownership_id', '=', $funding['ownership_id']], ['identity_id', '=', $user['identity_id']]])->first();
+
             if(!$owner) {
                 continue;
             }
+
             $domain = [
                 ['condo_id', '=', $funding['condo_id']],
-                ['ownership_id', '=', $funding['ownership_id']],
-                ['owner_id', '=', $owner['id']]
+                ['ownership_id', '=', $funding['ownership_id']]
             ];
+
             if($funding['funding_type'] === 'fund_request') {
                 $domain[] = ['fund_request_execution_id', '=', $funding['fund_request_execution_id']];
             }
             elseif($funding['funding_type'] === 'expense_statement') {
                 $domain[] = ['expense_statement_id', '=', $funding['expense_statement_id']];
             }
-            $document = Document::search($domain)->first();
+
+            // first search for exact owner
+            $document = Document::search(array_merge($domain, ['owner_id', '=', $owner['id']]))->first();
+
+            if(!$document) {
+                // second, fallback to doc for whole ownership
+                $document = Document::search($domain)->first();
+            }
+
             if($document) {
                 $result[$id] = '/document/' . $document['id'];
             }
