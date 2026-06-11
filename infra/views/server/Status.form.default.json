@@ -1,0 +1,99 @@
+{
+    "name": "Status",
+    "description": "Default form for Status",
+    "header": {
+        "actions": {
+            "ACTION.EDIT": false
+        }
+    },
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "server_id",
+                                                "width": "25%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "instance_id",
+                                                "width": "25%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "created",
+                                                "width": "25%",
+                                                "readonly": true
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "dsk_use",
+                                                "width": "25%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "cpu_use",
+                                                "width": "25%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ram_use",
+                                                "width": "25%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "total_proc",
+                                                "width": "25%",
+                                                "readonly": true
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "66%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "status_data",
+                                                "width": "100%",
+                                                "readonly": true,
+                                                "widget": {
+                                                    "usage": "text/json"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
