@@ -8,7 +8,28 @@
             "description": "Create a new instance on the server using b2 API.",
             "controller": "infra_server_Server_create-instance",
             "confirm": true,
-            "visible": ["global", "=", "env.instance_type"]
+            "visible": [
+                [
+                    ["global", "=", "env.instance_type"],
+                    ["b2_api_url", "<>", null],
+                    ["b2_api_password", "<>", null]
+                ],
+                [
+                    ["global", "=", "env.instance_type"],
+                    ["b2_api_url", "<>", ""],
+                    ["b2_api_password", "<>", null]
+                ],
+                [
+                    ["global", "=", "env.instance_type"],
+                    ["b2_api_url", "<>", null],
+                    ["b2_api_password", "<>", ""]
+                ],
+                [
+                    ["global", "=", "env.instance_type"],
+                    ["b2_api_url", "<>", ""],
+                    ["b2_api_password", "<>", ""]
+                ]
+            ]
         }
     ],
     "layout": {
