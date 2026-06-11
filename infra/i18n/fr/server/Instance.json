@@ -79,17 +79,8 @@
                 }
             },
             "layout": {
-                "section.details": {
-                    "label": "Details"
-                },
-                "section.description": {
-                    "label": "Description"
-                },
-                "section.accesses": {
-                    "label": "Accès"
-                },
-                "section.softwares": {
-                    "label": "Logiciels"
+                "section.statuses": {
+                    "label": "Statuts"
                 }
             }
         },

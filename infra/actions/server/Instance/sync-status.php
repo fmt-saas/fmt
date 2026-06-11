@@ -27,6 +27,7 @@ use infra\server\Status;
         'charset'           => 'utf-8',
         'accept-origin'     => '*'
     ],
+    'constants'         => ['FMT_INSTANCE_TYPE'],
     'providers'         => ['context']
 ]);
 
@@ -34,6 +35,10 @@ use infra\server\Status;
  * @var \equal\php\Context $context
  */
 ['context' => $context] = $providers;
+
+if(constant('FMT_INSTANCE_TYPE') !== 'global') {
+    throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
+}
 
 $instance = Instance::id($params['id'])
     ->read(['id'])
@@ -63,7 +68,7 @@ catch(Exception $e) {
     Instance::id($instance['id'])->update(['up' => false, 'synced' => time()]);
 }
 
-
-$context->httpResponse()
-        ->status(204)
-        ->send();
+$context
+    ->httpResponse()
+    ->status(204)
+    ->send();
