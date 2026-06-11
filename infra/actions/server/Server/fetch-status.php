@@ -44,7 +44,7 @@ if(!$server) {
 }
 
 try {
-    $status = equal::run('get', 'inventory_server_status', ['id' => $params['id']]);
+    $status = eQual::run('get', 'inventory_server_status', ['id' => $params['id']]);
 
     Status::create([
         'server_id'     => $params['id'],

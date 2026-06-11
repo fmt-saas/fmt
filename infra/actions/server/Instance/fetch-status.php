@@ -44,7 +44,7 @@ if(!$instance) {
 }
 
 try {
-    $status = equal::run('get', 'inventory_instance_status', ['id' => $instance['id']]);
+    $status = eQual::run('get', 'inventory_instance_status', ['id' => $instance['id']]);
 
     Status::create([
         'instance_id'   => $instance['id'],
