@@ -77,14 +77,14 @@ if(!$document_id) {
             'name'                  => 'Rappel - ' . $paymentReminderCorrespondence['name'],
             'data'                  => $data,
             'condo_id'              => $paymentReminderCorrespondence['condo_id'],
-            'document_visibility'   => 'protected'
+            'document_visibility'   => 'owner'
         ])
         ->update([
             // place node in dedicated folder
             'parent_node_id'        => $parentNode['id'] ?? null,
             // make node private
             'ownership_id'          => $paymentReminderCorrespondence['ownership_id'],
-            'owner_id'              => $paymentReminderCorrespondence['ownership_id']
+            'owner_id'              => $paymentReminderCorrespondence['owner_id']
         ])
         ->first();
 

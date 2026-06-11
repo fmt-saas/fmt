@@ -53,9 +53,10 @@
             "description": "Niveau d'acces au document dans la GED.",
             "help": "Definit les utilisateurs autorises a consulter le document.",
             "selection": {
-                "public": "Public",
-                "protected": "Protege",
-                "private": "Prive"
+                "agency": "Agence",
+                "condo": "Copropriété",
+                "ownership": "Dossier de propriété",
+                "owner": "Propriétaire"
             }
         }
     },

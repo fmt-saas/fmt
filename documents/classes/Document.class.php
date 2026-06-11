@@ -177,11 +177,12 @@ class Document extends Model {
             'document_visibility' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'public',       // visible to all condo owners + syndic
-                    'protected',    // visible only to a single owner (to which the document is linked) + syndic
-                    'private'       // visible only to syndic
+                    'condo',        // visible to all owners of a same condo + syndic
+                    'ownership',    // visible to all owners of a same ownership + syndic
+                    'owner',        // visible only to a single owner or supplier
+                    'agency'        // visible only to syndic (employees)
                 ],
-                'default'           => 'private',
+                'default'           => 'agency',
                 'onupdate'          => 'onupdateDocumentVisibility',
                 'description'       => 'Defines who can access the document.',
                 'help'              => 'This field is synchronized with the node and updates automatically when the parent node visibility changes.'
@@ -565,9 +566,6 @@ class Document extends Model {
         ->each(function($id, $document) {
             if($document['node_id']) {
                 Node::id($document['node_id'])->update(['ownership_id' => $document['ownership_id']]);
-            }
-            if($document['ownership_id']) {
-                self::id($id)->update(['document_visibility' => 'private']);
             }
         });
     }

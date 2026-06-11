@@ -74,7 +74,7 @@ if(!$user['employee_id'] && $user_id !== EQ_ROOT_USER_ID) {
                 }
             }
             if(!$found) {
-                throw new Exception('protected_document', EQ_ERROR_NOT_ALLOWED);
+                throw new Exception('unknown_document', EQ_ERROR_NOT_ALLOWED);
             }
             break;
         // visible only a single owner (to which the document is linked) + syndic
@@ -100,7 +100,7 @@ if(!$user['employee_id'] && $user_id !== EQ_ROOT_USER_ID) {
             $user = User::id($user_id)->read(['employee_id'])->first();
 
             if(!$user || !($user['employee_id'] ?? null)) {
-                throw new Exception('protected_document', EQ_ERROR_NOT_ALLOWED);
+                throw new Exception('private_document', EQ_ERROR_NOT_ALLOWED);
             }
             break;
     }

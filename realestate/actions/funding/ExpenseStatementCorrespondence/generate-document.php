@@ -85,15 +85,15 @@ if(!$document_id) {
             'data'                  => $data,
             'condo_id'              => $expenseStatementCorrespondence['condo_id'],
             'expense_statement_id'  => $expenseStatementCorrespondence['expense_statement_id'],
-            'document_visibility'   => 'protected',
-            'document_type_id'      => $documentType['id'] ?? null
+            'document_type_id'      => $documentType['id'] ?? null,
+            'document_visibility'   => 'owner',
         ])
         ->update([
             // place node in dedicated folder
-            'parent_node_id'    => $parentNode['id'] ?? null,
+            'parent_node_id'        => $parentNode['id'] ?? null,
             // make node private
-            'ownership_id'      => $expenseStatementCorrespondence['ownership_id'],
-            'owner_id'          => $expenseStatementCorrespondence['owner_id']
+            'ownership_id'          => $expenseStatementCorrespondence['ownership_id'],
+            'owner_id'              => $expenseStatementCorrespondence['owner_id']
         ])
         ->first();
 

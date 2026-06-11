@@ -6,6 +6,7 @@
 */
 
 use documents\Document;
+use documents\DocumentType;
 use documents\navigation\Node;
 use realestate\funding\FundRequestExecutionCorrespondence;
 
@@ -55,6 +56,13 @@ if($siblingFundRequestExecutionCorrespondence) {
 }
 
 if(!$document_id) {
+
+    $data = eQual::run('get', 'realestate_funding_FundRequestExecutionCorrespondence_render-pdf', ['id' => $fundRequestExecutionCorrespondence['id']]);
+
+    $documentType = DocumentType::search(['code', '=', 'fund_request'])
+        ->read(['folder_code', 'visibility'])
+        ->first();
+
     $parentNode = Node::search([
             ['condo_id', '=', $fundRequestExecutionCorrespondence['condo_id']],
             ['node_type', '=', 'folder'],
@@ -62,15 +70,14 @@ if(!$document_id) {
         ])
         ->first();
 
-    $data = eQual::run('get', 'realestate_funding_FundRequestExecutionCorrespondence_render-pdf', ['id' => $fundRequestExecutionCorrespondence['id']]);
-
     $document = Document::create([
             'name'                      => 'Appel de fonds - ' . $fundRequestExecutionCorrespondence['name'],
             'data'                      => $data,
             'condo_id'                  => $fundRequestExecutionCorrespondence['condo_id'],
             'fund_request_id'           => $fundRequestExecutionCorrespondence['fund_request_execution_id']['fund_request_id'],
             'fund_request_execution_id' => $fundRequestExecutionCorrespondence['fund_request_execution_id']['id'],
-            'document_visibility'       => 'protected'
+            'document_type_id'          => $documentType['id'] ?? null,
+            'document_visibility'       => 'owner'
         ])
         ->update([
             // place node in dedicated folder

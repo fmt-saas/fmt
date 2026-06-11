@@ -118,11 +118,12 @@ class Node extends Model {
             'node_visibility' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'public',       // visible to all condo owners + syndic
-                    'protected',    // visible only to a single owner or supplier (to which the document is linked) + syndic
-                    'private'       // visible only to syndic
+                    'condo',        // visible to all owners of a same condo + syndic
+                    'ownership',    // visible to all owners of a same ownership + syndic
+                    'owner',        // visible only to a single owner or supplier
+                    'agency'        // visible only to syndic (employees)
                 ],
-                'default'           => 'public',
+                'default'           => 'agency',
                 'description'       => 'Defines who can see the node.',
                 'help'              => 'This field is synchronized with the node and is automatically updated when the parent node visibility changes.
                     If this is a child node, the `document_visibility` of the corresponding document is updated.
