@@ -3,7 +3,9 @@
     "description": "This view is intended for displaying the list of fundings.",
     "header": {
         "layout": "inline",
-        "actions": false
+        "actions": false,
+        "exports": false,
+        "advanced_search": false
     },
     "order": "is_paid,due_date",
     "sort": "asc,desc",
@@ -11,7 +13,29 @@
     "on_empty": {
         "message": "Pas de paiement en attente. Tout est en ordre."
     },
+    "routes": [
+        {
+            "id": "route.document_process",
+            "label": "Document",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "realestate\\sale\\pay\\Funding",
+                "view": "form.dashboard",
+                "domain": [
+                    ["id", "=", "object.id"]
+                ]
+            },
+            "visible": [
+                ["document", "=", "object.document_type_code"]
+            ]
+        }
+    ],
     "layout": {
+        "interactions": {
+            "click": false
+        },
         "items": [
             {
                 "type": "field",
