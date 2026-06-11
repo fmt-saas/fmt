@@ -73,9 +73,11 @@ if(!$document_id) {
             'document_visibility'       => 'protected'
         ])
         ->update([
+            // place node in dedicated folder
             'parent_node_id'            => $parentNode['id'] ?? null,
+            // make node private
             'ownership_id'              => $fundRequestExecutionCorrespondence['ownership_id'],
-            'owner_id'                  => $fundRequestExecutionCorrespondence['ownership_id'],
+            'owner_id'                  => $fundRequestExecutionCorrespondence['owner_id'],
         ])
         ->first();
 
