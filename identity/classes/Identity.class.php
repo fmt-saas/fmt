@@ -1403,86 +1403,102 @@ class Identity extends Model {
     }
 
     /*
-        Handlers for updates of relational fields
+        Handlers for updates of relational fields with symmetrical values
     */
 
     public static function onupdateUserId($self) {
-        $self->read(['user_id']);
+        $self->read(['user_id', 'identity_id']);
         foreach($self as $id => $identity) {
             if(!$identity['user_id']) {
                 continue;
             }
-            User::id($identity['user_id'])->update(['identity_id' => $id]);
+            if(!$identity['identity_id']) {
+                User::id($identity['user_id'])->update(['identity_id' => $id]);
+            }
         }
     }
 
     public static function onupdateContactId($self) {
-        $self->read(['contact_id']);
+        $self->read(['contact_id', 'identity_id']);
         foreach($self as $id => $identity) {
             if(!$identity['contact_id']) {
                 continue;
             }
-            Contact::id($identity['contact_id'])->update(['identity_id' => $id]);
+            if(!$identity['identity_id']) {
+                Contact::id($identity['contact_id'])->update(['identity_id' => $id]);
+            }
         }
     }
 
     public static function onupdateEmployeeId($self) {
-        $self->read(['employee_id']);
+        $self->read(['employee_id', 'identity_id']);
         foreach($self as $id => $identity) {
             if(!$identity['employee_id']) {
                 continue;
             }
-            Employee::id($identity['employee_id'])->update(['identity_id' => $id]);
+            if(!$identity['identity_id']) {
+                Employee::id($identity['employee_id'])->update(['identity_id' => $id]);
+            }
         }
     }
 
     public static function onupdateCondominiumId($self) {
-        $self->read(['condominium_id']);
+        $self->read(['condominium_id', 'identity_id']);
         foreach($self as $id => $identity) {
             if(!$identity['condominium_id']) {
                 continue;
             }
-            Condominium::id($identity['condominium_id'])->update(['identity_id' => $id]);
+            if(!$identity['identity_id']) {
+                Condominium::id($identity['condominium_id'])->update(['identity_id' => $id]);
+            }
         }
     }
 
     public static function onupdateSupplierId($self) {
-        $self->read(['supplier_id']);
+        $self->read(['supplier_id', 'identity_id']);
         foreach($self as $id => $identity) {
             if(!$identity['supplier_id']) {
                 continue;
             }
-            Supplier::id($identity['supplier_id'])->update(['identity_id' => $id]);
+            if(!$identity['identity_id']) {
+                Supplier::id($identity['supplier_id'])->update(['identity_id' => $id]);
+            }
         }
     }
 
     public static function onupdateCustomerId($self) {
-        $self->read(['customer_id']);
+        $self->read(['customer_id', 'identity_id']);
         foreach($self as $id => $identity) {
             if(!$identity['customer_id']) {
                 continue;
             }
-            Customer::id($identity['customer_id'])->update(['identity_id' => $id]);
+            if(!$identity['identity_id']) {
+                Customer::id($identity['customer_id'])->update(['identity_id' => $id]);
+            }
         }
     }
 
     public static function onupdateOrganisationId($self) {
-        $self->read(['organisation_id']);
+        $self->read(['organisation_id', 'identity_id']);
         foreach($self as $id => $identity) {
             if(!$identity['organisation_id']) {
                 continue;
             }
-            Organisation::id($identity['organisation_id'])->update(['identity_id' => $id]);
+            if(!$identity['identity_id']) {
+                Organisation::id($identity['organisation_id'])->update(['identity_id' => $id]);
+            }
         }
     }
 
     public static function onupdateManagingAgentId($self) {
-        $self->read(['managing_agent_id']);
+        $self->read(['managing_agent_id', 'identity_id']);
         foreach($self as $id => $identity) {
             if(!$identity['managing_agent_id']) {
                 continue;
             }
-            ManagingAgent::id($identity['managing_agent_id'])->update(['identity_id' => $id]);
+            if(!$identity['identity_id']) {
+                ManagingAgent::id($identity['managing_agent_id'])->update(['identity_id' => $id]);
+            }
         }
     }
 
@@ -1496,12 +1512,14 @@ class Identity extends Model {
     */
 
     public static function onupdateTenantId($self) {
-        $self->read(['tenant_id']);
+        $self->read(['tenant_id', 'identity_id']);
         foreach($self as $id => $identity) {
             if(!$identity['tenant_id']) {
                 continue;
             }
-            Tenant::id($identity['tenant_id'])->update(['identity_id' => $id]);
+            if(!$identity['identity_id']) {
+                Tenant::id($identity['tenant_id'])->update(['identity_id' => $id]);
+            }
         }
     }
 
