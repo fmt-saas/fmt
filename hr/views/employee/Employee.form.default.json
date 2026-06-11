@@ -16,7 +16,7 @@
             "description": "Create a user account relating to the Employee.",
             "controller": "hr_employee_Employee_create-user",
             "confirm": false,
-            "visible": ["operators", "in", "user.groups"]
+            "visible": [["operators", "in", "user.groups"], ["user_id", "=", null]]
         }
     ],
     "layout": {
@@ -65,6 +65,12 @@
                                                 "type": "field",
                                                 "value": "is_active",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "user_id",
+                                                "width": "0%",
+                                                "visible": false
                                             }
                                         ]
                                     }

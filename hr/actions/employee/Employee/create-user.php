@@ -50,7 +50,6 @@ use identity\User;
 
 $user_id = $auth->userId();
 
-
 // we need root privilege
 $auth->su();
 
