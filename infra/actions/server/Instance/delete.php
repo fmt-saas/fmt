@@ -55,13 +55,13 @@ if(!$instance) {
 }
 
 if($params['delete_b2_instance']) {
-    if(empty($server['server_id']['b2_api_url']) && empty($server['server_id']['b2_api_password'])) {
+    if(empty($instance['server_id']['b2_api_url']) || empty($instance['server_id']['b2_api_password'])) {
         throw new Exception('invalid_b2_conf', EQ_ERROR_INVALID_CONFIG);
     }
 
-    $request = new HttpRequest("POST {$server['b2_api_url']}/instance/delete", [], json_encode(['instance' => $instance['name']]));
+    $request = new HttpRequest("POST {$instance['server_id']['b2_api_url']}/instance/delete", [], json_encode(['instance' => $instance['name']]));
 
-    $credentials = base64_encode("root:{$server['b2_api_password']}");
+    $credentials = base64_encode("root:{$instance['server_id']['b2_api_password']}");
 
     $request
         ->header('Content-Type', 'application/json')

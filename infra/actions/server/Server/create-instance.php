@@ -82,7 +82,7 @@ if(!$server) {
     throw new Exception('unknown_server', EQ_ERROR_INVALID_PARAM);
 }
 
-if(empty($server['b2_api_url']) && empty($server['b2_api_password'])) {
+if(empty($server['b2_api_url']) || empty($server['b2_api_password'])) {
     throw new Exception('invalid_b2_conf', EQ_ERROR_INVALID_CONFIG);
 }
 
