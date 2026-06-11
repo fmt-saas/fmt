@@ -38,7 +38,8 @@ if(empty($instance['server_id']['b2_api_url'])) {
 
 $request = new HttpRequest("GET {$instance['server_id']['b2_api_url']}/instance/status?scope=instant&instance={$instance['name']}");
 
-$request->setHeader('Authorization', "Basic {$instance['server_id']['b2_api_password']}");
+$credentials = base64_encode("root:{$instance['server_id']['b2_api_password']}");
+$request->setHeader('Authorization', "Basic $credentials");
 
 $response = $request->send();
 
