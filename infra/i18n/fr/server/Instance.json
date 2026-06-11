@@ -76,6 +76,9 @@
             "actions": {
                 "action.create_user_token": {
                     "label": "Créer token d'accès utilisateur"
+                },
+                "action.delete": {
+                    "label": "Supprimer"
                 }
             },
             "layout": {
