@@ -29,7 +29,7 @@ $createDocumentType([
     'name'                  => 'Document de base',
     'code'                  => 'reference_document',
     'folder_code'           => 'reference_documents',
-    'document_visibility'   => 'public',
+    'document_visibility'   => 'condo',
     'has_subtype'           => true
 ], [
     [
@@ -70,31 +70,31 @@ $createDocumentType([
     'code'                  => 'general_assembly_document',
     'folder_code'           => 'general_meetings',
     'description'           => 'Procès verbal d\'une assemblée ou d\'un conseil.',
-    'document_visibility'   => 'public',
+    'document_visibility'   => 'condo',
     'has_subtype'           => true
 ], [
     [
         'name'                  => 'Convocation',
         'code'                  => 'invite',
         'folder_code'           => 'general_meetings',
-        'document_visibility'   => 'protected'
+        'document_visibility'   => 'ownership'
     ],
     [
         'name'                  => 'Annexe de convocation',
         'code'                  => 'appendix',
         'folder_code'           => 'general_meetings',
-        'document_visibility'   => 'public'
+        'document_visibility'   => 'condo'
     ],
     [
         'name'                  => 'Liste des présences',
         'code'                  => 'attendance_register',
-        'document_visibility'   => 'public'
+        'document_visibility'   => 'condo'
     ],
     [
         'name'                  => 'PV d\'assemblée générale',
         'code'                  => 'minutes',
         'folder_code'           => 'general_meetings',
-        'document_visibility'   => 'public'
+        'document_visibility'   => 'condo'
     ]
 ]);
 
@@ -103,7 +103,7 @@ $createDocumentType([
     'name'                  => 'Document bancaire',
     'code'                  => 'bank_document',
     'folder_code'           => 'bank_documents',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -129,7 +129,7 @@ $createDocumentType([
     'code'                  => 'fund_request',
     'folder_code'           => 'operation_statements',
     'description'           => 'Document sollicitant un paiement d\'avance ou une participation.',
-    'document_visibility'   => 'protected'
+    'document_visibility'   => 'ownership'
 ]);
 
 $createDocumentType([
@@ -138,7 +138,7 @@ $createDocumentType([
     'code'                  => 'expense_statement',
     'folder_code'           => 'operation_statements',
     'description'           => 'Détail ou synthèse des charges engagées.',
-    'document_visibility'   => 'private'
+    'document_visibility'   => 'agency'
 ]);
 
 $createDocumentType([
@@ -157,7 +157,7 @@ $createDocumentType([
     'folder_code'           => 'bank_statements',
     'json_schema'           => 'urn:fmt:json-schema:finance:bank-statement',
     'description'           => 'Mouvement sur compte bancaire de l\'ACP.',
-    'document_visibility'   => 'private'
+    'document_visibility'   => 'agency'
 ]);
 
 $createDocumentType([
@@ -168,7 +168,7 @@ $createDocumentType([
     'folder_code'           => 'supplier_invoices',
     'json_schema'           => 'urn:fmt:json-schema:finance:purchase-invoice',
     'description'           => 'Document comptable à comptabiliser et réconcilier',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -194,7 +194,7 @@ $createDocumentType([
     'code'                  => 'supplier_contract',
     'folder_code'           => 'supplier_contracts',
     'description'           => 'Engagement contractuel formel (nettoyage, assurance, etc.).',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -289,7 +289,7 @@ $createDocumentType([
     'name'                  => 'Document fournisseur',
     'code'                  => 'supplier_document',
     'folder_code'           => 'supplier_documents',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -309,7 +309,7 @@ $createDocumentType([
     'name'                  => 'Attestation technique & Rapport de contrôle',
     'code'                  => 'technical_report_document',
     'folder_code'           => 'technical_reports',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -354,7 +354,7 @@ $createDocumentType([
     'name'                  => 'Document d\'assurance',
     'code'                  => 'insurance_document',
     'folder_code'           => 'insurance_documents',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -384,7 +384,7 @@ $createDocumentType([
     'name'                  => 'Salarié',
     'code'                  => 'concierge_staff_document',
     'folder_code'           => 'staff_documents',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -414,7 +414,7 @@ $createDocumentType([
     'name'                  => 'Conciergerie',
     'code'                  => 'concierge_lease_document',
     'folder_code'           => 'concierge_lease_documents',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -439,7 +439,7 @@ $createDocumentType([
     'name'                  => 'Fiches signalétiques copropriétaires',
     'code'                  => 'ownership_identification_document',
     'folder_code'           => 'ownership_identification_sheets',
-    'document_visibility'   => 'protected'
+    'document_visibility'   => 'ownership'
 ]);
 
 $createDocumentType([
@@ -447,7 +447,7 @@ $createDocumentType([
     'name'                  => 'Document du conseil de copropriété',
     'code'                  => 'condominium_council_document',
     'folder_code'           => 'condominium_council',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -467,7 +467,7 @@ $createDocumentType([
     'name'                  => 'Document du commissaire aux comptes',
     'code'                  => 'auditor_document',
     'folder_code'           => 'auditor_documents',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -487,7 +487,7 @@ $createDocumentType([
     'name'                  => 'Document de contentieux',
     'code'                  => 'litigation_document',
     'folder_code'           => 'litigation_files',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -502,7 +502,7 @@ $createDocumentType([
     'name'                  => 'Suivi entretien',
     'code'                  => 'maintenance_log',
     'folder_code'           => 'maintenance_logs',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -557,7 +557,7 @@ $createDocumentType([
     'name'                  => 'Document de sinistre',
     'code'                  => 'claim_document',
     'folder_code'           => 'claims',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -577,7 +577,7 @@ $createDocumentType([
     'name'                  => 'Document de travaux',
     'code'                  => 'works_document',
     'folder_code'           => 'works_and_repairs',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -603,7 +603,7 @@ $createDocumentType([
     'code'                  => 'ownership_transfer_document',
     'folder_code'           => 'ownership_transfers',
     'description'           => 'Courriers relatifs aux transferts de propriété.',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -623,7 +623,7 @@ $createDocumentType([
     'name'                  => 'Document relatif aux accès',
     'code'                  => 'access_device_document',
     'folder_code'           => 'access_devices',
-    'document_visibility'   => 'private',
+    'document_visibility'   => 'agency',
     'has_subtype'           => true
 ], [
     [
@@ -654,7 +654,7 @@ $createDocumentType([
     'code'                  => 'balance_sheet',
     'folder_code'           => 'operation_statements',
     'description'           => 'Bilan comptable.',
-    'document_visibility'   => 'private'
+    'document_visibility'   => 'agency'
 ]);
 
 $createDocumentType([
@@ -663,7 +663,7 @@ $createDocumentType([
     'code'                  => 'expense_summary',
     'folder_code'           => 'operation_statements',
     'description'           => 'Dépenses courantes.',
-    'document_visibility'   => 'private'
+    'document_visibility'   => 'agency'
 ]);
 
 $createDocumentType([
@@ -672,7 +672,7 @@ $createDocumentType([
     'code'                  => 'suppliers_import',
     'folder_code'           => 'imports',
     'description'           => 'Fichiers d\'imports Fournisseurs (temporaire).',
-    'document_visibility'   => 'private'
+    'document_visibility'   => 'agency'
 ]);
 
 $createDocumentType([
@@ -681,7 +681,7 @@ $createDocumentType([
     'code'                  => 'condominium_import',
     'folder_code'           => 'imports',
     'description'           => 'Fichiers d\'imports Copropriété (temporaire).',
-    'document_visibility'   => 'private'
+    'document_visibility'   => 'agency'
 ]);
 
 $createDocumentType([
@@ -689,5 +689,5 @@ $createDocumentType([
     'name'                  => 'Import Banques',
     'code'                  => 'banks_import',
     'folder_code'           => 'imports',
-    'document_visibility'   => 'private'
+    'document_visibility'   => 'agency'
 ]);

@@ -72,7 +72,7 @@ $document = Document::create([
         'data'                  => $data,
         'condo_id'              => $ownershipTransfer['condo_id']['id'],
         'document_type_id'      => $documentType['id'],
-        'document_visibility'   => 'protected'
+        'document_visibility'   => 'ownership'
     ])
     ->update([
         // link document to ownership transfer
