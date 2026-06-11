@@ -67,8 +67,10 @@ foreach($employees as $employee_id => $employee) {
             trigger_error("APP::ignored user creation for identity {$identity['name']} with no email.", EQ_REPORT_WARNING);
             continue;
         }
-        // search for an email address
-        $createdUser = User::create([
+
+        $new_user_id = $orm->create(User::getType(), [
+                // #memo - Capabilities for EQ_R_UPDATE are based on 'creator' context
+                'creator'       => $user_id,
                 'login'         => $identity['email'],
                 'language'      => 'fr',
                 'validated'     => true,
@@ -76,13 +78,17 @@ foreach($employees as $employee_id => $employee) {
                 'is_owner'      => false,
                 // users
                 'groups_ids'    => [2]
-            ])
+            ]);
+
+        if($new_user_id <= 0) {
+            trigger_error("APP::error at new user creation for identity {$identity['name']}.", EQ_REPORT_WARNING);
+            continue;
+        }
+
+        User::id($new_user_id)
             ->update(['identity_id' => $identity['id']])
             ->do('sync_from_identity')
             ->first();
-
-        // #memo - Capabilities for EQ_R_UPDATE are based on 'creator' context
-        $orm->update(User::getType(), [$createdUser['id']], ['creator' => $user_id]);
     }
     // force refreshing role assignments
     RoleAssignment::ids($employee['role_assignments_ids'])->read(['user_id']);
