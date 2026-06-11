@@ -29,14 +29,18 @@ list($params, $providers) = eQual::announce([
 ['context' => $context] = $providers;
 
 $server = Server::id($params['id'])
-    ->read(['b2_api_url'])
+    ->read(['b2_api_url', 'b2_api_password'])
     ->first();
 
 if(empty($server['b2_api_url'])) {
     throw new Exception('missing_api_url', EQ_ERROR_INVALID_PARAM);
 }
 
-$response = (new HttpRequest("GET {$server['b2_api_url']}/status?scope=instant"))->send();
+$request = new HttpRequest("GET {$server['b2_api_url']}/status?scope=instant");
+
+$request->setHeader('Authorization', "Basic: {$server['b2_api_password']}");
+
+$response = $request->send();
 
 $context
     ->httpResponse()

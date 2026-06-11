@@ -64,6 +64,12 @@ class Server extends Model {
                 'description'       => 'The b2 API URL of the server.'
             ],
 
+            'b2_api_password' => [
+                'type'              => 'string',
+                'description'       => 'The b2 API password of the server.',
+                'visible'           => false
+            ],
+
             'instances_ids' => [
                 'type'              => 'one2many',
                 'foreign_field'     => 'server_id',

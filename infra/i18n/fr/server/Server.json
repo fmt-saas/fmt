@@ -43,6 +43,11 @@
             "description": "Url d'accès à l'API b2 du serveur.",
             "help": "Utilisée pour mettre à jour le statut du serveur."
         },
+        "b2_api_password": {
+            "label": "Password API b2",
+            "description": "Password d'accès à l'API b2 du serveur.",
+            "help": "Utilisé pour mettre à jour le statut du serveur."
+        },
         "statuses_ids": {
             "label": "Status",
             "description": "Liste des status qui utilisent ce serveur.",
