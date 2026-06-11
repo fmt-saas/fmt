@@ -67,7 +67,14 @@ class Server extends Model {
             'b2_api_password' => [
                 'type'              => 'string',
                 'description'       => 'The b2 API password of the server.',
-                'visible'           => false
+                'visible'           => [
+                    [
+                        ['b2_api_password', 'is', null]
+                    ],
+                    [
+                        ['b2_api_password', '=', '']
+                    ]
+                ]
             ],
 
             'instances_ids' => [
