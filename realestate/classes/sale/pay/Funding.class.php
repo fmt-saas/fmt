@@ -327,15 +327,19 @@ class Funding extends \sale\pay\Funding {
             }
 
             // first search for exact owner
-            $document = Document::search(array_merge($domain, ['owner_id', '=', $owner['id']]))->first();
+            $document = Document::search(array_merge($domain, ['owner_id', '=', $owner['id']]))
+                ->read(['hash'])
+                ->first();
 
             if(!$document) {
                 // second, fallback to doc for whole ownership
-                $document = Document::search($domain)->first();
+                $document = Document::search($domain)
+                    ->read(['hash'])
+                    ->first();
             }
 
             if($document) {
-                $result[$id] = '/document/' . $document['id'];
+                $result[$id] = '/document/' . $document['hash'];
             }
         }
         return $result;

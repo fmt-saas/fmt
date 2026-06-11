@@ -446,6 +446,13 @@ class Document extends Model {
         ];
     }
 
+    public function getIndexes(): array {
+        return [
+            ['hash'],
+            ['condo_id', 'ownership_id', 'owner_id']
+        ];
+    }
+
     public static function getWorkflow() {
         return [
             'imported' => [

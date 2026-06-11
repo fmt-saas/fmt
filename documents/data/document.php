@@ -16,9 +16,8 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
     'description'   => 'Return raw data (with original MIME) of a document identified by given identifier.',
     'params'        => [
         'id' =>  [
-            'description'       => 'Identifier of the document.',
-            'type'              => 'many2one',
-            'foreign_object'    => 'documents\Document',
+            'description'       => 'Identifier (hash) of the document.',
+            'type'              => 'string',
             'required'          => true
         ],
         'disposition' => [
@@ -45,7 +44,7 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 $user_id = $auth->userId();
 
-$document = Document::id($params['id'])
+$document = Document::search(['hash', '=' $params['hash']])
     ->read([
         'document_visibility', 'condo_id', 'ownership_id', 'owner_id', 'name', 'data', 'content_type',
         'purchase_invoice_id', 'expense_statement_id', 'fund_request_execution_id', 'bank_statement_id'

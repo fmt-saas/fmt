@@ -71,12 +71,12 @@ class AssemblyMinutesCorrespondence extends \documents\correspondence\DocumentCo
 
     protected static function calcDownloadLink($self) {
         $result = [];
-        $self->read(['document_id']);
+        $self->read(['document_id' => ['hash']]);
         foreach($self as $id => $assemblyMinutesCorrespondence) {
             if(!$assemblyMinutesCorrespondence['document_id']) {
                 continue;
             }
-            $result[$id] = '/?get=documents_document&id=' . $assemblyMinutesCorrespondence['document_id'];
+            $result[$id] = '/document/' . $assemblyMinutesCorrespondence['document_id']['hash'];
         }
         return $result;
     }
