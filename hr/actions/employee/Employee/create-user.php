@@ -86,8 +86,9 @@ foreach($employees as $employee_id => $employee) {
 
         User::id($new_user_id)
             ->update(['identity_id' => $identity['id']])
-            ->do('sync_from_identity')
-            ->first();
+            ->do('sync_from_identity');
+
+        Employee::id($employee_id)->update(['user_id' => $new_user_id]);
     }
     // force refreshing role assignments
     RoleAssignment::ids($employee['role_assignments_ids'])->read(['user_id']);
