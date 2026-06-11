@@ -70,7 +70,7 @@ if(constant('FMT_INSTANCE_TYPE') !== 'global') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-if(empty($params['name'])) {
+if(empty($params['instance_name'])) {
     throw new Exception('invalid_name', EQ_ERROR_INVALID_PARAM);
 }
 
