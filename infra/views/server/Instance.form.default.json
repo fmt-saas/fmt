@@ -18,21 +18,24 @@
             "label": "Start instance",
             "icon": "",
             "description": "Start instance using b2 api.",
-            "controller": "infra_server_Instance_start"
+            "controller": "infra_server_Instance_start",
+            "visible": ["up", "=", false]
         },
         {
             "id": "action.stop",
             "label": "Stop instance",
             "icon": "",
             "description": "Stop instance using b2 api.",
-            "controller": "infra_server_Instance_stop"
+            "controller": "infra_server_Instance_stop",
+            "visible": ["up", "=", true]
         },
         {
             "id": "action.delete",
             "label": "Remove instance",
             "icon": "",
             "description": "Remove instance and b2 instance if server configured with b2 API access.",
-            "controller": "infra_server_Instance_delete"
+            "controller": "infra_server_Instance_delete",
+            "visible": ["up", "=", false]
         }
     ],
     "layout": {
