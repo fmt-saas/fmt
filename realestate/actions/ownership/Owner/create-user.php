@@ -31,17 +31,19 @@ use identity\User;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context', 'dispatch', 'auth']
+    'providers'     => ['context', 'dispatch', 'auth', 'orm']
 ]);
 
 /**
  * @var \equal\php\Context                 $context
  * @var \equal\dispatch\Dispatcher         $dispatch
  * @var \equal\auth\AuthenticationManager  $auth
+ * @var \equal\orm\ObjectManager           $orm
  */
-['context' => $context, 'dispatch' => $dispatch, 'auth' => $auth] = $providers;
+['context' => $context, 'dispatch' => $dispatch, 'auth' => $auth, 'orm' => $orm] = $providers;
 
 $user_id = $auth->userId();
+
 // we need root privilege
 $auth->su();
 
@@ -54,17 +56,29 @@ foreach($owners as $owner_id => $owner) {
 
     // #memo in case the user already exists, simply ignore the request
     if(!$identity['user_id'] && $identity['email']) {
-        // search for an email address
-        User::create([
+
+        $new_user_id = $orm->create(User::getType(), [
+                // #memo - Capabilities for EQ_R_UPDATE are based on 'creator' context
+                'creator'       => $user_id,
                 'login'         => $identity['email'],
                 'language'      => 'fr',
                 'validated'     => true,
+                'is_employee'   => false,
                 'is_owner'      => true,
                 // users
                 'groups_ids'    => [2]
-            ])
+            ]);
+
+        if($new_user_id <= 0) {
+            trigger_error("APP::error at new user creation for identity {$identity['name']}.", EQ_REPORT_WARNING);
+            continue;
+        }
+
+        User::id($new_user_id)
             ->update(['identity_id' => $identity['id']])
             ->do('sync_from_identity');
+
+        Owner::id($owner_id)->update(['user_id' => $new_user_id]);
     }
 }
 

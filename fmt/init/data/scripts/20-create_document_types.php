@@ -146,7 +146,7 @@ $createDocumentType([
     'name'                  => 'Rappel de paiement',
     'code'                  => 'payment_reminder',
     'folder_code'           => 'operation_statements',
-    'document_visibility'   => 'protected'
+    'document_visibility'   => 'ownership'
 ]);
 
 $createDocumentType([

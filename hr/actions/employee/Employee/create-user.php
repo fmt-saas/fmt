@@ -47,7 +47,6 @@ use identity\User;
  */
 ['context' => $context, 'dispatch' => $dispatch, 'auth' => $auth, 'orm' => $orm] = $providers;
 
-
 $user_id = $auth->userId();
 
 // we need root privilege
@@ -77,8 +76,8 @@ foreach($employees as $employee_id => $employee) {
                 'validated'     => true,
                 'is_employee'   => true,
                 'is_owner'      => false,
-                // users
-                'groups_ids'    => [2]
+                // users, employees
+                'groups_ids'    => [2, 3]
             ]);
 
         if($new_user_id <= 0) {

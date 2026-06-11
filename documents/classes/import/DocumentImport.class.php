@@ -107,6 +107,7 @@ class DocumentImport extends Model {
                     'condo',        // visible to all owners of a same condo + syndic
                     'ownership',    // visible to all owners of a same ownership + syndic
                     'owner',        // visible only to a single owner or supplier
+                    'suppliership', // visible to a specific supplier of a condo + syndic
                     'agency'        // visible only to syndic (employees)
                 ],
                 'default'           => 'agency',
@@ -233,15 +234,24 @@ class DocumentImport extends Model {
                 }
             }
 
-            $document_visibility = $values['document_visibility'] ?? $documentImport['document_visibility'] ?? 'private';
+            $document_visibility = $values['document_visibility'] ?? $documentImport['document_visibility'] ?? 'agency';
 
-            if($document_visibility === 'protected') {
+            if($document_visibility === 'ownership') {
                 $ownership_id = $values['ownership_id'] ?? $documentImport['ownership_id'] ?? null;
+
+                if(!$ownership_id) {
+                    return [
+                        'missing_visibility_target' => "Ownership is mandatory for `ownership` documents."
+                    ];
+                }
+            }
+            elseif($document_visibility === 'suppliership') {
+
                 $suppliership_id = $values['suppliership_id'] ?? $documentImport['suppliership_id'] ?? null;
 
-                if(!$ownership_id && !$suppliership_id) {
+                if(!$suppliership_id) {
                     return [
-                        'missing_protected_visibility_target' => "Ownership or suppliership is mandatory for protected documents."
+                        'missing_visibility_target' => "Suppliership is mandatory for `suppliership` documents."
                     ];
                 }
             }

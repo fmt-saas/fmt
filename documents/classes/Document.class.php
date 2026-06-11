@@ -180,6 +180,7 @@ class Document extends Model {
                     'condo',        // visible to all owners of a same condo + syndic
                     'ownership',    // visible to all owners of a same ownership + syndic
                     'owner',        // visible only to a single owner or supplier
+                    'suppliership', // visible to a specific supplier of a condo + syndic
                     'agency'        // visible only to syndic (employees)
                 ],
                 'default'           => 'agency',
