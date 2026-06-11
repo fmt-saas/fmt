@@ -32,6 +32,10 @@ use identity\User;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
+    'access' => [
+        'visibility'        => 'protected',
+        'groups'            => ['admins', 'operators']
+    ],
     'providers'     => ['context', 'dispatch', 'auth']
 ]);
 
@@ -44,8 +48,10 @@ use identity\User;
 
 
 $user_id = $auth->userId();
+
+// #memo - Capabilities are on 'creator' context
 // we need root privilege
-$auth->su();
+// $auth->su();
 
 $ids = array_merge((array) ($params['id'] ?? []), $params['ids'] ?? []);
 
@@ -77,7 +83,7 @@ foreach($employees as $employee_id => $employee) {
     RoleAssignment::ids($employee['role_assignments_ids'])->read(['user_id']);
 }
 
-$auth->su($user_id);
+// $auth->su($user_id);
 
 $context->httpResponse()
         ->status(201)

@@ -188,14 +188,16 @@ class User extends \core\User {
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
                 'function'          => 'calcIsEmployee',
-                'store'             => true
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'is_owner' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
                 'function'          => 'calcIsOwner',
-                'store'             => true
+                'store'             => true,
+                'readonly'          => true
             ]
 
         ];

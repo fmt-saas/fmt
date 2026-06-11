@@ -102,7 +102,6 @@ class AccessController extends \equal\access\AccessController {
         return false;
     }
 
-
     public function userIsAllowed($user_id, $operation, $object_class='*', $object_fields=[], $object_ids=[]) {
         return $this->isAllowed($operation, $object_class, $object_fields, $object_ids, $user_id);
     }
@@ -112,17 +111,10 @@ class AccessController extends \equal\access\AccessController {
             /** @var \equal\orm\ObjectManager */
             $orm = $this->container->get('orm');
 
-            $users = $orm->read(User::getType(), [$user_id], ['identity_id']);
+            $users = $orm->read(User::getType(), [$user_id], ['is_owner']);
             $user = is_array($users) ? current($users) : null;
-            $identity_id = $user['identity_id'] ?? null;
 
-            $has_owner = false;
-            if($identity_id) {
-                $owners_ids = $orm->search(Owner::getType(), ['identity_id', '=', $identity_id]);
-                $has_owner = is_array($owners_ids) && count($owners_ids) > 0;
-            }
-
-            $this->cache_owner_users_map[$user_id] = $has_owner;
+            $this->cache_owner_users_map[$user_id] = $user['is_owner'] ?? false;
         }
 
         return $this->cache_owner_users_map[$user_id];

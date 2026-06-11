@@ -6,7 +6,7 @@
             {
                 "id": 1,
                 "name": "Envoi d'emails",
-                "is_active": true,
+                "is_active": false,
                 "is_recurring": true,
                 "repeat_axis": "minute",
                 "repeat_step": 1,
