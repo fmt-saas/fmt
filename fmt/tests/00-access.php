@@ -498,7 +498,6 @@ $tests = [
                             Apportionment::getType(),
                             CommonArea::getType(),
                             Condominium::getType(),
-                            NotaryOffice::getType(),
                             OwnershipTransfer::getType(),
                             OwnershipTransferAdjustmentLine::getType(),
                             OwnershipTransferBankLoanLine::getType(),
