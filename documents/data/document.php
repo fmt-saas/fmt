@@ -148,7 +148,7 @@ elseif($document['bank_statement_id']) {
 }
 
 if(count($doc_info)) {
-    $output = eQual::run('get', 'documents_Document_add-overlay', ['id' => $params['id'], 'resize' => 0.9, 'overlay_text' => implode(' | ', $doc_info)]);
+    $output = eQual::run('get', 'documents_Document_add-overlay', ['id' => $document['id'], 'resize' => 0.9, 'overlay_text' => implode(' | ', $doc_info)]);
 }
 
 $context->httpResponse()
