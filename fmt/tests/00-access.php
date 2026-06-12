@@ -11,8 +11,29 @@ use core\Permission;
 use hr\role\Role;
 use hr\role\RoleAssignment;
 use realestate\ownership\Owner;
+use realestate\property\Apportionment;
+use realestate\property\CommonArea;
+use realestate\property\CommonAreaType;
 use realestate\property\Condominium;
+use realestate\property\NotaryOffice;
+use realestate\property\OwnershipTransfer;
+use realestate\property\OwnershipTransferAdjustmentLine;
+use realestate\property\OwnershipTransferBankLoanLine;
+use realestate\property\OwnershipTransferContact;
+use realestate\property\OwnershipTransferFee;
+use realestate\property\OwnershipTransferFundBalanceLine;
+use realestate\property\OwnershipTransferFundRequestLine;
+use realestate\property\Property;
+use realestate\property\PropertyEntrance;
 use realestate\property\PropertyLot;
+use realestate\property\PropertyLotApportionmentShare;
+use realestate\property\PropertyLotNature;
+use realestate\property\PropertyLotOwnership;
+use realestate\property\PropertyLotStatutoryQuota;
+use realestate\property\PropertyLotSuppliershipReference;
+use realestate\property\Tenancy;
+use realestate\property\TenancyTransfer;
+use realestate\property\Tenant;
 
 $providers = eQual::inject(['context', 'orm', 'auth', 'access']);
 
@@ -413,5 +434,165 @@ $tests = [
                         Group::ids($groups_ids)->delete(true);
                     }
                 }
+        ],
+    '0212' => [
+            'description'   => "Test owner access to object configured with a condo_id",
+            'help'          => "",
+            'return'            => ['boolean'],
+            'arrange'       => function() {
+                $condo_1 = Condominium::create([
+                    'name'              => 'test condo 1 for owner access test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
+
+                $condo_2 = Condominium::create([
+                    'name'              => 'test condo 2 for owner access test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
+
+                $owner_identity = Identity::create([
+                    'type_id'   => 1,
+                    'type'      => 'IN',
+                    'firstname' => 'Owner',
+                    'lastname'  => 'Access Test',
+                    'lang_id'   => 2
+                ])
+                    ->first();
+
+                $user = User::create([
+                    'login'         => 'owner_access_test@example.com',
+                    'password'      => 'abcd1234',
+                    'identity_id'   => $owner_identity['id']]
+                )
+                    ->first();
+
+                Owner::create([
+                    'condo_id'      => $condo_1['id'],
+                    'identity_id'   => $owner_identity['id']
+                ]);
+
+                return [$condo_1, $condo_2, $user];
+            },
+            'act'           => function($data) use($providers) {
+                /**
+                 * @var \equal\orm\ObjectManager        $orm
+                 * @var \fmt\access\AccessController    $am
+                 */
+                ['orm' => $orm, 'access' => $am] = $providers;
+
+                [$condo_1, $condo_2, $user] = $data;
+
+                $flatten = function(array $array) {
+                    $res = [];
+                    array_walk_recursive($array, function($a) use (&$res) { $res[] = $a; });
+                    return $res;
+                };
+
+                $map_classes = [
+                    'realestate' => [
+                        'property' => [
+                            Apportionment::getType(),                       // condo_id
+                            CommonArea::getType(),                          // condo_id
+                            CommonAreaType::getType(),                      // -
+                            Condominium::getType(),                         // condo_id
+                            NotaryOffice::getType(),                        // condo_id
+                            OwnershipTransfer::getType(),                   // condo_id, old_ownership_id, new_ownership_id
+                            OwnershipTransferAdjustmentLine::getType(),     // condo_id, ownership_id
+                            OwnershipTransferBankLoanLine::getType(),       // condo_id
+                            OwnershipTransferContact::getType(),            // condo_id
+                            OwnershipTransferFee::getType(),                // condo_id
+                            OwnershipTransferFundBalanceLine::getType(),    // condo_id
+                            OwnershipTransferFundRequestLine::getType(),    // condo_id
+                            Property::getType(),                            // -
+                            PropertyEntrance::getType(),                    // condo_id
+                            PropertyLot::getType(),                         // condo_id
+                            PropertyLotApportionmentShare::getType(),       // condo_id
+                            PropertyLotNature::getType(),                   // -
+                            PropertyLotOwnership::getType(),                // condo_id, ownership_id
+                            PropertyLotStatutoryQuota::getType(),           // condo_id
+                            PropertyLotSuppliershipReference::getType(),    // condo_id
+                            Tenancy::getType(),                             // condo_id
+                            TenancyTransfer::getType(),                     // condo_id
+                            Tenant::getType(),                              // condo_id
+                        ]
+                    ]
+                ];
+
+                $access_results = [
+                    'condo_1' => [],
+                    'condo_2' => []
+                ];
+                foreach($flatten($map_classes) as $class) {
+                    $entity = $orm->getModel($class);
+                    $schema = $entity->getSchema();
+
+                    if(!isset($schema['condo_id'])) {
+                        continue;
+                    }
+
+                    $map_condos_objects_ids = [
+                        'condo_1' => $orm->create($class, ['condo_id' => $condo_1['id']]),
+                        'condo_2' => $orm->create($class, ['condo_id' => $condo_2['id']])
+                    ];
+                    foreach($map_condos_objects_ids as $condo_key => $object_id) {
+                        foreach([EQ_R_READ, EQ_R_UPDATE] as $right) {
+                            $access_results[$condo_key][$class][$right] = $am->userIsAllowed($user['id'], $right, $class, [], [$object_id]);
+                        }
+                    }
+
+                    $orm->delete($class, [$map_condos_objects_ids['condo_1'], $map_condos_objects_ids['condo_2']]);
+                }
+
+                return $access_results;
+            },
+            'assert'        => function($access_results) {
+                foreach($access_results['condo_1'] as $class => $right_result) {
+                    if(!$right_result[EQ_R_READ]) {
+                        // Supposed to be able to read
+                        return false;
+                    }
+                    if($right_result[EQ_R_UPDATE]) {
+                        // Not supposed to be able to update
+                        return false;
+                    }
+                }
+
+                foreach($access_results['condo_2'] as $class => $right_result) {
+                    /*
+                    # todo - uncomment check when access check on condo implemented
+                    if($right_result[EQ_R_READ]) {
+                        // Not supposed to be able to read
+                        return false;
+                    }
+                    */
+                    if($right_result[EQ_R_UPDATE]) {
+                        // Not supposed to be able to update
+                        return false;
+                    }
+                }
+
+                return true;
+            },
+            'rollback'      => function() {
+                Condominium::search(['name', 'in', ['test condo 1 for owner access test', 'test condo 2 for owner access test']])->delete(true);
+
+                $users = User::search(['login', '=', 'owner_access_test@example.com'])->read(['identity_id']);
+                $identity_ids = [];
+                foreach($users as $user) {
+                    if(isset($user['identity_id'])) {
+                        $identity_ids[] = $user['identity_id'];
+                    }
+                }
+
+                User::search(['login', '=', 'owner_access_test@example.com'])->delete(true);
+                foreach($identity_ids as $identity_id) {
+                    Owner::search(['identity_id', '=', $identity_id])->delete(true);
+                    Identity::id($identity_id)->delete(true);
+                }
+            }
         ],
 ];
