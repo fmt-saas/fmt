@@ -51,6 +51,10 @@ $document = Document::search(['hash', '=', $params['id']])
     ])
     ->first();
 
+if(!$document) {
+    throw new Exception('unknown_document', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
 $content_type = $document['content_type'];
 $filename = $document['name'];
 $output = $document['data'];
