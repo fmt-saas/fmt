@@ -813,16 +813,16 @@ $tests = [
 
                 [$condo_1, $condo_2, $ownership_1, $ownership_2, $owner_1_user, $owner_1, $owner_2] = $data;
 
-                $orm->create(Document::getType(), ['document_visibility' => 'agency', 'hash' => 'agency']);
+                $orm->create(Document::getType(), ['condo_id' => $condo_1['id'], 'document_visibility' => 'agency', 'hash' => 'agency']);
 
                 $orm->create(Document::getType(), ['condo_id' => $condo_1['id'], 'document_visibility' => 'condo', 'hash' => 'condo_1']);
                 $orm->create(Document::getType(), ['condo_id' => $condo_2['id'], 'document_visibility' => 'condo', 'hash' => 'condo_2']);
 
-                $orm->create(Document::getType(), ['ownership_id' => $ownership_1['id'], 'document_visibility' => 'ownership', 'hash' => 'ownership_1']);
-                $orm->create(Document::getType(), ['ownership_id' => $ownership_2['id'], 'document_visibility' => 'ownership', 'hash' => 'ownership_2']);
+                $orm->create(Document::getType(), ['condo_id' => $condo_1['id'], 'ownership_id' => $ownership_1['id'], 'document_visibility' => 'ownership', 'hash' => 'ownership_1']);
+                $orm->create(Document::getType(), ['condo_id' => $condo_1['id'], 'ownership_id' => $ownership_2['id'], 'document_visibility' => 'ownership', 'hash' => 'ownership_2']);
 
-                $orm->create(Document::getType(), ['owner_id' => $owner_1['id'], 'document_visibility' => 'owner', 'hash' => 'owner_1']);
-                $orm->create(Document::getType(), ['owner_id' => $owner_2['id'], 'document_visibility' => 'owner', 'hash' => 'owner_2']);
+                $orm->create(Document::getType(), ['condo_id' => $condo_1['id'], 'ownership_id' => $ownership_1['id'], 'owner_id' => $owner_1['id'], 'document_visibility' => 'owner', 'hash' => 'owner_1']);
+                $orm->create(Document::getType(), ['condo_id' => $condo_1['id'], 'ownership_id' => $ownership_1['id'], 'owner_id' => $owner_2['id'], 'document_visibility' => 'owner', 'hash' => 'owner_2']);
 
                 $checkAccess = function($document_id, $user_id) use($auth) {
                     $auth->su($user_id);
