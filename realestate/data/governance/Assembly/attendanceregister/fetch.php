@@ -31,7 +31,7 @@ use realestate\governance\Assembly;
 $context = $providers['context'];
 
 $assembly = Assembly::id($params['id'])
-    ->read(['register_document_id' => ['signed_document_id']])
+    ->read(['register_document_id' => ['signed_document_id' => ['hash']]])
     ->first();
 
 if(!$assembly) {
@@ -39,7 +39,7 @@ if(!$assembly) {
 }
 
 try {
-    $output = eQual::run('get', 'documents_document', ['id' => $assembly['register_document_id']['signed_document_id']]);
+    $output = eQual::run('get', 'documents_document', ['id' => $assembly['register_document_id']['signed_document_id']['hash']]);
 }
 catch(Exception $e) {
     trigger_error('APP::Error while retrieving printable attendance register: '.$e->getMessage(), EQ_REPORT_ERROR);

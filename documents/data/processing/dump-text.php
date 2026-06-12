@@ -126,14 +126,15 @@ $extractTxtFromSpreadsheet = function ($document_data, string $format = 'Xlsx') 
 };
 
 // Retrieve document
-$collection = Document::id($params['id']);
-$document = $collection->read(['content_type', 'uuid'])->first();
+$document = Document::id($params['id'])
+    ->read(['content_type', 'uuid', 'hash'])
+    ->first();
 
 if(!$document) {
     throw new Exception("document_unknown", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$document_data = eQual::run('get', 'documents_document', ['id' => $params['id']]);
+$document_data = eQual::run('get', 'documents_document', ['id' => $document['hash']]);
 
 $output = '';
 

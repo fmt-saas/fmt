@@ -27,13 +27,13 @@ use documents\Document;
 
 ['context' => $context] = $providers;
 
-$document = Document::id($params['id'])->read(['name', 'extension', 'content_type'])->first();
+$document = Document::id($params['id'])->read(['name', 'hash', 'extension', 'content_type'])->first();
 
 if(!$document) {
     throw new Exception('unknown_document', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$output = eQual::run('get', 'documents_document', ['id' => $params['id']]);
+$output = eQual::run('get', 'documents_document', ['id' => $document['hash']]);
 
 $context->httpResponse()
         ->header('Content-Disposition', 'attachment; filename="' . $document['name'] . '.' . $document['extension'] . '"')

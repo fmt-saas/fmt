@@ -31,7 +31,7 @@ use realestate\governance\Assembly;
 $context = $providers['context'];
 
 $assembly = Assembly::id($params['id'])
-    ->read(['status', 'step', 'minutes_document_id' => ['signed_document_id']])
+    ->read(['status', 'step', 'minutes_document_id' => ['hash', 'signed_document_id' => ['hash']]])
     ->first();
 
 if(!$assembly) {
@@ -39,14 +39,14 @@ if(!$assembly) {
 }
 
 // depending on the status of the Assembly, we fetch either the draft (signable) or the signed version
-$document_id = $assembly['minutes_document_id']['id'];
+$document_hash = $assembly['minutes_document_id']['hash'];
 
 if(in_array($assembly['status'], ['held', 'adjourned'], true)) {
-    $document_id = $assembly['minutes_document_id']['signed_document_id'];
+    $document_hash = $assembly['minutes_document_id']['signed_document_id']['hash'];
 }
 
 try {
-    $output = eQual::run('get', 'documents_document', ['id' => $document_id]);
+    $output = eQual::run('get', 'documents_document', ['id' => $document_hash]);
 }
 catch(Exception $e) {
     trigger_error('APP::Error while retrieving minutes document: ' . $e->getMessage(), EQ_REPORT_ERROR);

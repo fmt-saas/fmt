@@ -229,7 +229,16 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Received Document that the invoice is issued from.',
-                'help'              => 'Target document has is_origin set to true.'
+                'help'              => 'Target document has is_origin set to true.',
+                'dependents'        => ['document_hash']
+            ],
+
+            'document_hash' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Received Document Hash.',
+                'relation'          => ['document_id' => 'hash'],
+                'store'             => true
             ],
 
             'documents_ids' => [

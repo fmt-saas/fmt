@@ -54,7 +54,9 @@ if(!in_array($document['content_type'], $supported_content_types)) {
 }
 
 // get raw binary data of the target document
-$document_data = eQual::run('get', 'documents_document', ['id' => $params['id']]);
+$document = Document::id($params['id'])
+    ->read(['name', 'content_type', 'data'])
+    ->first();
 
 $data = eQual::run('get', 'documents_processing_google_token');
 $token = $data['token'];
@@ -71,7 +73,7 @@ $request
     ->header("Content-Type", "application/json")
     ->body([
         'rawDocument' => [
-            'content'  => base64_encode($document_data),
+            'content'  => base64_encode($document['data']),
             'mimeType' => 'application/pdf'
         ]
     ]);

@@ -156,7 +156,7 @@
             "label": "View Original Document",
             "description": "",
             "icon": "open_in_new",
-            "route": "/?get=documents_document&id=object.document_id",
+            "route": "/?get=documents_document&id=object.document_hash",
             "target": "_blank",
             "absolute": true
         },
@@ -228,6 +228,11 @@
                                             {
                                                 "type": "field",
                                                 "value": "document_id",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_hash",
                                                 "visible": false
                                             },
                                             {

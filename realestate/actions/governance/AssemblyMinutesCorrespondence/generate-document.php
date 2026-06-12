@@ -39,7 +39,7 @@ $document_id = null;
 $assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id'])
     ->read([
         'status', 'condo_id', 'document_id', 'ownership_id', 'owner_id', 'name',
-        'assembly_id' => ['signed_minutes_document_id']
+        'assembly_id' => ['signed_minutes_document_id' => ['hash']]
     ])
     ->first();
 
@@ -94,7 +94,7 @@ if(!$document_id) {
     $temp_files[] = $temp;
 
     // 2) signed version of the General Assembly minutes
-    $data2 = eQual::run('get', 'documents_document', ['id' => $assemblyMinutesCorrespondence['assembly_id']['signed_minutes_document_id']]);
+    $data2 = eQual::run('get', 'documents_document', ['id' => $assemblyMinutesCorrespondence['assembly_id']['signed_minutes_document_id']['hash']]);
 
     $temp = tempnam(sys_get_temp_dir(), 'pdf_');
     file_put_contents($temp, $data2 ?? '');

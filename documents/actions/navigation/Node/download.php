@@ -34,13 +34,13 @@ if(!$node) {
     throw new Exception('unknown_node', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$document = Document::id($node['document_id'])->read(['name', 'extension', 'content_type'])->first();
+$document = Document::id($node['document_id'])->read(['name', 'hash', 'extension', 'content_type'])->first();
 
 if(!$document) {
     throw new Exception('unknown_document', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$output = eQual::run('get', 'documents_document', ['id' => $document['id']]);
+$output = eQual::run('get', 'documents_document', ['id' => $document['hash']]);
 
 $context->httpResponse()
         ->status(202)

@@ -9,7 +9,7 @@
             "label": "View document",
             "icon": "open_in_new",
             "description": "View printable invite.",
-            "route": "/?get=documents_document&id=object.id",
+            "route": "/?get=documents_document&id=object.hash",
             "target": "_blank",
             "absolute": true
         }
@@ -34,6 +34,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "document_type_code",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "hash",
                                                 "width": "0%",
                                                 "visible": false
                                             },
