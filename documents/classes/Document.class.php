@@ -673,8 +673,9 @@ class Document extends Model {
 
     protected static function calcLink($self) {
         $result = [];
+        $self->read(['hash']);
         foreach($self as $id => $document) {
-            $result[$id] = '/document/' . $id;
+            $result[$id] = '/document/' . $document['hash'];
         }
         return $result;
     }

@@ -2110,10 +2110,10 @@ class DocumentProcess extends Model {
 
     protected static function calcDocumentLink($self) {
         $result = [];
-        $self->read(['document_id']);
+        $self->read(['document_id' => ['hash']]);
         foreach($self as $id => $invoice) {
             if($invoice['document_id']) {
-                $result[$id] = '/document/' . $invoice['document_id'];
+                $result[$id] = '/document/' . $invoice['document_id']['hash'];
             }
         }
         return $result;

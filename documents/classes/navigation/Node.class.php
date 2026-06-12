@@ -297,10 +297,10 @@ class Node extends Model {
 
     public static function calcLink($self) {
         $result = [];
-        $self->read(['document_id']);
+        $self->read(['document_id' => ['hash']]);
         foreach($self as $id => $node) {
             if($node['document_id']) {
-                $result[$id] = '/document/' . $node['document_id'];
+                $result[$id] = '/document/' . $node['document_id']['hash'];
             }
         }
         return $result;

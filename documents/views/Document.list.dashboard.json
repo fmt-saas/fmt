@@ -11,7 +11,7 @@
     "sort": "desc",
     "domain": ["document_visibility", "in", ["condo"]],
     "on_empty": {
-        "message": "Aucun document disponible."
+        "message": "Aucun document disponible pour l'instant."
     },
     "routes": [
         {

@@ -1960,7 +1960,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     private static function computeDocumentLink($document_id) {
-        return '/document/' . $document_id;
+        $document = Document::id($document_id)->read(['hash'])->first();
+        return '/document/' . $document['hash'] ?? '';
     }
 
     protected static function calcDocumentLink($self) {
