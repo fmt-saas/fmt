@@ -552,13 +552,10 @@ $tests = [
                 }
 
                 foreach($access_results['condo_2'] as $class => $right_result) {
-                    /*
-                    # todo - uncomment check when access check on condo implemented
                     if($right_result[EQ_R_READ]) {
                         // Not supposed to be able to read
                         return false;
                     }
-                    */
                     if($right_result[EQ_R_UPDATE]) {
                         // Not supposed to be able to update
                         return false;
