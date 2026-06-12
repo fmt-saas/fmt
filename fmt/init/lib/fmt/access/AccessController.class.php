@@ -17,6 +17,7 @@ class AccessController extends \equal\access\AccessController {
 
     private $cache_roles_map = [];
     private $cache_owner_users_map = [];
+    private $cache_owner_condos_map = [];
 
     private function cacheRole($user_id, $condo_id, $role, $has_role) {
         if( !isset($this->cache_roles_map[$user_id]) ) {
@@ -120,6 +121,51 @@ class AccessController extends \equal\access\AccessController {
         return $this->cache_owner_users_map[$user_id];
     }
 
+    private function getOwnerCondosIds($user_id): array {
+        if(!isset($this->cache_owner_condos_map[$user_id])) {
+            /** @var \equal\orm\ObjectManager */
+            $orm = $this->container->get('orm');
+
+            $this->cache_owner_condos_map[$user_id] = [];
+
+            $users = $orm->read(User::getType(), [$user_id], ['identity_id']);
+            $user = is_array($users) ? current($users) : null;
+
+            if(isset($user['identity_id'])) {
+                $owners_ids = $orm->search(Owner::getType(), ['identity_id', '=', $user['identity_id']]);
+
+                if(is_array($owners_ids) && count($owners_ids)) {
+                    $owners = $orm->read(Owner::getType(), $owners_ids, ['condo_id']);
+
+                    foreach($owners as $owner) {
+                        if(isset($owner['condo_id'])) {
+                            $this->cache_owner_condos_map[$user_id][$owner['condo_id']] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return array_keys($this->cache_owner_condos_map[$user_id]);
+    }
+
+    private function ownerCanAccessObjectsCondos($user_id, $objects): bool {
+        $owner_condos_ids = $this->getOwnerCondosIds($user_id);
+        if(!count($owner_condos_ids)) {
+            return false;
+        }
+
+        $map_owner_condos_ids = array_fill_keys($owner_condos_ids, true);
+
+        foreach($objects as $object) {
+            if(!isset($object['condo_id']) || !isset($map_owner_condos_ids[$object['condo_id']])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      *  Check if current user (retrieved using Auth service) has rights to perform a given operation.
      *
@@ -146,12 +192,31 @@ class AccessController extends \equal\access\AccessController {
             $object_ids = (array) $object_ids;
         }
 
-        if($user_id != EQ_ROOT_USER_ID && $this->isOwnerUser($user_id) && ($operation & ~EQ_R_READ) !== 0) {
+        $is_owner_user = ($user_id != EQ_ROOT_USER_ID && $this->isOwnerUser($user_id));
+
+        if($is_owner_user && ($operation & ~EQ_R_READ) !== 0) {
             return false;
         }
 
         if($object_class === '*') {
             return parent::userIsAllowed($user_id, $operation, $object_class, $object_fields, $object_ids);
+        }
+
+        $model = $orm->getModel($object_class);
+        if($model === false) {
+            trigger_error("APP::isAllowed(): unknown class '$object_class'", EQ_REPORT_WARNING);
+            return false;
+        }
+
+        $schema = $model->getSchema();
+        $objects = null;
+
+        if($is_owner_user && isset($schema['condo_id']) && count($object_ids)) {
+            $objects = $orm->read($model::getType(), $object_ids, ['condo_id']);
+
+            if(!$this->ownerCanAccessObjectsCondos($user_id, $objects)) {
+                return false;
+            }
         }
 
         $rights = 0;
@@ -165,20 +230,15 @@ class AccessController extends \equal\access\AccessController {
                 break;
             }
 
-            $model = $orm->getModel($object_class);
-            if($model === false) {
-                trigger_error("APP::isAllowed(): unknown class '$object_class'", EQ_REPORT_WARNING);
-                return false;
-            }
-
-            $schema = $model->getSchema();
             // check HR roles only for classes relating to condominiums
             if(isset($schema['condo_id'])) {
 
                 $domain = [];
 
                 if(count($object_ids)) {
-                    $objects = $orm->read($model::getType(), $object_ids, ['condo_id']);
+                    if(is_null($objects)) {
+                        $objects = $orm->read($model::getType(), $object_ids, ['condo_id']);
+                    }
                     $condos_ids = array_map(function($o) { return $o['condo_id']; }, $objects);
                     $domain = [
                             // roles for condominiums specific to the objects (if $object_ids not empty)
