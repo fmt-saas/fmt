@@ -857,8 +857,6 @@ $tests = [
                 ];
             },
             'assert'        => function($access_results) {
-                file_put_contents(QN_LOG_STORAGE_DIR.'/tmp.log', json_encode($access_results).PHP_EOL, FILE_APPEND | LOCK_EX);
-
                 return
                     // access denied to agency document for owner 1
                     $access_results['agency'] === false
