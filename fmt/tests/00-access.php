@@ -11,6 +11,7 @@ use core\Permission;
 use hr\role\Role;
 use hr\role\RoleAssignment;
 use realestate\ownership\Owner;
+use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\property\CommonArea;
 use realestate\property\CommonAreaType;
@@ -495,29 +496,26 @@ $tests = [
                 $map_classes = [
                     'realestate' => [
                         'property' => [
-                            Apportionment::getType(),                       // condo_id
-                            CommonArea::getType(),                          // condo_id
-                            CommonAreaType::getType(),                      // -
-                            Condominium::getType(),                         // condo_id
-                            NotaryOffice::getType(),                        // condo_id
-                            OwnershipTransfer::getType(),                   // condo_id, old_ownership_id, new_ownership_id
-                            OwnershipTransferAdjustmentLine::getType(),     // condo_id, ownership_id
-                            OwnershipTransferBankLoanLine::getType(),       // condo_id
-                            OwnershipTransferContact::getType(),            // condo_id
-                            OwnershipTransferFee::getType(),                // condo_id
-                            OwnershipTransferFundBalanceLine::getType(),    // condo_id
-                            OwnershipTransferFundRequestLine::getType(),    // condo_id
-                            Property::getType(),                            // -
-                            PropertyEntrance::getType(),                    // condo_id
-                            PropertyLot::getType(),                         // condo_id
-                            PropertyLotApportionmentShare::getType(),       // condo_id
-                            PropertyLotNature::getType(),                   // -
-                            PropertyLotOwnership::getType(),                // condo_id, ownership_id
-                            PropertyLotStatutoryQuota::getType(),           // condo_id
-                            PropertyLotSuppliershipReference::getType(),    // condo_id
-                            Tenancy::getType(),                             // condo_id
-                            TenancyTransfer::getType(),                     // condo_id
-                            Tenant::getType(),                              // condo_id
+                            Apportionment::getType(),
+                            CommonArea::getType(),
+                            Condominium::getType(),
+                            NotaryOffice::getType(),
+                            OwnershipTransfer::getType(),
+                            OwnershipTransferAdjustmentLine::getType(),
+                            OwnershipTransferBankLoanLine::getType(),
+                            OwnershipTransferContact::getType(),
+                            OwnershipTransferFee::getType(),
+                            OwnershipTransferFundBalanceLine::getType(),
+                            OwnershipTransferFundRequestLine::getType(),
+                            PropertyEntrance::getType(),
+                            PropertyLot::getType(),
+                            PropertyLotApportionmentShare::getType(),
+                            PropertyLotOwnership::getType(),
+                            PropertyLotStatutoryQuota::getType(),
+                            PropertyLotSuppliershipReference::getType(),
+                            Tenancy::getType(),
+                            TenancyTransfer::getType(),
+                            Tenant::getType()
                         ]
                     ]
                 ];
@@ -527,13 +525,6 @@ $tests = [
                     'condo_2' => []
                 ];
                 foreach($flatten($map_classes) as $class) {
-                    $entity = $orm->getModel($class);
-                    $schema = $entity->getSchema();
-
-                    if(!isset($schema['condo_id'])) {
-                        continue;
-                    }
-
                     $map_condos_objects_ids = [
                         'condo_1' => $orm->create($class, ['condo_id' => $condo_1['id']]),
                         'condo_2' => $orm->create($class, ['condo_id' => $condo_2['id']])
@@ -595,4 +586,146 @@ $tests = [
                 }
             }
         ],
+    '0213' => [
+            'description'   => "Test owner access to object configured with a ownership_id",
+            'help'          => "",
+            'arrange'       => function() {
+                $condo_1 = Condominium::create([
+                    'name'              => 'test condo 1 for owner access test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
+
+                $owner_identity = Identity::create([
+                    'type_id'   => 1,
+                    'type'      => 'IN',
+                    'firstname' => 'Owner',
+                    'lastname'  => 'Access Test',
+                    'lang_id'   => 2
+                ])
+                    ->first();
+
+                $user = User::create([
+                    'login'         => 'owner_access_test@example.com',
+                    'password'      => 'abcd1234',
+                    'identity_id'   => $owner_identity['id']]
+                )
+                    ->first();
+
+                Owner::create([
+                    'condo_id'      => $condo_1['id'],
+                    'identity_id'   => $owner_identity['id']
+                ]);
+
+                $ownership_1 = Ownership::create([
+                    'condo_id'          => $condo_1['id'],
+                    'description'       => 'test ownership 1 for owner access test',
+                    'date_from'         => time(),
+                    'address_recipient' => 'Address ownership 1'
+                ])
+                    ->first();
+
+                $ownership_2 = Ownership::create([
+                    'condo_id'          => $condo_1['id'],
+                    'description'       => 'test ownership 2 for owner access test',
+                    'date_from'         => time(),
+                    'address_recipient' => 'Address ownership 2'
+                ])
+                    ->first();
+
+                return [$condo_1, $ownership_1, $ownership_2, $user];
+            },
+            'act'           => function($data) use($providers) {
+                /**
+                 * @var \equal\orm\ObjectManager        $orm
+                 * @var \fmt\access\AccessController    $am
+                 */
+                ['orm' => $orm, 'access' => $am] = $providers;
+
+                [$condo_1, $ownership_1, $ownership_2, $user] = $data;
+
+                $flatten = function(array $array) {
+                    $res = [];
+                    array_walk_recursive($array, function($a) use (&$res) { $res[] = $a; });
+                    return $res;
+                };
+
+                $map_classes = [
+                    'realestate' => [
+                        'property' => [
+                            OwnershipTransferAdjustmentLine::getType(),
+                            PropertyLotOwnership::getType()
+                        ]
+                    ]
+                ];
+
+                $access_results = [
+                    'ownership_1' => [],
+                    'ownership_2' => []
+                ];
+                foreach($flatten($map_classes) as $class) {
+                    $map_condos_objects_ids = [
+                        'ownership_1' => $orm->create($class, ['condo_id' => $condo_1['id'], 'ownership_id' => $ownership_1['id']]),
+                        'ownership_2' => $orm->create($class, ['condo_id' => $condo_1['id'], 'ownership_id' => $ownership_2['id']])
+                    ];
+                    foreach($map_condos_objects_ids as $condo_key => $object_id) {
+                        foreach([EQ_R_READ, EQ_R_UPDATE] as $right) {
+                            $access_results[$condo_key][$class][$right] = $am->userIsAllowed($user['id'], $right, $class, [], [$object_id]);
+                        }
+                    }
+
+                    $orm->delete($class, [$map_condos_objects_ids['ownership_1'], $map_condos_objects_ids['ownership_2']]);
+                }
+
+                return $access_results;
+            },
+            'assert'        => function($access_results) {
+                foreach($access_results['ownership_1'] as $class => $right_result) {
+                    if(!$right_result[EQ_R_READ]) {
+                        // Supposed to be able to read
+                        return false;
+                    }
+                    if($right_result[EQ_R_UPDATE]) {
+                        // Not supposed to be able to update
+                        return false;
+                    }
+                }
+
+                foreach($access_results['ownership_2'] as $class => $right_result) {
+                    /*
+                    # todo - uncomment check when access check on ownership implemented
+                    if($right_result[EQ_R_READ]) {
+                        // Not supposed to be able to read
+                        return false;
+                    }
+                    */
+                    if($right_result[EQ_R_UPDATE]) {
+                        // Not supposed to be able to update
+                        return false;
+                    }
+                }
+
+                return true;
+            },
+            'rollback'      => function() {
+                Condominium::search(['name', 'in', ['test condo 1 for owner access test']])->delete(true);
+
+                Ownership::search(['description', 'in', ['test ownership 1 for owner access test', 'test ownership 2 for owner access test']])->delete(true);
+
+                $users = User::search(['login', '=', 'owner_access_test@example.com'])->read(['identity_id']);
+                $identity_ids = [];
+                foreach($users as $user) {
+                    if(isset($user['identity_id'])) {
+                        $identity_ids[] = $user['identity_id'];
+                    }
+                }
+
+                User::search(['login', '=', 'owner_access_test@example.com'])->delete(true);
+                foreach($identity_ids as $identity_id) {
+                    Owner::search(['identity_id', '=', $identity_id])->delete(true);
+                    Identity::id($identity_id)->delete(true);
+                }
+            }
+        ]
 ];
