@@ -15,6 +15,7 @@ use documents\export\ExportingTaskLine;
 use documents\navigation\Node;
 use equal\html\HtmlTemplate;
 use hr\role\RoleAssignment;
+use identity\User;
 use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
 use realestate\ownership\OwnershipCommunicationPreference;
@@ -413,6 +414,27 @@ class Assembly extends \equal\orm\Model {
                 'default'           => false
             ],
 
+
+            'download_invite_correspondence_link' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'uri/url.relative',
+                'description'       => 'URL for downloading the export.',
+                'function'          => 'calcDownloadInviteCorrespondenceLink',
+                'store'             => false,
+                'readonly'          => true
+            ],
+
+            'download_minutes_correspondence_link' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'uri/url.relative',
+                'description'       => 'URL for downloading the export.',
+                'function'          => 'calcDownloadMinutesCorrespondenceLink',
+                'store'             => false,
+                'readonly'          => true
+            ],
+
             'step' => [
                 'type'           => 'string',
                 'description'    => "Step at which the assembly is currently being.",
@@ -758,6 +780,113 @@ class Assembly extends \equal\orm\Model {
         ];
     }
 
+    protected static function calcDownloadMinutesCorrespondenceLink($self, $auth) {
+        $result = [];
+        $user_id = $auth->userId();
+        $user = User::id($user_id)->read(['identity_id'])->first();
+
+        $self->read(['condo_id', 'is_sent']);
+        foreach($self as $id => $assembly) {
+            if(!$assembly['is_sent']) {
+                continue;
+            }
+
+            $owner = Owner::search([['condo_id', '=', $assembly['condo_id']], ['identity_id', '=', $user['identity_id']]])
+                ->read(['ownership_id'])
+                ->first();
+
+            if(!$owner) {
+                continue;
+            }
+
+            $documentType = DocumentType::search(['code', '=', 'general_assembly_document'])
+                ->read(['folder_code', 'visibility'])
+                ->first();
+
+            $documentSubtype = DocumentSubtype::search([['document_type_id', '=', $documentType['id']], ['code', '=', 'minutes']])
+                ->read(['folder_code', 'visibility'])
+                ->first();
+
+            $domain = [
+                ['condo_id', '=', $assembly['condo_id']],
+                ['assembly_id', '=', $id],
+                ['ownership_id', '=', $owner['ownership_id']],
+                ['document_type_id', '=', $documentType['id']],
+                ['document_subtype_id', '=', $documentSubtype['id']]
+            ];
+
+            // first search for exact owner
+            $document = Document::search(array_merge($domain, [['owner_id', '=', $owner['id']]]))
+                ->read(['hash'])
+                ->first();
+
+            if(!$document) {
+                // second, fallback to doc for ownership, whatever the owner
+                $document = Document::search($domain)
+                    ->read(['hash'])
+                    ->first();
+            }
+
+            if($document) {
+                $result[$id] = '/document/' . $document['hash'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcDownloadInviteCorrespondenceLink($self, $auth) {
+        $result = [];
+        $user_id = $auth->userId();
+        $user = User::id($user_id)->read(['identity_id'])->first();
+
+        $self->read(['condo_id', 'is_sent']);
+        foreach($self as $id => $assembly) {
+            if(!$assembly['is_sent']) {
+                continue;
+            }
+
+            $owner = Owner::search([['condo_id', '=', $assembly['condo_id']], ['identity_id', '=', $user['identity_id']]])
+                ->read(['ownership_id'])
+                ->first();
+
+            if(!$owner) {
+                continue;
+            }
+
+            $documentType = DocumentType::search(['code', '=', 'general_assembly_document'])
+                ->read(['folder_code', 'visibility'])
+                ->first();
+
+            $documentSubtype = DocumentSubtype::search([['document_type_id', '=', $documentType['id']], ['code', '=', 'invite']])
+                ->read(['folder_code', 'visibility'])
+                ->first();
+
+            $domain = [
+                ['condo_id', '=', $assembly['condo_id']],
+                ['assembly_id', '=', $id],
+                ['ownership_id', '=', $owner['ownership_id']],
+                ['document_type_id', '=', $documentType['id']],
+                ['document_subtype_id', '=', $documentSubtype['id']]
+            ];
+
+            // first search for exact owner
+            $document = Document::search(array_merge($domain, [['owner_id', '=', $owner['id']]]))
+                ->read(['hash'])
+                ->first();
+
+            if(!$document) {
+                // second, fallback to doc for ownership, whatever the owner
+                $document = Document::search($domain)
+                    ->read(['hash'])
+                    ->first();
+            }
+
+            if($document) {
+                $result[$id] = '/document/' . $document['hash'];
+            }
+        }
+        return $result;
+    }
 
     private static function computeOwnershipsIds($condo_id, $assembly_date) {
         // generate the ownerships_ids : list of expected Ownerships allowed to attend the Assembly

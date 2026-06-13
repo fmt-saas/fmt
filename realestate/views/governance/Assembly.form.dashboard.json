@@ -138,34 +138,27 @@
             {
                 "sections": [
                     {
-                        "id": "section.resolutions",
-                        "label": "Resolutions",
+                        "id": "section.invite",
+                        "label": "Invite",
                         "rows": [
                             {
                                 "columns": [
                                     {
+                                        "type": "field",
+                                        "value": "download_invite_correspondence_link",
                                         "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "assembly_items_ids",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "header": {
-                                                        "layout": "inline",
-                                                        "actions": false
-                                                    }
-                                                }
-                                            }
-                                        ]
+                                        "readonly": true,
+                                        "widget": {
+                                            "link": "icon"
+                                        }
                                     }
                                 ]
                             }
                         ]
                     },
                     {
-                        "id": "section.minutes_attachments",
-                        "label": "Minutes attachments",
+                        "id": "section.minutes",
+                        "label": "Minutes",
                         "visible": [
                             [
                                 "status",
@@ -185,6 +178,15 @@
                                     {
                                         "width": "100%",
                                         "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "download_minutes_correspondence_link",
+                                                "width": "100%",
+                                                "readonly": true,
+                                                "widget": {
+                                                    "link": "icon"
+                                                }
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "minutes_attachment_documents_ids",
