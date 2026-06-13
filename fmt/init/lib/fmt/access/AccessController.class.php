@@ -211,7 +211,9 @@ class AccessController extends \equal\access\AccessController {
         $schema = $model->getSchema();
         $objects = null;
 
-        if($is_owner_user && isset($schema['condo_id']) && count($object_ids)) {
+        $has_condo_field = isset($schema['condo_id']) && !in_array($object_class, ['fmt\setting\SettingValue', 'fmt\setting\SettingSequence'], true);
+
+        if($is_owner_user && $has_condo_field && count($object_ids)) {
             $objects = $orm->read($model::getType(), $object_ids, ['condo_id']);
 
             if(!$this->ownerCanAccessObjectsCondos($user_id, $objects)) {
@@ -231,7 +233,7 @@ class AccessController extends \equal\access\AccessController {
             }
 
             // check HR roles only for classes relating to condominiums
-            if(isset($schema['condo_id'])) {
+            if($has_condo_field) {
 
                 $domain = [];
 
