@@ -784,9 +784,9 @@ class Assembly extends \equal\orm\Model {
         $user_id = $auth->userId();
         $user = User::id($user_id)->read(['identity_id'])->first();
 
-        $self->read(['condo_id', 'is_sent']);
+        $self->read(['condo_id', 'has_minutes_sent']);
         foreach($self as $id => $assembly) {
-            if(!$assembly['is_sent']) {
+            if(!$assembly['has_minutes_sent']) {
                 continue;
             }
 
@@ -838,9 +838,9 @@ class Assembly extends \equal\orm\Model {
         $user_id = $auth->userId();
         $user = User::id($user_id)->read(['identity_id'])->first();
 
-        $self->read(['condo_id', 'is_sent']);
+        $self->read(['condo_id', 'has_invitations_sent']);
         foreach($self as $id => $assembly) {
-            if(!$assembly['is_sent']) {
+            if(!$assembly['has_invitations_sent']) {
                 continue;
             }
 
