@@ -852,36 +852,31 @@ class Assembly extends \equal\orm\Model {
                 continue;
             }
 
-            $documentType = DocumentType::search(['code', '=', 'general_assembly_document'])
-                ->read(['folder_code', 'visibility'])
-                ->first();
-
-            $documentSubtype = DocumentSubtype::search([['document_type_id', '=', $documentType['id']], ['code', '=', 'invite']])
-                ->read(['folder_code', 'visibility'])
-                ->first();
-
             $domain = [
                 ['condo_id', '=', $assembly['condo_id']],
                 ['assembly_id', '=', $id],
                 ['ownership_id', '=', $owner['ownership_id']],
-                ['document_type_id', '=', $documentType['id']],
-                ['document_subtype_id', '=', $documentSubtype['id']]
+                ['has_document', '=', true]
             ];
 
-            // first search for exact owner
-            $document = Document::search(array_merge($domain, [['owner_id', '=', $owner['id']]]))
-                ->read(['hash'])
-                ->first();
+            $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::search(array_merge($domain, [['owner_id', '=', $owner['id']]]))->read(['document_id']);
 
-            if(!$document) {
+            if(!$assemblyInvitationCorrespondence) {
                 // second, fallback to doc for ownership, whatever the owner
-                $document = Document::search($domain)
-                    ->read(['hash'])
+                $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::search($domain)
+                    ->read(['document_id'])
                     ->first();
             }
 
-            if($document) {
-                $result[$id] = '/document/' . $document['hash'];
+            if($assemblyInvitationCorrespondence) {
+                // first search for exact owner
+                $document = Document::id($assemblyInvitationCorrespondence['document_id'])
+                    ->read(['hash'])
+                    ->first();
+
+                if($document) {
+                    $result[$id] = '/document/' . $document['hash'];
+                }
             }
         }
         return $result;
