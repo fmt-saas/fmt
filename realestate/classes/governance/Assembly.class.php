@@ -859,7 +859,9 @@ class Assembly extends \equal\orm\Model {
                 ['has_document', '=', true]
             ];
 
-            $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::search(array_merge($domain, [['owner_id', '=', $owner['id']]]))->read(['document_id']);
+            $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::search(array_merge($domain, [['owner_id', '=', $owner['id']]]))
+                ->read(['document_id'])
+                ->first();
 
             if(!$assemblyInvitationCorrespondence) {
                 // second, fallback to doc for ownership, whatever the owner
