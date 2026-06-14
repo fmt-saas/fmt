@@ -414,7 +414,6 @@ class Assembly extends \equal\orm\Model {
                 'default'           => false
             ],
 
-
             'download_invite_correspondence_link' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',

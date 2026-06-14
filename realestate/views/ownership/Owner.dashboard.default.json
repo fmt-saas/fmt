@@ -69,7 +69,8 @@
                                                     ["assembly_id", "is", null],
                                                     ["supplier_id", "is", null],
                                                     ["ownership_id", "is", null],
-                                                    ["owner_id", "is", null]
+                                                    ["owner_id", "is", null],
+                                                    ["document_visibility", "in", ["condo", "ownership", "owner"]]
                                                 ]
                                             }
                                         ]
