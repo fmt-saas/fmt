@@ -144,13 +144,18 @@
                             {
                                 "columns": [
                                     {
-                                        "type": "field",
-                                        "value": "download_invite_correspondence_link",
                                         "width": "100%",
-                                        "readonly": true,
-                                        "widget": {
-                                            "link": "icon"
-                                        }
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "download_invite_correspondence_link",
+                                                "width": "100%",
+                                                "readonly": true,
+                                                "widget": {
+                                                    "link": "icon"
+                                                }
+                                            }
+                                        ]
                                     }
                                 ]
                             }
