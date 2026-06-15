@@ -556,7 +556,7 @@ class Document extends Model {
                     'document_id'       => $id,
                     'condo_id'          => $document['condo_id'],
                     'node_type'         => 'document',
-                    'node_visibility'   => $document['document_visibility'],
+                    'node_visibility'   => $document['document_visibility'] ?? 'agency',
                     'supplier_id'       => $document['supplier_id'],
                     'ownership_id'      => $document['ownership_id']
                 ])
@@ -564,7 +564,9 @@ class Document extends Model {
                 ->update(['parent_id' => $document['parent_node_id']])
                 ->first();
 
-            self::id($id)->update(['node_id' => $node['id']]);
+            if($node) {
+                $result[$id] = $node['id'];
+            }
         }
         return $result;
     }
