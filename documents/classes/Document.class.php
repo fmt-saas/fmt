@@ -163,6 +163,7 @@ class Document extends Model {
                 'description'       => 'Parent Node the document-node should be linked with.',
                 'help'              => 'This is a virtual field used for creating a Node for the document when necessary (according to document_type_id).',
                 'domain'            => [['node_type', '=', 'folder'], ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'oncreate'          => 'onupdateParentNodeId',
                 'onupdate'          => 'onupdateParentNodeId'
             ],
 
@@ -591,6 +592,9 @@ class Document extends Model {
     protected static function onupdateParentNodeId($self) {
         $self->read(['name', 'parent_node_id', 'node_id', 'condo_id', 'document_visibility', 'supplier_id', 'ownership_id']);
         foreach($self as $id => $document) {
+            if(!$document['condo_id']) {
+                continue;
+            }
             if(!$document['parent_node_id']) {
                 continue;
             }
