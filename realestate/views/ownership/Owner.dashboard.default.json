@@ -70,8 +70,7 @@
                                                     ["supplier_id", "is", null],
                                                     ["ownership_id", "is", null],
                                                     ["owner_id", "is", null],
-                                                    ["document_visibility", "in", ["condo", "ownership", "owner"]],
-                                                    ["document_type_code", "in", ["ownership_identification_document", "condominium_council_document", "condominium_council_minutes"]]
+                                                    ["document_visibility", "=", "condo"]
                                                 ]
                                             }
                                         ]
