@@ -655,7 +655,7 @@ class Document extends Model {
             if(empty($document['data'])) {
                 continue;
             }
-            $result[$id] = md5($document['data']);
+            $result[$id] = md5($id . $document['data']);
         }
         return $result;
     }

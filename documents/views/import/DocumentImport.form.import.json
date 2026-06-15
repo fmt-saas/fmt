@@ -31,12 +31,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "condo_id",
-                                                "width": "100%",
-                                                "required": true
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "document_type_id",
                                                 "width": "100%",
                                                 "required": true
@@ -51,6 +45,12 @@
                                     {
                                         "width": "33%",
                                         "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "100%",
+                                                "required": true
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "ownership_id",

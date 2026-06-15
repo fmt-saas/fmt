@@ -59,6 +59,12 @@
             },
             {
                 "type": "field",
+                "label": "Visibility",
+                "value": "document_visibility",
+                "width": "15%"
+            },
+            {
+                "type": "field",
                 "value": "link",
                 "width": "33%",
                 "readonly": true,
