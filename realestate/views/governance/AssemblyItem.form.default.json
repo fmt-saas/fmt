@@ -83,7 +83,8 @@
                 "domain": [
                     ["condo_id", "=", "object.condo_id"],
                     ["assembly_id", "=", "object.assembly_id"],
-                    ["assembly_item_id", "=", "object.id"]
+                    ["assembly_item_id", "=", "object.id"],
+                    ["parent_node_id", "=", "object.assembly_parent_node_id"]
                 ]
             }
         }
@@ -113,6 +114,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "assembly_id",
+                                                "width": "50%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_parent_node_id",
                                                 "width": "50%",
                                                 "visible": false
                                             },

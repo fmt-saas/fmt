@@ -33,7 +33,8 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'description'       => "The assembly the invitation refers to.",
                 'foreign_object'    => 'realestate\governance\Assembly',
                 'required'          => true,
-                'onupdate'          => 'onupdateAssemblyId'
+                'onupdate'          => 'onupdateAssemblyId',
+                'dependents'        => ['assembly_parent_node_id']
             ],
 
             'order' => [
@@ -200,6 +201,15 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'description'       => 'Number of documents attached to the item.',
                 'store'             => false,
                 'function'          => 'calcDocumentsCount'
+            ],
+
+            'assembly_parent_node_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'documents\navigation\Node',
+                'relation'          => ['assembly_id' => 'parent_node_id'],
+                'store'             => true,
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'documents_ids' => [

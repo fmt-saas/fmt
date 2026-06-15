@@ -41,7 +41,7 @@ class Assembly extends \equal\orm\Model {
                 'description'       => "The condominium the property lot belongs to.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 'required'          => true,
-                'dependents'        => ['count_shares'],
+                'dependents'        => ['count_shares', 'parent_node_id'],
                 'onupdate'          => 'onupdateCondoId'
             ],
 
@@ -61,6 +61,15 @@ class Assembly extends \equal\orm\Model {
                 'store'             => true,
                 // limiter aux identités des employés
                 'domain'            => [['employee_id', '<>', null]]
+            ],
+
+            'parent_node_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'documents\navigation\Node',
+                'function'          => 'calcParentNodeId',
+                'store'             => true,
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'register_document_id' => [
@@ -812,6 +821,27 @@ class Assembly extends \equal\orm\Model {
         ];
     }
 
+    protected static function calcParentNodeId($self) {
+        $result = [];
+        $self->read(['condo_id']);
+        foreach($self as $id => $assembly) {
+            if(!$assembly['condo_id']) {
+                continue;
+            }
+            // store document in related General Assembly folder
+            $parentNode = Node::search([
+                    ['condo_id', '=', $assembly['condo_id']],
+                    ['node_type', '=', 'folder'],
+                    ['code', '=', 'general_meetings']
+                ])
+                ->first();
+            if($parentNode) {
+                $result[$id] = $parentNode['id'];
+            }
+        }
+        return $result;
+    }
+
     protected static function calcDownloadMinutesCorrespondenceLink($self, $auth) {
         $result = [];
         $user_id = $auth->userId();
@@ -1147,7 +1177,8 @@ class Assembly extends \equal\orm\Model {
     protected static function doGeneratePrintableAttendanceRegister($self) {
         $self->read([
                 'condo_id',
-                'register_document_id'
+                'register_document_id',
+                'parent_node_id'
             ]);
 
         foreach($self as $id => $assembly) {
@@ -1163,14 +1194,6 @@ class Assembly extends \equal\orm\Model {
                         'signed'                => true
                     ]);
 
-                // store document in related General Assembly folder
-                $parentNode = Node::search([
-                        ['condo_id', '=', $assembly['condo_id']],
-                        ['node_type', '=', 'folder'],
-                        ['code', '=', 'general_meetings']
-                    ])
-                    ->first();
-
                 $documentType = DocumentType::search(['code', '=', 'general_assembly_document'])->first();
                 $documentSubtype = DocumentSubtype::search([['document_type_id', '=', $documentType['id'] ?? null], ['code', '=', 'attendance_register']])->first();
 
@@ -1183,7 +1206,7 @@ class Assembly extends \equal\orm\Model {
                         'document_type_id'      => $documentType['id'] ?? null,
                         'document_subtype_id'   => $documentSubtype['id'] ?? null
                     ])
-                    ->update(['parent_node_id' => $parentNode['id'] ?? null])
+                    ->update(['parent_node_id' => $assembly['parent_node_id'] ?? null])
                     ->first();
 
                 // link back original doc to signed doc
@@ -2661,7 +2684,8 @@ class Assembly extends \equal\orm\Model {
     protected static function doGeneratePrintableMinutes($self) {
         $self->read([
                 'condo_id',
-                'minutes_document_id'
+                'minutes_document_id',
+                'parent_node_id'
             ]);
 
         foreach($self as $id => $assembly) {
@@ -2677,14 +2701,6 @@ class Assembly extends \equal\orm\Model {
                         'signed'                => true
                     ]);
 
-                // store document in related General Assembly folder
-                $parentNode = Node::search([
-                        ['condo_id', '=', $assembly['condo_id']],
-                        ['node_type', '=', 'folder'],
-                        ['code', '=', 'general_meetings']
-                    ])
-                    ->first();
-
                 $documentType = DocumentType::search(['code', '=', 'general_assembly_document'])->first();
                 $documentSubtype = DocumentSubtype::search([['document_type_id', '=', $documentType['id'] ?? null], ['code', '=', 'minutes']])->first();
 
@@ -2697,7 +2713,7 @@ class Assembly extends \equal\orm\Model {
                         'document_type_id'      => $documentType['id'] ?? null,
                         'document_subtype_id'   => $documentSubtype['id'] ?? null,
                     ])
-                    ->update(['parent_node_id' => $parentNode['id'] ?? null])
+                    ->update(['parent_node_id' => $assembly['parent_node_id'] ?? null])
                     ->first();
 
                 // link back original doc to signed doc
