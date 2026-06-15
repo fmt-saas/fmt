@@ -242,9 +242,14 @@
             "description": "Lien de téléchargement de l'export des convocations.",
             "help": ""
         },
+        "download_minutes_link": {
+            "label": "Télécharger le procès-verbal",
+            "description": "Lien de téléchargement du procès-verbal signé.",
+            "help": ""
+        },
         "download_minutes_correspondence_link": {
-            "label": "Télécharger les procès-verbaux",
-            "description": "Lien de téléchargement de l'export des procès-verbaux.",
+            "label": "Télécharger le courrier du procès-verbal",
+            "description": "Lien de téléchargement de l'export de courrier du PV.",
             "help": ""
         },
         "step": {
@@ -453,17 +458,11 @@
             "name": "Assemblée",
             "description": "Vue synthétique d'une assemblée depuis le tableau de bord.",
             "layout": {
-                "section.invite": {
-                    "label": "Convocation"
+                "section.documents": {
+                    "label": "Documents"
                 },
-                "section.minutes": {
-                    "label": "Procès-verbal"
-                },
-                "label.invite_attachments": {
-                    "label": "Pièces jointes"
-                },
-                "label.minutes_attachments": {
-                    "label": "Pièces jointes"
+                "label.assembly_attachments": {
+                    "label": "Pièces jointes de l'assemblée"
                 }
             }
         },
