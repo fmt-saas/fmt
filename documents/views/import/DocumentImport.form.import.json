@@ -27,8 +27,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "name",
-                                                "width": "0%",
-                                                "visible": false
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
