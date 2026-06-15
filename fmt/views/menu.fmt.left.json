@@ -863,6 +863,38 @@
                         ]
                     },
                     {
+                        "id": "item.config.dashboards",
+                        "label": "Dashboards",
+                        "description": "",
+                        "icon": "lock_open",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "item.config.dashboards.owner",
+                                "type": "entry",
+                                "label": "Dashboard Owners",
+                                "icon": "group",
+                                "description": "Default dashboard for owners.",
+                                "context": {
+                                    "entity": "realestate\\ownership\\Owner",
+                                    "view": "dashboard.default"
+                                }
+                            },
+                            {
+                                "id": "item.config.dashboards.employee",
+                                "type": "entry",
+                                "label": "Dashboard Employees",
+                                "icon": "person",
+                                "description": "Default dashboard for employees.",
+                                "context": {
+                                    "entity": "hr\\employee\\Employee",
+                                    "view": "dashboard.default"
+
+                                }
+                            }
+                        ]
+                    },
+                    {
                         "id": "item.config.settings",
                         "label": "Settings",
                         "description": "",
