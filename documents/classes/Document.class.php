@@ -163,15 +163,18 @@ class Document extends Model {
                 'description'       => 'Parent Node the document-node should be linked with.',
                 'help'              => 'This is a virtual field used for creating a Node for the document when necessary (according to document_type_id).',
                 'domain'            => [['node_type', '=', 'folder'], ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
-                'oncreate'          => 'onupdateParentNodeId',
                 'onupdate'          => 'onupdateParentNodeId'
             ],
 
             'node_id' => [
-                'type'              => 'many2one',
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
                 'foreign_object'    => 'documents\navigation\Node',
                 'description'       => 'Node the document is linked with.',
                 'help'              => "This node is generated as a result of parent_node_id assignment, and depends on visibility an assigned owner(ship).",
+                'store'             => true,
+                'readonly'          => true,
+                'function'          => 'calcNodeId',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
@@ -532,6 +535,19 @@ class Document extends Model {
                 ->update(['document_id' => $id]);
             self::id($id)->update(['is_origin' => true]);
         }
+    }
+
+
+    protected static function calcNodeId($self) {
+        $result = [];
+        $self->read(['condo_id', 'parent_node_id']);
+        foreach($self as $id => $document) {
+            if(!$document['condo_id']) {
+                continue;
+            }
+
+        }
+        return $result;
     }
 
     protected static function onupdateDocumentTypeId($self) {
