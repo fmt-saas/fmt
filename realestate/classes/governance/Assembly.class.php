@@ -99,7 +99,7 @@ class Assembly extends \equal\orm\Model {
                     ['condo_id', '=', 'object.condo_id'],
                     ['condo_id', '<>', null],
                     ['assembly_item_id', '<>', null],
-                    ['assembly_id', '=', 'object.assembly_id']
+                    ['assembly_id', '=', 'object.id']
                 ]
             ],
 

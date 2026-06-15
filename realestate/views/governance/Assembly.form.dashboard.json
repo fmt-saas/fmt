@@ -159,7 +159,7 @@
                                                 "readonly": true
                                             },
                                             {
-                                                "id": "label.invite_attachments",
+                                                "id": "label.assembly_attachments",
                                                 "type": "label",
                                                 "value": "Attachments",
                                                 "width": "100%"
