@@ -38,6 +38,11 @@
             "description": "Version signée du procès-verbal.",
             "help": ""
         },
+        "invite_attachment_documents_ids": {
+            "label": "Pièces jointes de convocation",
+            "description": "Documents joints aux correspondances de convocation.",
+            "help": "Pièces annexes ajoutées aux convocations de l'assemblée."
+        },
         "minutes_attachment_documents_ids": {
             "label": "Pièces jointes du PV",
             "description": "Documents joints aux correspondances du PV.",
@@ -231,6 +236,16 @@
             "label": "PV envoyé",
             "description": "Indique que le procès-verbal est marqué comme envoyé.",
             "help": "Renseigné quand les correspondances du procès-verbal sont générées et planifiées pour l'envoi."
+        },
+        "download_invite_correspondence_link": {
+            "label": "Télécharger les convocations",
+            "description": "Lien de téléchargement de l'export des convocations.",
+            "help": ""
+        },
+        "download_minutes_correspondence_link": {
+            "label": "Télécharger les procès-verbaux",
+            "description": "Lien de téléchargement de l'export des procès-verbaux.",
+            "help": ""
         },
         "step": {
             "label": "Étape",
@@ -431,6 +446,24 @@
                 "action.close_minutes_signing": {
                     "label": "Clore la signature du procès-verbal",
                     "description": "Clore la signature du procès-verbal."
+                }
+            }
+        },
+        "form.dashboard": {
+            "name": "Assemblée",
+            "description": "Vue synthétique d'une assemblée depuis le tableau de bord.",
+            "layout": {
+                "section.invite": {
+                    "label": "Convocation"
+                },
+                "section.minutes": {
+                    "label": "Procès-verbal"
+                },
+                "label.invite_attachments": {
+                    "label": "Pièces jointes"
+                },
+                "label.minutes_attachments": {
+                    "label": "Pièces jointes"
                 }
             }
         },

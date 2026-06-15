@@ -156,6 +156,12 @@
                                                 }
                                             },
                                             {
+                                                "id": "label.invite_attachments",
+                                                "type": "label",
+                                                "value": "Attachments",
+                                                "width": "100%"
+                                            },
+                                            {
                                                 "type": "field",
                                                 "value": "invite_attachment_documents_ids",
                                                 "width": "100%",
@@ -203,6 +209,12 @@
                                                 "widget": {
                                                     "link": "icon"
                                                 }
+                                            },
+                                            {
+                                                "id": "label.minutes_attachments",
+                                                "type": "label",
+                                                "value": "Attachments",
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
