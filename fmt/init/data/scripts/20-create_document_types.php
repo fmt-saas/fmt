@@ -138,7 +138,7 @@ $createDocumentType([
     'code'                  => 'expense_statement',
     'folder_code'           => 'operation_statements',
     'description'           => 'Détail ou synthèse des charges engagées.',
-    'document_visibility'   => 'agency'
+    'document_visibility'   => 'ownership'
 ]);
 
 $createDocumentType([

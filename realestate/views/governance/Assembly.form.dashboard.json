@@ -154,6 +154,18 @@
                                                 "widget": {
                                                     "link": "icon"
                                                 }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "invite_attachment_documents_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.dashboard",
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": false
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

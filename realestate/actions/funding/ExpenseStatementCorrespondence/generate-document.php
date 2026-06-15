@@ -86,7 +86,7 @@ if(!$document_id) {
             'condo_id'              => $expenseStatementCorrespondence['condo_id'],
             'expense_statement_id'  => $expenseStatementCorrespondence['expense_statement_id'],
             'document_type_id'      => $documentType['id'] ?? null,
-            'document_visibility'   => 'owner',
+            'document_visibility'   => 'ownership',
         ])
         ->update([
             // place node in dedicated folder

@@ -154,7 +154,7 @@ if(!$document_id) {
             'assembly_id'           => $assemblyMinutesCorrespondence['assembly_id']['id'],
             'document_type_id'      => $documentType['id'] ?? null,
             'document_subtype_id'   => $documentSubtype['id'] ?? null,
-            'document_visibility'   => 'owner'
+            'document_visibility'   => 'ownership'
         ])
         ->update([
             // place node in dedicated folder
