@@ -426,6 +426,16 @@ class Assembly extends \equal\orm\Model {
                 'default'           => false
             ],
 
+            'download_minutes_link' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'uri/url.relative',
+                'description'       => 'URL for downloading the signed minutes.',
+                'function'          => 'calcDownloadMinutesLink',
+                'store'             => false,
+                'readonly'          => true
+            ],
+
             'download_invite_correspondence_link' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -837,6 +847,27 @@ class Assembly extends \equal\orm\Model {
                     ->read(['hash'])
                     ->first();
             }
+
+            if($document) {
+                $result[$id] = '/document/' . $document['hash'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcDownloadMinutesLink($self) {
+        $result = [];
+
+        $self->read(['condo_id', 'signed_minutes_document_id']);
+        foreach($self as $id => $assembly) {
+            if(!$assembly['signed_minutes_document_id']) {
+                continue;
+            }
+
+            // first search for exact owner
+            $document = Document::id($assembly['signed_minutes_document_id'])
+                ->read(['hash'])
+                ->first();
 
             if($document) {
                 $result[$id] = '/document/' . $document['hash'];

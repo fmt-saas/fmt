@@ -2,6 +2,8 @@
     "name": "Documents",
     "description": "Document analysis form.",
     "header": {
+        "layout": "inline",
+        "actions": false
     },
     "routes": [
         {

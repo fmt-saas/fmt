@@ -203,7 +203,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "download_minutes_correspondence_link",
+                                                "value": "download_minutes_link",
                                                 "width": "100%",
                                                 "readonly": true,
                                                 "widget": {
