@@ -540,12 +540,31 @@ class Document extends Model {
 
     protected static function calcNodeId($self) {
         $result = [];
-        $self->read(['condo_id', 'parent_node_id']);
+        $self->read(['condo_id', 'name', 'parent_node_id', 'document_visibility', 'supplier_id', 'ownership_id']);
         foreach($self as $id => $document) {
             if(!$document['condo_id']) {
                 continue;
             }
+            if(!$document['parent_node_id']) {
+                continue;
+            }
+            if(!$document['name']) {
+                continue;
+            }
+            $node = Node::create([
+                    'name'              => $document['name'],
+                    'document_id'       => $id,
+                    'condo_id'          => $document['condo_id'],
+                    'node_type'         => 'document',
+                    'node_visibility'   => $document['document_visibility'],
+                    'supplier_id'       => $document['supplier_id'],
+                    'ownership_id'      => $document['ownership_id']
+                ])
+                // #memo - triggers nodes_count update
+                ->update(['parent_id' => $document['parent_node_id']])
+                ->first();
 
+            self::id($id)->update(['node_id' => $node['id']]);
         }
         return $result;
     }
@@ -606,34 +625,8 @@ class Document extends Model {
     }
 
     protected static function onupdateParentNodeId($self) {
+        // force computing node_id if missing
         $self->read(['name', 'parent_node_id', 'node_id', 'condo_id', 'document_visibility', 'supplier_id', 'ownership_id']);
-        foreach($self as $id => $document) {
-            if(!$document['condo_id']) {
-                continue;
-            }
-            if(!$document['parent_node_id']) {
-                continue;
-            }
-            if(!$document['node_id']) {
-                $node = Node::create([
-                        'name'              => $document['name'],
-                        'document_id'       => $id,
-                        'condo_id'          => $document['condo_id'],
-                        'node_type'         => 'document',
-                        'node_visibility'   => $document['document_visibility'],
-                        'supplier_id'       => $document['supplier_id'],
-                        'ownership_id'      => $document['ownership_id']
-                    ])
-                    // #memo - triggers nodes_count update
-                    ->update(['parent_id' => $document['parent_node_id']])
-                    ->first();
-
-                self::id($id)->update(['node_id' => $node['id']]);
-            }
-            else {
-                Node::id($document['node_id'])->update(['parent_id' => $document['parent_node_id']]);
-            }
-        }
     }
 
     protected static function onupdateCondoId($self, $adapt) {
