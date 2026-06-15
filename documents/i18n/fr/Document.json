@@ -78,6 +78,18 @@
             "description": "Version JSON stockée du document.",
             "help": ""
         },
+        "document_visibility": {
+            "label": "Visibilité",
+            "description": "Définit qui peut consulter le document.",
+            "help": "Ce champ est synchronisé avec le nœud associé et se met à jour automatiquement lorsque la visibilité du dossier parent change.",
+            "selection": {
+                "condo": "Copropriété",
+                "ownership": "Dossier de propriété",
+                "owner": "Propriétaire",
+                "suppliership": "Fournisseur",
+                "agency": "Agence"
+            }
+        },
         "analysis_json": {
             "label": "Analyse JSON",
             "description": "Résultats d'analyse du document.",

@@ -29,13 +29,13 @@
             "help": ""
         },
         "owner_identity_id": {
-            "label": "Identite rattachee",
-            "description": "Identite a laquelle le compte bancaire appartient.",
+            "label": "Identite liée",
+            "description": "Identite à laquelle le compte bancaire appartient.",
             "help": ""
         },
         "accounting_account_id": {
             "label": "Compte comptable",
-            "description": "Compte comptable deduit via le type de compte.",
+            "description": "Compte comptable déduit via le type de compte.",
             "help": ""
         },
         "is_validated": {
@@ -50,7 +50,7 @@
         },
         "bank_account_bic": {
             "label": "BIC",
-            "description": "Code BIC lie a la banque.",
+            "description": "Code BIC lié à la banque.",
             "help": ""
         },
         "bank_name": {

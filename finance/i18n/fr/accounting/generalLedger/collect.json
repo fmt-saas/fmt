@@ -29,7 +29,7 @@
             "help": "Indique si la ligne est en attente ou validee.",
             "selection": {
                 "pending": "En attente",
-                "validated": "Validee"
+                "validated": "Validée"
             }
         },
         "ownership_id": {

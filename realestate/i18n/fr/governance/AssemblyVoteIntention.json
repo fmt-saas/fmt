@@ -4,12 +4,12 @@
     "description": "Intentions de vote enregistrees pour chaque resolution et proprietaire ou mandataire.",
     "model": {
         "condo_id": {
-            "label": "Copropriete",
-            "description": "Copropriete concernee par le vote.",
+            "label": "Copropriéte",
+            "description": "Copropriéte concernee par le vote.",
             "help": "Determine les lots et quotes-parts applicables."
         },
         "assembly_id": {
-            "label": "Assemblee",
+            "label": "Assemblée",
             "description": "Assemblee a laquelle se rapporte le vote.",
             "help": "Doit correspondre a l'assemblee en cours."
         },
@@ -18,13 +18,13 @@
             "description": "Mode de representation du proprietaire pour ce vote.",
             "help": "Indique si le vote est exprime par le proprietaire ou via un mandat.",
             "selection": {
-                "owner": "Proprietaire",
+                "owner": "Propriétaire",
                 "proxy": "Mandataire"
             }
         },
         "assembly_mandate_id": {
-            "label": "Mandat d'assemblee",
-            "description": "Mandat qui justifie la representation, le cas echeant.",
+            "label": "Mandat d'assemblée",
+            "description": "Mandat qui justifie la representation, le cas écheant.",
             "help": "Visible uniquement si le vote est exprime via un mandataire."
         },
         "assembly_item_id": {

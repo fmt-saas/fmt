@@ -103,6 +103,7 @@ class Assembly extends \equal\orm\Model {
                 ]
             ],
 
+            // #deprecated
             'minutes_attachment_documents_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\Document',

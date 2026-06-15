@@ -138,8 +138,8 @@
             {
                 "sections": [
                     {
-                        "id": "section.invite",
-                        "label": "Invite",
+                        "id": "section.documents",
+                        "label": "Documents",
                         "rows": [
                             {
                                 "columns": [
@@ -149,11 +149,14 @@
                                             {
                                                 "type": "field",
                                                 "value": "download_invite_correspondence_link",
-                                                "width": "100%",
-                                                "readonly": true,
-                                                "widget": {
-                                                    "link": "icon"
-                                                }
+                                                "width": "50%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "download_minutes_link",
+                                                "width": "50%",
+                                                "readonly": true
                                             },
                                             {
                                                 "id": "label.invite_attachments",
@@ -164,61 +167,6 @@
                                             {
                                                 "type": "field",
                                                 "value": "invite_attachment_documents_ids",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "view": "list.dashboard",
-                                                    "header": {
-                                                        "layout": "inline",
-                                                        "actions": false
-                                                    }
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "id": "section.minutes",
-                        "label": "Minutes",
-                        "visible": [
-                            [
-                                "status",
-                                "not in",
-                                [
-                                    "pending",
-                                    "published",
-                                    "sending",
-                                    "sent"
-                                ]
-                            ],
-                            ["step", "=", "assembly_closing"]
-                        ],
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "download_minutes_link",
-                                                "width": "100%",
-                                                "readonly": true,
-                                                "widget": {
-                                                    "link": "icon"
-                                                }
-                                            },
-                                            {
-                                                "id": "label.minutes_attachments",
-                                                "type": "label",
-                                                "value": "Attachments",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "minutes_attachment_documents_ids",
                                                 "width": "100%",
                                                 "widget": {
                                                     "view": "list.dashboard",

@@ -16,6 +16,8 @@
     "routes": [
         {
             "id": "route.document",
+            "visible": false,
+            "visible_help": "Prevent access to sub information.",
             "label": "Document",
             "inline": true,
             "description": "",
