@@ -238,8 +238,13 @@
             "help": "Renseigné quand les correspondances du procès-verbal sont générées et planifiées pour l'envoi."
         },
         "download_invite_correspondence_link": {
-            "label": "Télécharger les convocations",
-            "description": "Lien de téléchargement de l'export des convocations.",
+            "label": "Télécharger la convocation",
+            "description": "Lien de téléchargement du courrier de convocation.",
+            "help": ""
+        },
+        "download_register_link": {
+            "label": "Télécharger le registre des présences.",
+            "description": "Lien de téléchargement du registre signé.",
             "help": ""
         },
         "download_minutes_link": {

@@ -2,7 +2,10 @@
     "name": "Assembly",
     "description": "Assembly information, agenda, and logistics.",
     "header": {
-        "actions": false
+        "layout": "inline",
+        "actions": false,
+        "exports": false,
+        "advanced_search": false
     },
     "layout": {
         "groups": [
@@ -148,13 +151,19 @@
                                             {
                                                 "type": "field",
                                                 "value": "download_invite_correspondence_link",
-                                                "width": "50%",
+                                                "width": "33%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "download_register_link",
+                                                "width": "33%",
                                                 "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "download_minutes_link",
-                                                "width": "50%",
+                                                "width": "33%",
                                                 "readonly": true
                                             },
                                             {

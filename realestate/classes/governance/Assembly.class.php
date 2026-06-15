@@ -437,6 +437,16 @@ class Assembly extends \equal\orm\Model {
                 'readonly'          => true
             ],
 
+            'download_register_link' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'uri/url.relative',
+                'description'       => 'URL for downloading the signed minutes.',
+                'function'          => 'calcDownloadRegisterLink',
+                'store'             => false,
+                'readonly'          => true
+            ],
+
             'download_invite_correspondence_link' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -877,6 +887,26 @@ class Assembly extends \equal\orm\Model {
         return $result;
     }
 
+    protected static function calcDownloadRegisterLink($self) {
+        $result = [];
+
+        $self->read(['condo_id', 'signed_register_document_id']);
+        foreach($self as $id => $assembly) {
+            if(!$assembly['signed_register_document_id']) {
+                continue;
+            }
+
+            // first search for exact owner
+            $document = Document::id($assembly['signed_register_document_id'])
+                ->read(['hash'])
+                ->first();
+
+            if($document) {
+                $result[$id] = '/document/' . $document['hash'];
+            }
+        }
+        return $result;
+    }
     protected static function calcDownloadInviteCorrespondenceLink($self, $auth) {
         $result = [];
         $user_id = $auth->userId();
