@@ -1116,6 +1116,7 @@ class Assembly extends \equal\orm\Model {
                         'name'                  => 'Liste de présences signée',
                         'data'                  => $data,
                         'condo_id'              => $assembly['condo_id'],
+                        'assembly_id'           => $id,
                         'document_visibility'   => 'condo',
                         'document_type_id'      => $documentType['id'] ?? null,
                         'document_subtype_id'   => $documentSubtype['id'] ?? null
@@ -2629,6 +2630,7 @@ class Assembly extends \equal\orm\Model {
                         'name'                  => 'PV d\'Assemblée signé',
                         'data'                  => $data,
                         'condo_id'              => $assembly['condo_id'],
+                        'assembly_id'           => $id,
                         'document_visibility'   => 'condo',
                         'document_type_id'      => $documentType['id'] ?? null,
                         'document_subtype_id'   => $documentSubtype['id'] ?? null,
