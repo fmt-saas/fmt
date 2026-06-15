@@ -64,7 +64,7 @@
             },
             {
                 "type": "field",
-                "label": "Language",
+                "label": "Size",
                 "value": "readable_size",
                 "width": "10%"
             },
