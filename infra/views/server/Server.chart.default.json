@@ -9,9 +9,9 @@
         "stacked": false,
         "group_by": "field",
         "field": "server_id",
-        "range_interval": "week",
-        "range_from": "date.this.week.first",
-        "range_to": "date.this.week.last",
+        "range_field": "created",
+        "range_from": "date.this.day",
+        "range_to": "date.this.day",
         "datasets": [
             {
                 "label": "DSK",
