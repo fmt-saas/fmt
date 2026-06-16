@@ -7,23 +7,26 @@
     "layout": {
         "entity": "infra\\server\\Status",
         "stacked": false,
-        "group_by": "range",
-        "field": "created",
+        "group_by": "field",
+        "field": "server_id",
         "range_interval": "week",
         "range_from": "date.this.week.first",
         "range_to": "date.this.week.last",
         "datasets": [
             {
                 "label": "DSK",
-                "operation": ["AVG", "object.dsk_use"]
+                "operation": ["AVG", "object.dsk_use"],
+                "domain": ["server_id", "<>", null]
             },
             {
                 "label": "CPU",
-                "operation": ["SUM", "object.cpu_use"]
+                "operation": ["AVG", "object.cpu_use"],
+                "domain": ["server_id", "<>", null]
             },
             {
                 "label": "RAM",
-                "operation": ["SUM", "object.ram_use"]
+                "operation": ["AVG", "object.ram_use"],
+                "domain": ["server_id", "<>", null]
             }
         ]
     }
