@@ -889,7 +889,17 @@
                                 "context": {
                                     "entity": "hr\\employee\\Employee",
                                     "view": "dashboard.default"
-
+                                }
+                            },
+                            {
+                                "id": "item.config.dashboards.server",
+                                "type": "entry",
+                                "label": "Dashboard Server",
+                                "icon": "person",
+                                "description": "Default dashboard for admins.",
+                                "context": {
+                                    "entity": "infra\\server\\Server",
+                                    "view": "dashboard.default"
                                 }
                             }
                         ]

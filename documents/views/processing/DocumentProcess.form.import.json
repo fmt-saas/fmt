@@ -7,7 +7,7 @@
             "ACTION.SAVE": [
                 {
                     "id": "SAVE_AND_VIEW",
-                    "view": "form.default",
+                    "view_id": "form.default",
                     "visible": false
                 }
             ],

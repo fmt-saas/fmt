@@ -272,7 +272,7 @@ $dispatch->cancel('purchase.accounting.invoice.missing_private_expense_data', $c
 
 /*
     Invoice successfully validated
-    Additional test: check unicity of the invoice
+    Additional test: check uniqueness of the invoice
 */
 
 // a) document_id targets a document already linked to another imported document -> blocking error (cancel processing)

@@ -77,7 +77,7 @@
                                                         "actions": {
                                                             "ACTION.SELECT": true,
                                                             "ACTION.CREATE": [ {
-                                                                "view": "form.create"
+                                                                "view_id": "form.create"
                                                             } ]
                                                         }
                                                     }

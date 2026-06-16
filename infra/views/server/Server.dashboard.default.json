@@ -1,0 +1,48 @@
+{
+    "name": "Server dashboard",
+    "description": "",
+    "layout": {
+        "groups": [
+			{
+                "id": "group.main",
+                "label": "test",
+                "height": "100%",
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "height": "50%",
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "id": "item.servers",
+                                                "label": "Servers",
+                                                "description": "",
+                                                "width": "50%",
+                                                "entity": "infra\\server\\Server",
+                                                "view": "chart.default"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "height": "50%",
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

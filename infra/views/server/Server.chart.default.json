@@ -1,0 +1,30 @@
+{
+    "name": "Server status",
+    "access": {
+        "groups": ["admins"]
+    },
+    "controller": "core_model_chart",
+    "layout": {
+        "entity": "infra\\server\\Status",
+        "stacked": false,
+        "group_by": "range",
+        "field": "created",
+        "range_interval": "day",
+        "range_from": "date.this.year.first",
+        "range_to": "date.this.year.last",
+        "datasets": [
+            {
+                "label": "DSK",
+                "operation": ["AVG", "object.dsk_use"]
+            },
+            {
+                "label": "CPU",
+                "operation": ["SUM", "object.cpu_use"]
+            },
+            {
+                "label": "RAM",
+                "operation": ["SUM", "object.ram_use"]
+            }
+        ]
+    }
+}

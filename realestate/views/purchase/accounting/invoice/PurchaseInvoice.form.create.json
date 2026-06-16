@@ -6,7 +6,7 @@
             "ACTION.SAVE": [
                 {
                     "id": "SAVE_AND_EDIT",
-                    "view": "form.default"
+                    "view_id": "form.default"
                 },
                 {
                     "id": "SAVE_AND_VIEW"

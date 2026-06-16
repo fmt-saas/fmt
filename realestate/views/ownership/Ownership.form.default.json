@@ -154,7 +154,7 @@
                                                         "actions": {
                                                             "ACTION.SELECT": false,
                                                             "ACTION.CREATE": [ {
-                                                                "view": "form.create"
+                                                                "view_id": "form.create"
                                                             } ]
                                                         }
                                                     }
@@ -183,7 +183,7 @@
                                                     "header": {
                                                         "actions": {
                                                             "ACTION.CREATE": [ {
-                                                                "view": "form.create"
+                                                                "view_id": "form.create"
                                                             } ]
                                                         }
                                                     }

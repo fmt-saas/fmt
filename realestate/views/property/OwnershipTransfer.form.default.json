@@ -580,7 +580,7 @@
                                                         "actions": {
                                                             "ACTION.CREATE": [
                                                                 {
-                                                                    "view": "form.transfer_create"
+                                                                    "view_id": "form.transfer_create"
                                                                 }
                                                             ]
                                                         }
