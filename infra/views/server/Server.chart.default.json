@@ -9,9 +9,9 @@
         "stacked": false,
         "group_by": "range",
         "field": "created",
-        "range_interval": "day",
-        "range_from": "date.this.year.first",
-        "range_to": "date.this.year.last",
+        "range_interval": "week",
+        "range_from": "date.this.week.first",
+        "range_to": "date.this.week.last",
         "datasets": [
             {
                 "label": "DSK",
