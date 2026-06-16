@@ -17,10 +17,10 @@
                                         "width": "100%",
                                         "items": [
                                             {
-                                                "id": "item.servers",
+                                                "id": "item.infra.status",
                                                 "label": "Servers",
                                                 "description": "",
-                                                "width": "50%",
+                                                "width": "100%",
                                                 "entity": "infra\\server\\Server",
                                                 "view": "chart.default"
                                             }
@@ -34,7 +34,14 @@
                                     {
                                         "width": "100%",
                                         "items": [
-
+                                            {
+                                                "id": "item.infra.servers",
+                                                "label": "Servers",
+                                                "description": "",
+                                                "width": "100%",
+                                                "entity": "infra\\server\\Server",
+                                                "view": "list.default"
+                                            }
                                         ]
                                     }
                                 ]
