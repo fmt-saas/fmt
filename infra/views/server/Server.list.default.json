@@ -10,8 +10,13 @@
             },
             {
                 "type": "field",
-                "value": "up",
+                "value": "ip_address",
                 "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "up",
+                "width": "15%"
             },
             {
                 "type": "field",
@@ -21,7 +26,7 @@
             {
                 "type": "field",
                 "value": "instances_count",
-                "width": "25%"
+                "width": "15%"
             }
         ]
     }

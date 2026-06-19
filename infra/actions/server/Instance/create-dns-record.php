@@ -25,7 +25,7 @@ use infra\server\Instance;
         ]
     ],
     'access' => [
-        'visibility'        => 'private'
+        'visibility'        => 'protected'
     ],
     'constants'     => ['DNS_API_APPLICATION_KEY', 'DNS_API_APPLICATION_SECRET', 'DNS_API_CONSUMER_KEY'],
     'providers'     => ['context', 'auth']
@@ -75,7 +75,7 @@ $zone = 'fmtsolutions.be';
 $type = 'A';
 
 
-$instance = Instance::id($params['id'])->read(['id', 'name', 'instance_type', 'server_id' => ['ip_address']])->first();
+$instance = Instance::id($params['id'])->read(['id', 'name', 'instance_type', 'has_dns_record', 'server_id' => ['ip_address']])->first();
 
 if(!$instance) {
     throw new Exception('unknown_instance', EQ_ERROR_INVALID_PARAM);
@@ -83,6 +83,10 @@ if(!$instance) {
 
 if($instance['instance_type'] !== 'agency') {
     throw new Exception('wrong_instance_type', EQ_ERROR_INVALID_PARAM);
+}
+
+if($instance['has_dns_record']) {
+    throw new Exception('instance_with_dns_record', EQ_ERROR_INVALID_PARAM);
 }
 
 $name = DnsRecordHelper::normalizeSubdomain($instance['name'], $zone);
@@ -127,15 +131,7 @@ try {
 
     if(count($existing_records) > 1) {
         $logDnsOperation('ensure_record', 'conflict', 'multiple_matching_dns_records');
-
-        $context->httpResponse()
-            ->status(409)
-            ->body([
-                'status'  => 'conflict',
-                'message' => 'Multiple matching DNS records found.'
-            ])
-            ->send();
-        return;
+        throw new \Exception('existing_dns_record', EQ_ERROR_INVALID_PARAM);
     }
 
     $old_value = null;
@@ -150,6 +146,8 @@ try {
         'value' => $value,
         'ttl'   => $ttl
     ]);
+
+    $instance = Instance::id($params['id'])->update(['has_dns_record' => true])->first();
 
     $logDnsOperation('ensure_record', $result['status'] ?? 'success', null, $old_value);
 

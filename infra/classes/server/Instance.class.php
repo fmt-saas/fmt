@@ -115,6 +115,12 @@ class Instance extends Model {
                 'function'          => 'calcUserTokenGenerated'
             ],
 
+            'has_dns_record' => [
+                'type'              => 'boolean',
+                'description'       => "Marks the instance as having or not DNS record.",
+                'default'           => false
+            ],
+
             'statuses_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'infra\server\Status',

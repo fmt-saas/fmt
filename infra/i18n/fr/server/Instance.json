@@ -85,6 +85,9 @@
                 },
                 "action.delete": {
                     "label": "Supprimer"
+                },
+                "action.create_dns_record": {
+                    "label": "Créer l'enregistrement DNS"
                 }
             },
             "layout": {
