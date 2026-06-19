@@ -15,7 +15,7 @@ use infra\server\Instance;
         'id' =>  [
             'type'              => 'many2one',
             'foreign_object'    => 'infra\server\Instance',
-            'description'       => "Identifier of the targeted server.",
+            'description'       => "Identifier of the targeted instance.",
             'required'          => true
         ],
         'delete_b2_instance' => [

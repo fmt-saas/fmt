@@ -104,7 +104,7 @@ $data = $response->body();
 $status = $response->getStatusCode();
 
 if ($status < 200 || $status >= 300) {
-    trigger_error("Outlook OAuth refresh failed: " . json_encode($data), EQ_REPORT_ERROR);
+    trigger_error("APP::Outlook OAuth refresh failed: " . json_encode($data), EQ_REPORT_ERROR);
     throw new Exception("refresh_token_failed", EQ_ERROR_INVALID_PARAM);
 }
 

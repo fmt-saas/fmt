@@ -58,6 +58,12 @@ class Server extends Model {
                 'onupdate'          => 'onupdateUp'
             ],
 
+            'ip_address' => [
+                'type'              => 'string',
+                'description'       => 'IPV4 address of the server (32 bits).',
+                'required'          => true
+            ],
+
             'b2_api_url' => [
                 'type'              => 'string',
                 'usage'             => 'uri/url',
