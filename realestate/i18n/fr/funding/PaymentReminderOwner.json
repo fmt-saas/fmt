@@ -1,0 +1,54 @@
+{
+    "name": "Propriétaire rappelé",
+    "plural": "Propriétaires rappelés",
+    "description": "Synthèse par propriétaire des montants inclus dans un rappel de paiement.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle le rappel est associé.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Dossier de propriété concerné par le rappel.",
+            "help": ""
+        },
+        "payment_reminder_id": {
+            "label": "Rappel de paiement",
+            "description": "Rappel de paiement auquel cette synthèse est rattachée.",
+            "help": ""
+        },
+        "payment_reminder_owner_lines_ids": {
+            "label": "Lignes de rappel",
+            "description": "Lignes de financement incluses pour ce propriétaire.",
+            "help": ""
+        },
+        "due_amount": {
+            "label": "Montant dû",
+            "description": "Montant total dû par ce propriétaire dans le rappel.",
+            "help": ""
+        },
+        "due_balance": {
+            "label": "Solde dû",
+            "description": "Solde réel du dossier de propriété au moment du rappel.",
+            "help": ""
+        },
+        "due_date": {
+            "label": "Date d'échéance",
+            "description": "Date limite avant laquelle le paiement est attendu.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Propriétaire rappelé",
+            "description": "Détail des montants rappelés pour un propriétaire.",
+            "layout": {}
+        },
+        "list.default": {
+            "name": "Propriétaires rappelés",
+            "description": "Liste des propriétaires concernés par un rappel de paiement.",
+            "layout": {}
+        }
+    }
+}

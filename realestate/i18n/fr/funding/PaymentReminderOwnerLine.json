@@ -1,0 +1,78 @@
+{
+    "name": "Ligne de rappel propriétaire",
+    "plural": "Lignes de rappel propriétaire",
+    "description": "Ligne de financement échue incluse dans le rappel de paiement d'un propriétaire.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle le rappel est associé.",
+            "help": ""
+        },
+        "payment_reminder_id": {
+            "label": "Rappel de paiement",
+            "description": "Rappel de paiement auquel la ligne est rattachée.",
+            "help": ""
+        },
+        "payment_reminder_owner_id": {
+            "label": "Propriétaire rappelé",
+            "description": "Synthèse propriétaire à laquelle la ligne est rattachée.",
+            "help": ""
+        },
+        "funding_id": {
+            "label": "Financement",
+            "description": "Financement échu concerné par la ligne de rappel.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Dossier de propriété concerné par le financement.",
+            "help": ""
+        },
+        "days_overdue": {
+            "label": "Jours de retard",
+            "description": "Nombre de jours écoulés depuis l'échéance du financement.",
+            "help": ""
+        },
+        "due_amount": {
+            "label": "Montant dû",
+            "description": "Montant restant dû à la date du rappel.",
+            "help": ""
+        },
+        "due_date": {
+            "label": "Date d'échéance",
+            "description": "Date limite avant laquelle le financement était attendu.",
+            "help": ""
+        },
+        "issue_date": {
+            "label": "Date d'émission",
+            "description": "Date à laquelle la demande de paiement doit être émise.",
+            "help": ""
+        },
+        "payment_reminder_status": {
+            "label": "Statut du rappel",
+            "description": "Statut du rappel de paiement parent.",
+            "help": "",
+            "selection": {
+                "pending": "En attente",
+                "sent": "Envoyé"
+            }
+        },
+        "reminder_level": {
+            "label": "Niveau de rappel",
+            "description": "Nombre de rappels déjà envoyés pour ce financement.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Ligne de rappel propriétaire",
+            "description": "Détail d'un financement échu inclus dans un rappel propriétaire.",
+            "layout": {}
+        },
+        "list.default": {
+            "name": "Lignes de rappel propriétaire",
+            "description": "Liste des financements échus inclus dans les rappels propriétaires.",
+            "layout": {}
+        }
+    }
+}

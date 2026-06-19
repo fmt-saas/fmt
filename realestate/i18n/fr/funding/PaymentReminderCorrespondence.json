@@ -1,0 +1,94 @@
+{
+    "name": "Correspondance de rappel de paiement",
+    "plural": "Correspondances de rappel de paiement",
+    "description": "Envoi individuel d'un rappel de paiement à un copropriétaire.",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Libellé de la correspondance de rappel de paiement.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle la correspondance est rattachée.",
+            "help": ""
+        },
+        "owner_id": {
+            "label": "Propriétaire",
+            "description": "Propriétaire destinataire du rappel.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Dossier de propriété concerné par le rappel.",
+            "help": ""
+        },
+        "document_id": {
+            "label": "Document",
+            "description": "Document PDF du rappel, le cas échéant.",
+            "help": ""
+        },
+        "has_document": {
+            "label": "Document généré",
+            "description": "Indique si le document du rappel a été généré.",
+            "help": ""
+        },
+        "payment_reminder_id": {
+            "label": "Rappel de paiement",
+            "description": "Rappel de paiement auquel la correspondance se rapporte.",
+            "help": ""
+        },
+        "mails_ids": {
+            "label": "Emails",
+            "description": "Messages email associés à la correspondance de rappel.",
+            "help": "Une seule correspondance email est attendue."
+        },
+        "sent_date": {
+            "label": "Date d'envoi",
+            "description": "Date d'envoi initial du rappel.",
+            "help": ""
+        },
+        "communication_method": {
+            "label": "Mode de communication",
+            "description": "Canal utilisé pour l'envoi du rappel.",
+            "help": "",
+            "selection": {
+                "email": "Email",
+                "postal": "Courrier postal",
+                "postal_registered": "Courrier recommandé",
+                "postal_registered_receipt": "Courrier recommandé avec accusé"
+            }
+        },
+        "is_sent": {
+            "label": "Envoyé",
+            "description": "Indique si le rappel a été envoyé.",
+            "help": ""
+        },
+        "is_acknowledged": {
+            "label": "Accusé de réception",
+            "description": "Indique si le destinataire a accusé réception.",
+            "help": ""
+        },
+        "email_address": {
+            "label": "Adresse e-mail",
+            "description": "Adresse e-mail du propriétaire.",
+            "help": "Récupérée automatiquement depuis les coordonnées du propriétaire."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Correspondance de rappel de paiement",
+            "description": "Détail d'une correspondance de rappel de paiement.",
+            "layout": {
+                "route.mails": {
+                    "label": "Email"
+                }
+            }
+        },
+        "list.default": {
+            "name": "Correspondances de rappel de paiement",
+            "description": "Suivi des rappels de paiement envoyés aux copropriétaires.",
+            "layout": {}
+        }
+    }
+}
