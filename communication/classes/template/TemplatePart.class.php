@@ -35,14 +35,15 @@ class TemplatePart extends Model {
                 'function'          => 'calcExcerpt',
                 'description'       => "Template content (html).",
                 'multilang'         => true,
-                'store'             => true
+                'store'             => true,
+                'readonly'          => true
             ],
 
             'variables' => [
                 'type'              => 'string',
                 'usage'             => 'text/json',
                 'description'       => "JSON array of possibly referenced variables.",
-                'multilang'         => true,
+                'multilang'         => false,
                 'readonly'          => true
             ],
 

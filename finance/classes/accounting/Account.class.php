@@ -498,9 +498,9 @@ class Account extends Model {
         return $result;
     }
 
-    protected static function calcName($self) {
+    protected static function calcName($self, $lang) {
         $result = [];
-        $self->read(['code', 'description']);
+        $self->read(['code', 'description'], $lang);
         foreach($self as $id => $line) {
             if(!isset($line['code']) || strlen($line['code']) <= 0) {
                 continue;

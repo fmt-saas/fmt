@@ -5,6 +5,8 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 namespace finance\accounting;
+
+use core\Lang;
 use equal\orm\Model;
 use realestate\property\Apportionment;
 
@@ -123,8 +125,9 @@ class AccountChart extends Model {
     }
 
 
-    protected static function doImportAccounts($self, $values) {
+    protected static function doImportAccounts($self, $values, $lang) {
         $self->read(['condo_id']);
+        $languages = Lang::search()->read(['id', 'name', 'code']);
 
         foreach($self as $id => $accountChart) {
             $template = AccountChartTemplate::id($values['chart_template_id'])
@@ -166,31 +169,56 @@ class AccountChart extends Model {
                 $map_apportionments[$apportionment['code']] = $apportionment_id;
             }
 
-            foreach($template['accounts_ids'] as $account_id => $account) {
+            $map_account_template_account = [];
+
+            foreach($template['accounts_ids'] as $account_template_id => $accountTemplate) {
                 $item = [
                         'condo_id'              => $accountChart['condo_id'],
                         'account_chart_id'      => $id,
-                        'name'                  => $account['name'],
-                        'code'                  => $account['code'],
-                        'description'           => $account['description'],
-                        'level'                 => $account['level'],
-                        'account_class'         => $account['account_class'],
-                        'account_type'          => $account['account_type'],
-                        'account_nature'        => $account['account_nature'],
-                        'account_category'      => $account['account_category'],
-                        'is_visible'            => $account['is_visible'],
-                        'is_control_account'    => $account['is_control_account'],
-                        'is_tier_balance'       => $account['is_tier_balance'],
-                        'operation_assignment'  => $account['operation_assignment'],
-                        'is_apportionable'      => $account['is_apportionable'],
-                        'tenant_share'          => $account['tenant_share'],
-                        'owner_share'           => $account['owner_share']
+                        'name'                  => $accountTemplate['name'],
+                        'code'                  => $accountTemplate['code'],
+                        'description'           => $accountTemplate['description'],
+                        'level'                 => $accountTemplate['level'],
+                        'account_class'         => $accountTemplate['account_class'],
+                        'account_type'          => $accountTemplate['account_type'],
+                        'account_nature'        => $accountTemplate['account_nature'],
+                        'account_category'      => $accountTemplate['account_category'],
+                        'is_visible'            => $accountTemplate['is_visible'],
+                        'is_control_account'    => $accountTemplate['is_control_account'],
+                        'is_tier_balance'       => $accountTemplate['is_tier_balance'],
+                        'operation_assignment'  => $accountTemplate['operation_assignment'],
+                        'is_apportionable'      => $accountTemplate['is_apportionable'],
+                        'tenant_share'          => $accountTemplate['tenant_share'],
+                        'owner_share'           => $accountTemplate['owner_share']
                     ];
 
-                if(isset($map_apportionments[$account['apportionment_code']])) {
-                    $item['apportionment_id'] = $map_apportionments[$account['apportionment_code']];
+                if(isset($map_apportionments[$accountTemplate['apportionment_code']])) {
+                    $item['apportionment_id'] = $map_apportionments[$accountTemplate['apportionment_code']];
                 }
-                Account::create($item);
+
+                $newAccount = Account::create($item)->first();
+
+                $map_account_template_account[$account_template_id] = $newAccount['id'];
+            }
+
+            foreach($languages as $lang_id => $language) {
+
+                if($language['code'] === $lang) {
+                    continue;
+                }
+
+                $template = AccountChartTemplate::id($values['chart_template_id'])->read(['accounts_ids' => ['description']], $language['code'])->first();
+
+                foreach($template['accounts_ids'] as $account_template_id => $accountTemplate) {
+                    if(!isset($map_account_template_account[$account_template_id])) {
+                        continue;
+                    }
+                    if(!isset($accountTemplate['description']) || $accountTemplate['description'] === null) {
+                        continue;
+                    }
+                    Account::id($map_account_template_account[$account_template_id])->update(['description' => $accountTemplate['description']], $language['code']);
+                }
+
             }
 
         }

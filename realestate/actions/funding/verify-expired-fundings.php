@@ -14,8 +14,7 @@ use realestate\sale\pay\Funding;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Generate reminders of overdue fundings of funding requests and expense statements.",
-    'params'        => [
-    ],
+    'params'        => [],
     'response'      => [
         'content-type'  => 'application/json',
         'charset'       => 'utf-8',
@@ -61,7 +60,7 @@ foreach($condominiums as $condo_id => $condominium) {
             ['due_date', '<=', $now],
             ['ownership_id', '<>', null]
         ])
-        ->read(['condo_id', 'ownership_id', 'due_date', 'due_amount']);
+        ->read(['condo_id', 'ownership_id', 'due_date', 'due_amount', 'remaining_amount']);
 
     if($overdueFundings->count() > 0) {
         // we'll need to know afterwards how many lines have been created
@@ -113,6 +112,10 @@ foreach($condominiums as $condo_id => $condominium) {
                 continue;
             }
 
+            if($funding['remaining_amount'] <= 0) {
+                continue;
+            }
+
             if(!isset($map_payment_reminder_ownership[$ownership_id])) {
                 $map_payment_reminder_ownership[$ownership_id] = PaymentReminderOwner::create([
                         'condo_id'              => $condo_id,
@@ -134,7 +137,7 @@ foreach($condominiums as $condo_id => $condominium) {
                     'funding_id'                    => $funding_id,
                     'payment_reminder_id'           => $paymentReminder['id'],
                     'payment_reminder_owner_id'     => $paymentReminderOwner['id'],
-                    'due_amount'                    => $funding['due_amount'],
+                    'due_amount'                    => $funding['remaining_amount'],
                     'due_date'                      => $now + (15 * 86400),
                     'reminder_level'                => $reminder_level
                 ]);
