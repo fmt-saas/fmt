@@ -127,7 +127,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
     public static function getWorkflow() {
         return [
             'draft' => [
-                'description' => 'Balance being completed, waiting to be validated.',
+                'description' => 'Reminder being completed, waiting to be validated.',
                 'icon'        => 'edit',
                 'transitions' => [
                     'validate' => [
@@ -137,14 +137,14 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 ]
             ],
             'pending' => [
-                'description' => 'Balance being completed, waiting to be validated.',
+                'description' => 'Pending reminder, waiting to be sent.',
                 'icon'        => 'edit',
                 'transitions' => [
                     'send' => [
-                        'description' => 'Update the Balance to `validated`.',
+                        'description' => 'Update the Balance to `sent`.',
                         'onbefore'    => 'onbeforeSend',
                         'onafter'     => 'onafterSend',
-                        'status'      => 'validated'
+                        'status'      => 'sent'
                     ]
                 ]
             ]
