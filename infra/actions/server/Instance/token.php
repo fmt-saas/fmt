@@ -56,6 +56,14 @@ if($instance['instance_type'] === constant('FMT_INSTANCE_TYPE')) {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
+if(!$instance['user_id']) {
+    Instance::id($instance['id'])->do('create_user');
+
+    $instance = Instance::id($params['id'])
+        ->read(['instance_type', 'user_id'])
+        ->first();
+}
+
 try {
     // #memo - creates a stored access token with no expiry
     $access_token = $auth->createAccessToken($instance['user_id']);
