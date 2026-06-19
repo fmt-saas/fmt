@@ -1,6 +1,18 @@
 {
     "name": "Payment Reminder Owner",
     "description": "Display the owner-specific record created for a payment reminder.",
+    "routes": [
+        {
+            "id": "route.preview_reminder",
+            "type": "entry",
+            "label": "Preview Reminder",
+            "icon": "preview",
+            "description": "",
+            "route": "/?get=realestate_funding_fiscalperiod_paymentreminder_single-pdf&payment_reminder_id=object.id&ownership_id=object.ownership_id",
+            "target": "_blank",
+            "absolute": true
+        }
+    ],
     "layout": {
         "groups": [
             {

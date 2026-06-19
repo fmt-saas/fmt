@@ -14,8 +14,8 @@
             "help": ""
         },
         "payment_reminder_owner_id": {
-            "label": "Propriétaire rappelé",
-            "description": "Synthèse propriétaire à laquelle la ligne est rattachée.",
+            "label": "Rappel Propriétaire",
+            "description": "Dossier propriétaire à laquelle la ligne est rattachée.",
             "help": ""
         },
         "funding_id": {

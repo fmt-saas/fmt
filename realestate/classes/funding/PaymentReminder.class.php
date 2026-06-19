@@ -99,6 +99,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'selection'         => [
                     'draft',
                     'pending',
+                    'ignored',
                     'sent'
                 ],
                 'description'       => 'The current status of the reminder.',
@@ -131,7 +132,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'icon'        => 'edit',
                 'transitions' => [
                     'validate' => [
-                        'description' => 'Update the Balance to `pending`.',
+                        'description' => 'Update the Reminder to `pending`.',
                         'status'      => 'pending'
                     ]
                 ]
@@ -140,8 +141,12 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'description' => 'Pending reminder, waiting to be sent.',
                 'icon'        => 'edit',
                 'transitions' => [
+                    'ignore' => [
+                        'description' => 'Update the Reminder to `ignored`.',
+                        'status'      => 'ignored'
+                    ],
                     'send' => [
-                        'description' => 'Update the Balance to `sent`.',
+                        'description' => 'Update the Reminder to `sent`.',
                         'onbefore'    => 'onbeforeSend',
                         'onafter'     => 'onafterSend',
                         'status'      => 'sent'

@@ -38,7 +38,7 @@ $now = strtotime('today');
 foreach($condominiums as $condo_id => $condominium) {
 
     // remove any existing non-sent PaymentReminder
-    PaymentReminder::search([['condo_id', '=', $condo_id], ['status', '<>', 'sent']])->delete(true);
+    PaymentReminder::search([['condo_id', '=', $condo_id], ['status', '=', 'draft']])->delete(true);
 
     $fiscalYear = FiscalYear::search([
             ['condo_id', '=', $condo_id],
@@ -149,9 +149,7 @@ foreach($condominiums as $condo_id => $condominium) {
         if($created_lines <= 0) {
             PaymentReminder::id($paymentReminder['id'])->delete(true);
         }
-        else {
-            PaymentReminder::id($paymentReminder['id'])->transition('validate');
-        }
+
     }
 }
 

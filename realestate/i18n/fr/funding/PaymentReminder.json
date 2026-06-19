@@ -53,8 +53,9 @@
             "description": "Statut courant du rappel.",
             "help": "Les rappels sont créés en brouillon puis préparés avant envoi.",
             "selection": {
-                "draft": "Brouillon",
-                "pending": "En attente",
+                "draft": "En attente",
+                "pending": "A envoyer",
+                "ignored": "Ignoré",
                 "sent": "Envoyé"
             }
         }

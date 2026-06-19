@@ -3,7 +3,7 @@
     "description": "",
     "actions": [
         {
-            "id": "action.generate_correspondences",
+            "id": "action.validate",
             "label": "Validate",
             "description": "Validate Payment Reminder.",
             "controller": "core_model_transition",

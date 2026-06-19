@@ -1,6 +1,6 @@
 {
-    "name": "Propriétaire rappelé",
-    "plural": "Propriétaires rappelés",
+    "name": "Rappel Propriétaire",
+    "plural": "Rappels Propriétaires",
     "description": "Synthèse par propriétaire des montants inclus dans un rappel de paiement.",
     "model": {
         "condo_id": {
@@ -41,12 +41,12 @@
     },
     "view": {
         "form.default": {
-            "name": "Propriétaire rappelé",
+            "name": "Rappel Propriétaire",
             "description": "Détail des montants rappelés pour un propriétaire.",
             "layout": {}
         },
         "list.default": {
-            "name": "Propriétaires rappelés",
+            "name": "Rappels Propriétaires",
             "description": "Liste des propriétaires concernés par un rappel de paiement.",
             "layout": {}
         }
