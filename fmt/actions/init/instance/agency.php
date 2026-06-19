@@ -132,7 +132,7 @@ if($params['sync']) {
     if(empty($params['global_access_token'])) {
         throw new Exception('global_access_token_needed_to_sync_with_global', EQ_ERROR_NOT_ALLOWED);
     }
-    
+
     if(empty($params['global_instance_url'])) {
         throw new Exception('global_instance_url_must_be_provided_to_sync_with_global', EQ_ERROR_INVALID_PARAM);
     }
@@ -212,12 +212,12 @@ if(!empty($params['instance_uuid'])) {
         $global_instance_name = parse_url($params['global_instance_url'], PHP_URL_HOST);
 
         $global_instance = Instance::create([
-            'server_id'     => 1,
-            'instance_type' => 'global',
-            'name'          => $global_instance_name,
-            'url'           => $params['global_instance_url'],
-            'access_token'  => $params['global_access_token']
-        ])
+                'server_id'     => 1,
+                'instance_type' => 'global',
+                'name'          => $global_instance_name,
+                'url'           => $params['global_instance_url'],
+                'access_token'  => $params['global_access_token']
+            ])
             ->do('create_user')
             ->first();
 

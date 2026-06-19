@@ -9,8 +9,9 @@ $instance_type = \eQual::constant('FMT_INSTANCE_TYPE');
 
 // create server
 $server = Server::create([
-    'name'  => '127.0.0.1',
-])
+        'name'          => 'localhost',
+        'ip_address'    => '127.0.0.1'
+    ])
     ->first();
 
 // create instance
