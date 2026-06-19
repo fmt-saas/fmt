@@ -738,6 +738,7 @@ try {
                 ->first();
 
             $map_ownership_owners_ids[$ownership['code']][$ownership['owner_code']] = $ownerObject['id'];
+            $map_owners[$ownership['owner_code']] = $ownerObject['id'];
         }
 
         // ownerships pass 3 - set ownership_type
