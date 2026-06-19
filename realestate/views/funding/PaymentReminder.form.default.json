@@ -4,6 +4,17 @@
     "actions": [
         {
             "id": "action.generate_correspondences",
+            "label": "Validate",
+            "description": "Validate Payment Reminder.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\funding\\PaymentReminder",
+                "transition": "validate"
+            },
+            "visible": ["status", "=", "draft"]
+        },
+        {
+            "id": "action.generate_correspondences",
             "label": "Generate correspondences",
             "description": "Generate correspondences according to owners communication preferences.",
             "controller": "core_model_do",
@@ -11,7 +22,7 @@
                 "entity": "realestate\\funding\\PaymentReminder",
                 "action": "generate_payment_reminder_correspondences"
             },
-            "visible": ["status", "<>", "sent"]
+            "visible": ["status", "=", "pending"]
         },
         {
             "id": "action.send_reminders",
@@ -22,7 +33,7 @@
                 "entity": "realestate\\funding\\PaymentReminder",
                 "transition": "send"
             },
-            "visible": ["status", "<>", "sent"]
+            "visible": [["status", "=", "pending"]]
         }
     ],
     "layout": {

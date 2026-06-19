@@ -149,6 +149,9 @@ foreach($condominiums as $condo_id => $condominium) {
         if($created_lines <= 0) {
             PaymentReminder::id($paymentReminder['id'])->delete(true);
         }
+        else {
+            PaymentReminder::id($paymentReminder['id'])->transition('validate');
+        }
     }
 }
 

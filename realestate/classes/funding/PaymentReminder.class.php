@@ -31,7 +31,8 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
 
             'emission_date' => [
                 'type'              => 'date',
-                'description'       => "Date at which the reminder was emitted."
+                'description'       => "Date at which the reminder was emitted.",
+                'default'           => fn() => time()
             ],
 
             'due_amount' => [
@@ -125,6 +126,16 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
 
     public static function getWorkflow() {
         return [
+            'draft' => [
+                'description' => 'Balance being completed, waiting to be validated.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'validate' => [
+                        'description' => 'Update the Balance to `pending`.',
+                        'status'      => 'pending'
+                    ]
+                ]
+            ],
             'pending' => [
                 'description' => 'Balance being completed, waiting to be validated.',
                 'icon'        => 'edit',
