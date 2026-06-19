@@ -71,16 +71,41 @@ if($dataImport['import_type'] == 'condominium_import') {
     // 1) map existing codes amongst sheets
 
     $map_owners_codes = [];
+    $map_owners_has_email = [];
     foreach($data['Owners'] as $owner) {
         if(isset($owner['code'])) {
             $map_owners_codes[$owner['code']] = true;
+            $map_owners_has_email[$owner['code']] =
+                (isset($owner['email_1']) && trim((string) $owner['email_1']) !== '')
+                || (isset($owner['email_2']) && trim((string) $owner['email_2']) !== '');
+        }
+    }
+
+    $map_external_representatives_has_email = [];
+    foreach($data['External_representatives'] ?? [] as $external_representative) {
+        if(isset($external_representative['code'])) {
+            $map_external_representatives_has_email[$external_representative['code']] =
+                (isset($external_representative['email_1']) && trim((string) $external_representative['email_1']) !== '')
+                || (isset($external_representative['email_2']) && trim((string) $external_representative['email_2']) !== '');
         }
     }
 
     $map_ownerships_codes = [];
+    $map_ownerships_owners_codes = [];
+    $map_ownerships_representative_owner_code = [];
+    $map_ownerships_external_representative_code = [];
     foreach($data['Ownerships'] as $ownership) {
         if(isset($ownership['code'])) {
             $map_ownerships_codes[$ownership['code']] = true;
+            if(isset($ownership['owner_code'])) {
+                $map_ownerships_owners_codes[$ownership['code']][] = $ownership['owner_code'];
+            }
+            if(isset($ownership['representative_owner_code']) && trim((string) $ownership['representative_owner_code']) !== '') {
+                $map_ownerships_representative_owner_code[$ownership['code']] = $ownership['representative_owner_code'];
+            }
+            if(isset($ownership['external_representative_code']) && trim((string) $ownership['external_representative_code']) !== '') {
+                $map_ownerships_external_representative_code[$ownership['code']] = $ownership['external_representative_code'];
+            }
         }
     }
 
@@ -267,9 +292,9 @@ if($dataImport['import_type'] == 'condominium_import') {
     }
 
     foreach($data['Ownerships'] as $index => $ownership) {
-        if(!isset($owner['code'])) {
+        if(!isset($ownership['code'])) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - missing `code` in Owner sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - missing `code` in Ownership sheet at row " . ($index + 2);
         }
         if(!isset($ownership['owner_code'])) {
             ++$result['errors'];
@@ -282,17 +307,57 @@ if($dataImport['import_type'] == 'condominium_import') {
     }
 
     foreach($data['Ownerships_com_prefs'] as $index => $ownership_communication) {
+        $ownership_code = $ownership_communication['ownership_code'] ?? null;
+
         if(!isset($ownership_communication['ownership_code'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing `ownership_code` in Ownership_com sheet at row " . ($index + 2);
         }
-        if(!isset($map_ownerships_codes[$ownership_communication['ownership_code']])) {
+        elseif(!isset($map_ownerships_codes[$ownership_code])) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - unknown `ownership_code` '" . $ownership['ownership_code'] . "' in Ownership_com sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - unknown `ownership_code` '" . $ownership_code . "' in Ownership_com sheet at row " . ($index + 2);
         }
-        if(strlen($ownership_communication['ownership_title']) <= 0) {
+        if(!isset($ownership_communication['ownership_title']) || strlen($ownership_communication['ownership_title']) <= 0) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - missing `ownership_title` '" . $ownership['ownership_code'] . "' in Ownership_com sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - missing `ownership_title` '" . $ownership_code . "' in Ownership_com sheet at row " . ($index + 2);
+        }
+
+        $preferences = ['general_assembly_call', 'general_assembly_minutes', 'expense_statement', 'fund_request', 'technical_communication'];
+        foreach($preferences as $preference) {
+            $has_email_channel = false;
+            foreach(explode(',', (string) ($ownership_communication[$preference] ?? '')) as $channel) {
+                if(strtolower(trim($channel)) === 'email') {
+                    $has_email_channel = true;
+                    break;
+                }
+            }
+
+            if(!$has_email_channel) {
+                continue;
+            }
+
+            $has_email = false;
+            if(isset($map_ownerships_external_representative_code[$ownership_code])) {
+                $external_representative_code = $map_ownerships_external_representative_code[$ownership_code];
+                $has_email = $map_external_representatives_has_email[$external_representative_code] ?? false;
+            }
+            elseif(isset($map_ownerships_representative_owner_code[$ownership_code])) {
+                $owner_code = $map_ownerships_representative_owner_code[$ownership_code];
+                $has_email = $map_owners_has_email[$owner_code] ?? false;
+            }
+            else {
+                foreach($map_ownerships_owners_codes[$ownership_code] ?? [] as $owner_code) {
+                    if($map_owners_has_email[$owner_code] ?? false) {
+                        $has_email = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!$has_email) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - missing `email_1` or `email_2` for ownership_code '" . $ownership_code . "' while `email` is used in `{$preference}` in Ownership_com sheet at row " . ($index + 2);
+            }
         }
     }
 
