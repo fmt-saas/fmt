@@ -137,6 +137,10 @@ $recipient_email = $assemblyMinutesCorrespondence['owner_id']['email']
     ?? $assemblyMinutesCorrespondence['owner_id']['email_alt']
     ?? null;
 
+if(!$recipient_email || $recipient_email === '') {
+    throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
+}
+
 /** @var EmailAttachment[] */
 $attachments = [];
 

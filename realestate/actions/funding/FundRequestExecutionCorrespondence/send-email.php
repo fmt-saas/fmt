@@ -122,6 +122,10 @@ $recipient_email = $fundRequestExecutionCorrespondence['owner_id']['email']
     ?? $fundRequestExecutionCorrespondence['owner_id']['email_alt']
     ?? null;
 
+if(!$recipient_email || $recipient_email === '') {
+    throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
+}
+
 $attachments = [];
 $main_attachment_name = 'Appel de fonds - ' . $fundRequestExecutionCorrespondence['condo_id']['name'] . ' - ' . $fundRequestExecutionCorrespondence['ownership_id']['name'];
 $attachments[] = new EmailAttachment($main_attachment_name . '.pdf', (string) $fundRequestExecutionCorrespondence['document_id']['data'], 'application/pdf');

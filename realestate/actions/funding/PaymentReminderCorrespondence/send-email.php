@@ -125,6 +125,10 @@ $recipient_email = $paymentReminderCorrespondence['owner_id']['email']
     ?? $paymentReminderCorrespondence['owner_id']['email_alt']
     ?? null;
 
+if(!$recipient_email || $recipient_email === '') {
+    throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
+}
+
 $attachments = [];
 $main_attachment_name = 'Rappel de paiement - ' . $paymentReminderCorrespondence['condo_id']['name'] . ' - ' . $paymentReminderCorrespondence['ownership_id']['name'];
 $attachments[] = new EmailAttachment($main_attachment_name . '.pdf', (string) $paymentReminderCorrespondence['document_id']['data'], 'application/pdf');

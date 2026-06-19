@@ -110,6 +110,14 @@ $recipient_email = array_shift($recipients_emails);
 $recipient_email = constant('EMAIL_SMTP_ACCOUNT_EMAIL');
 $sender_email = constant('EMAIL_SMTP_ACCOUNT_EMAIL');
 
+if(!$recipient_email || $recipient_email === '') {
+    throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
+}
+
+if(!$sender_email || $sender_email === '') {
+    throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
+}
+
 // create message
 $message = new Email();
 $message->setTo($recipient_email)
@@ -141,9 +149,12 @@ if(count($recipients_emails)) {
 */
 
 // append attachments to message
+/*
+// #todo
 foreach($attachments as $attachment) {
     $message->addAttachment($attachment);
 }
+*/
 
 // queue message
 Mail::queue($message, 'realestate\property\OwnershipTransfer', $ownershipTransfer['id']);
