@@ -3,6 +3,17 @@
     "description": "",
     "actions": [
         {
+            "id": "action.generate_reminder",
+            "label": "(Re)Generate reminder",
+            "description": "Generate Payment reminder Owner lines.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\funding\\PaymentReminder",
+                "action": "generate_reminder"
+            },
+            "visible": ["status", "in", ["draft", "pending"]]
+        },
+        {
             "id": "action.validate",
             "label": "Validate",
             "description": "Validate Payment Reminder.",
@@ -12,6 +23,17 @@
                 "transition": "validate"
             },
             "visible": ["status", "=", "draft"]
+        },
+        {
+            "id": "action.ignore",
+            "label": "Ignore",
+            "description": "Ignore Payment Reminder (do not send).",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\funding\\PaymentReminder",
+                "transition": "ignore"
+            },
+            "visible": ["status", "in", ["draft", "pending"]]
         },
         {
             "id": "action.generate_correspondences",

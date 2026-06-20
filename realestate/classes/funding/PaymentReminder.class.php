@@ -9,8 +9,10 @@ namespace realestate\funding;
 
 use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
+use finance\accounting\FiscalYear;
 use realestate\ownership\Ownership;
 use realestate\ownership\OwnershipCommunicationPreference;
+use realestate\sale\pay\Funding;
 
 class PaymentReminder extends \sale\pay\PaymentReminder {
 
@@ -112,6 +114,11 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
 
     public static function getActions(): array {
         return array_merge(parent::getActions(), [
+            'generate_reminder' => [
+                'description'   => 'Clear and regenerate reminder lines according to the current overdue fundings.',
+                'policies'      => ['can_generate_reminder'],
+                'function'      => 'doGenerateReminder'
+            ],
             'generate_payment_reminder_correspondences' => [
                 'description'   => 'Generate individual correspondences according to ownership communication preferences.',
                 'policies'      => [],
@@ -125,12 +132,40 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
         ]);
     }
 
+    public static function getPolicies(): array {
+        return array_merge(parent::getPolicies(), [
+            'can_generate_reminder' => [
+                'description' => 'Verifies that the reminder can still be regenerated.',
+                'function'    => 'policyCanGenerateReminder'
+            ]
+        ]);
+    }
+
+    protected static function policyCanGenerateReminder($self): array {
+        $result = [];
+
+        $self->read(['status']);
+        foreach($self as $id => $paymentReminder) {
+            if(!in_array($paymentReminder['status'], ['draft', 'pending'], true)) {
+                $result[$id] = [
+                    'invalid_status' => 'Only draft or pending reminders can be regenerated.'
+                ];
+            }
+        }
+
+        return $result;
+    }
+
     public static function getWorkflow() {
         return [
             'draft' => [
                 'description' => 'Reminder being completed, waiting to be validated.',
                 'icon'        => 'edit',
                 'transitions' => [
+                    'ignore' => [
+                        'description' => 'Update the Reminder to `ignored`.',
+                        'status'      => 'ignored'
+                    ],
                     'validate' => [
                         'description' => 'Update the Reminder to `pending`.',
                         'status'      => 'pending'
@@ -156,13 +191,144 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
         ];
     }
 
+    protected static function doGenerateReminder($self): void {
+        $self->read(['condo_id']);
+
+        $now = strtotime('today');
+
+        foreach($self as $id => $paymentReminder) {
+
+            PaymentReminderOwnerLine::search(['payment_reminder_id', '=', $id])->delete(true);
+            PaymentReminderOwner::search(['payment_reminder_id', '=', $id])->delete(true);
+
+            $condo_id = $paymentReminder['condo_id'];
+
+            $fiscalYear = FiscalYear::search([
+                        ['condo_id', '=', $condo_id],
+                        ['date_from', '<=', $now],
+                    ],
+                    ['sort' => ['date_from' => 'desc'], 'limit' => 1
+                ])
+                ->read(['date_from'])
+                ->first();
+
+            if(!$fiscalYear) {
+                continue;
+            }
+
+            $date_from = $fiscalYear['date_from'] ?? $now;
+
+            $overdueFundings = Funding::search([
+                    ['status', 'in', ['pending', 'debit_balance']],
+                    ['condo_id', '=', $condo_id],
+                    ['funding_type', 'in', ['fund_request', 'expense_statement', 'misc_operation']],
+                    ['due_date', '<=', $now],
+                    ['ownership_id', '<>', null]
+                ])
+                ->read(['condo_id', 'ownership_id', 'due_date', 'due_amount', 'remaining_amount']);
+
+            if($overdueFundings->count() <= 0) {
+                continue;
+            }
+
+            $created_lines = 0;
+            $map_ownership_balances = [];
+            $map_payment_reminder_ownership = [];
+
+            foreach($overdueFundings as $funding_id => $funding) {
+
+                $ownership_id = $funding['ownership_id'];
+
+                $previousReminderOwner = PaymentReminderOwner::search([
+                        ['condo_id', '=', $condo_id],
+                        ['payment_reminder_id', '<>', $id],
+                        ['ownership_id', '=', $ownership_id],
+                        ['due_date', '>', $now],
+                        ['payment_reminder_status', 'in', ['pending', 'ignored', 'sent']]
+                    ])
+                    ->first();
+
+                if($previousReminderOwner) {
+                    continue;
+                }
+
+                // count how many times a reminder has been sent for the related funding
+                $previousReminderOwnerLines = PaymentReminderOwnerLine::search([
+                        ['payment_reminder_status', '=', 'sent'],
+                        ['funding_id', '=', $funding_id],
+                    ])
+                    ->read(['due_date']);
+
+                if(!isset($map_ownership_balances[$ownership_id])) {
+                    $map_ownership_balances[$ownership_id] = 0;
+
+                    $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
+                        'ownership_id' => $ownership_id,
+                        'date_from'    => $date_from,
+                        'date_to'      => $now
+                    ]);
+
+                    if(count($data)) {
+                        $map_ownership_balances[$ownership_id] = end($data)['balance'] ?? 0;
+                    }
+                }
+
+                $current_balance = $map_ownership_balances[$ownership_id];
+
+                if($current_balance <= 0) {
+                    continue;
+                }
+
+                if($funding['remaining_amount'] <= 0) {
+                    continue;
+                }
+
+                if(!isset($map_payment_reminder_ownership[$ownership_id])) {
+                    $map_payment_reminder_ownership[$ownership_id] = PaymentReminderOwner::create([
+                            'condo_id'              => $condo_id,
+                            'ownership_id'          => $ownership_id,
+                            'payment_reminder_id'   => $id,
+                            'due_balance'           => $current_balance,
+                            'due_date'              => $now + (15 * 86400)
+                        ])
+                        ->first();
+                }
+
+                $paymentReminderOwner = $map_payment_reminder_ownership[$ownership_id];
+                $reminder_level = $previousReminderOwnerLines->count() + 1;
+
+                PaymentReminderOwnerLine::create([
+                    'condo_id'                  => $condo_id,
+                    'ownership_id'              => $ownership_id,
+                    'funding_id'                => $funding_id,
+                    'payment_reminder_id'       => $id,
+                    'payment_reminder_owner_id' => $paymentReminderOwner['id'],
+                    'due_amount'                => $funding['remaining_amount'],
+                    'due_date'                  => $now + (15 * 86400),
+                    'reminder_level'            => $reminder_level
+                ]);
+
+                ++$created_lines;
+            }
+
+            if($created_lines > 0) {
+                self::id($id)->update(['emission_date' => time()]);
+            }
+        }
+    }
+
     protected static function onbeforeSend($self) {
         foreach($self as $id => $paymentReminder) {
             $today = strtotime('today');
+            $due_date = $today + (86400 * 15);
+            PaymentReminderOwner::search(['payment_reminder_id','=', $id])
+                ->update([
+                    'due_date'      => $due_date
+                ]);
             PaymentReminderOwnerLine::search(['payment_reminder_id','=', $id])
                 ->update([
-                    'issue_date'                => $today,
-                    'due_date'                  => $today + (86400 * 15)
+                    'issue_date'    => $today,
+                    'due_date'      => $due_date
                 ]);
         }
 
@@ -171,10 +337,11 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
 
     protected static function onafterSend($self) {
         foreach($self as $id => $paymentReminder) {
+            PaymentReminderOwner::search(['payment_reminder_id','=', $id])
+                ->update(['payment_reminder_status'   => 'sent']);
+
             PaymentReminderOwnerLine::search(['payment_reminder_id','=', $id])
-                ->update([
-                    'payment_reminder_status'   => 'sent'
-                ]);
+                ->update(['payment_reminder_status'   => 'sent']);
         }
     }
 

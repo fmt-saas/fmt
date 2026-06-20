@@ -65,6 +65,12 @@ class PaymentReminderOwner extends \equal\orm\Model {
                 'type'              => 'date',
                 'usage'             => 'date/plain',
                 'description'       => "Deadline before which the funding is expected."
+            ],
+
+            'payment_reminder_status' => [
+                'type'              => 'string',
+                'description'       => "Status of the parent Payment Reminder.",
+                'default'           => 'draft'
             ]
 
         ];

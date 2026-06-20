@@ -87,7 +87,7 @@ class PaymentReminderOwnerLine extends \equal\orm\Model {
             'payment_reminder_status' => [
                 'type'              => 'string',
                 'description'       => "Status of the parent Payment Reminder.",
-                'default'           => 'pending'
+                'default'           => 'draft'
             ],
 
             'reminder_level' => [
