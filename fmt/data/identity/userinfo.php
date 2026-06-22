@@ -138,7 +138,7 @@ $user = User::id($user_id)
 $map_ownerships_ids = [];
 $map_condos_ids = [];
 
-$owners = Owner::search(['identity_id', '=', $user['identity_id']['id']])
+$owners = Owner::search(['identity_id', '=', $user['identity_id']['id'] ?? null])
         ->read(['condo_id', 'ownership_id']);
 
 foreach($owners as $owner_id => $owner) {

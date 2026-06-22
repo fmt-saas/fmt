@@ -69,6 +69,12 @@
         "form.default": {
             "name": "Ligne de rappel propriétaire",
             "description": "Détail d'un financement échu inclus dans un rappel propriétaire.",
+            "actions": {
+                "action.ignore": {
+                    "label": "Ignorer",
+                    "description": "Ignorer la ligne de rappel propriétaire sans l'envoyer."
+                }
+            },
             "layout": {}
         },
         "list.default": {

@@ -125,14 +125,14 @@ class RoleAssignment extends \equal\orm\Model {
 
     protected static function calcName($self) {
         $result = [];
-        $self->read(['state', 'user_id' => ['name'], 'condo_id' => ['name'], 'role_id' => ['name']]);
+        $self->read(['state', 'user_id' => ['name', 'login'], 'condo_id' => ['name'], 'role_id' => ['name']]);
         foreach($self as $id => $roleAssignment) {
             if($roleAssignment['state'] === 'draft') {
                 continue;
             }
             $result[$id] = $roleAssignment['condo_id']['name'] . " - " .
                 $roleAssignment['role_id']['name'] . " -> " .
-                $roleAssignment['user_id']['name'];
+                $roleAssignment['user_id']['name'] ?? $roleAssignment['user_id']['login'];
         }
         return $result;
     }

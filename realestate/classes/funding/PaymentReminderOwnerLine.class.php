@@ -106,6 +106,31 @@ class PaymentReminderOwnerLine extends \equal\orm\Model {
         ];
     }
 
+    public static function getWorkflow() {
+        return [
+            'draft' => [
+                'description' => 'Reminder line being completed, waiting to be validated.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'ignore' => [
+                        'description' => 'Update the Reminder owner line to `ignored`.',
+                        'status'      => 'ignored'
+                    ]
+                ]
+            ],
+            'pending' => [
+                'description' => 'Pending reminder owner line, waiting to be sent.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'ignore' => [
+                        'description' => 'Update the Reminder owner line to `ignored`.',
+                        'status'      => 'ignored'
+                    ]
+                ]
+            ]
+        ];
+    }
+
     protected static function calcDaysOverdue($self) {
         $result = [];
         $self->read(['funding_id' => ['due_date']]);

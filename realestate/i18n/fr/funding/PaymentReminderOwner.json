@@ -62,7 +62,7 @@
             },
             "routes": {
                 "route.preview_reminder": {
-                    "label": "Voi l'aperçu",
+                    "label": "Voir l'aperçu",
                     "description": "Afficher l'aperçu du rappel."
                 }
             },

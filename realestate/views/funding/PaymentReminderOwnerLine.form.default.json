@@ -1,6 +1,19 @@
 {
     "name": "Payment Reminder Owner Line",
     "description": "Display a funding line included in an owner payment reminder.",
+    "actions": [
+        {
+            "id": "action.ignore",
+            "label": "Ignore",
+            "description": "Ignore Payment Reminder (do not send).",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\funding\\PaymentReminderOwnerLine",
+                "transition": "ignore"
+            },
+            "visible": ["status", "in", ["draft", "pending"]]
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -16,36 +29,7 @@
                                                 "type": "field",
                                                 "value": "condo_id",
                                                 "width": "100%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "33%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "payment_reminder_id",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "33%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "payment_reminder_owner_id",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "columns": [
-                                    {
-                                        "width": "40%",
-                                        "items": [
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "ownership_id",
@@ -55,22 +39,34 @@
                                                 "type": "field",
                                                 "value": "funding_id",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "payment_reminder_owner_id",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "payment_reminder_id",
+                                                "width": "100%",
+                                                "visible": false
                                             }
+
                                         ]
                                     },
                                     {
-                                        "width": "30%",
+                                        "width": "25%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "25%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "days_overdue",
                                                 "width": "100%"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "30%",
-                                        "items": [
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "due_amount",

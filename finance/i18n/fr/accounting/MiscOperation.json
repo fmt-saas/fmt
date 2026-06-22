@@ -169,5 +169,18 @@
             "name": "Opérations diverses",
             "description": "Liste filtrable des opérations avec journal, statut et justification."
         }
+    },
+    "error": {
+        "errors": {
+            "invalid_status": "L'opération diverse doit être en statut proforma.",
+            "missing_condominium": "La copropriété cible doit être renseignée.",
+            "missing_accounting_entry": "Aucune écriture comptable n'est liée à cette opération.",
+            "existing_fundings": "Des fundings ont déjà été générés pour cette opération diverse.",
+            "missing_bank_account": "Un compte bancaire principal de copropriété est requis.",
+            "missing_accounting_entry_line": "Une ligne d'écriture comptable est manquante pour au moins une ligne à financer.",
+            "missing_ownership_id": "Une propriété est manquante pour au moins une ligne propriétaire à financer.",
+            "missing_ownership_accounting_account": "Un compte comptable propriétaire est manquant pour au moins une ligne propriétaire à financer.",
+            "missing_suppliership_id": "Une relation fournisseur est manquante pour au moins une ligne fournisseur à financer."
+        }
     }
 }
