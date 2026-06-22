@@ -298,7 +298,7 @@ class MiscOperation extends Model {
                 'transitions' => [
                     'post' => [
                         'description' => 'Create accounting entries and update the document to `posted`.',
-                        'policies'    => ['is_valid'],
+                        'policies'    => ['is_valid', 'can_generate_accounting_entry', 'can_create_fundings'],
                         'onbefore'    => 'onbeforePost',
                         'status'      => 'posted'
                     ],
@@ -348,6 +348,10 @@ class MiscOperation extends Model {
             'can_generate_accounting_entry' => [
                 'description' => 'Verifies that an accounting entry can be generated from the misc operation.',
                 'function'    => 'policyCanGenerateAccountingEntry'
+            ],
+            'can_create_fundings' => [
+                'description' => 'Verifies that fundings can be generated from the misc operation.',
+                'function'    => 'policyCanCreateFundings'
             ]
         ];
     }
@@ -371,7 +375,7 @@ class MiscOperation extends Model {
             ],
             'create_fundings' => [
                 'description'   => 'Generate fundings for lines related to Ownerships.',
-                'policies'      => [/* 'can_validate_accounting_entry' */],
+                'policies'      => ['can_create_fundings'],
                 'function'      => 'doCreateFundings'
             ],
             'assign_operation_number' => [
@@ -392,6 +396,115 @@ class MiscOperation extends Model {
                 'function'      => 'doUnlock'
             ]
         ];
+    }
+
+    protected static function policyCanCreateFundings($self): array {
+        $result = [];
+        $self->read([
+                'status',
+                'condo_id',
+                'accounting_entry_id',
+                'fundings_ids' => ['id'],
+                'misc_operation_lines_ids' => [
+                    'account_id',
+                    'is_owner',
+                    'is_supplier',
+                    'ownership_id',
+                    'suppliership_id'
+                ]
+            ]);
+
+        foreach($self as $id => $miscOperation) {
+            if($miscOperation['status'] !== 'proforma') {
+                $result[$id] = [
+                    'invalid_status' => 'Misc Operation status must be proforma.'
+                ];
+                continue;
+            }
+
+            if(!$miscOperation['condo_id']) {
+                $result[$id] = [
+                    'missing_condominium' => 'The target condominium must be specified.'
+                ];
+                continue;
+            }
+
+            if(!$miscOperation['accounting_entry_id']) {
+                $result[$id] = [
+                    'missing_accounting_entry' => 'Accounting entry is missing.'
+                ];
+                continue;
+            }
+
+            if(count($miscOperation['fundings_ids']) > 0) {
+                $result[$id] = [
+                    'existing_fundings' => 'Fundings have already been generated for this misc operation.'
+                ];
+                continue;
+            }
+
+            $condominiumBankAccount = CondominiumBankAccount::search([
+                    ['condo_id', '=', $miscOperation['condo_id']],
+                    ['is_primary', '=', true]
+                ])
+                ->first();
+
+            if(!$condominiumBankAccount) {
+                $result[$id] = [
+                    'missing_bank_account' => 'A primary condominium bank account is required.'
+                ];
+                continue;
+            }
+
+            foreach($miscOperation['misc_operation_lines_ids'] as $misc_operation_line_id => $miscOperationLine) {
+                if(!$miscOperationLine['is_owner'] && !$miscOperationLine['is_supplier']) {
+                    continue;
+                }
+
+                $accountingEntryLine = AccountingEntryLine::search([
+                        ['condo_id', '=', $miscOperation['condo_id']],
+                        ['misc_operation_line_id', '=', $misc_operation_line_id]
+                    ])
+                    ->first();
+
+                if(!$accountingEntryLine) {
+                    $result[$id] = [
+                        'missing_accounting_entry_line' => 'Accounting entry line is missing for one or more MiscOperation lines.'
+                    ];
+                    break;
+                }
+
+                if($miscOperationLine['is_owner']) {
+                    if(!$miscOperationLine['ownership_id']) {
+                        $result[$id] = [
+                            'missing_ownership_id' => 'Ownership is missing for one or more owner funding lines.'
+                        ];
+                        break;
+                    }
+
+                    $fundingOwnershipAccount = Account::search([
+                            ['condo_id', '=', $miscOperation['condo_id']],
+                            ['ownership_id', '=', $miscOperationLine['ownership_id']],
+                            ['is_control_account', '=', true]
+                        ])
+                        ->first();
+
+                    if(!$fundingOwnershipAccount) {
+                        $result[$id] = [
+                            'missing_ownership_accounting_account' => 'Ownership accounting account is missing for one or more owner funding lines.'
+                        ];
+                        break;
+                    }
+                }
+                elseif($miscOperationLine['is_supplier'] && !$miscOperationLine['suppliership_id']) {
+                    $result[$id] = [
+                        'missing_suppliership_id' => 'Suppliership is missing for one or more supplier funding lines.'
+                    ];
+                    break;
+                }
+            }
+        }
+        return $result;
     }
 
     protected static function policyCanPost($self): array {
