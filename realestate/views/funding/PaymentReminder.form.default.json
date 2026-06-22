@@ -126,6 +126,7 @@
                     {
                         "id": "section.correspondences",
                         "label": "Correspondences",
+                        "visible": ["status", "=", "sent"],
                         "rows": [
                             {
                                 "columns": [

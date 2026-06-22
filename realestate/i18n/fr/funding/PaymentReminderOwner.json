@@ -60,6 +60,12 @@
                     "description": "Ignorer le rappel propriétaire sans l'envoyer."
                 }
             },
+            "routes": {
+                "route.preview_reminder": {
+                    "label": "Voi l'aperçu",
+                    "description": "Afficher l'aperçu du rappel."
+                }
+            },
             "layout": {}
         },
         "list.default": {
