@@ -83,6 +83,24 @@ class Server extends Model {
                 ]
             ],
 
+            'ip_protected' => [
+                'type'              => 'string',
+                'description'       => "The IP address of the protected network interface.",
+                'help'              => "{IP}/{MASK}"
+            ],
+
+            'ip_public' => [
+                'type'              => 'string',
+                'description'       => "The IP address of the public network interface.",
+                'help'              => "{IP}/{MASK}"
+            ],
+
+            'ip_private' => [
+                'type'              => 'string',
+                'description'       => "The IP address of the private network interface.",
+                'help'              => "{IP}/{MASK}"
+            ],
+
             'instances_ids' => [
                 'type'              => 'one2many',
                 'foreign_field'     => 'server_id',
