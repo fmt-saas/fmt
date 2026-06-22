@@ -70,11 +70,11 @@
                     "description": "Générer les lignes propriétaires du rappel de paiement."
                 },
                 "action.validate": {
-                    "label": "Valider",
+                    "label": "Tout valider",
                     "description": "Valider le rappel de paiement."
                 },
                 "action.ignore": {
-                    "label": "Ignorer",
+                    "label": "Tout ignorer",
                     "description": "Ignorer le rappel de paiement sans l'envoyer."
                 },
                 "action.generate_correspondences": {
