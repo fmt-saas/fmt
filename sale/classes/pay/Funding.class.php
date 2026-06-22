@@ -417,7 +417,7 @@ class Funding extends \equal\orm\Model {
      *      we do (aaa * 76 + bbbbbbb) % 97
      */
     protected static function computePaymentReference($prefix, $suffix) {
-        if(strlen($prefix) <=0 || strlen($suffix) <= 0) {
+        if(strlen($prefix) <= 0 || strlen($suffix) <= 0) {
             return '';
         }
         $a = intval($prefix);

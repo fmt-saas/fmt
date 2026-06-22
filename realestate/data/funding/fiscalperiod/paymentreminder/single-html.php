@@ -263,7 +263,7 @@ else {
 }
 
 $owner = $ownerCollection->read([
-        'ownership_id' => ['address_recipient'],
+        'ownership_id' => ['address_recipient', 'payment_reference'],
         'identity_id' => [
             'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
             'address_city', 'address_country', 'has_vat', 'vat_number',
