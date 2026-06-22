@@ -66,8 +66,8 @@ $allowed_fmt_branches = ['main'];
     eQual branch
 */
 
-exec("cd /var/www/html && git branch --show-current", $output);
-$data['branch_equal'] = $output[0] ?? null;
+exec("cd /var/www/html && git branch --show-current", $branch_equal_output);
+$data['branch_equal'] = $branch_equal_output[0] ?? null;
 $data['is_branch_equal_ok'] = in_array($data['branch_equal'], $allowed_equal_branches);
 
 exec("git -C /var/www/html fetch");
@@ -80,8 +80,8 @@ $data['is_branch_equal_up_to_date'] = $local[0] === $remote[0];
     FMT branch
 */
 
-exec("cd /var/www/html/packages && git branch --show-current", $output);
-$data['branch_fmt'] = $output[0] ?? null;
+exec("cd /var/www/html/packages && git branch --show-current", $branch_fmt_output);
+$data['branch_fmt'] = $branch_fmt_output[0] ?? null;
 $data['is_branch_fmt_ok'] = in_array($data['branch_fmt'], $allowed_fmt_branches);
 
 exec("git -C /var/www/html/packages fetch");
@@ -160,7 +160,7 @@ $required_tasks = [
     'realestate_funding_verify-expired-fundings'
 ];
 
-$tasks_ids = Task::search(['name', 'in', $required_tasks])->ids();
+$tasks_ids = Task::search(['controller', 'in', $required_tasks])->ids();
 $data['is_tasks_ok'] = count($tasks_ids) === count($required_tasks);
 
 
