@@ -148,7 +148,7 @@ $map_init_packages = [
     'communication' => false,
     'fmt'           => false
 ];
-if(file_exists(EQ_BASEDIR."/log/packages.json")) {
+if(file_exists(EQ_BASEDIR . "/log/packages.json")) {
     $json = file_get_contents(EQ_BASEDIR."/log/packages.json");
     $packages = json_decode($json, true);
     foreach($map_init_packages as $package => $value) {
@@ -194,39 +194,39 @@ eQual::run('do', 'init_package', [
 ]);
 
 // add fmt specific Collection and AccessController classes if they're missing from configuration
-$config_json = file_get_contents(EQ_BASEDIR.'/config/config.json');
+$config_json = file_get_contents(EQ_BASEDIR . '/config/config.json');
 $config = json_decode($config_json, true);
 if(!isset($config['SERVICE_ORM_COLLECTION_CLASS'], $config['SERVICE_ACCESS_ACCESSCONTROLLER'])) {
     $config['SERVICE_ORM_COLLECTION_CLASS'] = "fmt\\orm\\Collection";
     $config['SERVICE_ACCESS_ACCESSCONTROLLER'] = "fmt\\access\\AccessController";
 
     $new_config_json = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    file_put_contents(EQ_BASEDIR.'/config/config.json', $new_config_json);
+    file_put_contents(EQ_BASEDIR . '/config/config.json', $new_config_json);
 }
 
 if(!empty($params['instance_uuid'])) {
     // set uuid to instance
     Instance::id(1)->update(['uuid' => $params['instance_uuid']]);
+}
 
-    if($params['sync']) {
-        $global_instance_name = parse_url($params['global_instance_url'], PHP_URL_HOST);
+$global_instance_name = parse_url($params['global_instance_url'], PHP_URL_HOST);
 
-        $global_instance = Instance::create([
-                'server_id'     => 1,
-                'instance_type' => 'global',
-                'name'          => $global_instance_name,
-                'url'           => $params['global_instance_url'],
-                'access_token'  => $params['global_access_token']
-            ])
-            ->do('create_user')
-            ->first();
+$global_instance = Instance::create([
+        'server_id'     => 1,
+        'instance_type' => 'global',
+        'name'          => $global_instance_name,
+        'url'           => $params['global_instance_url'],
+        'access_token'  => $params['global_access_token']
+    ])
+    ->do('create_user')
+    ->first();
 
-        // fetch the sync policies from global and overwrite the existing ones
-        eQual::run('do', 'fmt_sync_SyncPolicy_pull-from-global', ['reset' => true, 'level' => $params['level']]);
+if($params['sync']) {
+    // fetch the sync policies from global and overwrite the existing ones
+    eQual::run('do', 'fmt_sync_SyncPolicy_pull-from-global', ['reset' => true, 'level' => $params['level']]);
 
-        // pull data from global depending on the sync policies
-        eQual::run('do', 'fmt_sync_pull-from-global', ['accept' => true, 'level' => $params['level']]);
-    }
+    // pull data from global depending on the sync policies
+    eQual::run('do', 'fmt_sync_pull-from-global', ['accept' => true, 'level' => $params['level']]);
 }
 
 if($params['create_users']) {
