@@ -65,6 +65,18 @@
             "name": "Rappel de paiement",
             "description": "Détail d'un rappel de paiement et des correspondances à envoyer.",
             "actions": {
+                "action.generate_reminder": {
+                    "label": "Regénérer le rappel",
+                    "description": "Générer les lignes propriétaires du rappel de paiement."
+                },
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Valider le rappel de paiement."
+                },
+                "action.ignore": {
+                    "label": "Ignorer",
+                    "description": "Ignorer le rappel de paiement sans l'envoyer."
+                },
                 "action.generate_correspondences": {
                     "label": "Générer les correspondances",
                     "description": "Générer les correspondances selon les préférences de communication des copropriétaires."

@@ -34,7 +34,8 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
             'emission_date' => [
                 'type'              => 'date',
                 'description'       => "Date at which the reminder was emitted.",
-                'default'           => fn() => time()
+                'default'           => fn() => time(),
+                'dependents'        => ['due_amount']
             ],
 
             'due_amount' => [
