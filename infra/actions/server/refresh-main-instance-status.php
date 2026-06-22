@@ -123,7 +123,7 @@ $required_config = [
 ];
 
 foreach($required_config as $key) {
-    if(empty(constant($key))) {
+    if(!defined($key) || empty(constant($key))) {
         $is_config_ok = false;
         break;
     }
@@ -170,7 +170,17 @@ $data['is_tasks_ok'] = count($tasks_ids) === count($required_tasks);
 
 Instance::id(1)->update($data);
 
+/*
+    Create response
+*/
+
+$result = Instance::id(1)
+    ->read(array_keys($data))
+    ->adapt('json')
+    ->first(true);
+
 $context
     ->httpResponse()
-    ->status(204)
+    ->body($result)
+    ->status(200)
     ->send();
