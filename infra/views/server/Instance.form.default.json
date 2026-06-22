@@ -54,6 +54,8 @@
             {
                 "sections": [
                     {
+                        "id": "section.infos",
+                        "label": "Infos",
                         "rows": [
                             {
                                 "columns": [
@@ -88,12 +90,10 @@
                                             {
                                                 "type": "field",
                                                 "value": "access_token",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "description",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "type": "string"
+                                                }
                                             },
                                             {
                                                 "type": "field",
@@ -124,17 +124,18 @@
                                                 "type": "field",
                                                 "value": "user_id",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "description",
+                                                "width": "100%"
                                             }
                                         ]
                                     }
                                 ]
                             }
                         ]
-                    }
-                ]
-            },
-            {
-                "sections": [
+                    },
                     {
                         "id": "section.statuses",
                         "label": "Statuses",
