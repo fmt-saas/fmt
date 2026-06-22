@@ -211,10 +211,19 @@ class AccessController extends \equal\access\AccessController {
         $schema = $model->getSchema();
         $objects = null;
 
+        $is_condominium_class = ($object_class === 'realestate\property\Condominium');
         $has_condo_field = isset($schema['condo_id']) && !in_array($object_class, ['fmt\setting\SettingValue', 'fmt\setting\SettingSequence'], true);
+        $has_condo_scope = $is_condominium_class || $has_condo_field;
 
-        if($is_owner_user && $has_condo_field && count($object_ids)) {
-            $objects = $orm->read($model::getType(), $object_ids, ['condo_id']);
+        if($is_owner_user && $has_condo_scope && count($object_ids)) {
+            if($is_condominium_class) {
+                $objects = array_map(function($object_id) {
+                    return ['condo_id' => $object_id];
+                }, $object_ids);
+            }
+            else {
+                $objects = $orm->read($model::getType(), $object_ids, ['condo_id']);
+            }
 
             if(!$this->ownerCanAccessObjectsCondos($user_id, $objects)) {
                 return false;
@@ -233,15 +242,25 @@ class AccessController extends \equal\access\AccessController {
             }
 
             // check HR roles only for classes relating to condominiums
-            if($has_condo_field) {
+            if($has_condo_scope) {
 
                 $domain = [];
 
                 if(count($object_ids)) {
-                    if(is_null($objects)) {
-                        $objects = $orm->read($model::getType(), $object_ids, ['condo_id']);
+                    if($is_condominium_class) {
+                        $condos_ids = array_unique($object_ids);
                     }
-                    $condos_ids = array_map(function($o) { return $o['condo_id']; }, $objects);
+                    else {
+                        if(is_null($objects)) {
+                            $objects = $orm->read($model::getType(), $object_ids, ['condo_id']);
+                        }
+                        $condos_ids = array_unique(array_map(function($o) { return $o['condo_id']; }, $objects));
+                    }
+
+                    if(!count($condos_ids)) {
+                        break;
+                    }
+
                     $domain = [
                             // roles for condominiums specific to the objects (if $object_ids not empty)
                             [
