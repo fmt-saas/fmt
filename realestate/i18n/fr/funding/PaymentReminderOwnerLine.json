@@ -48,19 +48,21 @@
             "description": "Date à laquelle la demande de paiement doit être émise.",
             "help": ""
         },
-        "payment_reminder_status": {
-            "label": "Statut du rappel",
-            "description": "Statut du rappel de paiement parent.",
-            "help": "",
-            "selection": {
-                "pending": "En attente",
-                "sent": "Envoyé"
-            }
-        },
         "reminder_level": {
             "label": "Niveau de rappel",
             "description": "Nombre de rappels déjà envoyés pour ce financement.",
             "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Statut courant du rappel.",
+            "help": "Les rappels sont créés en brouillon puis préparés avant envoi.",
+            "selection": {
+                "draft": "En attente",
+                "pending": "A envoyer",
+                "ignored": "A ne pas envoyer",
+                "sent": "Envoyé"
+            }
         }
     },
     "view": {

@@ -165,10 +165,12 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'transitions' => [
                     'ignore' => [
                         'description' => 'Update the Reminder to `ignored`.',
+                        'onafter'     => 'onafterIgnore',
                         'status'      => 'ignored'
                     ],
                     'validate' => [
                         'description' => 'Update the Reminder to `pending`.',
+                        'onafter'     => 'onafterValidate',
                         'status'      => 'pending'
                     ]
                 ]
@@ -179,6 +181,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'transitions' => [
                     'ignore' => [
                         'description' => 'Update the Reminder to `ignored`.',
+                        'onafter'     => 'onafterIgnore',
                         'status'      => 'ignored'
                     ],
                     'send' => [
@@ -245,7 +248,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                         ['payment_reminder_id', '<>', $id],
                         ['ownership_id', '=', $ownership_id],
                         ['due_date', '>', $now],
-                        ['payment_reminder_status', 'in', ['pending', 'ignored', 'sent']]
+                        ['status', 'in', ['pending', 'sent']]
                     ])
                     ->first();
 
@@ -255,7 +258,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
 
                 // count how many times a reminder has been sent for the related funding
                 $previousReminderOwnerLines = PaymentReminderOwnerLine::search([
-                        ['payment_reminder_status', '=', 'sent'],
+                        ['status', '=', 'sent'],
                         ['funding_id', '=', $funding_id],
                     ])
                     ->read(['due_date']);
@@ -322,11 +325,17 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
         foreach($self as $id => $paymentReminder) {
             $today = strtotime('today');
             $due_date = $today + (86400 * 15);
-            PaymentReminderOwner::search(['payment_reminder_id','=', $id])
+            PaymentReminderOwner::search([
+                    ['payment_reminder_id','=', $id],
+                    ['status', '<>', 'ignored']
+                ])
                 ->update([
                     'due_date'      => $due_date
                 ]);
-            PaymentReminderOwnerLine::search(['payment_reminder_id','=', $id])
+            PaymentReminderOwnerLine::search([
+                    ['payment_reminder_id','=', $id],
+                    ['status', '<>', 'ignored']
+                ])
                 ->update([
                     'issue_date'    => $today,
                     'due_date'      => $due_date
@@ -338,22 +347,58 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
 
     protected static function onafterSend($self) {
         foreach($self as $id => $paymentReminder) {
+            PaymentReminderOwner::search([
+                    ['payment_reminder_id','=', $id],
+                    ['status', '<>', 'ignored']
+                ])
+                ->update(['status'   => 'sent']);
+
+            PaymentReminderOwnerLine::search([
+                    ['payment_reminder_id','=', $id],
+                    ['status', '<>', 'ignored']
+                ])
+                ->update(['status'   => 'sent']);
+        }
+    }
+
+    protected static function onafterIgnore($self) {
+        foreach($self as $id => $paymentReminder) {
             PaymentReminderOwner::search(['payment_reminder_id','=', $id])
-                ->update(['payment_reminder_status'   => 'sent']);
+                ->update(['status'   => 'ignored']);
 
             PaymentReminderOwnerLine::search(['payment_reminder_id','=', $id])
-                ->update(['payment_reminder_status'   => 'sent']);
+                ->update(['status'   => 'ignored']);
+        }
+    }
+
+    protected static function onafterValidate($self) {
+        foreach($self as $id => $paymentReminder) {
+            PaymentReminderOwner::search([
+                    ['payment_reminder_id','=', $id],
+                    ['status', '<>', 'ignored']
+                ])
+                ->update(['status'   => 'pending']);
+
+            PaymentReminderOwnerLine::search([
+                    ['payment_reminder_id','=', $id],
+                    ['status', '<>', 'ignored']
+                ])
+                ->update(['status'   => 'pending']);
         }
     }
 
     protected static function doGeneratePaymentReminderCorrespondences($self): void {
-        $self->read(['condo_id', 'payment_reminder_owners_ids' => ['ownership_id']]);
+        $self->read(['condo_id', 'payment_reminder_owners_ids' => ['ownership_id', 'status']]);
 
         foreach($self as $id => $paymentReminder) {
             PaymentReminderCorrespondence::search(['payment_reminder_id', '=', $id])->delete(true);
 
             $map_ownership_ids = [];
             foreach($paymentReminder['payment_reminder_owners_ids'] as $paymentReminderOwner) {
+                if(($paymentReminderOwner['status'] ?? null) === 'ignored') {
+                    continue;
+                }
+
                 $ownership_id = $paymentReminderOwner['ownership_id'] ?? null;
                 if(!$ownership_id) {
                     continue;
@@ -425,7 +470,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
             'name',
             'condo_id',
             'reminders_exporting_task_id',
-            'payment_reminder_correspondences_ids' => ['communication_method']
+            'payment_reminder_correspondences_ids' => ['communication_method', 'ownership_id']
         ]);
 
         foreach($self as $id => $paymentReminder) {
@@ -433,8 +478,25 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 ExportingTask::id($paymentReminder['reminders_exporting_task_id'])->delete(true);
             }
 
+            $map_ignored_ownership_ids = [];
+            $ignoredPaymentReminderOwners = PaymentReminderOwner::search([
+                    ['payment_reminder_id', '=', $id],
+                    ['status', '=', 'ignored']
+                ])
+                ->read(['ownership_id']);
+
+            foreach($ignoredPaymentReminderOwners as $ignoredPaymentReminderOwner) {
+                if($ignoredPaymentReminderOwner['ownership_id']) {
+                    $map_ignored_ownership_ids[$ignoredPaymentReminderOwner['ownership_id']] = true;
+                }
+            }
+
             $map_communication_methods = [];
             foreach($paymentReminder['payment_reminder_correspondences_ids'] as $paymentReminderCorrespondence) {
+                if(isset($map_ignored_ownership_ids[$paymentReminderCorrespondence['ownership_id']])) {
+                    continue;
+                }
+
                 $map_communication_methods[$paymentReminderCorrespondence['communication_method']] = true;
             }
 

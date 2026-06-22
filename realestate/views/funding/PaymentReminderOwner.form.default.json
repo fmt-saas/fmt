@@ -13,6 +13,19 @@
             "absolute": true
         }
     ],
+    "actions": [
+        {
+            "id": "action.ignore",
+            "label": "Ignore",
+            "description": "Ignore Payment Reminder (do not send).",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\funding\\PaymentReminderOwner",
+                "transition": "ignore"
+            },
+            "visible": ["status", "in", ["draft", "pending"]]
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -50,6 +63,11 @@
                                     {
                                         "width": "33%",
                                         "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "status",
+                                                "width": "100%"
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "due_amount",

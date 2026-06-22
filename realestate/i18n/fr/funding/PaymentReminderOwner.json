@@ -37,12 +37,29 @@
             "label": "Date d'échéance",
             "description": "Date limite avant laquelle le paiement est attendu.",
             "help": ""
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Statut courant du rappel.",
+            "help": "Les rappels sont créés en brouillon puis préparés avant envoi.",
+            "selection": {
+                "draft": "En attente",
+                "pending": "A envoyer",
+                "ignored": "A ne pas envoyer",
+                "sent": "Envoyé"
+            }
         }
     },
     "view": {
         "form.default": {
             "name": "Rappel Propriétaire",
             "description": "Détail des montants rappelés pour un propriétaire.",
+            "actions": {
+                "action.ignore": {
+                    "label": "Ignorer",
+                    "description": "Ignorer le rappel propriétaire sans l'envoyer."
+                }
+            },
             "layout": {}
         },
         "list.default": {

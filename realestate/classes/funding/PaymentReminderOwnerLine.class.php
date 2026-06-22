@@ -84,17 +84,25 @@ class PaymentReminderOwnerLine extends \equal\orm\Model {
                 'default'           => function() { return time(); }
             ],
 
-            'payment_reminder_status' => [
-                'type'              => 'string',
-                'description'       => "Status of the parent Payment Reminder.",
-                'default'           => 'draft'
-            ],
-
             'reminder_level' => [
                 'type'              => 'integer',
                 'description'       => 'Counter of how many reminders have been sent for the funding.',
                 'default'           => 0
+            ],
+
+            'status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'draft',
+                    'pending',
+                    'ignored',
+                    'sent'
+                ],
+                'description'       => 'The current status of the reminder.',
+                'help'              => "The reminders are first created and then are published only if candidate to be sent.",
+                'default'           => 'draft'
             ]
+
         ];
     }
 

@@ -67,12 +67,46 @@ class PaymentReminderOwner extends \equal\orm\Model {
                 'description'       => "Deadline before which the funding is expected."
             ],
 
-            'payment_reminder_status' => [
+            'status' => [
                 'type'              => 'string',
-                'description'       => "Status of the parent Payment Reminder.",
+                'selection'         => [
+                    'draft',
+                    'pending',
+                    'ignored',
+                    'sent'
+                ],
+                'description'       => 'The current status of the reminder.',
+                'help'              => "The reminders are first created and then are published only if candidate to be sent.",
+                'onupdate'          => 'onupdateStatus',
                 'default'           => 'draft'
             ]
 
+
+        ];
+    }
+
+    public static function getWorkflow() {
+        return [
+            'draft' => [
+                'description' => 'Reminder being completed, waiting to be validated.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'ignore' => [
+                        'description' => 'Update the Reminder owner to `ignored`.',
+                        'status'      => 'ignored'
+                    ]
+                ]
+            ],
+            'pending' => [
+                'description' => 'Pending reminder owner, waiting to be sent.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'ignore' => [
+                        'description' => 'Update the Reminder owner to `ignored`.',
+                        'status'      => 'ignored'
+                    ]
+                ]
+            ]
         ];
     }
 
@@ -86,6 +120,29 @@ class PaymentReminderOwner extends \equal\orm\Model {
             }
         }
         return $result;
+    }
+
+    protected static function onupdateStatus($self): void {
+        $self->read(['status', 'payment_reminder_id', 'ownership_id']);
+
+        foreach($self as $id => $paymentReminderOwner) {
+            PaymentReminderOwnerLine::search(['payment_reminder_owner_id', '=', $id])
+                ->update(['status' => $paymentReminderOwner['status']]);
+
+            if($paymentReminderOwner['status'] !== 'ignored') {
+                continue;
+            }
+
+            if(!$paymentReminderOwner['payment_reminder_id'] || !$paymentReminderOwner['ownership_id']) {
+                continue;
+            }
+
+            PaymentReminderCorrespondence::search([
+                    ['payment_reminder_id', '=', $paymentReminderOwner['payment_reminder_id']],
+                    ['ownership_id', '=', $paymentReminderOwner['ownership_id']]
+                ])
+                ->delete(true);
+        }
     }
 
 }

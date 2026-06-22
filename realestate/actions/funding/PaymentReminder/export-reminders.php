@@ -8,6 +8,7 @@
 use documents\Document;
 use realestate\funding\PaymentReminder;
 use realestate\funding\PaymentReminderCorrespondence;
+use realestate\funding\PaymentReminderOwner;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Export payment reminder correspondences by communication method as a merged PDF document.',
@@ -51,16 +52,33 @@ if(!$paymentReminder) {
     throw new Exception('unknown_payment_reminder', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+$map_ignored_ownership_ids = [];
+$ignoredPaymentReminderOwners = PaymentReminderOwner::search([
+        ['payment_reminder_id', '=', $paymentReminder['id']],
+        ['status', '=', 'ignored']
+    ])
+    ->read(['ownership_id']);
+
+foreach($ignoredPaymentReminderOwners as $ignoredPaymentReminderOwner) {
+    if($ignoredPaymentReminderOwner['ownership_id']) {
+        $map_ignored_ownership_ids[$ignoredPaymentReminderOwner['ownership_id']] = true;
+    }
+}
+
 $paymentReminderCorrespondences = PaymentReminderCorrespondence::search([
         ['payment_reminder_id', '=', $paymentReminder['id']],
         ['communication_method', '=', $params['communication_method']]
     ])
-    ->read(['is_sent', 'document_id']);
+    ->read(['is_sent', 'document_id', 'ownership_id']);
 
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
 foreach($paymentReminderCorrespondences as $payment_reminder_correspondence_id => $paymentReminderCorrespondence) {
+    if(isset($map_ignored_ownership_ids[$paymentReminderCorrespondence['ownership_id']])) {
+        continue;
+    }
+
     if(!$paymentReminderCorrespondence['document_id']) {
         try {
             eQual::run('do', 'realestate_funding_PaymentReminderCorrespondence_generate-document', ['id' => $payment_reminder_correspondence_id]);
