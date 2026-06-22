@@ -36,7 +36,7 @@ use infra\server\Instance;
         ],
         'level' => [
             'type'              => 'string',
-            'description'       => "Synchronisation level of the policy.",
+            'description'       => "Synchronization level of the policy.",
             'selection'         => [
                 'required',
                 'recommended',
@@ -238,6 +238,7 @@ if($params['create_users']) {
     $groups = Group::search(['name', 'in', $group_names])
         ->read(['name'])
         ->get();
+
     $map_name_groups_ids = [];
     foreach($groups as $id => $role) {
         $map_name_groups_ids[$role['name']] = $id;
@@ -247,6 +248,7 @@ if($params['create_users']) {
     $roles = Role::search(['code', 'in', $role_codes])
         ->read(['code'])
         ->get();
+
     $map_codes_roles_ids = [];
     foreach($roles as $id => $role) {
         $map_codes_roles_ids[$role['code']] = $id;
