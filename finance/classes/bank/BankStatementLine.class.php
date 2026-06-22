@@ -664,7 +664,7 @@ class BankStatementLine extends Model {
                 }
 
                 // if some amount is remaining : an unexpected amount has been received
-                if(abs($remaining_amount) > 0.01) {
+                if(abs($remaining_amount) >= 0.01) {
                     $logs[] = "INFO - Remaining amount {$remaining_amount} requires a statement-line funding";
                     // -> create a Funding relating to the BankStatementLine with a due amount of 0.0 EUR
                     // -> attach a Payment to it with remaining_amount
@@ -1276,14 +1276,12 @@ class BankStatementLine extends Model {
             }
 
             // Check if: 1) the entry is reconciled 2) there are payments (which fully reconcile the line), or a counterpart accounting account is specified
-            /*
             if($bankStatementLine['accounting_account_id']['is_reconcilable'] && !self::computeIsReconciled($id)) {
                 $result[$id] = [
                     'invalid_reconcile_state' => 'Only reconciled bank statement lines can be posted.'
                 ];
                 continue;
             }
-            */
             // The statement date must be in the same fiscal year (not period)
             if($bankStatementLine['fiscal_year_id'] !== $bankStatementLine['bank_statement_id']['fiscal_year_id'] ) {
                 $result[$id] = [
