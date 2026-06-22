@@ -931,7 +931,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 ->read( ['id','parts_ids' => ['name', 'value']])
                 ->first(true);
 
-            if(round($arrears_amount, 2) > 0.01) {
+            if(round($arrears_amount, 2) >= 0.01) {
                 $values['has_seller_arrears'] = true;
 
                 foreach($template['parts_ids'] as $part_id => $part) {

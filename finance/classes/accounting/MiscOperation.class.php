@@ -1352,7 +1352,7 @@ class MiscOperation extends Model {
                 }
 
                 // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
-                if(abs($remaining_due_amount) > 0.01) {
+                if(abs($remaining_due_amount) >= 0.01) {
                     $sign = ($remaining_due_amount >= 0) ? 1.0 : -1.0;
 
                     // retrieve non-empty fundings relating to the targeted ownership with opposite sign
