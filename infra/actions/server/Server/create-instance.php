@@ -10,7 +10,7 @@ use infra\server\Instance;
 use infra\server\Server;
 
 [$params, $providers] = eQual::announce([
-    'description'       => "Create instance for the server using the b2 API.",
+    'description'       => "Create a new agency instance using the b2 API. This script is expected to be run on the global instance.",
     'params'            => [
         'id' =>  [
             'type'              => 'many2one',
@@ -57,7 +57,7 @@ use infra\server\Server;
         'charset'           => 'utf-8',
         'accept-origin'     => '*'
     ],
-    'constants'         => ['BACKEND_URL', 'FMT_INSTANCE_TYPE'],
+    'constants'         => ['BACKEND_URL', 'FMT_INSTANCE_TYPE', 'GOOGLE_DOCAI_PRIVATE_KEY', 'GOOGLE_DOCAI_CLIENT_EMAIL', 'GOOGLE_DOCAI_PROJECT_ID', 'GOOGLE_DOCAI_PROCESSOR_ID', 'GOOGLE_GMAIL_CLIENT_ID', 'GOOGLE_GMAIL_CLIENT_SECRET', 'MS_TENANT_ID', 'MS_OUTLOOK_CLIENT_ID', 'MS_OUTLOOK_CLIENT_SECRET'],
     'providers'         => ['context']
 ]);
 
@@ -99,10 +99,23 @@ $create_params = [
     'USERNAME'              => $params['instance_name'],
     'PASSWORD'              => substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 14),
     'CIPHER_KEY'            => bin2hex(random_bytes(16)),
+    'INSTANCE_TYPE'         => 'fmt',
     'INSTANCE_SUBTYPE'      => 'agency',
     'INSTANCE_UUID'         => $instance['uuid'],
     'INIT'                  => $params['init'],
-    'SYNC'                  => $params['sync']
+    'SYNC'                  => $params['sync'],
+    'AUTH_SECRET_KEY'       => substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 20),
+    'SECRETS'               => base64_encode(json_encode([
+        'GOOGLE_DOCAI_PRIVATE_KEY'  => constant('GOOGLE_DOCAI_PRIVATE_KEY'),
+        'GOOGLE_DOCAI_CLIENT_EMAIL' => constant('GOOGLE_DOCAI_CLIENT_EMAIL'),
+        'GOOGLE_DOCAI_PROJECT_ID'   => constant('GOOGLE_DOCAI_PROJECT_ID'),
+        'GOOGLE_DOCAI_PROCESSOR_ID' => constant('GOOGLE_DOCAI_PROCESSOR_ID'),
+        'GOOGLE_GMAIL_CLIENT_ID'    => constant('GOOGLE_GMAIL_CLIENT_ID'),
+        'GOOGLE_GMAIL_CLIENT_SECRET'=> constant('GOOGLE_GMAIL_CLIENT_SECRET'),
+        'MS_TENANT_ID'              => constant('MS_TENANT_ID'),
+        'MS_OUTLOOK_CLIENT_ID'      => constant('MS_OUTLOOK_CLIENT_ID'),
+        'MS_OUTLOOK_CLIENT_SECRET'  => constant('MS_OUTLOOK_CLIENT_SECRET')
+    ]))
 ];
 
 if($params['sync']) {
@@ -115,7 +128,7 @@ if($params['sync']) {
     $create_params['GLOBAL_URL'] = constant('BACKEND_URL');
 }
 
-$request = new HttpRequest("POST {$server['b2_api_url']}/instance/fmt/create", [], json_encode($create_params));
+$request = new HttpRequest("POST {$server['b2_api_url']}/instance/create", [], json_encode($create_params));
 
 $credentials = base64_encode("root:{$server['b2_api_password']}");
 
