@@ -466,12 +466,14 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
     }
 
     protected static function doSendPaymentReminders($self, $cron): void {
-        $self->read([
-            'name',
-            'condo_id',
-            'reminders_exporting_task_id',
-            'payment_reminder_correspondences_ids' => ['communication_method', 'ownership_id']
-        ]);
+        $self
+            ->do('generate_payment_reminder_correspondences')
+            ->read([
+                'name',
+                'condo_id',
+                'reminders_exporting_task_id',
+                'payment_reminder_correspondences_ids' => ['communication_method', 'ownership_id']
+            ]);
 
         foreach($self as $id => $paymentReminder) {
             if($paymentReminder['reminders_exporting_task_id']) {

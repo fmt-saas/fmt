@@ -44,7 +44,9 @@
                 "entity": "realestate\\funding\\PaymentReminder",
                 "action": "generate_payment_reminder_correspondences"
             },
-            "visible": ["status", "=", "pending"]
+            "visible": false,
+            "visible_help": "This action is run at reminder sending.",
+            "visible1": ["status", "=", "pending"]
         },
         {
             "id": "action.send_reminders",
