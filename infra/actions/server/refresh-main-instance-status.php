@@ -66,13 +66,13 @@ $allowed_fmt_branches = ['main'];
     eQual branch
 */
 
-exec("cd /home/{$instance['name']}/www && git branch --show-current", $output);
+exec("cd /var/www/html && git branch --show-current", $output);
 $data['branch_equal'] = $output[0] ?? null;
 $data['is_branch_equal_ok'] = in_array($data['branch_equal'], $allowed_equal_branches);
 
-exec("git -C /home/{$instance['name']}/www fetch");
-exec("git -C /home/{$instance['name']}/www rev-parse HEAD", $local);
-exec("git -C /home/{$instance['name']}/www rev-parse @{u}", $remote);
+exec("git -C /var/www/html fetch");
+exec("git -C /var/www/html rev-parse HEAD", $local);
+exec("git -C /var/www/html rev-parse @{u}", $remote);
 $data['is_branch_equal_up_to_date'] = $local[0] === $remote[0];
 
 
@@ -80,13 +80,13 @@ $data['is_branch_equal_up_to_date'] = $local[0] === $remote[0];
     FMT branch
 */
 
-exec("cd /home/{$instance['name']}/www/packages && git branch --show-current", $output);
+exec("cd /var/www/html/packages && git branch --show-current", $output);
 $data['branch_fmt'] = $output[0] ?? null;
 $data['is_branch_fmt_ok'] = in_array($data['branch_fmt'], $allowed_fmt_branches);
 
-exec("git -C /home/{$instance['name']}/www/packages fetch");
-exec("git -C /home/{$instance['name']}/www/packages rev-parse HEAD", $local);
-exec("git -C /home/{$instance['name']}/www/packages rev-parse @{u}", $remote);
+exec("git -C /var/www/html/packages fetch");
+exec("git -C /var/www/html/packages rev-parse HEAD", $local);
+exec("git -C /var/www/html/packages rev-parse @{u}", $remote);
 $data['is_branch_fmt_up_to_date'] = $local[0] === $remote[0];
 
 
