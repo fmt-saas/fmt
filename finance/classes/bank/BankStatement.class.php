@@ -568,8 +568,8 @@ class BankStatement extends Model {
 
     protected static function onafterPost($self) {
         $self->read(['document_process_id', 'statement_lines_ids' => ['status']]);
-        foreach($self as $id => $bankStatement) {
 
+        foreach($self as $id => $bankStatement) {
             try {
                 foreach($bankStatement['statement_lines_ids'] as $bank_statement_line_id => $bankStatementLine) {
                     // relay post to BankStatementLines
@@ -578,7 +578,6 @@ class BankStatement extends Model {
                         BankStatementLine::id($bank_statement_line_id)->transition('post');
                     }
                 }
-
             }
             catch(\Exception $e) {
                 // ignore already posted lines

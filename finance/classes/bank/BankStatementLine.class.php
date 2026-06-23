@@ -410,8 +410,8 @@ class BankStatementLine extends Model {
                 'icon'        => 'draw',
                 'transitions' => [
                     'post' => [
-                        // #memo - cannot check reconciliation in advance : this action relies upon sub-actions policies
-                        'policies'    => [ 'is_valid', 'can_generate_accounting_entry' ],
+                        // #memo - cannot check reconciliation in advance : this action relies upon sub-actions policies (`can_generate_accounting_entry` cannot be tested here)
+                        'policies'    => [ 'is_valid' ],
                         'description' => 'Update the payment status to `posted`.',
                         'onbefore'    => 'onbeforePost',
                         'onafter'     => 'onafterPost',

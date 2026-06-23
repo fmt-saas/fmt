@@ -23,7 +23,7 @@
         },
         {
             "id": "action.validate",
-            "label": "Validate",
+            "label": "Post",
             "description": "Validate the statement line.",
             "controller": "core_model_transition",
             "visible": [

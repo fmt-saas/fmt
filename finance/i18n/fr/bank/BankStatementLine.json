@@ -205,7 +205,7 @@
                     "description": "Tenter de rapprocher automatiquement la ligne."
                 },
                 "action.validate": {
-                    "label": "Valider",
+                    "label": "Intégrer",
                     "description": "Valider et comptabiliser la ligne."
                 },
                 "action.unlock": {
