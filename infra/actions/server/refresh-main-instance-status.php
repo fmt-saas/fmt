@@ -161,10 +161,17 @@ $required_tasks = [
     'core_spool_run',
     'core_spool_sync-alerts',
     'documents_export_cron_run',
-    'realestate_funding_verify-expired-fundings'
+    'finance_accounting_generate-expense-statements',
+    'realestate_funding_verify-expired-fundings',
+    'infra_server_refresh-main-instance-status'
 ];
 
-$tasks_ids = Task::search(['controller', 'in', $required_tasks])->ids();
+$tasks_ids = Task::search([
+    ['controller', 'in', $required_tasks],
+    ['is_recurring', '=', true]
+])
+    ->ids();
+
 $data['is_tasks_ok'] = count($tasks_ids) === count($required_tasks);
 
 
