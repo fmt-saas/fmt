@@ -80,7 +80,7 @@
         },
         "is_tasks_ok": {
             "label": "Tâches planifiées OK",
-            "description": "Les tâches planifiées semblent valides..",
+            "description": "Les tâches planifiées semblent valides.",
             "help": ""
         },
         "branch_equal": {
