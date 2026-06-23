@@ -50,12 +50,12 @@ use purchase\supplier\Supplier;
  */
 ['context' => $context] = $providers;
 
-$instance = Instance::id(1)
-    ->read(['name'])
+$main_instance = Instance::id(1)
+    ->read(['id'])
     ->first();
 
-if(!isset($instance)) {
-    throw new Exception("main_instance_not_found", EQ_ERROR_UNKNOWN_OBJECT);
+if(!$main_instance) {
+    throw new Exception('main_instance_missing', EQ_ERROR_INVALID_CONFIG);
 }
 
 $allowed_equal_branches = ['2.0.1'];
@@ -185,10 +185,7 @@ Instance::id(1)->update($data);
     Create response
 */
 
-$result = Instance::id(1)
-    ->read(array_keys($data))
-    ->adapt('json')
-    ->first(true);
+$result = eQual::run('get', 'infra_server_main-instance-status');
 
 $context
     ->httpResponse()

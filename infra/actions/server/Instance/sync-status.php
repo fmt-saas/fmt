@@ -59,7 +59,7 @@ else {
     }
 
     try {
-        $request = new HttpRequest('GET '.rtrim($instance['url'], '/').'/?'.http_build_query(['do' => 'infra_server_refresh-main-instance-status']));
+        $request = new HttpRequest('GET '.rtrim($instance['url'], '/').'/?'.http_build_query(['get' => 'infra_server_main-instance-status']));
 
         $request
             ->header('Content-Type', 'application/json')
