@@ -42,7 +42,7 @@
             ],
             "ACTION.EDIT": [
                 {
-                    "visible": ["status", "=", "posted"]
+                    "visible": ["status", "<>", "posted"]
                 }
             ]
         }
