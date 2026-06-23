@@ -37,10 +37,13 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
         'content-type'  => 'application/octet-stream'
     ],
     'constants'     => ['FMT_INSTANCE_TYPE', 'FMT_API_URL_EDMS'],
-    'providers'     => ['context', 'orm', 'auth', 'adapt']
+    'providers'     => ['context', 'orm', 'auth', 'adapt', 'access']
 ]);
 
-['context' => $context, 'orm' => $om, 'auth' => $auth, 'adapt' => $adapt] = $providers;
+/**
+ * @var \equal\access\AccessController $access
+ */
+['context' => $context, 'orm' => $om, 'auth' => $auth, 'adapt' => $adapt, 'access' => $access] = $providers;
 
 $user_id = $auth->userId();
 
@@ -62,7 +65,10 @@ $output = $document['data'];
 // #todo - restore - make sure to test with user relating to employee, and add extra rights for admins & ROOT users
 $user = User::id($user_id)->read(['identity_id', 'employee_id'])->first();
 
-if(!$user['employee_id'] && $user_id !== EQ_ROOT_USER_ID) {
+$is_root = ($user_id === EQ_ROOT_USER_ID);
+$is_admin = $access->hasGroup('admins');
+
+if(!$user['employee_id'] && !$is_root && !$is_admin) {
     // check visibility rules
     switch($document['document_visibility']) {
         // visible only to syndic
