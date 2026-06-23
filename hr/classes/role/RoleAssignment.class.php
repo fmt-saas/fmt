@@ -6,6 +6,8 @@
 */
 namespace hr\role;
 
+use hr\employee\Employee;
+
 class RoleAssignment extends \equal\orm\Model {
 
     public static function getName() {
@@ -147,6 +149,19 @@ class RoleAssignment extends \equal\orm\Model {
             if(isset($assignment['employee_id']['identity_id'], $assignment['employee_id']['identity_id']['user_id'])) {
                 self::id($id)->update(['user_id' => $assignment['employee_id']['identity_id']['user_id']]);
             }
+        }
+    }
+
+    protected static function onupdateRoleId($self) {
+        $self->read(['is_primary', 'employee_id']);
+        foreach($self as $id => $roleAssignment) {
+            if(!$roleAssignment['is_primary']) {
+                continue;
+            }
+            if(!$roleAssignment['employee_id']) {
+                continue;
+            }
+            Employee::id($roleAssignment['employee_id'])->update(['role_id' => null]);
         }
     }
 
