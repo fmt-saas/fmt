@@ -54,7 +54,7 @@ if(!$server) {
 }
 
 try {
-    $status = eQual::run('get', 'infra_server_Server_b2-status', ['id' => $server['id']]);
+    $status = eQual::run('get', 'infra_server_Server_status', ['id' => $server['id']]);
 
     $ips_data = [];
     foreach(['ip_protected', 'ip_public', 'ip_private'] as $ip_key) {

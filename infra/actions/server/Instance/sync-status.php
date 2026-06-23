@@ -93,7 +93,7 @@ else {
 }
 
 try {
-    $b2_status = eQual::run('get', 'infra_server_Instance_b2-status', ['id' => $instance['id']]);
+    $b2_status = eQual::run('get', 'infra_server_Instance_status', ['id' => $instance['id']]);
 
     Status::create([
         'instance_id'   => $instance['id'],
