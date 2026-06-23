@@ -7,8 +7,7 @@
 
 namespace infra\server;
 
-use core\security\AccessToken;
-use core\User;
+use identity\User;
 use equal\data\DataGenerator;
 use equal\orm\Model;
 
@@ -169,7 +168,8 @@ class Instance extends Model {
             $user = User::create([
                     'login'         => $login,
                     'allow_auth'    => false,
-                    'validated'     => true
+                    'validated'     => true,
+                    'is_system'     => true
                 ])
                 ->first();
 

@@ -71,83 +71,9 @@ Identity::id($identity['id'])->update([
         'managing_agent_id'     => $managingAgent['id']
     ]);
 
-
-
-// first Employee
-
-$employee = Employee::create()
-    ->first();
-
-$identity = Identity::create([
-        'type_id'           => 1,
-        'type'              => 'IN',
-        'firstname'         => 'First',
-        'lastname'          => 'Employee',
-        'email'             => 'user@fmtsolutions.be',
-        'has_parent'        => false,
-        'nationality'       => 'BE',
-        'lang_id'           => 2,
-        'address_country'   => 'BE',
-        'has_vat'           => false,
-        'is_active'         => true,
-        'employee_id'       => $employee['id']
-    ])
-    ->read(['name', 'email'])
-    ->first();
-
-Employee::id($employee['id'])
-    ->update(['identity_id' => $identity['id']])
-    ->do('sync_from_identity');
-
-User::create([
-        'login'         => $identity['email'],
-        'language'      => 'fr',
-        'validated'     => true,
-        'instance_id'   => 1,
-        // users
-        'groups_ids'    => [2]
-    ])
-    ->update(['identity_id' => $identity['id']])
-    ->do('sync_from_identity');
-
-
 // create Team
-$team = Team::create([
+Team::create([
         'name' => 'Équipe principale'
-    ])
-    ->update(['employees_ids' => [$employee['id']]])
-    ->first();
-
-
-// assign employee as accountant for all condos
-RoleAssignment::create([
-        'condo_id'      => null,
-        // accountant
-        'role_id'       => 3
-    ])
-    ->update([
-        'employee_id'   => $employee['id']
     ]);
-
-// assign employee as condo_manager for all condos
-RoleAssignment::create([
-        'condo_id'      => null,
-        // condo_manager
-        'role_id'       => 4
-    ])
-    ->update([
-        'employee_id'   => $employee['id']
-    ]);
-
-// assign employee as document_dispatch_officer for all condos
-RoleAssignment::create([
-        'condo_id'      => null,
-        // document_dispatch_officer
-        'role_id'       => 9
-    ])
-    ->update([
-        'employee_id'   => $employee['id']
-    ]);
-
 
 $orm->enableEvents($events);

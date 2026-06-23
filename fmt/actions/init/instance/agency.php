@@ -58,7 +58,7 @@ use infra\server\Instance;
         'accept-origin' => '*',
         'content-type'  => 'application/json'
     ],
-    'constants'     => ['FMT_INSTANCE_TYPE'],
+    'constants'     => ['FMT_INSTANCE_TYPE', 'BACKEND_URL'],
     'providers'     => ['context']
 ]);
 
@@ -103,16 +103,21 @@ $createUser = function($user) {
         'groups_ids'    => $user['groups_ids'],
     ];
 
-    if($user['role_id']) {
-        $role_assignment = RoleAssignment::create([
-                'employee_id'   => $employee['id'],
-                'role_id'       => $user['role_id'],
-                'is_primary'    => true
-            ])
-            ->read(['id'])
-            ->first();
-
-        $user_data['role_assignments_ids'] = [$role_assignment['id']];
+    if(isset($user['roles_ids'])) {
+        $is_first = true;
+        $role_assignments_ids = [];
+        foreach((array) $user['roles_ids'] as $role_id) {
+            $role_assignment = RoleAssignment::create([
+                    'employee_id'   => $employee['id'],
+                    'role_id'       => $role_id,
+                    'is_primary'    => $is_first
+                ])
+                ->read(['id'])
+                ->first();
+            $is_first = false;
+            $role_assignments_ids[] = $role_assignment['id'];
+        }
+        $user_data['role_assignments_ids'] = $role_assignments_ids;
     }
 
     User::create($user_data)
@@ -148,6 +153,7 @@ $map_init_packages = [
     'communication' => false,
     'fmt'           => false
 ];
+
 if(file_exists(EQ_BASEDIR . "/log/packages.json")) {
     $json = file_get_contents(EQ_BASEDIR."/log/packages.json");
     $packages = json_decode($json, true);
@@ -209,6 +215,20 @@ if(!empty($params['instance_uuid'])) {
     Instance::id(1)->update(['uuid' => $params['instance_uuid']]);
 }
 
+// update Local users
+$instance_name = parse_url(constant('BACKEND_URL'), PHP_URL_HOST);
+
+User::id(1)->update([
+    'login'     => "root@{$instance_name}",
+    'is_system' => true
+]);
+
+User::id(2)->update([
+    'login'      => "admin@{$instance_name}",
+    'is_system'  => true,
+    'groups_ids' => [1]
+]);
+
 $global_instance_name = parse_url($params['global_instance_url'], PHP_URL_HOST);
 
 $global_instance = Instance::create([
@@ -230,10 +250,6 @@ if($params['sync']) {
 }
 
 if($params['create_users']) {
-    $instance = Instance::id(1)
-        ->read(['name'])
-        ->first();
-
     $group_names = ['operators', 'users'];
     $groups = Group::search(['name', 'in', $group_names])
         ->read(['name'])
@@ -258,43 +274,44 @@ if($params['create_users']) {
         [
             'firstname'             => 'First',
             'lastname'              => 'Operator',
-            'email'                 => "operator@{$instance['name']}",
-            'groups_ids'            => [$map_name_groups_ids['operators'], $map_name_groups_ids['users']]
+            'email'                 => "operator@{$instance_name}",
+            'groups_ids'            => [$map_name_groups_ids['operators'], $map_name_groups_ids['users']],
+            'roles_ids'             => [$map_codes_roles_ids['accountant'], $map_codes_roles_ids['condo_manager'], $map_codes_roles_ids['document_dispatch_officer']]
         ],
         [
             'firstname'             => 'First',
             'lastname'              => 'Director',
-            'email'                 => "director@{$instance['name']}",
+            'email'                 => "director@{$instance_name}",
             'groups_ids'            => [$map_name_groups_ids['users']],
-            'role_id'               => $map_codes_roles_ids['director']
+            'roles_ids'             => $map_codes_roles_ids['director']
         ],
         [
             'firstname'             => 'First',
             'lastname'              => 'Manager',
-            'email'                 => "manager@{$instance['name']}",
+            'email'                 => "manager@{$instance_name}",
             'groups_ids'            => [$map_name_groups_ids['users']],
-            'role_id'               => $map_codes_roles_ids['manager']
+            'roles_ids'             => $map_codes_roles_ids['manager']
         ],
         [
             'firstname'             => 'First',
             'lastname'              => 'Accountant',
-            'email'                 => "accountant@{$instance['name']}",
+            'email'                 => "accountant@{$instance_name}",
             'groups_ids'            => [$map_name_groups_ids['users']],
-            'role_id'               => $map_codes_roles_ids['accountant']
+            'roles_ids'             => $map_codes_roles_ids['accountant']
         ],
         [
             'firstname'             => 'First',
             'lastname'              => 'Condo Manager',
-            'email'                 => "condo-manager@{$instance['name']}",
+            'email'                 => "condo-manager@{$instance_name}",
             'groups_ids'            => [$map_name_groups_ids['users']],
-            'role_id'               => $map_codes_roles_ids['condo_manager']
+            'roles_ids'             => $map_codes_roles_ids['condo_manager']
         ],
         [
             'firstname'             => 'First',
             'lastname'              => 'Assistant',
-            'email'                 => "assistant@{$instance['name']}",
+            'email'                 => "assistant@{$instance_name}",
             'groups_ids'            => [$map_name_groups_ids['users']],
-            'role_id'               => $map_codes_roles_ids['assistant']
+            'roles_ids'             => $map_codes_roles_ids['assistant']
         ]
     ];
 
