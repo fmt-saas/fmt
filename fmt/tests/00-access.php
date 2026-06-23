@@ -523,17 +523,28 @@ $tests = [
                     'condo_2' => []
                 ];
                 foreach($flatten($map_classes) as $class) {
-                    $map_condos_objects_ids = [
-                        'condo_1' => $orm->create($class, ['condo_id' => $condo_1['id']]),
-                        'condo_2' => $orm->create($class, ['condo_id' => $condo_2['id']])
-                    ];
+                    if($class === Condominium::getType()) {
+                        $map_condos_objects_ids = [
+                            'condo_1' => $condo_1['id'],
+                            'condo_2' => $condo_2['id']
+                        ];
+                    }
+                    else {
+                        $map_condos_objects_ids = [
+                            'condo_1' => $orm->create($class, ['condo_id' => $condo_1['id']]),
+                            'condo_2' => $orm->create($class, ['condo_id' => $condo_2['id']])
+                        ];
+                    }
+
                     foreach($map_condos_objects_ids as $condo_key => $object_id) {
                         foreach([EQ_R_READ, EQ_R_UPDATE] as $right) {
                             $access_results[$condo_key][$class][$right] = $am->userIsAllowed($user['id'], $right, $class, [], [$object_id]);
                         }
                     }
 
-                    $orm->delete($class, [$map_condos_objects_ids['condo_1'], $map_condos_objects_ids['condo_2']]);
+                    if($class !== Condominium::getType()) {
+                        $orm->delete($class, [$map_condos_objects_ids['condo_1'], $map_condos_objects_ids['condo_2']]);
+                    }
                 }
 
                 return $access_results;
