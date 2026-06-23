@@ -138,12 +138,14 @@ $user = User::id($user_id)
 $map_ownerships_ids = [];
 $map_condos_ids = [];
 
-$owners = Owner::search(['identity_id', '=', $user['identity_id']['id'] ?? null])
-        ->read(['condo_id', 'ownership_id']);
+if($user['identity_id']) {
+    $owners = Owner::search(['identity_id', '=', $user['identity_id']['id'] ?? null])
+            ->read(['condo_id', 'ownership_id']);
 
-foreach($owners as $owner_id => $owner) {
-    $map_ownerships_ids[$owner['ownership_id']] = true;
-    $map_condos_ids[$owner['condo_id']] = true;
+    foreach($owners as $owner_id => $owner) {
+        $map_ownerships_ids[$owner['ownership_id']] = true;
+        $map_condos_ids[$owner['condo_id']] = true;
+    }
 }
 
 $map_roles = [];
