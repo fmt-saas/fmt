@@ -66,28 +66,32 @@ $allowed_fmt_branches = ['main'];
     eQual branch
 */
 
-exec("cd /var/www/html && git branch --show-current", $branch_equal_output);
-$data['branch_equal'] = $branch_equal_output[0] ?? null;
-$data['is_branch_equal_ok'] = in_array($data['branch_equal'], $allowed_equal_branches);
+$equal_version_data = eQual::run('get', 'core_version');
 
-exec("git -C /var/www/html fetch");
-exec("git -C /var/www/html rev-parse HEAD", $local);
-exec("git -C /var/www/html rev-parse @{u}", $remote);
-$data['is_branch_equal_up_to_date'] = $local[0] === $remote[0];
+if(!empty($equal_version_data['branch'])) {
+    $data['branch_equal'] = $equal_version_data['branch'];
+    $data['is_branch_equal_ok'] = in_array($data['branch_equal'], $allowed_equal_branches);
+}
+
+if(isset($equal_version_data['up_to_date'])) {
+    $data['is_branch_equal_up_to_date'] = $equal_version_data['up_to_date'];
+}
 
 
 /*
     FMT branch
 */
 
-exec("cd /var/www/html/packages && git branch --show-current", $branch_fmt_output);
-$data['branch_fmt'] = $branch_fmt_output[0] ?? null;
-$data['is_branch_fmt_ok'] = in_array($data['branch_fmt'], $allowed_fmt_branches);
+$fmt_version_data = eQual::run('get', 'fmt_version');
 
-exec("git -C /var/www/html/packages fetch");
-exec("git -C /var/www/html/packages rev-parse HEAD", $local);
-exec("git -C /var/www/html/packages rev-parse @{u}", $remote);
-$data['is_branch_fmt_up_to_date'] = $local[0] === $remote[0];
+if(!empty($fmt_version_data['branch'])) {
+    $data['branch_fmt'] = $fmt_version_data['branch'];
+    $data['is_branch_fmt_ok'] = in_array($data['branch_fmt'], $allowed_equal_branches);
+}
+
+if(isset($fmt_version_data['up_to_date'])) {
+    $data['is_branch_fmt_up_to_date'] = $fmt_version_data['up_to_date'];
+}
 
 
 /*

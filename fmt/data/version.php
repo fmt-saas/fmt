@@ -11,7 +11,7 @@ use equal\http\HttpRequest;
     'description'   => "Provide the declared version of FMT with optional enrichment from git or GitHub.",
     'params'        => [],
     'access'        => [
-        'visibility'    => 'private'
+        'visibility'    => 'protected'
     ],
     'response'      => [
         'content-type'  => 'application/json',
