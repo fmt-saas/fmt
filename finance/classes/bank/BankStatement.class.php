@@ -588,7 +588,7 @@ class BankStatement extends Model {
                 DocumentProcess::id($bankStatement['document_process_id'])
                     // bypass all stages
                     ->update(['status' => 'validated'])
-                    // mark DocumentProcess as integrated
+                    // mark DocumentProcess as integrated (recursion is prevented by ORM)
                     ->transition('integrate');
             }
         }
