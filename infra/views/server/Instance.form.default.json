@@ -208,7 +208,10 @@
                                             {
                                                 "type": "field",
                                                 "value": "statuses_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "limit": 5
+                                                }
                                             }
                                         ]
                                     }
