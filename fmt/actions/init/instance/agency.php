@@ -72,28 +72,28 @@ use infra\server\Instance;
  */
 
 $createUser = function($user) {
-    $employee = Employee::create()->first();
+    // #memo if identity_id is not provided, Employee::oncreate creates an Identity (unless `$orm->disableEvents()`)
 
     $identity = Identity::create([
-        'type_id'           => 1,
-        'type'              => 'IN',
-        'firstname'         => $user['firstname'],
-        'lastname'          => $user['lastname'],
-        'email'             => $user['email'],
-        'has_parent'        => false,
-        'nationality'       => 'BE',
-        'lang_id'           => 2,
-        'address_country'   => 'BE',
-        'has_vat'           => false,
-        'is_active'         => true,
-        'employee_id'       => $employee['id']
-    ])
+            'type_id'           => 1,
+            'type'              => 'IN',
+            'firstname'         => $user['firstname'],
+            'lastname'          => $user['lastname'],
+            'email'             => $user['email'],
+            'has_parent'        => false,
+            'nationality'       => 'BE',
+            'lang_id'           => 2,
+            'address_country'   => 'BE',
+            'has_vat'           => false,
+            'is_active'         => true
+        ])
         ->read(['name', 'email'])
         ->first();
 
-    Employee::id($employee['id'])
+    $employee = Employee::create()
         ->update(['identity_id' => $identity['id']])
-        ->do('sync_from_identity');
+        ->do('sync_from_identity')
+        ->first();
 
     $user_data = [
         'login'         => $identity['email'],
@@ -105,10 +105,10 @@ $createUser = function($user) {
 
     if($user['role_id']) {
         $role_assignment = RoleAssignment::create([
-            'employee_id'   => $employee['id'],
-            'role_id'       => $user['role_id'],
-            'is_primary'    => true
-        ])
+                'employee_id'   => $employee['id'],
+                'role_id'       => $user['role_id'],
+                'is_primary'    => true
+            ])
             ->read(['id'])
             ->first();
 

@@ -75,7 +75,7 @@ if($user_id <= 0) {
         }
 
         $global_instance = Instance::search(['instance_type', '=', 'global'])
-            ->read(['uuid', 'access_token'])
+            ->read(['uuid', 'access_token', 'url'])
             ->first();
 
         if(!$global_instance) {
@@ -122,7 +122,7 @@ $user = User::id($user_id)
     ->read([
         'id', 'name', 'login', 'validated', 'language',
         'groups_ids' => ['name', 'display_name'],
-        'identity_id' => ['firstname', 'lastname', 'owners_ids', 'tenant_id'],
+        'identity_id' => ['id', 'firstname', 'lastname', 'owners_ids', 'tenant_id'],
         'instance_id' => ['url'],
         'organisation_id',
         'employee_id',
@@ -138,7 +138,7 @@ $user = User::id($user_id)
 $map_ownerships_ids = [];
 $map_condos_ids = [];
 
-if($user['identity_id']) {
+if($user && $user['identity_id']) {
     $owners = Owner::search(['identity_id', '=', $user['identity_id']['id'] ?? null])
             ->read(['condo_id', 'ownership_id']);
 
@@ -150,18 +150,18 @@ if($user['identity_id']) {
 
 $map_roles = [];
 
-foreach($user['role_assignments_ids'] as $role_assignment) {
+foreach($user['role_assignments_ids'] ?? [] as $role_assignment) {
     $map_roles[$role_assignment['role_code']] = true;
 }
 
 $result = array_merge($user, [
-        'groups'            => array_values(array_map(function ($a) {return $a['name'];}, $user['groups_ids'])),
+        'groups'            => array_values(array_map(function ($a) {return $a['name'] ?? null;}, $user['groups_ids'])),
         'roles'             => array_keys($map_roles),
         'ownerships_ids'    => array_keys($map_ownerships_ids),
         'condos_ids'        => array_keys($map_condos_ids),
-        'identity_id'       => $user['identity_id'],
-        'organisation_id'   => $user['organisation_id'],
-        'employee_id'       => $user['employee_id'],
+        'identity_id'       => $user['identity_id'] ?? null,
+        'organisation_id'   => $user['organisation_id'] ?? null,
+        'employee_id'       => $user['employee_id'] ?? null,
         'is_owner'          => $user['is_owner'],
         'is_employee'       => $user['is_employee'],
         'selected_condo_id' => Setting::get_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $user_id])
