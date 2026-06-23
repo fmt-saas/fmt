@@ -72,7 +72,6 @@ if(is_dir(EQ_BASEDIR. '/packages/.git')) {
             ));
 
             if($latest_commit) {
-                $response['latest_commit'] = $latest_commit;
                 $response['up_to_date'] = $latest_commit === $commit;
             }
         }
@@ -124,8 +123,8 @@ elseif(preg_match('/^[0-9]+\.[0-9]+/', $version)) {
             $latest_data = $latest_response->getBody();
 
             if(!empty($latest_data[0]['sha'])) {
-                $response['latest_commit'] = substr($latest_data[0]['sha'], 0, 8);
-                $response['up_to_date'] = $response['latest_commit'] === $response['commit'];
+                $latest_commit = substr($latest_data[0]['sha'], 0, 8);
+                $response['up_to_date'] = $latest_commit === $commit;
             }
 
             $source = 'github';

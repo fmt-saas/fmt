@@ -86,7 +86,7 @@ $fmt_version_data = eQual::run('get', 'fmt_version');
 
 if(!empty($fmt_version_data['branch'])) {
     $data['branch_fmt'] = $fmt_version_data['branch'];
-    $data['is_branch_fmt_ok'] = in_array($data['branch_fmt'], $allowed_equal_branches);
+    $data['is_branch_fmt_ok'] = in_array($data['branch_fmt'], $allowed_fmt_branches);
 }
 
 if(isset($fmt_version_data['up_to_date'])) {
