@@ -42,8 +42,7 @@
             ],
             "ACTION.EDIT": [
                 {
-                    "#todo": "this doesn't work since object is not available in the header",
-                    "visible": ["posted", "<>", "object.status"]
+                    "visible": ["status", "=", "posted"]
                 }
             ]
         }
