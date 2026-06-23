@@ -48,7 +48,7 @@ jobs:
       # create a config file with FMT specific constants & specific services
       - run: |
           echo "{\"DEBUG_LEVEL\": \"EQ_REPORT_WARNING | EQ_REPORT_ERROR | EQ_REPORT_FATAL\", \"DEFAULT_LANG\": \"fr\", \"FMT_INSTANCE_TYPE\": \"global\", \"FMT_API_URL_EDMS\": \"http://localhost/\", \"SERVICE_ORM_COLLECTION_CLASS\": \"fmt\\\\orm\\\\Collection\", \"SERVICE_ACCESS_ACCESSCONTROLLER\": \"fmt\\\\access\\\\AccessController\"}" > config/config.json
-      # verify the content of the file
+      # import demo data
       - run: php run.php --do=init_package --package=fmt --force=true --import=false --demo=true
       # Run static analysis
       - run: ~/repo/vendor/bin/phpstan analyse --no-progress --level=0 --memory-limit=-1 --configuration=packages/phpstan.neon

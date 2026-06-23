@@ -34,6 +34,11 @@
                 "type": "field",
                 "value": "is_external",
                 "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "is_primary",
+                "width": "15%"
             }
         ]
     }
