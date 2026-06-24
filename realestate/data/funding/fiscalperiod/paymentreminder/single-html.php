@@ -286,7 +286,7 @@ if(!$params['owner_id'] && strlen($owner['ownership_id']['address_recipient'] ??
 
 
 $due_fundings = [];
-$overdue_total = 0.0;
+$due_total = 0.0;
 $due_date = $paymentReminderOwner['due_date'];
 
 $map_funding_types = [
@@ -332,14 +332,14 @@ foreach($paymentReminderOwner['payment_reminder_owner_lines_ids'] as $paymentRem
         'remaining_amount'  => (float) ($funding['remaining_amount'] ?? $paymentReminderOwnerLine['due_amount'])
     ];
 
-    $overdue_total += (float) $paymentReminderOwnerLine['due_amount'];
+    $due_total += (float) $funding['due_amount'];
 }
 
 usort($due_fundings, function($a, $b) {
     return ($a['due_date'] <=> $b['due_date']);
 });
 
-$owner_balance = (float) ($paymentReminderOwner['due_balance'] ?? $overdue_total);
+$owner_balance = $paymentReminderOwner['due_balance'];
 
 $organisation = Organisation::id(1)
     ->read([
@@ -391,7 +391,7 @@ foreach($template['parts_ids'] as $part) {
         $map_values = [
             'condo'         => $paymentReminder['condo_id']['name'],
             'emission_date' => $getFormattedDate($paymentReminder['emission_date']),
-            'due_amount'    => $formatMoney($overdue_total),
+            'due_amount'    => $formatMoney($owner_balance),
             'due_date'      => $getFormattedDate($due_date ?? time())
         ];
 
@@ -406,7 +406,7 @@ foreach($template['parts_ids'] as $part) {
         $map_values = [
             'due_date'          => $getFormattedDate($due_date ?? time()),
             'emission_date'     => $getFormattedDate($paymentReminder['emission_date'] ?? time()),
-            'due_amount'        => $formatMoney($overdue_total)
+            'due_amount'        => $formatMoney($owner_balance)
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -433,7 +433,7 @@ $values = [
 
     'payment_reminder'    => $paymentReminder,
     'owner_balance'       => $owner_balance,
-    'overdue_total'       => $overdue_total,
+    'overdue_total'       => $due_total,
     'fundings'            => $due_fundings,
 
     'payment_reference'   => $owner['ownership_id']['payment_reference'],
@@ -442,7 +442,7 @@ $values = [
             $paymentReminder['condo_id']['bank_account_iban'],
             $paymentReminder['condo_id']['bank_account_bic'],
             $owner['ownership_id']['payment_reference'] ?? '',
-            $overdue_total
+            $owner_balance
         ),
 
     'date'                => time(),
