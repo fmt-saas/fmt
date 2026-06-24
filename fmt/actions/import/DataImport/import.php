@@ -377,6 +377,7 @@ try {
                     // #memo - this is required for CondoLang Sync
                     'lang_id'                   => ['en' => 1, 'fr' => 2, 'nl' => 3][$condominium_data['lang']]
                 ])
+                ->do('sync_primary_lang')
                 ->first();
 
             $defaultEmployee = Employee::search([], ['limit' => 1])->first();
