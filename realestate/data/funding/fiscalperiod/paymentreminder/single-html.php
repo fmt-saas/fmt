@@ -220,6 +220,7 @@ $paymentReminder = PaymentReminder::id($params['payment_reminder_id'])
             'due_date',
             'payment_reminder_owner_lines_ids' => [
                 'days_overdue',
+                'reminder_level',
                 'due_amount',
                 'due_date',
                 'issue_date',
@@ -328,6 +329,7 @@ foreach($paymentReminderOwner['payment_reminder_owner_lines_ids'] as $paymentRem
         'due_date'          => $funding['due_date'],
         'due_date_label'    => $getFormattedDate($funding['due_date']),
         'days_overdue'      => $paymentReminderOwnerLine['days_overdue'],
+        'reminder_level'    => $paymentReminderOwnerLine['reminder_level'],
         'due_amount'        => (float) $funding['due_amount'],
         'remaining_amount'  => (float) ($funding['remaining_amount'] ?? $paymentReminderOwnerLine['due_amount'])
     ];

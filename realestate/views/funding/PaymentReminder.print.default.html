@@ -145,13 +145,14 @@
                     <td>{{ funding.label }}</td>
                     <td style="text-align: center;">{{ funding.due_date_label }}</td>
                     <td style="text-align: center;">{{ funding.days_overdue }}</td>
+                    <td style="text-align: center;">{{ funding.reminder_level }}</td>
                     <td style="text-align: right;">{{ funding.due_amount | format_money() }}</td>
                     <td style="text-align: right;">{{ funding.remaining_amount | format_money() }}</td>
                 </tr>
                 {% endfor %}
                 <tr>
                     <td></td>
-                    <td colspan="3" style="text-align: right;"><strong>{{ labels['fundings.table.footer.th.total'] }}</strong></td>
+                    <td colspan="4" style="text-align: right;"><strong>{{ labels['fundings.table.footer.th.total'] }}</strong></td>
                     <td style="text-align: right;"><strong><!--{{ due_total | format_money() }}--></strong></td>
                     <td style="text-align: right;"><strong>{{ owner_balance | format_money() }}</strong></td>
                 </tr>
