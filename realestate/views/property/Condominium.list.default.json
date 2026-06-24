@@ -26,6 +26,12 @@
             },
             {
                 "type": "field",
+                "value": "lang_id",
+                "width": "10%",
+                "sortable": true
+            },
+            {
+                "type": "field",
                 "value": "address_street",
                 "width": "20%"
             },

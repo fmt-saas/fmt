@@ -1,0 +1,47 @@
+{
+    "name": "Langue de copropriété",
+    "plural": "Langues de copropriété",
+    "description": "Lien entre une copropriété et une langue effectivement utilisée pour ses communications.",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Nom de la langue.",
+            "help": "Ce nom est repris depuis la langue liée."
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété utilisant la langue.",
+            "help": "Sélectionnez la copropriété concernée."
+        },
+        "lang_id": {
+            "label": "Langue",
+            "description": "Langue utilisée par la copropriété.",
+            "help": "Sélectionnez une langue effectivement utilisée."
+        },
+        "code": {
+            "label": "Code",
+            "description": "Code ISO de la langue liée.",
+            "help": "Ce code est calculé depuis la langue liée."
+        },
+        "is_primary": {
+            "label": "Principale",
+            "description": "Langue métier principale de la copropriété.",
+            "help": "Une seule langue peut être principale pour une copropriété."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Langue de copropriété",
+            "description": "Formulaire de gestion d'une langue utilisée par une copropriété."
+        },
+        "list.default": {
+            "name": "Langues",
+            "description": "Liste des langues utilisées par la copropriété."
+        }
+    },
+    "error": {
+        "is_primary": {
+            "primary_required": "La langue principale de la copropriété ne peut pas être supprimée."
+        }
+    }
+}

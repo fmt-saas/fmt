@@ -89,6 +89,24 @@ class Condominium extends Identity {
                 'description'       => 'The unique code of the Condominium, for global identification.',
             ],
 
+            'lang_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'core\Lang',
+                'description'       => 'Primary business language of the condominium.',
+                'help'              => 'This language is used as the fallback language for multilingual business documents related to the condominium.',
+                'required'          => true,
+                'onupdate'          => 'onupdateLangId'
+            ],
+
+            'condo_langs_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\CondoLang',
+                'foreign_field'     => 'condo_id',
+                'description'       => 'Languages effectively used by co-owners of the condominium.',
+                'order'             => 'is_primary',
+                'sort'              => 'desc'
+            ],
+
             'assemblies_ids' => [
                 'type'              => 'one2many',
                 'description'       => "List of assemblies related to the condominium.",
@@ -425,6 +443,11 @@ class Condominium extends Identity {
             'sync_bank_suppliers' => [
                 'description'   => 'Force sync values from related identity.',
                 'function'      => 'doSyncBankSuppliers'
+            ],
+            'sync_primary_lang' => [
+                'description'   => 'Synchronize the primary condominium language.',
+                'policies'      => [],
+                'function'      => 'doSyncPrimaryLang'
             ]
         ]);
     }
@@ -453,6 +476,42 @@ class Condominium extends Identity {
             if($condominium['identity_id']) {
                 Identity::id($condominium['identity_id'])->update(['condominium_id' => $id]);
             }
+        }
+    }
+
+    protected static function onupdateLangId($self) {
+        $self->do('sync_primary_lang');
+    }
+
+    protected static function doSyncPrimaryLang($self) {
+        $self->read(['lang_id']);
+        foreach($self as $id => $condominium) {
+            if(!$condominium['lang_id']) {
+                continue;
+            }
+
+            $condoLang = CondoLang::search([
+                    ['condo_id', '=', $id],
+                    ['lang_id', '=', $condominium['lang_id']]
+                ])
+                ->update(['is_primary' => true])
+                ->first();
+
+            if(!$condoLang) {
+                $condoLang = CondoLang::create([
+                        'condo_id'    => $id,
+                        'lang_id'     => $condominium['lang_id'],
+                        'is_primary'  => true
+                    ])
+                    ->first();
+            }
+
+            CondoLang::search([
+                    ['condo_id', '=', $id],
+                    ['id', '<>', $condoLang['id']],
+                    ['is_primary', '=', true]
+                ])
+                ->update(['is_primary' => false]);
         }
     }
 
@@ -767,6 +826,8 @@ class Condominium extends Identity {
                 self::id($id)->update(['uuid' => $uuid]);
             }
         }
+
+        $self->do('sync_primary_lang');
     }
 
     /**

@@ -48,6 +48,16 @@
             "description": "Identifiant court utilisé pour les échanges inter-instances.",
             "help": "Ce code est calculé automatiquement à partir de la dénomination officielle."
         },
+        "lang_id": {
+            "label": "Langue principale",
+            "description": "Langue métier principale de la copropriété.",
+            "help": "Cette langue sert de langue de fallback pour les champs multilingues des documents liés à la copropriété."
+        },
+        "condo_langs_ids": {
+            "label": "Langues utilisées",
+            "description": "Langues utilisées par les copropriétaires.",
+            "help": "La langue principale doit toujours faire partie de cette liste et une seule langue peut être marquée comme principale."
+        },
         "assemblies_ids": {
             "label": "Assemblées",
             "description": "Assemblées générales planifiées ou passées.",
@@ -259,6 +269,9 @@
             "layout": {
                 "section.management_contracts": {
                     "label": "Contrats de gestion"
+                },
+                "section.languages": {
+                    "label": "Langues"
                 },
                 "label.current_managing_agent": {
                     "label": "Syndic/agence actuel"

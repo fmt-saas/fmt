@@ -1,0 +1,41 @@
+{
+    "name": "Condominium Languages",
+    "description": "Languages used by condominiums.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": [
+                {
+                    "view": false
+                }
+            ]
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "30%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "lang_id",
+                "width": "40%"
+            },
+            {
+                "type": "field",
+                "value": "code",
+                "width": "20%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "is_primary",
+                "width": "20%",
+                "sortable": true
+            }
+        ]
+    }
+}
