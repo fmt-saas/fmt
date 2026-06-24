@@ -5,6 +5,7 @@
     "fundings.table.th.label": "Origine",
     "fundings.table.th.deadline": "Échéance",
     "fundings.table.th.days_overdue": "Jours de retard",
+    "fundings.table.th.reminder_level": "Niveau Rappel",
     "fundings.table.th.due_amount": "Montant",
     "fundings.table.th.remaining_amount": "Solde ouvert",
     "fundings.table.footer.th.total": "Total"
