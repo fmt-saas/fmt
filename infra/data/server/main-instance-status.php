@@ -23,6 +23,7 @@ use infra\server\Instance;
 
 $main_instance = Instance::id(1)
     ->read([
+        'refreshed',
         'branch_equal',
         'is_branch_equal_ok',
         'is_branch_equal_up_to_date',
