@@ -1,6 +1,14 @@
 {
     "name": "Statuses",
     "description": "Default listing of all statuses.",
+    "header": {
+        "selection": false,
+        "actions": {
+            "ACTION.EDIT": false,
+            "ACTION.CREATE": false,
+            "ACTION.SAVE": false
+        }
+    },
     "order": "created",
     "sort": "desc",
     "layout": {

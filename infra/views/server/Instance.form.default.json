@@ -139,6 +139,7 @@
                     {
                         "id": "section.statuses",
                         "label": "Statuses",
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [

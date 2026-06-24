@@ -89,6 +89,14 @@ if($instance['has_dns_record']) {
     throw new Exception('instance_with_dns_record', EQ_ERROR_INVALID_PARAM);
 }
 
+if(!$instance['server_id'] || !$instance['server_id']['ip_address']) {
+    throw new Exception('missing_server', EQ_ERROR_INVALID_PARAM);
+}
+
+if(filter_var($instance['server_id']['ip_address'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+    throw new Exception('invalid_ip_address', EQ_ERROR_INVALID_PARAM);
+}
+
 $name = DnsRecordHelper::normalizeSubdomain($instance['name'], $zone);
 $value = trim($instance['server_id']['ip_address']);
 
