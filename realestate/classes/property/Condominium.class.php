@@ -94,7 +94,8 @@ class Condominium extends Identity {
                 'foreign_object'    => 'core\Lang',
                 'description'       => 'Primary business language of the condominium.',
                 'help'              => 'This language is used as the fallback language for multilingual business documents related to the condominium.',
-                'required'          => true,
+                'default'           => 1,
+                'oncreate'          => 'oncreateLangId',
                 'onupdate'          => 'onupdateLangId'
             ],
 
@@ -477,6 +478,10 @@ class Condominium extends Identity {
                 Identity::id($condominium['identity_id'])->update(['condominium_id' => $id]);
             }
         }
+    }
+
+    protected static function oncreateLangId($self) {
+        $self->do('sync_primary_lang');
     }
 
     protected static function onupdateLangId($self) {
