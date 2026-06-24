@@ -31,7 +31,8 @@
             {
                 "type": "field",
                 "value": "payment_reminder_owner_id",
-                "width": "25%"
+                "width": "0%",
+                "visible": false
             },
             {
                 "type": "field",
@@ -41,6 +42,11 @@
             {
                 "type": "field",
                 "value": "days_overdue",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "reminder_level",
                 "width": "10%"
             },
             {

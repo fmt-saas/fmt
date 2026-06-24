@@ -56,7 +56,7 @@
                                         ]
                                     },
                                     {
-                                        "width": "25%",
+                                        "width": "12%",
                                         "items": []
                                     },
                                     {
@@ -70,6 +70,11 @@
                                             {
                                                 "type": "field",
                                                 "value": "due_amount",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "reminder_level",
                                                 "width": "100%"
                                             }
                                         ]
