@@ -147,12 +147,12 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "is_config_file_ok",
+                                                "value": "refreshed",
                                                 "width": "25%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "",
+                                                "value": "is_config_file_ok",
                                                 "width": "25%"
                                             },
                                             {
@@ -167,12 +167,12 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "is_required_data_ok",
+                                                "value": "",
                                                 "width": "25%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "",
+                                                "value": "is_required_data_ok",
                                                 "width": "25%"
                                             },
                                             {
@@ -187,12 +187,12 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "is_tasks_ok",
+                                                "value": "",
                                                 "width": "25%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "",
+                                                "value": "is_tasks_ok",
                                                 "width": "25%"
                                             },
                                             {

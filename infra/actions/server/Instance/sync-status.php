@@ -6,6 +6,7 @@
 */
 
 use equal\http\HttpRequest;
+use equal\orm\Field;
 use infra\server\Instance;
 use infra\server\Status;
 
@@ -29,13 +30,16 @@ use infra\server\Status;
         'accept-origin'     => '*'
     ],
     'constants'         => ['FMT_INSTANCE_TYPE'],
-    'providers'         => ['context']
+    'providers'         => ['context', 'adapt']
 ]);
 
 /**
- * @var \equal\php\Context $context
+ * @var \equal\php\Context                      $context
+ * @var \equal\data\adapt\DataAdapterProvider   $dap
  */
-['context' => $context] = $providers;
+['context' => $context, 'adapt' => $dap] = $providers;
+
+$adapter = $dap->get('json');
 
 if(constant('FMT_INSTANCE_TYPE') !== 'global') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
@@ -75,6 +79,7 @@ else {
         }
         else {
             Instance::id($instance['id'])->update([
+                'refreshed'                     => $adapter->adaptIn($data['refreshed'], Field::MAP_TYPE_USAGE['datetime']),
                 'branch_equal'                  => $data['branch_equal'],
                 'is_branch_equal_ok'            => $data['is_branch_equal_ok'],
                 'is_branch_equal_up_to_date'    => $data['is_branch_equal_up_to_date'],
