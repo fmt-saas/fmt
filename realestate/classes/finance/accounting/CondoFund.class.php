@@ -181,6 +181,16 @@ class CondoFund extends \equal\orm\Model {
         ];
     }
 
+    public static function getActions() {
+        return [
+            'generate_accounting_accounts' => [
+                'description'   => 'Generate the accounting accounts related to the condominium fund.',
+                'policies'      => ['is_valid'],
+                'function'      => 'doGenerateAccountingAccounts'
+            ]
+        ];
+    }
+
     protected static function policyIsValid($self) {
         $result = [];
         $self->read(['condo_id', 'fund_account_id', 'expense_account_id', 'apportionment_id', 'fund_type']);
@@ -226,6 +236,10 @@ class CondoFund extends \equal\orm\Model {
         }
     }
 
+    protected static function onbeforeValidate($self) {
+        $self->do('generate_accounting_accounts');
+    }
+
     /**
      * When creating a fund, automatically generate corresponding accounting accounts:
      *   - 160 (reserve_fund) and 161 (special_reserve_fund)
@@ -235,10 +249,25 @@ class CondoFund extends \equal\orm\Model {
      * Example: 16001 (fund), 68160010 (call), 68160011 (use).
      * Mirrors reserve fund movements between 16x and 6816x accounts and links each CondoFund to its collector.
      */
-    protected static function onbeforeValidate($self) {
-        // create related accounting accounts
-
+    protected static function doGenerateAccountingAccounts($self) {
         $self->read(['condo_id' => ['account_chart_id'], 'description', 'fund_type', 'apportionment_id']);
+
+        $map_funds_translations = [
+            'en' => [
+                'fund'        => '',
+                'call'        => 'Call ',
+                'expense'     => 'Expense '
+            ],
+            'fr' => [
+                'fund'        => '',
+                'call'        => 'Appel ',
+                'expense'     => 'Prélèvement '
+            ],
+            'nl' => [
+                
+            ]
+        ];
+
         foreach($self as $id => $condoFund) {
 
             $templateAccount = Account::search([
@@ -261,6 +290,7 @@ class CondoFund extends \equal\orm\Model {
             $index = count($accounts_ids);
 
             $account_code = $templateAccount['code'] . str_pad($index, 2, '0', STR_PAD_LEFT);
+
 
             // 1) create the fund account
 
