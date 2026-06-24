@@ -119,7 +119,7 @@ foreach($expected_config as $key => $expected_value) {
     if($value !== $expected_value) {
         $is_config_ok = false;
 
-        $logs['mismatch_configs'][] = sprintf('Config %s has value "%s" but "%s" is expected', $key, $value, $expected_value);
+        $logs['mismatch_configs'][] = sprintf("Config %s has value '%s' but '%s' is expected", $key, $value, $expected_value);
     }
 }
 
@@ -203,7 +203,7 @@ foreach($required_tasks as $required_task) {
     if(!$task_found) {
         $is_tasks_ok = false;
 
-        $logs['tasks'] = sprintf('The task "%s" is missing or not recurring.', $required_task);
+        $logs['tasks'] = sprintf("The task '%s' is missing or not recurring.", $required_task);
     }
 }
 
