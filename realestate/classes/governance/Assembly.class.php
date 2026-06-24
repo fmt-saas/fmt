@@ -6,6 +6,7 @@
 */
 namespace realestate\governance;
 
+use core\Lang;
 use documents\Document;
 use documents\DocumentSignature;
 use documents\DocumentSubtype;
@@ -1329,7 +1330,7 @@ class Assembly extends \equal\orm\Model {
      * Create the structure of the assembly based on selected template
      *
      */
-    protected static function onupdateAssemblyTemplateId($self) {
+    protected static function onupdateAssemblyTemplateId($self, $lang) {
         $self->read(['condo_id', 'assembly_template_id']);
         foreach($self as $id => $assembly) {
             $assemblyTemplate = AssemblyTemplate::id($assembly['assembly_template_id'])
@@ -1361,6 +1362,7 @@ class Assembly extends \equal\orm\Model {
 
             // we must perform creation in 2-pass in order to map group ids, if any
             $map_parent_groups_ids = [];
+            $map_item_template_items_ids = [];
 
             // pass-1
             $assemblyItemTemplates = AssemblyItemTemplate::search([
@@ -1389,6 +1391,7 @@ class Assembly extends \equal\orm\Model {
                     ->first();
 
                 $map_parent_groups_ids[$item_template_id] = $groupItem['id'];
+                $map_item_template_items_ids[$item_template_id] = $groupItem['id'];
             }
 
             // pass-2
@@ -1412,7 +1415,7 @@ class Assembly extends \equal\orm\Model {
                     'apportionment_code'
                 ]);
 
-            foreach($assemblyItemTemplates as $itemTemplate) {
+            foreach($assemblyItemTemplates as $item_template_id => $itemTemplate) {
                 $parent_group_id = null;
                 if($itemTemplate['has_parent_group']) {
                     $parent_group_id = $map_parent_groups_ids[$itemTemplate['parent_group_id']] ?? null;
@@ -1435,6 +1438,8 @@ class Assembly extends \equal\orm\Model {
                     ])
                     ->first();
 
+                $map_item_template_items_ids[$item_template_id] = $item['id'];
+
                 // assign apportionment based on code
                 if($itemTemplate['apportionment_code']) {
                     AssemblyItem::id($item['id'])
@@ -1444,6 +1449,7 @@ class Assembly extends \equal\orm\Model {
                 }
             }
 
+            self::copyAssemblyItemTranslations(AssemblyItemTemplate::class, $map_item_template_items_ids, $lang);
         }
     }
 
@@ -2475,7 +2481,7 @@ class Assembly extends \equal\orm\Model {
         return $result;
     }
 
-    protected static function doScheduleSecondSession($self) {
+    protected static function doScheduleSecondSession($self, $lang) {
         $self->read([
             'condo_id', 'name', 'assembly_type', 'assembly_template_id',
             'assembly_date',
@@ -2510,6 +2516,7 @@ class Assembly extends \equal\orm\Model {
 
             // we must perform creation in 2-pass in order to map group ids, if any
             $map_parent_groups_ids = [];
+            $map_assembly_items_ids = [];
 
             // pass-1 - create groups
             $assemblyItems = AssemblyItem::search([
@@ -2538,6 +2545,7 @@ class Assembly extends \equal\orm\Model {
                     ->first();
 
                 $map_parent_groups_ids[$assembly_item_id] = $groupItem['id'];
+                $map_assembly_items_ids[$assembly_item_id] = $groupItem['id'];
             }
 
             // pass-2
@@ -2560,7 +2568,7 @@ class Assembly extends \equal\orm\Model {
                     'apportionment_id'
                 ]);
 
-            foreach($assemblyItems as $assemblyItem) {
+            foreach($assemblyItems as $assembly_item_id => $assemblyItem) {
                 $parent_group_id = null;
                 if($assemblyItem['has_parent_group']) {
                     $parent_group_id = $map_parent_groups_ids[$assemblyItem['parent_group_id']] ?? null;
@@ -2583,8 +2591,11 @@ class Assembly extends \equal\orm\Model {
                         'apportionment_id'      => $assemblyItem['apportionment_id']
                     ])
                     ->first();
+
+                $map_assembly_items_ids[$assembly_item_id] = $item['id'];
             }
 
+            self::copyAssemblyItemTranslations(AssemblyItem::class, $map_assembly_items_ids, $lang);
         }
     }
 
@@ -2864,7 +2875,7 @@ class Assembly extends \equal\orm\Model {
      * Action handler for cloning a collection of Assembly objects
      *
      */
-    protected static function doCloneAssembly($self) {
+    protected static function doCloneAssembly($self, $lang) {
         $self->read(['condo_id', 'name', 'assembly_date', 'assembly_location', 'assembly_type', 'session_time_start', 'assembly_template_id']);
 
         foreach($self as $id => $assembly) {
@@ -2886,6 +2897,7 @@ class Assembly extends \equal\orm\Model {
             // 2) duplicate/create AssemblyItems
             // we must perform creation in 2-pass in order to map group ids, if any
             $map_parent_groups_ids = [];
+            $map_assembly_items_ids = [];
 
             // pass-1
             $assemblyItems = AssemblyItem::search([
@@ -2914,6 +2926,7 @@ class Assembly extends \equal\orm\Model {
                     ->first();
 
                 $map_parent_groups_ids[$assembly_item_id] = $groupItem['id'];
+                $map_assembly_items_ids[$assembly_item_id] = $groupItem['id'];
             }
 
             // pass-2
@@ -2937,12 +2950,12 @@ class Assembly extends \equal\orm\Model {
                     'apportionment_id'
                 ]);
 
-            foreach($assemblyItems as $assemblyItem) {
+            foreach($assemblyItems as $assembly_item_id => $assemblyItem) {
                 $parent_group_id = null;
                 if($assemblyItem['has_parent_group']) {
                     $parent_group_id = $map_parent_groups_ids[$assemblyItem['parent_group_id']] ?? null;
                 }
-                AssemblyItem::create([
+                $item = AssemblyItem::create([
                         'condo_id'              => $assembly['condo_id'],
                         'assembly_id'           => $cloneAssembly['id'],
                         'name'                  => $assemblyItem['name'],
@@ -2960,10 +2973,57 @@ class Assembly extends \equal\orm\Model {
                         'apportionment_id'      => $assemblyItem['apportionment_id']
                     ])
                     ->first();
+
+                $map_assembly_items_ids[$assembly_item_id] = $item['id'];
             }
 
+            self::copyAssemblyItemTranslations(AssemblyItem::class, $map_assembly_items_ids, $lang);
         }
 
+    }
+
+    private static function copyAssemblyItemTranslations($source_class, $map_source_target_ids, $lang) {
+        if(!count($map_source_target_ids)) {
+            return;
+        }
+
+        $fields = [
+            'name',
+            'description_call',
+            'description_minutes',
+            'description_ballot'
+        ];
+
+        $languages = Lang::search()->read(['code']);
+
+        foreach($languages as $language) {
+            if($language['code'] === $lang) {
+                continue;
+            }
+
+            $sourceItems = $source_class::ids(array_keys($map_source_target_ids))
+                ->read($fields, $language['code']);
+
+            foreach($sourceItems as $source_item_id => $sourceItem) {
+                if(!isset($map_source_target_ids[$source_item_id])) {
+                    continue;
+                }
+
+                $values = [];
+                foreach($fields as $field) {
+                    if(isset($sourceItem[$field]) && $sourceItem[$field] !== null) {
+                        $values[$field] = $sourceItem[$field];
+                    }
+                }
+
+                if(!count($values)) {
+                    continue;
+                }
+
+                AssemblyItem::id($map_source_target_ids[$source_item_id])
+                    ->update($values, $language['code']);
+            }
+        }
     }
 
 }
