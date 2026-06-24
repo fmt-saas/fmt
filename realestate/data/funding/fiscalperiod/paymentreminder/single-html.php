@@ -316,7 +316,7 @@ foreach($paymentReminderOwner['payment_reminder_owner_lines_ids'] as $paymentRem
         $label = $funding['purchase_invoice_id']['name'];
     }
     elseif($funding['misc_operation_id']) {
-        $label = $funding['misc_operation_id']['description'] . '(' . $funding['misc_operation_id']['name'] . ')';
+        $label = $funding['misc_operation_id']['description'] . ' (' . $funding['misc_operation_id']['name'] . ')';
     }
     elseif($funding['fund_request_id']) {
         $label = $funding['fund_request_id']['name'];
@@ -433,7 +433,7 @@ $values = [
 
     'payment_reminder'    => $paymentReminder,
     'owner_balance'       => $owner_balance,
-    'overdue_total'       => $due_total,
+    'due_total'           => $due_total,
     'fundings'            => $due_fundings,
 
     'payment_reference'   => $owner['ownership_id']['payment_reference'],
