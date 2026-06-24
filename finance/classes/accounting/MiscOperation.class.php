@@ -298,7 +298,7 @@ class MiscOperation extends Model {
                 'transitions' => [
                     'post' => [
                         'description' => 'Create accounting entries and update the document to `posted`.',
-                        'policies'    => ['is_valid', 'can_generate_accounting_entry', 'can_create_fundings'],
+                        'policies'    => ['is_valid', 'can_generate_accounting_entry'],
                         'onbefore'    => 'onbeforePost',
                         'status'      => 'posted'
                     ],
