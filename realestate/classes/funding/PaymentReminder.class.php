@@ -47,6 +47,13 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'function'          => 'calcDueAmount'
             ],
 
+            // #todo
+            'due_date' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => "General Deadline before which payments are requested to owners."
+            ],
+
             // #memo - funding_id is useless here - only to override `required` property
             'funding_id' => [
                 'type'              => 'many2one',
@@ -248,7 +255,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                         ['payment_reminder_id', '<>', $id],
                         ['ownership_id', '=', $ownership_id],
                         ['due_date', '>', $now],
-                        ['status', 'in', ['pending', 'sent']]
+                        ['status', 'in', ['pending', 'ignored', 'sent']]
                     ])
                     ->first();
 

@@ -1,8 +1,8 @@
 {
     "payment.communication": "Communication",
-    "fundings.title": "Détail des financements échus",
-    "fundings.table.th.nature": "Nature",
-    "fundings.table.th.label": "Origine",
+    "fundings.title": "Détail des montants échus",
+    "fundings.table.th.nature": "Type",
+    "fundings.table.th.label": "Description",
     "fundings.table.th.deadline": "Échéance",
     "fundings.table.th.days_overdue": "Jours de retard",
     "fundings.table.th.reminder_level": "Niveau Rappel",

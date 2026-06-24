@@ -11,6 +11,7 @@ use equal\orm\Domain;
 use finance\bank\BankStatement;
 use realestate\funding\ExpenseStatement;
 use realestate\funding\FundRequestExecution;
+use realestate\funding\PaymentReminder;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
@@ -58,7 +59,10 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
     'response'      => [
         'content-type'  => 'application/json',
         'charset'       => 'utf-8',
-        'accept-origin' => '*'
+        'accept-origin' => '*',
+        'cacheable'     => true,
+        'cache-vary'    => ['user'],
+        'expires'       => 30
     ],
     'providers'     => ['context', 'auth']
 ]);
@@ -272,6 +276,14 @@ if($fundRequestExecutions->count() > 0) {
     ];
 }
 
+
+// #todo
+
+$domain = [
+    ['status', 'in', ['draft', 'pending']]
+];
+
+$paymentReminders = PaymentReminder::search($domain)->read(['id', 'created']);
 
 $context->httpResponse()
         ->header('X-Total-Count', count($result))
