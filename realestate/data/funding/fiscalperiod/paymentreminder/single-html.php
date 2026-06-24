@@ -234,7 +234,7 @@ $paymentReminder = PaymentReminder::id($params['payment_reminder_id'])
                     'fund_request_execution_id' => ['name'],
                     'expense_statement_id' => ['name'],
                     'purchase_invoice_id' => ['name'],
-                    'misc_operation_id' => ['name']
+                    'misc_operation_id' => ['name', 'description']
                 ]
             ]
         ]
@@ -305,6 +305,7 @@ foreach($paymentReminderOwner['payment_reminder_owner_lines_ids'] as $paymentRem
     }
 
     $label = $funding['name'];
+
     if($funding['fund_request_execution_id']) {
         $label = $funding['fund_request_execution_id']['name'];
     }
@@ -315,7 +316,7 @@ foreach($paymentReminderOwner['payment_reminder_owner_lines_ids'] as $paymentRem
         $label = $funding['purchase_invoice_id']['name'];
     }
     elseif($funding['misc_operation_id']) {
-        $label = $funding['misc_operation_id']['name'];
+        $label = $funding['misc_operation_id']['description'] . '(' . $funding['misc_operation_id']['name'] . ')';
     }
     elseif($funding['fund_request_id']) {
         $label = $funding['fund_request_id']['name'];
@@ -327,7 +328,7 @@ foreach($paymentReminderOwner['payment_reminder_owner_lines_ids'] as $paymentRem
         'due_date'          => $funding['due_date'],
         'due_date_label'    => $getFormattedDate($funding['due_date']),
         'days_overdue'      => $paymentReminderOwnerLine['days_overdue'],
-        'due_amount'        => (float) $paymentReminderOwnerLine['due_amount'],
+        'due_amount'        => (float) $funding['due_amount'],
         'remaining_amount'  => (float) ($funding['remaining_amount'] ?? $paymentReminderOwnerLine['due_amount'])
     ];
 
