@@ -257,7 +257,7 @@ class CondoFund extends \equal\orm\Model {
             'en' => [
                 'fund'      => '',
                 'collector' => '',
-                'call'      => 'Call ',
+                'call'      => 'Contribution to ',
                 'expense'   => 'Withdrawal '
             ],
             'fr' => [
@@ -269,8 +269,8 @@ class CondoFund extends \equal\orm\Model {
             'nl' => [
                 'fund'      => '',
                 'collector' => '',
-                'call'      => 'Opvraging ',
-                'expense'   => 'Opname '
+                'call'      => 'Toevoeging ',
+                'expense'   => 'Onttrekking '
             ]
         ];
 

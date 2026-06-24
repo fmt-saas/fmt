@@ -405,7 +405,7 @@ class BankStatement extends Model {
                     continue;
                 }
 
-                if( $previousBankStatement['closing_balance'] != $bankStatement['opening_balance']) {
+                if(abs($previousBankStatement['closing_balance'] - $bankStatement['opening_balance']) >= 0.01) {
                     $result[$id] = [
                         'balance_mismatch' => "Opening balance does not match closing balance of previous statement."
                     ];
