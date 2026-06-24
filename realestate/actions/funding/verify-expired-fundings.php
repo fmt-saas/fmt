@@ -42,8 +42,8 @@ foreach($condominiums as $condo_id => $condominium) {
     $payment_reminder_id = $paymentReminder['id'];
 
     PaymentReminder::id($payment_reminder_id)
-        ->do('generate_reminder')
-        ->transition('validate');
+        ->do('generate_reminder');
+//        ->transition('validate');
 
     $paymentReminder = PaymentReminder::id($payment_reminder_id)
         ->read(['payment_reminder_owners_ids'])
