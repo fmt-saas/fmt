@@ -7,6 +7,7 @@
 
 namespace realestate\finance\accounting;
 
+use core\Lang;
 use finance\accounting\Account;
 use realestate\property\Apportionment;
 
@@ -249,24 +250,32 @@ class CondoFund extends \equal\orm\Model {
      * Example: 16001 (fund), 68160010 (call), 68160011 (use).
      * Mirrors reserve fund movements between 16x and 6816x accounts and links each CondoFund to its collector.
      */
-    protected static function doGenerateAccountingAccounts($self) {
+    protected static function doGenerateAccountingAccounts($self, $lang) {
         $self->read(['condo_id' => ['account_chart_id'], 'description', 'fund_type', 'apportionment_id']);
 
         $map_funds_translations = [
             'en' => [
-                'fund'        => '',
-                'call'        => 'Call ',
-                'expense'     => 'Expense '
+                'fund'      => '',
+                'collector' => '',
+                'call'      => 'Call ',
+                'expense'   => 'Withdrawal '
             ],
             'fr' => [
-                'fund'        => '',
-                'call'        => 'Appel ',
-                'expense'     => 'Prélèvement '
+                'fund'      => '',
+                'collector' => '',
+                'call'      => 'Appel ',
+                'expense'   => 'Prélèvement '
             ],
             'nl' => [
-                
+                'fund'      => '',
+                'collector' => '',
+                'call'      => 'Opvraging ',
+                'expense'   => 'Opname '
             ]
         ];
+
+        $languages = Lang::search()->read(['id', 'name', 'code']);
+        $lang = isset($map_funds_translations[$lang]) ? $lang : 'fr';
 
         foreach($self as $id => $condoFund) {
 
@@ -290,7 +299,13 @@ class CondoFund extends \equal\orm\Model {
             $index = count($accounts_ids);
 
             $account_code = $templateAccount['code'] . str_pad($index, 2, '0', STR_PAD_LEFT);
-
+            $account_description = $condoFund['description'] ?? $templateAccount['description'];
+            $account_descriptions = [
+                'fund'      => $map_funds_translations[$lang]['fund'] . $account_description,
+                'collector' => $map_funds_translations[$lang]['collector'] . $account_description,
+                'call'      => $map_funds_translations[$lang]['call'] . $account_description,
+                'expense'   => $map_funds_translations[$lang]['expense'] . $account_description
+            ];
 
             // 1) create the fund account
 
@@ -298,7 +313,7 @@ class CondoFund extends \equal\orm\Model {
                     'condo_id'              => $condoFund['condo_id']['id'],
                     'code'                  => $account_code,
                     'is_control_account'    => false,
-                    'description'           => $condoFund['description'] ?? $templateAccount['description'],
+                    'description'           => $account_descriptions['fund'],
                     'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
                     'operation_assignment'  => $condoFund['fund_type'],
                     'apportionment_id'      => $condoFund['apportionment_id'],
@@ -314,7 +329,7 @@ class CondoFund extends \equal\orm\Model {
                     'condo_id'              => $condoFund['condo_id']['id'],
                     'code'                  => '68' . $account_code,
                     'is_control_account'    => true,
-                    'description'           => $condoFund['description'] ?? $templateAccount['description'],
+                    'description'           => $account_descriptions['collector'],
                     'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
                     'apportionment_id'      => $condoFund['apportionment_id']
                 ])
@@ -324,8 +339,7 @@ class CondoFund extends \equal\orm\Model {
                     'condo_id'              => $condoFund['condo_id']['id'],
                     'code'                  => '68' . $account_code . '0',
                     'is_control_account'    => false,
-                    // #todo #translation
-                    'description'           => 'Appel ' . ($condoFund['description'] ?? $templateAccount['description']),
+                    'description'           => $account_descriptions['call'],
                     'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
                     'operation_assignment'  => $condoFund['fund_type'] . '_variation',
                     'apportionment_id'      => $condoFund['apportionment_id'],
@@ -339,8 +353,7 @@ class CondoFund extends \equal\orm\Model {
                     'condo_id'              => $condoFund['condo_id']['id'],
                     'code'                  => '68' . $account_code . '1',
                     'is_control_account'    => false,
-                    // #todo #translation
-                    'description'           => 'Prélèvement ' . ($condoFund['description'] ?? $templateAccount['description']),
+                    'description'           => $account_descriptions['expense'],
                     'account_chart_id'      => $condoFund['condo_id']['account_chart_id'],
                     'operation_assignment'  => $condoFund['fund_type'] . '_variation',
                     'apportionment_id'      => $condoFund['apportionment_id'],
@@ -356,6 +369,43 @@ class CondoFund extends \equal\orm\Model {
                     'fund_account_id'           => $fundAccount['id'],
                     'collector_account_id'      => $collectorAccount['id']
                 ]);
+
+            $created_accounts_ids = [
+                'fund'      => $fundAccount['id'],
+                'collector' => $collectorAccount['id'],
+                'call'      => $callAccount['id'],
+                'expense'   => $expenseAccount['id']
+            ];
+
+            foreach($languages as $language) {
+                if($language['code'] === $lang || !isset($map_funds_translations[$language['code']])) {
+                    continue;
+                }
+
+                $translatedCondoFund = self::id($id)
+                    ->read(['description'], $language['code'])
+                    ->first();
+
+                $translatedTemplateAccount = Account::id($templateAccount['id'])
+                    ->read(['description'], $language['code'])
+                    ->first();
+
+                $translated_account_description = $translatedCondoFund['description']
+                    ?? $translatedTemplateAccount['description']
+                    ?? $account_description;
+
+                $translated_account_descriptions = [
+                    'fund'      => $map_funds_translations[$language['code']]['fund'] . $translated_account_description,
+                    'collector' => $map_funds_translations[$language['code']]['collector'] . $translated_account_description,
+                    'call'      => $map_funds_translations[$language['code']]['call'] . $translated_account_description,
+                    'expense'   => $map_funds_translations[$language['code']]['expense'] . $translated_account_description
+                ];
+
+                foreach($created_accounts_ids as $account_type => $account_id) {
+                    Account::id($account_id)
+                        ->update(['description' => $translated_account_descriptions[$account_type]], $language['code']);
+                }
+            }
         }
     }
 
