@@ -50,7 +50,7 @@ class PaymentReminderOwner extends \equal\orm\Model {
                 'type'              => 'computed',
                 'result_type'       => 'float',
                 'usage'             => 'amount/money:2',
-                'description'       => "The amount that is due from the funding.",
+                'description'       => "The amount that is due from the lines (fundings).",
                 'store'             => true,
                 'function'          => 'calcDueAmount'
             ],
@@ -58,7 +58,7 @@ class PaymentReminderOwner extends \equal\orm\Model {
             'due_balance' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
-                'description'       => "The actual balance ot the ownership at the time of the reminder."
+                'description'       => "The actual balance of the ownership at the time of the reminder."
             ],
 
             'due_date' => [

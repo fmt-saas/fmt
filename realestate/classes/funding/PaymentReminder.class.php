@@ -393,20 +393,13 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
         foreach($self as $id => $paymentReminder) {
             PaymentReminderCorrespondence::search(['payment_reminder_id', '=', $id])->delete(true);
 
-            $map_ownership_ids = [];
-            foreach($paymentReminder['payment_reminder_owners_ids'] as $paymentReminderOwner) {
+            foreach($paymentReminder['payment_reminder_owners_ids'] as $payment_reminder_owner_id => $paymentReminderOwner) {
                 if(($paymentReminderOwner['status'] ?? null) === 'ignored') {
                     continue;
                 }
 
                 $ownership_id = $paymentReminderOwner['ownership_id'] ?? null;
-                if(!$ownership_id) {
-                    continue;
-                }
-                $map_ownership_ids[$ownership_id] = true;
-            }
 
-            foreach(array_keys($map_ownership_ids) as $ownership_id) {
                 $ownership = Ownership::id($ownership_id)
                     ->read(['representative_owner_id'])
                     ->first();
@@ -454,11 +447,12 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                     }
 
                     PaymentReminderCorrespondence::create([
-                        'condo_id'              => $paymentReminder['condo_id'],
-                        'payment_reminder_id'   => $id,
-                        'ownership_id'          => $ownership_id,
-                        'owner_id'              => $ownership['representative_owner_id'],
-                        'communication_method'  => $communication_method
+                        'condo_id'                      => $paymentReminder['condo_id'],
+                        'payment_reminder_id'           => $id,
+                        'payment_reminder_owner_id'     => $payment_reminder_owner_id,
+                        'ownership_id'                  => $ownership_id,
+                        'owner_id'                      => $ownership['representative_owner_id'],
+                        'communication_method'          => $communication_method
                     ]);
                 }
             }

@@ -33,6 +33,15 @@ class PaymentReminderCorrespondence extends \documents\correspondence\DocumentCo
                 'required'          => true
             ],
 
+            'payment_reminder_owner_id' => [
+                'type'              => 'many2one',
+                'description'       => "The funding reminder relates to.",
+                'foreign_object'    => 'realestate\funding\PaymentReminderOwner',
+                'readonly'          => true,
+                'required'          => true,
+                'ondelete'          => 'cascade'
+            ],
+
             'mails_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'core\Mail',
