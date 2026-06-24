@@ -92,6 +92,27 @@ class CondoLang extends \equal\orm\Model {
         $self->do('sync_primary_lang');
     }
 
+    public static function onchange($event, $values) {
+        $result = [];
+
+        if(array_key_exists('lang_id', $event)) {
+            $lang_id = $event['lang_id'];
+            if(is_array($lang_id)) {
+                $lang_id = $lang_id['id'] ?? null;
+            }
+
+            $result['code'] = '';
+            if($lang_id) {
+                $lang = \core\Lang::id($lang_id)->read(['code'])->first();
+                if($lang) {
+                    $result['code'] = $lang['code'];
+                }
+            }
+        }
+
+        return $result;
+    }
+
     protected static function doSyncPrimaryLang($self) {
         $self->read(['condo_id' => ['lang_id'], 'lang_id', 'is_primary']);
 
