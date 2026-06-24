@@ -208,7 +208,10 @@
                                             {
                                                 "type": "field",
                                                 "value": "refreshed_logs",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "widget": {
+                                                    "height": 500
+                                                }
                                             },
                                             {
                                                 "type": "field",
