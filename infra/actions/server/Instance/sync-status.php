@@ -80,6 +80,7 @@ else {
         else {
             Instance::id($instance['id'])->update([
                 'refreshed'                     => $adapter->adaptIn($data['refreshed'], Field::MAP_TYPE_USAGE['datetime']),
+                'refreshed_logs'                => $data['refreshed_logs'],
                 'branch_equal'                  => $data['branch_equal'],
                 'is_branch_equal_ok'            => $data['is_branch_equal_ok'],
                 'is_branch_equal_up_to_date'    => $data['is_branch_equal_up_to_date'],

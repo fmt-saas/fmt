@@ -216,7 +216,7 @@ $data['is_tasks_ok'] = $is_tasks_ok;
 
 Instance::id(1)->update(
     array_merge(
-        ['refreshed' => time(), 'refreshed_logs' => json_encode($logs)],
+        ['refreshed' => time(), 'refreshed_logs' => json_encode($logs, JSON_PRETTY_PRINT)],
         $data
     )
 );
