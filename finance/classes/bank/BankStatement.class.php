@@ -82,7 +82,8 @@ class BankStatement extends Model {
                 'type'              => 'string',
                 'usage'             => 'text/plain:3',
                 'description'       => 'Arbitrary number of the statement, provided by the bank.',
-                'help'              => 'This field can be left unknown for manually encoded statements. By convention, in Belgium only 3 digits are used (due to CODA structure).'
+                'help'              => 'This field can be left unknown for manually encoded statements. By convention, in Belgium only 3 digits are used (due to CODA structure).',
+                'required'          => true
             ],
 
             'statement_currency' => [
@@ -351,7 +352,7 @@ class BankStatement extends Model {
     protected static function policyCanPost($self) {
         $result = [];
         $self->read([
-                'condo_id', 'bank_account_id', 'statement_number', 'opening_date', 'opening_balance', 'closing_balance',
+                'condo_id', 'bank_account_id', 'statement_number', 'expected_opening_balance', 'opening_date', 'opening_balance', 'closing_balance',
                 'statement_lines_ids' => ['id']
             ]);
         // #todo - check iban and bic consistency (should have been done before)
@@ -372,6 +373,12 @@ class BankStatement extends Model {
                 continue;
             }
 
+            if(!$bankStatement['statement_number'] || strlen($bankStatement['statement_number']) <= 0) {
+                $result[$id] = [
+                    'invalid_statement_number' => "Statement number ({$bankStatement['statement_number']}) is empty."
+                ];
+            }
+
             try {
                 $bankStatement['statement_lines_ids']->assert('is_valid');
             }
@@ -385,13 +392,24 @@ class BankStatement extends Model {
             $statement_year = date('Y', $bankStatement['opening_date']);
             $year_start = strtotime("{$statement_year}-01-01");
 
+
+            if(abs($bankStatement['expected_opening_balance'] - $bankStatement['opening_balance']) >= 0.01) {
+                $result[$id] = [
+                    'balance_mismatch' => "Opening balance does not match closing balance of previous statement."
+                ];
+                continue;
+            }
+
+            /*
+            // #memo - this is not reliable
             $previousBankStatement = BankStatement::search([
+                    ['condo_id', '=', $bankStatement['condo_id']],
                     ['bank_account_id', '=', $bankStatement['bank_account_id']],
                     ['id', '<>', $id],
                     ['closing_date', '<', $bankStatement['opening_date']],
                     ['closing_date', '>=', $year_start],
                     ['statement_number', '=', sprintf("%03d", intval($bankStatement['statement_number']) - 1)]
-                ], ['sort' => ['date' => 'desc']])
+                ], ['sort' => ['closing_date' => 'desc']])
                 ->read(['statement_number', 'opening_balance', 'closing_balance'])
                 ->first();
 
@@ -412,6 +430,7 @@ class BankStatement extends Model {
                     continue;
                 }
             }
+            */
 
         }
         return $result;
