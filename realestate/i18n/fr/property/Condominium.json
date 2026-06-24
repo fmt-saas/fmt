@@ -201,6 +201,10 @@
         "status": {
             "label": "Statut",
             "description": "État du cycle de vie de la copropriété.",
+            "selection": {
+                "pending": "Brouillon",
+                "validated": "Validée"
+            },
             "help": ""
         }
     },

@@ -93,8 +93,8 @@ class Condominium extends Identity {
                 'type'              => 'many2one',
                 'foreign_object'    => 'core\Lang',
                 'description'       => 'Primary business language of the condominium.',
-                'help'              => 'This language is used as the fallback language for multilingual business documents related to the condominium.',
-                'default'           => 1,
+                'help'              => 'This language is used as the fallback language for multilingual business documents related to the condominium. This fields overrides `Identity::lang_id`.',
+                'default'           => Setting::get_value('identity', 'organization', 'identity_lang_default', 1),
                 'oncreate'          => 'oncreateLangId',
                 'onupdate'          => 'onupdateLangId'
             ],

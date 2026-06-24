@@ -119,26 +119,6 @@
             {
                 "sections": [
                     {
-                        "label": "Languages",
-                        "id": "section.languages",
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "condo_langs_ids",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
                         "label": "Management Contracts",
                         "id": "section.management_contracts",
                         "rows": [
@@ -233,6 +213,26 @@
                                             {
                                                 "type": "field",
                                                 "value": "setting_values_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "label": "Languages",
+                        "id": "section.languages",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "condo_langs_ids",
                                                 "width": "100%"
                                             }
                                         ]
