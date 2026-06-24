@@ -203,7 +203,7 @@ foreach($required_tasks as $required_task) {
     if(!$task_found) {
         $is_tasks_ok = false;
 
-        $logs['tasks'] = sprintf("The task '%s' is missing or not recurring.", $required_task);
+        $logs['tasks'][] = sprintf("The task '%s' is missing or not recurring.", $required_task);
     }
 }
 
