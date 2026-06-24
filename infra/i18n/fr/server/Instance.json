@@ -73,6 +73,11 @@
             "description": "Date de dernier rafraîchissement des informations de l'instance (branches, config, tâches plannifiées et donnée requises).",
             "help": ""
         },
+        "refreshed_logs": {
+            "label": "Log rafraîchissement",
+            "description": "Log sur le rafraîchissement des informations de l'instance (branches, config, tâches plannifiées et donnée requises).",
+            "help": ""
+        },
         "is_config_file_ok": {
             "label": "Fichier de config OK",
             "description": "Le fichier de configuration semble valide.",

@@ -61,6 +61,14 @@ if(!$main_instance) {
 $allowed_equal_branches = ['2.0.1'];
 $allowed_fmt_branches = ['main'];
 
+$logs = [
+    'branch_equal'      => ['allowed' => $allowed_equal_branches],
+    'branch_fmt'        => ['allowed' => $allowed_fmt_branches],
+    'mismatch_configs'  => [],
+    'missing_configs'   => [],
+    'entities'          => [],
+    'tasks'             => []
+];
 
 /*
     eQual branch
@@ -107,9 +115,11 @@ $expected_config = [
 
 $is_config_ok = true;
 foreach($expected_config as $key => $expected_value) {
-    if(constant($key) !== $expected_value) {
+    $value = constant($key);
+    if($value !== $expected_value) {
         $is_config_ok = false;
-        break;
+
+        $logs['mismatch_configs'][] = sprintf('Config %s has value "%s" but "%s" is expected', $key, $value, $expected_value);
     }
 }
 
@@ -129,7 +139,8 @@ $required_config = [
 foreach($required_config as $key) {
     if(!defined($key) || empty(constant($key))) {
         $is_config_ok = false;
-        break;
+
+        $logs['mismatch_configs'][] = sprintf('Config %s is required', $key);
     }
 }
 
@@ -140,17 +151,23 @@ $data['is_config_file_ok'] = $is_config_ok;
     Data
 */
 
-$document_types_ids = DocumentType::search()->ids();
-$document_sub_types_ids = DocumentSubtype::search()->ids();
-$suppliers_ids = Supplier::search()->ids();
-$banks_ids = Bank::search()->ids();
-$templates_ids = Template::search()->ids();
+$entities = [
+    DocumentType::getType(),
+    DocumentSubtype::getType(),
+    Supplier::getType(),
+    Bank::getType(),
+    Template::getType()
+];
 
-$data['is_required_data_ok'] = count($document_types_ids)
-    && count($document_sub_types_ids)
-    && count($suppliers_ids)
-    && count($banks_ids)
-    && count($templates_ids);
+$is_required_data_ok = true;
+foreach($entities as $entity) {
+    $ids = $entity::search()->ids();
+    if(!count($ids)) {
+        $is_required_data_ok = false;
+    }
+
+    $logs['entities'][$entity] = count($ids);
+}
 
 
 /*
@@ -166,13 +183,31 @@ $required_tasks = [
     'infra_server_refresh-main-instance-status'
 ];
 
-$tasks_ids = Task::search([
+$tasks = Task::search([
     ['controller', 'in', $required_tasks],
     ['is_recurring', '=', true]
 ])
-    ->ids();
+    ->read(['controller'])
+    ->get();
 
-$data['is_tasks_ok'] = count($tasks_ids) === count($required_tasks);
+$is_tasks_ok = true;
+foreach($required_tasks as $required_task) {
+    $task_found = false;
+    foreach($tasks as $task) {
+        if($task['controller'] === $required_task) {
+            $task_found = true;
+            break;
+        }
+    }
+
+    if(!$task_found) {
+        $is_tasks_ok = false;
+
+        $logs['tasks'] = sprintf('The task "%s" is missing or not recurring.', $required_task);
+    }
+}
+
+$data['is_tasks_ok'] = $is_tasks_ok;
 
 
 /*
@@ -181,7 +216,7 @@ $data['is_tasks_ok'] = count($tasks_ids) === count($required_tasks);
 
 Instance::id(1)->update(
     array_merge(
-        ['refreshed' => time()],
+        ['refreshed' => time(), 'refreshed_logs' => json_encode($logs)],
         $data
     )
 );

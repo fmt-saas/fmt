@@ -126,6 +126,12 @@ class Instance extends Model {
                 'help'              => 'Updated when the information on branches, config, tasks and required data are refreshed (refresh-main-instance-status).'
             ],
 
+            'refreshed_logs' => [
+                'type'              => 'string',
+                'usage'             => 'text/json',
+                'description'       => 'Human readable descriptor of the refreshed information about the instance.'
+            ],
+
             'branch_equal' => [
                 'type'              => 'string',
                 'description'       => 'The current name of the eQual git branch.'
