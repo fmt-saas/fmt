@@ -207,7 +207,9 @@ class AccountChart extends Model {
                     continue;
                 }
 
-                $template = AccountChartTemplate::id($values['chart_template_id'])->read(['accounts_ids' => ['description']], $language['code'])->first();
+                $template = AccountChartTemplate::id($values['chart_template_id'])
+                    ->read(['accounts_ids' => ['description']], $language['code'])
+                    ->first();
 
                 foreach($template['accounts_ids'] as $account_template_id => $accountTemplate) {
                     if(!isset($map_account_template_account[$account_template_id])) {
@@ -216,7 +218,8 @@ class AccountChart extends Model {
                     if(!isset($accountTemplate['description']) || $accountTemplate['description'] === null) {
                         continue;
                     }
-                    Account::id($map_account_template_account[$account_template_id])->update(['description' => $accountTemplate['description']], $language['code']);
+                    Account::id($map_account_template_account[$account_template_id])
+                        ->update(['description' => $accountTemplate['description']], $language['code']);
                 }
 
             }

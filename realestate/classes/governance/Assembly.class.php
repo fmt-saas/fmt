@@ -48,7 +48,8 @@ class Assembly extends \equal\orm\Model {
             'name' => [
                 'type'              => 'string',
                 'description'       => "Name of the assembly.",
-                'required'          => true
+                'required'          => true,
+                'multilang'         => true
             ],
 
             'assembly_organizer_identity_id' => [

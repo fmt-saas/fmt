@@ -66,12 +66,6 @@ class AssemblyItem extends AssemblyItemTemplate {
                 'foreign_object'    => 'realestate\governance\AssemblyTemplate',
             ],
 
-            'name' => [
-                'type'              => 'string',
-                'description'       => "Short description of the assembly item.",
-                'required'          => true
-            ],
-
             'parent_group_id' => [
                 'type'              => 'many2one',
                 'description'       => "Parent group item for this item, if it is a sub-item.",

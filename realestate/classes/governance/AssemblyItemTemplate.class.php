@@ -14,7 +14,8 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
             'name' => [
                 'type'              => 'string',
                 'description'       => "Short description of the assembly item.",
-                'required'          => true
+                'required'          => true,
+                'multilang'         => true
             ],
 
             'code' => [
@@ -140,6 +141,7 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
                 'type'              => 'string',
                 'usage'             => 'text/html',
                 'description'       => 'Description for the assembly call.',
+                'multilang'         => true
                 /*'visible'           => [['is_group', '=', false]],*/
             ],
 
@@ -147,6 +149,7 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
                 'type'              => 'string',
                 'usage'             => 'text/html',
                 'description'       => 'Description for the assembly minutes.',
+                'multilang'         => true
                 /*'visible'           => [['is_group', '=', false]],*/
             ],
 
@@ -154,6 +157,7 @@ class   AssemblyItemTemplate extends \equal\orm\Model {
                 'type'              => 'string',
                 'usage'             => 'text/html',
                 'description'       => 'Description for the assembly minutes.',
+                'multilang'         => true,
                 'visible'           => [['is_group', '=', false], ['has_vote_required', '=', true]],
             ],
 
