@@ -85,7 +85,41 @@
                                             {
                                                 "type": "field",
                                                 "value": "statuses_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.server",
+                                                    "limit": 5
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.ips",
+                        "label": "IPs",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "ip_protected",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ip_public",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ip_private",
+                                                "width": "33%"
                                             }
                                         ]
                                     }

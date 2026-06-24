@@ -36,7 +36,7 @@ if(empty($server['b2_api_url'])) {
     throw new Exception('missing_api_url', EQ_ERROR_INVALID_PARAM);
 }
 
-$request = new HttpRequest("GET {$server['b2_api_url']}/status?scope=instant");
+$request = new HttpRequest("GET {$server['b2_api_url']}/status");
 
 $credentials = base64_encode("root:{$server['b2_api_password']}");
 $request->setHeader('Authorization', "Basic $credentials");

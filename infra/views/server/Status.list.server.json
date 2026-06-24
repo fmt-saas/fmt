@@ -1,0 +1,52 @@
+{
+    "name": "Statuses",
+    "description": "Default listing of all statuses.",
+    "order": "created",
+    "sort": "desc",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "id",
+                "width": "10%",
+                "sortable": true,
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "created",
+                "with": "15%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "server_id",
+                "with": "20%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "cpu_use",
+                "width": "15%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "ram_use",
+                "width": "15%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "dsk_use",
+                "width": "15%",
+                "sortable": true,
+                "readonly": true
+            }
+        ]
+    }
+}

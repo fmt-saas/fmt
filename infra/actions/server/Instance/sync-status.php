@@ -5,6 +5,7 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 
+use equal\http\HttpRequest;
 use infra\server\Instance;
 use infra\server\Status;
 
@@ -41,23 +42,66 @@ if(constant('FMT_INSTANCE_TYPE') !== 'global') {
 }
 
 $instance = Instance::id($params['id'])
-    ->read(['id'])
+    ->read(['url', 'access_token'])
     ->first();
 
 if(!$instance) {
     throw new Exception('unknown_instance', EQ_ERROR_INVALID_PARAM);
 }
 
+if($instance['id'] === 1) {
+    // if current main instance then simply refresh its status
+    eQual::run('do', 'infra_server_refresh-main-instance-status');
+}
+else {
+    if(empty($instance['url'])) {
+        throw new Exception('missing_api_url', EQ_ERROR_INVALID_PARAM);
+    }
+
+    try {
+        $request = new HttpRequest('GET '.rtrim($instance['url'], '/').'/?'.http_build_query(['get' => 'infra_server_main-instance-status']));
+
+        $request
+            ->header('Content-Type', 'application/json')
+            ->header('Authorization', 'Bearer ' . $instance['access_token']);
+
+        /** @var \equal\http\HttpResponse $response */
+        $response = $request->send();
+
+        $data = $response->body();
+
+        if($response->getStatusCode() !== 200 || empty($data)) {
+            trigger_error("APP::Error while fetching  instance data" . json_encode($data), EQ_REPORT_ERROR);
+        }
+        else {
+            Instance::id($instance['id'])->update([
+                'branch_equal'                  => $data['branch_equal'],
+                'is_branch_equal_ok'            => $data['is_branch_equal_ok'],
+                'is_branch_equal_up_to_date'    => $data['is_branch_equal_up_to_date'],
+                'branch_fmt'                    => $data['branch_fmt'],
+                'is_branch_fmt_ok'              => $data['is_branch_fmt_ok'],
+                'is_branch_fmt_up_to_date'      => $data['is_branch_fmt_up_to_date'],
+                'is_config_file_ok'             => $data['is_config_file_ok'],
+                'is_required_data_ok'           => $data['is_required_data_ok'],
+                'is_tasks_ok'                   => $data['is_tasks_ok']
+            ]);
+        }
+    }
+    catch(Exception $e) {
+        trigger_error("APP::Error while fetching  instance data", EQ_REPORT_ERROR);
+    }
+}
+
 try {
-    $status = eQual::run('get', 'infra_server_Instance_status', ['id' => $instance['id']]);
+    $b2_status = eQual::run('get', 'infra_server_Instance_status', ['id' => $instance['id']]);
 
     Status::create([
         'instance_id'   => $instance['id'],
-        'status_data'   => json_encode($status, JSON_PRETTY_PRINT),
-        'dsk_use'       => (float) str_replace(['%', ','], ['', '.'], $status['instant']['dsk_use'] ?? 0) / 100,
-        'cpu_use'       => (float) str_replace(['%', ','], ['', '.'], $status['instant']['cpu_use'] ?? 0) / 100,
-        'ram_use'       => (float) str_replace(['%', ','], ['', '.'], $status['instant']['ram_use'] ?? 0) / 100,
-        'total_proc'    => intval($status['instant']['total_proc'] ?? 0)
+        'status_data'   => json_encode($b2_status, JSON_PRETTY_PRINT),
+        'dsk_use'       => (float) str_replace(['%', ','], ['', '.'], $b2_status['instant']['dsk_use'] ?? 0) / 100,
+        'cpu_use'       => (float) str_replace(['%', ','], ['', '.'], $b2_status['instant']['cpu_use'] ?? 0) / 100,
+        'ram_use'       => (float) str_replace(['%', ','], ['', '.'], $b2_status['instant']['ram_use'] ?? 0) / 100,
+        'total_proc'    => intval($b2_status['instant']['total_proc'] ?? 0)
     ]);
 
     // instance is up

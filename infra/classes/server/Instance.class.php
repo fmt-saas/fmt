@@ -120,6 +120,51 @@ class Instance extends Model {
                 'default'           => false
             ],
 
+            'branch_equal' => [
+                'type'              => 'string',
+                'description'       => "The current name of the eQual git branch."
+            ],
+
+            'is_branch_equal_ok' => [
+                'type'              => 'boolean',
+                'description'       => "Is the eQual git branch version ok to use."
+            ],
+
+            'is_branch_equal_up_to_date' => [
+                'type'              => 'boolean',
+                'description'       => "Is the eQual git branch up to date."
+            ],
+
+            'branch_fmt' => [
+                'type'              => 'string',
+                'description'       => "The current name of the FMT git branch."
+            ],
+
+            'is_branch_fmt_ok' => [
+                'type'              => 'boolean',
+                'description'       => "Is the FMT git branch version ok to use."
+            ],
+
+            'is_branch_fmt_up_to_date' => [
+                'type'              => 'boolean',
+                'description'       => "Is the FMT git branch up to date."
+            ],
+
+            'is_config_file_ok' => [
+                'type'              => 'boolean',
+                'description'       => "Is the configuration file valid."
+            ],
+
+            'is_required_data_ok' => [
+                'type'              => 'boolean',
+                'description'       => "Are the required data correctly configured."
+            ],
+
+            'is_tasks_ok' => [
+                'type'              => 'boolean',
+                'description'       => "Are the reccuring tasks correctly configured."
+            ],
+
             'statuses_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'infra\server\Status',
