@@ -23,6 +23,11 @@
             "description": "Est-ce que le serveur est en ligne.",
             "help": ""
         },
+        "ip_address": {
+            "label": "Adresse IP",
+            "description": "Adresse IP d'accès au serveur.",
+            "help": ""
+        },
         "uuid": {
             "label": "UUID",
             "description": "Identifiant du serveur.",
@@ -48,6 +53,21 @@
             "description": "Password d'accès à l'API b2 du serveur.",
             "help": "Utilisé pour mettre à jour le statut du serveur."
         },
+        "ip_protected": {
+            "label": "Adresse IP 'protected'",
+            "description": "Adresse IP protégée d'accès au serveur.",
+            "help": ""
+        },
+        "ip_public": {
+            "label": "Adresse IP 'public'",
+            "description": "Adresse IP publique d'accès au serveur.",
+            "help": ""
+        },
+        "ip_private": {
+            "label": "Adresse IP 'private'",
+            "description": "Adresse IP privée d'accès au serveur.",
+            "help": ""
+        },
         "statuses_ids": {
             "label": "Status",
             "description": "Liste des status qui utilisent ce serveur.",
@@ -69,6 +89,9 @@
                 },
                 "section.statuses": {
                     "label": "Statuts"
+                },
+                "section.ips": {
+                    "label": "Adresses IPs"
                 }
             }
         },
