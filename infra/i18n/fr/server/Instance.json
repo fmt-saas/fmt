@@ -14,8 +14,8 @@
             "help": ""
         },
         "synced": {
-            "label": "Synchronisation",
-            "description": "Date de synchronisation du status de l'instance.",
+            "label": "Dernière synchronisation",
+            "description": "Date de dernière synchronisation du status de l'instance.",
             "help": ""
         },
         "up": {
@@ -66,6 +66,11 @@
         "access_token": {
             "label": "Token API",
             "description": "Token pour accéder à l'API de l'instance étrangère.",
+            "help": ""
+        },
+        "refreshed": {
+            "label": "Rafraîchissement",
+            "description": "Date de dernier rafraîchissement du status de l'instance.",
             "help": ""
         },
         "is_config_file_ok": {

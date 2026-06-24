@@ -179,7 +179,12 @@ $data['is_tasks_ok'] = count($tasks_ids) === count($required_tasks);
     Update instance data
 */
 
-Instance::id(1)->update($data);
+Instance::id(1)->update(
+    array_merge(
+        ['refreshed' => time()],
+        $data
+    )
+);
 
 /*
     Create response

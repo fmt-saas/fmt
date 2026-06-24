@@ -95,74 +95,80 @@ class Instance extends Model {
             'access_token' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
-                'description'       => "Token to use to access the instance API.",
+                'description'       => 'Token to use to access the instance API.',
                 'visible'           => ['instance_type', '<>', \eQual::constant('FMT_INSTANCE_TYPE')]
             ],
 
             'managing_agent_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\management\ManagingAgent',
-                'description'       => "The Managing agent the Instance relates to.",
+                'description'       => 'The Managing agent the Instance relates to.',
                 'visible'           => ['instance_type', '=', 'agency']
             ],
 
             'user_token_generated' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
-                'description'       => "Has the user access token been generated yet.",
+                'description'       => 'Has the user access token been generated yet.',
                 'store'             => false,
                 'function'          => 'calcUserTokenGenerated'
             ],
 
             'has_dns_record' => [
                 'type'              => 'boolean',
-                'description'       => "Marks the instance as having or not DNS record.",
+                'description'       => 'Marks the instance as having or not DNS record.',
                 'default'           => false
+            ],
+
+            'refreshed' => [
+                'type'              => 'datetime',
+                'description'       => 'The last time the status of the instance was refreshed.',
+                'help'              => 'Updated when the information on branches, config, tasks and required data are refreshed (refresh-main-instance-status).'
             ],
 
             'branch_equal' => [
                 'type'              => 'string',
-                'description'       => "The current name of the eQual git branch."
+                'description'       => 'The current name of the eQual git branch.'
             ],
 
             'is_branch_equal_ok' => [
                 'type'              => 'boolean',
-                'description'       => "Is the eQual git branch version ok to use."
+                'description'       => 'Is the eQual git branch version ok to use.'
             ],
 
             'is_branch_equal_up_to_date' => [
                 'type'              => 'boolean',
-                'description'       => "Is the eQual git branch up to date."
+                'description'       => 'Is the eQual git branch up to date.'
             ],
 
             'branch_fmt' => [
                 'type'              => 'string',
-                'description'       => "The current name of the FMT git branch."
+                'description'       => 'The current name of the FMT git branch.'
             ],
 
             'is_branch_fmt_ok' => [
                 'type'              => 'boolean',
-                'description'       => "Is the FMT git branch version ok to use."
+                'description'       => 'Is the FMT git branch version ok to use.'
             ],
 
             'is_branch_fmt_up_to_date' => [
                 'type'              => 'boolean',
-                'description'       => "Is the FMT git branch up to date."
+                'description'       => 'Is the FMT git branch up to date.'
             ],
 
             'is_config_file_ok' => [
                 'type'              => 'boolean',
-                'description'       => "Is the configuration file valid."
+                'description'       => 'Is the configuration file valid.'
             ],
 
             'is_required_data_ok' => [
                 'type'              => 'boolean',
-                'description'       => "Are the required data correctly configured."
+                'description'       => 'Are the required data correctly configured.'
             ],
 
             'is_tasks_ok' => [
                 'type'              => 'boolean',
-                'description'       => "Are the reccuring tasks correctly configured."
+                'description'       => 'Are the reccuring tasks correctly configured.'
             ],
 
             'statuses_ids' => [
