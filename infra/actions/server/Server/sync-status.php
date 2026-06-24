@@ -56,6 +56,16 @@ if(!$server) {
 try {
     $status = eQual::run('get', 'infra_server_Server_status', ['id' => $server['id']]);
 
+    $ips_data = [];
+    foreach(['ip_protected', 'ip_public', 'ip_private'] as $ip_key) {
+        if(!empty($status['config'][$ip_key])) {
+            $ips_data[$ip_key] = $status['config'][$ip_key];
+        }
+    }
+    if(!empty($ips_data)) {
+        Server::id($server['id'])->update($ips_data);
+    }
+
     Status::create([
         'server_id'     => $params['id'],
         'status_data'   => json_encode($status, JSON_PRETTY_PRINT),

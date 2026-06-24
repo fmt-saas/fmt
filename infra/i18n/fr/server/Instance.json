@@ -67,6 +67,51 @@
             "label": "Token API",
             "description": "Token pour accéder à l'API de l'instance étrangère.",
             "help": ""
+        },
+        "is_config_file_ok": {
+            "label": "Fichier de config OK",
+            "description": "Le fichier de configuration semble valide.",
+            "help": ""
+        },
+        "is_required_data_ok": {
+            "label": "Données requises OK",
+            "description": "Les données requises semblent valides.",
+            "help": ""
+        },
+        "is_tasks_ok": {
+            "label": "Tâches planifiées OK",
+            "description": "Les tâches planifiées semblent valides.",
+            "help": ""
+        },
+        "branch_equal": {
+            "label": "Branche eQual",
+            "description": "Nom de la branche equalframework/equal.",
+            "help": ""
+        },
+        "is_branch_equal_ok": {
+            "label": "Branche eQual OK",
+            "description": "La branche eQual de l'instance est autorisée.",
+            "help": ""
+        },
+        "is_branch_equal_up_to_date": {
+            "label": "Branche eQual à jour",
+            "description": "La branche eQual de l'instance est à jour.",
+            "help": ""
+        },
+        "branch_fmt": {
+            "label": "Branche FMT",
+            "description": "Nom de la branche fmt-saas/fmt.",
+            "help": ""
+        },
+        "is_branch_fmt_ok": {
+            "label": "Branche FMT OK",
+            "description": "La branche FMT de l'instance est autorisée.",
+            "help": ""
+        },
+        "is_branch_fmt_up_to_date": {
+            "label": "Branche FMT à jour",
+            "description": "La branche FMT de l'instance est à jour.",
+            "help": ""
         }
     },
     "view": {
