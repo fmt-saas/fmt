@@ -70,7 +70,7 @@
         },
         "refreshed": {
             "label": "Rafraîchissement",
-            "description": "Date de dernier rafraîchissement du status de l'instance.",
+            "description": "Date de dernier rafraîchissement des informations de l'instance (branches, config, tâches plannifiées et donnée requises).",
             "help": ""
         },
         "is_config_file_ok": {
