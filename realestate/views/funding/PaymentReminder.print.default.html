@@ -51,6 +51,12 @@
             page-break-inside: avoid;
         }
 
+        main table.inner {
+            border-collapse: collapse;
+            page-break-inside: avoid;
+            font-size: 11px;
+        }
+
         main table.inner thead tr th {
             border-top: 1px solid black;
             border-bottom: 1px solid black;
@@ -145,7 +151,7 @@
                 <tr>
                     <td></td>
                     <td colspan="3" style="text-align: right;"><strong>{{ labels['fundings.table.footer.th.total'] }}</strong></td>
-                    <td style="text-align: right;"><strong>{{ due_total | format_money() }}</strong></td>
+                    <td style="text-align: right;"><strong><!--{{ due_total | format_money() }}--></strong></td>
                     <td style="text-align: right;"><strong>{{ owner_balance | format_money() }}</strong></td>
                 </tr>
             </tbody>
