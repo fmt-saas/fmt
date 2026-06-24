@@ -132,9 +132,12 @@ class RoleAssignment extends \equal\orm\Model {
             if($roleAssignment['state'] === 'draft') {
                 continue;
             }
+            $username = $roleAssignment['user_id']['login'];
+            if(isset($roleAssignment['user_id']['name'])) {
+                 $username = $roleAssignment['user_id']['name'];
+            }
             $result[$id] = $roleAssignment['condo_id']['name'] . " - " .
-                $roleAssignment['role_id']['name'] . " -> " .
-                $roleAssignment['user_id']['name'] ?? $roleAssignment['user_id']['login'];
+                $roleAssignment['role_id']['name'] . " -> " . $username;
         }
         return $result;
     }

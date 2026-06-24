@@ -373,7 +373,9 @@ try {
                     'expense_management_mode'   => in_array($expense_mode, ['real_expenses', 'provisions'], true)
                         ? $expense_mode
                         : 'provisions',
-                    'identity_id'               => $condominiumIdentity['id']
+                    'identity_id'               => $condominiumIdentity['id'],
+                    // #memo - this is required for CondoLang Sync
+                    'lang_id'                   => ['en' => 1, 'fr' => 2, 'nl' => 3][$condominium_data['lang']]
                 ])
                 ->first();
 
