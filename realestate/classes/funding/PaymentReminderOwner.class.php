@@ -73,7 +73,7 @@ class PaymentReminderOwner extends \equal\orm\Model {
                 'description'       => 'Counter of how many reminders have been sent for the funding.',
                 'function'          => 'calcReminderLevel',
                 'store'             => true,
-                'default'           => 0
+                'instant'           => false
             ],
 
             'status' => [
@@ -89,7 +89,6 @@ class PaymentReminderOwner extends \equal\orm\Model {
                 'onupdate'          => 'onupdateStatus',
                 'default'           => 'draft'
             ]
-
 
         ];
     }
