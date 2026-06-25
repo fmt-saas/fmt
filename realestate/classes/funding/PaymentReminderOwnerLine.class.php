@@ -52,6 +52,7 @@ class PaymentReminderOwnerLine extends \equal\orm\Model {
                 'description'       => "The ownership that the funding reminder refers to.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'store'             => true,
+                'readonly'          => true,
                 'relation'          => ['funding_id' => 'ownership_id']
             ],
 
@@ -75,13 +76,15 @@ class PaymentReminderOwnerLine extends \equal\orm\Model {
             'due_date' => [
                 'type'              => 'date',
                 'usage'             => 'date/plain',
-                'description'       => "Deadline before which the funding is expected."
+                'description'       => "Deadline before which the funding is expected.",
+                'readonly'          => true
             ],
 
             'issue_date' => [
                 'type'              => 'date',
                 'description'       => "Date at which the request for payment has to be issued.",
-                'default'           => function() { return time(); }
+                'default'           => function() { return time(); },
+                'readonly'          => true
             ],
 
             'reminder_level' => [

@@ -74,6 +74,11 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "due_date",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "reminder_level",
                                                 "width": "100%"
                                             }
