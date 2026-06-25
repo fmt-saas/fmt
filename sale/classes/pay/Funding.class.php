@@ -90,6 +90,7 @@ class Funding extends \equal\orm\Model {
 
             'issue_date' => [
                 'type'              => 'date',
+                'usage'             => 'date/plain',
                 'description'       => "Date at which the request for payment has to be issued.",
                 'default'           => function() { return time(); }
             ],

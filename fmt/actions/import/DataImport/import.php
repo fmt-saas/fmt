@@ -722,6 +722,8 @@ try {
                 continue;
             }
 
+            Ownership::id($ownership_id)->update(['shares_total' => $ownership['shares_total']]);
+
             $identity_id = $map_owners_identity[$ownership['owner_code']] ?? null;
 
             if(!$identity_id) {

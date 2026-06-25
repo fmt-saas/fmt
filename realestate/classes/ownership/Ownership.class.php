@@ -108,11 +108,11 @@ class Ownership extends \equal\orm\Model {
                 'default'          => 'unique'
             ],
 
-            'ownership_shares' => [
+            'shares_total' => [
                 'type'              => 'float',
                 'usage'             => 'number/real:8.6',
                 'description'       => "The total number of shares of the ownership.",
-                'help'              => "This value is meant to allow splitting the title between several owners (e.g. in case of joint ownership)",
+                'help'              => "This value is meant to allow splitting the title between several owners (e.g. in case of joint ownership).",
                 'default'           => 100,
                 'visible'           => ['ownership_type', '=', 'joint'],
                 'dependents'        => ['owners_ids' => 'ownership_percentage']

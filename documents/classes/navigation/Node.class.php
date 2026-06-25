@@ -119,16 +119,13 @@ class Node extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'condo',        // visible to all owners of a same condo + syndic
-                    'ownership',    // visible to all owners of a same ownership + syndic
-                    'owner',        // visible only to a single owner or supplier
-                    'suppliership', // visible to a specific supplier of a condo + syndic
                     'agency'        // visible only to syndic (employees)
                 ],
                 'default'           => 'agency',
                 'description'       => 'Defines who can see the node.',
                 'help'              => 'This field is synchronized with the node and is automatically updated when the parent node visibility changes.
-                    If this is a child node, the `document_visibility` of the corresponding document is updated.
-                    If this is a parent node, all descendant nodes are updated (cascade).',
+                    If node is a child, the `document_visibility` of the corresponding document is updated.
+                    If node is a parent, all descendant nodes are updated (cascade).',
                 'onupdate'          => 'onupdateNodeVisibility'
             ],
 
@@ -167,6 +164,7 @@ class Node extends Model {
     }
 
     protected static function onupdateNodeVisibility($self) {
+        /*
         $self->read(['node_visibility', 'node_type', 'document_id', 'nodes_ids']);
         foreach($self as $id => $node) {
             if($node['node_type'] === 'folder') {
@@ -188,6 +186,7 @@ class Node extends Model {
                 Document::id($node['document_id'])->update(['document_visibility' => $node['node_visibility']]);
             }
         }
+        */
     }
 
     private static function computeChildrenNodesIds($id) {

@@ -291,18 +291,76 @@ if($dataImport['import_type'] == 'condominium_import') {
 
     }
 
+    $ownerships_shares = [];
+
     foreach($data['Ownerships'] as $index => $ownership) {
-        if(!isset($ownership['code'])) {
+        $row = $index + 2;
+
+        if(!isset($ownership['code']) || $ownership['code'] === '') {
             ++$result['errors'];
-            $result['logs'][] = "ERR - missing `code` in Ownership sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - missing `code` in Ownership sheet at row " . $row;
+            continue;
         }
-        if(!isset($ownership['owner_code'])) {
+
+        if(!isset($ownership['owner_code']) || $ownership['owner_code'] === '') {
             ++$result['errors'];
-            $result['logs'][] = "ERR - missing `owner_code` in Ownership sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - missing `owner_code` in Ownership sheet at row " . $row;
         }
-        if(!isset($map_owners_codes[$ownership['owner_code']])) {
+        elseif(!isset($map_owners_codes[$ownership['owner_code']])) {
             ++$result['errors'];
-            $result['logs'][] = "ERR - unknown `owner_code` '" . $ownership['owner_code'] . "' in Ownership sheet at row " . ($index + 2);
+            $result['logs'][] = "ERR - unknown `owner_code` '" . $ownership['owner_code'] . "' in Ownership sheet at row " . $row;
+        }
+
+        $code = $ownership['code'];
+
+        if(!isset($ownerships_shares[$code])) {
+            $ownerships_shares[$code] = [
+                'rows'                 => [],
+                'shares_full_property' => 0.0,
+                'shares_bare_property' => 0.0,
+                'shares_usufruct'      => 0.0,
+                'shares_total'         => 0.0
+            ];
+        }
+
+        $ownerships_shares[$code]['rows'][] = $row;
+
+        foreach(['shares_full_property', 'shares_bare_property', 'shares_usufruct', 'shares_total'] as $field) {
+            if(isset($ownership[$field]) && $ownership[$field] !== '') {
+                if(!is_numeric($ownership[$field])) {
+                    ++$result['errors'];
+                    $result['logs'][] = "ERR - invalid numeric value for `$field` in Ownership sheet at row " . $row;
+                }
+                else {
+                    $ownerships_shares[$code][$field] += (float) $ownership[$field];
+                }
+            }
+        }
+    }
+
+    foreach($ownerships_shares as $code => $stats) {
+        $rows = implode(', ', $stats['rows']);
+
+        $shares_full_property = $stats['shares_full_property'];
+        $shares_bare_property = $stats['shares_bare_property'];
+        $shares_usufruct      = $stats['shares_usufruct'];
+        $shares_total         = $stats['shares_total'];
+
+        if(abs($shares_bare_property - $shares_usufruct) >= 0.01) {
+            ++$result['errors'];
+            $result['logs'][] =
+                "ERR - invalid ownership shares for code `$code`: " .
+                "`shares_bare_property` sum ($shares_bare_property) must equal " .
+                "`shares_usufruct` sum ($shares_usufruct). Rows: " . $rows;
+        }
+
+        if(abs(($shares_bare_property + $shares_full_property) - $shares_total) >= 0.01) {
+            ++$result['errors'];
+            $result['logs'][] =
+                "ERR - invalid ownership shares for code `$code`: " .
+                "`shares_bare_property` sum ($shares_bare_property) + " .
+                "`shares_full_property` sum ($shares_full_property) must equal " .
+                "`shares_total` sum ($shares_total). Rows: " . $rows;
         }
     }
 
