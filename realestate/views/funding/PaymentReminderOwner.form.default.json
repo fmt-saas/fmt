@@ -44,6 +44,11 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "reminder_level",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "payment_reminder_id",
                                                 "width": "100%",
                                                 "visible": false

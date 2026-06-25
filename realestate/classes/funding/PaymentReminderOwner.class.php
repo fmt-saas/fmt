@@ -67,6 +67,15 @@ class PaymentReminderOwner extends \equal\orm\Model {
                 'description'       => "Deadline before which the funding is expected."
             ],
 
+            'reminder_level' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => 'Counter of how many reminders have been sent for the funding.',
+                'function'          => 'calcReminderLevel',
+                'store'             => true,
+                'default'           => 0
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -108,6 +117,24 @@ class PaymentReminderOwner extends \equal\orm\Model {
                 ]
             ]
         ];
+    }
+
+    protected static function calcReminderLevel($self) {
+        $result = [];
+        $self->read(['state', 'payment_reminder_owner_lines_ids' => ['reminder_level']]);
+        foreach($self as $id => $paymentReminderOwner) {
+            if($paymentReminderOwner['state'] != 'instance') {
+                continue;
+            }
+            if($paymentReminderOwner['payment_reminder_owner_lines_ids']->count() <= 0) {
+                continue;
+            }
+            $result[$id] = 1;
+            foreach($paymentReminderOwner['payment_reminder_owner_lines_ids'] as $payment_reminder_owner_line_id => $paymentReminderOwnerLine) {
+                $result[$id] = max($result[$id], $paymentReminderOwnerLine['reminder_level']);
+            }
+        }
+        return $result;
     }
 
     protected static function calcDueAmount($self) {
