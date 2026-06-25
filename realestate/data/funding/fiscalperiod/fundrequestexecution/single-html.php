@@ -303,9 +303,10 @@ $execution = $fundRequestExecution->toArray();
 $executions = $fundRequest['request_executions_ids']->get(true);
 
 $fund_request = [
-        'name'          => $fundRequest['name'],
-        'lines'         => [],
-        'owner_total'   => 0.0
+        'name'              => $fundRequest['name'],
+        'has_date_range'    => $fundRequest['has_date_range'],
+        'lines'             => [],
+        'owner_total'       => 0.0
     ];
 
 $map_request_line_entries = [];
