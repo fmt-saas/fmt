@@ -1,0 +1,96 @@
+[
+    {
+        "name": "infra\\metering\\MetricDefinition",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "code": "property.main_lots.count",
+                "name": "Nombre de lots principaux",
+                "description": "Nombre de lots principaux actifs dans l'instance.",
+                "category": "property",
+                "unit": "count",
+                "value_type": "integer",
+                "collector": "infra_metering_inspect-property-main-lots-count",
+                "is_active": true
+            },
+            {
+                "id": 2,
+                "code": "property.parkings.count",
+                "name": "Nombre de garages/parkings",
+                "description": "Nombre de garages et parkings actifs dans l'instance.",
+                "category": "property",
+                "unit": "count",
+                "value_type": "integer",
+                "collector": "infra_metering_inspect-property-parkings-count",
+                "is_active": true
+            },
+            {
+                "id": 3,
+                "code": "edms.document.count",
+                "name": "Nombre de documents EDMS",
+                "description": "Nombre total de documents stockés dans l'EDMS.",
+                "category": "edms",
+                "unit": "count",
+                "value_type": "integer",
+                "collector": "infra_metering_inspect-edms-document-count",
+                "is_active": true
+            },
+            {
+                "id": 4,
+                "code": "edms.storage.size",
+                "name": "Volume de stockage EDMS",
+                "description": "Volume total consommé par les documents stockés dans l'EDMS.",
+                "category": "edms",
+                "unit": "bytes",
+                "value_type": "integer",
+                "collector": "infra_metering_inspect-edms-storage-size",
+                "is_active": true
+            },
+            {
+                "id": 5,
+                "code": "google.docai.calls.count",
+                "name": "Appels Google Document AI",
+                "description": "Nombre d'appels effectués vers Google Document AI.",
+                "category": "google_doc_ai",
+                "unit": "calls",
+                "value_type": "integer",
+                "collector": "infra_metering_inspect-google-docai-calls-count",
+                "is_active": true
+            },
+            {
+                "id": 6,
+                "code": "auth.users.count",
+                "name": "Nombre de comptes utilisateurs",
+                "description": "Nombre de comptes utilisateurs actifs sur l'instance.",
+                "category": "auth",
+                "unit": "users",
+                "value_type": "integer",
+                "collector": "infra_metering_inspect-instance-users-count",
+                "is_active": true
+            },
+            {
+                "id": 7,
+                "code": "email.outbound.count",
+                "name": "Emails envoyés",
+                "description": "Nombre d'emails envoyés depuis l'instance sur la période considérée.",
+                "category": "mail",
+                "unit": "emails",
+                "value_type": "integer",
+                "collector": "infra_metering_inspect-mail-outbound-count",
+                "is_active": true
+            },
+            {
+                "id": 8,
+                "code": "db.storage.size",
+                "name": "Taille de la base de données",
+                "description": "Taille totale consommée par la base de données de l'instance.",
+                "category": "database",
+                "unit": "bytes",
+                "value_type": "integer",
+                "collector": "infra_metering_inspect-db-storage-size",
+                "is_active": true
+            }
+        ]
+    }
+]
