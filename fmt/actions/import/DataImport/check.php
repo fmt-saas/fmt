@@ -341,10 +341,10 @@ if($dataImport['import_type'] == 'condominium_import') {
     foreach($ownerships_shares as $code => $stats) {
         $rows = implode(', ', $stats['rows']);
 
-        $shares_full_property = $stats['shares_full_property'];
-        $shares_bare_property = $stats['shares_bare_property'];
-        $shares_usufruct      = $stats['shares_usufruct'];
-        $shares_total         = $stats['shares_total'];
+        $shares_full_property = $stats['shares_full_property'] ?? 0;
+        $shares_bare_property = $stats['shares_bare_property'] ?? 0;
+        $shares_usufruct      = $stats['shares_usufruct'] ?? 0;
+        $shares_total         = $stats['shares_total'] ?? 0;
 
         if(abs($shares_bare_property - $shares_usufruct) >= 0.01) {
             ++$result['errors'];
