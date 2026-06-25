@@ -11,14 +11,14 @@
     "operations.table.th.apportionment_key": "Clé de répartition",
     "operations.table.th.amounts": "Montants",
     "operations.table.th.quotas": "Quotités",
-    "operations.table.th.quote_share": "Quote part",
-    "operations.table.footer.th.total": "Total de l'appel",
+    "operations.table.th.quote_share": "Quote-part",
+    "operations.table.footer.th.total": "Total",
 
     "payments-planning.summary.title_period": "Détail de l'appel pour la période du %s au %s :",
     "payments-planning.summary.title_single": "Détail de l'appel du %s :",
     "payments-planning.table.title": "Planification des versements :",
     "payments-planning.table.th.date": "Date",
     "payments-planning.table.th.deadline": "Échéance",
-    "payments-planning.table.th.call": "Appel période",
-    "payments-planning.table.th.amount": "Montant"
+    "payments-planning.table.th.call": "Montant Appel",
+    "payments-planning.table.th.amount": "Quote-part"
 }
