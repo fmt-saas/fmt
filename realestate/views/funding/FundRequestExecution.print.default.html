@@ -182,7 +182,11 @@
 
 
         <div style="margin: 20px 0; font-weight: bold;">
-            {{ labels['payments-planning.summary.title'] | format(date_from, date_to) }}
+            {% if fund_request.has_date_range %}
+                {{ labels['payments-planning.summary.title_period'] | format(date_from, date_to) }}
+            {% else %}
+                {{ labels['payments-planning.summary.title_single'] | format(date_from) }}
+            {% endif %}
         </div>
 
         <div class="fiscal_year-lines">
