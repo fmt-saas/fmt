@@ -98,6 +98,20 @@
             "visible": [
                 ["fund_request", "=", "object.document_type_code"]
             ]
+        },
+        {
+            "id": "route.payment_reminder",
+            "label": "Payment Reminder",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "realestate\\funding\\PaymentReminder",
+                "view": "list.default"
+            },
+            "visible": [
+                ["payment_reminder", "=", "object.document_type_code"]
+            ]
         }
     ],
     "layout": {

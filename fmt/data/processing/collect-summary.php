@@ -285,6 +285,32 @@ $domain = [
 
 $paymentReminders = PaymentReminder::search($domain)->read(['id', 'created']);
 
+if($paymentReminders->count() > 0) {
+    $count = 0;
+    $alerts = 0;
+    $date_last = 0;
+    foreach($paymentReminders as $paymentReminder) {
+        ++$count;
+        if($paymentReminder['created'] > $date_last) {
+            $date_last = $paymentReminder['created'];
+        }
+        /*
+        if($paymentReminder['alert'] && !in_array($paymentReminder['alert'], ['info', 'success'], true)) {
+            ++$alerts;
+        }
+        */
+    }
+
+    $result[] = [
+        'document_type_code'    => 'payment_reminder',
+        'count'                 => $count,
+        // 'count_alerts'          => $alerts,
+        'count_alerts'          => 0,
+        'date_last'             => date('c', $date_last)
+    ];
+}
+
+
 $context->httpResponse()
         ->header('X-Total-Count', count($result))
         ->body($result)
