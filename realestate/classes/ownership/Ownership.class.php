@@ -109,8 +109,8 @@ class Ownership extends \equal\orm\Model {
             ],
 
             'shares_total' => [
-                'type'              => 'float',
-                'usage'             => 'number/real:8.6',
+                'result_type'       => 'integer',
+                'usage'             => 'amount/natural',
                 'description'       => "The total number of shares of the ownership.",
                 'help'              => "This value is meant to allow splitting the title between several owners (e.g. in case of joint ownership).",
                 'default'           => 1,
