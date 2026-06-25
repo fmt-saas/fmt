@@ -47,7 +47,7 @@
             },
             "help": ""
         },
-        "ownership_shares": {
+        "shares_total": {
             "label": "Total des parts",
             "description": "Nombre total de quotes-parts déclarées pour le dossier.",
             "help": ""
