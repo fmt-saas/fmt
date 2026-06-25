@@ -254,7 +254,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                         ['condo_id', '=', $condo_id],
                         ['payment_reminder_id', '<>', $id],
                         ['ownership_id', '=', $ownership_id],
-                        ['due_date', '<', $now],
+                        ['due_date', '>=', $now],
                         ['status', 'in', ['pending', 'ignored', 'sent']]
                     ])
                     ->first();
@@ -267,6 +267,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 $previousReminderOwnerLines = PaymentReminderOwnerLine::search([
                         ['status', '=', 'sent'],
                         ['funding_id', '=', $funding_id],
+                        ['due_date', '<', $now]
                     ])
                     ->read(['due_date']);
 

@@ -65,8 +65,11 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "status",
-                                                "width": "100%"
+                                                "value": "due_date",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "readonly": true
+                                                }
                                             },
                                             {
                                                 "type": "field",
