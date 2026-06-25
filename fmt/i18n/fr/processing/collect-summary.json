@@ -21,7 +21,8 @@
                 "supplier_invoice": "Factures d'achat",
                 "bank_statement": "Extraits bancaires",
                 "expense_statement": "Décomptes de charges",
-                "fund_request": "Appels de fonds"
+                "fund_request": "Appels de fonds",
+                "payment_reminder": "Rappel de paiement"
             },
             "help": "Permet d'identifier le type de processing suivi dans la ligne."
         },

@@ -42,7 +42,10 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
             'selection'         => [
                 'document',
                 'supplier_invoice',
-                'bank_statement'
+                'bank_statement',
+                'expense_statement',
+                'fund_request',
+                'payment_reminder'
             ],
             'description'       => 'Code identifier of the document type.',
             'help'              => 'The document type code is used for identifying the type of processing (invoice, bank_statement, maintenance_report, contract, etc.'
