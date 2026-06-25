@@ -102,18 +102,6 @@ class Owner extends Identity {
                 'default'           => 100
             ],
 
-            // #deprecated
-            'owner_type' => [
-                'type'              => 'string',
-                'selection'         => [
-                    'full',
-                    'bare',
-                    'usufruct'
-                ],
-                'description'       => "Type of ownership that applies to the owner.",
-                'default'           => 'full'
-            ],
-
             'shares_full_property' => [
                 'type'              => 'integer',
                 'usage'             => 'amount/natural',

@@ -28,16 +28,6 @@
             "description": "Ancien champ représentant le nombre total de parts attribuées.",
             "help": "Demeure visible pour compatibilité, mais privilégier le découpage par nue-propriété/usufruit."
         },
-        "owner_type": {
-            "label": "Type",
-            "description": "Nature du droit détenu.",
-            "selection": {
-                "full": "Pleine propriété",
-                "bare": "Nue-propriété",
-                "usufruct": "Usufruit"
-            },
-            "help": ""
-        },
         "shares_full_property": {
             "label": "Parts en pleine propriété",
             "description": "Nombre de quotes-parts détenues en pleine propriété.",

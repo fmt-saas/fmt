@@ -140,7 +140,6 @@ Owner::create([
     "condo_id" => 2,
     "ownership_id" => 7,
     "owner_shares" => 100,
-    "owner_type" => "full",
     "identity_id" => $identity['id']
 ]);
 
@@ -186,7 +185,6 @@ Owner::create([
     "condo_id" => 1,
     "ownership_id" => 4,
     "owner_shares" => 100,
-    "owner_type" => "usufruct",
     "identity_id" => $identity['id']
 ]);
 
@@ -232,7 +230,6 @@ Owner::create([
     "condo_id" => 2,
     "ownership_id" => 6,
     "owner_shares" => 100,
-    "owner_type" => "full",
     "identity_id" => $identity['id']
 ]);
 
@@ -278,7 +275,6 @@ Owner::create([
     "condo_id" => 1,
     "ownership_id" => 3,
     "owner_shares" => 100,
-    "owner_type" => "full",
     "identity_id" => $identity['id']
 ]);
 
@@ -324,7 +320,6 @@ Owner::create([
     "condo_id" => 2,
     "ownership_id" => 5,
     "owner_shares" => 100,
-    "owner_type" => "full",
     "identity_id" => $identity['id']
 ]);
 
@@ -370,7 +365,6 @@ Owner::create([
     "condo_id" => 1,
     "ownership_id" => 4,
     "owner_shares" => 50,
-    "owner_type" => "bare",
     "identity_id" => $identity['id']
 ]);
 
@@ -416,7 +410,6 @@ Owner::create([
     "condo_id" => 1,
     "ownership_id" => 4,
     "owner_shares" => 50,
-    "owner_type" => "bare",
     "identity_id" => $identity['id']
 ]);
 
@@ -461,7 +454,6 @@ Owner::create([
     "condo_id" => 1,
     "ownership_id" => 2,
     "owner_shares" => 100,
-    "owner_type" => "full",
     "identity_id" => $identity['id']
 ]);
 
