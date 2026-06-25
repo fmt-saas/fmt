@@ -52,11 +52,6 @@
             "label": "Parts en usufruit",
             "description": "Nombre de quotes-parts détenues en usufruit.",
             "help": ""
-        },
-        "ownership_percentage": {
-            "label": "Pourcentage de détention",
-            "description": "Part du propriétaire dans l'ownership en pourcentage.",
-            "help": ""
         }
     },
     "view": {

@@ -99,18 +99,7 @@ class Owner extends Identity {
                 'usage'             => 'amount/natural',
                 'description'       => "Amount of shares the owner has on the ownership",
                 'help'              => "Owners' 'full' & 'bare' `owner_shares` sum must match Ownership `total_shares`. Owners 'usufruct' `owner_shares` is only used to calculate their participation in the condominium's expenses.",
-                'default'           => 100,
-                'dependents'        => ['ownership_percentage']
-            ],
-
-            'ownership_percentage' => [
-                'type'              => 'computed',
-                'result_type'       => 'float',
-                'usage'             => 'amount/percent',
-                'function'          => 'calcOwnershipPercentage',
-                'store'             => true,
-                'description'       => "Share of the ownership, in percent (holders' shares sum must be 100%).",
-                'default'           => 1.0
+                'default'           => 100
             ],
 
             // #deprecated

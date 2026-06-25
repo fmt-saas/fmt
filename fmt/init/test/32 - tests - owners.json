@@ -21,7 +21,6 @@
                 "condo_id": 4,
                 "ownership_id": 8,
                 "owner_shares": 100,
-                "ownership_percentage": 1,
                 "owner_type": "full"
             },
             {
@@ -42,7 +41,6 @@
                 "condo_id": 4,
                 "ownership_id": 9,
                 "owner_shares": 100,
-                "ownership_percentage": 1,
                 "owner_type": "full"
             },
             {
@@ -63,7 +61,6 @@
                 "condo_id": 4,
                 "ownership_id": 10,
                 "owner_shares": 100,
-                "ownership_percentage": 1,
                 "owner_type": "full"
             }
         ]
