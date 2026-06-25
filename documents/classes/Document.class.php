@@ -238,7 +238,11 @@ class Document extends Model {
                 'store'             => true,
                 'instant'           => true,
                 'function'          => 'calcHash',
-                'description'       => 'MD5 hash of the document.'
+                'description'       => 'MD5 hash of the document.',
+                'help'              => "
+                    Used to uniquely retrieve a document in the database based on a URI.
+                    Note: it must be possible to have multiple identical documents in the EDMS.
+                    This field cannot be used to identify documents with identical content."
             ],
 
             'hash_sha256' => [
@@ -247,8 +251,12 @@ class Document extends Model {
                 'usage'             => 'text/plain:64',
                 'function'          => 'calcHashSha256',
                 'description'       => 'SHA256 hash of the document.',
-                'help'              => 'This field holds the hexadecimal value of the hash and might require a conversion to base64 for exchanges.',
+                'help'              => "
+                    This is the SHA-256 hash of the exact binary content.
+                    This field is intended for digital signatures and document identification.
+                    It holds the hexadecimal value of the hash and may require conversion to base64 for exchanges.",
                 'store'             => true,
+                'instant'           => true,
                 'readonly'          => true
             ],
 
@@ -454,6 +462,8 @@ class Document extends Model {
     public function getIndexes(): array {
         return [
             ['hash'],
+            ['hash_sha256'],
+            ['condo_id', 'hash_sha256'],
             ['condo_id', 'ownership_id', 'owner_id']
         ];
     }

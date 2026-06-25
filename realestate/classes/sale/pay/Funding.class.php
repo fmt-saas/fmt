@@ -255,11 +255,11 @@ class Funding extends \sale\pay\Funding {
                 'store'             => true
             ],
 
-            'payment_reminders_ids' => [
+            'payment_reminder_owner_lines_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'realestate\funding\PaymentReminder',
-                'foreign_field'     => 'funding_id',
-                'description'       => 'Reminders of the funding.'
+                'description'       => "Owners present in the reminder.",
+                'foreign_object'    => 'realestate\funding\PaymentReminderOwnerLine',
+                'foreign_field'     => 'funding_id'
             ],
 
             'download_link' => [

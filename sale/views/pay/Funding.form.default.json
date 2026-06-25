@@ -179,7 +179,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "payment_reminders_ids",
+                                                "value": "payment_reminder_owner_lines_ids",
                                                 "width": "100%"
                                             }
                                         ]

@@ -159,7 +159,9 @@
                     {
                         "label": "Reminders",
                         "id": "section.reminders_section",
-                        "visible": ["is_paid", "=", false],
+                        "visible": false,
+                        "visible_help": "Reminders will be show at a different place.",
+                        "visible_1": ["is_paid", "=", false],
                         "rows": [
                             {
                                 "columns": [
@@ -168,7 +170,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "payment_reminders_ids",
+                                                "value": "payment_reminder_owner_lines_ids",
                                                 "width": "100%",
                                                 "widget": {
                                                     "header": {

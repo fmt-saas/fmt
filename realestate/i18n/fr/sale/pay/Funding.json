@@ -216,7 +216,7 @@
             "description": "Lien de téléchargement du document associé.",
             "help": "Disponible lorsqu'un document correspondant existe pour le copropriétaire."
         },
-        "payment_reminders_ids": {
+        "payment_reminder_owner_lines_ids": {
             "label": "Rappels",
             "description": "Historique des rappels envoyés ou générés pour ce funding.",
             "help": ""

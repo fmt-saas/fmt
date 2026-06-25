@@ -57,7 +57,7 @@ $purchaseInvoice = PurchaseInvoice::id($id)
         'fiscal_year_id',
         'emission_date',
         'posting_date',
-        'document_id' => ['hash'],
+        'document_id' => ['hash_sha256'],
         'price',
         'invoice_lines_ids' => [
             'apportionment_id', 'total', 'price', 'vat_rate', 'owner_share', 'tenant_share',
@@ -280,7 +280,7 @@ if($purchaseInvoice['document_id']) {
     $existingDocument = Document::search([
             ['id', '<>', $purchaseInvoice['document_id']['id']],
             ['condo_id', '=', $purchaseInvoice['condo_id']],
-            ['hash', '=', $purchaseInvoice['document_id']['hash']]
+            ['hash_sha256', '=', $purchaseInvoice['document_id']['hash_sha256']]
         ])
         ->read(['document_process_id' => ['status']])
         ->first();

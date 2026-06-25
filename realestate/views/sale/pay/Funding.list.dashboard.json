@@ -47,8 +47,13 @@
             },
             {
                 "type": "field",
+                "value": "issue_date",
+                "width": "15%"
+            },
+            {
+                "type": "field",
                 "value": "due_date",
-                "width": "25%"
+                "width": "15%"
             },
             {
                 "type": "field",
@@ -58,9 +63,9 @@
             },
             {
                 "type": "field",
-                "label": "Type",
-                "value": "is_paid",
-                "width": "10%"
+                "label": "Remaining",
+                "value": "due_amount",
+                "width": "15%"
             },
             {
                 "type": "field",
