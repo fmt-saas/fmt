@@ -254,7 +254,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                         ['condo_id', '=', $condo_id],
                         ['payment_reminder_id', '<>', $id],
                         ['ownership_id', '=', $ownership_id],
-                        ['due_date', '>', $now],
+                        ['due_date', '<', $now],
                         ['status', 'in', ['pending', 'ignored', 'sent']]
                     ])
                     ->first();
