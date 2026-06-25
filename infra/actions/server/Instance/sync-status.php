@@ -8,6 +8,7 @@
 use equal\http\HttpRequest;
 use equal\orm\Field;
 use infra\server\Instance;
+use infra\server\InstanceCheck;
 use infra\server\Status;
 
 [$params, $providers] = eQual::announce([
@@ -82,15 +83,62 @@ else {
                 'refreshed'                     => $adapter->adaptIn($data['refreshed'], Field::MAP_TYPE_USAGE['datetime']),
                 'refreshed_logs'                => $data['refreshed_logs'],
                 'branch_equal'                  => $data['branch_equal'],
-                'is_branch_equal_ok'            => $data['is_branch_equal_ok'],
-                'is_branch_equal_up_to_date'    => $data['is_branch_equal_up_to_date'],
-                'branch_fmt'                    => $data['branch_fmt'],
-                'is_branch_fmt_ok'              => $data['is_branch_fmt_ok'],
-                'is_branch_fmt_up_to_date'      => $data['is_branch_fmt_up_to_date'],
-                'is_config_file_ok'             => $data['is_config_file_ok'],
-                'is_required_data_ok'           => $data['is_required_data_ok'],
-                'is_tasks_ok'                   => $data['is_tasks_ok']
+                'branch_fmt'                    => $data['branch_fmt']
             ]);
+
+            $check_descriptions = [
+                'is_branch_equal_ok'            => 'Is the eQual git branch version ok to use.',
+                'is_branch_equal_up_to_date'    => 'Is the eQual git branch up to date.',
+                'is_branch_fmt_ok'              => 'Is the FMT git branch version ok to use.',
+                'is_branch_fmt_up_to_date'      => 'Is the FMT git branch up to date.',
+                'is_config_file_ok'             => 'Is the configuration file valid.',
+                'is_required_data_ok'           => 'Are the required data correctly configured.',
+                'is_tasks_ok'                   => 'Are the recurring tasks correctly configured.'
+            ];
+
+            $checks = $data['checks_ids'] ?? [];
+            if(!count($checks)) {
+                foreach($check_descriptions as $name => $description) {
+                    if(array_key_exists($name, $data)) {
+                        $checks[] = [
+                            'name'          => $name,
+                            'description'   => $description,
+                            'value'         => $data[$name]
+                        ];
+                    }
+                }
+            }
+
+            foreach($checks as $check) {
+                if(empty($check['name'])) {
+                    continue;
+                }
+
+                $existing_check = InstanceCheck::search([
+                        ['instance_id', '=', $instance['id']],
+                        ['name', '=', $check['name']]
+                    ])
+                    ->read(['id'])
+                    ->first();
+
+                $values = [
+                    'description'   => $check['description'] ?? ($check_descriptions[$check['name']] ?? ''),
+                    'value'         => (bool) ($check['value'] ?? false)
+                ];
+
+                if($existing_check) {
+                    InstanceCheck::id($existing_check['id'])->update($values);
+                }
+                else {
+                    InstanceCheck::create(array_merge(
+                        [
+                            'instance_id'   => $instance['id'],
+                            'name'          => $check['name']
+                        ],
+                        $values
+                    ));
+                }
+            }
         }
     }
     catch(Exception $e) {
@@ -111,11 +159,11 @@ try {
     ]);
 
     // instance is up
-    Instance::id($instance['id'])->update(['up' => true, 'synced' => time()]);
+    Instance::id($instance['id'])->update(['up' => true, 'last_synced' => time()]);
 }
 catch(Exception $e) {
     // instance is down
-    Instance::id($instance['id'])->update(['up' => false, 'synced' => time()]);
+    Instance::id($instance['id'])->update(['up' => false, 'last_synced' => time()]);
 }
 
 $context

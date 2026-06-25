@@ -274,6 +274,7 @@ class Account extends Model {
             // #todo - this field is not handled yet
             'owner_share_usufruct' => [
                 'type'              => 'integer',
+                'usage'             => 'amount/natural',
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
                 'default'           => 0
             ],
@@ -281,6 +282,7 @@ class Account extends Model {
             // #todo - this field is not handled yet
             'owner_share_bare' => [
                 'type'              => 'integer',
+                'usage'             => 'amount/natural',
                 'description'       => "Default value, in percent, of the amount to be imputed to the owner when using the account.",
                 'default'           => 100
             ],

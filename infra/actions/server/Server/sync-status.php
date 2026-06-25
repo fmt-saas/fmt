@@ -76,7 +76,7 @@ try {
     ]);
 
     // server is up
-    Server::id($params['id'])->update(['up' => true, 'synced' => time()]);
+    Server::id($params['id'])->update(['up' => true, 'last_synced' => time()]);
 
     if($params['sync_instances']) {
         foreach($server['instances_ids'] as $instance_id) {
@@ -86,7 +86,7 @@ try {
 }
 catch(Exception $e) {
     // server is down (will cascade to instances)
-    Server::id($params['id'])->update(['up' => false, 'synced' => time()]);
+    Server::id($params['id'])->update(['up' => false, 'last_synced' => time()]);
 }
 
 $context

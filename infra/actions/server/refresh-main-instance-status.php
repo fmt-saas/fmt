@@ -11,6 +11,7 @@ use documents\DocumentSubtype;
 use documents\DocumentType;
 use finance\bank\Bank;
 use infra\server\Instance;
+use infra\server\InstanceCheck;
 use purchase\supplier\Supplier;
 
 [$params, $providers] = eQual::announce([
@@ -61,6 +62,17 @@ if(!$main_instance) {
 $allowed_equal_branches = ['2.0.1'];
 $allowed_fmt_branches = ['main'];
 
+$data = [];
+$checks = [];
+
+$set_check = function($name, $description, $value) use (&$checks) {
+    $checks[$name] = [
+        'name'          => $name,
+        'description'   => $description,
+        'value'         => (bool) $value
+    ];
+};
+
 $logs = [
     'branch_equal'      => ['allowed' => $allowed_equal_branches],
     'branch_fmt'        => ['allowed' => $allowed_fmt_branches],
@@ -78,11 +90,19 @@ $equal_version_data = eQual::run('get', 'core_version');
 
 if(!empty($equal_version_data['branch'])) {
     $data['branch_equal'] = $equal_version_data['branch'];
-    $data['is_branch_equal_ok'] = in_array($data['branch_equal'], $allowed_equal_branches);
+    $set_check(
+        'is_branch_equal_ok',
+        'Is the eQual git branch version ok to use.',
+        in_array($data['branch_equal'], $allowed_equal_branches)
+    );
 }
 
 if(isset($equal_version_data['up_to_date'])) {
-    $data['is_branch_equal_up_to_date'] = $equal_version_data['up_to_date'];
+    $set_check(
+        'is_branch_equal_up_to_date',
+        'Is the eQual git branch up to date.',
+        $equal_version_data['up_to_date']
+    );
 }
 
 
@@ -94,11 +114,19 @@ $fmt_version_data = eQual::run('get', 'fmt_version');
 
 if(!empty($fmt_version_data['branch'])) {
     $data['branch_fmt'] = $fmt_version_data['branch'];
-    $data['is_branch_fmt_ok'] = in_array($data['branch_fmt'], $allowed_fmt_branches);
+    $set_check(
+        'is_branch_fmt_ok',
+        'Is the FMT git branch version ok to use.',
+        in_array($data['branch_fmt'], $allowed_fmt_branches)
+    );
 }
 
 if(isset($fmt_version_data['up_to_date'])) {
-    $data['is_branch_fmt_up_to_date'] = $fmt_version_data['up_to_date'];
+    $set_check(
+        'is_branch_fmt_up_to_date',
+        'Is the FMT git branch up to date.',
+        $fmt_version_data['up_to_date']
+    );
 }
 
 
@@ -144,7 +172,11 @@ foreach($required_config as $key) {
     }
 }
 
-$data['is_config_file_ok'] = $is_config_ok;
+$set_check(
+    'is_config_file_ok',
+    'Is the configuration file valid.',
+    $is_config_ok
+);
 
 
 /*
@@ -169,6 +201,12 @@ foreach($entities as $entity) {
     $logs['entities'][$entity] = count($ids);
 }
 
+$set_check(
+    'is_required_data_ok',
+    'Are the required data correctly configured.',
+    $is_required_data_ok
+);
+
 
 /*
     Tasks
@@ -184,9 +222,9 @@ $required_tasks = [
 ];
 
 $tasks = Task::search([
-    ['controller', 'in', $required_tasks],
-    ['is_recurring', '=', true]
-])
+        ['controller', 'in', $required_tasks],
+        ['is_recurring', '=', true]
+    ])
     ->read(['controller'])
     ->get();
 
@@ -207,7 +245,11 @@ foreach($required_tasks as $required_task) {
     }
 }
 
-$data['is_tasks_ok'] = $is_tasks_ok;
+$set_check(
+    'is_tasks_ok',
+    'Are the recurring tasks correctly configured.',
+    $is_tasks_ok
+);
 
 
 /*
@@ -220,6 +262,30 @@ Instance::id(1)->update(
         $data
     )
 );
+
+foreach($checks as $check) {
+    $existing_check = InstanceCheck::search([
+            ['instance_id', '=', $main_instance['id']],
+            ['name', '=', $check['name']]
+        ])
+        ->read(['id'])
+        ->first();
+
+    if($existing_check) {
+        InstanceCheck::id($existing_check['id'])->update([
+            'description'   => $check['description'],
+            'value'         => $check['value']
+        ]);
+    }
+    else {
+        InstanceCheck::create([
+            'instance_id'   => $main_instance['id'],
+            'name'          => $check['name'],
+            'description'   => $check['description'],
+            'value'         => $check['value']
+        ]);
+    }
+}
 
 /*
     Create response

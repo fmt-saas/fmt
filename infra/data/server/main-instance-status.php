@@ -26,14 +26,12 @@ $main_instance = Instance::id(1)
         'refreshed',
         'refreshed_logs',
         'branch_equal',
-        'is_branch_equal_ok',
-        'is_branch_equal_up_to_date',
         'branch_fmt',
-        'is_branch_fmt_ok',
-        'is_branch_fmt_up_to_date',
-        'is_config_file_ok',
-        'is_required_data_ok',
-        'is_tasks_ok'
+        'checks_ids' => [
+            'name',
+            'description',
+            'value'
+        ]
     ])
     ->adapt('json')
     ->first(true);

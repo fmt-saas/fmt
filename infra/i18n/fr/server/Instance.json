@@ -13,7 +13,7 @@
             "description": "Courte description de l'instance.",
             "help": ""
         },
-        "synced": {
+        "last_synced": {
             "label": "Dernière synchronisation",
             "description": "Date de dernière synchronisation du status de l'instance.",
             "help": ""
@@ -37,17 +37,6 @@
             },
             "help": ""
         },
-        "version": {
-            "label": "Version",
-            "description": "Version de la branche.",
-            "selection": {
-                "development": "Développement",
-                "staging": "Staging",
-                "preview": "Aperçu",
-                "production": "Production"
-            },
-            "help": ""
-        },
         "url": {
             "label": "Url",
             "description": "URL d'accueil du frontend.",
@@ -68,60 +57,50 @@
             "description": "Token pour accéder à l'API de l'instance étrangère.",
             "help": ""
         },
+        "managing_agent_id": {
+            "label": "Régie",
+            "description": "Régie liée à l'instance.",
+            "help": "À renseigner pour les instances d'agence concernées."
+        },
+        "user_token_generated": {
+            "label": "Token utilisateur généré",
+            "description": "Indique si le token d'accès utilisateur a été généré.",
+            "help": "Désactivé signifie que le token peut encore être créé."
+        },
+        "has_dns_record": {
+            "label": "Enregistrement DNS",
+            "description": "Indique si l'instance possède un enregistrement DNS.",
+            "help": "Désactivé signifie que l'enregistrement reste à créer."
+        },
         "refreshed": {
             "label": "Rafraîchissement",
-            "description": "Date de dernier rafraîchissement des informations de l'instance (branches, config, tâches plannifiées et donnée requises).",
-            "help": ""
+            "description": "Date du dernier rafraîchissement de statut.",
+            "help": "Mis à jour par l'action de rafraîchissement principale."
         },
         "refreshed_logs": {
             "label": "Log rafraîchissement",
-            "description": "Log sur le rafraîchissement des informations de l'instance (branches, config, tâches plannifiées et donnée requises).",
-            "help": ""
-        },
-        "is_config_file_ok": {
-            "label": "Fichier de config OK",
-            "description": "Le fichier de configuration semble valide.",
-            "help": ""
-        },
-        "is_required_data_ok": {
-            "label": "Données requises OK",
-            "description": "Les données requises semblent valides.",
-            "help": ""
-        },
-        "is_tasks_ok": {
-            "label": "Tâches planifiées OK",
-            "description": "Les tâches planifiées semblent valides.",
-            "help": ""
+            "description": "Log du dernier rafraîchissement de statut.",
+            "help": "Contient le détail des contrôles manquants ou invalides."
         },
         "branch_equal": {
             "label": "Branche eQual",
             "description": "Nom de la branche equalframework/equal.",
-            "help": ""
-        },
-        "is_branch_equal_ok": {
-            "label": "Branche eQual OK",
-            "description": "La branche eQual de l'instance est autorisée.",
-            "help": ""
-        },
-        "is_branch_equal_up_to_date": {
-            "label": "Branche eQual à jour",
-            "description": "La branche eQual de l'instance est à jour.",
-            "help": ""
+            "help": "Utilisée avec les contrôles de statut de branche."
         },
         "branch_fmt": {
             "label": "Branche FMT",
             "description": "Nom de la branche fmt-saas/fmt.",
-            "help": ""
+            "help": "Utilisée avec les contrôles de statut de branche."
         },
-        "is_branch_fmt_ok": {
-            "label": "Branche FMT OK",
-            "description": "La branche FMT de l'instance est autorisée.",
-            "help": ""
+        "statuses_ids": {
+            "label": "Statuts techniques",
+            "description": "Historique des statuts techniques de l'instance.",
+            "help": "Affiche les derniers instantanés techniques collectés."
         },
-        "is_branch_fmt_up_to_date": {
-            "label": "Branche FMT à jour",
-            "description": "La branche FMT de l'instance est à jour.",
-            "help": ""
+        "checks_ids": {
+            "label": "Contrôles",
+            "description": "Contrôles booléens de l'instance.",
+            "help": "Affiche les contrôles créés ou mis à jour par synchronisation."
         }
     },
     "view": {
@@ -146,6 +125,9 @@
                 }
             },
             "layout": {
+                "section.infos": {
+                    "label": "Infos"
+                },
                 "section.statuses": {
                     "label": "Statuts"
                 }

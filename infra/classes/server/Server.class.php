@@ -45,7 +45,7 @@ class Server extends Model {
                 'description'       => 'Short description of the Server.',
             ],
 
-            'synced' => [
+            'last_synced' => [
                 'type'              => 'datetime',
                 'description'       => 'Date of last automatic status update.',
                 'help'              => 'The "up" field can be auto updated by the action "infra_server_Server_fetch-status".'
@@ -114,7 +114,7 @@ class Server extends Model {
 
             'statuses_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'infra\server\Status',
+                'foreign_object'    => 'infra\server\ServerStatus',
                 'foreign_field'     => 'server_id',
                 'description'       => 'Statuses of the server.',
                 'help'              => 'Updated from b2 API fetched data.'

@@ -79,7 +79,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "synced",
+                                                "value": "last_synced",
                                                 "width": "50%"
                                             },
                                             {
@@ -153,11 +153,6 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "is_config_file_ok",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "branch_equal",
                                                 "width": "25%"
                                             },
@@ -165,53 +160,22 @@
                                                 "type": "field",
                                                 "value": "branch_fmt",
                                                 "width": "25%"
-                                            },
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
                                             {
                                                 "type": "field",
-                                                "value": "",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_required_data_ok",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_branch_equal_ok",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_branch_fmt_ok",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_tasks_ok",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_branch_equal_up_to_date",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_branch_fmt_up_to_date",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "refreshed_logs",
+                                                "value": "checks_ids",
                                                 "width": "50%",
                                                 "widget": {
-                                                    "height": 500
+                                                    "view": "list.instance"
                                                 }
                                             },
                                             {
@@ -221,6 +185,23 @@
                                                 "widget": {
                                                     "view": "list.instance",
                                                     "limit": 5
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "refreshed_logs",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "height": 500
                                                 }
                                             }
                                         ]
