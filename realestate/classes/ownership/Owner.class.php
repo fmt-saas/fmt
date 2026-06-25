@@ -93,15 +93,6 @@ class Owner extends Identity {
                 'description'       => "User the Owner relates to, if any (through identity)."
             ],
 
-            // #deprecated
-            'owner_shares' => [
-                'type'              => 'integer',
-                'usage'             => 'amount/natural',
-                'description'       => "Amount of shares the owner has on the ownership",
-                'help'              => "Owners' 'full' & 'bare' `owner_shares` sum must match Ownership `total_shares`. Owners 'usufruct' `owner_shares` is only used to calculate their participation in the condominium's expenses.",
-                'default'           => 100
-            ],
-
             'shares_full_property' => [
                 'type'              => 'integer',
                 'usage'             => 'amount/natural',
@@ -184,27 +175,6 @@ class Owner extends Identity {
                 Ownership::id($owner['ownership_id'])->update(['name' => null]);
             }
         }
-    }
-
-    public static function calcOwnershipPercentage($self) {
-        $result = [];
-        $self->read(['owner_shares', 'shares_full_property', 'shares_bare_property', 'shares_usufruct', 'ownership_id' => ['shares_total']]);
-        foreach($self as $id => $owner) {
-            $owner_shares =
-                ($owner['shares_full_property'] ?? 0) +
-                ($owner['shares_bare_property'] ?? 0) +
-                ($owner['shares_usufruct'] ?? 0);
-
-            $total_shares = $owner['ownership_id']['shares_total'] ?? 0;
-
-            if($total_shares > 0) {
-                $result[$id] = round(($owner_shares / $total_shares) * 100, 2);
-            }
-            else {
-                $result[$id] = 0;
-            }
-        }
-        return $result;
     }
 
     public static function onupdateIdentityId($self) {

@@ -15,7 +15,7 @@ use realestate\funding\PaymentReminder;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Lists all processings .',
+    'description'   => 'Lists all processings.',
     'params'        => [
         /* mixed-usage parameters: required both for fetching data (input) and property of virtual entity (output) */
         'employee_id' => [

@@ -19,8 +19,7 @@
                 "address_country": "BE",
                 "address": "  ",
                 "condo_id": 4,
-                "ownership_id": 8,
-                "owner_shares": 100
+                "ownership_id": 8
             },
             {
                 "id": 12,
@@ -38,8 +37,7 @@
                 "address_country": "BE",
                 "address": "  ",
                 "condo_id": 4,
-                "ownership_id": 9,
-                "owner_shares": 100
+                "ownership_id": 9
             },
             {
                 "id": 13,
@@ -57,8 +55,7 @@
                 "address_country": "BE",
                 "address": "  ",
                 "condo_id": 4,
-                "ownership_id": 10,
-                "owner_shares": 100
+                "ownership_id": 10
             }
         ]
     }

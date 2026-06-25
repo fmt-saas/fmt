@@ -23,11 +23,6 @@
             "description": "Date à laquelle le propriétaire n'a plus aucun lot actif.",
             "help": "Utile pour conserver l'historique même après cession."
         },
-        "owner_shares": {
-            "label": "Parts",
-            "description": "Ancien champ représentant le nombre total de parts attribuées.",
-            "help": "Demeure visible pour compatibilité, mais privilégier le découpage par nue-propriété/usufruit."
-        },
         "shares_full_property": {
             "label": "Parts en pleine propriété",
             "description": "Nombre de quotes-parts détenues en pleine propriété.",
