@@ -1,6 +1,16 @@
 {
     "name": "Apportionment",
     "description": "",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                {
+                    "id": "SAVE_AND_VIEW",
+                    "view_id": "form.default"
+                }
+            ]
+        }
+    },
     "actions": [
         {
             "id": "action.duplicate",
