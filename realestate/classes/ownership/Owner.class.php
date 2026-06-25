@@ -96,25 +96,22 @@ class Owner extends Identity {
             'shares_full_property' => [
                 'type'              => 'integer',
                 'usage'             => 'amount/natural',
-                'description'       => "Amount of shares the owner has on the ownership",
-                'default'           => 100,
-                'dependents'        => ['ownership_percentage']
+                'description'       => "Amount of shares the owner has on the ownership.",
+                'default'           => 1
             ],
 
             'shares_bare_property' => [
                 'type'              => 'integer',
                 'usage'             => 'amount/natural',
-                'description'       => "Amount of shares the owner has on the ownership",
-                'default'           => 0,
-                'dependents'        => ['ownership_percentage']
+                'description'       => "Amount of shares the owner has on the ownership.",
+                'default'           => 0
             ],
 
             'shares_usufruct' => [
                 'type'              => 'integer',
                 'usage'             => 'amount/natural',
-                'description'       => "Amount of shares the owner has on the ownership",
-                'default'           => 0,
-                'dependents'        => ['ownership_percentage']
+                'description'       => "Amount of shares the owner has on the ownership.",
+                'default'           => 0
             ],
 
 

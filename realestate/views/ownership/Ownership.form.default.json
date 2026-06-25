@@ -140,6 +140,21 @@
                         "id": "section.owners",
                         "label": "Owners",
                         "rows": [
+
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "shares_total",
+                                                "width": "25%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
                             {
                                 "columns": [
                                     {

@@ -95,7 +95,7 @@ class Ownership extends \equal\orm\Model {
                 'foreign_field'     => 'ownership_id',
                 'description'       => 'List of owners.',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
-                'dependents'        => ['name']
+                'dependents'        => ['name', 'shares_full_property', 'shares_bare_property', 'shares_usufruct']
             ],
 
             'ownership_type' => [
@@ -113,7 +113,7 @@ class Ownership extends \equal\orm\Model {
                 'usage'             => 'number/real:8.6',
                 'description'       => "The total number of shares of the ownership.",
                 'help'              => "This value is meant to allow splitting the title between several owners (e.g. in case of joint ownership).",
-                'default'           => 100,
+                'default'           => 1,
                 'visible'           => ['ownership_type', '=', 'joint']
             ],
 
@@ -124,6 +124,33 @@ class Ownership extends \equal\orm\Model {
                 'function'          => 'calcStatutoryShares',
                 'store'             => false,
                 'readonly'          => true
+            ],
+
+            'shares_full_property' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'usage'             => 'amount/natural',
+                'description'       => "Amount of shares the owner has on the ownership",
+                'function'          => 'calcSharesFullProperty',
+                'store'             => false,
+            ],
+
+            'shares_bare_property' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'usage'             => 'amount/natural',
+                'description'       => "Amount of shares the owner has on the ownership",
+                'function'          => 'calcSharesBareProperty',
+                'store'             => false
+            ],
+
+            'shares_usufruct' => [
+                'type'              => 'computed',
+                'result_type'        => 'integer',
+                'usage'             => 'amount/natural',
+                'description'       => "Amount of shares the owner has on the ownership",
+                'function'          => 'calcSharesUsufruct',
+                'store'             => false
             ],
 
             // #memo - an Ownership might be linked to several Accounts of the Accounting Chart
@@ -456,6 +483,54 @@ class Ownership extends \equal\orm\Model {
                 $result[$id] += $propertyLot['statutory_shares'] ?? 0;
             }
         }
+        return $result;
+    }
+
+    protected static function calcSharesFullProperty($self) {
+        $result = [];
+
+        $self->read(['owners_ids' => ['shares_full_property']]);
+
+        foreach($self as $id => $ownership) {
+            $result[$id] = 0;
+
+            foreach($ownership['owners_ids'] as $owner) {
+                $result[$id] += $owner['shares_full_property'] ?? 0;
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function calcSharesBareProperty($self) {
+        $result = [];
+
+        $self->read(['owners_ids' => ['shares_bare_property']]);
+
+        foreach($self as $id => $ownership) {
+            $result[$id] = 0;
+
+            foreach($ownership['owners_ids'] as $owner) {
+                $result[$id] += $owner['shares_bare_property'] ?? 0;
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function calcSharesUsufruct($self) {
+        $result = [];
+
+        $self->read(['owners_ids' => ['shares_usufruct']]);
+
+        foreach($self as $id => $ownership) {
+            $result[$id] = 0;
+
+            foreach($ownership['owners_ids'] as $owner) {
+                $result[$id] += $owner['shares_usufruct'] ?? 0;
+            }
+        }
+
         return $result;
     }
 
