@@ -1,0 +1,40 @@
+{
+    "name": "Instance checks",
+    "description": "Instance checks.",
+    "header": {
+        "selection": {
+            "default": false
+        },
+        "actions": {
+            "ACTION.EDIT": false,
+            "ACTION.CREATE": false,
+            "ACTION.SAVE": false
+        }
+    },
+    "order": "name",
+    "sort": "asc",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "30%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "50%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "value",
+                "width": "20%",
+                "sortable": true,
+                "readonly": true
+            }
+        ]
+    }
+}

@@ -1,0 +1,44 @@
+{
+    "name": "Instance check",
+    "plural": "Instance checks",
+    "description": "Boolean check attached to an instance.",
+    "model": {
+        "name": {
+            "label": "Name",
+            "description": "Unique technical name of the check.",
+            "help": "Used to match and update the same check during synchronization."
+        },
+        "description": {
+            "label": "Description",
+            "description": "Functional description of what is checked.",
+            "help": "Explains the operational condition represented by the check."
+        },
+        "instance_id": {
+            "label": "Instance",
+            "description": "Instance concerned by the check.",
+            "help": "The check is deleted when its instance is deleted."
+        },
+        "value": {
+            "label": "Value",
+            "description": "Current boolean value of the check.",
+            "help": "Enabled means the checked condition is currently valid."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Instance check",
+            "description": "Displays an instance check.",
+            "layout": {}
+        },
+        "list.default": {
+            "name": "Instance checks",
+            "description": "Displays instance checks.",
+            "layout": {}
+        },
+        "list.instance": {
+            "name": "Checks",
+            "description": "Displays the instance checks.",
+            "layout": {}
+        }
+    }
+}

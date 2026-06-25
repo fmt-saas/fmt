@@ -1,0 +1,44 @@
+{
+    "name": "Contrôle d'instance",
+    "plural": "Contrôles d'instance",
+    "description": "Contrôle booléen rattaché à une instance.",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Nom technique unique du contrôle.",
+            "help": "Utilisé pour retrouver et mettre à jour le même contrôle."
+        },
+        "description": {
+            "label": "Description",
+            "description": "Description fonctionnelle du contrôle effectué.",
+            "help": "Explique la condition opérationnelle représentée."
+        },
+        "instance_id": {
+            "label": "Instance",
+            "description": "Instance concernée par le contrôle.",
+            "help": "Le contrôle est supprimé avec son instance."
+        },
+        "value": {
+            "label": "Valeur",
+            "description": "Valeur booléenne actuelle du contrôle.",
+            "help": "Activé signifie que la condition contrôlée est valide."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Contrôle d'instance",
+            "description": "Affiche le détail d'un contrôle d'instance.",
+            "layout": {}
+        },
+        "list.default": {
+            "name": "Contrôles d'instance",
+            "description": "Affiche la liste des contrôles d'instance.",
+            "layout": {}
+        },
+        "list.instance": {
+            "name": "Contrôles",
+            "description": "Affiche les contrôles de l'instance.",
+            "layout": {}
+        }
+    }
+}
