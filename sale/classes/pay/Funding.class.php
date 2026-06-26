@@ -300,7 +300,7 @@ class Funding extends \equal\orm\Model {
             foreach($funding['payments_ids'] as $payment_id => $payment) {
                 if($payment['payment_origin'] === 'funding_allocation') {
                     Payment::id($payment_id)
-                        ->do('revert')
+                        ->transition('revert')
                         ->delete(true);
                 }
             }

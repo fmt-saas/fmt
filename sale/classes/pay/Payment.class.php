@@ -272,7 +272,7 @@ class Payment extends Model {
         foreach($self as $id => $payment) {
             if($payment['linked_payment_id']) {
                 $linkedPayment = self::id($payment['linked_payment_id'])
-                    ->do('revert')
+                    ->transition('revert')
                     ->delete(true);
             }
         }
