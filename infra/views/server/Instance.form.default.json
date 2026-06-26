@@ -175,7 +175,8 @@
                                                 "value": "checks_ids",
                                                 "width": "50%",
                                                 "widget": {
-                                                    "view": "list.instance"
+                                                    "view": "list.instance",
+                                                    "limit": 10
                                                 }
                                             },
                                             {
@@ -184,13 +185,20 @@
                                                 "width": "50%",
                                                 "widget": {
                                                     "view": "list.instance",
-                                                    "limit": 5
+                                                    "limit": 10
                                                 }
                                             }
                                         ]
                                     }
                                 ]
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.logs",
+                        "label": "Statuses",
+                        "visible": ["state", "<>", "draft"],
+                        "rows": [
                             {
                                 "columns": [
                                     {
@@ -199,7 +207,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "refreshed_logs",
-                                                "width": "50%",
+                                                "width": "100%",
                                                 "widget": {
                                                     "height": 500
                                                 }

@@ -163,7 +163,7 @@ try {
 }
 catch(Exception $e) {
     // instance is down
-    Instance::id($instance['id'])->update(['up' => false, 'last_synced' => time()]);
+    Instance::id($instance['id'])->update(['up' => false]);
 }
 
 $context
