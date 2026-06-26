@@ -658,7 +658,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         ->transition('revert')
                         ->delete(true);
 
-                    Funding::id($funding_id)->delete(true);
+                    Funding::id($funding_id)->do('remove');
                 }
             }
         }

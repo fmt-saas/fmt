@@ -90,7 +90,8 @@ class Payment extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'cashdesk',             // money was received at the cashdesk
-                    'bank'                  // money was received on a bank account
+                    'bank',                 // money was received on a bank account
+                    'funding_allocation'
                 ],
                 'description'       => "Origin of the received money.",
                 'default'           => 'bank'
@@ -102,8 +103,7 @@ class Payment extends Model {
                     'cash',                 // cash money
                     'bank_card',            // electronic payment with credit card
                     'voucher',              // gift or coupon
-                    'wire_transfer',        // transfer between bank account
-                    'funding_allocation'
+                    'wire_transfer'         // transfer between bank account
                 ],
                 'description'       => "The method used for payment at the cashdesk.",
                 'default'           => 'wire_transfer'

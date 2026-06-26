@@ -543,7 +543,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     ->transition('revert')
                     ->delete(true);
 
-                Funding::id($funding_id)->delete(true);
+                Funding::id($funding_id)->do('remove');
             }
 
             if($purchaseInvoice['document_process_id']) {

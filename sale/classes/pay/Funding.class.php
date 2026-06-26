@@ -262,6 +262,11 @@ class Funding extends \equal\orm\Model {
                 'description'   => 'Update status according to currently paid amount.',
                 'policies'      => [],
                 'function'      => 'doRefreshStatus'
+            ],
+            'remove'  => [
+                'description'   => 'Remove Funding and related FundingAllocation objects.',
+                'policies'      => [],
+                'function'      => 'doRemove'
             ]
         ];
     }
@@ -286,6 +291,20 @@ class Funding extends \equal\orm\Model {
             }
         }
         return $result;
+    }
+
+    protected static function doRemove($self) {
+        $self->read(['payments_ids' => ['payment_origin', 'bank_statement_line_id']]);
+
+        foreach($self as $id => $funding) {
+            foreach($funding['payments_ids'] as $payment_id => $payment) {
+                if($payment['payment_origin'] === 'funding_allocation') {
+                    Payment::id($payment_id)
+                        ->do('revert')
+                        ->delete(true);
+                }
+            }
+        }
     }
 
     protected static function doRefreshStatus($self) {

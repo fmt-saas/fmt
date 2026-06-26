@@ -634,7 +634,7 @@ class MiscOperation extends Model {
                     ->transition('revert')
                     ->delete(true);
 
-                Funding::id($funding_id)->delete(true);
+                Funding::id($funding_id)->do('remove');
             }
 
         }

@@ -54,7 +54,7 @@ class FundingAllocation extends Model {
                 'store'             => true
             ],
 
-            'payment_method' => [
+            'payment_origin' => [
                 'type'              => 'string',
                 'description'       => "The method used for payment at the cashdesk.",
                 'default'           => 'funding_allocation'
