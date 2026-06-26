@@ -747,6 +747,9 @@ class BankStatementLine extends Model {
         }
     }
 
+    /**
+     * #memo - There are no FundingAllocation on BankStatementLine (only real payments are relevant)
+     */
     protected static function doUnlock($self, $orm) {
         $self->read([
             'status',

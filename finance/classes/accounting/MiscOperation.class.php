@@ -626,6 +626,7 @@ class MiscOperation extends Model {
                     }
                 }
 
+                // #todo - should we use FundingAllocation instead (all Payment relating to bankStatementLine have been processd above)
                 Payment::search([
                         ['origin_object_class', '=', 'finance\accounting\MiscOperation'],
                         ['origin_object_id', '=', $id],
@@ -1380,7 +1381,7 @@ class MiscOperation extends Model {
 
                         $signed_delta = $sign * $delta;
 
-                        FundingAllocation::create([
+                        $fundingAllocationA = FundingAllocation::create([
                                 'condo_id'                  => $miscOperation['condo_id'],
                                 'amount'                    => -$signed_delta,
                                 'receipt_date'              => $miscOperation['posting_date'],
@@ -1389,9 +1390,10 @@ class MiscOperation extends Model {
                                 'misc_operation_id'         => $id,
                                 'accounting_entry_line_id'  => $accountingEntryLine['id'],
                                 'funding_id'                => $funding_id
-                            ]);
+                            ])
+                            ->first();
 
-                        FundingAllocation::create([
+                        $fundingAllocationB = FundingAllocation::create([
                                 'condo_id'                  => $miscOperation['condo_id'],
                                 'amount'                    => $signed_delta,
                                 'receipt_date'              => $miscOperation['posting_date'],
@@ -1399,8 +1401,12 @@ class MiscOperation extends Model {
                                 'origin_object_id'          => $id,
                                 'misc_operation_id'         => $id,
                                 'accounting_entry_line_id'  => $accountingEntryLine['id'],
-                                'funding_id'                => $operationFunding['id']
-                            ]);
+                                'funding_id'                => $operationFunding['id'],
+                                'linked_payment_id'         => $fundingAllocationA['id']
+                            ])
+                            ->first();
+
+                        FundingAllocation::id($fundingAllocationA['id'])->update(['linked_payment_id' => $fundingAllocationB['id']]);
 
                         Funding::id($funding_id)->do('refresh_status');
 

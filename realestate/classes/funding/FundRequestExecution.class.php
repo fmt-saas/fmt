@@ -650,6 +650,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         }
                     }
 
+                    // #todo - should we use FundingAllocation instead (all Payment relating to bankStatementLine have been processd above)
                     Payment::search([
                             ['origin_object_class', '=', 'realestate\funding\FundRequestExecution'],
                             ['origin_object_id', '=', $id],
@@ -882,7 +883,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
                         $signed_delta = $sign * $delta;
 
-                        FundingAllocation::create([
+                        $fundingAllocationA = FundingAllocation::create([
                                 'condo_id'                  => $requestExecution['condo_id'],
                                 'amount'                    => -$signed_delta,
                                 'receipt_date'              => $requestExecution['posting_date'],
@@ -891,9 +892,10 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                                 'fund_request_execution_id' => $id,
                                 'accounting_entry_line_id'  => $accountingEntryLine['id'],
                                 'funding_id'                => $funding_id
-                            ]);
+                            ])
+                            ->first();
 
-                        FundingAllocation::create([
+                        $fundingAllocationB = FundingAllocation::create([
                                 'condo_id'                  => $requestExecution['condo_id'],
                                 'amount'                    => $signed_delta,
                                 'receipt_date'              => $requestExecution['posting_date'],
@@ -901,8 +903,12 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                                 'origin_object_id'          => $id,
                                 'fund_request_execution_id' => $id,
                                 'accounting_entry_line_id'  => $accountingEntryLine['id'],
-                                'funding_id'                => $ownershipFunding['id']
-                            ]);
+                                'funding_id'                => $ownershipFunding['id'],
+                                'linked_payment_id'         => $fundingAllocationA['id']
+                            ])
+                            ->first();
+
+                        FundingAllocation::id($fundingAllocationA['id'])->update(['linked_payment_id' => $fundingAllocationB['id']]);
 
                         Funding::id($funding_id)->do('refresh_status');
 

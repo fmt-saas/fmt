@@ -128,6 +128,15 @@ class Payment extends Model {
                 'description'       => 'Object identifier, as a complement to `origin_object_class`, the entry originates from.'
             ],
 
+            'linked_payment_id' => [
+                'type'              => 'many2one',
+                'description'       => 'The payment linked to the current one, if any.',
+                'help'              => "This is used for specific situations such as symmetrical funding allocations.",
+                'foreign_object'    => 'sale\pay\Payment',
+                'domain'            => ['linked_payment_id', '=', 'object.id'],
+                'readonly'          => true
+            ],
+
             'accounting_entry_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountingEntry',
@@ -253,6 +262,17 @@ class Payment extends Model {
             }
             if($payment['bank_statement_line_id']) {
                 BankStatement::id($payment['bank_statement_line_id'])->update(['remaining_amount' => null]);
+            }
+        }
+    }
+
+    protected static function onbeforedelete($self) {
+        $self->read(['linked_payment_id']);
+        foreach($self as $id => $payment) {
+            if($payment['linked_payment_id']) {
+                $linkedPayment = self::id($payment['linked_payment_id'])
+                    ->do('revert')
+                    ->delete(true);
             }
         }
     }
