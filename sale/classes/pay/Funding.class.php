@@ -294,9 +294,9 @@ class Funding extends \equal\orm\Model {
             ->read(['due_amount', 'is_paid', 'paid_amount', 'remaining_amount']);
 
         foreach($self as $id => $funding) {
-            $balance = round((float) $funding['remaining_amount'] ?? 0.0, 2);
+            $balance = round((float) ($funding['remaining_amount'] ?? 0.0), 2);
 
-            if(abs($balance) <= 0.01) {
+            if(abs($balance) < 0.01) {
                 $status = 'balanced';
             }
             elseif($balance > 0) {
@@ -352,7 +352,7 @@ class Funding extends \equal\orm\Model {
         $result = [];
         $self->read(['due_amount', 'paid_amount']);
 
-        foreach ($self as $id => $funding) {
+        foreach($self as $id => $funding) {
             $due  = round($funding['due_amount'] ?? 0.0, 2);
             $paid = round($funding['paid_amount'] ?? 0.0, 2);
 
