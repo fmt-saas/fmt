@@ -627,13 +627,14 @@ class MiscOperation extends Model {
                 }
 
                 // #todo - should we use FundingAllocation instead (all Payment relating to bankStatementLine have been processd above)
+                /*
                 Payment::search([
                         ['origin_object_class', '=', 'finance\accounting\MiscOperation'],
                         ['origin_object_id', '=', $id],
                     ])
                     ->transition('revert')
                     ->delete(true);
-
+                */
                 Funding::id($funding_id)->do('remove');
             }
 

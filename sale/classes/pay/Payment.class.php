@@ -271,7 +271,7 @@ class Payment extends Model {
         $self->read(['linked_payment_id' => ['status', 'payment_origin']]);
         foreach($self as $id => $payment) {
             if($payment['linked_payment_id']) {
-                $payments = self::id($payment['linked_payment_id']);
+                $payments = Payment::id($payment['linked_payment_id']);
 
                 if($payment['status'] !== 'proforma') {
                     $payments->transition('revert');

@@ -430,13 +430,14 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     }
                 }
 
+                /*
                 Payment::search([
                         ['origin_object_class', '=', 'realestate\funding\ExpenseStatement'],
                         ['origin_object_id', '=', $id],
                     ])
                     ->transition('revert')
                     ->delete(true);
-
+                */
                 Funding::id($funding_id)->do('remove');
             }
         }

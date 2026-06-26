@@ -651,13 +651,14 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                     }
 
                     // #todo - should we use FundingAllocation instead (all Payment relating to bankStatementLine have been processd above)
+                    /*
                     Payment::search([
                             ['origin_object_class', '=', 'realestate\funding\FundRequestExecution'],
                             ['origin_object_id', '=', $id],
                         ])
                         ->transition('revert')
                         ->delete(true);
-
+                    */
                     Funding::id($funding_id)->do('remove');
                 }
             }
