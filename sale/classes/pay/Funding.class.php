@@ -294,14 +294,18 @@ class Funding extends \equal\orm\Model {
     }
 
     protected static function doRemove($self) {
-        $self->read(['payments_ids' => ['payment_origin', 'bank_statement_line_id']]);
+        $self->read(['payments_ids' => ['status', 'payment_origin', 'bank_statement_line_id']]);
 
         foreach($self as $id => $funding) {
             foreach($funding['payments_ids'] as $payment_id => $payment) {
                 if($payment['payment_origin'] === 'funding_allocation') {
-                    Payment::id($payment_id)
-                        ->transition('revert')
-                        ->delete(true);
+                    $payments = Payment::id($payment_id);
+
+                    if($payment['status'] !== 'proforma') {
+                        $payments->transition('revert');
+                    }
+
+                    $payments->delete(true);
                 }
             }
         }

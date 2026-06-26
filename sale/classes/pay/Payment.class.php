@@ -268,12 +268,16 @@ class Payment extends Model {
     }
 
     protected static function onbeforedelete($self) {
-        $self->read(['linked_payment_id']);
+        $self->read(['linked_payment_id' => ['status', 'payment_origin']]);
         foreach($self as $id => $payment) {
             if($payment['linked_payment_id']) {
-                $linkedPayment = self::id($payment['linked_payment_id'])
-                    ->transition('revert')
-                    ->delete(true);
+                $payments = self::id($payment['linked_payment_id']);
+
+                if($payment['status'] !== 'proforma') {
+                    $payments->transition('revert');
+                }
+
+                $payments->delete(true);
             }
         }
     }
