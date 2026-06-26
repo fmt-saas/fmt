@@ -10,9 +10,10 @@ use equal\text\TextTransformer;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Returns the given PDF document with an overlay.",
-    'help'          => "Can be used to add a watermark or extra information to a PDF document.
+    'help'          => "Add a watermark or extra information to a PDF document.
         Resize supports only downscaling and expects the document to be in A4 format (595x842 points).
-        Positioning options are available to avoid overwriting any existing text or image.",
+        Positioning options are available to avoid overwriting any existing text or image.
+        This output is a technical copy; the original document remains unchanged.",
     'params'        => [
 
         'id' => [
@@ -137,6 +138,36 @@ if($params['page_orientation'] === 'landscape') {
  * Methods
  */
 
+
+/**
+ * Resizes a PDF document by scaling its page content down and centering it on
+ * the expected page size.
+ *
+ * This helper writes the provided PDF content to a temporary file, computes the
+ * horizontal and vertical offsets required to keep the scaled content centered,
+ * and uses Ghostscript to rebuild the PDF with a BeginPage transformation.
+ *
+ * The page content is scaled by the given factor while the output page keeps
+ * the configured page size. The helper is intended for downscaling only, so the
+ * expected scale value should normally be between 0 and 1.
+ *
+ * The target paper size is taken from the current request parameters
+ * (`page_size`) and passed to Ghostscript through `-sPAPERSIZE`. The `$width`
+ * and `$height` arguments are used to compute the centering offsets in PDF
+ * points.
+ *
+ * This function returns a newly generated PDF binary. The input PDF content is
+ * not modified directly. Temporary files are removed after processing.
+ *
+ * @param string $pdf_content The raw PDF content to process.
+ * @param float  $scale       The scale factor to apply to the page content.
+ * @param int    $width       The expected page width in PDF points.
+ * @param int    $height      The expected page height in PDF points.
+ *
+ * @return string The generated PDF content with scaled and centered pages.
+ *
+ * @throws Exception If Ghostscript fails to generate the resized PDF.
+ */
 $resize = function($pdf_content, $scale, $width, $height) use($params) {
     $output_file = tempnam(sys_get_temp_dir(), 'resized_');
     $pdf_file = tempnam(sys_get_temp_dir(), 'pdf_');
@@ -176,6 +207,34 @@ $resize = function($pdf_content, $scale, $width, $height) use($params) {
     return $output;
 };
 
+/**
+ * Adds a text overlay to each page of a PDF document using Ghostscript.
+ *
+ * This helper writes the provided PDF content to a temporary file, generates a
+ * temporary PostScript file defining a BeginPage hook, and runs Ghostscript to
+ * rebuild the PDF with the overlay applied on every page.
+ *
+ * The overlay text is first converted to ASCII and escaped for safe inclusion
+ * in a PostScript string. Backslashes, parentheses and line breaks are handled
+ * to avoid breaking the generated PostScript content.
+ *
+ * The overlay is rendered using one of the supported built-in PostScript fonts
+ * and positioned using PDF/PostScript coordinates, where the origin is located
+ * at the bottom-left corner of the page.
+ *
+ * This function returns a newly generated PDF binary. The input PDF content is
+ * not modified directly. Temporary files are removed after processing.
+ *
+ * @param string $pdf_content  The raw PDF content to process.
+ * @param string $overlay_text The text to render on each page.
+ * @param int    $font_size    The font size, in PostScript points.
+ * @param int    $pos_x        The horizontal position of the text, from the left edge.
+ * @param int    $pos_y        The vertical position of the text, from the bottom edge.
+ *
+ * @return string The generated PDF content with the overlay applied.
+ *
+ * @throws Exception If Ghostscript fails to generate the overlay PDF.
+ */
 $addOverlay = function($pdf_content, $overlay_text, $font_size, $pos_x, $pos_y) use($params) {
     $output_file = tempnam(sys_get_temp_dir(), 'overlay_');
     $pdf_file = tempnam(sys_get_temp_dir(), 'pdf_');
@@ -251,8 +310,51 @@ $addOverlay = function($pdf_content, $overlay_text, $font_size, $pos_x, $pos_y) 
     return $output;
 };
 
-
+/**
+ * Normalizes existing PDF CropBox declarations to the expected page dimensions
+ * while preserving the byte length of each numeric value.
+ *
+ * This helper scans the PDF content for inline CropBox definitions such as:
+ *
+ *     /CropBox [29.7500 42.1000 565.2500 799.9000]
+ *
+ * and rewrites the four numeric values to:
+ *
+ *     [0 0 width height]
+ *
+ * using the same lexical format as the original values whenever possible.
+ * For example, the CropBox above may become:
+ *
+ *     /CropBox [00.0000 00.0000 595.0000 842.0000]
+ *
+ * The purpose is to avoid changing the total byte length of the PDF content,
+ * which could otherwise invalidate the PDF cross-reference table and make the
+ * document unreadable by strict PDF readers such as PDF.js.
+ *
+ * If a target value cannot be represented using the same byte length as the
+ * original numeric token, the corresponding CropBox declaration is left
+ * unchanged.
+ *
+ * This helper only handles inline CropBox arrays with four numeric values.
+ * It does not resolve indirect objects, compressed object streams, inherited
+ * page boxes, or non-standard CropBox representations.
+ *
+ * This should only be used on technical/generated PDF copies, not on the
+ * original archived document.
+ *
+ * @param string $pdf_content The raw PDF content to process.
+ * @param float  $width       The target page width in PDF points.
+ * @param float  $height      The target page height in PDF points.
+ *
+ * @return string The PDF content with normalized inline CropBox declarations.
+ *
+ * @throws Exception If the CropBox normalization regex processing fails.
+ */
 $normalize = function(string $pdf_content, float $width, float $height): string {
+    if(strpos($pdf_content, '/CropBox') === false) {
+        return $pdf_content;
+    }
+
     $formatNumberLike = function(string $template, float $value): ?string {
         $length = strlen($template);
 
@@ -361,9 +463,6 @@ if($scale < 1) {
 
 $pdf_content = $addOverlay($pdf_content, $params['overlay_text'], $params['font_size'], $params['pos_x'], $params['pos_y']);
 
-// Normalize existing CropBox entries to the expected full page size to avoid
-// cropped rendering in downstream PDF viewers/converters. This output is a
-// technical copy; the original document remains unchanged.
 $output = $normalize($pdf_content, $width, $height);
 
 $context->httpResponse()

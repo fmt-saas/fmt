@@ -185,35 +185,6 @@ class MiscOperation extends Model {
                 'ondelete'          => 'null'
             ],
 
-            /**
-             * // #todo - temporary flag indicating that this journal entry is used as an "opening journal".
-             *
-             * IMPORTANT:
-             * When this flag is enabled, this document DOES NOT generate any AccountingEntry.
-             * Instead, it is used as a source to build an OpeningBalance snapshot.
-             *
-             * This is a temporary mechanism introduced for practical reasons to allow
-             * detailed input of opening balances (multiple lines per account, with descriptions),
-             * similar to traditional opening journal entries.
-             *
-             * Architectural note:
-             * In the target accounting model, OpeningBalance is a snapshot and should NOT rely
-             * on journal entries. This flag introduces an exception by using a journal-like
-             * structure purely as a data input for the snapshot.
-             *
-             * Consequences:
-             * - This object must NOT be considered as a valid accounting entry.
-             * - It must NOT appear in accounting exports or journals.
-             * - It does NOT impact the ledger or AccountBalanceChange.
-             * - It is only linked to OpeningBalance / OpeningBalanceLine for traceability.
-             *
-             * WARNING:
-             * This is a transitional workaround. A dedicated OpeningBalanceDocument (or equivalent)
-             * should eventually replace this mechanism to restore full separation between:
-             * - accounting truth (AccountingEntry)
-             * - snapshots (OpeningBalance / ClosingBalance)
-             * - business input documents
-             */
             'has_opening_journal' => [
                 'type'              => 'boolean',
                 'default'           => false,
@@ -589,9 +560,13 @@ class MiscOperation extends Model {
     }
 
     protected static function doUnlock($self) {
-        $self->read(['condo_id', 'accounting_entry_id']);
+        $self->read(['condo_id', 'accounting_entry_id', 'has_opening_journal', 'opening_balance_id']);
 
         foreach($self as $id => $miscOperation) {
+
+            if($miscOperation['has_opening_journal'] && $miscOperation['opening_balance_id']) {
+                OpeningBalance::id($miscOperation['opening_balance_id'])->transition('revert');
+            }
 
             AccountingEntry::id($miscOperation['accounting_entry_id'])->do('cancel');
 
@@ -695,7 +670,6 @@ class MiscOperation extends Model {
                     ['condo_id', '=', $condo_id],
                     ['fiscal_year_id', '=', $fiscal_year_id]
                 ])
-                ->read(['status'])
                 ->first();
 
             if($existingOpeningBalance) {
@@ -709,156 +683,6 @@ class MiscOperation extends Model {
                 ])
                 ->first();
 
-/*
-            // #memo - logic change : has_opening_balance puts AEL in OPEN journal and create an empty (first) Opening Balance
-            $miscOperationLines = MiscOperationLine::ids($miscOperation['misc_operation_lines_ids'])
-                ->read(['account_id', 'debit', 'credit', 'description']);
-
-            $lines_by_account = [];
-            foreach($miscOperationLines as $line) {
-                $account_id = $line['account_id'];
-
-                if(!isset($lines_by_account[$account_id])) {
-                    $lines_by_account[$account_id] = ['debit' => 0.0, 'credit' => 0.0, 'description' => ''];
-                }
-
-                $lines_by_account[$account_id]['debit'] += (float) $line['debit'];
-                $lines_by_account[$account_id]['credit'] += (float) $line['credit'];
-
-                $lines_by_account[$account_id]['description'] .= $line['description'] . ' ';
-            }
-
-            // we'll need to check if account is co_owners_owner_reserve_fund or co_owners_owner_working_fund
-            $map_accounts = Account::ids(array_keys($lines_by_account))
-                ->read(['operation_assignment', 'ownership_id', 'suppliership_id'])
-                ->get();
-
-            foreach($lines_by_account as $account_id => $line) {
-                $debit_balance  = max(0, $line['debit'] - $line['credit']);
-                $credit_balance = max(0, $line['credit'] - $line['debit']);
-
-                OpeningBalanceLine::create([
-                        'condo_id'       => $condo_id,
-                        'balance_id'     => $openingBalance['id'],
-                        'fiscal_year_id' => $miscOperation['fiscal_year_id'],
-                        'account_id'     => $account_id,
-                        'debit'          => $line['debit'],
-                        'credit'         => $line['credit'],
-                        'debit_balance'  => $debit_balance,
-                        'credit_balance' => $credit_balance
-                    ]);
-
-                // #memo - not sure AccountBalanceChange creating this is necessary (theoretically we always fallback on openingBalanceLine)
-                $current = AccountBalanceChange::search([
-                            ['condo_id', '=', $condo_id],
-                            ['account_id', '=', $account_id],
-                            ['date', '=', $fiscalYear['date_from']]
-                        ],
-                        ['limit' => 1]
-                    )
-                    ->read(['id', 'debit_balance', 'credit_balance'])
-                    ->first();
-
-                if($current) {
-                    $new_debit  = (float) $current['debit_balance']  + $debit_balance;
-                    $new_credit = (float) $current['credit_balance'] + $credit_balance;
-
-                    AccountBalanceChange::id($current['id'])->update([
-                        'debit_balance'  => round($new_debit, 2),
-                        'credit_balance' => round($new_credit, 2)
-                    ]);
-
-                }
-                else {
-                    AccountBalanceChange::create([
-                        'condo_id'       => $miscOperation['condo_id'],
-                        'account_id'     => $account_id,
-                        'date'           => $fiscalYear['date_from'],
-                        'debit_balance'  => round($debit_balance, 2),
-                        'credit_balance' => round($credit_balance, 2)
-                    ]);
-                }
-
-                // in case of ownership account, create a Funding
-                // if(in_array($map_accounts[$account_id]['operation_assignment'], ['co_owners_owner_reserve_fund', 'co_owners_owner_working_fund'], true)) {
-                if($map_accounts[$account_id]['ownership_id']) {
-                    $ownership_id = $map_accounts[$account_id]['ownership_id'];
-
-                    $issue_date = $miscOperation['posting_date'];
-
-                    // #todo - make possible to customize
-                    $due_date = $fiscalYear['date_from'];
-
-                    // #memo - always use Ownership control_account for Fundings
-                    $ownershipAccount = Account::search([
-                            ['condo_id', '=', $condo_id],
-                            ['ownership_id', '=', $ownership_id],
-                            ['is_control_account', '=', true]
-                            // ['operation_assignment', '=', 'co_owners_owner_working_fund']
-                        ])
-                        ->first();
-
-                    if(!$ownershipAccount) {
-                        throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
-                    }
-
-                    // #todo - allow to choose
-                    $condominiumBankAccount = CondominiumBankAccount::search([
-                            ['condo_id', '=', $condo_id]
-                        ], ['sort' => ['is_primary' => 'desc'], 'limit' => 1])
-                        ->first();
-
-                    Funding::create([
-                            'condo_id'                          => $condo_id,
-                            'description'                       => $line['description'],
-                            'funding_type'                      => 'misc_operation',
-                            'misc_operation_id'                 => $id,
-                            'ownership_id'                      => $ownership_id,
-                            'bank_account_id'                   => $condominiumBankAccount['id'] ?? null,
-                            'accounting_account_id'             => $ownershipAccount['id'],
-                            'issue_date'                        => $issue_date,
-                            'due_date'                          => $due_date,
-                            'due_amount'                        => $line['debit'] - $line['credit']
-                        ]);
-                }
-                elseif($map_accounts[$account_id]['suppliership_id']) {
-                    $suppliership_id = $map_accounts[$account_id]['suppliership_id'];
-
-                    $issue_date = $miscOperation['posting_date'];
-
-                    // #todo - make possible to customize
-                    $due_date = $fiscalYear['date_from'];
-
-                    // #todo - allow to choose
-                    $condominiumBankAccount = CondominiumBankAccount::search([
-                            ['condo_id', '=', $miscOperation['condo_id']]
-                        ], ['sort' => ['is_primary' => 'desc'], 'limit' => 1])
-                        ->first();
-
-                    $supplierBankAccount = SuppliershipBankAccount::search([
-                            ['condo_id', '=', $condo_id],
-                            ['suppliership_id', '=', $suppliership_id]
-                        ], ['sort' => ['is_primary' => 'desc'], 'limit' => 1])
-                        ->read(['bank_account_id'])
-                        ->first();
-
-                    Funding::create([
-                            'condo_id'                          => $condo_id,
-                            'description'                       => $line['description'],
-                            'funding_type'                      => 'misc_operation',
-                            'misc_operation_id'                 => $id,
-                            'suppliership_id'                   => $suppliership_id,
-                            'bank_account_id'                   => $condominiumBankAccount['id'] ?? null,
-                            'counterpart_bank_account_id'       => $supplierBankAccount['bank_account_id'] ?? null,
-                            'accounting_account_id'             => $account_id,
-                            'issue_date'                        => $issue_date,
-                            'due_date'                          => $due_date,
-                            'due_amount'                        => $line['debit'] - $line['credit']
-                        ]);
-                }
-            }
-
-*/
             FiscalYear::id($fiscal_year_id)
                 ->update(['opening_balance_id' => $openingBalance['id']]);
 

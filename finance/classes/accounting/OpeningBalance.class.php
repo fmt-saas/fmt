@@ -50,12 +50,23 @@ class OpeningBalance extends Balance {
                 'icon'        => 'edit',
                 'transitions' => [
                     'validate' => [
-                        'description' => 'Update the Balance to `validated`.',
+                        'description' => 'Update Balance to `validated`.',
                         'onbefore'    => 'onbeforeValidate',
                         'status'      => 'validated'
                     ]
                 ]
+            ],
+            'validated' => [
+                'description' => 'Balance being completed, waiting to be validated.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'revert' => [
+                        'description' => 'Revert Balance to `pending`.',
+                        'status'      => 'pending'
+                    ]
+                ]
             ]
+
         ];
     }
 
