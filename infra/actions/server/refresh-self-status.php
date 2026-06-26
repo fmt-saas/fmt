@@ -27,22 +27,8 @@ use purchase\supplier\Supplier;
         'charset'           => 'utf-8',
         'accept-origin'     => '*'
     ],
-    'constants'         => [
-        'ENV_MODE',
-        'FILE_STORAGE_MODE',
-        'SERVICE_ORM_COLLECTION_CLASS',
-        'SERVICE_ACCESS_ACCESSCONTROLLER',
-        'AUTH_SECRET_KEY',
-        'GOOGLE_DOCAI_PRIVATE_KEY',
-        'GOOGLE_DOCAI_CLIENT_EMAIL',
-        'GOOGLE_DOCAI_PROJECT_ID',
-        'GOOGLE_DOCAI_PROCESSOR_ID',
-        'GOOGLE_GMAIL_CLIENT_ID',
-        'GOOGLE_GMAIL_CLIENT_SECRET',
-        'MS_TENANT_ID',
-        'MS_OUTLOOK_CLIENT_ID',
-        'MS_OUTLOOK_CLIENT_SECRET'
-    ],
+    // #memo - placing required constants here would block the script if missing
+    'constants'         => [],
     'providers'         => ['context']
 ]);
 
@@ -59,8 +45,59 @@ if(!$instance) {
     throw new Exception('instance_missing', EQ_ERROR_INVALID_CONFIG);
 }
 
+
+/**
+ * REQUIREMENTS DEFINITION
+ */
+
 $allowed_equal_branches = ['2.0.1'];
 $allowed_fmt_branches = ['main'];
+
+$required_config = [
+    'ENV_MODE',
+    'FILE_STORAGE_MODE',
+    'SERVICE_ORM_COLLECTION_CLASS',
+    'SERVICE_ACCESS_ACCESSCONTROLLER',
+    'AUTH_SECRET_KEY',
+    'GOOGLE_DOCAI_PRIVATE_KEY',
+    'GOOGLE_DOCAI_CLIENT_EMAIL',
+    'GOOGLE_DOCAI_PROJECT_ID',
+    'GOOGLE_DOCAI_PROCESSOR_ID',
+    'GOOGLE_GMAIL_CLIENT_ID',
+    'GOOGLE_GMAIL_CLIENT_SECRET',
+    'MS_TENANT_ID',
+    'MS_OUTLOOK_CLIENT_ID',
+    'MS_OUTLOOK_CLIENT_SECRET',
+];
+
+$expected_config = [
+    'ENV_MODE'                          => 'production',
+    'FILE_STORAGE_MODE'                 => 'DB',
+    'SERVICE_ORM_COLLECTION_CLASS'      => 'fmt\orm\Collection',
+    'SERVICE_ACCESS_ACCESSCONTROLLER'   => 'fmt\access\AccessController',
+];
+
+$required_entities = [
+    DocumentType::getType(),
+    DocumentSubtype::getType(),
+    Supplier::getType(),
+    Bank::getType(),
+    Template::getType()
+];
+
+$required_tasks = [
+    'core_spool_run',
+    'core_spool_sync-alerts',
+    'documents_export_cron_run',
+    'finance_accounting_generate-expense-statements',
+    'realestate_funding_verify-expired-fundings',
+    'infra_server_refresh-self-status'
+];
+
+
+/**
+ * CHECKS
+ */
 
 $data = [];
 $checks = [];
@@ -134,41 +171,25 @@ if(isset($fmt_version_data['up_to_date'])) {
     Configuration file
 */
 
-$expected_config = [
-    'ENV_MODE'                          => 'production',
-    'FILE_STORAGE_MODE'                 => 'DB',
-    'SERVICE_ORM_COLLECTION_CLASS'      => 'fmt\orm\Collection',
-    'SERVICE_ACCESS_ACCESSCONTROLLER'   => 'fmt\access\AccessController',
-];
-
 $is_config_ok = true;
+foreach($required_config as $key) {
+    if(!defined($key) || empty(constant($key))) {
+        $is_config_ok = false;
+
+        $logs['missing_configs'][] = sprintf('Config %s is required', $key);
+    }
+}
+
 foreach($expected_config as $key => $expected_value) {
+    if(!defined($key)) {
+        continue;
+    }
+
     $value = constant($key);
     if($value !== $expected_value) {
         $is_config_ok = false;
 
         $logs['mismatch_configs'][] = sprintf("Config %s has value '%s' but '%s' is expected", $key, $value, $expected_value);
-    }
-}
-
-$required_config = [
-    'AUTH_SECRET_KEY',
-    'GOOGLE_DOCAI_PRIVATE_KEY',
-    'GOOGLE_DOCAI_CLIENT_EMAIL',
-    'GOOGLE_DOCAI_PROJECT_ID',
-    'GOOGLE_DOCAI_PROCESSOR_ID',
-    'GOOGLE_GMAIL_CLIENT_ID',
-    'GOOGLE_GMAIL_CLIENT_SECRET',
-    'MS_TENANT_ID',
-    'MS_OUTLOOK_CLIENT_ID',
-    'MS_OUTLOOK_CLIENT_SECRET',
-];
-
-foreach($required_config as $key) {
-    if(!defined($key) || empty(constant($key))) {
-        $is_config_ok = false;
-
-        $logs['mismatch_configs'][] = sprintf('Config %s is required', $key);
     }
 }
 
@@ -183,16 +204,8 @@ $set_check(
     Data
 */
 
-$entities = [
-    DocumentType::getType(),
-    DocumentSubtype::getType(),
-    Supplier::getType(),
-    Bank::getType(),
-    Template::getType()
-];
-
 $is_required_data_ok = true;
-foreach($entities as $entity) {
+foreach($required_entities as $entity) {
     $ids = $entity::search()->ids();
     if(!count($ids)) {
         $is_required_data_ok = false;
@@ -211,15 +224,6 @@ $set_check(
 /*
     Tasks
 */
-
-$required_tasks = [
-    'core_spool_run',
-    'core_spool_sync-alerts',
-    'documents_export_cron_run',
-    'finance_accounting_generate-expense-statements',
-    'realestate_funding_verify-expired-fundings',
-    'infra_server_refresh-self-status'
-];
 
 $tasks = Task::search([
         ['controller', 'in', $required_tasks],
