@@ -176,6 +176,7 @@
                                                 "width": "50%",
                                                 "widget": {
                                                     "view": "list.instance",
+                                                    "layout": "inline",
                                                     "limit": 10
                                                 }
                                             },
@@ -185,6 +186,7 @@
                                                 "width": "50%",
                                                 "widget": {
                                                     "view": "list.instance",
+                                                    "layout": "inline",
                                                     "limit": 10
                                                 }
                                             }
@@ -196,7 +198,7 @@
                     },
                     {
                         "id": "section.logs",
-                        "label": "Statuses",
+                        "label": "Logs",
                         "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
@@ -209,7 +211,7 @@
                                                 "value": "refreshed_logs",
                                                 "width": "100%",
                                                 "widget": {
-                                                    "height": 500
+                                                    "height": 700
                                                 }
                                             }
                                         ]
