@@ -309,6 +309,7 @@ class Funding extends \equal\orm\Model {
                 }
             }
         }
+        $self->delete(true);
     }
 
     protected static function doRefreshStatus($self) {
