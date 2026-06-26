@@ -7,7 +7,6 @@
 
 use equal\http\HttpRequest;
 use equal\orm\Field;
-use infra\server\Instance;
 use infra\server\InstanceCheck;
 use infra\server\Status;
 
@@ -31,14 +30,14 @@ use infra\server\Status;
         'accept-origin'     => '*'
     ],
     'constants'         => ['FMT_INSTANCE_TYPE'],
-    'providers'         => ['context', 'adapt']
+    'providers'         => ['context', 'adapt', 'self']
 ]);
 
 /**
  * @var \equal\php\Context                      $context
  * @var \equal\data\adapt\DataAdapterProvider   $dap
  */
-['context' => $context, 'adapt' => $dap] = $providers;
+['context' => $context, 'adapt' => $dap, 'self' => $self] = $providers;
 
 $adapter = $dap->get('json');
 
@@ -46,9 +45,7 @@ if(constant('FMT_INSTANCE_TYPE') !== 'global') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
-$instance = Instance::id($params['id'])
-    ->read(['url', 'access_token'])
-    ->first();
+$instance = $self->read(['url', 'access_token'])->first();
 
 if(!$instance) {
     throw new Exception('unknown_instance', EQ_ERROR_INVALID_PARAM);
@@ -56,7 +53,7 @@ if(!$instance) {
 
 if($instance['id'] === 1) {
     // if current main instance then simply refresh its status
-    eQual::run('do', 'infra_server_refresh-main-instance-status');
+    eQual::run('do', 'infra_server_refresh-self-status');
 }
 else {
     if(empty($instance['url'])) {
@@ -64,7 +61,7 @@ else {
     }
 
     try {
-        $request = new HttpRequest('GET '.rtrim($instance['url'], '/').'/?'.http_build_query(['get' => 'infra_server_main-instance-status']));
+        $request = new HttpRequest('GET ' . rtrim($instance['url'], '/') . '/?get=infra_server_self-status');
 
         $request
             ->header('Content-Type', 'application/json')
@@ -76,10 +73,10 @@ else {
         $data = $response->body();
 
         if($response->getStatusCode() !== 200 || empty($data)) {
-            trigger_error("APP::Error while fetching  instance data" . json_encode($data), EQ_REPORT_ERROR);
+            trigger_error("APP::Error while fetching instance data" . json_encode($data), EQ_REPORT_ERROR);
         }
         else {
-            Instance::id($instance['id'])->update([
+            $self->update([
                 'refreshed'                     => $adapter->adaptIn($data['refreshed'], Field::MAP_TYPE_USAGE['datetime']),
                 'refreshed_logs'                => $data['refreshed_logs'],
                 'branch_equal'                  => $data['branch_equal'],
@@ -142,7 +139,7 @@ else {
         }
     }
     catch(Exception $e) {
-        trigger_error("APP::Error while fetching  instance data", EQ_REPORT_ERROR);
+        trigger_error("APP::Error while fetching instance data", EQ_REPORT_ERROR);
     }
 }
 
@@ -159,11 +156,11 @@ try {
     ]);
 
     // instance is up
-    Instance::id($instance['id'])->update(['up' => true, 'last_synced' => time()]);
+    $self->update(['up' => true, 'last_synced' => time()]);
 }
 catch(Exception $e) {
     // instance is down
-    Instance::id($instance['id'])->update(['up' => false]);
+    $self->update(['up' => false]);
 }
 
 $context

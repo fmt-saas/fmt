@@ -218,7 +218,7 @@ $required_tasks = [
     'documents_export_cron_run',
     'finance_accounting_generate-expense-statements',
     'realestate_funding_verify-expired-fundings',
-    'infra_server_refresh-main-instance-status'
+    'infra_server_refresh-self-status'
 ];
 
 $tasks = Task::search([
@@ -291,7 +291,7 @@ foreach($checks as $check) {
     Create response
 */
 
-$result = eQual::run('get', 'infra_server_main-instance-status');
+$result = eQual::run('get', 'infra_server_self-status');
 
 $context
     ->httpResponse()

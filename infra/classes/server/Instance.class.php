@@ -123,7 +123,7 @@ class Instance extends Model {
             'refreshed' => [
                 'type'              => 'datetime',
                 'description'       => 'The last time the status of the instance was refreshed.',
-                'help'              => 'Updated when the information on branches, config, tasks and required data are refreshed (refresh-main-instance-status).'
+                'help'              => 'Updated when the information on branches, config, tasks and required data are refreshed (refresh-self-status).'
             ],
 
             'refreshed_logs' => [
