@@ -1442,7 +1442,8 @@ class MiscOperation extends Model {
         $has_opening_journal = $event['has_opening_journal'] ?? $values['has_opening_journal'] ?? null;
 
         if($condo_id) {
-            $journal = Journal::search([['condo_id', '=', $event['condo_id']], ['journal_type', '=', 'MISC']])->read(['id', 'name'])->first();
+            $journal_type = $has_opening_journal ? 'OPEN' : 'MISC';
+            $journal = Journal::search([['condo_id', '=', $event['condo_id']], ['journal_type', '=', $journal_type]])->read(['id', 'name'])->first();
             if($journal) {
                 $result['journal_id'] = [
                         'id'    => $journal['id'],
@@ -1452,8 +1453,8 @@ class MiscOperation extends Model {
         }
 
         if(isset($event['has_opening_journal']) && $condo_id) {
-            if($has_opening_journal) {
-                $journal = Journal::search([['condo_id', '=', $condo_id], ['journal_type', '=', 'OPEN']])->read(['id', 'name'])->first();
+            $journal_type = $event['has_opening_journal'] ? 'OPEN' : 'MISC';
+            if($event['has_opening_journal']) {
                 // #memo - Opening MiscOp can only be made for first fiscal year
                 $firstFiscalYear = FiscalYear::search([
                         ['condo_id', '=', $condo_id],
@@ -1465,9 +1466,8 @@ class MiscOperation extends Model {
                     $result['posting_date'] = $firstFiscalYear['date_from'];
                 }
             }
-            else {
-                $journal = Journal::search([['condo_id', '=', $condo_id], ['journal_type', '=', 'MISC']])->read(['id', 'name'])->first();
-            }
+
+            $journal = Journal::search([['condo_id', '=', $condo_id], ['journal_type', '=', $journal_type]])->read(['id', 'name'])->first();
 
             if($journal) {
                 $result['journal_id'] = [
