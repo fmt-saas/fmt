@@ -251,6 +251,87 @@ $addOverlay = function($pdf_content, $overlay_text, $font_size, $pos_x, $pos_y) 
     return $output;
 };
 
+
+$normalize = function(string $pdf_content, float $width, float $height): string {
+    $formatNumberLike = function(string $template, float $value): ?string {
+        $length = strlen($template);
+
+        $has_sign = ($template[0] === '-' || $template[0] === '+');
+        $unsigned_template = $has_sign ? substr($template, 1) : $template;
+
+        $sign = '';
+        if($value < 0) {
+            $sign = '-';
+            $value = abs($value);
+        }
+        elseif($has_sign && $template[0] === '+') {
+            $sign = '+';
+        }
+
+        if(strpos($unsigned_template, '.') !== false) {
+            $decimal_count = strlen($unsigned_template) - strpos($unsigned_template, '.') - 1;
+            $formatted = $sign . number_format($value, $decimal_count, '.', '');
+        }
+        else {
+            $formatted = $sign . (string) round($value);
+        }
+
+        if(strlen($formatted) > $length) {
+            return null;
+        }
+
+        return str_pad($formatted, $length, '0', STR_PAD_LEFT);
+    };
+
+    $number_pattern = '[-+]?(?:\d+\.\d+|\d+|\.\d+)';
+
+    $cropbox_pattern = '#'
+        . '(/CropBox\s*\[\s*)'
+        . '(' . $number_pattern . ')'
+        . '(\s+)'
+        . '(' . $number_pattern . ')'
+        . '(\s+)'
+        . '(' . $number_pattern . ')'
+        . '(\s+)'
+        . '(' . $number_pattern . ')'
+        . '(\s*\])'
+        . '#s';
+
+    $output = preg_replace_callback(
+        $cropbox_pattern,
+        function(array $matches) use($formatNumberLike, $width, $height) {
+            $values = [
+                $formatNumberLike($matches[2], 0),
+                $formatNumberLike($matches[4], 0),
+                $formatNumberLike($matches[6], $width),
+                $formatNumberLike($matches[8], $height)
+            ];
+
+            if(in_array(null, $values, true)) {
+                return $matches[0];
+            }
+
+            return $matches[1]
+                . $values[0]
+                . $matches[3]
+                . $values[1]
+                . $matches[5]
+                . $values[2]
+                . $matches[7]
+                . $values[3]
+                . $matches[9];
+        },
+        $pdf_content
+    );
+
+    if($output === null) {
+        trigger_error("APP::PDF CropBox normalization failed.", EQ_REPORT_ERROR);
+        throw new Exception("cropbox_normalization_failed", EQ_ERROR_UNKNOWN);
+    }
+
+    return $output;
+};
+
 /**
  * Action
  */
@@ -283,11 +364,7 @@ $pdf_content = $addOverlay($pdf_content, $params['overlay_text'], $params['font_
 // Normalize existing CropBox entries to the expected full page size to avoid
 // cropped rendering in downstream PDF viewers/converters. This output is a
 // technical copy; the original document remains unchanged.
-$output = preg_replace(
-    '#/CropBox\s*\[\s*[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+\s*\]#s',
-    "/CropBox [0 0 {$width} {$height}]",
-    $pdf_content
-);
+$output = $normalize($pdf_content, $width, $height);
 
 $context->httpResponse()
         ->header('Content-Disposition', $params['disposition'] . '; filename="' . $filename . '"')
