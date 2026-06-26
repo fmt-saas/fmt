@@ -51,12 +51,12 @@ use purchase\supplier\Supplier;
  */
 ['context' => $context] = $providers;
 
-$main_instance = Instance::id(1)
+$instance = Instance::id(1)
     ->read(['id'])
     ->first();
 
-if(!$main_instance) {
-    throw new Exception('main_instance_missing', EQ_ERROR_INVALID_CONFIG);
+if(!$instance) {
+    throw new Exception('instance_missing', EQ_ERROR_INVALID_CONFIG);
 }
 
 $allowed_equal_branches = ['2.0.1'];
@@ -265,7 +265,7 @@ Instance::id(1)->update(
 
 foreach($checks as $check) {
     $existing_check = InstanceCheck::search([
-            ['instance_id', '=', $main_instance['id']],
+            ['instance_id', '=', $instance['id']],
             ['name', '=', $check['name']]
         ])
         ->read(['id'])
@@ -279,7 +279,7 @@ foreach($checks as $check) {
     }
     else {
         InstanceCheck::create([
-            'instance_id'   => $main_instance['id'],
+            'instance_id'   => $instance['id'],
             'name'          => $check['name'],
             'description'   => $check['description'],
             'value'         => $check['value']
@@ -287,14 +287,7 @@ foreach($checks as $check) {
     }
 }
 
-/*
-    Create response
-*/
-
-$result = eQual::run('get', 'infra_server_self-status');
-
 $context
     ->httpResponse()
-    ->body($result)
-    ->status(200)
+    ->status(201)
     ->send();
