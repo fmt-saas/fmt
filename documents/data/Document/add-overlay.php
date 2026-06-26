@@ -104,22 +104,15 @@ use equal\text\TextTransformer;
 $resize = function($pdf_file, $scale) {
     $output_file = tempnam(sys_get_temp_dir(), 'resized_');
 
-    $page_width = 595;
-    $page_height = 842;
-
-    $total_empty_width  = $page_width * (1 - $scale);
-    $total_empty_height = $page_height * (1 - $scale);
+    $total_empty_width  = 595 * (1 - $scale);
+    $total_empty_height = 842 * (1 - $scale);
 
     $offset_x = $total_empty_width / 2;
     $offset_y = $total_empty_height / 2;
 
     $gs_cmd = sprintf(
-        'gs -o %s -dSAFER -sDEVICE=pdfwrite -dFIXEDMEDIA -dDEVICEWIDTHPOINTS=%d -dDEVICEHEIGHTPOINTS=%d -c "<</PageSize [%d %d] /BeginPage {%s %s translate %s %s scale}>> setpagedevice" -f %s',
+        'gs -o %s -dSAFER -sDEVICE=pdfwrite -sPAPERSIZE=a4 -dFIXEDMEDIA -dPDFFitPage -c "<</BeginPage {%s %s translate %s %s scale}>> setpagedevice" -f %s',
         escapeshellarg($output_file),
-        $page_width,
-        $page_height,
-        $page_width,
-        $page_height,
         $offset_x,
         $offset_y,
         $scale,
