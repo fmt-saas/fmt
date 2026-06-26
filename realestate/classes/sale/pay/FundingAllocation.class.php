@@ -92,6 +92,15 @@ class FundingAllocation extends Model {
                 'description'       => 'Object identifier, as a complement to `origin_object_class`, the entry originates from.'
             ],
 
+            'linked_payment_id' => [
+                'type'              => 'many2one',
+                'description'       => 'The payment linked to the current one, if any.',
+                'help'              => "This is used for specific situations such as symmetrical funding allocations.",
+                'foreign_object'    => 'sale\pay\Payment',
+                'domain'            => ['linked_payment_id', '=', 'object.id'],
+                'readonly'          => true
+            ],
+
             'misc_operation_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\MiscOperation',
