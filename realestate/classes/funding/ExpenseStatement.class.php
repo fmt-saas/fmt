@@ -390,56 +390,23 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         $self->read(['condo_id', 'accounting_entry_id']);
 
         foreach($self as $id => $expenseStatement) {
-
+            // retrieve accounting entry and cancel it
             AccountingEntry::id($expenseStatement['accounting_entry_id'])->do('cancel');
 
+            // un-clear accounting entry lines impacted by the statement
             AccountingEntryLine::search(['clearing_expense_statement_id', '=', $id])
                 ->update([
                     'is_cleared' => false,
                     'clearing_expense_statement_id' => null
                 ]);
 
-            // remove related fundings with no payments
-            $fundings = Funding::search([
+            // remove related fundings (move payments to BankStatementLine Funding if any)
+            Funding::search([
                     ['condo_id', '=', $expenseStatement['condo_id']],
                     ['funding_type', '=', 'expense_statement'],
                     ['expense_statement_id', '=', $id]
                 ])
-                ->read(['payments_ids' => ['bank_statement_line_id']]);
-
-            foreach($fundings as $funding_id => $funding) {
-
-                foreach($funding['payments_ids'] as $payment_id => $payment) {
-                    if($payment['bank_statement_line_id']) {
-                        BankStatementLine::id($payment['bank_statement_line_id'])->do('assert_funding');
-                        $funding = Funding::search([
-                                ['condo_id', '=', $expenseStatement['condo_id']],
-                                ['bank_statement_line_id', '=', $payment['bank_statement_line_id']],
-                                ['funding_type', '=', 'statement_line']
-                            ])
-                            ->first();
-
-                        if($funding) {
-                            // reattach payment to bank statement line funding
-                            Payment::id($payment_id)
-                                ->update([
-                                    'funding_id' => $funding['id']
-                                ]);
-                            Funding::id($funding['id'])->do('refresh_status');
-                        }
-                    }
-                }
-
-                /*
-                Payment::search([
-                        ['origin_object_class', '=', 'realestate\funding\ExpenseStatement'],
-                        ['origin_object_id', '=', $id],
-                    ])
-                    ->transition('revert')
-                    ->delete(true);
-                */
-                Funding::id($funding_id)->do('remove');
-            }
+                ->do('remove');
         }
 
         $self->update(['status' => 'proforma']);

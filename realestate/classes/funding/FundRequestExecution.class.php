@@ -618,49 +618,14 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             AccountingEntry::id($requestExecution['accounting_entry_id'])->do('cancel');
 
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
-                // remove related fundings with no payments
-                $fundings = Funding::search([
+                // remove related fundings (move payments to BankStatementLine Funding if any)
+                Funding::search([
                         ['condo_id', '=', $requestExecution['condo_id']],
                         ['ownership_id', '=', $executionLine['ownership_id']],
                         ['funding_type', '=', 'fund_request'],
                         ['fund_request_id', '=', $requestExecution['fund_request_id']]
                     ])
-                    ->read(['payments_ids' => ['bank_statement_line_id']]);
-
-                foreach($fundings as $funding_id => $funding) {
-
-                    foreach($funding['payments_ids'] as $payment_id => $payment) {
-                        if($payment['bank_statement_line_id']) {
-                            BankStatementLine::id($payment['bank_statement_line_id'])->do('assert_funding');
-                            $funding = Funding::search([
-                                    ['condo_id', '=', $requestExecution['condo_id']],
-                                    ['bank_statement_line_id', '=', $payment['bank_statement_line_id']],
-                                    ['funding_type', '=', 'statement_line']
-                                ])
-                                ->first();
-
-                            if($funding) {
-                                // reattach payment to bank statement line funding
-                                Payment::id($payment_id)
-                                    ->update([
-                                        'funding_id' => $funding['id']
-                                    ]);
-                                Funding::id($funding['id'])->do('refresh_status');
-                            }
-                        }
-                    }
-
-                    // #todo - should we use FundingAllocation instead (all Payment relating to bankStatementLine have been processd above)
-                    /*
-                    Payment::search([
-                            ['origin_object_class', '=', 'realestate\funding\FundRequestExecution'],
-                            ['origin_object_id', '=', $id],
-                        ])
-                        ->transition('revert')
-                        ->delete(true);
-                    */
-                    Funding::id($funding_id)->do('remove');
-                }
+                    ->do('remove');
             }
         }
 

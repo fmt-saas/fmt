@@ -9,6 +9,7 @@ namespace sale\pay;
 
 use fmt\setting\Setting;
 use equal\data\DataFormatter;
+use finance\bank\BankStatementLine;
 
 class Funding extends \equal\orm\Model {
 
@@ -294,11 +295,29 @@ class Funding extends \equal\orm\Model {
     }
 
     protected static function doRemove($self) {
-        $self->read(['payments_ids' => ['status', 'payment_origin', 'bank_statement_line_id']]);
+        $self->read(['condo_id', 'payments_ids' => ['status', 'payment_origin', 'bank_statement_line_id']]);
 
         foreach($self as $id => $funding) {
             foreach($funding['payments_ids'] as $payment_id => $payment) {
-                if($payment['payment_origin'] === 'funding_allocation') {
+                if($payment['bank_statement_line_id']) {
+                    BankStatementLine::id($payment['bank_statement_line_id'])->do('assert_funding');
+                    $funding = Funding::search([
+                            ['condo_id', '=', $funding['condo_id']],
+                            ['bank_statement_line_id', '=', $payment['bank_statement_line_id']],
+                            ['funding_type', '=', 'statement_line']
+                        ])
+                        ->first();
+
+                    if($funding) {
+                        // reattach payment to bank statement line funding
+                        Payment::id($payment_id)
+                            ->update([
+                                'funding_id' => $funding['id']
+                            ]);
+                        Funding::id($funding['id'])->do('refresh_status');
+                    }
+                }
+                elseif($payment['payment_origin'] === 'funding_allocation') {
                     $payments = Payment::id($payment_id);
 
                     if($payment['status'] !== 'proforma') {

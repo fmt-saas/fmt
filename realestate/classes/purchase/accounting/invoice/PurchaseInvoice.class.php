@@ -500,52 +500,18 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function doUnlock($self) {
         $self->read(['condo_id', 'accounting_entry_id', 'document_process_id']);
-        foreach($self as $id => $purchaseInvoice) {
 
+        foreach($self as $id => $purchaseInvoice) {
+            // retrieve accounting entry and cancel it
             AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');
 
-            // remove related fundings with no payments
-            $fundings = Funding::search([
+            // remove related fundings (move payments to BankStatementLine Funding if any)
+            Funding::search([
                     ['condo_id', '=', $purchaseInvoice['condo_id']],
                     ['funding_type', '=', 'purchase_invoice'],
                     ['purchase_invoice_id', '=', $id]
                 ])
-                ->read(['payments_ids' => ['bank_statement_line_id']]);
-
-            foreach($fundings as $funding_id => $funding) {
-
-                foreach($funding['payments_ids'] as $payment_id => $payment) {
-                    if($payment['bank_statement_line_id']) {
-                        BankStatementLine::id($payment['bank_statement_line_id'])->do('assert_funding');
-                        $funding = Funding::search([
-                                ['condo_id', '=', $purchaseInvoice['condo_id']],
-                                ['bank_statement_line_id', '=', $payment['bank_statement_line_id']],
-                                ['funding_type', '=', 'statement_line']
-                            ])
-                            ->first();
-
-                        if($funding) {
-                            // reattach payment to bank statement line funding
-                            Payment::id($payment_id)
-                                ->update([
-                                    'funding_id' => $funding['id']
-                                ]);
-                            Funding::id($funding['id'])->do('refresh_status');
-                        }
-                    }
-                }
-
-                // #todo - should we use FundingAllocation instead (all Payment relating to bankStatementLine have been processd above)
-                /*
-                Payment::search([
-                        ['origin_object_class', '=', 'realestate\purchase\accounting\invoice\PurchaseInvoice'],
-                        ['origin_object_id', '=', $id],
-                    ])
-                    ->transition('revert')
-                    ->delete(true);
-                */
-                Funding::id($funding_id)->do('remove');
-            }
+                ->do('remove');
 
             if($purchaseInvoice['document_process_id']) {
                 DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('revert');
