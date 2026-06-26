@@ -102,7 +102,8 @@ class Payment extends Model {
                     'cash',                 // cash money
                     'bank_card',            // electronic payment with credit card
                     'voucher',              // gift or coupon
-                    'wire_transfer'         // transfer between bank account
+                    'wire_transfer',        // transfer between bank account
+                    'funding_allocation'
                 ],
                 'description'       => "The method used for payment at the cashdesk.",
                 'default'           => 'wire_transfer'

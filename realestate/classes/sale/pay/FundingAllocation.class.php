@@ -54,6 +54,12 @@ class FundingAllocation extends Model {
                 'store'             => true
             ],
 
+            'payment_method' => [
+                'type'              => 'string',
+                'description'       => "The method used for payment at the cashdesk.",
+                'default'           => 'funding_allocation'
+            ],
+
             'amount' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
