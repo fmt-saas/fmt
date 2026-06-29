@@ -151,7 +151,11 @@ class MiscOperation extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Journal',
                 'description'       => 'Accounting journal used for this miscellaneous operation.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['journal_type', '=', 'MISC']]
+                'domain'            => [
+                        ['condo_id', '=', 'object.condo_id'],
+                        ['condo_id', '<>', null],
+                        ['journal_type', '=', 'MISC']
+                    ]
             ],
 
             'accounting_entry_id' => [
@@ -810,6 +814,16 @@ class MiscOperation extends Model {
                     'missing_condominium' => 'The target condominium must be specified.'
                 ];
             }
+
+            $journal = Journal::id($miscOperation['journal_id'])->read(['condo_id'])->first();
+            if(!isset($miscOperation['condo_id'])) {
+                if($journal['condo_id'] !== $miscOperation['condo_id']) {
+                    $result[$id] = [
+                        'invalid_journal' => 'The target journal does not relate to MiscOperation condominium.'
+                    ];
+                }
+            }
+
             $credit = 0.0;
             $debit = 0.0;
             foreach($miscOperation['misc_operation_lines_ids'] as $operation_line_id => $operationLine) {
@@ -1238,7 +1252,7 @@ class MiscOperation extends Model {
 
         if($condo_id) {
             $journal_type = $has_opening_journal ? 'OPEN' : 'MISC';
-            $journal = Journal::search([['condo_id', '=', $event['condo_id']], ['journal_type', '=', $journal_type]])->read(['id', 'name'])->first();
+            $journal = Journal::search([['condo_id', '=', $condo_id], ['journal_type', '=', $journal_type]])->read(['id', 'name'])->first();
             if($journal) {
                 $result['journal_id'] = [
                         'id'    => $journal['id'],
