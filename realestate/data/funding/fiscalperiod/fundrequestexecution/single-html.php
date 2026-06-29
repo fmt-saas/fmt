@@ -138,28 +138,6 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
     return $result;
 };
 
-$getPaymentQrCodeUri = function($legal_name, $bank_account_iban, $bank_account_bic, $payment_reference, $amount) {
-    // default to blank image (empty 1x1)
-    $result = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAoMBgDTD2qgAAAAASUVORK5CYII=';
-    try {
-        $image = eQual::run('get', 'finance_payment_generate-qr-code', [
-            'recipient_name'    => $legal_name,
-            'recipient_iban'    => $bank_account_iban,
-            'recipient_bic'     => $bank_account_bic,
-            'payment_reference' => $payment_reference,
-            'payment_amount'    => $amount
-        ]);
-        $result = sprintf('data:%s;base64,%s',
-            'image/png',
-            base64_encode($image)
-        );
-    }
-    catch(Exception $e) {
-        trigger_error("APP::unable to generate QR code for $bank_account_iban: " . $e->getMessage(), EQ_REPORT_WARNING);
-    }
-    return $result;
-};
-
 $getLabels = function ($lang, $view_i18n_file_path) {
     $header_labels_json = file_get_contents(
         sprintf('%s/packages/realestate/i18n/%s/_parts/header.json', EQ_BASEDIR, $lang)
@@ -203,6 +181,39 @@ $getRecipient = function($identity_id, $lang) {
             'has_vat'           => $identity['has_vat'],
             'vat_number'        => $identity['vat_number'],
     ];
+};
+
+$getPaymentQrCodeUri = function($legal_name, $bank_account_iban, $bank_account_bic, $payment_reference, $amount) {
+    // default to blank image (empty 1x1)
+    $result = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAoMBgDTD2qgAAAAASUVORK5CYII=';
+    try {
+        $image = eQual::run('get', 'finance_payment_generate-qr-code', [
+            'recipient_name'    => $legal_name,
+            'recipient_iban'    => $bank_account_iban,
+            'recipient_bic'     => $bank_account_bic,
+            'payment_reference' => $payment_reference,
+            'payment_amount'    => $amount
+        ]);
+        $result = sprintf('data:%s;base64,%s',
+            'image/png',
+            base64_encode($image)
+        );
+    }
+    catch(Exception $e) {
+        trigger_error("APP::unable to generate QR code for $bank_account_iban: " . $e->getMessage(), EQ_REPORT_WARNING);
+    }
+    return $result;
+};
+
+$getPaymentReference = function($prefix, $suffix) {
+    if(strlen($prefix) <= 0 || strlen($suffix) <= 0) {
+        return '';
+    }
+    $a = intval($prefix);
+    $b = intval($suffix);
+    $control = ((76*$a) + $b ) % 97;
+    $control = ($control == 0) ? 97 : $control;
+    return sprintf("%03d%04d%03d%02d", $a, $b / 1000, $b % 1000, $control);
 };
 
 /** @var \realestate\funding\FundRequestExecution $fundRequestExecution */
@@ -389,10 +400,10 @@ if($fundRequestExecution['with_due_balance']) {
     }
 
     $reference = substr(str_pad((int) $fundRequestExecution['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
-                substr(str_pad((int) $owner['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+                 substr(str_pad((int) $owner['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
 
     $funding = [
-            'payment_reference'     => $reference,
+            'payment_reference'     => $getPaymentReference(substr($reference, 0, 3), substr($reference, 3)),
             'due_date'              => $fundRequestExecution['due_date'],
             'remaining_amount'      => $closing_balance
         ];

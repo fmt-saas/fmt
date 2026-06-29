@@ -295,6 +295,17 @@ $getPaymentQrCodeUri = function($legal_name, $bank_account_iban, $bank_account_b
     return $result;
 };
 
+$getPaymentReference = function($prefix, $suffix) {
+    if(strlen($prefix) <= 0 || strlen($suffix) <= 0) {
+        return '';
+    }
+    $a = intval($prefix);
+    $b = intval($suffix);
+    $control = ((76*$a) + $b ) % 97;
+    $control = ($control == 0) ? 97 : $control;
+    return sprintf("%03d%04d%03d%02d", $a, $b / 1000, $b % 1000, $control);
+};
+
 if(!isset($params['expense_statement_id']) && !isset($params['fiscal_period_id'])) {
     throw new Exception('missing_mandatory_fiscal_period_or_statement', EQ_ERROR_MISSING_PARAM);
 }
@@ -461,7 +472,7 @@ $reference = substr(str_pad((int) $statement['condo_id']['code'], 6, '0', STR_PA
              substr(str_pad((int) $owner['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
 
 $funding = [
-        'payment_reference'     => $reference,
+        'payment_reference'     => $getPaymentReference(substr($reference, 0, 3), substr($reference, 3)),
         'due_date'              => $statement['due_date'],
         'remaining_amount'      => $closing_balance
     ];
