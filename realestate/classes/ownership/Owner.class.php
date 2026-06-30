@@ -57,7 +57,7 @@ class Owner extends Identity {
 
             'vat_number' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain{10,14}',
+                'usage'             => 'text/plain:14{10,14}',
                 'description'       => 'Value Added Tax identification number, if any.',
                 'visible'           => [ ['has_vat', '=', true], ['type', '<>', 'IN'], ['has_parent', '=', false] ],
                 'onupdate'          => 'onupdateVatNumber',
