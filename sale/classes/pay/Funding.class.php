@@ -301,20 +301,20 @@ class Funding extends \equal\orm\Model {
             foreach($funding['payments_ids'] as $payment_id => $payment) {
                 if($payment['bank_statement_line_id']) {
                     BankStatementLine::id($payment['bank_statement_line_id'])->do('assert_funding');
-                    $funding = Funding::search([
+                    $bankStatementLineFunding = Funding::search([
                             ['condo_id', '=', $funding['condo_id']],
                             ['bank_statement_line_id', '=', $payment['bank_statement_line_id']],
                             ['funding_type', '=', 'statement_line']
                         ])
                         ->first();
 
-                    if($funding) {
+                    if($bankStatementLineFunding) {
                         // reattach payment to bank statement line funding
                         Payment::id($payment_id)
                             ->update([
-                                'funding_id' => $funding['id']
+                                'funding_id' => $bankStatementLineFunding['id']
                             ]);
-                        Funding::id($funding['id'])->do('refresh_status');
+                        Funding::id($bankStatementLineFunding['id'])->do('refresh_status');
                     }
                 }
                 elseif($payment['payment_origin'] === 'funding_allocation') {
