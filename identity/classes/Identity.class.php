@@ -312,6 +312,7 @@ class Identity extends Model {
 
             'vat_number' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain{10,14}',
                 'description'       => 'Value Added Tax identification number, if any.',
                 'visible'           => [ ['has_vat', '=', true], ['type', '<>', 'IN'], ['has_parent', '=', false] ],
                 'onupdate'          => 'onupdateVatNumber',
