@@ -69,7 +69,9 @@ class Funding extends \equal\orm\Model {
                     'refund',
                     'transfer',
                     'sale_invoice',
-                    'purchase_invoice'
+                    'purchase_invoice',
+                    'misc_operation',
+                    'statement_line'
                 ],
                 'required'          => true,
                 'description'       => "Type of funding. Either an installment, a specific invoice, a fund request, or an expense statement."
@@ -204,6 +206,22 @@ class Funding extends \equal\orm\Model {
                 'visible'           => ['funding_type', 'in', ['installment', 'purchase_invoice']],
             ],
 
+            'misc_operation_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\MiscOperation',
+                'description'       => 'Miscellaneous operation targeted by the funding, if any.',
+                'help'              => 'This is for the unexpected movements, for which the Funding was created at bank statement line reconcile.',
+                'readonly'          => true,
+                'visible'           => ['funding_type', '=', 'misc_operation'],
+            ],
+
+            'bank_statement_line_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\bank\BankStatementLine',
+                'description'       => 'The bank statement line targeted by the funding, if any.',
+                'visible'           => ['funding_type', '=', 'statement_line'],
+            ],
+
             'has_free_payment_reference' => [
                 'type'              => 'boolean',
                 'default'           => false,
@@ -308,14 +326,18 @@ class Funding extends \equal\orm\Model {
                         ])
                         ->first();
 
-                    if($bankStatementLineFunding) {
-                        // reattach payment to bank statement line funding
-                        Payment::id($payment_id)
-                            ->update([
-                                'funding_id' => $bankStatementLineFunding['id']
-                            ]);
-                        Funding::id($bankStatementLineFunding['id'])->do('refresh_status');
+                    if(!$bankStatementLineFunding) {
+                        throw new \Exception('funding_creation_failed', EQ_ERROR_UNKNOWN);
                     }
+
+                    // reattach payment to bank statement line funding
+                    Payment::id($payment_id)
+                        ->update([
+                            'funding_id' => $bankStatementLineFunding['id']
+                        ]);
+
+                    Funding::id($bankStatementLineFunding['id'])->do('refresh_status');
+
                 }
                 elseif($payment['payment_origin'] === 'funding_allocation') {
                     $payments = Payment::id($payment_id);
