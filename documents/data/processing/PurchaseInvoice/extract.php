@@ -91,6 +91,20 @@ if(!isset($data['supplier']['vat_id']) && isset($info['seller_vat'])) {
     $data['supplier']['vat_id'] = $info['seller_vat'];
 }
 
+if(isset($data['supplier']['vat_id'])) {
+    $vat_id = strtoupper(str_replace('.', '', trim($data['supplier']['vat_id'])));
+
+    if(!preg_match('/^[A-Z]{2}/', $vat_id)) {
+        $country = strtoupper(trim($data['supplier']['address']['country'] ?? ''));
+
+        if(preg_match('/^[A-Z]{2}$/', $country)) {
+            $vat_id = $country . $vat_id;
+        }
+    }
+
+    $data['supplier']['vat_id'] = $vat_id;
+}
+
 if(!isset($data['customer']['vat_id']) && isset($info['buyer_vat'])) {
     $data['customer']['vat_id'] = $info['buyer_vat'];
 }
