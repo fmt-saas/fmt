@@ -5,11 +5,12 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 
+use core\Mail;
 use infra\metering\MeteringRecord;
 use infra\metering\MetricDefinition;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Returns the quantity of documents analyzed by Google Doc AI for metering use.",
+    'description'   => "Returns the quantity of mails sent for metering use.",
     'params'        => [
         'period_start' => [
             'type'              => 'datetime',
@@ -33,36 +34,21 @@ use infra\metering\MetricDefinition;
  */
 ['context' => $context] = $providers;
 
-$metric_def = MetricDefinition::search(['code', '=', 'google.docai.calls.count'])
-    ->read(['id'])
-    ->first();
-
-if(!$metric_def) {
-    throw new Exception("unknow_metric_definition", EQ_ERROR_UNKNOWN_OBJECT);
-}
-
 $domain = [
-    ['metric_definition_id', '=', $metric_def['id']],
+    ['status', '=', 'sent'],
 ];
 if(isset($params['period_start'])) {
-    $domain[] = ['record_time', '>=', $params['period_start']];
+    $domain[] = ['modified', '>=', $params['period_start']];
 }
 if(isset($params['period_end'])) {
-    $domain[] = ['record_time', '<=', $params['period_end']];
+    $domain[] = ['modified', '<=', $params['period_end']];
 }
 
-$records = MeteringRecord::search($domain)
-    ->read(['value'])
-    ->get();
-
-$calls_qty = 0;
-foreach($records as $record) {
-    $calls_qty += intval($record['value']);
-}
+$mails_qty = Mail::search($domain)->count();
 
 $result = [
-    'value'     => $calls_qty,
-    'unit'      => 'calls',
+    'value'     => $mails_qty,
+    'unit'      => 'count',
     'logs'      => [],
     'errors'    => [],
     'warnings'  => []

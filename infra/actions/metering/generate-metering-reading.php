@@ -15,12 +15,14 @@ use infra\metering\MetricDefinition;
         'period_start' => [
             'type'              => 'datetime',
             'description'       => 'Start of the measured period.',
-            'required'          => true
+            // 'required'          => true,
+            'default'           => strtotime("First day of this year")
         ],
         'period_end' => [
             'type'              => 'datetime',
             'description'       => 'End of the measured period.',
-            'required'          => true
+            // 'required'          => true,
+            'default'           => strtotime("Last day of this year")
         ],
     ],
     'response'      => [
@@ -41,15 +43,20 @@ if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
     throw new Exception('invalid_instance_type', EQ_ERROR_NOT_ALLOWED);
 }
 
+$measured_at = time();
+
 $metering_reading = MeteringReading::create([
     'instance_id'   => 1,
+    'measured_at'   => $measured_at,
     'period_start'  => $params['period_start'],
     'period_end'    => $params['period_start'],
 ])
     ->read(['id'])
     ->first();
 
-$metric_defs = MetricDefinition::search()->get();
+$metric_defs = MetricDefinition::search()
+    ->read(['collector'])
+    ->get();
 
 foreach($metric_defs as $metric_def) {
     $announce = config\eQual::run('get', $metric_def['collector'], ['announce' => true], false);

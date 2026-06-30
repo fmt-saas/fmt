@@ -68,8 +68,7 @@ class MeteringReading extends Model {
                     'failed'
                 ],
                 'description'       => 'Current status of the reading generation.',
-                'default'           => 'pending',
-                'required'          => true
+                'default'           => 'pending'
             ],
 
             'metering_reading_lines_ids' => [

@@ -86,8 +86,7 @@ class MeteringReadingLine extends Model {
                     'skipped'
                 ],
                 'description'       => 'Status of this specific metric collection.',
-                'default'           => 'done',
-                'required'          => true
+                'default'           => 'done'
             ],
 
             'error' => [

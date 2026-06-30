@@ -25,7 +25,7 @@ use identity\User;
 
 $users_qty = User::search([
     ['is_system', '=', false],
-    ['validate', '=', true]
+    ['validated', '=', true]
 ])
     ->count();
 
