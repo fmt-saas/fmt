@@ -11,11 +11,11 @@ use infra\metering\MetricDefinition;
 [$params, $providers] = eQual::announce([
     'description'   => "Returns the quantity users for metering use.",
     'params'        => [
-        'date_from' => [
+        'period_start' => [
             'type'              => 'datetime',
             'description'       => "Filter to get only records created after the given time."
         ],
-        'date_to' => [
+        'period_end' => [
             'type'              => 'datetime',
             'description'       => "Filter to get only records created before the given time."
         ]
@@ -44,11 +44,11 @@ if(!$metric_def) {
 $domain = [
     ['metric_definition_id', '=', $metric_def['id']],
 ];
-if(isset($params['date_from'])) {
-    $domain[] = ['record_time', '>=', $params['date_from']];
+if(isset($params['period_start'])) {
+    $domain[] = ['record_time', '>=', $params['period_start']];
 }
-if(isset($params['date_to'])) {
-    $domain[] = ['record_time', '<=', $params['date_to']];
+if(isset($params['period_end'])) {
+    $domain[] = ['record_time', '<=', $params['period_end']];
 }
 
 $records = MeteringRecord::search($domain)

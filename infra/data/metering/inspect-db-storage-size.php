@@ -15,13 +15,13 @@ use equal\db\DBConnector;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context', 'orm']
+    'providers'     => ['context']
 ]);
 
 /**
  * @var \equal\php\Context $context
  */
-['context' => $context, 'orm' => $orm] = $providers;
+['context' => $context] = $providers;
 
 if(constant('DB_DBMS') !== 'MYSQL') {
     throw new Exception('wrong_dbms', EQ_ERROR_INVALID_CONFIG);
