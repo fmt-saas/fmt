@@ -7,6 +7,8 @@
 
 use documents\Document;
 use equal\http\HttpRequest;
+use infra\metering\MeteringRecord;
+use infra\metering\MetricDefinition;
 
 [$params, $providers] = eQual::announce([
     'description' => 'Envoie un document PDF à Google Document AI et retourne le résultat.',
@@ -84,6 +86,19 @@ $status = $response->getStatusCode();
 if($status != 200) {
     trigger_error("APP::Document AI request failed with code $status, body: " . json_encode($response->body(), JSON_PRETTY_PRINT), EQ_REPORT_ERROR);
     throw new Exception('invalid_analysis_response', EQ_ERROR_UNKNOWN);
+}
+
+$metric_def = MetricDefinition::search(['code', '=', 'google.docai.calls.count'])
+    ->read(['id'])
+    ->first();
+
+if($metric_def) {
+    MeteringRecord::create([
+        'metric_definition_id' => $metric_def['id']
+    ]);
+}
+else {
+    trigger_error('APP::Unable to create metering record for Google Doc AI call, missing metric definition "google.docai.calls.count".', EQ_REPORT_WARNING);
 }
 
 $data = json_decode($response->getBody(true), true);
