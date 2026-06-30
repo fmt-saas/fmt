@@ -1,0 +1,35 @@
+{
+    "name": "Enregistrement action/événement",
+    "plural": "Enregistrements actions/événements",
+    "description": "Enregistre une action/événement qui a été déclenchées afin de calculé la valeur d'une ligne de relevé de consommation.",
+    "model": {
+        "metric_definition_id": {
+            "label": "Métrique",
+            "description": "Définition de métrique concernée par cet enregistrement de métrique.",
+            "help": "Sélectionne la métrique dont la valeur a été collectée."
+        },
+        "record_time": {
+            "label": "Moment",
+            "description": "Le moment où l'action/événement a été déclenchée.",
+            "help": ""
+        },
+        "value": {
+            "label": "Valeur",
+            "description": "Valeur de l'action/événement.",
+            "help": "La valeur est définie à 1 par défaut."
+        }
+    },
+    "view": {
+        "list.default": {
+            "name": "Enregistrements événements",
+            "description": "Affiche la liste des enregistrements d'événements.",
+            "layout": []
+        },
+        "form.default": {
+            "name": "Enregistrement événement",
+            "description": "Affiche le formulaire d'un enregistrement d'événement.",
+            "layout": []
+        }
+    },
+    "error": []
+}

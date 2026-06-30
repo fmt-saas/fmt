@@ -436,6 +436,10 @@
         "item.infra.instances": {
             "label": "Instances",
             "description": "Gérer les instances serveur et leurs configurations."
+        },
+        "item.infra.metric_definitions": {
+            "label": "Définitions métrique",
+            "description": "Gérer les définitions de métrique."
         }
     }
 }

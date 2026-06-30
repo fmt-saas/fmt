@@ -38,9 +38,7 @@
             "selection": {
                 "count": "Nombre",
                 "bytes": "Octets",
-                "calls": "Appels",
-                "users": "Utilisateurs",
-                "emails": "E-mails"
+                "calls": "Appels"
             }
         },
         "value_type": {

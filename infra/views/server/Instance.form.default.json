@@ -193,6 +193,15 @@
                                                     "layout": "inline",
                                                     "limit": 10
                                                 }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "metering_readings_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.instance",
+                                                    "limit": 5
+                                                }
                                             }
                                         ]
                                     }
