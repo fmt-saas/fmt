@@ -338,6 +338,7 @@ $expense_statement_fields = [
         'common_total',
         'private_total',
         'provisions_total',
+        'is_cutoff_at_document_date',
         'statement_bank_account_id' => ['bank_account_iban', 'bank_account_bic'],
         'statement_owners_ids' => [
             '@domain' => ['ownership_id', '=', $params['ownership_id']],
@@ -459,7 +460,7 @@ $funding = null;
 $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
     'ownership_id'      => $params['ownership_id'],
     'date_from'         => $fiscalPeriod['date_from'],
-    'date_to'           => $fiscalPeriod['date_to']
+    'date_to'           => $statement['is_cutoff_at_document_date'] ? time() : $fiscalPeriod['date_to']
 ]);
 
 $closing_balance = 0.0;

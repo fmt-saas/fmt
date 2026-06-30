@@ -37,7 +37,7 @@ $context = $providers['context'];
 $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id'])
     ->read([
         'status', 'condo_id', 'ownership_id', 'owner_id', 'name',
-        'expense_statement_id' => ['id', 'fiscal_period_id', 'posting_date', 'is_cutoff_at_period_end']
+        'expense_statement_id' => ['id', 'fiscal_period_id', 'posting_date', 'is_cutoff_at_document_date']
     ])
     ->first();
 
@@ -145,16 +145,10 @@ try {
     }
     // append Owner Statement sheet
     try {
-        // #todo
-        $date_to = $expenseStatement['posting_date'];
-
-        if($expenseStatement['is_cutoff_at_period_end']) {
-            $date_to = $fiscalPeriod['date_to'];
-        }
 
         $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
                 'date_from'         => $fiscalPeriod['date_from'],
-                'date_to'           => $fiscalPeriod['date_to'],
+                'date_to'           => ($expenseStatement['is_cutoff_at_document_date']) ? time() : $fiscalPeriod['date_to'],
                 // 'date_to'           => $date_to,
                 'ownership_id'      => $expenseStatementCorrespondence['ownership_id']
             ]);
