@@ -632,7 +632,8 @@ class Document extends Model {
             if(!$document['node_id']) {
                 continue;
             }
-            Node::id($document['node_id'])->update(['node_visibility' => $document['document_visibility']]);
+            $node_visibility = ($document['document_visibility'] === 'agency') ? 'agency' :' condo';
+            Node::id($document['node_id'])->update(['node_visibility' => $node_visibility]);
         }
     }
 

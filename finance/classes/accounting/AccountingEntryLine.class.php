@@ -410,8 +410,12 @@ class AccountingEntryLine extends Model {
         $allow_sign_inversion = isset($targetAccountingEntryLine['account_id'], $targetAccountingEntryLine['matching_account_id'])
             && $targetAccountingEntryLine['account_id'] !== $targetAccountingEntryLine['matching_account_id'];
 
-        $self->read(['id', 'condo_id', 'debit', 'credit', 'account_id', 'matching_account_id', 'matching_id' => ['id', 'balance_amount']]);
+        $self->read(['id', 'condo_id', 'status', 'debit', 'credit', 'account_id', 'matching_account_id', 'matching_id' => ['id', 'balance_amount']]);
         foreach($self as $id => $sourceAccountingEntryLine) {
+            if($sourceAccountingEntryLine['status'] !== 'validated') {
+                continue;
+            }
+
             if($sourceAccountingEntryLine['matching_account_id'] !== $targetAccountingEntryLine['matching_account_id']) {
                 throw new \Exception('match_attempt_on_distinct_accounts', EQ_ERROR_INVALID_PARAM);
             }
@@ -451,6 +455,15 @@ class AccountingEntryLine extends Model {
     }
 
     protected static function doMatchWithMatching($self, $values) {
+        $self->read(['status']);
+
+        foreach($self as $accounting_entry_line_id => $accountingEntryLine) {
+            // #todo add a policy to prevent this
+            if($accountingEntryLine['status'] !== 'validated') {
+                return;
+            }
+        }
+
         if(!isset($values['matching_id'])) {
             throw new \Exception('missing_mandatory_matching_id', EQ_ERROR_INVALID_PARAM);
         }
@@ -466,8 +479,11 @@ class AccountingEntryLine extends Model {
     }
 
     protected static function doAttemptMatch($self) {
-        $self->read(['condo_id', 'matching_id', 'matching_account_id', 'account_id' => ['id', 'account_type'], 'debit', 'credit']);
+        $self->read(['condo_id', 'status', 'matching_id', 'matching_account_id', 'account_id' => ['id', 'account_type'], 'debit', 'credit']);
         foreach($self as $id => $accountingEntryLine) {
+            if($accountingEntryLine['status'] !== 'validated') {
+                continue;
+            }
             $account_id = $accountingEntryLine['account_id']['id'] ?? null;
             if($account_id && $accountingEntryLine['matching_account_id'] && $account_id !== $accountingEntryLine['matching_account_id']) {
                 $matching = Matching::search(
@@ -523,11 +539,7 @@ class AccountingEntryLine extends Model {
             }
         }
 
-        foreach($self as $id => $accountingEntryLine) {
-            if($accountingEntryLine['matching_id']) {
-                self::id($id)->update(['matching_id' => null]);
-            }
-        }
+        $self->update(['matching_id' => null]);
     }
 
     protected static function oncreate($self, $values) {

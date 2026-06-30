@@ -28,6 +28,13 @@ use Twig\Extension\ExtensionInterface;
             'required'          => true
         ],
 
+        'owner_id' => [
+            'description'       => 'Identifier of the targeted Owner, if any.',
+            'help'              => 'If not provided, fallback to first Owner of given Ownership.',
+            'type'              => 'many2one',
+            'foreign_object'    => 'realestate\ownership\Owner',
+        ],
+
         'date_from' => [
             'type'              => 'date',
             'description'       => "First date of the time interval.",

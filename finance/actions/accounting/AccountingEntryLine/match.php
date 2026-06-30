@@ -39,7 +39,7 @@ use realestate\finance\accounting\AccountingEntryLine;
 $result = [];
 
 $accountingEntryLine = AccountingEntryLine::id($params['id'])
-    ->read(['account_id'])
+    ->read(['condo_id', 'account_id'])
     ->first();
 
 
@@ -70,8 +70,8 @@ $events = $orm->disableEvents();
 // 1) create a new Matching
 
 $matching = Matching::create([
-        'condo_id'              => $bankStatementLine['condo_id'],
-        'accounting_account_id' => $bankStatementLine['accounting_account_id']
+        'condo_id'              => $accountingEntryLine['condo_id'],
+        'accounting_account_id' => $accountingEntryLine['account_id']
     ])
     ->first();
 

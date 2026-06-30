@@ -67,6 +67,14 @@
             "label": "Appel de fonds",
             "description": "Lien éventuel vers un appel de fonds.",
             "help": ""
+        },
+        "matching_level": {
+            "label": "Niveau de lettrage",
+            "selection": {
+                "none": "aucun",
+                "part": "partiel",
+                "full": "complet"
+            }
         }
     },
     "view": {
