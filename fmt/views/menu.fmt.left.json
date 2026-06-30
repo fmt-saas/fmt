@@ -1262,6 +1262,17 @@
                             "view": "list.default",
                             "entity": "infra\\server\\Instance"
                         }
+                    },
+                    {
+                        "id": "item.infra.metric_definitions",
+                        "type": "entry",
+                        "label": "Metric definitions",
+                        "icon": "monitoring",
+                        "description": "Manage metric definitions.",
+                        "context": {
+                            "view": "list.default",
+                            "entity": "infra\\metering\\MetricDefinition"
+                        }
                     }
                 ]
             }

@@ -154,6 +154,13 @@ class Instance extends Model {
                 'foreign_object'    => 'infra\server\InstanceCheck',
                 'foreign_field'     => 'instance_id',
                 'description'       => 'Checks of the instance.'
+            ],
+
+            'metering_readings_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'infra\metering\MeteringReading',
+                'foreign_field'     => 'instance_id',
+                'description'       => 'Metering readings of the instance.'
             ]
 
         ];
