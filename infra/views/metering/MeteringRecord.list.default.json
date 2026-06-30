@@ -1,0 +1,26 @@
+{
+    "name": "Metering Record",
+    "description": "Default list for metering records.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "metric_definition_id",
+                "width": "33%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "record_time",
+                "width": "33%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "value",
+                "width": "33%",
+                "sortable": true
+            }
+        ]
+    }
+}
