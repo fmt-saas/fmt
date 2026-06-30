@@ -7,6 +7,7 @@
 
 use realestate\ownership\Owner;
 use identity\Identity;
+use identity\Group;
 use identity\User;
 
 [$params, $providers] = eQual::announce([
@@ -51,6 +52,8 @@ $ids = array_merge((array) ($params['id'] ?? []), $params['ids'] ?? []);
 
 $owners = Owner::ids($ids)->read(['identity_id']);
 
+$groups_ids = Group::search(['name', 'in', ['users']])->ids();
+
 foreach($owners as $owner_id => $owner) {
     $identity = Identity::id($owner['identity_id'])->read(['email', 'user_id'])->first();
 
@@ -65,8 +68,7 @@ foreach($owners as $owner_id => $owner) {
                 'validated'     => true,
                 'is_employee'   => false,
                 'is_owner'      => true,
-                // users
-                'groups_ids'    => [2]
+                'groups_ids'    => $groups_ids
             ]);
 
         if($new_user_id <= 0) {

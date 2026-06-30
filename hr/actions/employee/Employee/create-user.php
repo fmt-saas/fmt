@@ -7,6 +7,7 @@
 
 use hr\employee\Employee;
 use hr\role\RoleAssignment;
+use identity\Group;
 use identity\Identity;
 use identity\User;
 
@@ -56,6 +57,8 @@ $ids = array_merge((array) ($params['id'] ?? []), $params['ids'] ?? []);
 
 $employees = Employee::ids($ids)->read(['identity_id', 'role_assignments_ids']);
 
+$groups_ids = Group::search(['name', 'in', ['employees', 'users']])->ids();
+
 foreach($employees as $employee_id => $employee) {
     $identity = Identity::id($employee['identity_id'])
         ->read(['name', 'email', 'user_id'])
@@ -76,8 +79,7 @@ foreach($employees as $employee_id => $employee) {
                 'validated'     => true,
                 'is_employee'   => true,
                 'is_owner'      => false,
-                // users, employees
-                'groups_ids'    => [2, 3]
+                'groups_ids'    => $groups_ids
             ]);
 
         if($new_user_id <= 0) {
