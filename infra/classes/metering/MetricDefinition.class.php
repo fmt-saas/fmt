@@ -52,11 +52,9 @@ class MetricDefinition extends Model {
                 'type'              => 'string',
                 'usage'             => 'text/plain:32',
                 'selection'         => [
-                    'count',
-                    'bytes',
-                    'calls',
-                    'users',
-                    'emails'
+                    'count',                    // count a qty of items
+                    'bytes',                    // evaluate a size
+                    'calls'                     // count a qty of metering records relating API calls
                 ],
                 'description'       => 'Unit used by the metric.',
                 'required'          => true
@@ -71,8 +69,7 @@ class MetricDefinition extends Model {
                     'string'
                 ],
                 'description'       => 'Expected type of value returned by the collector.',
-                'default'           => 'integer',
-                'required'          => true
+                'default'           => 'integer'
             ],
 
             'collector' => [

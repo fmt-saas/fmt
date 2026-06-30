@@ -64,7 +64,7 @@
                 "name": "Nombre de comptes utilisateurs",
                 "description": "Nombre de comptes utilisateurs actifs sur l'instance.",
                 "category": "auth",
-                "unit": "users",
+                "unit": "count",
                 "value_type": "integer",
                 "collector": "infra_metering_inspect-instance-users-count",
                 "is_active": true
@@ -75,7 +75,7 @@
                 "name": "Emails envoyés",
                 "description": "Nombre d'emails envoyés depuis l'instance sur la période considérée.",
                 "category": "mail",
-                "unit": "emails",
+                "unit": "count",
                 "value_type": "integer",
                 "collector": "infra_metering_inspect-mail-outbound-count",
                 "is_active": true

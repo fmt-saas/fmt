@@ -43,8 +43,7 @@ class MeteringReadingLine extends Model {
                 'result_type'       => 'string',
                 'relation'          => ['metric_definition_id' => 'code'],
                 'description'       => 'Metric code copied for easier export.',
-                'store'             => true,
-                'instant'           => true
+                'store'             => true
             ],
 
             'metric_name' => [
@@ -52,8 +51,7 @@ class MeteringReadingLine extends Model {
                 'result_type'       => 'string',
                 'relation'          => ['metric_definition_id' => 'name'],
                 'description'       => 'Metric label copied for easier export.',
-                'store'             => true,
-                'instant'           => true
+                'store'             => true
             ],
 
             'value' => [
@@ -67,8 +65,7 @@ class MeteringReadingLine extends Model {
                 'result_type'       => 'string',
                 'relation'          => ['metric_definition_id' => 'unit'],
                 'description'       => 'Unit copied from the metric definition.',
-                'store'             => true,
-                'instant'           => true
+                'store'             => true
             ],
 
             'details' => [
