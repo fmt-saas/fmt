@@ -149,7 +149,6 @@ try {
         $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
                 'date_from'         => $fiscalPeriod['date_from'],
                 'date_to'           => ($expenseStatement['is_cutoff_at_document_date']) ? time() : $fiscalPeriod['date_to'],
-                // 'date_to'           => $date_to,
                 'ownership_id'      => $expenseStatementCorrespondence['ownership_id']
             ]);
         $temp = tempnam(sys_get_temp_dir(), 'pdf_');
