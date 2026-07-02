@@ -397,7 +397,8 @@ foreach($template['parts_ids'] as $part) {
 
         $map_values = [
             'condo'         => $paymentReminder['condo_id']['name'],
-            'emission_date' => $getFormattedDate($paymentReminder['emission_date'])
+            'emission_date' => $getFormattedDate($paymentReminder['emission_date']),
+            'level'         => $reminder_level
         ];
 
         $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
