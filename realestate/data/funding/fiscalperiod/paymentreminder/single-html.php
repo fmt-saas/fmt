@@ -374,7 +374,14 @@ if(!$template) {
 
 $reminder_level = $paymentReminder['reminder_level'];
 
-if($reminder_level <= 4) {
+Setting::assert_value('realestate', 'features', 'payment_reminder.max_reminder_level', 2);
+
+$max_reminder_level =
+        Setting::get_value('realestate', 'features', 'payment_reminder.max_reminder_level', null, ['condo_id' => $paymentReminder['condo_id']['id'], 'ownership_id' => null])
+        ?? Setting::get_value('realestate', 'features', 'payment_reminder.max_reminder_level', null, ['condo_id' => null])
+        ?? 2;
+
+if($reminder_level <= $max_reminder_level) {
     $subject_suffix = '_reminder';
     $introduction_suffix = '_reminder_' . $reminder_level;
 }
