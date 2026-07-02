@@ -27,6 +27,7 @@
                     },
                     {
                         "id": "item.followup.payments_followups",
+                        "visible": ["admins", "in", "user.groups"],
                         "type": "entry",
                         "label": "Payments followups",
                         "icon": "euro_symbol",
@@ -34,6 +35,18 @@
                         "context": {
                             "entity": "realestate\\sale\\pay\\Funding",
                             "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "item.followup.payments_outgoing",
+                        "type": "entry",
+                        "label": "Payments awaiting",
+                        "icon": "euro_symbol",
+                        "description": "Payments to be made to suppliers.",
+                        "context": {
+                            "entity": "realestate\\sale\\pay\\Funding",
+                            "view": "list.default",
+                            "domain": ["status", "=", "credit_balance"]
                         }
                     },
                     {

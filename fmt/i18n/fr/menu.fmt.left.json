@@ -10,8 +10,12 @@
             "description": "Liste de tous les documents à traiter."
         },
         "item.followup.payments_followups": {
-            "label": "Paiements",
-            "description": "Surveiller les appels impayés et les relances."
+            "label": "Tous les Paiements",
+            "description": "Liste de tous les appels et les relances."
+        },
+        "item.followup.payments_outgoing": {
+            "label": "Paiements à faire",
+            "description": "Versements fournisseurs à faire (SEPA)."
         },
         "item.followup.reminders_followups": {
             "label": "Rappels",
