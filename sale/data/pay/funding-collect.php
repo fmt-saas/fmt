@@ -78,7 +78,7 @@ if(isset($params['invoice_id']) && $params['invoice_id'] > 0) {
 }
 
 if(isset($params['supplier_id']) && $params['supplier_id'] > 0) {
-    $domain = Domain::conditionAdd($domain, ['supplier_id', '=', $supplier_id]);
+    $domain = Domain::conditionAdd($domain, ['supplier_id', '=', $params['supplier_id']]);
 }
 
 if(isset($params['payment_reference']) && strlen($params['payment_reference']) > 0 ) {

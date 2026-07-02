@@ -232,6 +232,7 @@ class Funding extends \sale\pay\Funding {
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'relation'          => ['suppliership_id' => 'supplier_id'],
                 'readonly'          => true,
+                'instant'           => true,
                 'store'             => true
             ],
 
