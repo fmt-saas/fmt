@@ -50,10 +50,11 @@
             "label": "Type de paiement",
             "description": "Message permettant d'identifier la raison de la transaction",
             "selection": {
+                "all": "Tous",
                 "purchase_invoice": "Facture fournisseur",
                 "expense_statement": "Décompte de charges",
                 "misc_operation": "Opération diverse",
-                "statement_line": "Relevé bancaire"
+                "statement_line": "Extrait bancaire"
             }
         }
     }

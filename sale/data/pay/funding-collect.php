@@ -57,11 +57,13 @@ use sale\accounting\invoice\SaleInvoice;
         'funding_type' => [
             'type'              => 'string',
             'selection'         => [
+                'all',
                 'purchase_invoice',
                 'expense_statement',
                 'misc_operation',
                 'statement_line'
-            ]
+            ],
+            'default'           => 'all'
         ],
         'payment_reference' => [
             'type'              => 'string',
@@ -122,10 +124,9 @@ if(isset($params['payment_reference']) && strlen($params['payment_reference']) >
     $domain = Domain::conditionAdd($domain, ['payment_reference', 'like', '%'. $params['payment_reference'] . '%']);
 }
 
-if(isset($params['funding_type']) && strlen($params['funding_type']) > 0) {
+if(isset($params['funding_type']) && strlen($params['funding_type']) > 0 && $params['funding_type'] !== 'all') {
     $domain = Domain::conditionAdd($domain, ['funding_type', '=', $params['funding_type']]);
 }
-
 
 $params['domain'] = $domain;
 $result = eQual::run('get', 'model_collect', $params, true);
