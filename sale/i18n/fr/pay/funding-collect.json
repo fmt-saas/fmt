@@ -2,6 +2,16 @@
     "name": "Recherche avancé de financement",
     "description": "Contrôleur proposant une recherche avancée de financement..",
     "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "",
+            "help": ""
+        },
+        "supplier_id": {
+            "label": "Fournisseur",
+            "description": "",
+            "help": ""
+        },
         "invoice_id": {
             "label": "Facture",
             "description": "La facture liée au financement.",

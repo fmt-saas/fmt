@@ -15,17 +15,17 @@ use sale\accounting\invoice\SaleInvoice;
         'entity' =>  [
             'description'       => 'name',
             'type'              => 'string',
-            'default'           => 'sale\pay\Funding'
+            'default'           => 'realestate\sale\pay\Funding'
         ],
         'condo_id' => [
             'type'              => 'many2one',
             'description'       => "The condominium the email relates to.",
             'foreign_object'    => 'realestate\property\Condominium'
         ],
-        'customer_id' => [
+        'supplier_id' => [
             'type'              => 'many2one',
-            'foreign_object'    => 'sale\customer\Customer',
-            'description'       => 'The customer to which the funding relates to.',
+            'foreign_object'    => 'purchase\supplier\Supplier',
+            'description'       => 'The supplier to which the funding relates to.',
         ],
         'invoice_id' => [
             'type'              => 'many2one',
@@ -77,12 +77,8 @@ if(isset($params['invoice_id']) && $params['invoice_id'] > 0) {
     $domain = Domain::conditionAdd($domain, ['invoice_id', '=', $params['invoice_id']]);
 }
 
-if(isset($params['customer_id']) && $params['customer_id'] > 0) {
-    $invoices_ids = [];
-    $invoices_ids = SaleInvoice::search(['customer_id', '=', $params['customer_id']])->ids();
-    if(count($invoices_ids)) {
-        $domain = Domain::conditionAdd($domain, ['invoice_id', 'in', $invoices_ids]);
-    }
+if(isset($params['supplier_id']) && $params['supplier_id'] > 0) {
+    $domain = Domain::conditionAdd($domain, ['supplier_id', '=', $supplier_id]);
 }
 
 if(isset($params['payment_reference']) && strlen($params['payment_reference']) > 0 ) {

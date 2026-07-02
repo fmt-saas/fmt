@@ -270,8 +270,7 @@ class Funding extends \equal\orm\Model {
 
     public function getIndexes(): array {
         return [
-            ['invoice_id'],
-            ['customer_id']
+            ['invoice_id']
         ];
     }
 

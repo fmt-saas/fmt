@@ -23,8 +23,8 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Customer",
-                                                "value": "customer_id",
+                                                "label": "Supplier",
+                                                "value": "supplier_id",
                                                 "width": "25%"
                                             },
                                             {

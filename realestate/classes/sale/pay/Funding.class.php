@@ -220,7 +220,19 @@ class Funding extends \sale\pay\Funding {
                 'foreign_object'    => 'purchase\supplier\Suppliership',
                 'description'       => 'The supplier the funding relates to.',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
-                'readonly'          => true
+                'readonly'          => true,
+                'dependents'        => ['supplier_id']
+            ],
+
+            'supplier_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'purchase\supplier\Supplier',
+                'description'       => 'The supplier the funding relates to.',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'relation'          => ['suppliership_id' => 'supplier_id'],
+                'readonly'          => true,
+                'store'             => true
             ],
 
             'payment_reference' => [
