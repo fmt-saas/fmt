@@ -7,7 +7,14 @@ use communication\template\TemplatePart;
 
 $events = $orm->disableEvents();
 
-$template = ['id' => 16];
+$template = Template::search([
+        ['code', '=', 'payment_reminder_correspondence'],
+        ['category_id', '=', 5],
+        ['type_id', '=', 5]
+    ])
+    ->first();
+
+TemplatePart::search(['template_id', '=', $template['id']])->delete(true);
 
 TemplatePart::create([
     'name'          => 'subject_reminder',
@@ -58,6 +65,12 @@ TemplatePart::create([
     'variables'     => '["condo", "emission_date", "due_amount", "due_date"]'
 ]);
 
+TemplatePart::create([
+    'name'          => 'communication_payment_amount',
+    'value'         => '<p>Le montant de <b>{due_amount}</b> doit être réglé avant le <b>{due_date}</b></p>',
+    'template_id'   => $template['id'],
+    'variables'     => '["due_amount", "due_date", "emission_date"]'
+]);
+
+
 $orm->enableEvents($events);
-
-
