@@ -6,6 +6,7 @@
 */
 
 use equal\orm\Domain;
+use equal\orm\DomainCondition;
 use sale\accounting\invoice\SaleInvoice;
 
 [$params, $providers] = eQual::announce([
@@ -45,6 +46,14 @@ use sale\accounting\invoice\SaleInvoice;
             'type'              => 'integer',
             'description'       => 'Maximum amount expected for funding.'
         ],
+        'date_from' => [
+            'type'              => 'date',
+            'description'       => 'First day (included) of the fiscal year.',
+        ],
+        'date_to' => [
+            'type'              => 'date',
+            'description'       => 'Last day (included) of the period.',
+        ],
         'funding_type' => [
             'type'              => 'string',
             'selection'         => [
@@ -75,6 +84,14 @@ use sale\accounting\invoice\SaleInvoice;
 
 $domain = $params['domain'];
 
+if(isset($params['date_from'])) {
+    $domain->addCondition(new DomainCondition('due_date', '>=', $params['date_from']));
+}
+
+if(isset($params['date_to'])) {
+    $domain->addCondition(new DomainCondition('due_date', '>=', $params['date_to']));
+}
+
 if(isset($params['condo_id']) && $params['condo_id'] > 0) {
     $domain = Domain::conditionAdd($domain, ['condo_id', '=', $params['condo_id']]);
 }
@@ -102,7 +119,6 @@ if(isset($params['employee_id']) && $params['employee_id'] > 0) {
 if(isset($params['payment_reference']) && strlen($params['payment_reference']) > 0 ) {
     $domain = Domain::conditionAdd($domain, ['payment_reference', 'like', '%'. $params['payment_reference'].'%']);
 }
-
 
 if(isset($params['funding_type']) && strlen($params['funding_type']) > 0) {
     $domain = Domain::conditionAdd($domain, ['funding_type', '>=', $params['funding_type']]);

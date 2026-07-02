@@ -32,9 +32,14 @@
             "description": "Montant maximum attendu pour le financement.",
             "help": ""
         },
-        "customer_id": {
-            "label": "Client",
-            "description": "Le client lié au financement",
+        "date_from": {
+            "label": "Echéance à partir du",
+            "description": "Date de début du filtre de recherche.",
+            "help": ""
+        },
+        "date_to": {
+            "label": "Echéance jusqu'au",
+            "description": "Date de fin du filtre de recherche.",
             "help": ""
         },
         "payment_reference": {
@@ -42,7 +47,7 @@
             "description": "Message permettant d'identifier la raison de la transaction"
         },
         "funding_type": {
-            "label": "Référence",
+            "label": "Type de paiement",
             "description": "Message permettant d'identifier la raison de la transaction",
             "selection": {
                 "purchase_invoice": "Facture fournisseur",

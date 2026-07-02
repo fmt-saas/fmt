@@ -29,12 +29,13 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "due_amount_min",
+                                                "label": "Employee",
+                                                "value": "employee_id",
                                                 "width": "25%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "payment_reference",
+                                                "value": "funding_type",
                                                 "width": "25%"
                                             }
                                         ]
@@ -44,14 +45,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "label": "Invoice",
-                                                "value": "invoice_id",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Employee",
-                                                "value": "employee_id",
+                                                "value": "due_amount_min",
                                                 "width": "25%"
                                             },
                                             {
@@ -61,7 +55,12 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "funding_type",
+                                                "value": "date_from",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_to",
                                                 "width": "25%"
                                             }
                                         ]
