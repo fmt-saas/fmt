@@ -283,7 +283,7 @@ class Ownership extends \equal\orm\Model {
                 'description'       => "The apportionment keys relating to the ownership.",
                 'foreign_object'    => 'fmt\setting\SettingValue',
                 'foreign_field'     => 'ownership_id',
-                'domain'            => ['ownership_id', '=', 'object.id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.id']]
             ],
 
             'setting_sequences_ids' => [
@@ -291,7 +291,7 @@ class Ownership extends \equal\orm\Model {
                 'description'       => "The apportionment keys relating to the ownership.",
                 'foreign_object'    => 'fmt\setting\SettingSequence',
                 'foreign_field'     => 'ownership_id',
-                'domain'            => ['ownership_id', '=', 'object.id']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.id']]
             ],
 
             'payment_reference' => [
