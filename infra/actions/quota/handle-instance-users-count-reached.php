@@ -5,11 +5,12 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 
-use identity\User;
+use infra\quota\QuotaUsage;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Returns the quantity users for metering use.",
-    'params'        => [],
+    'description'   => "Handles quota reached for 'auth.users.count'.",
+    'params'        => [
+    ],
     'response'      => [
         'content-type'  => 'application/json',
         'charset'       => 'utf-8',
@@ -23,7 +24,15 @@ use identity\User;
  */
 ['context' => $context] = $providers;
 
-// #todo - handle send alerts + disable user creation
+$quota_usage = QuotaUsage::search(['code', '=', 'auth.users.count'])
+    ->read(['id'])
+    ->first();
+
+if(!$quota_usage) {
+    throw new Exception('unknown_quota_usage', EQ_ERROR_INVALID_CONFIG);
+}
+
+QuotaUsage::id($quota_usage['id'])->update(['is_reached' => true]);
 
 $context
     ->httpResponse()

@@ -32,10 +32,9 @@ class MeteringRecord extends Model {
             ],
 
             'value' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain:128',
-                'description'       => 'Measured value stored as text.',
-                'default'           => '1'
+                'type'              => 'integer',
+                'description'       => 'Measured value.',
+                'default'           => 1
             ]
 
         ];

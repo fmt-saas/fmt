@@ -20,7 +20,7 @@ class QuotaThreshold extends Model {
                 'required'          => true
             ],
 
-            'quota_definition_id' => [
+            'definition_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'infra\quota\QuotaDefinition',
                 'description'       => 'The quota definition that includes the threshold.',
@@ -34,36 +34,19 @@ class QuotaThreshold extends Model {
                     'instant',
                     'period'
                 ],
-                'relation'          => ['quota_definition_id' => 'name'],
+                'relation'          => ['definition_id' => 'name'],
                 'description'       => 'Is the quota based on an instantaneous value or on the accumulated amount over a given period?.',
                 'store'             => true
             ],
 
-            'value_type' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'usage'             => 'text/plain:32',
-                'relation'          => ['quota_definition_id' => ['metric_definition_id' => 'value_type']],
-                'selection'         => [
-                    'integer',
-                    'decimal',
-                    'string'
-                ],
-                'description'       => 'Type of trigger value.',
-                'store'             => true,
-                'default'           => 'integer'
-            ],
-
             'value' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain:128',
+                'type'              => 'integer',
                 'description'       => 'Threshold value that must be reached to trigger the controller.',
                 'required'          => true
             ],
 
             'max_value' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain:128',
+                'type'              => 'integer',
                 'description'       => 'Optional value that will prevent the action to be triggered when the threshold value is reached.'
             ],
 

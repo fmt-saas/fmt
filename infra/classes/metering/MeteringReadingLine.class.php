@@ -54,18 +54,10 @@ class MeteringReadingLine extends Model {
                 'store'             => true
             ],
 
-            'value_type' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'relation'          => ['metric_definition_id' => 'value_type'],
-                'description'       => 'Type of the value who is saved as a string.',
-                'store'             => true
-            ],
-
             'value' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain:128',
-                'description'       => 'Measured value stored as text.'
+                'type'              => 'integer',
+                'description'       => 'Measured value.',
+                'required'          => true
             ],
 
             'unit' => [

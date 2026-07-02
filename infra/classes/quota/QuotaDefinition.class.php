@@ -22,6 +22,23 @@ class QuotaDefinition extends Model {
                 'store'             => true
             ],
 
+            'metric_definition_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'infra\metering\MetricDefinition',
+                'description'       => 'Metric definition concerned by the quota.',
+                'required'          => true
+            ],
+
+            'code' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'text/plain:128',
+                'relation'          => ['metric_definition_id' => 'code'],
+                'description'       => 'Unique technical code of the definition.',
+                'store'             => true,
+                'instant'           => true
+            ],
+
             'quota_type' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -32,20 +49,25 @@ class QuotaDefinition extends Model {
                 'default'           => 'instant'
             ],
 
-            'metric_definition_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'infra\metering\MetricDefinition',
-                'description'       => 'Metric definition concerned by the quota.',
-                'required'          => true
-            ],
-
-            'thresholds_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'infra\quota\QuotaThreshold',
-                'foreign_field'     => 'quota_definition_id',
-                'description'       => 'The thresholds who will trigger a controller when reached.'
+            'period_duration' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'day',
+                    'week',
+                    'month',
+                    'year'
+                ],
+                'description'       => 'The duration of the period for the quota.',
+                'default'           => 'week',
+                'visible'           => ['quota_type', '=', 'period']
             ]
 
+        ];
+    }
+
+    public function getUnique(): array {
+        return [
+            ['code']
         ];
     }
 
