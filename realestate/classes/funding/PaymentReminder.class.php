@@ -47,6 +47,15 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'function'          => 'calcDueAmount'
             ],
 
+            'reminder_level' => [
+                'type'              => 'computed',
+                'result_type'       => 'integer',
+                'description'       => 'Highest reminder level among the reminder owner lines.',
+                'function'          => 'calcReminderLevel',
+                'store'             => true,
+                'instant'           => false
+            ],
+
             // #todo
             'due_date' => [
                 'type'              => 'date',
@@ -77,6 +86,13 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 'type'              => 'one2many',
                 'description'       => "Owners present in the reminder.",
                 'foreign_object'    => 'realestate\funding\PaymentReminderOwner',
+                'foreign_field'     => 'payment_reminder_id'
+            ],
+
+            'payment_reminder_owner_lines_ids' => [
+                'type'              => 'one2many',
+                'description'       => "Reminder owner lines present in the reminder.",
+                'foreign_object'    => 'realestate\funding\PaymentReminderOwnerLine',
                 'foreign_field'     => 'payment_reminder_id'
             ],
 
@@ -552,6 +568,21 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
             $result[$id] = 0.0;
             foreach($paymentReminderOwner['payment_reminder_owners_ids'] as $payment_reminder_owner_id => $paymentReminderOwner) {
                 $result[$id] += $paymentReminderOwner['due_amount'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function calcReminderLevel($self) {
+        $result = [];
+        $self->read(['status', 'payment_reminder_owner_lines_ids' => ['reminder_level']]);
+        foreach($self as $id => $paymentReminder) {
+            if($paymentReminder['status'] === 'draft') {
+                continue;
+            }
+            $result[$id] = 0;
+            foreach($paymentReminder['payment_reminder_owner_lines_ids'] as $payment_reminder_owner_line_id => $paymentReminderOwnerLine) {
+                $result[$id] = max($result[$id], $paymentReminderOwnerLine['reminder_level']);
             }
         }
         return $result;

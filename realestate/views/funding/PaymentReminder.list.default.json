@@ -35,7 +35,7 @@
             {
                 "type": "field",
                 "value": "condo_id",
-                "width": "30%"
+                "width": "25%"
             },
             {
                 "type": "field",
@@ -47,6 +47,12 @@
                 "type": "field",
                 "label": "Amount Due",
                 "value": "due_amount",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "label": "Reminder level",
+                "value": "reminder_level",
                 "width": "10%"
             }
         ]

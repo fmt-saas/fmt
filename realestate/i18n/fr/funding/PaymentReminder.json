@@ -18,6 +18,11 @@
             "description": "Montant total restant dû pour les financements rappelés.",
             "help": ""
         },
+        "reminder_level": {
+            "label": "Niveau de rappel",
+            "description": "Niveau de rappel le plus élevé parmi les lignes du rappel.",
+            "help": ""
+        },
         "funding_id": {
             "label": "Financement",
             "description": "Financement associé au rappel.",
@@ -31,6 +36,11 @@
         "payment_reminder_owners_ids": {
             "label": "Propriétaires",
             "description": "Propriétaires concernés par ce rappel.",
+            "help": ""
+        },
+        "payment_reminder_owner_lines_ids": {
+            "label": "Lignes de rappel",
+            "description": "Lignes de rappel par financement incluses dans ce rappel.",
             "help": ""
         },
         "exporting_tasks_ids": {
@@ -104,7 +114,7 @@
         "list.default": {
             "name": "Rappels de paiement",
             "description": "Liste des rappels de paiement liés aux financements échus.",
-            "header": {
+            "actions": {
                 "header.selection.actions.send_reminders": {
                     "label": "Envoyer les rappels",
                     "description": "Planifier les e-mails et exports des rappels sélectionnés."

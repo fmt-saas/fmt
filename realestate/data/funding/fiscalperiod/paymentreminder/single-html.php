@@ -201,6 +201,7 @@ $paymentReminder = PaymentReminder::id($params['payment_reminder_id'])
     ->read([
         'name',
         'emission_date',
+        'reminder_level',
         'condo_id' => [
             'name', 'legal_name', 'address_street', 'address_zip', 'address_city',
             'registration_number', 'bank_account_iban', 'bank_account_bic',
@@ -371,10 +372,20 @@ if(!$template) {
     throw new Exception('template_not_found', EQ_ERROR_INVALID_CONFIG);
 }
 
+$reminder_level = $paymentReminder['reminder_level'];
 
+if($reminder_level <= 4) {
+    $subject_suffix = '_reminder';
+    $introduction_suffix = '_reminder_' . $reminder_level;
+}
+else {
+    $subject_suffix = '_final_notice';
+    $introduction_suffix = '_final_notice';
+}
 
 foreach($template['parts_ids'] as $part) {
-    if($part['name'] === 'subject') {
+
+    if($part['name'] === ('subject'.$subject_suffix)) {
         $subject = strip_tags($part['value']);
 
         $map_values = [
@@ -387,7 +398,7 @@ foreach($template['parts_ids'] as $part) {
             return $map_values[$key] ?? '';
         }, $subject);
     }
-    elseif($part['name'] === 'introduction') {
+    elseif($part['name'] === ('introduction'.$introduction_suffix)) {
         $introduction = $part['value'];
 
         $map_values = [

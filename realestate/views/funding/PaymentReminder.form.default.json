@@ -83,8 +83,9 @@
                                         "width": "33%",
                                         "items": [
                                             {
-                                                "type": "label",
-                                                "value": "",
+                                                "type": "field",
+                                                "label": "Reminder level",
+                                                "value": "reminder_level",
                                                 "width": "50%"
                                             },
                                             {
