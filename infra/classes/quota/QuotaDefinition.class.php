@@ -14,19 +14,21 @@ class QuotaDefinition extends Model {
     public static function getColumns(): array {
         return [
 
-            'name' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'description'       => 'Display name of the quota definition.',
-                'function'          => 'calcName',
-                'store'             => true
-            ],
-
             'metric_definition_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'infra\metering\MetricDefinition',
                 'description'       => 'Metric definition concerned by the quota.',
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['name', 'code']
+            ],
+
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['metric_definition_id' => 'name'],
+                'description'       => 'Display name of the quota definition.',
+                'store'             => true,
+                'instant'           => true
             ],
 
             'code' => [
@@ -69,16 +71,5 @@ class QuotaDefinition extends Model {
         return [
             ['code']
         ];
-    }
-
-    public static function calcName($self): array {
-        $result = [];
-        $self->read(['metric_definition_id' => ['name']]);
-
-        foreach($self as $id => $quota) {
-            $result[$id] = "Quota - {$quota['metric_definition_id']['name']}";
-        }
-
-        return $result;
     }
 }

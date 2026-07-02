@@ -13,17 +13,20 @@ class QuotaUsage extends Model {
     public static function getColumns(): array {
         return [
 
-            'name' => [
-                'type'              => 'string',
-                'description'       => 'Name of the threshold.',
-                'required'          => true
-            ],
-
             'definition_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'infra\quota\QuotaDefinition',
-                'description'       => 'The quota definition of the usage.',
+                'description'       => 'The definition of the quota usage.',
                 'required'          => true
+            ],
+
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'relation'          => ['definition_id' => 'code'],
+                'description'       => 'Name of the quota usage.',
+                'store'             => true,
+                'instant'           => true
             ],
 
             'code' => [
@@ -31,7 +34,7 @@ class QuotaUsage extends Model {
                 'result_type'       => 'string',
                 'usage'             => 'text/plain:128',
                 'relation'          => ['definition_id' => 'code'],
-                'description'       => 'Unique technical code of the usage.',
+                'description'       => 'Unique technical code of the quota usage.',
                 'store'             => true,
                 'instant'           => true
             ],
@@ -49,7 +52,7 @@ class QuotaUsage extends Model {
             'value' => [
                 'type'              => 'integer',
                 'description'       => 'Current usage value of a defined quota.',
-                'required'          => true
+                'default'           => 0
             ],
 
             'is_reached' => [
