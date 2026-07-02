@@ -8,7 +8,7 @@
 use equal\orm\Domain;
 use sale\accounting\invoice\SaleInvoice;
 
-list($params, $providers) = eQual::announce([
+[$params, $providers] = eQual::announce([
     'description'   => 'Advanced search for the Funding: returns a collection of Reports according to extra parameters.',
     'extends'       => 'core_model_collect',
     'params'        => [
@@ -16,6 +16,11 @@ list($params, $providers) = eQual::announce([
             'description'       => 'name',
             'type'              => 'string',
             'default'           => 'sale\pay\Funding'
+        ],
+        'condo_id' => [
+            'type'              => 'many2one',
+            'description'       => "The condominium the email relates to.",
+            'foreign_object'    => 'realestate\property\Condominium'
         ],
         'customer_id' => [
             'type'              => 'many2one',
@@ -52,9 +57,13 @@ list($params, $providers) = eQual::announce([
  * @var \equal\php\Context $context
  * @var \equal\orm\ObjectManager $orm
  */
-list($context, $orm) = [ $providers['context'], $providers['orm'] ];
+['context' => $context, 'orm' => $orm] = $providers;
 
 $domain = $params['domain'];
+
+if(isset($params['condo_id']) && $params['condo_id'] > 0) {
+    $domain = Domain::conditionAdd($domain, ['condo_id', '=', $params['condo_id']]);
+}
 
 if(isset($params['due_amount_min']) && $params['due_amount_min'] > 0) {
     $domain = Domain::conditionAdd($domain, ['due_amount', '>=', $params['due_amount_min']]);
