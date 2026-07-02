@@ -48,11 +48,11 @@ use sale\accounting\invoice\SaleInvoice;
         ],
         'date_from' => [
             'type'              => 'date',
-            'description'       => 'First day (included) of the fiscal year.',
+            'description'       => 'First day of the searched period.',
         ],
         'date_to' => [
             'type'              => 'date',
-            'description'       => 'Last day (included) of the period.',
+            'description'       => 'Last day the searched period.',
         ],
         'funding_type' => [
             'type'              => 'string',
@@ -85,11 +85,11 @@ use sale\accounting\invoice\SaleInvoice;
 $domain = $params['domain'];
 
 if(isset($params['date_from'])) {
-    $domain->addCondition(new DomainCondition('due_date', '>=', $params['date_from']));
+    $domain = Domain::conditionAdd($domain, ['due_date', '<=', $params['date_from']]);
 }
 
 if(isset($params['date_to'])) {
-    $domain->addCondition(new DomainCondition('due_date', '>=', $params['date_to']));
+    $domain = Domain::conditionAdd($domain, ['due_date', '<=', $params['date_to']]);
 }
 
 if(isset($params['condo_id']) && $params['condo_id'] > 0) {
@@ -119,11 +119,11 @@ if(isset($params['employee_id']) && $params['employee_id'] > 0) {
 }
 
 if(isset($params['payment_reference']) && strlen($params['payment_reference']) > 0 ) {
-    $domain = Domain::conditionAdd($domain, ['payment_reference', 'like', '%'. $params['payment_reference'].'%']);
+    $domain = Domain::conditionAdd($domain, ['payment_reference', 'like', '%'. $params['payment_reference'] . '%']);
 }
 
 if(isset($params['funding_type']) && strlen($params['funding_type']) > 0) {
-    $domain = Domain::conditionAdd($domain, ['funding_type', '>=', $params['funding_type']]);
+    $domain = Domain::conditionAdd($domain, ['funding_type', '=', $params['funding_type']]);
 }
 
 
