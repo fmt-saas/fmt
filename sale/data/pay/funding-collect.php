@@ -98,12 +98,12 @@ if(isset($params['condo_id']) && $params['condo_id'] > 0) {
 
 if(isset($params['due_amount_min'])) {
     $params['due_amount_min'] = -abs($params['due_amount_min']);
-    $domain = Domain::conditionAdd($domain, ['remaining_amount', '>=', $params['due_amount_min']]);
+    $domain = Domain::conditionAdd($domain, ['remaining_amount', '<=', $params['due_amount_min']]);
 }
 
 if(isset($params['due_amount_max'])) {
     $params['due_amount_max'] = -abs($params['due_amount_max']);
-    $domain = Domain::conditionAdd($domain, ['remaining_amount', '<=', $params['due_amount_max']]);
+    $domain = Domain::conditionAdd($domain, ['remaining_amount', '>=', $params['due_amount_max']]);
 }
 
 if(isset($params['invoice_id']) && $params['invoice_id'] > 0) {
