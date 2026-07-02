@@ -66,7 +66,7 @@ use finance\accounting\FiscalPeriod;
 $context = $providers['context'];
 
 $expenseStatement = ExpenseStatement::id($params['id'])
-    ->read(['condo_id', 'fiscal_period_id', 'status', 'posting_date', 'is_cutoff_at_period_end', 'statement_owners_ids' => ['ownership_id']])
+    ->read(['condo_id', 'fiscal_period_id', 'status', 'posting_date', 'is_cutoff_at_document_date', 'statement_owners_ids' => ['ownership_id']])
     ->first();
 
 if(!$expenseStatement) {
@@ -130,17 +130,9 @@ try {
         }
         // append Owner Statement sheet
         try {
-            // #todo
-            $date_to = $expenseStatement['posting_date'];
-
-            if($expenseStatement['is_cutoff_at_period_end']) {
-                $date_to = $fiscalPeriod['date_to'];
-            }
-
             $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
                     'date_from'         => $fiscalPeriod['date_from'],
-                    'date_to'           => $fiscalPeriod['date_to'],
-                    // 'date_to'           => $date_to,
+                    'date_to'           => ($expenseStatement['is_cutoff_at_document_date']) ? time() : $fiscalPeriod['date_to'],
                     'ownership_id'      => $statementOwner['ownership_id']
                 ]);
             $temp = tempnam(sys_get_temp_dir(), 'pdf_');
