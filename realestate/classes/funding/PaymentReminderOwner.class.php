@@ -120,9 +120,12 @@ class PaymentReminderOwner extends \equal\orm\Model {
 
     protected static function calcReminderLevel($self) {
         $result = [];
-        $self->read(['state', 'payment_reminder_owner_lines_ids' => ['reminder_level']]);
+        $self->read(['state', 'status', 'payment_reminder_owner_lines_ids' => ['reminder_level']]);
         foreach($self as $id => $paymentReminderOwner) {
             if($paymentReminderOwner['state'] != 'instance') {
+                continue;
+            }
+            if($paymentReminderOwner['status'] === 'draft') {
                 continue;
             }
             if($paymentReminderOwner['payment_reminder_owner_lines_ids']->count() <= 0) {

@@ -201,7 +201,6 @@ $paymentReminder = PaymentReminder::id($params['payment_reminder_id'])
     ->read([
         'name',
         'emission_date',
-        'reminder_level',
         'condo_id' => [
             'name', 'legal_name', 'address_street', 'address_zip', 'address_city',
             'registration_number', 'bank_account_iban', 'bank_account_bic',
@@ -219,6 +218,7 @@ $paymentReminder = PaymentReminder::id($params['payment_reminder_id'])
             '@domain' => ['ownership_id', '=', $params['ownership_id']],
             'due_balance',
             'due_date',
+            'reminder_level',
             'payment_reminder_owner_lines_ids' => [
                 'days_overdue',
                 'reminder_level',
@@ -372,7 +372,7 @@ if(!$template) {
     throw new Exception('template_not_found', EQ_ERROR_INVALID_CONFIG);
 }
 
-$reminder_level = $paymentReminder['reminder_level'];
+$reminder_level = $paymentReminderOwner['reminder_level'];
 
 Setting::assert_value('realestate', 'features', 'payment_reminder.max_reminder_level', 2);
 
