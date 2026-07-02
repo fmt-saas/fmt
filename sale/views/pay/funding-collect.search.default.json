@@ -50,7 +50,18 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Employee",
+                                                "value": "employee_id",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "due_amount_max",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "funding_type",
                                                 "width": "25%"
                                             }
                                         ]

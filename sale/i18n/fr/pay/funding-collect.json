@@ -17,6 +17,11 @@
             "description": "La facture liée au financement.",
             "help": ""
         },
+        "employee_id": {
+            "label": "Employé",
+            "description": "",
+            "help": ""
+        },
         "due_amount_min": {
             "label": "Montant à partir de",
             "description": "Montant minimal attendu pour le financement.",
@@ -35,6 +40,16 @@
         "payment_reference": {
             "label": "Référence",
             "description": "Message permettant d'identifier la raison de la transaction"
+        },
+        "funding_type": {
+            "label": "Référence",
+            "description": "Message permettant d'identifier la raison de la transaction",
+            "selection": {
+                "purchase_invoice": "Facture fournisseur",
+                "expense_statement": "Décompte de charges",
+                "misc_operation": "Opération diverse",
+                "statement_line": "Relevé bancaire"
+            }
         }
     }
 }

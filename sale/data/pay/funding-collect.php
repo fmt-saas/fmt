@@ -27,9 +27,14 @@ use sale\accounting\invoice\SaleInvoice;
             'foreign_object'    => 'purchase\supplier\Supplier',
             'description'       => 'The supplier to which the funding relates to.',
         ],
+        'employee_id' => [
+            'type'              => 'many2one',
+            'foreign_object'    => 'hr\employee\Employee',
+            'description'       => 'Employee currently in charge of the processing.'
+        ],
         'invoice_id' => [
             'type'              => 'many2one',
-            'foreign_object'    => 'sale\accounting\invoice\Invoice',
+            'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
             'description'       => 'The invoice to which the funding relates to.',
         ],
         'due_amount_min' => [
@@ -39,6 +44,15 @@ use sale\accounting\invoice\SaleInvoice;
         'due_amount_max' => [
             'type'              => 'integer',
             'description'       => 'Maximum amount expected for funding.'
+        ],
+        'funding_type' => [
+            'type'              => 'string',
+            'selection'         => [
+                'purchase_invoice',
+                'expense_statement',
+                'misc_operation',
+                'statement_line'
+            ]
         ],
         'payment_reference' => [
             'type'              => 'string',
@@ -74,16 +88,26 @@ if(isset($params['due_amount_max']) && $params['due_amount_max'] > 0) {
 }
 
 if(isset($params['invoice_id']) && $params['invoice_id'] > 0) {
-    $domain = Domain::conditionAdd($domain, ['invoice_id', '=', $params['invoice_id']]);
+    $domain = Domain::conditionAdd($domain, ['purchase_invoice_id', '=', $params['invoice_id']]);
 }
 
 if(isset($params['supplier_id']) && $params['supplier_id'] > 0) {
     $domain = Domain::conditionAdd($domain, ['supplier_id', '=', $params['supplier_id']]);
 }
 
+if(isset($params['employee_id']) && $params['employee_id'] > 0) {
+    $domain = Domain::conditionAdd($domain, ['assigned_employee_id', '=', $params['employee_id']]);
+}
+
 if(isset($params['payment_reference']) && strlen($params['payment_reference']) > 0 ) {
     $domain = Domain::conditionAdd($domain, ['payment_reference', 'like', '%'. $params['payment_reference'].'%']);
 }
+
+
+if(isset($params['funding_type']) && strlen($params['funding_type']) > 0) {
+    $domain = Domain::conditionAdd($domain, ['funding_type', '>=', $params['funding_type']]);
+}
+
 
 $params['domain'] = $domain;
 $result = eQual::run('get', 'model_collect', $params, true);
