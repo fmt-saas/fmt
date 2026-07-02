@@ -85,7 +85,7 @@ use sale\accounting\invoice\SaleInvoice;
 $domain = $params['domain'];
 
 if(isset($params['date_from'])) {
-    $domain = Domain::conditionAdd($domain, ['due_date', '<=', $params['date_from']]);
+    $domain = Domain::conditionAdd($domain, ['due_date', '>=', $params['date_from']]);
 }
 
 if(isset($params['date_to'])) {
