@@ -360,7 +360,7 @@ class Funding extends \sale\pay\Funding {
 
     protected static function calcName($self) {
         $result = [];
-        $self->read(['state', 'due_amount', 'payment_reference',
+        $self->read(['state', 'due_amount', 'payment_reference', 'free_payment_reference', 'has_free_payment_reference',
                 'fund_request_execution_id' => ['name'],
                 'expense_statement_id' => ['name'],
                 'purchase_invoice_id' => ['name']
@@ -374,22 +374,30 @@ class Funding extends \sale\pay\Funding {
                 continue;
             }
 
-            $result[$id] = Setting::format_number_currency($funding['due_amount']);
-
-            if($funding['payment_reference']) {
-                $result[$id] .= '  ' . DataFormatter::format($funding['payment_reference'], 'scor');
-            }
+            $result[$id] = '';
 
             if($funding['purchase_invoice_id']) {
-                $result[$id] .= '  ' . $funding['purchase_invoice_id']['name'];
+                $result[$id] .= $funding['purchase_invoice_id']['name'];
             }
 
             if($funding['fund_request_execution_id']) {
-                $result[$id] .= '  ' . $funding['fund_request_execution_id']['name'];
+                $result[$id] .= $funding['fund_request_execution_id']['name'];
             }
 
             if($funding['expense_statement_id']) {
-                $result[$id] .= '  ' . $funding['expense_statement_id']['name'];
+                $result[$id] .= $funding['expense_statement_id']['name'];
+            }
+
+            $result[$id] .= ' ' . Setting::format_number_currency($funding['due_amount']);
+
+            /*
+            if($funding['payment_reference']) {
+                $result[$id] .= '  ' . DataFormatter::format($funding['payment_reference'], 'scor');
+            }
+            */
+
+            if($funding['free_payment_reference']) {
+                $result[$id] .= '  ' . $funding['free_payment_reference'];
             }
 
         }

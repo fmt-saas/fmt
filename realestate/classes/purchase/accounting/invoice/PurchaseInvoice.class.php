@@ -933,13 +933,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             $remaining_due_amount = -$purchaseInvoice['price'];
 
+            $has_free_payment_reference = true;
+            $free_payment_reference = $purchaseInvoice['supplier_invoice_number'];
+
             if(strlen($purchaseInvoice['payment_reference']) > 0) {
                 $has_free_payment_reference = false;
                 $payment_reference = $purchaseInvoice['payment_reference'];
-            }
-            else {
-                $has_free_payment_reference = true;
-                $free_payment_reference = $purchaseInvoice['supplier_invoice_number'];
             }
 
             $suppliershipFunding = Funding::create([
@@ -958,8 +957,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'due_date'                          => $due_date,
                     'has_mandate'                       => $purchaseInvoice['has_mandate'],
                     'payment_reference'                 => $payment_reference ?? null,
-                    'has_free_payment_reference'        => $has_free_payment_reference ?? true,
-                    'free_payment_reference'            => $free_payment_reference ?? null,
+                    'has_free_payment_reference'        => $has_free_payment_reference,
+                    'free_payment_reference'            => $free_payment_reference,
                     // relay on_hold flag
                     'has_payment_on_hold'               => $purchaseInvoice['has_payment_on_hold']
                 ])
