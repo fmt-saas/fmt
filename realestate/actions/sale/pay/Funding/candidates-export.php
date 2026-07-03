@@ -9,7 +9,7 @@ use realestate\sale\pay\Funding;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Create a SEPA export task for every outgoing Funding candidate that has not been exported yet.',
-    'params'        => (object) [],
+    'params'        => [],
     'response'      => [
         'content-type'  => 'application/json',
         'charset'       => 'utf-8',
@@ -21,13 +21,17 @@ use realestate\sale\pay\Funding;
 /** @var \equal\php\Context $context */
 ['context' => $context] = $providers;
 
-$funding_ids = Funding::search([
+$domain = [
         ['status', '=', 'credit_balance'],
         ['is_sent', '=', false],
         ['due_amount', '<', 0],
         ['has_mandate', '=', false],
         ['counterpart_bank_account_id', 'not', null]
-    ])
+    ];
+
+$domain[] = ['suppliership_id', '', null];
+
+$funding_ids = Funding::search($domain)
     ->ids();
 
 if(count($funding_ids) > 0) {
