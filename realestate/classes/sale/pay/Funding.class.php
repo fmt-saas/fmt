@@ -379,16 +379,14 @@ class Funding extends \sale\pay\Funding {
             if($funding['purchase_invoice_id']) {
                 $result[$id] .= $funding['purchase_invoice_id']['name'];
             }
-
-            if($funding['fund_request_execution_id']) {
+            elseif($funding['fund_request_execution_id']) {
                 $result[$id] .= $funding['fund_request_execution_id']['name'];
             }
-
-            if($funding['expense_statement_id']) {
+            elseif($funding['expense_statement_id']) {
                 $result[$id] .= $funding['expense_statement_id']['name'];
             }
 
-            $result[$id] .= ' ' . Setting::format_number_currency($funding['due_amount']);
+            $result[$id] .= '  |  ' . Setting::format_number_currency($funding['due_amount']);
 
             /*
             if($funding['payment_reference']) {
@@ -397,7 +395,7 @@ class Funding extends \sale\pay\Funding {
             */
 
             if($funding['free_payment_reference']) {
-                $result[$id] .= '  ' . $funding['free_payment_reference'];
+                $result[$id] .= '  |  ' . $funding['free_payment_reference'];
             }
 
         }
