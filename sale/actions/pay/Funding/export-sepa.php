@@ -67,7 +67,7 @@ $output = eQual::run('get', 'sale_pay_Funding_sepa', [
 
 // store final result as a document (not visible through EDMS)
 $document = Document::create([
-        'name'          => 'Export SEPA - ' . date('Y-m-d_H-i-s-v') . ' - ' . $funding['condo_id']['code'],
+        'name'          => 'Export SEPA - ' . date('Y-m-d_H-i-s') . ' - ' . $funding['condo_id']['code'],
         'content_type'  => 'application/xml',
         'data'          => $output,
         'condo_id'      => $funding['condo_id']['id']
