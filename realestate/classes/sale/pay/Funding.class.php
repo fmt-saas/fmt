@@ -541,8 +541,9 @@ class Funding extends \sale\pay\Funding {
                         substr(str_pad((int) $funding['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
                         substr(str_pad((int) $funding['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
                     break;
-                // outgoing payments
+                // outgoing payments (purchase invoice)
                 case 'purchase_invoice':
+                    // #memo payment_reference is always provided at PurchaseInvoice level - this code should never been reached
                     // by convention, references for purchase invoices start with '9'
                     // this reference might be overwritten by the reference given by the supplier
                     $reference = sprintf("9%09d", $funding['purchase_invoice_id']);

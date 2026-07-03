@@ -119,6 +119,11 @@
                                             },
                                             {
                                                 "type": "label",
+                                                "value": "",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "label",
                                                 "value": "Document",
                                                 "width": "50%"
                                             },

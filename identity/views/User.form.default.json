@@ -103,7 +103,14 @@
                                             {
                                                 "type": "field",
                                                 "value": "groups_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

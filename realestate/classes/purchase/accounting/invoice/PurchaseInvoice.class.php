@@ -846,8 +846,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     public static function getPolicies(): array {
-
-        // #todo - make sure VCS ['payment_reference'] is valid
         return array_merge(parent::getPolicies(), [
             'can_be_allocated' => [
                 'description' => 'Verifies that an invoice can be allocated of the posting date(s).',
@@ -886,7 +884,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function doCreateFundings($self) {
         $self->read([
-                'condo_id', 'name', 'price', 'payment_reference', 'emission_date', 'due_date', 'has_mandate', 'has_payment_on_hold',
+                'condo_id', 'name', 'price', 'supplier_invoice_number', 'payment_reference', 'emission_date', 'due_date', 'has_mandate', 'has_payment_on_hold',
                 'funding_id',
                 'accounting_entry_id',
                 'suppliership_id',
@@ -935,6 +933,15 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             $remaining_due_amount = -$purchaseInvoice['price'];
 
+            if(strlen($purchaseInvoice['payment_reference']) > 0) {
+                $has_free_payment_reference = false;
+                $payment_reference = $purchaseInvoice['payment_reference'];
+            }
+            else {
+                $has_free_payment_reference = true;
+                $free_payment_reference = $purchaseInvoice['supplier_invoice_number'];
+            }
+
             $suppliershipFunding = Funding::create([
                     'condo_id'                          => $purchaseInvoice['condo_id'],
                     'description'                       => $purchaseInvoice['name'],
@@ -950,7 +957,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'issue_date'                        => $issue_date,
                     'due_date'                          => $due_date,
                     'has_mandate'                       => $purchaseInvoice['has_mandate'],
-                    'payment_reference'                 => $purchaseInvoice['payment_reference'] ?? null,
+                    'payment_reference'                 => $payment_reference ?? null,
+                    'has_free_payment_reference'        => $has_free_payment_reference ?? true,
+                    'free_payment_reference'            => $free_payment_reference ?? null,
                     // relay on_hold flag
                     'has_payment_on_hold'               => $purchaseInvoice['has_payment_on_hold']
                 ])
@@ -2106,6 +2115,23 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     return ['fiscal_period_id' => ['closed_fiscal_period' => 'Invoice cannot be allocated to a closed fiscal period.']];
                 }
             }
+            if(isset($values['payment_reference']) && strlen(trim($values['payment_reference'])) > 0) {
+                $payment_reference = $values['payment_reference'];
+                if(!preg_match('/^\d{12}$/', $payment_reference)) {
+                    return ['payment_reference' => ['invalid_payment_reference_format' => 'Payment reference is not a valid VCS.']];
+                }
+
+                $base = substr($payment_reference, 0, 10);
+                $check = (int) substr($payment_reference, 10, 2);
+
+                $expected = ((int) $base) % 97 ?: 97;
+
+                if( $check !== $expected) {
+                    return ['payment_reference' => ['invalid_payment_reference' => 'Payment reference is not a valid VCS.']];
+                }
+
+            }
+
         }
     }
 

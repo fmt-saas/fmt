@@ -217,16 +217,20 @@ if(!empty($params['instance_uuid'])) {
 
 // update Local users
 $instance_name = parse_url(constant('BACKEND_URL'), PHP_URL_HOST);
+$group_names = ['operators', 'admins'];
+$groups_ids = Group::search(['name', 'in', $group_names])
+    ->ids();
 
 User::id(1)->update([
     'login'     => "root@{$instance_name}",
-    'is_system' => true
+    'is_system' => true,
+    'groups_ids' => $groups_ids
 ]);
 
 User::id(2)->update([
     'login'      => "admin@{$instance_name}",
     'is_system'  => true,
-    'groups_ids' => [1]
+    'groups_ids' => $groups_ids
 ]);
 
 $global_instance_name = parse_url($params['global_instance_url'], PHP_URL_HOST);
