@@ -354,7 +354,7 @@ class Funding extends \equal\orm\Model {
 
     protected static function doRefreshStatus($self) {
         $self
-            ->update(['is_paid' => null, 'paid_amount' => null, 'remaining_amount' => null])
+            ->update(['name' => null, 'is_paid' => null, 'paid_amount' => null, 'remaining_amount' => null])
             ->read(['due_amount', 'is_paid', 'paid_amount', 'remaining_amount']);
 
         foreach($self as $id => $funding) {
@@ -376,7 +376,7 @@ class Funding extends \equal\orm\Model {
 
     protected static function calcName($self) {
         $result = [];
-        $self->read(['due_amount', 'payment_reference', 'invoice_id' => ['name']]);
+        $self->read(['', 'due_amount', 'payment_reference', 'invoice_id' => ['name']]);
         foreach($self as $id => $funding) {
             $result[$id] = Setting::format_number_currency($funding['due_amount']);
 
