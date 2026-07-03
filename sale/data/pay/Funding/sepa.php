@@ -5,8 +5,8 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use Sabre\Xml\Service;
 use sale\pay\Funding;
+use Sabre\Xml\Service;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate a SEPA XML file for multiple Fundings according to ISO 20022 pain.001.001.03.',
@@ -116,7 +116,7 @@ $msg_id = $group_id . '-MSG';
 
 $ns = 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03';
 
-$n  = fn($t) => '{'.$ns.'}'.$t;
+$n  = fn($t) => '{' . $ns . '}' . $t;
 
 // GROUP HEADER
 $grpHdr = [
@@ -183,7 +183,7 @@ foreach($fundings as $funding) {
         'name'  => $n('CdtTrfTxInf'),
         'value' => [
             $n('PmtId') => [
-                $n('EndToEndId') => 'PAY-' . $funding['id']
+                $n('EndToEndId') => substr($funding['name'], 0, 12)
             ],
 
             $n('Amt') => [

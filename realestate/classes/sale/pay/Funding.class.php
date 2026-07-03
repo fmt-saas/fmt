@@ -361,9 +361,9 @@ class Funding extends \sale\pay\Funding {
     protected static function calcName($self) {
         $result = [];
         $self->read(['state', 'due_amount', 'payment_reference', 'free_payment_reference', 'has_free_payment_reference',
-                'fund_request_execution_id' => ['name'],
-                'expense_statement_id' => ['name'],
-                'purchase_invoice_id' => ['name']
+                'expense_statement_id'      => ['name'],
+                'purchase_invoice_id'       => ['name'],
+                'fund_request_execution_id' => ['name']
             ]);
         foreach($self as $id => $funding) {
             if($funding['state'] === 'draft') {
