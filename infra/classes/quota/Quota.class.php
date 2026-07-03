@@ -88,6 +88,12 @@ class Quota extends Model {
                 'default'           => false
             ],
 
+            'is_active' => [
+                'type'              => 'boolean',
+                'description'       => 'Indicates whether this quota should block feature if exceeded.',
+                'default'           => true
+            ],
+
             'thresholds_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'infra\quota\QuotaThreshold',
@@ -107,9 +113,9 @@ class Quota extends Model {
     public static function getActions(): array {
         return [
 
-            'update-value' => [
-                'description'   => 'Update the quota usage value using the definition inspect data controller.',
-                'function'      => 'doUpdateValue'
+            'refresh-value' => [
+                'description'   => 'Refresh the quota value using the definition inspect data controller.',
+                'function'      => 'doRefreshValue'
             ],
 
             'check-thresholds' => [
@@ -120,20 +126,21 @@ class Quota extends Model {
         ];
     }
 
-    protected static function doUpdateValue($self): void {
-        $self->read(['definition_id' => ['metric_definition_id' => ['collector']]]);
-        foreach ($self as $id => $quota_usage) {
-            $inspect_res = \eQual::run('get', $quota_usage['definition_id']['metric_definition_id']['collector']);
+    protected static function doRefreshValue($self): void {
+        $self->read(['metric_definition_id' => ['collector']]);
+        foreach ($self as $id => $quota) {
+            $inspect_res = \eQual::run('get', $quota['metric_definition_id']['collector']);
 
             self::id($id)->update(['value' => $inspect_res['value']]);
         }
     }
 
     protected static function doCheckThreshold($self): void {
+        $self->do('refresh-value');
         $self->read(['value', 'thresholds_ids' => ['value', 'max_value']]);
-        foreach($self as $quota_usage) {
-            foreach($quota_usage['thresholds_ids'] as $threshold) {
-                if($quota_usage['value'] >= $threshold['value'] && (!$threshold['max_value'] || $quota_usage['value'] < $threshold['max_value'])) {
+        foreach($self as $quota) {
+            foreach($quota['thresholds_ids'] as $threshold) {
+                if($quota['value'] >= $threshold['value'] && (!$threshold['max_value'] || $quota['value'] < $threshold['max_value'])) {
                     \eQual::run('do', $threshold['action']);
                 }
             }

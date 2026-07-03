@@ -7,6 +7,7 @@
 namespace identity;
 
 use equal\data\DataGenerator;
+use infra\quota\Quota;
 use infra\server\Instance;
 use realestate\ownership\Owner;
 
@@ -189,7 +190,8 @@ class User extends \core\User {
                 'result_type'       => 'boolean',
                 'function'          => 'calcIsEmployee',
                 'store'             => true,
-                'readonly'          => true
+                'readonly'          => true,
+                'onupdate'          => 'onupdateIsEmployee'
             ],
 
             'is_owner' => [
@@ -197,7 +199,8 @@ class User extends \core\User {
                 'result_type'       => 'boolean',
                 'function'          => 'calcIsOwner',
                 'store'             => true,
-                'readonly'          => true
+                'readonly'          => true,
+                'onupdate'          => 'onupdateIsOwner'
             ]
 
         ];
@@ -261,6 +264,23 @@ class User extends \core\User {
         return $result;
     }
 
+    public static function cancreate($self, $values): array {
+        $quota = Quota::search([
+            ['code', '=', 'auth.users.count'],
+            ['is_active', '=', true]
+        ])
+            ->read(['is_reached'])
+            ->first();
+
+        if($quota && $quota['is_reached']) {
+            if(isset($values['employee_id']) || isset($values['owner_id'])) {
+                return ['quota' => ['quota_reached' => 'The quota for non-system user creation has been reached.']];
+            }
+        }
+
+        return [];
+    }
+
     public static function oncreate($self, $values, $orm = null) {
         foreach($self as $id => $user) {
             if(constant('FMT_INSTANCE_TYPE') === 'global') {
@@ -281,6 +301,59 @@ class User extends \core\User {
             }
         }
         parent::oncreate($self, $values);
+    }
+
+    public static function canupdate($self, $values): array {
+        $quota = Quota::search([
+            ['code', '=', 'auth.users.count'],
+            ['is_active', '=', true]
+        ])
+            ->read(['is_reached'])
+            ->first();
+
+        if($quota && $quota['is_reached']) {
+            if(isset($values['employee_id']) || isset($values['owner_id'])) {
+                return ['quota' => ['quota_reached' => 'The quota for non-system user creation has been reached.']];
+            }
+        }
+
+        return [];
+    }
+
+    public static function onupdateIsEmployee($self): void {
+        $quota = Quota::search([
+            ['code', '=', 'auth.users.count'],
+            ['is_active', '=', true]
+        ])
+            ->read(['id'])
+            ->first();
+
+        if($quota) {
+            $self->read(['is_employee']);
+            foreach($self as $user) {
+                if($user['is_employee']) {
+                    Quota::id($quota['id'])->do('check-thresholds');
+                }
+            }
+        }
+    }
+
+    public static function onupdateIsOwner($self): void {
+        $quota = Quota::search([
+            ['code', '=', 'auth.users.count'],
+            ['is_active', '=', true]
+        ])
+            ->read(['id'])
+            ->first();
+
+        if($quota) {
+            $self->read(['is_owner']);
+            foreach($self as $user) {
+                if($user['is_owner']) {
+                    Quota::id($quota['id'])->do('check-thresholds');
+                }
+            }
+        }
     }
 
     protected static function onupdateInstanceUuid($self) {

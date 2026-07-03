@@ -5,11 +5,6 @@
         "items": [
             {
                 "type": "field",
-                "value": "metric_definition_id",
-                "width": "20%"
-            },
-            {
-                "type": "field",
                 "value": "name",
                 "width": "20%"
             },
@@ -20,12 +15,22 @@
             },
             {
                 "type": "field",
+                "value": "metric_definition_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
                 "value": "quota_type",
                 "width": "20%"
             },
             {
                 "type": "field",
                 "value": "period_duration",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "value",
                 "width": "20%"
             }
         ]
