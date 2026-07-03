@@ -7,6 +7,7 @@
 
 namespace sale\pay;
 
+use documents\Document;
 use fmt\setting\Setting;
 use equal\data\DataFormatter;
 use finance\bank\BankStatementLine;
@@ -319,7 +320,7 @@ class Funding extends \equal\orm\Model {
     }
 
     protected static function doRemove($self) {
-        $self->read(['condo_id', 'payments_ids' => ['status', 'payment_origin', 'bank_statement_line_id']]);
+        $self->read(['condo_id', 'sepa_document_id', 'payments_ids' => ['status', 'payment_origin', 'bank_statement_line_id']]);
 
         foreach($self as $id => $funding) {
             foreach($funding['payments_ids'] as $payment_id => $payment) {
@@ -354,6 +355,9 @@ class Funding extends \equal\orm\Model {
 
                     $payments->delete(true);
                 }
+            }
+            if($funding['sepa_document_id']) {
+                Document::id($funding['sepa_document_id'])->delete(true);
             }
         }
         $self->delete(true);

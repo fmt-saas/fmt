@@ -87,8 +87,6 @@ foreach($fundings as $funding_id => $funding) {
         continue;
     }
 
-    Funding::id($funding_id)->update(['is_sent' => true]);
-
     ExportingTaskLine::create([
             'exporting_task_id' => $exportingTask['id'],
             'name'              => "Export enveloppe SEPA - {$funding['bank_account_id']['name']}",

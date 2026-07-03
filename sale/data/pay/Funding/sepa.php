@@ -244,8 +244,6 @@ $xml = preg_replace(
     1
 );
 
-Funding::ids($ids)->update(['is_sent' => true]);
-
 // #memo - this does not guarantee resulting filename uniqueness
 $filename = "SEPA_ENVELOPE_" . $group_id . '_' . date('Ymd') . ".xml";
 

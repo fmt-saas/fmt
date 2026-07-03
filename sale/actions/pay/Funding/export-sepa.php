@@ -32,7 +32,7 @@ use sale\pay\Funding;
 ['context' => $context, 'orm' => $orm] = $providers;
 
 // ensure object exists and is readable
-$funding = Funding::id($params['funding_id'])
+$funding = Funding::id($params['id'])
     ->read(['name', 'is_sent', 'sepa_document_id', 'condo_id' => ['code']])
     ->first();
 
@@ -47,7 +47,7 @@ if($funding['sepa_document_id']) {
 else {
     // get the SEPA XML data for the given fundings
     $output = eQual::run('get', 'sale_pay_Funding_sepa', [
-            'ids' => [$params['funding_id']]
+            'ids' => [$params['id']]
         ]);
     // store final result as a document (not visible through EDMS)
     $document = Document::create([
@@ -58,10 +58,10 @@ else {
         ])
         ->first();
 
-    Funding::id($params['funding_id'])->update(['sepa_document_id' => $document['id']]);
+    Funding::id($params['id'])->update(['sepa_document_id' => $document['id']]);
 }
 
-Funding::id($params['funding_id'])->update(['is_sent' => true]);
+Funding::id($params['id'])->update(['is_sent' => true]);
 
 
 $context->httpResponse()
