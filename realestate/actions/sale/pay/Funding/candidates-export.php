@@ -25,7 +25,8 @@ $funding_ids = Funding::search([
         ['status', '=', 'credit_balance'],
         ['is_sent', '=', false],
         ['due_amount', '<', 0],
-        ['has_mandate', '=', false]
+        ['has_mandate', '=', false],
+        ['counterpart_bank_account_id', 'not', null]
     ])
     ->ids();
 
