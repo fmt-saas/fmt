@@ -311,6 +311,24 @@ class PropertyLot extends \equal\orm\Model {
             }
         }
 
+        $quota = Quota::search([
+            ['code', '=', 'property.parkings.count'],
+            ['is_active', '=', true]
+        ])
+            ->do('check-thresholds')
+            ->read(['is_reached'])
+            ->first();
+
+        if($quota && $quota['is_reached']) {
+            $parking_prop_nature = PropertyLotNature::search(['code', '=', 'PARKING'])
+                ->read(['id'])
+                ->first();
+
+            if($parking_prop_nature && isset($values['nature_id']) && $values['nature_id'] === $parking_prop_nature['id']) {
+                return ['quota' => ['quota_reached' => 'The quota for parking creation has been reached.']];
+            }
+        }
+
         return [];
     }
 
@@ -326,6 +344,24 @@ class PropertyLot extends \equal\orm\Model {
         if($quota && $quota['is_reached']) {
             if(isset($values['is_primary']) && $values['is_primary']) {
                 return ['quota' => ['quota_reached' => 'The quota for primary lot creation has been reached.']];
+            }
+        }
+
+        $quota = Quota::search([
+            ['code', '=', 'property.parkings.count'],
+            ['is_active', '=', true]
+        ])
+            ->do('check-thresholds')
+            ->read(['is_reached'])
+            ->first();
+
+        if($quota && $quota['is_reached']) {
+            $parking_prop_nature = PropertyLotNature::search(['code', '=', 'PARKING'])
+                ->read(['id'])
+                ->first();
+
+            if($parking_prop_nature && isset($values['nature_id']) && $values['nature_id'] === $parking_prop_nature['id']) {
+                return ['quota' => ['quota_reached' => 'The quota for parking creation has been reached.']];
             }
         }
 
