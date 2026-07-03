@@ -506,12 +506,18 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');
 
             // remove related fundings (move payments to BankStatementLine Funding if any)
-            Funding::search([
+            $fundings = Funding::search([
                     ['condo_id', '=', $purchaseInvoice['condo_id']],
                     ['funding_type', '=', 'purchase_invoice'],
                     ['purchase_invoice_id', '=', $id]
                 ])
-                ->do('remove');
+                ->read(['is_sent']);
+
+            foreach($fundings as $funding_id => $funding) {
+                if(!$funding['is_sent']) {
+                    Funding::id($funding_id)->do('remove');
+                }
+            }
 
             if($purchaseInvoice['document_process_id']) {
                 DocumentProcess::id($purchaseInvoice['document_process_id'])->transition('revert');
@@ -941,6 +947,19 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 $payment_reference = $purchaseInvoice['payment_reference'];
             }
 
+            $fundings = Funding::search([
+                    ['condo_id', '=', $purchaseInvoice['condo_id']],
+                    ['funding_type', '=', 'purchase_invoice'],
+                    ['purchase_invoice_id', '=', $id]
+                ])
+                ->read(['due_amount']);
+
+            $funding_due_amount = -$purchaseInvoice['price'];
+
+            foreach($fundings as $funding_id => $funding) {
+                $funding_due_amount -= $funding['due_amount'];
+            }
+
             $suppliershipFunding = Funding::create([
                     'condo_id'                          => $purchaseInvoice['condo_id'],
                     'description'                       => $purchaseInvoice['name'],
@@ -951,7 +970,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'counterpart_bank_account_id'       => $purchaseInvoice['suppliership_bank_account_id']['bank_account_id'],
                     'accounting_account_id'             => $suppliershipAccount['id'],
                     'accounting_entry_line_id'          => $accountingEntryLine['id'],
-                    'due_amount'                        => -$purchaseInvoice['price'],
+                    'due_amount'                        => $funding_due_amount,
                     'is_paid'                           => false,
                     'issue_date'                        => $issue_date,
                     'due_date'                          => $due_date,

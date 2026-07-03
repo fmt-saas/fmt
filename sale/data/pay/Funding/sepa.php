@@ -57,7 +57,7 @@ $fundings = Funding::ids($ids)
     ->read([
         'id',
         'name',
-        'due_amount',
+        'remaining_amount',
         'has_mandate',
         'has_free_payment_reference',
         'free_payment_reference',
@@ -80,11 +80,8 @@ $fromBic  = $first['bank_account_id']['bank_account_bic'];
 $fromName = $first['bank_account_id']['owner_identity_id']['name'];
 
 
-// #todo - handle if Payment already exist
-// is_exported -> deduce from due_amount
-// !is_exported : use amount (condition <  due amount)
 foreach($fundings as $funding) {
-    if($funding['due_amount'] >= 0) {
+    if($funding['remaining_amount'] >= 0) {
         throw new Exception('sepa_only_for_outgoing_funding', EQ_ERROR_INVALID_PARAM);
     }
     if($funding['has_mandate']) {
@@ -99,7 +96,7 @@ foreach($fundings as $funding) {
 // compute totals
 $totalAmount = 0;
 foreach($fundings as $funding) {
-    $totalAmount += abs((float) $funding['due_amount']);
+    $totalAmount += abs((float) $funding['remaining_amount']);
 }
 
 $total_formatted = number_format($totalAmount, 2, '.', '');
@@ -165,7 +162,7 @@ $pmtInf = [
 // add transactions
 foreach($fundings as $funding) {
 
-    $amount = abs(round((float) $funding['due_amount'], 2));
+    $amount = abs(round((float) $funding['remaining_amount'], 2));
     $amountFormatted = number_format($amount, 2, '.', '');
 
     $toName = $funding['counterpart_bank_account_id']['owner_identity_id']['name'];
