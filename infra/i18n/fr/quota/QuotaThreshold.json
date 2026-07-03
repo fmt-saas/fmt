@@ -1,0 +1,49 @@
+{
+    "name": "Seuil quota",
+    "plural": "Seuils quota",
+    "description": "Interface for model definition classes.",
+    "model": {
+        "definition_id": {
+            "label": "Définition",
+            "description": "La définition du quota incluant le seuil.",
+            "help": ""
+        },
+        "quota_type": {
+            "label": "Type",
+            "description": "Le quota est-il basé sur une valeur instantanée ou sur la quantité cumulée sur une période donnée ?",
+            "help": "",
+            "selection": {
+                "instant": "Instantané",
+                "period": "Péridoe"
+            }
+        },
+        "value": {
+            "label": "Valeur",
+            "description": "Valeur seuil devant être atteinte pour déclencher le contrôleur.",
+            "help": ""
+        },
+        "max_value": {
+            "label": "Valeur max",
+            "description": "Valeur facultative qui empêchera le déclenchement de l'action lorsque la valeur seuil est atteinte.",
+            "help": ""
+        },
+        "action": {
+            "label": "Action",
+            "description": "Le contrôleur qui est déclenché lorsque le seuil est atteint.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Seuil quota",
+            "description": "Formulaire de modification d'un seuil de quota.",
+            "layout": []
+        },
+        "list.default": {
+            "name": "Seuils quota",
+            "description": "Liste de seuils de quota.",
+            "layout": []
+        }
+    },
+    "error": []
+}

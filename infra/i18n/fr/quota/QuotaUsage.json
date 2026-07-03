@@ -1,0 +1,54 @@
+{
+    "name": "Quota",
+    "plural": "Quotas",
+    "description": "L'état actuel d'un quota.",
+    "model": {
+        "definition_id": {
+            "label": "Définition",
+            "description": "La définition du quota.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Code unique du quota.",
+            "help": ""
+        },
+        "period_start": {
+            "label": "Début période",
+            "description": "Début de période utile si le type est \"période\".",
+            "help": ""
+        },
+        "period_end": {
+            "label": "Fin période",
+            "description": "Fin de période utile si le type est \"période\".",
+            "help": ""
+        },
+        "value": {
+            "label": "Valeur",
+            "description": "Valeur actuel d'utilisation du quota.",
+            "help": ""
+        },
+        "is_reached": {
+            "label": "Atteint",
+            "description": "Est-ce que le quota est dépassé, dans la majorité des cas il faut bloquer une fonctionnalité.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Quota",
+            "description": "Formulaire de modification d'un quota.",
+            "layout": {
+                "section.thresholds_ids": {
+                    "label": "Seuils"
+                }
+            }
+        },
+        "list.default": {
+            "name": "Quotas",
+            "description": "Liste des quotas.",
+            "layout": []
+        }
+    },
+    "error": []
+}

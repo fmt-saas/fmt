@@ -1,0 +1,50 @@
+{
+    "name": "Définition de quota",
+    "plural": "Définitions de quota",
+    "description": "Vue pour les définitions de quota.",
+    "model": {
+        "metric_definition_id": {
+            "label": "Métrique",
+            "description": "Définition de métrique du quota.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Code unique de la définition.",
+            "help": ""
+        },
+        "quota_type": {
+            "label": "Type",
+            "description": "Est-ce que le quota est basé sur une valeur instantanée ou accumulée sur une période définie?.",
+            "help": "",
+            "selection": {
+                "instant": "Instantané",
+                "period": "Période"
+            }
+        },
+        "period_duration": {
+            "label": "Durée",
+            "description": "La durée du quota.",
+            "help": "",
+            "selection": {
+                "day": "Jour",
+                "week": "Semaine",
+                "month": "Mois",
+                "year": "Année"
+            }
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Définition quota",
+            "description": "Formulaire de modification de la définition d'un quota.",
+            "layout": []
+        },
+        "list.default": {
+            "name": "Définitions quota",
+            "description": "Liste de définitions de quota.",
+            "layout": []
+        }
+    },
+    "error": []
+}

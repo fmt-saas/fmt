@@ -1,6 +1,6 @@
 [
     {
-        "name": "infra\\quota\\QuotaDefinition",
+        "name": "infra\\quota\\QuotaThreshold",
         "lang": "fr",
         "data": [
             {
@@ -45,7 +45,7 @@
             },
             {
                 "id": 6,
-                "name": "Max comptes - utilisateurs",
+                "name": "Max - comptes utilisateurs",
                 "definition_id": 6,
                 "value": 5,
                 "max_value": null,
