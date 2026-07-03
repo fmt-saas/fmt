@@ -17,6 +17,16 @@
             ]
         }
     },
+    "actions": [
+        {
+            "id": "action.export_candidates",
+            "label": "Export SEPA for candidates fundings.",
+            "icon": "export",
+            "description": ".",
+            "controller": "realestate_sale_pay_Funding_candidates-export",
+            "confirm": true
+        }
+    ],
     "layout": {
         "items": [
             {
