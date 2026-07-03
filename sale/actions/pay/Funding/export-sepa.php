@@ -55,7 +55,7 @@ if(count($fundings_ids) > 50) {
 
 // ensure booking object exists and is readable
 $fundings = Funding::ids($fundings_ids)
-    ->read(['name', 'condo_id'])
+    ->read(['name', 'condo_id' => ['code']])
     ->get();
 
 $funding = reset($fundings);
@@ -67,10 +67,10 @@ $output = eQual::run('get', 'sale_pay_Funding_sepa', [
 
 // store final result as a document (not visible through EDMS)
 $document = Document::create([
-        'name'          => 'Export SEPA - ' . date('Y-m-d_His'),
+        'name'          => 'Export SEPA - ' . date('Y-m-d_H-i-s-v') . ' - ' . $funding['condo_id']['code'],
         'content_type'  => 'application/xml',
         'data'          => $output,
-        'condo_id'      => $funding['condo_id']
+        'condo_id'      => $funding['condo_id']['id']
     ])
     ->first();
 
