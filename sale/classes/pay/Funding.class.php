@@ -54,6 +54,13 @@ class Funding extends \equal\orm\Model {
                 'default'           => false
             ],
 
+            'sepa_document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'Targets the final SEPA XML document.',
+                'help'              => 'Optional version of the document with signatures on it, applicable for signed documents only. Has no legal value.'
+            ],
+
             'payments_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'sale\pay\Payment',

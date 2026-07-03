@@ -50,7 +50,6 @@ $result = [];
 
 $fundings_ids = $params['ids'];
 
-
 if(isset($params['id']) && $params['id']) {
     $fundings_ids[] = $params['id'];
 }
@@ -64,56 +63,46 @@ if(count($fundings) <= 0) {
     throw new Exception("no_fundings", EQ_ERROR_INVALID_PARAM);
 }
 
-$map_bank_accounts = [];
-$map_bank_account_fundings = [];
-
-foreach($fundings as $funding) {
-    $map_bank_accounts[$funding['bank_account_id']['id']] = $funding['bank_account_id'];
-    $map_bank_account_fundings[$funding['bank_account_id']['id']][] = $funding;
-}
-
 $exportingTask = ExportingTask::create([
-        'name'          => "Export SEPA - " . date('Y-m-d'),
+        'name'          => "Export SEPA - " . date('Y-m-d_H-i-s'),
         'object_class'  => 'realestate\sale\pay\Funding'
     ])
     ->first();
 
+$count_exporting_lines = 0;
 
-foreach($map_bank_account_fundings as $bank_account_id => $fundings) {
-    $fundings_ids = [];
+// #memo - by convention we create a SEPA file for each Funding (instead of grouping them)
+foreach($fundings as $funding_id => $funding) {
 
-
-    foreach($fundings as $funding) {
-        if($funding['is_sent']) {
-            // sepa_already_sent
-            continue;
-        }
-        if($funding['due_amount'] >= 0) {
-            // sepa_only_for_outgoing_funding
-            continue;
-        }
-        if($funding['has_mandate']) {
-            // sepa_only_for_manual_funding
-            continue;
-        }
-        $fundings_ids[] = $funding['id'];
+    if($funding['is_sent']) {
+        // sepa_already_sent
+        continue;
     }
-
-    if(!count($fundings_ids)) {
+    if($funding['due_amount'] >= 0) {
+        // sepa_only_for_outgoing_funding
+        continue;
+    }
+    if($funding['has_mandate']) {
+        // sepa_only_for_manual_funding
         continue;
     }
 
-    Funding::ids($fundings_ids)->update(['is_sent' => true]);
+    Funding::id($funding_id)->update(['is_sent' => true]);
 
     ExportingTaskLine::create([
             'exporting_task_id' => $exportingTask['id'],
-            'name'              => "Export enveloppe SEPA - {$map_bank_accounts[$bank_account_id]['name']}",
+            'name'              => "Export enveloppe SEPA - {$funding['bank_account_id']['name']}",
             'controller'        => 'sale_pay_Funding_export-sepa',
             'params'            => json_encode([
-                    'ids' => $fundings_ids
+                    'id' => $funding_id
                 ])
         ]);
 
+    ++$count_exporting_lines;
+}
+
+if($count_exporting_lines <= 0) {
+    ExportingTask::id($exportingTask['id'])->delete(true);
 }
 
 $context->httpResponse()
