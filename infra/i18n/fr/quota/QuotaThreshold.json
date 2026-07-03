@@ -3,18 +3,18 @@
     "plural": "Seuils quota",
     "description": "Interface for model definition classes.",
     "model": {
-        "definition_id": {
-            "label": "Définition",
-            "description": "La définition du quota incluant le seuil.",
+        "quota_id": {
+            "label": "Quota",
+            "description": "Le quota incluant le seuil.",
             "help": ""
         },
         "quota_type": {
             "label": "Type",
-            "description": "Le quota est-il basé sur une valeur instantanée ou sur la quantité cumulée sur une période donnée ?",
+            "description": "Le quota du seuil est-il basé sur une valeur instantanée ou sur la quantité cumulée sur une période donnée ?",
             "help": "",
             "selection": {
                 "instant": "Instantané",
-                "period": "Péridoe"
+                "period": "Périokde"
             }
         },
         "value": {

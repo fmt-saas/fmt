@@ -20,10 +20,10 @@ class QuotaThreshold extends Model {
                 'required'          => true
             ],
 
-            'definition_id' => [
+            'quota_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'infra\quota\QuotaDefinition',
-                'description'       => 'The quota definition that includes the threshold.',
+                'foreign_object'    => 'infra\quota\Quota',
+                'description'       => 'The quota that includes the threshold.',
                 'required'          => true
             ],
 
@@ -34,7 +34,7 @@ class QuotaThreshold extends Model {
                     'instant',
                     'period'
                 ],
-                'relation'          => ['definition_id' => 'name'],
+                'relation'          => ['quota_id' => 'quota_type'],
                 'description'       => 'Is the quota based on an instantaneous value or on the accumulated amount over a given period?.',
                 'store'             => true
             ],

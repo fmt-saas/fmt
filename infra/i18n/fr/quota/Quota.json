@@ -1,7 +1,7 @@
 {
-    "name": "Définition de quota",
-    "plural": "Définitions de quota",
-    "description": "Vue pour les définitions de quota.",
+    "name": "Quota",
+    "plural": "Quotas",
+    "description": "Vue pour les définitions de quotas.",
     "model": {
         "metric_definition_id": {
             "label": "Métrique",
@@ -32,16 +32,36 @@
                 "month": "Mois",
                 "year": "Année"
             }
+        },
+        "period_start": {
+            "label": "Début période",
+            "description": "Début de période utile si le type est \"période\".",
+            "help": ""
+        },
+        "period_end": {
+            "label": "Fin période",
+            "description": "Fin de période utile si le type est \"période\".",
+            "help": ""
+        },
+        "value": {
+            "label": "Valeur",
+            "description": "Valeur actuel d'utilisation du quota.",
+            "help": ""
+        },
+        "is_reached": {
+            "label": "Atteint",
+            "description": "Est-ce que le quota est dépassé, dans la majorité des cas il faut bloquer une fonctionnalité.",
+            "help": ""
         }
     },
     "view": {
         "form.default": {
-            "name": "Définition quota",
+            "name": "Quota",
             "description": "Formulaire de modification de la définition d'un quota.",
             "layout": []
         },
         "list.default": {
-            "name": "Définitions quota",
+            "name": "Quotas",
             "description": "Liste de définitions de quota.",
             "layout": []
         }

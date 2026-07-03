@@ -5,8 +5,7 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 
-use infra\quota\QuotaDefinition;
-use infra\quota\QuotaUsage;
+use infra\quota\Quota;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Shifts the start and end dates of all periodical quota usages.",
@@ -55,21 +54,19 @@ $endOf = function(string $period) {
     return strtotime($map[$period], time());
 };
 
-$periodical_quota_defs_ids = QuotaDefinition::search(['quota_type', '=', 'period'])->ids();
-
-$periodical_quota_usages = QuotaUsage::search(['definition_id', 'in', $periodical_quota_defs_ids])
-    ->read(['period_start', 'period_end', 'definition_id' => ['period_type']])
+$quotas = Quota::search(['quota_type', '=', 'period'])
+    ->read(['period_start', 'period_end', 'period_type'])
     ->get();
 
-foreach($periodical_quota_usages as $id => $quota_usage) {
-    if($quota_usage['period_end'] > time()) {
+foreach($quotas as $id => $quota) {
+    if($quota['period_end'] > time()) {
         continue;
     }
 
-    QuotaUsage::id($id)
+    Quota::id($id)
         ->update([
-            'period_start'  => $startOf($quota_usage['definition_id']['period_type']),
-            'period_end'    => $endOf($quota_usage['definition_id']['period_type']),
+            'period_start'  => $startOf($quota['period_type']),
+            'period_end'    => $endOf($quota['period_type']),
             'is_reached'    => false
         ]);
 }

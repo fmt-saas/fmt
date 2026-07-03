@@ -6,7 +6,7 @@
             {
                 "id": 1,
                 "name": "Max - lots principaux",
-                "definition_id": 1,
+                "quota_id": 1,
                 "value": 5,
                 "max_value": null,
                 "action": "infra_quota_handle-property-main-lots-count-reached"
@@ -14,7 +14,7 @@
             {
                 "id": 2,
                 "name": "Max - garages/parkings",
-                "definition_id": 2,
+                "quota_id": 2,
                 "value": 10,
                 "max_value": null,
                 "action": "infra_quota_handle-property-parkings-count-reached"
@@ -22,7 +22,7 @@
             {
                 "id": 3,
                 "name": "Max - documents EDMS",
-                "definition_id": 3,
+                "quota_id": 3,
                 "value": 100,
                 "max_value": null,
                 "action": "infra_quota_handle-edms-document-count-reached"
@@ -30,7 +30,7 @@
             {
                 "id": 4,
                 "name": "Max - stockage EDMS",
-                "definition_id": 4,
+                "quota_id": 4,
                 "value": 209715200,
                 "max_value": null,
                 "action": "infra_quota_handle-edms-storage-size-reached"
@@ -38,7 +38,7 @@
             {
                 "id": 5,
                 "name": "Max semaine - appels Google Document AI",
-                "definition_id": 5,
+                "quota_id": 5,
                 "value": 100,
                 "max_value": null,
                 "action": "infra_quota_handle-google-docai-calls-count-reached"
@@ -46,7 +46,7 @@
             {
                 "id": 6,
                 "name": "Max - comptes utilisateurs",
-                "definition_id": 6,
+                "quota_id": 6,
                 "value": 5,
                 "max_value": null,
                 "action": "infra_quota_handle-instance-users-count-reached"
@@ -54,7 +54,7 @@
             {
                 "id": 7,
                 "name": "Max semaine - emails envoyés",
-                "definition_id": 7,
+                "quota_id": 7,
                 "value": 100,
                 "max_value": null,
                 "action": "infra_quota_handle-mail-outbound-count-reached"
@@ -62,7 +62,7 @@
             {
                 "id": 8,
                 "name": "Max - taille de la base de données",
-                "definition_id": 8,
+                "quota_id": 8,
                 "value": 524288000,
                 "max_value": null,
                 "action": "infra_quota_handle-db-storage-size-reached"

@@ -5,7 +5,7 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 
-use infra\quota\QuotaUsage;
+use infra\quota\Quota;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Handles quota reached for 'edms.storage.size'.",
@@ -24,7 +24,7 @@ use infra\quota\QuotaUsage;
  */
 ['context' => $context] = $providers;
 
-$quota_usage = QuotaUsage::search(['code', '=', 'edms.storage.size'])
+$quota_usage = Quota::search(['code', '=', 'edms.storage.size'])
     ->read(['id'])
     ->first();
 
@@ -32,7 +32,7 @@ if(!$quota_usage) {
     throw new Exception('unknown_quota_usage', EQ_ERROR_INVALID_CONFIG);
 }
 
-QuotaUsage::id($quota_usage['id'])->update(['is_reached' => true]);
+Quota::id($quota_usage['id'])->update(['is_reached' => true]);
 
 $context
     ->httpResponse()

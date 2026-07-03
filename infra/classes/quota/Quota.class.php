@@ -1,30 +1,32 @@
 <?php
+/*
+    This file is part of Symbiose Community Edition <https://github.com/yesbabylon/symbiose>
+    Some Rights Reserved, Yesbabylon SRL, 2020-2026
+    Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
+*/
 
 namespace infra\quota;
 
 use equal\orm\Model;
 
-class QuotaUsage extends Model {
-
-    public static function getDescription(): string {
-        return 'The current state of a quota.';
-    }
+class Quota extends Model {
 
     public static function getColumns(): array {
         return [
 
-            'definition_id' => [
+            'metric_definition_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'infra\quota\QuotaDefinition',
-                'description'       => 'The definition of the quota usage.',
-                'required'          => true
+                'foreign_object'    => 'infra\metering\MetricDefinition',
+                'description'       => 'Metric definition concerned by the quota.',
+                'required'          => true,
+                'dependents'        => ['name', 'code']
             ],
 
             'name' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'relation'          => ['definition_id' => 'code'],
-                'description'       => 'Name of the quota usage.',
+                'relation'          => ['metric_definition_id' => 'name'],
+                'description'       => 'Display name of the quota definition.',
                 'store'             => true,
                 'instant'           => true
             ],
@@ -33,20 +35,45 @@ class QuotaUsage extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'usage'             => 'text/plain:128',
-                'relation'          => ['definition_id' => 'code'],
-                'description'       => 'Unique technical code of the quota usage.',
+                'relation'          => ['metric_definition_id' => 'code'],
+                'description'       => 'Unique technical code of the definition.',
                 'store'             => true,
                 'instant'           => true
             ],
 
+            'quota_type' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'instant',
+                    'period'
+                ],
+                'description'       => 'Is the quota based on an instantaneous value or on the accumulated amount over a given period?.',
+                'default'           => 'instant'
+            ],
+
+            'period_duration' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'day',
+                    'week',
+                    'month',
+                    'year'
+                ],
+                'description'       => 'The duration of the period for the quota.',
+                'default'           => 'week',
+                'visible'           => ['quota_type', '=', 'period']
+            ],
+
             'period_start' => [
                 'type'              => 'datetime',
-                'description'       => 'Start of period needed if the definition type is "period".'
+                'description'       => 'Start of period needed if the definition type is "period".',
+                'visible'           => ['quota_type', '=', 'period']
             ],
 
             'period_end' => [
                 'type'              => 'datetime',
-                'description'       => 'End of period needed if the definition type is "period".'
+                'description'       => 'End of period needed if the definition type is "period".',
+                'visible'           => ['quota_type', '=', 'period']
             ],
 
             'value' => [
@@ -64,7 +91,7 @@ class QuotaUsage extends Model {
             'thresholds_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'infra\quota\QuotaThreshold',
-                'foreign_field'     => 'definition_id',
+                'foreign_field'     => 'quota_id',
                 'description'       => 'The thresholds that handle the is_reached value or alerts trigger.'
             ]
 
@@ -113,4 +140,3 @@ class QuotaUsage extends Model {
         }
     }
 }
-
