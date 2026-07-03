@@ -137,7 +137,7 @@ class Quota extends Model {
 
     protected static function doCheckThreshold($self): void {
         $self->do('refresh-value');
-        $self->read(['value', 'thresholds_ids' => ['value', 'max_value']]);
+        $self->read(['value', 'thresholds_ids' => ['value', 'max_value', 'action']]);
         foreach($self as $quota) {
             foreach($quota['thresholds_ids'] as $threshold) {
                 if($quota['value'] >= $threshold['value'] && (!$threshold['max_value'] || $quota['value'] < $threshold['max_value'])) {

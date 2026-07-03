@@ -50,6 +50,14 @@ class User extends \core\User {
                 'description'       => 'Unique identifier from the Master instance.'
             ],
 
+            'validated' => [
+                'type'              => 'boolean',
+                'default'           => false,
+                'description'       => 'Flag telling if the User account has been validated.',
+                'help'              => "This fields is used at auth & signin to prevent non-validated user to log in.",
+                'onupdate'          => 'onupdateValidated'
+            ],
+
             /*
                 Following `source_*` fields apply to imported protected entities.
             */
@@ -269,11 +277,12 @@ class User extends \core\User {
             ['code', '=', 'auth.users.count'],
             ['is_active', '=', true]
         ])
+            ->do('check-thresholds')
             ->read(['is_reached'])
             ->first();
 
         if($quota && $quota['is_reached']) {
-            if(isset($values['employee_id']) || isset($values['owner_id'])) {
+            if((isset($values['employee_id']) && $values['employee_id']) || (isset($values['owner_id']) && $values['owner_id']) || (isset($values['validated']) && $values['validated'])) {
                 return ['quota' => ['quota_reached' => 'The quota for non-system user creation has been reached.']];
             }
         }
@@ -308,11 +317,12 @@ class User extends \core\User {
             ['code', '=', 'auth.users.count'],
             ['is_active', '=', true]
         ])
+            ->do('check-thresholds')
             ->read(['is_reached'])
             ->first();
 
         if($quota && $quota['is_reached']) {
-            if(isset($values['employee_id']) || isset($values['owner_id'])) {
+            if((isset($values['employee_id']) && $values['employee_id']) || (isset($values['owner_id']) && $values['owner_id']) || (isset($values['validated']) && $values['validated'])) {
                 return ['quota' => ['quota_reached' => 'The quota for non-system user creation has been reached.']];
             }
         }
@@ -320,40 +330,29 @@ class User extends \core\User {
         return [];
     }
 
-    public static function onupdateIsEmployee($self): void {
-        $quota = Quota::search([
+    public static function onupdateValidated($self): void {
+        Quota::search([
             ['code', '=', 'auth.users.count'],
             ['is_active', '=', true]
         ])
-            ->read(['id'])
-            ->first();
+            ->do('check-thresholds');
+    }
 
-        if($quota) {
-            $self->read(['is_employee']);
-            foreach($self as $user) {
-                if($user['is_employee']) {
-                    Quota::id($quota['id'])->do('check-thresholds');
-                }
-            }
-        }
+    public static function onupdateIsEmployee($self): void {
+        Quota::search([
+            ['code', '=', 'auth.users.count'],
+            ['is_active', '=', true]
+        ])
+            ->do('check-thresholds');
     }
 
     public static function onupdateIsOwner($self): void {
-        $quota = Quota::search([
+        Quota::search([
             ['code', '=', 'auth.users.count'],
             ['is_active', '=', true]
         ])
-            ->read(['id'])
-            ->first();
+            ->do('check-thresholds');
 
-        if($quota) {
-            $self->read(['is_owner']);
-            foreach($self as $user) {
-                if($user['is_owner']) {
-                    Quota::id($quota['id'])->do('check-thresholds');
-                }
-            }
-        }
     }
 
     protected static function onupdateInstanceUuid($self) {
