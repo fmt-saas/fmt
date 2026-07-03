@@ -15,47 +15,53 @@
                                             {
                                                 "type": "field",
                                                 "value": "name",
-                                                "width": "100%"
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "code",
-                                                "width": "100%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "metric_definition_id",
-                                                "width": "100%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "quota_type",
-                                                "width": "100%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "period_duration",
-                                                "width": "100%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "period_start",
-                                                "width": "100%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "period_end",
-                                                "width": "100%"
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%",
+                                                "visible": ["quota_type", "<>", "period"]
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "value",
-                                                "width": "100%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "is_reached",
-                                                "width": "100%",
+                                                "width": "25%",
                                                 "readonly": true
                                             }
                                         ]
