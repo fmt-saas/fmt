@@ -57,6 +57,11 @@
             "label": "Atteint",
             "description": "Est-ce que le quota est dépassé, dans la majorité des cas il faut bloquer une fonctionnalité.",
             "help": ""
+        },
+        "is_active": {
+            "label": "Actif",
+            "description": "Indique si le quota doit respecté.",
+            "help": "Désactivez ce champ pour ne pas appliquer ce quota."
         }
     },
     "view": {

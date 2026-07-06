@@ -39,6 +39,12 @@
                 "value": "display_value",
                 "width": "20%",
                 "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "is_active",
+                "width": "10%",
+                "sortable": true
             }
         ]
     }
