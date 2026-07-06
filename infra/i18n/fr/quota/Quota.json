@@ -48,6 +48,11 @@
             "description": "Valeur actuel d'utilisation du quota.",
             "help": ""
         },
+        "display_value": {
+            "label": "Valeur",
+            "description": "Valeur d'affichage actuel d'utilisation du quota.",
+            "help": ""
+        },
         "is_reached": {
             "label": "Atteint",
             "description": "Est-ce que le quota est dépassé, dans la majorité des cas il faut bloquer une fonctionnalité.",

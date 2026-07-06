@@ -45,9 +45,25 @@ class QuotaThreshold extends Model {
                 'required'          => true
             ],
 
+            'display_value' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Current usage value of a defined quota.',
+                'function'          => 'calcDisplayValue',
+                'store'             => false
+            ],
+
             'max_value' => [
                 'type'              => 'integer',
                 'description'       => 'Optional value that will prevent the action to be triggered when the threshold value is reached.'
+            ],
+
+            'display_max_value' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Current usage value of a defined quota.',
+                'function'          => 'calcDisplayMaxValue',
+                'store'             => false
             ],
 
             'action' => [
@@ -57,5 +73,59 @@ class QuotaThreshold extends Model {
             ]
 
         ];
+    }
+
+    public static function calcDisplayValue($self): array {
+        $formatBytes = function($bytes, $decimals = 2) {
+            $gb = 1024 ** 3;
+            $mb = 1024 ** 2;
+
+            if($bytes >= $gb) {
+                return round($bytes / $gb, $decimals) . ' GB';
+            }
+
+            return round($bytes / $mb, $decimals) . ' MB';
+        };
+
+        $result = [];
+        $self->read(['value', 'quota_id' => ['metric_definition_id' => ['unit']]]);
+        foreach($self as $id => $quota) {
+            $display_value = $quota['value'];
+            if($quota['quota_id']['metric_definition_id']['unit'] === 'bytes') {
+                $display_value = $formatBytes($quota['value']);
+            }
+            $result[$id] = $display_value;
+        }
+
+        return $result;
+    }
+
+    public static function calcDisplayMaxValue($self): array {
+        $formatBytes = function($bytes, $decimals = 2) {
+            $gb = 1024 ** 3;
+            $mb = 1024 ** 2;
+
+            if($bytes >= $gb) {
+                return round($bytes / $gb, $decimals) . ' GB';
+            }
+
+            return round($bytes / $mb, $decimals) . ' MB';
+        };
+
+        $result = [];
+        $self->read(['max_value', 'quota_id' => ['metric_definition_id' => ['unit']]]);
+        foreach($self as $id => $quota) {
+            if(is_null($quota['max_value'])) {
+                continue;
+            }
+
+            $display_max_value = $quota['max_value'];
+            if($quota['quota_id']['metric_definition_id']['unit'] === 'bytes') {
+                $display_max_value = $formatBytes($quota['max_value']);
+            }
+            $result[$id] = $display_max_value;
+        }
+
+        return $result;
     }
 }

@@ -82,6 +82,14 @@ class Quota extends Model {
                 'default'           => 0
             ],
 
+            'display_value' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Current usage value of a defined quota.',
+                'function'          => 'calcDisplayValue',
+                'store'             => false
+            ],
+
             'is_reached' => [
                 'type'              => 'boolean',
                 'description'       => 'Is the quota exceeded, in most cases the feature must be blocked.',
@@ -145,5 +153,30 @@ class Quota extends Model {
                 }
             }
         }
+    }
+
+    public static function calcDisplayValue($self): array {
+        $formatBytes = function($bytes, $decimals = 2) {
+            $gb = 1024 ** 3;
+            $mb = 1024 ** 2;
+
+            if($bytes >= $gb) {
+                return round($bytes / $gb, $decimals) . ' GB';
+            }
+
+            return round($bytes / $mb, $decimals) . ' MB';
+        };
+
+        $result = [];
+        $self->read(['value', 'metric_definition_id' => ['unit']]);
+        foreach($self as $id => $quota) {
+            $display_value = $quota['value'];
+            if($quota['metric_definition_id']['unit'] === 'bytes') {
+                $display_value = $formatBytes($quota['value']);
+            }
+            $result[$id] = $display_value;
+        }
+
+        return $result;
     }
 }

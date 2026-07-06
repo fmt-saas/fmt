@@ -21,12 +21,26 @@
             {
                 "type": "field",
                 "value": "value",
-                "width": "16%"
+                "width": "16%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "display_value",
+                "width": "16%",
+                "readonly": true
             },
             {
                 "type": "field",
                 "value": "max_value",
-                "width": "16%"
+                "width": "16%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "display_max_value",
+                "width": "16%",
+                "readonly": true
             },
             {
                 "type": "field",

@@ -22,9 +22,19 @@
             "description": "Valeur seuil devant être atteinte pour déclencher le contrôleur.",
             "help": ""
         },
+        "display_value": {
+            "label": "Valeur",
+            "description": "Valeur d'affichage actuel d'utilisation du quota.",
+            "help": ""
+        },
         "max_value": {
             "label": "Valeur max",
             "description": "Valeur facultative qui empêchera le déclenchement de l'action lorsque la valeur seuil est atteinte.",
+            "help": ""
+        },
+        "display_max_value": {
+            "label": "Valeur max",
+            "description": "Valeur maximal d'affichage actuel d'utilisation du quota.",
             "help": ""
         },
         "action": {

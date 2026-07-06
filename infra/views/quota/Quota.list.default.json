@@ -31,7 +31,14 @@
             {
                 "type": "field",
                 "value": "value",
-                "width": "20%"
+                "width": "20%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "display_value",
+                "width": "20%",
+                "readonly": true
             }
         ]
     }
