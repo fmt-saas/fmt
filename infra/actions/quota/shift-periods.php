@@ -55,7 +55,7 @@ $endOf = function(string $period) {
 };
 
 $quotas = Quota::search(['quota_type', '=', 'period'])
-    ->read(['period_start', 'period_end', 'period_type'])
+    ->read(['period_start', 'period_end', 'period_duration'])
     ->get();
 
 foreach($quotas as $id => $quota) {
@@ -65,8 +65,8 @@ foreach($quotas as $id => $quota) {
 
     Quota::id($id)
         ->update([
-            'period_start'  => $startOf($quota['period_type']),
-            'period_end'    => $endOf($quota['period_type']),
+            'period_start'  => $startOf($quota['period_duration']),
+            'period_end'    => $endOf($quota['period_duration']),
             'is_reached'    => false
         ]);
 }

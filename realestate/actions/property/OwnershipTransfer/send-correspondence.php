@@ -7,7 +7,7 @@
 
 use equal\email\Email;
 use equal\email\EmailAttachment;
-use core\Mail;
+use fmt\core\Mail;
 use core\Lang;
 
 use documents\Document;

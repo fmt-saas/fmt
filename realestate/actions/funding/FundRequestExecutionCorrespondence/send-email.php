@@ -6,7 +6,7 @@
 */
 
 use communication\template\Template;
-use core\Mail;
+use fmt\core\Mail;
 use equal\email\Email;
 use equal\email\EmailAttachment;
 use identity\Organisation;
