@@ -27,7 +27,7 @@ $domain = [
         ['is_exported', '=', false],
         ['due_amount', '<', 0],
         ['has_mandate', '=', false],
-        ['counterpart_bank_account_id', 'not', null]
+        ['counterpart_bank_account_id', 'is not', null]
     ];
 
 $domain[] = ['suppliership_id', '=', null];

@@ -80,7 +80,7 @@ foreach($fundings as $funding_id => $funding) {
         continue;
     }
     if(!$funding['is_sent']) {
-        // sepa_already_exported
+        // sepa_not_generated
         continue;
     }
     if(!$funding['sepa_document_id']) {

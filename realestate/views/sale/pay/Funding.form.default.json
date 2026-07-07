@@ -179,8 +179,14 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Mandate",
+                                                "label": "Sent?",
                                                 "value": "is_sent",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Sent?",
+                                                "value": "is_exported",
                                                 "width": "100%"
                                             }
                                         ]

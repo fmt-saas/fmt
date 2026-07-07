@@ -4,9 +4,6 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
-
-use documents\export\ExportingTask;
-use documents\export\ExportingTaskLine;
 use realestate\sale\pay\Funding;
 
 [$params, $providers] = eQual::announce([
@@ -87,5 +84,5 @@ foreach($fundings as $funding_id => $funding) {
 }
 
 $context->httpResponse()
-        ->status(205)
+        ->status(201)
         ->send();
