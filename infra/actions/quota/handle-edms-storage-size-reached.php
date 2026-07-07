@@ -24,15 +24,15 @@ use infra\quota\Quota;
  */
 ['context' => $context] = $providers;
 
-$quota_usage = Quota::search(['code', '=', 'edms.storage.size'])
+$quota = Quota::search(['code', '=', 'edms.storage.size'])
     ->read(['id'])
     ->first();
 
-if(!$quota_usage) {
+if(!$quota) {
     throw new Exception('unknown_quota_usage', EQ_ERROR_INVALID_CONFIG);
 }
 
-Quota::id($quota_usage['id'])->update(['is_reached' => true]);
+Quota::id($quota['id'])->update(['is_reached' => true]);
 
 $context
     ->httpResponse()
