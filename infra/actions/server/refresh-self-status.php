@@ -91,7 +91,9 @@ $required_tasks = [
     'documents_export_cron_run',
     'finance_accounting_generate-expense-statements',
     'realestate_funding_verify-expired-fundings',
-    'infra_server_refresh-self-status'
+    'infra_server_refresh-self-status',
+    'infra_quota_refresh-values',
+    'infra_quota_shift-periods'
 ];
 
 
