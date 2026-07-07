@@ -10,7 +10,9 @@
             "route": "/?get=sale_pay_Funding_sepa&id=object.id",
             "target": "_blank",
             "absolute": true,
-            "visible": [["pending", "=", "object.status"], ["due_amount", "<", 0], ["has_mandate", "=", false]]
+            "visible": false,
+            "visible_help": "SEPA should never be exported individually but using candidates-export",
+            "visible_1": [["pending", "=", "object.status"], ["due_amount", "<", 0], ["has_mandate", "=", false]]
         }
     ],
     "layout": {

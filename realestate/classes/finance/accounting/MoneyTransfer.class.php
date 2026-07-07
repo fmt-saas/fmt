@@ -365,7 +365,11 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 ])
                 ->first();
 
-            Funding::ids([$fundingA['id'], $fundingB['id']])->do('refresh_status');
+            \eQual::run('get', 'sale_pay_Funding_export-sepa', ['id' => $fundingA['id']]);
+
+            Funding::ids([$fundingA['id'], $fundingB['id']])
+                ->update(['is_sent' => true])
+                ->do('refresh_status');
         }
     }
 
