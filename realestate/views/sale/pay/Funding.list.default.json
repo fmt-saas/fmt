@@ -102,6 +102,12 @@
             },
             {
                 "type": "field",
+                "label": "Sent",
+                "value": "is_exported",
+                "width": "10%"
+            },
+            {
+                "type": "field",
                 "label": "Paid",
                 "value": "status",
                 "width": "15%"
