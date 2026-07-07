@@ -1206,7 +1206,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     protected static function onafterPost($self) {
-        $self->read(['document_process_id', 'has_payment_on_hold', 'fundings_ids' => ['is_sent']]);
+        $self->read(['document_process_id', 'has_payment_on_hold', 'has_mandate', 'fundings_ids' => ['is_sent']]);
         foreach($self as $id => $invoice) {
 
             if($invoice['document_process_id']) {
@@ -1225,7 +1225,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 }
             }
 
-            if(!$invoice['has_payment_on_hold']) {
+            if(!$invoice['has_payment_on_hold'] && !$invoice['has_mandate']) {
                 foreach($invoice['fundings_ids'] as $funding_id => $funding) {
                     if($funding['is_sent']) {
                         continue;

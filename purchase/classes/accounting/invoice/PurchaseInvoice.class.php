@@ -182,10 +182,15 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
 
     protected static function calcName($self): array {
         $result = [];
-        $self->read(['invoice_number',  'supplier_id' => ['name']]);
+        $self->read(['status', 'invoice_number',  'supplier_id' => ['name']]);
         foreach($self as $id => $invoice) {
             $parts = [];
-            $parts[] = $invoice['invoice_number'];
+            if($invoice['status'] === 'proforma') {
+                $parts[] = 'proforma';
+            }
+            else {
+                $parts[] = $invoice['invoice_number'];
+            }
             if($invoice['supplier_id']) {
                 $parts[] = $invoice['supplier_id']['name'];
             }

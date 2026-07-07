@@ -37,7 +37,7 @@ use sale\pay\Funding;
 
 // ensure object exists and is readable
 $funding = Funding::id($params['id'])
-    ->read(['name', 'bank_account_id', 'is_sent', 'is_exported', 'sepa_document_id', 'condo_id' => ['code']])
+    ->read(['name', 'bank_account_id', 'is_sent', 'is_exported', 'sepa_document_id', 'remaining_amount', 'condo_id' => ['code']])
     ->first();
 
 if($funding['is_exported']) {
