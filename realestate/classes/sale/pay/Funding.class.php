@@ -361,6 +361,8 @@ class Funding extends \sale\pay\Funding {
     protected static function calcName($self) {
         $result = [];
         $self->read(['state', 'due_amount', 'payment_reference', 'free_payment_reference', 'has_free_payment_reference',
+                'bank_statement_line_id'    => ['name'],
+                'misc_operation_id'         => ['name'],
                 'expense_statement_id'      => ['name'],
                 'purchase_invoice_id'       => ['name'],
                 'fund_request_execution_id' => ['name']
@@ -384,6 +386,12 @@ class Funding extends \sale\pay\Funding {
             }
             elseif($funding['expense_statement_id']) {
                 $result[$id] .= $funding['expense_statement_id']['name'];
+            }
+            elseif($funding['bank_statement_line_id']) {
+                $result[$id] .= $funding['bank_statement_line_id']['name'];
+            }
+            elseif($funding['misc_operation_id']) {
+                $result[$id] .= $funding['misc_operation_id']['name'];
             }
 
             $result[$id] .= '  |  ' . Setting::format_number_currency($funding['due_amount']);
