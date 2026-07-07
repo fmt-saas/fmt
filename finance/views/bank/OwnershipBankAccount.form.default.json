@@ -52,6 +52,12 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "organisation_id",
+                                                "visible": false,
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "ownership_id",
                                                 "visible": false,
                                                 "width": "100%"
