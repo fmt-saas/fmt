@@ -372,10 +372,10 @@ class CondominiumBankAccount extends BankAccount {
                         ['bank_account_id', '=', $id]
                     ]
                 ])
-                ->read(['due_amount']);
+                ->read(['remaining_amount']);
 
             foreach($fundings as $funding) {
-                $balance += $funding['due_amount'];
+                $balance += $funding['remaining_amount'];
             }
 
             $result[$id] = $balance;
