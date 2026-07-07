@@ -9,10 +9,10 @@
             "default" : false,
             "actions" : [
                 {
-                    "id": "header.selection.actions.export",
-                    "label": "Export SEPA",
-                    "icon": "file_download",
-                    "controller": "realestate_sale_pay_Funding_bulk-export"
+                    "id": "header.selection.actions.generate_sepa",
+                    "label": "Generate SEPA",
+                    "icon": "start",
+                    "controller": "realestate_sale_pay_Funding_bulk-send"
                 }
             ]
         }
@@ -20,9 +20,9 @@
     "actions": [
         {
             "id": "action.export_candidates",
-            "label": "Export SEPA for candidates fundings.",
-            "icon": "export",
-            "description": ".",
+            "label": "Export candidates",
+            "icon": "file_download",
+            "description": "Export SEPA for candidates fundings.",
             "controller": "realestate_sale_pay_Funding_candidates-export",
             "confirm": true
         }

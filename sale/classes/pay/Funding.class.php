@@ -55,6 +55,12 @@ class Funding extends \equal\orm\Model {
                 'default'           => false
             ],
 
+            'is_exported' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag indicating if a SEPA order has been generated (once or more) from the Funding.',
+                'default'           => false
+            ],
+
             'sepa_document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',

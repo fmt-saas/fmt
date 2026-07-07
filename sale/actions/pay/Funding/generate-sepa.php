@@ -40,14 +40,33 @@ if($funding['is_exported']) {
     throw new Exception("funding_already_exported", EQ_ERROR_INVALID_PARAM);
 }
 
-if($funding['sepa_document_id']) {
-    throw new Exception("missing_sepa_document", EQ_ERROR_INVALID_PARAM);
+if($funding['is_sent']) {
+    throw new Exception("funding_already_sent", EQ_ERROR_INVALID_PARAM);
 }
 
-$document = Document::id($funding['sepa_document_id'])->read(['data'])->first();
+if($funding['sepa_document_id']) {
+    throw new Exception("sepa_document_already_generated", EQ_ERROR_INVALID_PARAM);
+}
 
-Funding::id($params['id'])->update(['is_exported' => true]);
+// get the SEPA XML data for the given fundings
+$output = eQual::run('get', 'sale_pay_Funding_sepa', [
+        'ids' => [$params['id']]
+    ]);
 
+// store final result as a document (not visible through EDMS)
+$document = Document::create([
+        'name'          => 'Export SEPA - ' . date('Y-m-d_H-i-s') . ' - ' . $funding['condo_id']['code'] . ' - ' . $funding['id'],
+        'content_type'  => 'application/xml',
+        'data'          => $output,
+        'condo_id'      => $funding['condo_id']['id']
+    ])
+    ->first();
+
+Funding::id($params['id'])
+    ->update([
+        'sepa_document_id'  => $document['id'],
+        'is_sent'           => true
+    ]);
 
 $context->httpResponse()
         ->body([

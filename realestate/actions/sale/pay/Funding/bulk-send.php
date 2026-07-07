@@ -11,7 +11,6 @@ use realestate\sale\pay\Funding;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Checks if the Funding relates to an Ownership for which a property transfer is in progress.",
-    'help'          => "This controller schedules is a deferred Task for generating an archive with SEPA from candidates fundings.",
     'extends'       => 'core_model_check',
     'params'        => [
         'id' =>  [
@@ -57,34 +56,19 @@ if(isset($params['id']) && $params['id']) {
 
 // ensure booking object exists and is readable
 $fundings = Funding::ids($fundings_ids)
-    ->read(['name', 'condo_id', 'sepa_document_id', 'bank_account_id' => ['name'], 'due_amount', 'has_mandate', 'is_sent', 'is_exported'])
+    ->read(['name', 'condo_id', 'bank_account_id' => ['name'], 'due_amount', 'has_mandate', 'is_sent', 'is_exported'])
     ->get();
 
 if(count($fundings) <= 0) {
     throw new Exception("no_fundings", EQ_ERROR_INVALID_PARAM);
 }
 
-$exportingTask = ExportingTask::create([
-        'name'          => "Export SEPA - " . date('Y-m-d_H-i-s'),
-        'object_class'  => 'realestate\sale\pay\Funding'
-    ])
-    ->first();
-
-$count_exporting_lines = 0;
 
 // #memo - by convention we create a SEPA file for each Funding (instead of grouping them)
 foreach($fundings as $funding_id => $funding) {
 
-    if($funding['is_exported']) {
-        // sepa_already_exported
-        continue;
-    }
-    if(!$funding['is_sent']) {
-        // sepa_already_exported
-        continue;
-    }
-    if(!$funding['sepa_document_id']) {
-        // missing_sepa_document
+    if($funding['is_sent']) {
+        // sepa_already_sent
         continue;
     }
     if($funding['due_amount'] >= 0) {
@@ -96,22 +80,12 @@ foreach($fundings as $funding_id => $funding) {
         continue;
     }
 
-    ExportingTaskLine::create([
-            'exporting_task_id' => $exportingTask['id'],
-            'name'              => "Export enveloppe SEPA - {$funding['bank_account_id']['name']}",
-            'controller'        => 'sale_pay_Funding_export-sepa',
-            'params'            => json_encode([
-                    'id' => $funding_id
-                ])
-        ]);
+    eQual::run('do', 'sale_pay_Funding_generate-sepa', [
+        'id' => $funding_id
+    ]);
 
-    ++$count_exporting_lines;
-}
-
-if($count_exporting_lines <= 0) {
-    ExportingTask::id($exportingTask['id'])->delete(true);
 }
 
 $context->httpResponse()
-        ->body($result)
+        ->status(205)
         ->send();
