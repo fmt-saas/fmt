@@ -227,27 +227,31 @@ $set_check(
     Tasks
 */
 
-$tasks = Task::search([
-        ['controller', 'in', $required_tasks],
-        ['is_recurring', '=', true]
-    ])
-    ->read(['controller'])
+$tasks = Task::search(['controller', 'in', $required_tasks])
+    ->read(['controller', 'is_recurring', 'is_active'])
     ->get();
 
 $is_tasks_ok = true;
 foreach($required_tasks as $required_task) {
-    $task_found = false;
-    foreach($tasks as $task) {
+    $task = null;
+    foreach($tasks as $ta) {
         if($task['controller'] === $required_task) {
-            $task_found = true;
+            $task = $ta;
             break;
         }
     }
 
-    if(!$task_found) {
+    if(!$task) {
         $is_tasks_ok = false;
-
-        $logs['tasks'][] = sprintf("The task '%s' is missing or not recurring.", $required_task);
+        $logs['tasks'][] = sprintf("The task '%s' is missing.", $required_task);
+    }
+    elseif($task['is_recurring']) {
+        $is_tasks_ok = false;
+        $logs['tasks'][] = sprintf("The task '%s' is not recurring.", $required_task);
+    }
+    elseif($task['is_active']) {
+        $is_tasks_ok = false;
+        $logs['tasks'][] = sprintf("The task '%s' is not active.", $required_task);
     }
 }
 
