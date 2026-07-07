@@ -7,7 +7,7 @@
 
 use documents\Document;
 use finance\bank\CondominiumBankAccount;
-use sale\pay\Funding;
+use realestate\sale\pay\Funding;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate a SEPA XML file for multiple Fundings according to ISO 20022 pain.001.001.03.',

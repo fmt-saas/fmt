@@ -273,6 +273,15 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'relation'          => ['document_id' => ['email_id' => 'body']]
             ],
 
+            'condo_bank_account_available_balance' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => 'Related bank account balance.',
+                'store'             => false,
+                'function'          => 'calcCondoBankAccountAvailableBalance'
+            ],
+
             'payable_amount' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
@@ -1972,6 +1981,22 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
         }
         return $result;
+    }
+
+    protected static function calcCondoBankAccountAvailableBalance($self): array {
+        $result = [];
+        $self->read(['condo_bank_account_id']);
+        foreach($self as $id => $invoice) {
+            if($invoice['condo_bank_account_id']) {
+                $result[$id] = self::computeCondoBankAccountAvailableBalance($invoice['condo_bank_account_id']);
+            }
+        }
+        return $result;
+    }
+
+    private static function computeCondoBankAccountAvailableBalance($condo_bank_account_id) {
+        $condominiumBankAccount = CondominiumBankAccount::id($condo_bank_account_id)->read(['available_balance'])->first();
+        return $condominiumBankAccount['available_balance'] ?? null;
     }
 
     private static function computeDocumentLink($document_id) {

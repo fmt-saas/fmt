@@ -253,15 +253,15 @@
                                                 "value": "condo_bank_account_id",
                                                 "width": "33%"
                                             },
-
                                             {
-                                                "id": "item.invoice_type",
                                                 "type": "field",
-                                                "label": "Type",
-                                                "value": "invoice_type",
-                                                "width": "33%"
+                                                "label": "Balance",
+                                                "value": "condo_bank_account_available_balance",
+                                                "width": "33%",
+                                                "widget": {
+                                                    "readonly": true
+                                                }
                                             },
-
                                             {
                                                 "type": "field",
                                                 "label": "Supplier",
@@ -275,11 +275,12 @@
                                                 "width": "33%"
                                             },
                                             {
-                                                "type": "label",
-                                                "value": "",
+                                                "id": "item.invoice_type",
+                                                "type": "field",
+                                                "label": "Type",
+                                                "value": "invoice_type",
                                                 "width": "33%"
                                             },
-
                                             {
                                                 "id": "item.emission_date",
                                                 "type": "field",
