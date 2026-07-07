@@ -43,13 +43,6 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
     public static function getColumns() {
         return [
-            'name' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'function'          => 'calcName',
-                'description'       => "Short description of the request execution.",
-                'store'             => true
-            ],
 
             /* from finance\accounting\invoice\Invoice: */
             // 'condo_id'
@@ -419,17 +412,6 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
     public static function onafterCancelled($self) {
         $self->do('cancel_execution');
-    }
-
-    public static function calcName($self): array {
-        $result = [];
-        $self->read(['fund_request_id' => ['name'], 'posting_date']);
-        foreach($self as $id => $requestExecution) {
-            if($requestExecution['fund_request_id']) {
-                $result[$id] = $requestExecution['fund_request_id']['name'] . ' ('. date('d/m/Y', $requestExecution['posting_date']) . ')';
-            }
-        }
-        return $result;
     }
 
     protected static function calcFiscalYearId($self) {

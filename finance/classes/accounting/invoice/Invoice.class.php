@@ -362,7 +362,7 @@ class Invoice extends Model {
         return $result;
     }
 
-    public static function calcName($self) {
+    protected static function calcName($self): array {
         $result = [];
         $self->read(['status', 'invoice_number']);
         foreach($self as $id => $invoice) {

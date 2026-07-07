@@ -274,7 +274,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
         return $result;
     }
 
-    public static function calcName($self): array {
+    protected static function calcName($self): array {
         $result = [];
         $self->read(['invoice_number',  'customer_id' => ['name']]);
         foreach($self as $id => $invoice) {

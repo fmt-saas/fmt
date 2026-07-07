@@ -35,6 +35,14 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
              * Override Finance Invoice columns
              */
 
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcName',
+                'description'       => "Short description of the request execution.",
+                'store'             => true
+            ],
+
             'invoice_type' => [
                 'type'              => 'string',
                 'description'       => 'Document type: invoice or a credit note.',
@@ -170,6 +178,20 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
         foreach($self as $id => $invoice) {
             self::id($id)->update(['posting_date' => $invoice['emission_date']]);
         }
+    }
+
+    protected static function calcName($self): array {
+        $result = [];
+        $self->read(['invoice_number',  'supplier_id' => ['name']]);
+        foreach($self as $id => $invoice) {
+            $parts = [];
+            $parts[] = $invoice['invoice_number'];
+            if($invoice['supplier_id']) {
+                $parts[] = $invoice['supplier_id']['name'];
+            }
+            $result[$id] = implode(' - ', $parts);
+        }
+        return $result;
     }
 
     protected static function calcFiscalYearId($self) {
