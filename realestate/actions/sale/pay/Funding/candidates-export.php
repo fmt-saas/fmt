@@ -40,8 +40,5 @@ if(count($funding_ids) > 0) {
 }
 
 $context->httpResponse()
-        ->body([
-            'count' => count($funding_ids),
-            'ids'   => $funding_ids
-        ])
+        ->status(205)
         ->send();
