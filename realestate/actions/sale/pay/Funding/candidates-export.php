@@ -30,8 +30,6 @@ $domain = [
         ['counterpart_bank_account_id', 'is not', null]
     ];
 
-$domain[] = ['suppliership_id', '=', null];
-
 $funding_ids = Funding::search($domain)
     ->ids();
 
