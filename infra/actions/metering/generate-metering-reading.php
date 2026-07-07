@@ -78,19 +78,10 @@ foreach($metric_defs as $metric_def) {
     try {
         $inspect_res = eQual::run('get', $metric_def['collector'], $inspect_params);
 
-        $value_type = gettype($inspect_res['value']);
-        $value = match ($value_type) {
-            'string'    => $inspect_res['value'],
-            'boolean'   => $inspect_res['value'] ? '1' : '0',
-            'integer'   => intval($inspect_res['value']),
-            'double'    => floatval($inspect_res['value']),
-            default     => json_encode($inspect_res['value']),
-        };
-
         $reading_line_data = array_merge(
             $reading_line_data,
             [
-                'value'     => $value,
+                'value'     => $inspect_res['value'],
                 'details'   => json_encode($inspect_res, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
             ]
         );

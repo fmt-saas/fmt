@@ -1,0 +1,80 @@
+{
+    "name": "Quota",
+    "plural": "Quotas",
+    "description": "Vue pour les définitions de quotas.",
+    "model": {
+        "metric_definition_id": {
+            "label": "Métrique",
+            "description": "Définition de métrique du quota.",
+            "help": ""
+        },
+        "code": {
+            "label": "Code",
+            "description": "Code unique de la définition.",
+            "help": ""
+        },
+        "quota_type": {
+            "label": "Type",
+            "description": "Est-ce que le quota est basé sur une valeur instantanée ou accumulée sur une période définie?.",
+            "help": "",
+            "selection": {
+                "instant": "Instantané",
+                "period": "Période"
+            }
+        },
+        "period_duration": {
+            "label": "Durée",
+            "description": "La durée du quota.",
+            "help": "",
+            "selection": {
+                "day": "Jour",
+                "week": "Semaine",
+                "month": "Mois",
+                "year": "Année"
+            }
+        },
+        "period_start": {
+            "label": "Début période",
+            "description": "Début de période utile si le type est \"période\".",
+            "help": ""
+        },
+        "period_end": {
+            "label": "Fin période",
+            "description": "Fin de période utile si le type est \"période\".",
+            "help": ""
+        },
+        "value": {
+            "label": "Valeur",
+            "description": "Valeur actuel d'utilisation du quota.",
+            "help": ""
+        },
+        "display_value": {
+            "label": "Valeur",
+            "description": "Valeur d'affichage actuel d'utilisation du quota.",
+            "help": ""
+        },
+        "is_reached": {
+            "label": "Atteint",
+            "description": "Est-ce que le quota est dépassé, dans la majorité des cas il faut bloquer une fonctionnalité.",
+            "help": ""
+        },
+        "is_active": {
+            "label": "Actif",
+            "description": "Indique si le quota doit respecté.",
+            "help": "Désactivez ce champ pour ne pas appliquer ce quota."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Quota",
+            "description": "Formulaire de modification de la définition d'un quota.",
+            "layout": []
+        },
+        "list.default": {
+            "name": "Quotas",
+            "description": "Liste de définitions de quota.",
+            "layout": []
+        }
+    },
+    "error": []
+}

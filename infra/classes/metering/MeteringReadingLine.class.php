@@ -55,9 +55,9 @@ class MeteringReadingLine extends Model {
             ],
 
             'value' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain:128',
-                'description'       => 'Measured value stored as text.'
+                'type'              => 'integer',
+                'description'       => 'Measured value.',
+                'required'          => true
             ],
 
             'unit' => [

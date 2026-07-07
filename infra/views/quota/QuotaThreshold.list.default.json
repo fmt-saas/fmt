@@ -1,0 +1,52 @@
+{
+    "name": "Model",
+    "description": "Interface for model definition classes.",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "definition_id",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "quota_type",
+                "width": "16%"
+            },
+            {
+                "type": "field",
+                "value": "value",
+                "width": "16%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "display_value",
+                "width": "16%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "max_value",
+                "width": "16%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "display_max_value",
+                "width": "16%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "action",
+                "width": "16%"
+            }
+        ]
+    }
+}

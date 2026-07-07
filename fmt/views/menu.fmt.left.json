@@ -1286,6 +1286,17 @@
                             "view": "list.default",
                             "entity": "infra\\metering\\MetricDefinition"
                         }
+                    },
+                    {
+                        "id": "item.infra.quota_definitions",
+                        "type": "entry",
+                        "label": "Quota definitions",
+                        "icon": "data_usage",
+                        "description": "Quota definitions.",
+                        "context": {
+                            "view": "list.default",
+                            "entity": "infra\\quota\\Quota"
+                        }
                     }
                 ]
             }
