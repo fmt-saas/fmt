@@ -60,6 +60,16 @@ class CondominiumBankAccount extends BankAccount {
                 'store'             => true
             ],
 
+            'ownership_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'description'       => "Ownership the bank account belongs to.",
+                'help'              => "We need this in order to distinguish condo and ownerships bank accounts.",
+                'default'           => null,
+                'readonly'          => true,
+                'visible'           => false
+            ],
+
             'accounting_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
