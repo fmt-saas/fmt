@@ -235,7 +235,7 @@ $is_tasks_ok = true;
 foreach($required_tasks as $required_task) {
     $task = null;
     foreach($tasks as $ta) {
-        if($task['controller'] === $required_task) {
+        if($ta['controller'] === $required_task) {
             $task = $ta;
             break;
         }
