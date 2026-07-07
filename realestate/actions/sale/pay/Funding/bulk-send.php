@@ -29,14 +29,13 @@ use realestate\sale\pay\Funding;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context', 'orm', 'auth', 'dispatch']
+    'providers'     => ['context']
 ]);
 
 /**
  * @var \equal\php\Context                  $context
- * @var \equal\dispatch\Dispatcher          $dispatch
  */
-['context' => $context, 'dispatch' => $dispatch] = $providers;
+['context' => $context] = $providers;
 
 if(!isset($params['id']) && !isset($params['ids'])) {
     throw new Exception("missing_id_or_ids", EQ_ERROR_INVALID_PARAM);
@@ -55,7 +54,7 @@ if(isset($params['id']) && $params['id']) {
 
 // ensure booking object exists and is readable
 $fundings = Funding::ids($fundings_ids)
-    ->read(['name', 'condo_id', 'bank_account_id', 'remaining_amount', 'due_amount', 'has_mandate', 'is_sent', 'is_exported'])
+    ->read(['name', 'condo_id', 'remaining_amount', 'has_mandate', 'is_sent', 'is_exported'])
     ->get();
 
 if(count($fundings) <= 0) {
@@ -65,13 +64,6 @@ if(count($fundings) <= 0) {
 
 // #memo - by convention we create a SEPA file for each Funding (instead of grouping them)
 foreach($fundings as $funding_id => $funding) {
-
-    $condominiumBankAccount = CondominiumBankAccount::id($funding['bank_account_id'])->read(['available_balance'])->first();
-
-    if($condominiumBankAccount['available_balance'] + $funding['remaining_amount'] < 0.0) {
-        $dispatch->dispatch('finance.accounting.payment.insufficient_funds', Funding::getType(), $funding_id, 'important');
-        continue;
-    }
 
     if($funding['is_sent']) {
         // sepa_already_sent

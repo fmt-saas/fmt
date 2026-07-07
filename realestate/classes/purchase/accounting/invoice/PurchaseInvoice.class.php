@@ -1206,7 +1206,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     protected static function onafterPost($self) {
-        $self->read(['document_process_id']);
+        $self->read(['document_process_id', 'has_payment_on_hold', 'fundings_ids' => ['is_sent']]);
         foreach($self as $id => $invoice) {
 
             if($invoice['document_process_id']) {
@@ -1222,6 +1222,15 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     }
 
                     $dp->transition('integrate');
+                }
+            }
+
+            if(!$invoice['has_payment_on_hold']) {
+                foreach($invoice['fundings_ids'] as $funding_id => $funding) {
+                    if($funding['is_sent']) {
+                        continue;
+                    }
+                    \eQual::run('do', 'sale_pay_Funding_generate-sepa', ['id' => $funding_id]);
                 }
             }
 

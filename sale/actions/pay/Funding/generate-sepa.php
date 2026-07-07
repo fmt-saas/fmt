@@ -6,6 +6,7 @@
 */
 
 use documents\Document;
+use finance\bank\CondominiumBankAccount;
 use sale\pay\Funding;
 
 [$params, $providers] = eQual::announce([
@@ -24,16 +25,19 @@ use sale\pay\Funding;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => [ 'context', 'orm' ]
+    'providers'     => [ 'context', 'orm', 'dispatch' ]
 ]);
 
-/** @var \equal\php\Context $context */
-/** @var \equal\orm\ObjectManager $orm */
-['context' => $context, 'orm' => $orm] = $providers;
+/**
+ * @var \equal\php\Context              $context
+ * @var \equal\orm\ObjectManager        $orm
+ * @var \equal\dispatch\Dispatcher      $dispatch
+ */
+['context' => $context, 'orm' => $orm, 'dispatch' => $dispatch] = $providers;
 
 // ensure object exists and is readable
 $funding = Funding::id($params['id'])
-    ->read(['name', 'is_sent', 'is_exported', 'sepa_document_id', 'condo_id' => ['code']])
+    ->read(['name', 'bank_account_id', 'is_sent', 'is_exported', 'sepa_document_id', 'condo_id' => ['code']])
     ->first();
 
 if($funding['is_exported']) {
@@ -48,25 +52,33 @@ if($funding['sepa_document_id']) {
     throw new Exception("sepa_document_already_generated", EQ_ERROR_INVALID_PARAM);
 }
 
-// get the SEPA XML data for the given fundings
-$output = eQual::run('get', 'sale_pay_Funding_sepa', [
-        'ids' => [$params['id']]
-    ]);
+$condominiumBankAccount = CondominiumBankAccount::id($funding['bank_account_id'])->read(['available_balance'])->first();
 
-// store final result as a document (not visible through EDMS)
-$document = Document::create([
-        'name'          => 'Export SEPA - ' . date('Y-m-d_H-i-s') . ' - ' . $funding['condo_id']['code'] . ' - ' . $funding['id'],
-        'content_type'  => 'application/xml',
-        'data'          => $output,
-        'condo_id'      => $funding['condo_id']['id']
-    ])
-    ->first();
+if($condominiumBankAccount['available_balance'] + $funding['remaining_amount'] < 0.0) {
+    $dispatch->dispatch('finance.accounting.payment.insufficient_funds', Funding::getType(), $params['id'], 'important');
+}
+else {
 
-Funding::id($params['id'])
-    ->update([
-        'sepa_document_id'  => $document['id'],
-        'is_sent'           => true
-    ]);
+    // get the SEPA XML data for the given fundings
+    $output = eQual::run('get', 'sale_pay_Funding_sepa', [
+            'ids' => [$params['id']]
+        ]);
+
+    // store final result as a document (not visible through EDMS)
+    $document = Document::create([
+            'name'          => 'Export SEPA - ' . date('Y-m-d_H-i-s') . ' - ' . $funding['condo_id']['code'] . ' - ' . $funding['id'],
+            'content_type'  => 'application/xml',
+            'data'          => $output,
+            'condo_id'      => $funding['condo_id']['id']
+        ])
+        ->first();
+
+    Funding::id($params['id'])
+        ->update([
+            'sepa_document_id'  => $document['id'],
+            'is_sent'           => true
+        ]);
+}
 
 $context->httpResponse()
         ->status(201)
