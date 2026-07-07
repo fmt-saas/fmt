@@ -74,6 +74,14 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "label" : "Organisation",
+                                                "value": "organisation_id",
+                                                "readonly": true,
+                                                "visible": false,
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "label" : "Condominium",
                                                 "value": "condo_id",
                                                 "readonly": true,
