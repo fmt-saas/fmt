@@ -104,6 +104,7 @@ class CondominiumBankAccount extends BankAccount {
                 'result_type'       => 'float',
                 'usage'             => 'amount/money:2',
                 'function'          => 'calcAvailableBalance',
+                'store'             => false
             ],
 
             'is_primary' => [
@@ -352,20 +353,29 @@ class CondominiumBankAccount extends BankAccount {
         $self->read(['current_balance', 'condo_id']);
         foreach($self as $id => $bankAccount) {
             $balance = $bankAccount['current_balance'] ?? 0.0;
-            // subtract expected payment (outgoing money)
+            // subtract expected outgoing payments & add expected transfer payments
             $fundings = Funding::search([
                     [
                         ['condo_id', '=', $bankAccount['condo_id']],
                         ['status', '<>', 'balanced'],
-                        ['funding_type', '=', 'transfer'],
+                        ['is_sent', '=', 'true'],
+                        ['funding_type', '<>', 'transfer'],
                         ['due_amount', '<', 0.0],
+                        ['bank_account_id', '=', $id]
+                    ],
+                    [
+                        ['condo_id', '=', $bankAccount['condo_id']],
+                        ['status', '<>', 'balanced'],
+                        ['is_sent', '=', 'true'],
+                        ['funding_type', '=', 'transfer'],
+                        ['due_amount', '>', 0.0],
                         ['bank_account_id', '=', $id]
                     ]
                 ])
-                ->read(['due_amount', 'paid_amount']);
+                ->read(['due_amount']);
 
             foreach($fundings as $funding) {
-                $balance += $funding['due_amount'] - $funding['paid_amount'];
+                $balance += $funding['due_amount'];
             }
 
             $result[$id] = $balance;

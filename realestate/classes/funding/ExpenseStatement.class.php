@@ -40,13 +40,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
     public static function getColumns() {
         return [
-            'name' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'function'          => 'calcName',
-                'description'       => "Short description of the request execution.",
-                'store'             => true
-            ],
 
             /* from finance\accounting\invoice\Invoice: */
             // 'condo_id'
