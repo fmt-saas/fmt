@@ -54,7 +54,8 @@
                 "purchase_invoice": "Facture fournisseur",
                 "expense_statement": "Décompte de charges",
                 "misc_operation": "Opération diverse",
-                "statement_line": "Extrait bancaire"
+                "statement_line": "Extrait bancaire",
+                "transfer": "Transfert de compte"
             }
         }
     }

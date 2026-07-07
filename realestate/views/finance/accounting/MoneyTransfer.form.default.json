@@ -13,18 +13,6 @@
     },
     "actions": [
         {
-            "id": "action.publish",
-            "label": "Publish",
-            "description": "Publish the Money Transfer for validation.",
-            "controller": "core_model_transition",
-            "visible": [ ["status", "=", "pending"] ],
-            "params": {
-                "entity": "realestate\\finance\\accounting\\MoneyTransfer",
-                "transition": "publish",
-                "ids": []
-            }
-        },
-        {
             "id": "action.post",
             "label": "Post",
             "description": "Mark the transfer as posted/initiated.",

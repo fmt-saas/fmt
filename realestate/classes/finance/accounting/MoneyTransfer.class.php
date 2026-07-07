@@ -337,7 +337,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             // retrieve bank transfers accounting account
             $bankTransferAccount = Account::search([ ['condo_id', '=', $moneyTransfer['condo_id']], ['operation_assignment', '=', 'bank_transfer'] ])->first();
 
-            Funding::create([
+            $fundingA = Funding::create([
                     'condo_id'                          => $moneyTransfer['condo_id'],
                     'funding_type'                      => 'transfer',
                     'money_transfer_id'                 => $id,
@@ -348,9 +348,10 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     // #todo - allow custom with setting
                     'due_date'                          => time() + 10 * 86400,
                     // #memo - payment_reference is a computed field
-                ]);
+                ])
+                ->first();
 
-            Funding::create([
+            $fundingB = Funding::create([
                     'condo_id'                          => $moneyTransfer['condo_id'],
                     'funding_type'                      => 'transfer',
                     'money_transfer_id'                 => $id,
@@ -361,7 +362,10 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     // #todo - allow custom with setting
                     'due_date'                          => time() + 10 * 86400,
                     // #memo - payment_reference is a computed field
-                ]);
+                ])
+                ->first();
+
+            Funding::ids([$fundingA['id'], $fundingB['id']])->do('refresh_status');
         }
     }
 
@@ -450,7 +454,9 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
      * #memo - unlike MiscOperation, MoneyTransfer do not generate an AccountingEntry but only Fundings.
      */
     protected static function onafterPost($self) {
-        $self->do('create_fundings');
+        $self
+            ->update(['name' => null])
+            ->do('create_fundings');
     }
 
 }

@@ -61,7 +61,8 @@ use sale\accounting\invoice\SaleInvoice;
                 'purchase_invoice',
                 'expense_statement',
                 'misc_operation',
-                'statement_line'
+                'statement_line',
+                'transfer'
             ],
             'default'           => 'all'
         ],
