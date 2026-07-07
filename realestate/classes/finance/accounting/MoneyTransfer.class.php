@@ -62,7 +62,12 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'foreign_object'    => 'finance\bank\CondominiumBankAccount',
                 'description'       => 'Counterpart bank account, when applying.',
                 'help'              => 'The bank account used as the counterpart in a transfer. Required when the funding represents an internal transfer between two bank accounts.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['condo_id', '<>', null],
+                    ['ownership_id', '=', null],
+                    ['is_active', '=', true]
+                ]
             ],
 
             'account_available_balance' => [

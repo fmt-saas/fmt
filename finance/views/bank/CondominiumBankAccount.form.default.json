@@ -76,7 +76,6 @@
                                                 "type": "field",
                                                 "label" : "Organisation",
                                                 "value": "organisation_id",
-                                                "readonly": true,
                                                 "visible": false,
                                                 "width": "100%"
                                             },
@@ -90,7 +89,8 @@
                                             {
                                                 "type": "field",
                                                 "value": "condominium_identity_id",
-                                                "visible": false
+                                                "visible": false,
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
