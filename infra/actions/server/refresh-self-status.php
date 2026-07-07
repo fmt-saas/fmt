@@ -70,7 +70,7 @@ $required_config = [
     'MS_OUTLOOK_CLIENT_SECRET',
 ];
 
-$expected_config = [
+$expected_config_values = [
     'ENV_MODE'                          => 'production',
     'FILE_STORAGE_MODE'                 => 'DB',
     'SERVICE_ORM_COLLECTION_CLASS'      => 'fmt\orm\Collection',
@@ -173,23 +173,23 @@ if(isset($fmt_version_data['up_to_date'])) {
 
 $is_config_ok = true;
 foreach($required_config as $key) {
-    if(!defined($key) || empty(constant($key))) {
+    if(empty($GLOBALS['EQ_CONFIG_ARRAY'][$key])) {
         $is_config_ok = false;
-
         $logs['missing_configs'][] = sprintf('Config %s is required', $key);
     }
 }
 
-foreach($expected_config as $key => $expected_value) {
-    if(!defined($key)) {
-        continue;
-    }
-
-    $value = constant($key);
-    if($value !== $expected_value) {
+foreach($expected_config_values as $key => $expected_value) {
+    if(empty($GLOBALS['EQ_CONFIG_ARRAY'][$key])) {
         $is_config_ok = false;
-
-        $logs['mismatch_configs'][] = sprintf("Config %s has value '%s' but '%s' is expected", $key, $value, $expected_value);
+        $logs['missing_configs'][] = sprintf('Config %s is required', $key);
+    }
+    else {
+        $value = $GLOBALS['EQ_CONFIG_ARRAY'][$key];
+        if($value !== $expected_value) {
+            $is_config_ok = false;
+            $logs['mismatch_configs'][] = sprintf("Config %s has value '%s' but '%s' is expected", $key, $value, $expected_value);
+        }
     }
 }
 
