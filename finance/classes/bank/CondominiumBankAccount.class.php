@@ -387,7 +387,7 @@ class CondominiumBankAccount extends BankAccount {
                 $balance += $funding['remaining_amount'];
             }
 
-            $result[$id] = $balance;
+            $result[$id] = round($balance, 2);
         }
         return $result;
     }

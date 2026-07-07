@@ -106,7 +106,7 @@ $tests = [
                         ->read(['available_balance'])
                         ->first();
 
-                    return $bankAccount && $bankAccount['available_balance'] == 0.0;
+                    return $bankAccount && abs($bankAccount['available_balance']) < 0.01;
                 },
             'rollback'          => function() use($providers) {
                 }
