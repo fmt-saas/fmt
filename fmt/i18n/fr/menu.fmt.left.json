@@ -444,6 +444,10 @@
         "item.infra.metric_definitions": {
             "label": "Définitions métrique",
             "description": "Gérer les définitions de métrique."
+        },
+        "item.infra.quota_definitions": {
+            "label": "Quotas",
+            "description": "Gérer les définitions de quota."
         }
     }
 }

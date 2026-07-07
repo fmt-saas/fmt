@@ -60,18 +60,6 @@ class MetricDefinition extends Model {
                 'required'          => true
             ],
 
-            'value_type' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain:32',
-                'selection'         => [
-                    'integer',
-                    'decimal',
-                    'string'
-                ],
-                'description'       => 'Expected type of value returned by the collector.',
-                'default'           => 'integer'
-            ],
-
             'collector' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain:128',
@@ -88,7 +76,7 @@ class MetricDefinition extends Model {
         ];
     }
 
-    public function getUnique() {
+    public function getUnique(): array {
         return [
             ['code']
         ];

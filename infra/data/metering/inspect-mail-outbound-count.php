@@ -5,7 +5,6 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 
-use core\Mail;
 use infra\metering\MeteringRecord;
 use infra\metering\MetricDefinition;
 
@@ -34,17 +33,32 @@ use infra\metering\MetricDefinition;
  */
 ['context' => $context] = $providers;
 
-$domain = [
-    ['status', '=', 'sent'],
-];
-if(isset($params['period_start'])) {
-    $domain[] = ['modified', '>=', $params['period_start']];
-}
-if(isset($params['period_end'])) {
-    $domain[] = ['modified', '<=', $params['period_end']];
+$metric_def = MetricDefinition::search(['code', '=', 'email.outbound.count'])
+    ->read(['id'])
+    ->first();
+
+if(!$metric_def) {
+    throw new Exception("unknow_metric_definition", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$mails_qty = Mail::search($domain)->count();
+$domain = [
+    ['metric_definition_id', '=', $metric_def['id']],
+];
+if(isset($params['period_start'])) {
+    $domain[] = ['record_time', '>=', $params['period_start']];
+}
+if(isset($params['period_end'])) {
+    $domain[] = ['record_time', '<=', $params['period_end']];
+}
+
+$records = MeteringRecord::search($domain)
+    ->read(['value'])
+    ->get();
+
+$mails_qty = 0;
+foreach($records as $record) {
+    $mails_qty += intval($record['value']);
+}
 
 $result = [
     'value'     => $mails_qty,

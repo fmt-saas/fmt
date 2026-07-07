@@ -12,7 +12,7 @@ use equal\orm\Model;
 class MeteringRecord extends Model {
 
     public static function getDescription(): string {
-        return "Records an action/event that was triggered and is used to create compute a reading line's value.";
+        return "Records an action/event that was triggered. It's used to compute a reading line's value.";
     }
 
     public static function getColumns(): array {
@@ -32,10 +32,9 @@ class MeteringRecord extends Model {
             ],
 
             'value' => [
-                'type'              => 'string',
-                'usage'             => 'text/plain:128',
-                'description'       => 'Measured value stored as text.',
-                'default'           => '1'
+                'type'              => 'integer',
+                'description'       => 'Measured value.',
+                'default'           => 1
             ]
 
         ];
