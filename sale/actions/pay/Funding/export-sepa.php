@@ -40,7 +40,7 @@ if($funding['is_exported']) {
     throw new Exception("funding_already_exported", EQ_ERROR_INVALID_PARAM);
 }
 
-if($funding['sepa_document_id']) {
+if(!$funding['sepa_document_id']) {
     throw new Exception("missing_sepa_document", EQ_ERROR_INVALID_PARAM);
 }
 
