@@ -86,7 +86,7 @@ $required_entities = [
 ];
 
 $required_tasks = [
-    'core_spool_run',
+    'fmt_spool_run',
     'core_spool_sync-alerts',
     'documents_export_cron_run',
     'finance_accounting_generate-expense-statements',
@@ -245,11 +245,11 @@ foreach($required_tasks as $required_task) {
         $is_tasks_ok = false;
         $logs['tasks'][] = sprintf("The task '%s' is missing.", $required_task);
     }
-    elseif($task['is_recurring']) {
+    elseif(!$task['is_recurring']) {
         $is_tasks_ok = false;
         $logs['tasks'][] = sprintf("The task '%s' is not recurring.", $required_task);
     }
-    elseif($task['is_active']) {
+    elseif(!$task['is_active']) {
         $is_tasks_ok = false;
         $logs['tasks'][] = sprintf("The task '%s' is not active.", $required_task);
     }
