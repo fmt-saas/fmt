@@ -4,6 +4,8 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use finance\bank\CondominiumBankAccount;
 use realestate\sale\pay\Funding;
 
 [$params, $providers] = eQual::announce([
@@ -53,7 +55,7 @@ if(isset($params['id']) && $params['id']) {
 
 // ensure booking object exists and is readable
 $fundings = Funding::ids($fundings_ids)
-    ->read(['name', 'condo_id', 'bank_account_id' => ['name'], 'due_amount', 'has_mandate', 'is_sent', 'is_exported'])
+    ->read(['name', 'condo_id', 'bank_account_id', 'remaining_amount', 'due_amount', 'has_mandate', 'is_sent', 'is_exported'])
     ->get();
 
 if(count($fundings) <= 0) {
@@ -64,11 +66,18 @@ if(count($fundings) <= 0) {
 // #memo - by convention we create a SEPA file for each Funding (instead of grouping them)
 foreach($fundings as $funding_id => $funding) {
 
+    $condominiumBankAccount = CondominiumBankAccount::id($funding['bank_account_id'])->read(['available_balance'])->first();
+
+    if($condominiumBankAccount['available_balance'] + $funding['remaining_amount'] < 0.0) {
+        $dispatch->dispatch('finance.accounting.payment.insufficient_funds', Funding::getType(), $funding_id, 'important');
+        continue;
+    }
+
     if($funding['is_sent']) {
         // sepa_already_sent
         continue;
     }
-    if($funding['due_amount'] >= 0) {
+    if($funding['remaining_amount'] >= 0) {
         // sepa_only_for_outgoing_funding
         continue;
     }

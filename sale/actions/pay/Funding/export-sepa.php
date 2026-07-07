@@ -48,7 +48,6 @@ $document = Document::id($funding['sepa_document_id'])->read(['data'])->first();
 
 Funding::id($params['id'])->update(['is_exported' => true]);
 
-
 $context->httpResponse()
         ->body([
             'document_id' => $document['id']

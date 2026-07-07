@@ -69,7 +69,5 @@ Funding::id($params['id'])
     ]);
 
 $context->httpResponse()
-        ->body([
-            'document_id' => $document['id']
-        ])
+        ->status(201)
         ->send();
