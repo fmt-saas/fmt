@@ -936,8 +936,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             // #memo - when importing historical data, we must be able to issue a funding in the past
             $issue_date = $purchaseInvoice['emission_date'];
             $due_date = $purchaseInvoice['due_date'];
-
-            $remaining_due_amount = -$purchaseInvoice['price'];
+            $funding_due_amount = -$purchaseInvoice['price'];
 
             $has_free_payment_reference = true;
             $free_payment_reference = $purchaseInvoice['supplier_invoice_number'];
@@ -953,8 +952,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     ['purchase_invoice_id', '=', $id]
                 ])
                 ->read(['due_amount']);
-
-            $funding_due_amount = -$purchaseInvoice['price'];
 
             foreach($fundings as $funding_id => $funding) {
                 $funding_due_amount -= $funding['due_amount'];
@@ -985,11 +982,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
 
-            if(abs($remaining_due_amount) <= 0.01) {
+            if(abs($funding_due_amount) <= 0.01) {
                 continue;
             }
 
-            $sign = ($remaining_due_amount >= 0) ? 1.0 : -1.0;
+            $sign = ($funding_due_amount >= 0) ? 1.0 : -1.0;
 
             // retrieve non-empty fundings relating to the targeted ownership with opposite sign
             $fundings = Funding::search(
@@ -1011,7 +1008,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 }
 
                 $delta = min(
-                    abs($remaining_due_amount),
+                    abs($funding_due_amount),
                     abs($funding['remaining_amount'])
                 );
 
@@ -1052,8 +1049,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
                 }
 
-                $remaining_due_amount -= $signed_delta;
-                if(abs($remaining_due_amount) < 0.01) {
+                $funding_due_amount -= $signed_delta;
+                if(abs($funding_due_amount) < 0.01) {
                     break;
                 }
             }

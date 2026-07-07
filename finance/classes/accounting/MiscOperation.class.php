@@ -576,12 +576,18 @@ class MiscOperation extends Model {
             AccountingEntry::id($miscOperation['accounting_entry_id'])->do('cancel');
 
             // remove related fundings (move payments to BankStatementLine Funding if any)
-            Funding::search([
+            $fundings = Funding::search([
                     ['condo_id', '=', $miscOperation['condo_id']],
                     ['funding_type', '=', 'misc_operation'],
                     ['misc_operation_id', '=', $id]
                 ])
-                ->do('remove');
+                ->read(['is_sent']);
+
+            foreach($fundings as $funding_id => $funding) {
+                if(!$funding['is_sent']) {
+                    Funding::id($funding_id)->do('remove');
+                }
+            }
         }
         $self->update(['status' => 'proforma']);
     }
@@ -1078,9 +1084,19 @@ class MiscOperation extends Model {
                 $issue_date = $miscOperation['posting_date'];
                 $due_date = $miscOperation['posting_date'] + 86400 * 15;
 
-                $remaining_due_amount = $miscOperationLine['debit'] - $miscOperationLine['credit'];
-
                 $funding_account_id = $miscOperationLine['account_id'];
+                $funding_due_amount = $miscOperationLine['debit'] - $miscOperationLine['credit'];
+
+                $fundings = Funding::search([
+                        ['condo_id', '=', $miscOperation['condo_id']],
+                        ['funding_type', '=', 'misc_operation'],
+                        ['misc_operation_id', '=', $id]
+                    ])
+                    ->read(['due_amount']);
+
+                foreach($fundings as $funding_id => $funding) {
+                    $funding_due_amount -= $funding['due_amount'];
+                }
 
                 if($miscOperationLine['is_owner']) {
                     if(!$miscOperationLine['ownership_id'])  {
@@ -1113,7 +1129,7 @@ class MiscOperation extends Model {
                             'bank_account_id'           => $condominiumBankAccount['id'],
                             'issue_date'                => $issue_date,
                             'due_date'                  => $due_date,
-                            'due_amount'                => $remaining_due_amount,
+                            'due_amount'                => $funding_due_amount,
                             'funding_type'              => 'misc_operation'
                         ])
                         ->first();
@@ -1143,7 +1159,7 @@ class MiscOperation extends Model {
                             'counterpart_bank_account_id'       => $suppliershipBankAccount['bank_account_id'] ?? null,
                             'accounting_account_id'             => $funding_account_id,
                             'accounting_entry_line_id'          => $accountingEntryLine['id'],
-                            'due_amount'                        => $remaining_due_amount,
+                            'due_amount'                        => $funding_due_amount,
                             'is_paid'                           => false,
                             'issue_date'                        => $issue_date,
                             'due_date'                          => $due_date,
@@ -1156,8 +1172,8 @@ class MiscOperation extends Model {
                 }
 
                 // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
-                if(abs($remaining_due_amount) >= 0.01) {
-                    $sign = ($remaining_due_amount >= 0) ? 1.0 : -1.0;
+                if(abs($funding_due_amount) >= 0.01) {
+                    $sign = ($funding_due_amount >= 0) ? 1.0 : -1.0;
 
                     // retrieve non-empty fundings relating to the targeted ownership with opposite sign
                     $fundings = Funding::search(
@@ -1178,7 +1194,7 @@ class MiscOperation extends Model {
                         }
 
                         $delta = min(
-                            abs($remaining_due_amount),
+                            abs($funding_due_amount),
                             abs($funding['remaining_amount'])
                         );
 
@@ -1219,8 +1235,8 @@ class MiscOperation extends Model {
                                 ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
                         }
 
-                        $remaining_due_amount -= $signed_delta;
-                        if(abs($remaining_due_amount) < 0.01) {
+                        $funding_due_amount -= $signed_delta;
+                        if(abs($funding_due_amount) < 0.01) {
                             break;
                         }
                     }
