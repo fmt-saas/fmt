@@ -27,11 +27,11 @@ $domain = [
         ['is_exported', '=', false],
         ['due_amount', '<', 0],
         ['has_mandate', '=', false],
+        ['has_payment_on_hold', '=', false],
         ['counterpart_bank_account_id', 'is not', null]
     ];
 
-$funding_ids = Funding::search($domain)
-    ->ids();
+$funding_ids = Funding::search($domain)->ids();
 
 if(count($funding_ids) > 0) {
     eQual::run('do', 'realestate_sale_pay_Funding_bulk-export', [
