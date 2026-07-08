@@ -33,7 +33,10 @@
             "icon": "no_encryption",
             "description": "Unlock generation of SEPA payment.",
             "controller": "realestate_sale_pay_Funding_force-sepa",
-            "visible": ["credit_balance", "=", "object.status"],
+            "visible": [
+                [["credit_balance", "=", "object.status"], [true, "=", "object.has_payment_on_hold"]],
+                [["credit_balance", "=", "object.status"], [true, "=", "object.has_mandate"]]
+            ],
             "confirm": true,
             "params": {
                 "id": "object.id"
