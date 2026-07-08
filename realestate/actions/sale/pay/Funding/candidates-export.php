@@ -40,5 +40,5 @@ if(count($funding_ids) > 0) {
 }
 
 $context->httpResponse()
-        ->status(205)
+        ->status(204)
         ->send();
