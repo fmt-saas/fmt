@@ -77,14 +77,19 @@
             "description": "Communication structurée utilisée pour le paiement.",
             "help": ""
         },
-        "is_sent": {
+        "is_generated": {
             "label": "SEPA généré",
-            "description": "Enveloppe SEPA générée et prête à l'export.",
+            "description": "Enveloppe SEPA générée.",
+            "help": ""
+        },
+        "is_sent": {
+            "label": "SEPA envoyé",
+            "description": "Enveloppe SEPA envoyée à l'export.",
             "help": ""
         },
         "is_exported": {
             "label": "SEPA exporté",
-            "description": "Enveloppe SEPA exportée.",
+            "description": "Enveloppe SEPA exportée (archive).",
             "help": ""
         }
     },
