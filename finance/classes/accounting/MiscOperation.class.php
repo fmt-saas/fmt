@@ -1087,11 +1087,20 @@ class MiscOperation extends Model {
                 $funding_account_id = $miscOperationLine['account_id'];
                 $funding_due_amount = $miscOperationLine['debit'] - $miscOperationLine['credit'];
 
-                $fundings = Funding::search([
-                        ['condo_id', '=', $miscOperation['condo_id']],
-                        ['funding_type', '=', 'misc_operation'],
-                        ['misc_operation_id', '=', $id]
-                    ])
+                $fundings_domain = [
+                    ['condo_id', '=', $miscOperation['condo_id']],
+                    ['funding_type', '=', 'misc_operation'],
+                    ['misc_operation_id', '=', $id]
+                ];
+
+                if($miscOperationLine['is_owner']) {
+                    $fundings_domain[] = ['ownership_id', '=', $miscOperationLine['ownership_id']];
+                }
+                elseif($miscOperationLine['is_supplier']) {
+                    $fundings_domain[] = ['suppliership_id', '=', $miscOperationLine['suppliership_id']];
+                }
+
+                $fundings = Funding::search($fundings_domain)
                     ->read(['due_amount']);
 
                 foreach($fundings as $funding_id => $funding) {
