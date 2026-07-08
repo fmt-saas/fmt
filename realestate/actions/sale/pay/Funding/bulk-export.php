@@ -57,7 +57,7 @@ if(isset($params['id']) && $params['id']) {
 
 // ensure booking object exists and is readable
 $fundings = Funding::ids($fundings_ids)
-    ->read(['name', 'condo_id', 'sepa_document_id', 'bank_account_id' => ['name'], 'due_amount', 'has_mandate', 'is_sent', 'is_exported'])
+    ->read(['name', 'condo_id', 'sepa_document_id', 'bank_account_id' => ['name'], 'due_amount', 'has_mandate', 'is_generated', 'is_sent', 'is_exported'])
     ->get();
 
 if(count($fundings) <= 0) {
@@ -79,7 +79,7 @@ foreach($fundings as $funding_id => $funding) {
         // sepa_already_exported
         continue;
     }
-    if(!$funding['is_sent']) {
+    if(!$funding['is_generated']) {
         // sepa_not_generated
         continue;
     }
@@ -104,6 +104,8 @@ foreach($fundings as $funding_id => $funding) {
                     'id' => $funding_id
                 ])
         ]);
+
+    Funding::id($funding_id)->update(['is_sent' => true]);
 
     ++$count_exporting_lines;
 }
