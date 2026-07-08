@@ -28,6 +28,7 @@ class FundRequest extends \equal\orm\Model {
             'name' => [
                 'type'              => 'string',
                 'description'       => "Short description of the request, based on fiscal year and period.",
+                'multilang'         => true,
                 'required'          => true
             ],
 

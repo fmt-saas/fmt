@@ -52,6 +52,15 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             // 'emission_date'
             // 'due_date'
 
+            'description' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Short description of the invoice.',
+                'multilang'         => true,
+                'store'             => true,
+                'function'          => 'calcDescription'
+            ],
+
             'fiscal_year_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
@@ -173,6 +182,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         'help'        => 'This is a substitute to the parent sale invoice workflow (there is a single accounting entry for a fund request execution).',
                         'policies'    => ['is_proforma', 'can_post'],
                         'onbefore'    => 'onbeforeCall',
+                        'onafter'     => 'onafterCall',
                         'status'      => 'posted'
                     ]
                 ]
@@ -367,6 +377,10 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         $self->do('perform_execution');
     }
 
+    protected static function onafterCall($self) {
+        $self->update(['name' => null]);
+    }
+
     public static function doAssignInvoiceNumber($self) {
         $self->read(['organisation_id', 'condo_id', 'fiscal_year_id' => ['code'], 'fiscal_period_id' => ['code']]);
         foreach($self as $id => $requestExecution) {
@@ -412,6 +426,18 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
     public static function onafterCancelled($self) {
         $self->do('cancel_execution');
+    }
+
+    protected static function calcDescription($self) {
+        $result = [];
+        $self->read(['condo_id', 'fund_request_id' => ['name', 'description'], 'posting_date']);
+        foreach($self as $id => $invoice) {
+            if(!$invoice['fund_request_id']) {
+                continue;
+            }
+            $result[$id] = $invoice['fund_request_id']['name'] . ' - ' . date('d/m/Y', $invoice['posting_date']);
+        }
+        return $result;
     }
 
     protected static function calcFiscalYearId($self) {
@@ -625,12 +651,13 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
     public static function doGenerateAccountingEntry($self) {
 
         $self->read([
+                'condo_id',
                 'name',
                 'fiscal_year_id',
                 'accounting_entry_id',
                 'emission_date',
                 'called_amount',
-                'condo_id',
+                'description',
                 'fund_request_id' => ['request_type', 'request_account_id'],
                 'execution_lines_ids' => ['ownership_id', 'called_amount']
             ]);
@@ -666,7 +693,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             AccountingEntryLine::create([
                     'condo_id'              => $requestExecution['condo_id'],
                     'accounting_entry_id'   => $accountingEntry['id'],
-                    'description'           => $requestExecution['name'],
+                    'description'           => $requestExecution['description'],
                     'account_id'            => $requestExecution['fund_request_id']['request_account_id'],
                     'debit'                 => 0.0,
                     'credit'                => $requestExecution['called_amount']
@@ -699,7 +726,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         'accounting_entry_id'   => $accountingEntry['id'],
                         // #memo - in realestate package, 'sale_invoice_line_id' targets `ExpenseStatementOwnerLine` and `FundRequestExecutionLine`
                         'sale_invoice_line_id'  => $execution_line_id,
-                        'description'           => $requestExecution['name'],
+                        'description'           => $requestExecution['description'],
                         'account_id'            => $ownershipAccount['id'],
                         'debit'                 => $executionLine['called_amount'],
                         'credit'                => 0.0
