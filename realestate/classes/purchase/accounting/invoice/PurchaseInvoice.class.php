@@ -2103,6 +2103,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 }
             }
         }
+
+        if(array_key_exists('condo_bank_account_id', $event) && isset($event['condo_bank_account_id'])) {
+            $result['condo_bank_account_available_balance'] = self::computeCondoBankAccountAvailableBalance($event['condo_bank_account_id']);
+        }
+
         if(array_key_exists('invoice_lines_ids', $event)) {
             $result['price'] = static::computePrice($values['id']);
         }

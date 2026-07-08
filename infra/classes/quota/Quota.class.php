@@ -138,7 +138,7 @@ class Quota extends Model {
         $self->read(['metric_definition_id' => ['collector']]);
         foreach ($self as $id => $quota) {
             $inspect_res = \eQual::run('get', $quota['metric_definition_id']['collector']);
-
+            // #memo - each action handler is in charge of setting (or not) the is_reached flag
             self::id($id)->update(['value' => $inspect_res['value']]);
         }
     }
