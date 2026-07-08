@@ -82,11 +82,6 @@ foreach($fundings as $funding_id => $funding) {
         'id' => $funding_id
     ]);
 
-    Funding::id($funding_id)
-        ->update([
-            'is_sent'      => true
-        ]);
-
 }
 
 $context->httpResponse()
