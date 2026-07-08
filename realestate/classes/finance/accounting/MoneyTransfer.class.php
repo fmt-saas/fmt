@@ -11,6 +11,7 @@ use finance\accounting\Account;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\bank\CondominiumBankAccount;
+use fmt\setting\Setting;
 use realestate\sale\pay\Funding;
 
 /**
@@ -30,6 +31,14 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
     public static function getColumns() {
 
         return [
+
+            'name' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'Short name for identifying the transfer.',
+                'function'          => 'calcName',
+                'store'             => true
+            ],
 
             'description' => [
                 'type'              => 'string',
@@ -297,6 +306,18 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                     ];
                 }
             }
+        }
+        return $result;
+    }
+
+    protected static function calcName($self) {
+        $result = [];
+        $self->read(['status', 'amount', 'posting_date']);
+        foreach($self as $id => $moneyTransfer) {
+            if($moneyTransfer['status'] !== 'posted') {
+                continue;
+            }
+            $result[$id] = sprintf("%05d - %s - %s", $id, date('d/m/Y', $moneyTransfer['posting_date']), Setting::format_number_currency($moneyTransfer['posting_date']));
         }
         return $result;
     }
