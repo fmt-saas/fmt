@@ -1,14 +1,14 @@
 {
-    "name": "Servers status",
+    "name": "Instances status",
     "access": {
         "groups": ["admins"]
     },
     "controller": "core_model_chart",
     "layout": {
-        "entity": "infra\\server\\Status",
+        "entity": "infra\\server\\InstanceStatus",
         "stacked": false,
         "group_by": "field",
-        "field": "server_id",
+        "field": "instance_id",
         "range_field": "created",
         "range_from": "date.this.day",
         "range_to": "date.this.day",
