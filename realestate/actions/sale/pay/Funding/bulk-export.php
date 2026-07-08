@@ -74,7 +74,10 @@ $count_exporting_lines = 0;
 
 // #memo - by convention we create a SEPA file for each Funding (instead of grouping them)
 foreach($fundings as $funding_id => $funding) {
-
+    if($funding['is_sent']) {
+        // sepa_already_sent
+        continue;
+    }
     if($funding['is_exported']) {
         // sepa_already_exported
         continue;
