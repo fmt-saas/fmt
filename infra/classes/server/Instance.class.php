@@ -142,6 +142,22 @@ class Instance extends Model {
                 'description'       => 'The current name of the FMT git branch.'
             ],
 
+            'checks_ok' => [
+                'type'              => 'computed',
+                'result_type'       => 'boolean',
+                'description'       => 'Are all checks valid.',
+                'store'             => false,
+                'function'          => 'calcChecksOk'
+            ],
+
+            'failed_checks' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'description'       => 'List all failed instance checks.',
+                'store'             => false,
+                'function'          => 'calcFailedChecks'
+            ],
+
             'statuses_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'infra\server\InstanceStatus',
@@ -274,6 +290,51 @@ class Instance extends Model {
             }
 
             $result[$id] = $user_token_generated;
+        }
+
+        return $result;
+    }
+
+    protected static function calcChecksOk($self) {
+        $result = [];
+        $self->read(['checks_ids' => ['value']]);
+        foreach($self as $id => $instance) {
+            $checks_ok = true;
+            foreach($instance['checks_ids'] as $check) {
+                if(!$check['value']) {
+                    $checks_ok = false;
+                    break;
+                }
+            }
+
+            $result[$id] = $checks_ok;
+        }
+
+        return $result;
+    }
+
+    protected static function calcFailedChecks($self) {
+        $result = [];
+        $self->read(['checks_ids' => ['name', 'value']]);
+        foreach($self as $id => $instance) {
+            $map_check_names = [
+                'is_branch_equal_ok'            => 'eQual git branch mismatch',
+                'is_branch_equal_up_to_date'    => 'eQual git branch not up to date',
+                'is_branch_fmt_ok'              => 'FMT git branch version mismatch',
+                'is_branch_fmt_up_to_date'      => 'FMT git branch not up to date',
+                'is_config_file_ok'             => 'Configuration file invalid',
+                'is_required_data_ok'           => 'Data not correctly configured',
+                'is_tasks_ok'                   => 'Recurring tasks not correctly configured'
+            ];
+
+            $failed_checks = [];
+            foreach($instance['checks_ids'] as $check) {
+                if(!$check['value']) {
+                    $failed_checks[] = $map_check_names[$check['name']] ?? $check['name'];
+                }
+            }
+
+            $result[$id] = implode(', ', $failed_checks);
         }
 
         return $result;

@@ -1,0 +1,37 @@
+{
+    "name": "Instances dashboard",
+    "description": "",
+    "layout": {
+        "groups": [
+            {
+                "id": "group.main",
+                "label": "test",
+                "height": "100%",
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "height": "50%",
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "id": "item.infra.instances",
+                                                "label": "Instances",
+                                                "description": "",
+                                                "width": "100%",
+                                                "entity": "infra\\server\\Instance",
+                                                "view": "list.dashboard"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

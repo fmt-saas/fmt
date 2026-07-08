@@ -325,6 +325,26 @@
             "label": "Groupes",
             "description": "Gérer les groupes d'utilisateurs et leurs rôles."
         },
+        "item.config.dashboards": {
+            "label": "Dashboards",
+            "description": "Tableau de bords"
+        },
+        "item.config.dashboards.owner": {
+            "label": "Dashboard propriétaires",
+            "description": "Tableau de bords des données pour les propriétaires."
+        },
+        "item.config.dashboards.employees": {
+            "label": "Dashboard employés",
+            "description": "Tableau de bords des données pour les employés."
+        },
+        "item.config.dashboards.servers": {
+            "label": "Dashboard serveurs",
+            "description": "Tableau de bords des données serveurs pour les administrateurs."
+        },
+        "item.config.dashboards.instances": {
+            "label": "Dashboard instances",
+            "description": "Tableau de bords des données instances pour les administrateurs."
+        },
         "item.config.scheduler": {
             "label": "Planificateur",
             "description": ""

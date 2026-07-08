@@ -894,7 +894,7 @@
                                 }
                             },
                             {
-                                "id": "item.config.dashboards.employee",
+                                "id": "item.config.dashboards.employees",
                                 "type": "entry",
                                 "label": "Employees",
                                 "icon": "person",
@@ -905,13 +905,24 @@
                                 }
                             },
                             {
-                                "id": "item.config.dashboards.server",
+                                "id": "item.config.dashboards.servers",
                                 "type": "entry",
-                                "label": "Infra",
-                                "icon": "person",
-                                "description": "Default dashboard for admins.",
+                                "label": "Servers",
+                                "icon": "storage",
+                                "description": "Default servers' dashboard for admins.",
                                 "context": {
                                     "entity": "infra\\server\\Server",
+                                    "view": "dashboard.default"
+                                }
+                            },
+                            {
+                                "id": "item.config.dashboards.instances",
+                                "type": "entry",
+                                "label": "Instances",
+                                "icon": "settings_system_daydream",
+                                "description": "Default instances' dashboard for admins.",
+                                "context": {
+                                    "entity": "infra\\server\\Instance",
                                     "view": "dashboard.default"
                                 }
                             }
