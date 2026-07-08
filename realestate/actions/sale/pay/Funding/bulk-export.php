@@ -105,6 +105,8 @@ foreach($fundings as $funding_id => $funding) {
                 ])
         ]);
 
+    Funding::id($funding_id)->update(['is_exported' => true]);
+
     ++$count_exporting_lines;
 }
 
