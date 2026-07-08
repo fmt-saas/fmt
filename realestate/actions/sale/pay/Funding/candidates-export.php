@@ -23,7 +23,7 @@ use realestate\sale\pay\Funding;
 
 $domain = [
         ['status', '=', 'credit_balance'],
-        ['is_sent', '=', true],
+        ['is_generated', '=', true],
         ['is_exported', '=', false],
         ['due_amount', '<', 0],
         ['has_mandate', '=', false],

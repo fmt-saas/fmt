@@ -42,15 +42,21 @@ class Funding extends \equal\orm\Model {
                 'description'       => 'Optional description to identify the funding.'
             ],
 
+            'is_generated' => [
+                'type'              => 'boolean',
+                'description'       => 'Flag indicating if a SEPA document has been generated.',
+                'default'           => false
+            ],
+
             'is_sent' => [
                 'type'              => 'boolean',
-                'description'       => 'Flag indicating if a SEPA order has been generated (once or more) from the Funding.',
+                'description'       => 'Flag indicating if a SEPA order has been sent for export.',
                 'default'           => false
             ],
 
             'is_exported' => [
                 'type'              => 'boolean',
-                'description'       => 'Flag indicating if a SEPA order has been generated (once or more) from the Funding.',
+                'description'       => 'Flag indicating if a SEPA order has been exported (archive).',
                 'default'           => false
             ],
 

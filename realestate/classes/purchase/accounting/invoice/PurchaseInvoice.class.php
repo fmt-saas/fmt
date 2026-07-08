@@ -508,10 +508,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     ['funding_type', '=', 'purchase_invoice'],
                     ['purchase_invoice_id', '=', $id]
                 ])
-                ->read(['is_sent', 'is_exported']);
+                ->read(['is_sent']);
 
             foreach($fundings as $funding_id => $funding) {
-                if(!$funding['is_exported']) {
+                if(!$funding['is_sent']) {
                     Funding::id($funding_id)->do('remove');
                 }
             }

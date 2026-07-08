@@ -132,13 +132,13 @@
             {
                 "type": "field",
                 "label": "Sent",
-                "value": "is_sent",
+                "value": "is_generated",
                 "width": "10%"
             },
             {
                 "type": "field",
                 "label": "Sent",
-                "value": "is_exported",
+                "value": "is_sent",
                 "width": "10%"
             }
         ]

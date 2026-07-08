@@ -40,6 +40,7 @@ $funding = Funding::id($params['id'])
     ->read([
         'name',
         'bank_account_id',
+        'is_generated',
         'is_sent',
         'is_exported',
         'sepa_document_id',
@@ -49,6 +50,10 @@ $funding = Funding::id($params['id'])
         'condo_id' => ['code']
     ])
     ->first();
+
+if($funding['is_generated']) {
+    throw new Exception("funding_already_generated", EQ_ERROR_INVALID_PARAM);
+}
 
 if($funding['is_exported']) {
     throw new Exception("funding_already_exported", EQ_ERROR_INVALID_PARAM);
@@ -94,7 +99,7 @@ else {
     Funding::id($params['id'])
         ->update([
             'sepa_document_id'  => $document['id'],
-            'is_sent'           => true
+            'is_generated'      => true
         ]);
 }
 
