@@ -954,6 +954,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 $funding_due_amount -= $funding['due_amount'];
             }
 
+            if(abs($funding_due_amount) < 0.01) {
+                continue;
+            }
+
             $suppliershipFunding = Funding::create([
                     'condo_id'                          => $purchaseInvoice['condo_id'],
                     'description'                       => $purchaseInvoice['name'],
@@ -978,10 +982,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 ->first();
 
             // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
-
-            if(abs($funding_due_amount) <= 0.01) {
-                continue;
-            }
 
             $sign = ($funding_due_amount >= 0) ? 1.0 : -1.0;
 
