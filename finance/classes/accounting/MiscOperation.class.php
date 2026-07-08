@@ -411,12 +411,14 @@ class MiscOperation extends Model {
                 continue;
             }
 
+            /*
             if(count($miscOperation['fundings_ids']) > 0) {
                 $result[$id] = [
                     'existing_fundings' => 'Fundings have already been generated for this misc operation.'
                 ];
                 continue;
             }
+            */
 
             $condominiumBankAccount = CondominiumBankAccount::search([
                     ['condo_id', '=', $miscOperation['condo_id']],
