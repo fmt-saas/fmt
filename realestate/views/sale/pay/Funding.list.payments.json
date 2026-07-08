@@ -96,7 +96,10 @@
             {
                 "type": "field",
                 "value": "free_payment_reference",
-                "width": "15%"
+                "width": "15%",
+                "widget": {
+                    "visible": true
+                }
             },
             {
                 "type": "field",
