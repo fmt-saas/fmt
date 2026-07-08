@@ -1107,6 +1107,10 @@ class MiscOperation extends Model {
                     $funding_due_amount -= $funding['due_amount'];
                 }
 
+                if(abs($funding_due_amount) < 0.01) {
+                    continue;
+                }
+
                 if($miscOperationLine['is_owner']) {
                     if(!$miscOperationLine['ownership_id'])  {
                         throw new \Exception('missing_ownership_id', EQ_ERROR_INVALID_PARAM);
@@ -1181,75 +1185,75 @@ class MiscOperation extends Model {
                 }
 
                 // pass-2 : attempt to balance created ownership Funding with pending fundings of opposite sign
-                if(abs($funding_due_amount) >= 0.01) {
-                    $sign = ($funding_due_amount >= 0) ? 1.0 : -1.0;
 
-                    // retrieve non-empty fundings relating to the targeted ownership with opposite sign
-                    $fundings = Funding::search(
-                            [
-                                ['condo_id', '=', $miscOperation['condo_id']],
-                                ['accounting_account_id', '=', $funding_account_id],
-                                ['status', '<>', 'balanced'],
-                                ['is_cancelled', '=', false],
-                                ['remaining_amount', ($sign > 0) ? '<' : '>', 0]
-                            ],
-                            ['sort' => ['issue_date' => 'asc']]
-                        )
-                        ->read(['remaining_amount', 'accounting_entry_line_id']);
+                $sign = ($funding_due_amount >= 0) ? 1.0 : -1.0;
 
-                    foreach($fundings as $funding_id => $funding) {
-                        if(!$operationFunding || $operationFunding['id'] === $funding_id) {
-                            continue;
-                        }
+                // retrieve non-empty fundings relating to the targeted ownership with opposite sign
+                $fundings = Funding::search(
+                        [
+                            ['condo_id', '=', $miscOperation['condo_id']],
+                            ['accounting_account_id', '=', $funding_account_id],
+                            ['status', '<>', 'balanced'],
+                            ['is_cancelled', '=', false],
+                            ['remaining_amount', ($sign > 0) ? '<' : '>', 0]
+                        ],
+                        ['sort' => ['issue_date' => 'asc']]
+                    )
+                    ->read(['remaining_amount', 'accounting_entry_line_id']);
 
-                        $delta = min(
-                            abs($funding_due_amount),
-                            abs($funding['remaining_amount'])
-                        );
+                foreach($fundings as $funding_id => $funding) {
+                    if(!$operationFunding || $operationFunding['id'] === $funding_id) {
+                        continue;
+                    }
 
-                        $signed_delta = $sign * $delta;
+                    $delta = min(
+                        abs($funding_due_amount),
+                        abs($funding['remaining_amount'])
+                    );
 
-                        $fundingAllocationA = FundingAllocation::create([
-                                'condo_id'                  => $miscOperation['condo_id'],
-                                'amount'                    => -$signed_delta,
-                                'receipt_date'              => $miscOperation['posting_date'],
-                                'origin_object_class'       => 'finance\accounting\MiscOperation',
-                                'origin_object_id'          => $id,
-                                'misc_operation_id'         => $id,
-                                'accounting_entry_line_id'  => $accountingEntryLine['id'],
-                                'funding_id'                => $funding_id
-                            ])
-                            ->first();
+                    $signed_delta = $sign * $delta;
 
-                        $fundingAllocationB = FundingAllocation::create([
-                                'condo_id'                  => $miscOperation['condo_id'],
-                                'amount'                    => $signed_delta,
-                                'receipt_date'              => $miscOperation['posting_date'],
-                                'origin_object_class'       => 'finance\accounting\MiscOperation',
-                                'origin_object_id'          => $id,
-                                'misc_operation_id'         => $id,
-                                'accounting_entry_line_id'  => $accountingEntryLine['id'],
-                                'funding_id'                => $operationFunding['id'],
-                                'linked_payment_id'         => $fundingAllocationA['id']
-                            ])
-                            ->first();
+                    $fundingAllocationA = FundingAllocation::create([
+                            'condo_id'                  => $miscOperation['condo_id'],
+                            'amount'                    => -$signed_delta,
+                            'receipt_date'              => $miscOperation['posting_date'],
+                            'origin_object_class'       => 'finance\accounting\MiscOperation',
+                            'origin_object_id'          => $id,
+                            'misc_operation_id'         => $id,
+                            'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                            'funding_id'                => $funding_id
+                        ])
+                        ->first();
 
-                        FundingAllocation::id($fundingAllocationA['id'])->update(['linked_payment_id' => $fundingAllocationB['id']]);
+                    $fundingAllocationB = FundingAllocation::create([
+                            'condo_id'                  => $miscOperation['condo_id'],
+                            'amount'                    => $signed_delta,
+                            'receipt_date'              => $miscOperation['posting_date'],
+                            'origin_object_class'       => 'finance\accounting\MiscOperation',
+                            'origin_object_id'          => $id,
+                            'misc_operation_id'         => $id,
+                            'accounting_entry_line_id'  => $accountingEntryLine['id'],
+                            'funding_id'                => $operationFunding['id'],
+                            'linked_payment_id'         => $fundingAllocationA['id']
+                        ])
+                        ->first();
 
-                        Funding::id($funding_id)->do('refresh_status');
+                    FundingAllocation::id($fundingAllocationA['id'])->update(['linked_payment_id' => $fundingAllocationB['id']]);
 
-                        // merge Matching if applicable
-                        if($funding['accounting_entry_line_id']) {
-                            AccountingEntryLine::id($accountingEntryLine['id'])
-                                ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
-                        }
+                    Funding::id($funding_id)->do('refresh_status');
 
-                        $funding_due_amount -= $signed_delta;
-                        if(abs($funding_due_amount) < 0.01) {
-                            break;
-                        }
+                    // merge Matching if applicable
+                    if($funding['accounting_entry_line_id']) {
+                        AccountingEntryLine::id($accountingEntryLine['id'])
+                            ->do('attempt_match_with_line', ['accounting_entry_line_id' => $funding['accounting_entry_line_id']]);
+                    }
+
+                    $funding_due_amount -= $signed_delta;
+                    if(abs($funding_due_amount) < 0.01) {
+                        break;
                     }
                 }
+
 
                 Funding::id($operationFunding['id'])->do('refresh_status');
 
