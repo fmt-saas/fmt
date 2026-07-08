@@ -81,5 +81,5 @@ eQual::run('do', 'sale_pay_Funding_generate-sepa', [
 ]);
 
 $context->httpResponse()
-        ->status(205)
+        ->status(204)
         ->send();
