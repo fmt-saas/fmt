@@ -560,6 +560,7 @@ class Funding extends \sale\pay\Funding {
                     // this reference might be overwritten by the reference given by the supplier
                     $reference = sprintf("9%09d", $funding['purchase_invoice_id']);
                     break;
+                case 'statement_line':
                 case 'misc_operation':
                     if($funding['ownership_id']) {
                         $reference =
