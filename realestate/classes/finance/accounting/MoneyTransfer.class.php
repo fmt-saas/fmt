@@ -317,7 +317,7 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
             if($moneyTransfer['status'] !== 'posted') {
                 continue;
             }
-            $result[$id] = sprintf("%05d - %s - %s", $id, date('d/m/Y', $moneyTransfer['posting_date']), Setting::format_number_currency($moneyTransfer['posting_date']));
+            $result[$id] = sprintf("%05d - %s - %s", $id, date('d/m/Y', $moneyTransfer['posting_date']), Setting::format_number_currency($moneyTransfer['amount']));
         }
         return $result;
     }
