@@ -1231,6 +1231,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 }
             }
 
+            Funding::ids($invoice['fundings_ids']->ids())->update(['name' => null]);
+
             // reset computed relation fields
             self::id($id)->update([
                     'document_process_status' => null,
