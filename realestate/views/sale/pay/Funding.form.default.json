@@ -175,19 +175,29 @@
                                                 "type": "field",
                                                 "label": "Mandate",
                                                 "value": "has_mandate",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Mandate",
+                                                "value": "has_payment_on_hold",
+                                                "width": "100%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Sent?",
                                                 "value": "is_sent",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Exported?",
                                                 "value": "is_exported",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "readonly": true
                                             }
                                         ]
                                     },
