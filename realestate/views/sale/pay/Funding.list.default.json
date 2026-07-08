@@ -25,6 +25,19 @@
             "description": "Export SEPA for candidates fundings.",
             "controller": "realestate_sale_pay_Funding_candidates-export",
             "confirm": true
+        },
+        {
+            "id": "action.force_sepa",
+            "inline": true,
+            "label": "Force SEPA",
+            "icon": "no_encryption",
+            "description": "Unlock generation of SEPA payment.",
+            "controller": "realestate_sale_pay_Funding_force-sepa",
+            "visible": ["credit_balance", "=", "object.status"],
+            "confirm": true,
+            "params": {
+                "id": "object.id"
+            }
         }
     ],
     "layout": {
@@ -92,7 +105,15 @@
                 "type": "field",
                 "label": "Mandate",
                 "value": "has_mandate",
-                "width": "10%"
+                "width": "10%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "label": "Mandate",
+                "value": "has_payment_on_hold",
+                "width": "10%",
+                "readonly": true
             },
             {
                 "type": "field",

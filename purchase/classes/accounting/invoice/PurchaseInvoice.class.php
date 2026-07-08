@@ -7,10 +7,8 @@
 
 namespace purchase\accounting\invoice;
 
-use finance\accounting\Account;
 use finance\accounting\AccountingEntry;
 use finance\accounting\FiscalYear;
-use finance\accounting\Journal;
 use fmt\setting\Setting;
 use sale\pay\Funding;
 
@@ -98,7 +96,21 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
                 'type'              => 'boolean',
                 'description'       => 'Mark invoice as to be paid through a mandate.',
                 'help'              => 'The Condominium has an active SEPA mandate for paying invoices from this supplier and payment will be made through it.',
-                'default'           => false
+                'default'           => false,
+                'onupdate'          => 'onupdateHasMandate'
+            ],
+
+            'has_payment_on_hold' => [
+                'type'              => 'boolean',
+                'description'       => 'Payment should not be made for now.',
+                'default'           => false,
+                'onupdate'          => 'onupdateHasPaymentOnHold'
+            ],
+
+            'on_hold_description' => [
+                'type'              => 'string',
+                'description'       => 'Short description explaining the reason of holding back the payment.',
+                'visible'           => ['has_payment_on_hold', '=', true]
             ],
 
             'supplier_invoice_number' => [
@@ -177,6 +189,20 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
         $self->read(['emission_date']);
         foreach($self as $id => $invoice) {
             self::id($id)->update(['posting_date' => $invoice['emission_date']]);
+        }
+    }
+
+    protected static function onupdateHasPaymentOnHold($self) {
+        $self->read(['has_payment_on_hold', 'fundings_ids']);
+        foreach($self as $id => $invoice) {
+            Funding::ids($invoice['fundings_ids'])->update(['has_payment_on_hold' => $invoice['has_payment_on_hold']]);
+        }
+    }
+
+    protected static function onupdateHasMandate($self) {
+        $self->read(['has_mandate', 'fundings_ids']);
+        foreach($self as $id => $invoice) {
+            Funding::ids($invoice['fundings_ids'])->update(['has_mandate' => $invoice['has_mandate']]);
         }
     }
 

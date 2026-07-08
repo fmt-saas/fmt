@@ -297,18 +297,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'help'              => 'This field may be required for an ACP subject to VAT.'
             ],
 
-            'has_payment_on_hold' => [
-                'type'              => 'boolean',
-                'description'       => 'Payment should not be made for now.',
-                'default'           => false
-            ],
-
-            'on_hold_description' => [
-                'type'              => 'string',
-                'description'       => 'Short description explaining the reason of holding back the payment.',
-                'visible'           => ['has_payment_on_hold', '=', true]
-            ],
-
             // #todo - for now we limit this to VCS - with validation
             'payment_reference' => [
                 'type'              => 'string',
@@ -980,11 +968,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'is_paid'                           => false,
                     'issue_date'                        => $issue_date,
                     'due_date'                          => $due_date,
-                    'has_mandate'                       => $purchaseInvoice['has_mandate'],
                     'payment_reference'                 => $payment_reference ?? null,
                     'has_free_payment_reference'        => $has_free_payment_reference,
                     'free_payment_reference'            => $free_payment_reference,
-                    // relay on_hold flag
+                    // relay flags
+                    'has_mandate'                       => $purchaseInvoice['has_mandate'],
                     'has_payment_on_hold'               => $purchaseInvoice['has_payment_on_hold']
                 ])
                 ->first();

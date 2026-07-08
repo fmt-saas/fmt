@@ -37,7 +37,17 @@ use realestate\sale\pay\Funding;
 
 // ensure object exists and is readable
 $funding = Funding::id($params['id'])
-    ->read(['name', 'bank_account_id', 'is_sent', 'is_exported', 'sepa_document_id', 'remaining_amount', 'condo_id' => ['code']])
+    ->read([
+        'name',
+        'bank_account_id',
+        'is_sent',
+        'is_exported',
+        'sepa_document_id',
+        'has_payment_on_hold',
+        'has_mandate',
+        'remaining_amount',
+        'condo_id' => ['code']
+    ])
     ->first();
 
 if($funding['is_exported']) {
@@ -50,6 +60,14 @@ if($funding['is_sent']) {
 
 if($funding['sepa_document_id']) {
     throw new Exception("sepa_document_already_generated", EQ_ERROR_INVALID_PARAM);
+}
+
+if($funding['has_payment_on_hold']) {
+    throw new Exception("aborted_has_payment_on_hold", 0);
+}
+
+if($funding['has_mandate']) {
+    throw new Exception("aborted_has_mandate", 0);
 }
 
 $condominiumBankAccount = CondominiumBankAccount::id($funding['bank_account_id'])->read(['available_balance'])->first();

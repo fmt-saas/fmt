@@ -196,11 +196,6 @@
             "description": "Compte comptable impacté par le mouvement suivi.",
             "help": ""
         },
-        "is_sent": {
-            "label": "Envoyé",
-            "description": "Marqué `vrai` quand l'ordre SEPA a été généré.",
-            "help": ""
-        },
         "assigned_employee_id": {
             "label": "Assigné à",
             "description": "Collaborateur actuellement responsable du traitement.",
@@ -281,6 +276,16 @@
                     "description": "Générer un fichier SEPA XML pour les suivis sélectionnés."
                 }
             },
+            "actions": {
+                "action.export_candidates": {
+                    "label": "Exporter les candidats",
+                    "description": "Créer une tâche d'export SEPA pour les suivis éligibles."
+                },
+                "action.force_sepa": {
+                    "label": "Forcer SEPA",
+                    "description": "Débloquer et générer le paiement SEPA pour ce suivi."
+                }
+            },
             "layout": {}
         },
         "list.arrears": {
@@ -299,5 +304,14 @@
             },
             "layout": {}
         }
+    },
+    "error": {
+        "unknown_funding": "Suivi de paiement introuvable.",
+        "sepa_only_for_purchase_invoice": "Le SEPA forcé est réservé aux factures fournisseur.",
+        "missing_purchase_invoice": "Aucune facture fournisseur n'est liée à ce suivi.",
+        "funding_already_exported": "Ce suivi a déjà été exporté en SEPA.",
+        "funding_already_sent": "Un fichier SEPA a déjà été généré pour ce suivi.",
+        "sepa_document_already_generated": "Un document SEPA existe déjà pour ce suivi.",
+        "sepa_only_for_outgoing_funding": "Le SEPA ne peut être généré que pour un paiement sortant."
     }
 }

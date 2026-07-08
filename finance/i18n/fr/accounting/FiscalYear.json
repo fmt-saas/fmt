@@ -72,7 +72,14 @@
         "status": {
             "label": "Statut",
             "description": "Workflow (draft, preopen, open, preclosed, closed).",
-            "help": ""
+            "help": "",
+            "selection": {
+                "draft": "Brouillon",
+                "preopen": "Pré-ouverture",
+                "open": "Ouvert",
+                "preclosed": "Pré-cloture",
+                "closed": "Clôturé"
+            }
         }
     },
     "view": {

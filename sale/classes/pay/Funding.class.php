@@ -42,13 +42,6 @@ class Funding extends \equal\orm\Model {
                 'description'       => 'Optional description to identify the funding.'
             ],
 
-            'has_mandate' => [
-                'type'              => 'boolean',
-                'description'       => 'Mark Payment to be made through a mandate.',
-                'help'              => 'The Condominium has an active SEPA mandate for the subsequent payments (and should be sent to bank).',
-                'default'           => false
-            ],
-
             'is_sent' => [
                 'type'              => 'boolean',
                 'description'       => 'Flag indicating if a SEPA order has been generated (once or more) from the Funding.',
@@ -254,10 +247,19 @@ class Funding extends \equal\orm\Model {
                 'description'       => 'Message for identifying the purpose of the transaction.'
             ],
 
+            'has_mandate' => [
+                'type'              => 'boolean',
+                'description'       => 'Mark Payment to be made through a mandate.',
+                'help'              => 'The Condominium has an active SEPA mandate for the subsequent payments (and should be sent to bank).',
+                'default'           => false,
+                'visible'           => [['funding_type', '=', 'purchase_invoice'], ['purchase_invoice_id', '<>', null]]
+            ],
+
             'has_payment_on_hold' => [
                 'type'              => 'boolean',
                 'description'       => 'Payment should not be made for now.',
-                'default'           => false
+                'default'           => false,
+                'visible'           => [['funding_type', '=', 'purchase_invoice'], ['purchase_invoice_id', '<>', null]]
             ],
 
             'is_cancelled' => [

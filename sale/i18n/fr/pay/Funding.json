@@ -52,6 +52,11 @@
             "description": "Indique si un mandat est disponible pour débiter/créditer automatiquement.",
             "help": ""
         },
+        "has_payment_on_hold": {
+            "label": "En attente",
+            "description": "Indique si le paiement est en attente de confirmation (facture d'achat).",
+            "help": ""
+        },
         "is_paid": {
             "label": "Payé",
             "description": "Le paiement intégralement reçu ?",
@@ -74,7 +79,7 @@
         },
         "is_sent": {
             "label": "SEPA généré",
-            "description": "Enveloppe SEPA généré et prête à l'export.",
+            "description": "Enveloppe SEPA générée et prête à l'export.",
             "help": ""
         },
         "is_exported": {
