@@ -92,6 +92,16 @@
             "description": "Nom de la branche fmt-saas/fmt.",
             "help": "Utilisée avec les contrôles de statut de branche."
         },
+        "checks_ok": {
+            "label": "Tests ok",
+            "description": "Est-ce que tous les tests ont fonctionnés.",
+            "help": ""
+        },
+        "failed_checks": {
+            "label": "Noms tests échoués.",
+            "description": "Liste des tests qui ont échoués.",
+            "help": ""
+        },
         "statuses_ids": {
             "label": "Statuts techniques",
             "description": "Historique des statuts techniques de l'instance.",
