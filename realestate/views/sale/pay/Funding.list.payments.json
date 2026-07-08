@@ -47,6 +47,18 @@
         "items": [
             {
                 "type": "field",
+                "value": "id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "has_free_payment_reference",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "condo_id",
                 "width": "25%"
             },
