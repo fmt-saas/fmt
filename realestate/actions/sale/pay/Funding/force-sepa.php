@@ -80,6 +80,10 @@ eQual::run('do', 'sale_pay_Funding_generate-sepa', [
     'id' => $params['id']
 ]);
 
+eQual::run('do', 'sale_pay_Funding_export-sepa', [
+    'id' => $params['id']
+]);
+
 $context->httpResponse()
         ->status(205)
         ->send();
