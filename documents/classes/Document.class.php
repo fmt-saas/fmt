@@ -566,7 +566,7 @@ class Document extends Model {
                     'document_id'       => $id,
                     'condo_id'          => $document['condo_id'],
                     'node_type'         => 'document',
-                    'node_visibility'   => $document['document_visibility'] ?? 'agency',
+                    'node_visibility'   => ($document['document_visibility'] ?? 'agency') === 'condo' ? 'condo' : 'agency',
                     'supplier_id'       => $document['supplier_id'],
                     'ownership_id'      => $document['ownership_id']
                 ])
