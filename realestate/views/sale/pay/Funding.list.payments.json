@@ -65,7 +65,7 @@
             {
                 "type": "field",
                 "value": "name",
-                "width": "30%"
+                "width": "15%"
             },
             {
                 "type": "field",
@@ -91,6 +91,11 @@
                 "type": "field",
                 "label": "Type",
                 "value": "funding_type",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "free_payment_reference",
                 "width": "15%"
             },
             {
