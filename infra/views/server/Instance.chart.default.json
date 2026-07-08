@@ -16,17 +16,17 @@
             {
                 "label": "DSK",
                 "operation": ["AVG", "object.dsk_use"],
-                "domain": ["server_id", "<>", null]
+                "domain": ["instance_id", "<>", null]
             },
             {
                 "label": "CPU",
                 "operation": ["AVG", "object.cpu_use"],
-                "domain": ["server_id", "<>", null]
+                "domain": ["instance_id", "<>", null]
             },
             {
                 "label": "RAM",
                 "operation": ["AVG", "object.ram_use"],
-                "domain": ["server_id", "<>", null]
+                "domain": ["instance_id", "<>", null]
             }
         ]
     }
