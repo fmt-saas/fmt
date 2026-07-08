@@ -45,7 +45,7 @@
                         "description": "Payments to be made to suppliers.",
                         "context": {
                             "entity": "realestate\\sale\\pay\\Funding",
-                            "view": "list.default",
+                            "view": "list.payments",
                             "domain": ["status", "=", "credit_balance"]
                         }
                     },

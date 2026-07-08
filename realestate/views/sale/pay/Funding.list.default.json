@@ -6,43 +6,9 @@
         "actions": false,
         "exports": false,
         "selection": {
-            "default" : false,
-            "actions" : [
-                {
-                    "id": "header.selection.actions.generate_sepa",
-                    "label": "Generate SEPA",
-                    "icon": "start",
-                    "controller": "realestate_sale_pay_Funding_bulk-send"
-                }
-            ]
+            "default" : false
         }
     },
-    "actions": [
-        {
-            "id": "action.export_candidates",
-            "label": "Export candidates",
-            "icon": "file_download",
-            "description": "Export SEPA for candidates fundings.",
-            "controller": "realestate_sale_pay_Funding_candidates-export",
-            "confirm": true
-        },
-        {
-            "id": "action.force_sepa",
-            "inline": true,
-            "label": "Force SEPA",
-            "icon": "no_encryption",
-            "description": "Unlock generation of SEPA payment.",
-            "controller": "realestate_sale_pay_Funding_force-sepa",
-            "visible": [
-                [["credit_balance", "=", "object.status"], [true, "=", "object.has_payment_on_hold"]],
-                [["credit_balance", "=", "object.status"], [true, "=", "object.has_mandate"]]
-            ],
-            "confirm": true,
-            "params": {
-                "id": "object.id"
-            }
-        }
-    ],
     "layout": {
         "items": [
             {

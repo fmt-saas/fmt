@@ -72,7 +72,7 @@
             "help": ""
         },
         "has_payment_on_hold": {
-            "label": "Paiement suspendu",
+            "label": "En attente",
             "description": "Indique que le paiement ne doit pas encore être exécuté.",
             "help": ""
         },
