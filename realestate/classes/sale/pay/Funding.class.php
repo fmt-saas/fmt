@@ -229,7 +229,6 @@ class Funding extends \sale\pay\Funding {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'description'       => 'Message for identifying the purpose of the transaction.',
-                'visible'           => ['has_free_payment_reference', '=', false],
                 'store'             => true,
                 'instant'           => true,
                 'readonly'          => true,
