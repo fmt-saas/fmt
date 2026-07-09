@@ -12,6 +12,7 @@ use documents\processing\DocumentProcess;
 use equal\http\HttpRequest;
 use equal\orm\Model;
 use identity\User;
+use infra\quota\Quota;
 use purchase\supplier\Suppliership;
 
 class Document extends Model {
@@ -1164,6 +1165,31 @@ class Document extends Model {
                 ];
             }
         }
+
+        $quota = Quota::search([
+            ['code', '=', 'edms.document.count'],
+            ['is_active', '=', true]
+        ])
+            ->do('check-thresholds')
+            ->read(['is_reached'])
+            ->first();
+
+        if($quota && $quota['is_reached']) {
+            return ['quota' => ['quota_reached' => 'The quota for document quantity has been reached.']];
+        }
+
+        $quota = Quota::search([
+            ['code', '=', 'edms.storage.size'],
+            ['is_active', '=', true]
+        ])
+            ->do('check-thresholds')
+            ->read(['is_reached'])
+            ->first();
+
+        if($quota && $quota['is_reached']) {
+            return ['quota' => ['quota_reached' => 'The quota for document quantity has been reached.']];
+        }
+
         return parent::cancreate($self, $values);
     }
 }
