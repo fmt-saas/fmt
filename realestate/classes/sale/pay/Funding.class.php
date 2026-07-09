@@ -97,9 +97,9 @@ class Funding extends \sale\pay\Funding {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'domain'            => [
-                    [ ['owner_identity_id', '=', 'object.condo_identity_id'], ['owner_identity_id', '<>', null], ['is_active', '=', true] ],
-                    [ ['owner_identity_id', '=', 'object.supplier_identity_id'], ['owner_identity_id', '<>', null], ['is_active', '=', true] ],
-                    [ ['ownership_id', '=', 'object.ownership_id'], ['ownership_id', '<>', null], ['is_active', '=', true] ]
+                    [ ['owner_identity_id', '=', 'object.condo_identity_id'], ['owner_identity_id', '<>', null], ['is_active', '=', true], ['ownership_id', '=', 'object.ownership_id'] ],
+                    [ ['owner_identity_id', '=', 'object.supplier_identity_id'], ['owner_identity_id', '<>', null], ['is_active', '=', true], ['ownership_id', '=', 'object.ownership_id'] ],
+                    [ ['owner_identity_id', '=', null], ['ownership_id', '=', 'object.ownership_id'], ['ownership_id', '<>', null], ['is_active', '=', true] ]
                 ],
                 'description'       => 'Counterpart bank account, when applying.',
                 'help'              => 'The bank account used as the counterpart in a transfer. Required when the funding represents an internal transfer between two bank accounts.',
