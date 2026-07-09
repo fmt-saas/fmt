@@ -942,8 +942,9 @@ class Identity extends Model {
                     ['owner_identity_id', '=', $id],
                     ['bank_account_iban', '=', $identity['bank_account_iban']]
                 ])
-                ->read(['is_primary'])
+                ->read(['is_primary', 'supplier_id'])
                 ->first();
+
             if(!$mainBankAccount) {
                 BankAccount::create([
                     'owner_identity_id' => $id,
@@ -957,8 +958,18 @@ class Identity extends Model {
             }
             else {
                 if(!$mainBankAccount['is_primary']) {
-                    BankAccount::search([['owner_identity_id', '=', $id]])->update(['is_primary' => false]);
-                    BankAccount::id($mainBankAccount['id'])->update(['is_primary' => true]);
+                    BankAccount::search([['owner_identity_id', '=', $id]])
+                        ->update(['is_primary' => false]);
+
+                    BankAccount::id($mainBankAccount['id'])
+                        ->update([
+                            'is_primary'    => true,
+                            'supplier_id'   => $identity['supplier_id']
+                        ]);
+                }
+                elseif($identity['supplier_id'] && $mainBankAccount['supplier_id'] !== $identity['supplier_id']) {
+                    BankAccount::id($mainBankAccount['id'])
+                        ->update(['supplier_id' => $identity['supplier_id']]);
                 }
             }
         }
@@ -1868,10 +1879,13 @@ class Identity extends Model {
                 }
             }
 
+            $bank_updates['supplier_id'] = $values['supplier_id'] ?? $identity['supplier_id'] ?? null;
+
             if(count($bank_updates)) {
                 $mainBankAccount = BankAccount::search([['owner_identity_id', '=', $identity_id], ['is_primary', '=', true]]);
                 if($mainBankAccount->count() <= 0 /*&& isset($identity['bank_account_iban'])*/) {
                     $identity = self::id($identity_id)->read($bank_fields)->first();
+                    $supplier_id = $supplier_id ?: ($identity['supplier_id'] ?? null);
                     // prevent creation attempt if no iban is resolved
                     if($values['bank_account_iban'] ?? $identity['bank_account_iban']) {
                         $mainBankAccount = BankAccount::create([

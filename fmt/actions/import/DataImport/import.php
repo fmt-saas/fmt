@@ -206,9 +206,9 @@ try {
     elseif($dataImport['import_type'] === 'suppliers_import') {
         $suppliers_data = current($data);
         $events = $orm->disableEvents();
-        foreach($suppliers_data as $index => $supplier) {
+        foreach($suppliers_data as $index => $supplier_row) {
             try {
-                $values = $mapSupplierRowToJson($supplier);
+                $values = $mapSupplierRowToJson($supplier_row);
 
                 $identity = null;
                 $supplier = null;
@@ -221,31 +221,8 @@ try {
 
                 if(!$identity) {
                     $identity = Identity::create($values)
-                        ->do('refresh_bank_accounts')
                         ->do('refresh_addresses')
                         ->first();
-
-                    try {
-
-                        if($supplier['iban_2'] ?? false) {
-                            BankAccount::create([
-                                'owner_identity_id' => $identity['id'],
-                                'bank_account_iban' => $supplier['iban_2'],
-                                'supplier_id'       => $supplier['id']
-                            ]);
-                        }
-                        if($supplier['iban_3'] ?? false) {
-                            BankAccount::create([
-                                'owner_identity_id' => $identity['id'],
-                                'bank_account_iban' => $supplier['iban_3'],
-                                'supplier_id'       => $supplier['id']
-                            ]);
-                        }
-
-                    }
-                    catch(Exception $e) {
-                        // do nothing
-                    }
 
                     $result['logs'][] = "INFO- created identity id {$identity['id']} for supplier with registration number `{$values['registration_number']}`";
                 }
@@ -267,6 +244,44 @@ try {
                     Identity::id($identity['id'])->update(['supplier_id' => $supplier['id']]);
 
                     $result['logs'][] = "INFO- created new supplier with id {$supplier['id']} with registration number `{$values['registration_number']}`";
+                }
+                else {
+                    Identity::id($identity['id'])->update(['supplier_id' => $supplier['id']]);
+                }
+
+                Identity::id($identity['id'])->do('refresh_bank_accounts');
+
+                try {
+                    foreach(['iban_2', 'iban_3'] as $iban_field) {
+                        if(!($supplier_row[$iban_field] ?? false)) {
+                            continue;
+                        }
+
+                        $iban = preg_replace('/[^A-Z0-9]/i', '', $supplier_row[$iban_field]);
+                        if(!$iban) {
+                            continue;
+                        }
+
+                        $bankAccount = BankAccount::search([
+                                ['owner_identity_id', '=', $identity['id']],
+                                ['bank_account_iban', '=', $iban]
+                            ])
+                            ->first();
+
+                        if($bankAccount) {
+                            BankAccount::id($bankAccount['id'])->update(['supplier_id' => $supplier['id']]);
+                        }
+                        else {
+                            BankAccount::create([
+                                'owner_identity_id' => $identity['id'],
+                                'bank_account_iban' => $iban,
+                                'supplier_id'       => $supplier['id']
+                            ]);
+                        }
+                    }
+                }
+                catch(Exception $e) {
+                    // do nothing
                 }
             }
             catch(Exception $e) {
