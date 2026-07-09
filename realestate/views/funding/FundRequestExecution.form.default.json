@@ -80,6 +80,12 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "label": "Disable sending",
+                                                "value": "is_sending_disabled",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "status",
                                                 "width": "100%",
                                                 "visible": false

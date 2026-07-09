@@ -53,6 +53,11 @@
             "description": "Écriture générée après validation.",
             "help": ""
         },
+        "is_sending_disabled": {
+            "label": "Envoi désactivé",
+            "description": "Désactive l'envoi des emails.",
+            "help": "Si activé, les exports et emails ne sont pas planifiés."
+        },
         "logs": {
             "label": "Journal",
             "description": "Trace textuelle de la génération (utilisée pour le dépannage).",

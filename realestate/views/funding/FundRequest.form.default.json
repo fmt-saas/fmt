@@ -130,8 +130,9 @@
                                                 "width": "33%"
                                             },
                                             {
-                                                "type": "label",
-                                                "value": "",
+                                                "type": "field",
+                                                "label": "Disable sending",
+                                                "value": "is_sending_disabled",
                                                 "width": "33%"
                                             },
                                             {

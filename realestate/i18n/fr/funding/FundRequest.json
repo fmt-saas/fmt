@@ -65,6 +65,11 @@
             "description": "Active la génération d'exécutions récurrentes (mensuel, trimestriel...).",
             "help": ""
         },
+        "is_sending_disabled": {
+            "label": "Envoi désactivé",
+            "description": "Désactive l'envoi des emails.",
+            "help": "Si activé, les exports et emails ne sont pas planifiés."
+        },
         "date_range_frequency": {
             "label": "Fréquence (mois)",
             "description": "Intervalle en mois entre deux exécutions successives.",
