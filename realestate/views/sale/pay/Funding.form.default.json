@@ -263,6 +263,12 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "condo_identity_id",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "supplier_identity_id",
                                                 "width": "0%",
                                                 "visible": false

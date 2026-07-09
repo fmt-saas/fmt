@@ -97,7 +97,7 @@ class Funding extends \sale\pay\Funding {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'domain'            => [
-                    [ ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_active', '=', true] ],
+                    [ ['owner_identity_id', '=', 'object.condo_identity_id'], ['owner_identity_id', '<>', null], ['is_active', '=', true] ],
                     [ ['owner_identity_id', '=', 'object.supplier_identity_id'], ['owner_identity_id', '<>', null], ['is_active', '=', true] ],
                     [ ['ownership_id', '=', 'object.ownership_id'], ['ownership_id', '<>', null], ['is_active', '=', true] ]
                 ],
@@ -236,6 +236,17 @@ class Funding extends \sale\pay\Funding {
                 'description'       => 'The supplier identity the funding relates to.',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'relation'          => ['suppliership_id' => ['supplier_id' => 'identity_id']],
+                'readonly'          => true,
+                'instant'           => true,
+                'store'             => true
+            ],
+
+            'condo_identity_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'identity\Identity',
+                'description'       => 'The Condominium identity the funding relates to.',
+                'relation'          => ['condo_id' => 'identity_id'],
                 'readonly'          => true,
                 'instant'           => true,
                 'store'             => true
