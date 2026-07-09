@@ -89,7 +89,6 @@ class Funding extends \sale\pay\Funding {
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'description'       => 'The Bank account the funding relates to.',
                 'help'              => 'This is the bank account to which payment is expected to be received, or from which payment is expected to be made.',
-                'readonly'          => true,
                 'dependents'        => ['bank_account_iban'],
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_active', '=', true]]
             ],
@@ -99,7 +98,6 @@ class Funding extends \sale\pay\Funding {
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'description'       => 'Counterpart bank account, when applying.',
                 'help'              => 'The bank account used as the counterpart in a transfer. Required when the funding represents an internal transfer between two bank accounts.',
-                'readonly'          => true
             ],
 
             'funding_type' => [
