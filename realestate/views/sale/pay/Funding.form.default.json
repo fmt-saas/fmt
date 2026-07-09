@@ -263,7 +263,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "owner_identity_id",
+                                                "value": "supplier_identity_id",
                                                 "width": "0%",
                                                 "visible": false
                                             }
