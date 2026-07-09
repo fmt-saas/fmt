@@ -507,14 +507,6 @@ class FundRequest extends \equal\orm\Model {
         }
     }
 
-    private static function amountToCents($amount): int {
-        return (int) round(((float) $amount) * 100);
-    }
-
-    private static function centsToAmount($amount_cents): float {
-        return round(((int) $amount_cents) / 100, 2);
-    }
-
     private static function resolveActiveOwnershipId(array $property_lot_ownerships, int $execution_date, int $property_lot_id): int {
         $active_ownership_id = null;
 
@@ -540,7 +532,7 @@ class FundRequest extends \equal\orm\Model {
         return $active_ownership_id;
     }
 
-    private static function resolveProratedOwnershipAmounts(array $property_lot_ownerships, int $period_from, int $period_to, int $amount_cents, int $property_lot_id): array {
+    private static function resolveProratedOwnershipAmounts(array $property_lot_ownerships, int $period_from, int $period_to, float $amount, int $property_lot_id): array {
         $allocations = [];
         $covered_days = 0;
 
@@ -565,7 +557,7 @@ class FundRequest extends \equal\orm\Model {
             $allocations[] = [
                 'ownership_id' => $propertyLotOwnership['ownership_id'],
                 'days' => $days,
-                'amount_cents' => 0
+                'amount' => 0.0
             ];
         }
 
@@ -575,27 +567,27 @@ class FundRequest extends \equal\orm\Model {
             throw new \Exception("invalid_ownership_coverage_for_property_lot_{$property_lot_id}", EQ_ERROR_INVALID_PARAM);
         }
 
-        $remaining_cents = $amount_cents;
+        $remaining_amount = round($amount, 2);
         foreach($allocations as $index => $allocation) {
             if($index === count($allocations) - 1) {
-                $allocations[$index]['amount_cents'] = $remaining_cents;
+                $allocations[$index]['amount'] = $remaining_amount;
                 continue;
             }
 
-            $allocated_cents = intdiv($amount_cents * $allocation['days'], $total_days);
-            $allocations[$index]['amount_cents'] = $allocated_cents;
-            $remaining_cents -= $allocated_cents;
+            $allocated_amount = round($amount * $allocation['days'] / $total_days, 2);
+            $allocations[$index]['amount'] = $allocated_amount;
+            $remaining_amount = round($remaining_amount - $allocated_amount, 2);
         }
 
         $result = [];
         foreach($allocations as $allocation) {
-            if($allocation['amount_cents'] === 0) {
+            if(round($allocation['amount'], 2) == 0.0) {
                 continue;
             }
             if(!isset($result[$allocation['ownership_id']])) {
-                $result[$allocation['ownership_id']] = 0;
+                $result[$allocation['ownership_id']] = 0.0;
             }
-            $result[$allocation['ownership_id']] += $allocation['amount_cents'];
+            $result[$allocation['ownership_id']] = round($result[$allocation['ownership_id']] + $allocation['amount'], 2);
         }
 
         return $result;
@@ -653,7 +645,7 @@ class FundRequest extends \equal\orm\Model {
 
             foreach($fundRequest['request_lines_ids'] as $request_line_id => $requestLine) {
                 $map_property_lot_shares = [];
-                $allocated_cents = 0;
+                $allocated_amount = 0.0;
                 $apportionment_id = $requestLine['apportionment_id']['id'];
                 $total_shares = (int) $requestLine['apportionment_id']['total_shares'];
 
@@ -681,7 +673,7 @@ class FundRequest extends \equal\orm\Model {
 
                     $amount = $requestLine['request_amount'] * ($apportionmentShare['property_lot_shares'] / $total_shares);
                     $rounded_amount = round($amount, 2);
-                    $allocated_cents += self::amountToCents($rounded_amount);
+                    $allocated_amount = round($allocated_amount + $rounded_amount, 2);
 
                     $entryLot = FundRequestLineEntryLot::create([
                             'condo_id'              => $fundRequest['condo_id'],
@@ -697,10 +689,10 @@ class FundRequest extends \equal\orm\Model {
                     $map_property_lot_shares[$apportionmentShare['property_lot_shares']][] = $entryLot['id'];
                 }
 
-                $delta_cents = self::amountToCents($requestLine['request_amount']) - $allocated_cents;
+                $delta_amount = round($requestLine['request_amount'] - $allocated_amount, 2);
 
-                if($delta_cents != 0) {
-                    trigger_error("APP::allocation generated a delta: {$delta_cents}", EQ_REPORT_DEBUG);
+                if($delta_amount != 0.0) {
+                    trigger_error("APP::allocation generated a delta: {$delta_amount}", EQ_REPORT_DEBUG);
 
                     krsort($map_property_lot_shares);
                     $ordered_lots_ids = count($map_property_lot_shares) ? array_merge(...array_values($map_property_lot_shares)) : [];
@@ -709,15 +701,15 @@ class FundRequest extends \equal\orm\Model {
                         throw new \Exception("missing_property_lots_for_request_line_{$request_line_id}", EQ_ERROR_INVALID_PARAM);
                     }
 
-                    $step = ($delta_cents > 0) ? 1 : -1;
-                    $remaining = abs($delta_cents);
+                    $step = ($delta_amount > 0) ? 0.01 : -0.01;
+                    $remaining = (int) round(abs($delta_amount) * 100);
                     $index = 0;
 
                     while($remaining > 0) {
                         $line_entry_lot_id = $ordered_lots_ids[$index % count($ordered_lots_ids)];
                         $entryLot = FundRequestLineEntryLot::id($line_entry_lot_id)->read(['allocated_amount'])->first();
                         FundRequestLineEntryLot::id($line_entry_lot_id)->update([
-                                'allocated_amount' => round($entryLot['allocated_amount'] + self::centsToAmount($step), 2)
+                                'allocated_amount' => round($entryLot['allocated_amount'] + $step, 2)
                             ]);
                         --$remaining;
                         ++$index;
@@ -780,9 +772,9 @@ class FundRequest extends \equal\orm\Model {
             foreach($fundRequest['line_entries_ids'] as $line_entry_id => $lineEntry) {
                 foreach($lineEntry['entry_lots_ids'] as $entryLot) {
                     if(!isset($map_lot_amounts[$entryLot['property_lot_id']])) {
-                        $map_lot_amounts[$entryLot['property_lot_id']] = 0;
+                        $map_lot_amounts[$entryLot['property_lot_id']] = 0.0;
                     }
-                    $map_lot_amounts[$entryLot['property_lot_id']] += self::amountToCents($entryLot['allocated_amount']);
+                    $map_lot_amounts[$entryLot['property_lot_id']] = round($map_lot_amounts[$entryLot['property_lot_id']] + $entryLot['allocated_amount'], 2);
                     $map_property_lot_line_entries[$entryLot['property_lot_id']][$line_entry_id] = true;
                 }
             }
@@ -801,9 +793,9 @@ class FundRequest extends \equal\orm\Model {
 
                     foreach($executionLineEntries as $executionLineEntry) {
                         if(!isset($map_lot_amounts[$executionLineEntry['property_lot_id']])) {
-                            $map_lot_amounts[$executionLineEntry['property_lot_id']] = 0;
+                            $map_lot_amounts[$executionLineEntry['property_lot_id']] = 0.0;
                         }
-                        $map_lot_amounts[$executionLineEntry['property_lot_id']] -= self::amountToCents($executionLineEntry['called_amount']);
+                        $map_lot_amounts[$executionLineEntry['property_lot_id']] = round($map_lot_amounts[$executionLineEntry['property_lot_id']] - $executionLineEntry['called_amount'], 2);
                     }
                 }
             }
@@ -836,16 +828,17 @@ class FundRequest extends \equal\orm\Model {
             $map_execution_period_to = [];
 
             foreach($map_lot_amounts as $property_lot_id => $allocated_amount) {
-                if($allocated_amount === 0) {
+                if(round($allocated_amount, 2) == 0.0) {
                     continue;
                 }
 
                 $remaining_amount = $allocated_amount;
                 // #memo - $num_intervals cannot be null here (@see above)
-                $base_amount = floor($allocated_amount * 100 / $num_intervals) / 100;
+                $base_amount = round($allocated_amount / $num_intervals, 2);
 
                 foreach($execution_dates as $index => $execution_date) {
                     $called_amount = ($index == $num_intervals - 1) ? $remaining_amount : $base_amount;
+                    $called_amount = round($called_amount, 2);
                     $map_lot_execution_amounts[$execution_date][$property_lot_id] = $called_amount;
                     if($fundRequest['has_date_range']) {
                         $next_execution_date = $execution_dates[$index + 1] ?? null;
@@ -854,7 +847,7 @@ class FundRequest extends \equal\orm\Model {
                     else {
                         $map_execution_period_to[$execution_date] = $execution_date;
                     }
-                    $remaining_amount -= $base_amount;
+                    $remaining_amount = round($remaining_amount - $base_amount, 2);
                 }
             }
 
@@ -870,7 +863,7 @@ class FundRequest extends \equal\orm\Model {
                 $map_ownership_line_entries = [];
 
                 foreach($map_lot_execution_amounts[$execution_date] ?? [] as $property_lot_id => $called_amount) {
-                    if($called_amount === 0) {
+                    if(round($called_amount, 2) == 0.0) {
                         continue;
                     }
 
@@ -891,14 +884,14 @@ class FundRequest extends \equal\orm\Model {
 
                     foreach($ownership_amounts as $ownership_id => $ownership_amount) {
                         if(!isset($map_ownership_amounts[$ownership_id])) {
-                            $map_ownership_amounts[$ownership_id] = 0;
+                            $map_ownership_amounts[$ownership_id] = 0.0;
                         }
                         if(!isset($map_ownership_lot_amounts[$ownership_id][$property_lot_id])) {
-                            $map_ownership_lot_amounts[$ownership_id][$property_lot_id] = 0;
+                            $map_ownership_lot_amounts[$ownership_id][$property_lot_id] = 0.0;
                         }
 
-                        $map_ownership_amounts[$ownership_id] += $ownership_amount;
-                        $map_ownership_lot_amounts[$ownership_id][$property_lot_id] += $ownership_amount;
+                        $map_ownership_amounts[$ownership_id] = round($map_ownership_amounts[$ownership_id] + $ownership_amount, 2);
+                        $map_ownership_lot_amounts[$ownership_id][$property_lot_id] = round($map_ownership_lot_amounts[$ownership_id][$property_lot_id] + $ownership_amount, 2);
 
                         foreach($map_property_lot_line_entries[$property_lot_id] ?? [] as $line_entry_id => $value) {
                             $map_ownership_line_entries[$ownership_id][$line_entry_id] = true;
@@ -925,7 +918,7 @@ class FundRequest extends \equal\orm\Model {
                             // #memo - request_execution_id is an alias of invoice_id
                             'invoice_id'            => $requestExecution['id'],
                             'ownership_id'          => $ownership_id,
-                            'total'                 => self::centsToAmount($called_amount)
+                            'total'                 => round($called_amount, 2)
                         ])
                         ->first();
 
@@ -941,7 +934,7 @@ class FundRequest extends \equal\orm\Model {
                                 'request_execution_line_id' => $executionLine['id'],
                                 'ownership_id'              => $ownership_id,
                                 'property_lot_id'           => $property_lot_id,
-                                'called_amount'             => self::centsToAmount($lot_amount)
+                                'called_amount'             => round($lot_amount, 2)
                             ]);
                     }
                 }

@@ -882,7 +882,11 @@ class AccountingEntry extends Model {
             $credit += $line['credit'];
             $debit += $line['debit'];
         }
-        return (abs($credit - $debit) < 0.01 && round($credit, 2) != 0.00);
+        return (
+            abs($credit - $debit) < 0.01
+            && round($credit, 2) >= 0.01
+            && round($debit, 2) >= 0.01
+        );
     }
 
     protected static function calcIsBalanced($self) {
