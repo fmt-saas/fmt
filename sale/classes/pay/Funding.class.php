@@ -156,7 +156,6 @@ class Funding extends \equal\orm\Model {
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'description'       => 'The Bank account the funding relates to.',
                 'help'              => 'This is the bank account to which payments are expected to be received (or from which payment is expected to be made).',
-                'readonly'          => true,
                 'dependents'        => ['bank_account_iban'],
                 'domain'            => [['is_active', '=', true]]
             ],
@@ -166,7 +165,6 @@ class Funding extends \equal\orm\Model {
                 'foreign_object'    => 'finance\bank\BankAccount',
                 'description'       => 'Counterpart bank account, when applying.',
                 'help'              => 'The bank account used as the counterpart in a transfer. Required when the funding represents an internal transfer between two bank accounts.',
-                'readonly'          => true,
                 'dependents'        => ['counterpart_bank_account_iban']
             ],
 
@@ -456,11 +454,19 @@ class Funding extends \equal\orm\Model {
     }
 
     public static function canupdate($self, $values) {
-        $self->read(['status']);
+        $self->read(['status', 'is_sent']);
         foreach($self as $funding) {
             if($funding['status'] == 'balanced') {
                 // Funding might change depending on actions performed on Payments
                 // return ['status' => ['non_editable' => 'No change is allowed once the funding has been fully paid.']];
+            }
+            if($funding['is_sent']) {
+                if(isset($values['bank_account_id'])) {
+                    return ['bank_account_id' => ['non_editable' => 'No change is allowed once the funding has been sent for export.']];
+                }
+                if(isset($values['counterpart_bank_account_id'])) {
+                    return ['counterpart_bank_account_id' => ['non_editable' => 'No change is allowed once the funding has been sent for export.']];
+                }
             }
         }
 
