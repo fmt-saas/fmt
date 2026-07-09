@@ -96,9 +96,14 @@ class Funding extends \sale\pay\Funding {
             'counterpart_bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_active', '=', true]],
+                'domain'            => [
+                    [ ['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_active', '=', true] ],
+                    [ ['owner_identity_id', '=', 'object.supplier_identity_id'], ['owner_identity_id', '<>', null], ['is_active', '=', true] ],
+                    [ ['ownership_id', '=', 'object.ownership_id'], ['ownership_id', '<>', null], ['is_active', '=', true] ]
+                ],
                 'description'       => 'Counterpart bank account, when applying.',
                 'help'              => 'The bank account used as the counterpart in a transfer. Required when the funding represents an internal transfer between two bank accounts.',
+                'dependents'        => ['counterpart_bank_account_iban']
             ],
 
             'funding_type' => [
@@ -209,7 +214,7 @@ class Funding extends \sale\pay\Funding {
                 'description'       => 'The supplier the funding relates to.',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'readonly'          => true,
-                'dependents'        => ['supplier_id']
+                'dependents'        => ['supplier_id', 'supplier_identity_id']
             ],
 
             'supplier_id' => [
@@ -219,6 +224,18 @@ class Funding extends \sale\pay\Funding {
                 'description'       => 'The supplier the funding relates to.',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'relation'          => ['suppliership_id' => 'supplier_id'],
+                'readonly'          => true,
+                'instant'           => true,
+                'store'             => true
+            ],
+
+            'supplier_identity_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'purchase\supplier\Supplier',
+                'description'       => 'The supplier identity the funding relates to.',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'relation'          => ['suppliership_id' => ['supplier_id' => 'identity_id']],
                 'readonly'          => true,
                 'instant'           => true,
                 'store'             => true

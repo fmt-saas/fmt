@@ -114,7 +114,7 @@ class BankAccount extends Model {
             ],
 
             // #memo - unique key must be made on iban + suffix (to support composition identification)
-            // #todo - solve this - iban can be the same for several condo (compte de tiers) et pour several owners
+            // #todo - solve this - iban can be the same for several condo (compte de tiers) and for several owners
             'bank_account_iban' => [
                 'type'              => 'string',
                 'usage'             => 'uri/urn.iban',
@@ -171,6 +171,13 @@ class BankAccount extends Model {
                 'instant'           => true,
                 'function'          => 'calcBankId'
             ],
+
+            'ownership_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'description'       => "Ownership the bank account belongs to.",
+                'help'              => "We need this in order to distinguish condo and ownerships bank accounts.",
+            ]
 
         ];
     }
