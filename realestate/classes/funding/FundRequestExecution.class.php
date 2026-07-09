@@ -562,11 +562,14 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
         foreach($self as $id => $fundRequestExecution) {
             // if given, `perform_sending` prevails over `is_sending_disabled`
-            if(!($values['perform_sending'] ?? false)) {
-                // do not generate documents, export task & email if sending is disabled
-                if($fundRequestExecution['is_sending_disabled']) {
+            if(isset($values['perform_sending'])) {
+                if(!$values['perform_sending']) {
                     continue;
                 }
+            }
+            // do not generate documents, export task & email if sending is disabled
+            elseif($fundRequestExecution['is_sending_disabled']) {
+                continue;
             }
 
             // remove previously created exporting task (and lines), if any
