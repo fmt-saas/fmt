@@ -21,7 +21,18 @@ use realestate\funding\FundRequestExecution;
             'description'       => 'Take into account the balance status of the co-owners.',
             'help'              => "If set to true, the payment request will be base on Ownership due balance instead of theoretical Funding due amount.",
             'default'           => true
-        ]
+        ],
+        'perform_sending' => [
+            'type'              => 'boolean',
+            'description'       => 'If enabled, generated fund request executions will not be sent automatically.',
+            'default'           => function ($id) {
+                $fundRequestExecution = FundRequestExecution::id($id)->read(['is_sending_disabled'])->first();
+                if($fundRequestExecution && $fundRequestExecution['is_sending_disabled']) {
+                    return false;
+                }
+                return true;
+            }
+        ],
     ],
     'response'      => [
         'content-type'  => 'application/json',
@@ -48,7 +59,13 @@ if(array_key_exists('with_due_balance', $params)) {
     $fundRequestExecution->update(['with_due_balance' => $params['with_due_balance']]);
 }
 
-$fundRequestExecution->transition('call');
+$values = [
+    'perform_sending' => $params['perform_sending']
+];
+
+$fundRequestExecution
+    ->transition('call')
+    ->do('send_fund_requests', $values);
 
 $context->httpResponse()
         ->status(204)

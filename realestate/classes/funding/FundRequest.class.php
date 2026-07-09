@@ -108,6 +108,12 @@ class FundRequest extends \equal\orm\Model {
                 'domain'            => ['is_active', '=', true]
             ],
 
+            'is_sending_disabled' => [
+                'type'              => 'boolean',
+                'description'       => 'If enabled, generated fund request executions will not be sent automatically.',
+                'default'           => false
+            ],
+
             'has_ownership_proration' => [
                 'type'              => 'boolean',
                 'description'       => 'If active, amount requested for is splitted between ownerships impacted by a Transfer within each period.',
@@ -739,6 +745,7 @@ class FundRequest extends \equal\orm\Model {
                 'date_from',
                 'date_to',
                 'payment_terms_id',
+                'is_sending_disabled',
                 'line_entries_ids' => ['request_line_id', 'entry_lots_ids' => ['property_lot_id', 'allocated_amount']]
             ]);
 
@@ -750,6 +757,7 @@ class FundRequest extends \equal\orm\Model {
             $execution_values = [
                     'condo_id'              => $fundRequest['condo_id'],
                     'payment_terms_id'      => $fundRequest['payment_terms_id'],
+                    'is_sending_disabled'   => $fundRequest['is_sending_disabled'],
                     'fund_request_id'       => $id
                 ];
 

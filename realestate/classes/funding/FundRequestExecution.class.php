@@ -162,6 +162,12 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'default'           => true
             ],
 
+            'is_sending_disabled' => [
+                'type'              => 'boolean',
+                'description'       => 'If enabled, generated fund request executions will not be sent automatically.',
+                'default'           => false
+            ],
+
             'logs' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain',
@@ -467,7 +473,6 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             ->do('generate_accounting_entry')
             ->do('create_fundings')
             ->do('generate_fund_request_execution_correspondences')
-            ->do('send_fund_requests')
             // automatically validate accounting entry
             ->read(['accounting_entry_id'])
             ->each(function($id, $requestExecution) {
@@ -545,16 +550,24 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         }
     }
 
-    protected static function doSendFundRequests($self, $cron) {
+    protected static function doSendFundRequests($self, $cron, $values) {
 
         $self->read([
             'name',
             'condo_id',
             'fundings_exporting_task_id',
+            'is_sending_disabled',
             'fund_request_execution_correspondences_ids' => ['communication_method']
         ]);
 
         foreach($self as $id => $fundRequestExecution) {
+            // if given, `perform_sending` prevails over `is_sending_disabled`
+            if(!($values['perform_sending'] ?? false)) {
+                // do not generate documents, export task & email if sending is disabled
+                if($fundRequestExecution['is_sending_disabled']) {
+                    continue;
+                }
+            }
 
             // remove previously created exporting task (and lines), if any
             if($fundRequestExecution['fundings_exporting_task_id']) {
