@@ -176,8 +176,15 @@ class BankAccount extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'description'       => "Ownership the bank account belongs to.",
-                'help'              => "We need this in order to distinguish condo and ownerships bank accounts.",
-            ]
+                'help'              => "We need this in order to distinguish ownerships bank accounts."
+            ],
+
+            'supplier_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'purchase\supplier\Supplier',
+                'description'       => 'The supplier the bank account relates to.',
+                'help'              => "We need this in order to distinguish suppliers bank accounts."
+            ],
 
         ];
     }

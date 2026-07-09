@@ -932,7 +932,7 @@ class Identity extends Model {
 
     // #memo - this is also done in onafterupdate handler
     protected static function doRefreshBankAccounts($self) {
-        $self->read(['bank_account_iban', 'bank_account_bic', 'bank_name', 'bank_country']);
+        $self->read(['bank_account_iban', 'bank_account_bic', 'bank_name', 'bank_country', 'supplier_id']);
 
         foreach($self as $id => $identity) {
             if(!$identity['bank_account_iban'] || strlen($identity['bank_account_iban']) <= 0) {
@@ -951,7 +951,8 @@ class Identity extends Model {
                     'bank_account_iban' => $identity['bank_account_iban'],
                     'bank_account_bic'  => $identity['bank_account_bic'],
                     'bank_name'         => $identity['bank_name'],
-                    'bank_country'      => $identity['bank_country']
+                    'bank_country'      => $identity['bank_country'],
+                    'supplier_id'       => $identity['supplier_id']
                 ]);
             }
             else {
@@ -1804,7 +1805,7 @@ class Identity extends Model {
         // sync name, addresses & bank accounts (if required)
 
         // force re-reading identity_id in case of assignation in current cycle
-        $self->read(['identity_id']);
+        $self->read(['identity_id', 'supplier_id']);
 
         $name_dependencies = ['legal_name', 'short_name', 'firstname', 'lastname', 'type_id'];
         if(array_intersect_key($values, array_flip($name_dependencies))) {
@@ -1859,7 +1860,7 @@ class Identity extends Model {
             }
 
             // sync primary bank account
-            $bank_fields = ['bank_account_iban', 'bank_account_bic', 'bank_name', 'bank_country'];
+            $bank_fields = ['bank_account_iban', 'bank_account_bic', 'bank_name', 'bank_country', 'supplier_id'];
             $bank_updates = [];
             foreach($bank_fields as $bank_field) {
                 if(isset($values[$bank_field]) && $values[$bank_field] !== '') {
@@ -1887,7 +1888,8 @@ class Identity extends Model {
                                 : $identity['bank_name'],
                             'bank_country'      => ($values['bank_country'] ?? '') !== ''
                                 ? $values['bank_country']
-                                : $identity['bank_country']
+                                : $identity['bank_country'],
+                            'supplier_id'       => $identity['supplier_id']
                         ]);
                     }
                 }
