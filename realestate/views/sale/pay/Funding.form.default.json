@@ -260,6 +260,12 @@
                                                 "value": "accounting_account_id",
                                                 "width": "100%",
                                                 "visible": ["accounting_account_id", "<>", null]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "owner_identity_id",
+                                                "width": "0%",
+                                                "visible": false
                                             }
                                         ]
                                     }
