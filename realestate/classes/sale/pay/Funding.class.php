@@ -86,16 +86,17 @@ class Funding extends \sale\pay\Funding {
 
             'bank_account_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'finance\bank\BankAccount',
+                'foreign_object'    => 'finance\bank\CondominiumBankAccount',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', null], ['is_active', '=', true]],
                 'description'       => 'The Bank account the funding relates to.',
                 'help'              => 'This is the bank account to which payment is expected to be received, or from which payment is expected to be made.',
-                'dependents'        => ['bank_account_iban'],
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_active', '=', true]]
+                'dependents'        => ['bank_account_iban']
             ],
 
             'counterpart_bank_account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankAccount',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_active', '=', true]],
                 'description'       => 'Counterpart bank account, when applying.',
                 'help'              => 'The bank account used as the counterpart in a transfer. Required when the funding represents an internal transfer between two bank accounts.',
             ],

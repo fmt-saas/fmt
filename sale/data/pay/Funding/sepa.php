@@ -62,8 +62,16 @@ $fundings = Funding::ids($ids)
         'has_free_payment_reference',
         'free_payment_reference',
         'payment_reference',
-        'bank_account_id' => ['bank_account_iban','bank_account_bic','owner_identity_id' => ['name']],
-        'counterpart_bank_account_id' => ['bank_account_iban','bank_account_bic','owner_identity_id' => ['name']]
+        'bank_account_id' => [
+            'bank_account_iban',
+            'bank_account_bic',
+            'owner_identity_id' => ['name']
+        ],
+        'counterpart_bank_account_id' => [
+            'bank_account_iban',
+            'bank_account_bic',
+            'owner_identity_id' => ['name']
+        ]
     ])
     ->get();
 
