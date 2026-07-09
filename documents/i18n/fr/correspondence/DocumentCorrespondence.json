@@ -1,0 +1,74 @@
+{
+    "name": "Correspondance documentaire",
+    "plural": "Correspondances documentaires",
+    "description": "Correspondance individualisée associant un document généré à un copropriétaire et à son dossier de propriété.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle la correspondance est rattachée.",
+            "help": ""
+        },
+        "owner_id": {
+            "label": "Propriétaire",
+            "description": "Propriétaire destinataire de la correspondance.",
+            "help": "Une correspondance est générée pour chaque propriétaire de chaque dossier de propriété concerné."
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Dossier de propriété concerné par la correspondance.",
+            "help": ""
+        },
+        "document_id": {
+            "label": "Document",
+            "description": "Document PDF généré pour cette correspondance, le cas échéant.",
+            "help": ""
+        },
+        "has_document": {
+            "label": "Document généré",
+            "description": "Indique si le document de la correspondance a été généré.",
+            "help": ""
+        },
+        "mails_ids": {
+            "label": "Emails",
+            "description": "Messages email associés à la correspondance.",
+            "help": ""
+        },
+        "sent_date": {
+            "label": "Date d'envoi",
+            "description": "Date d'envoi initial de la correspondance.",
+            "help": "Cette date reste inchangée en cas de générations ou d'envois multiples."
+        },
+        "communication_method": {
+            "label": "Mode de communication",
+            "description": "Canal utilisé pour envoyer la correspondance.",
+            "help": "",
+            "selection": {
+                "email": "Email",
+                "postal": "Courrier postal",
+                "postal_registered": "Courrier recommandé",
+                "postal_registered_receipt": "Courrier recommandé avec accusé de réception"
+            }
+        },
+        "is_sent": {
+            "label": "Envoyée",
+            "description": "Indique si la correspondance a été envoyée.",
+            "help": ""
+        },
+        "is_acknowledged": {
+            "label": "Accusé de réception",
+            "description": "Indique si le destinataire a accusé réception de la correspondance.",
+            "help": ""
+        },
+        "email_address": {
+            "label": "Adresse e-mail",
+            "description": "Adresse e-mail du propriétaire destinataire.",
+            "help": "Récupérée automatiquement depuis les coordonnées du propriétaire."
+        }
+    },
+    "view": {},
+    "error": {
+        "is_sent": {
+            "non_editable": "La correspondance ne peut plus être modifiée une fois envoyée."
+        }
+    }
+}
