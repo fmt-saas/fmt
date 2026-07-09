@@ -11,25 +11,7 @@
                     {
                         "rows": [
                             {
-                                "height": "50%",
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "id": "item.infra.status",
-                                                "label": "Instances",
-                                                "description": "",
-                                                "width": "100%",
-                                                "entity": "infra\\server\\Instance",
-                                                "view": "chart.default"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "height": "50%",
+                                "height": "100%",
                                 "columns": [
                                     {
                                         "width": "100%",

@@ -240,6 +240,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                             'can_send_expense_statements'
                         ],
                         'onbefore'  => 'onbeforeInvoice',
+                        'onafter'   => 'onafterInvoice',
                         'status'    => 'posted'
                     ]
                 ],
@@ -689,6 +690,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             }
         }
         return $result;
+    }
+
+    protected static function onafterInvoice($self) {
+        $self->update(['name' => null]);
     }
 
     protected static function onbeforeInvoice($self) {

@@ -119,6 +119,11 @@
             "description": "Indique que l'arrêté des soldes est effectué à la date d'émission du document.",
             "help": "Utiliser la date du document pour calculer le solde repris dans les appels générés."
         },
+        "is_sending_disabled": {
+            "label": "Envoi désactivé",
+            "description": "Désactive l'envoi des emails.",
+            "help": "Si activé, les exports et emails ne sont pas planifiés."
+        },
         "schema": {
             "label": "Schéma",
             "description": "Structure JSON utilisée pour exporter le détail des répartitions.",

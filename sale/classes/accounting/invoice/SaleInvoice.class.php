@@ -379,7 +379,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
      * Generate the fundings for a collection of invoices that just transitioned to "invoiced".
      * Fundings must be created here because due_date is set at invoice emission.
     */
-    public static function onafterInvoice($self) {
+    protected static function onafterInvoice($self) {
         try {
             // #memo - failing in emitting the fundings cannot interrupt the transition
             $self->do('create_funding');
