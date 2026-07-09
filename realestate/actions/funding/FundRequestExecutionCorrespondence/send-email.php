@@ -10,6 +10,7 @@ use fmt\core\Mail;
 use equal\email\Email;
 use equal\email\EmailAttachment;
 use identity\Organisation;
+use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecutionCorrespondence;
 
 [$params, $providers] = eQual::announce([
@@ -49,7 +50,7 @@ $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($pa
         'communication_method',
         'owner_id' => ['firstname', 'lastname', 'email', 'email_alt', 'lang_id'],
         'ownership_id' => ['name'],
-        'fund_request_execution_id' => ['name', 'due_date'],
+        'fund_request_execution_id' => ['name', 'due_date', 'fund_request_id'],
         'document_id' => ['data']
     ])
     ->first();
@@ -66,6 +67,8 @@ if(!$fundRequestExecutionCorrespondence['document_id']) {
     throw new Exception('missing_fund_request_execution_document', EQ_ERROR_INVALID_PARAM);
 }
 
+$fundRequest = FundRequest::id($fundRequestExecutionCorrespondence['fund_request_execution_id']['fund_request_id'])->read(['request_type'])->first();
+
 $subject = '';
 $body = '';
 
@@ -81,6 +84,16 @@ if($fundRequestExecutionCorrespondence['fund_request_execution_id']['due_date'])
     $due_date = date('d/m/Y', $fundRequestExecutionCorrespondence['fund_request_execution_id']['due_date']);
 }
 
+$map_types_translations = [
+    'fr' => [
+        'working_fund'        => 'fonds de roulement',
+        'reserve_fund'        => 'fonds de réserve',
+        'special_reserve_fund'=> 'fonds de réserve spécial',
+        'expense_provisions'  => 'provisions pour charge',
+        'work_provisions'     => 'provision pour charge exceptionnelle'
+    ],
+];
+
 foreach($template['parts_ids'] as $part) {
     if($part['name'] === 'subject') {
         $subject = strip_tags($part['value']);
@@ -88,7 +101,8 @@ foreach($template['parts_ids'] as $part) {
         $map_values = [
             'fund_request_execution' => $fundRequestExecutionCorrespondence['fund_request_execution_id']['name'],
             'condo'                  => $fundRequestExecutionCorrespondence['condo_id']['name'],
-            'date'                   => $due_date
+            'due_date'               => $due_date,
+            'type'                   => $map_types_translations['fr'][$fundRequest['request_type']]
         ];
 
         $subject = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
@@ -100,11 +114,12 @@ foreach($template['parts_ids'] as $part) {
         $body = $part['value'];
 
         $map_values = [
-            'firstname'             => $fundRequestExecutionCorrespondence['owner_id']['firstname'],
-            'lastname'              => $fundRequestExecutionCorrespondence['owner_id']['lastname'],
-            'condo'                 => $fundRequestExecutionCorrespondence['condo_id']['name'],
-            'date'                  => $due_date,
-            'fund_request_execution'=> $fundRequestExecutionCorrespondence['fund_request_execution_id']['name']
+            'firstname'              => $fundRequestExecutionCorrespondence['owner_id']['firstname'],
+            'lastname'               => $fundRequestExecutionCorrespondence['owner_id']['lastname'],
+            'condo'                  => $fundRequestExecutionCorrespondence['condo_id']['name'],
+            'due_date'               => $due_date,
+            'type'                   => $map_types_translations['fr'][$fundRequest['request_type']],
+            'fund_request_execution' => $fundRequestExecutionCorrespondence['fund_request_execution_id']['name']
         ];
 
         $body = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {

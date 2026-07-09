@@ -12,6 +12,11 @@
             "label": "Tenir compte du solde dû",
             "description": "Indique si la situation de compte des copropriétaires est prise en compte.",
             "help": "Si activé, la demande de paiement est basée sur le solde dû de la propriété plutôt que sur le montant théorique du funding."
+        },
+        "perform_sending": {
+            "label": "Envoyer les correspondances",
+            "description": "Indique si la situation de compte des copropriétaires est prise en compte.",
+            "help": "Si activé, la demande de paiement est basée sur le solde dû de la propriété plutôt que sur le montant théorique du funding."
         }
     },
     "error": {
