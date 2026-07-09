@@ -13,6 +13,11 @@
             "description": "Nom calculé combinant appel, période et type.",
             "help": ""
         },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée par l'exécution de l'appel de fonds.",
+            "help": ""
+        },
         "posting_date": {
             "label": "Date de comptabilisation",
             "description": "Date utilisée pour générer les écritures.",
@@ -43,6 +48,16 @@
             "description": "Fundings créés lors de l'exécution (un par copropriétaire).",
             "help": ""
         },
+        "fund_request_execution_correspondences_ids": {
+            "label": "Correspondances",
+            "description": "Correspondances générées pour cette exécution d'appel de fonds.",
+            "help": ""
+        },
+        "exporting_tasks_ids": {
+            "label": "Tâches d'export",
+            "description": "Tâches d'export des courriers papier liées à l'exécution d'appel de fonds.",
+            "help": ""
+        },
         "with_due_balance": {
             "label": "Tenir compte du solde dû",
             "description": "Indique si la situation de compte des copropriétaires est prise en compte.",
@@ -57,6 +72,11 @@
             "label": "Envoi désactivé",
             "description": "Désactive l'envoi des emails.",
             "help": "Si activé, les exports et emails ne sont pas planifiés."
+        },
+        "invoice_number": {
+            "label": "Numéro",
+            "description": "Numéro attribué lors de l'exécution de l'appel de fonds.",
+            "help": ""
         },
         "logs": {
             "label": "Journal",
@@ -82,11 +102,20 @@
                 "section.execution_lines_ids": {
                     "label": "Ventilations"
                 },
+                "section.correspondences": {
+                    "label": "Correspondances"
+                },
                 "section.fundings_ids": {
-                    "label": "Financements"
+                    "label": "Suivi des paiements"
                 },
                 "section.details": {
                     "label": "Détails"
+                },
+                "label.exporting_tasks": {
+                    "label": "Tâches d'export"
+                },
+                "label.fund_request_execution_correspondences": {
+                    "label": "Correspondances par e-mail"
                 }
             },
             "actions": {

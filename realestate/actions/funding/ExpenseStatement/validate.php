@@ -5,29 +5,23 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use realestate\funding\FundRequestExecution;
+use realestate\funding\ExpenseStatement;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Export assembly minutes: generate per-invitation documents (if missing), merge them into a single PDF, store the result as a non-EDMS document, and return its id.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
-            'description'       => "The Fund Request Execution the export refers to.",
-            'foreign_object'    => 'realestate\funding\FundRequestExecution',
+            'description'       => "The Expense Statement the export refers to.",
+            'foreign_object'    => 'realestate\funding\ExpenseStatement',
             'required'          => true
-        ],
-        'with_due_balance' =>  [
-            'type'              => 'boolean',
-            'description'       => 'Take into account the balance status of the co-owners.',
-            'help'              => "If set to true, the payment request will be base on Ownership due balance instead of theoretical Funding due amount.",
-            'default'           => true
         ],
         'perform_sending' => [
             'type'              => 'boolean',
-            'description'       => 'If enabled, generated fund request executions will be sent automatically.',
+            'description'       => 'If enabled, generated expense statement will be sent automatically.',
             'default'           => function ($id) {
-                $fundRequestExecution = FundRequestExecution::id($id)->read(['is_sending_disabled'])->first();
-                if($fundRequestExecution && $fundRequestExecution['is_sending_disabled']) {
+                $expenseStatement = ExpenseStatement::id($id)->read(['is_sending_disabled'])->first();
+                if($expenseStatement && $expenseStatement['is_sending_disabled']) {
                     return false;
                 }
                 return true;
@@ -48,24 +42,20 @@ use realestate\funding\FundRequestExecution;
 ['context' => $context] = $providers;
 
 
-$fundRequestExecution = FundRequestExecution::id($params['id'])
+$expenseStatements = ExpenseStatement::id($params['id'])
     ->read(['status', 'condo_id', 'name']);
 
-if($fundRequestExecution->count() <= 0) {
+if($expenseStatements->count() <= 0) {
     throw new Exception("unknown_fund_request_execution", EQ_ERROR_UNKNOWN_OBJECT);
-}
-
-if(array_key_exists('with_due_balance', $params)) {
-    $fundRequestExecution->update(['with_due_balance' => $params['with_due_balance']]);
 }
 
 $values = [
     'perform_sending' => $params['perform_sending']
 ];
 
-$fundRequestExecution
-    ->transition('call')
-    ->do('send_fund_requests', $values);
+$expenseStatements
+    ->transition('validate')
+    ->do('send_expense_statements', $values);
 
 $context->httpResponse()
         ->status(204)

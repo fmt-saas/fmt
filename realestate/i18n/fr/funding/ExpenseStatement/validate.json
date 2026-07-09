@@ -1,0 +1,22 @@
+{
+    "name": "Validation du décompte de charges",
+    "plural": "Validations du décompte de charges",
+    "description": "Valide le décompte de charges, génère les documents associés et envoie les correspondances si demandé.",
+    "model": {
+        "id": {
+            "label": "Décompte de charges",
+            "description": "Décompte de charges à valider.",
+            "help": "Doit correspondre à un décompte de charges existant."
+        },
+        "perform_sending": {
+            "label": "Envoyer les correspondances",
+            "description": "Indique si les correspondances générées doivent être envoyées automatiquement.",
+            "help": "Si activé, les correspondances du décompte de charges sont envoyées après validation."
+        }
+    },
+    "error": {
+        "errors": {
+            "unknown_fund_request_execution": "Décompte de charges inconnu."
+        }
+    }
+}

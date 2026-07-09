@@ -202,6 +202,12 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'onupdate'          => 'onupdateIsCutoffAtDocumentDate'
             ],
 
+            'is_sending_disabled' => [
+                'type'              => 'boolean',
+                'description'       => 'If enabled, generated fund request executions will not be sent automatically.',
+                'default'           => false
+            ],
+
             'logs' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain',
@@ -726,9 +732,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             try {
                 $self
                     // generate correspondences for each ownership
-                    ->do('generate_expense_statement_correspondences')
-                    // send emails to representatives of involved ownerships according to their communication preferences
-                    ->do('send_expense_statements');
+                    ->do('generate_expense_statement_correspondences');
             }
             catch(\Exception $e) {
                 trigger_error("APP::Error while generating expense statement data: {$e->getMessage()}", EQ_REPORT_ERROR);
@@ -813,15 +817,27 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
     }
 
 
-    protected static function doSendExpenseStatements($self, $cron) {
+    protected static function doSendExpenseStatements($self, $cron, $values) {
         $self->read([
             'name',
+            'is_sending_disabled',
             'condo_id',
             'statements_exporting_task_id',
             'expense_statement_correspondences_ids' => ['communication_method']
         ]);
 
         foreach($self as $id => $expenseStatement) {
+
+            // if given, `perform_sending` prevails over `is_sending_disabled`
+            if(isset($values['perform_sending'])) {
+                if(!$values['perform_sending']) {
+                    continue;
+                }
+            }
+            // do not generate documents, export task & email if sending is disabled
+            elseif($expenseStatement['is_sending_disabled']) {
+                continue;
+            }
 
             // remove previously created exporting task (and lines), if any
             if($expenseStatement['statements_exporting_task_id']) {

@@ -25,14 +25,13 @@
         {
             "id": "action.invoice",
             "label": "Validate",
-            "description": "To Invoice.",
-            "controller": "core_model_transition",
+            "description": "Perform the invoicing of ExpenseStatement.",
+            "controller": "realestate_funding_ExpenseStatement_validate",
             "visible": [["state", "=", "instance"], ["status", "=", "proforma"]],
             "params": {
-                "entity": "realestate\\funding\\ExpenseStatement",
-                "transition": "validate",
-                "ids": []
-            }
+                "id": "object.id"
+            },
+            "confirm": true
         },
         {
             "id": "action.print_pdf",
@@ -105,6 +104,11 @@
                                             {
                                                 "type": "field",
                                                 "value": "is_cutoff_at_document_date",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_sending_disabled",
                                                 "width": "33%"
                                             },
                                             {
