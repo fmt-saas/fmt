@@ -120,20 +120,24 @@ class MoneyTransfer extends \finance\accounting\MiscOperation {
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'description'       => 'Fiscal year in which the operation is recorded.',
                 'function'          => 'calcFiscalYearId',
                 'store'             => true,
-                'instant'           => true
+                'instant'           => true,
+                'readonly'          => true
             ],
 
             'fiscal_period_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['fiscal_year_id', '=', 'object.fiscal_year_id']],
                 'description'       => 'Accounting period derived from the posting date.',
                 'function'          => 'calcFiscalPeriodId',
                 'store'             => true,
-                'instant'           => true
+                'instant'           => true,
+                'readonly'          => true
             ],
 
         ];

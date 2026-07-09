@@ -40,6 +40,7 @@ $funding = Funding::id($params['id'])
     ->read([
         'name',
         'bank_account_id',
+        'counterpart_bank_account_id',
         'is_generated',
         'is_sent',
         'is_exported',
@@ -50,6 +51,11 @@ $funding = Funding::id($params['id'])
         'condo_id' => ['code']
     ])
     ->first();
+
+
+if(!$funding || !$funding['bank_account_id'] || !$funding['counterpart_bank_account_id']) {
+    throw new Exception('missing_bank_accounts', EQ_ERROR_INVALID_PARAM);
+}
 
 if($funding['is_generated']) {
     throw new Exception("funding_already_generated", EQ_ERROR_INVALID_PARAM);
