@@ -1187,7 +1187,7 @@ class Document extends Model {
             ->first();
 
         if($quota && $quota['is_reached']) {
-            return ['quota' => ['quota_reached' => 'The quota for document quantity has been reached.']];
+            return ['quota' => ['quota_reached' => 'The quota for document storage size has been reached.']];
         }
 
         return parent::cancreate($self, $values);
