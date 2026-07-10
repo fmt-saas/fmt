@@ -1,9 +1,6 @@
 {
     "name": "Waiting tasks",
     "description": "List of waiting follow up tasks related to purchase invoice.",
-    "access": {
-        "groups": ["booking.default.user"]
-    },
     "layout": {
         "items": [
             {
