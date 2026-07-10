@@ -126,7 +126,7 @@ $computeSignerInfoFromCert = function (string $cert): array {
         throw new Exception('invalid_X509_cert', EQ_ERROR_UNKNOWN);
     }
 
-    $subject = $parsed['subject'] ?? [];
+    $subject = (array) ($parsed['subject'] ?? []);
 
     $firstname_words = preg_split('/\s+/', $subject['givenName']);
     $lastname_words = preg_split('/\s+/', $subject['surname']);
@@ -183,12 +183,7 @@ else {
     }
 }
 
-if($params['is_owner']) {
-    if(!$params['owner_id']) {
-        throw new Exception("missing_owner_id", EQ_ERROR_MISSING_PARAM);
-    }
-}
-else {
+if(!isset($params['is_owner'])) {
     if($params['sig_method'] === 'ses') {
         if(empty($params['firstname'])) {
             throw new Exception("missing_firstname", EQ_ERROR_INVALID_PARAM);
@@ -196,7 +191,6 @@ else {
         if(empty($params['lastname'])) {
             throw new Exception("missing_lastname", EQ_ERROR_INVALID_PARAM);
         }
-
     }
 }
 
@@ -204,10 +198,14 @@ else {
 
 $identity_id = 0;
 
-if($params['is_owner']) {
+if(isset($params['is_owner'])) {
     $owner = Owner::id($params['owner_id'])
         ->read(['id', 'name', 'identity_id'])
         ->first(true);
+
+    if(!$owner) {
+        throw new Exception("unknown_owner", EQ_ERROR_MISSING_PARAM);
+    }
 
     $identity_id = $owner['identity_id'];
 }

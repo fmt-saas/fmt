@@ -282,7 +282,7 @@ $lang = $owner['identity_id']['lang_id']['code'] ?? 'fr';
 
 $recipient = $getRecipient($owner['identity_id']['id'], $lang);
 
-if(!$params['owner_id'] && strlen($owner['ownership_id']['address_recipient'] ?? '') > 0) {
+if(!isset($params['owner_id']) && strlen($owner['ownership_id']['address_recipient'] ?? '') > 0) {
     $recipient['name'] = $owner['ownership_id']['address_recipient'];
 }
 
