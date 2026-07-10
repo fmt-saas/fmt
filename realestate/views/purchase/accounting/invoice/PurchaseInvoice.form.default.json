@@ -482,6 +482,33 @@
                         ]
                     },
                     {
+                        "id": "section.tasks",
+                        "label": "Tasks",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "tasks_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.purchase-invoice",
+                                                    "domain": ["visible_date", "<=", "date.this.day.first"],
+                                                    "header": {
+                                                        "layout": "inline"
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "id": "section.fund_usage_lines",
                         "label": "Fund usages",
                         "visible": ["has_fund_usage", "=", true],

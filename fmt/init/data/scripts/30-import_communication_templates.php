@@ -893,7 +893,6 @@ TemplatePart::create([
     'variables'     => '[]'
 ]);
 
-
 TemplatePart::create([
     'name'          => 'maintenance_expenses_description',
     'value'         => "
@@ -933,7 +932,7 @@ TemplatePart::create([
 TemplatePart::create([
     'name'          => 'bank_loan_description',
     'value'         => "
-        <p>Voici un tableau avec les emprubnts contractés à ce jour et le ou les soldes restant dûs par lot concerné par la cession.</p>
+        <p>Voici un tableau avec les emprunts contractés à ce jour et le ou les soldes restant dûs par lot concerné par la cession.</p>
     ",
     'template_id'   => $template['id'],
     'variables'     => '[]'
