@@ -755,65 +755,65 @@ $tests = [
             'help'          => "",
             'arrange'       => function() {
                 $condo_1 = Condominium::create([
-                    'name'              => 'test condo 1 for owner access test',
-                    'managing_agent_id' => 1
-                ])
+                        'name'              => 'test condo 1 for owner access test',
+                        'managing_agent_id' => 1
+                    ])
                     ->read(['id'])
                     ->first();
 
                 $condo_2 = Condominium::create([
-                    'name'              => 'test condo 2 for owner access test',
-                    'managing_agent_id' => 1
-                ])
+                        'name'              => 'test condo 2 for owner access test',
+                        'managing_agent_id' => 1
+                    ])
                     ->read(['id'])
                     ->first();
 
                 $ownership_1 = Ownership::create([
-                    'condo_id'          => $condo_1['id'],
-                    'description'       => 'test ownership 1 for owner access test',
-                    'date_from'         => time(),
-                    'address_recipient' => 'Address ownership 1'
-                ])
+                        'condo_id'          => $condo_1['id'],
+                        'description'       => 'test ownership 1 for owner access test',
+                        'date_from'         => time(),
+                        'address_recipient' => 'Address ownership 1'
+                    ])
                     ->first();
 
                 $ownership_2 = Ownership::create([
-                    'condo_id'          => $condo_1['id'],
-                    'description'       => 'test ownership 2 for owner access test',
-                    'date_from'         => time(),
-                    'address_recipient' => 'Address ownership 2'
-                ])
+                        'condo_id'          => $condo_1['id'],
+                        'description'       => 'test ownership 2 for owner access test',
+                        'date_from'         => time(),
+                        'address_recipient' => 'Address ownership 2'
+                    ])
                     ->first();
 
                 $owner_1_identity = Identity::create([
-                    'type_id'   => 1,
-                    'type'      => 'IN',
-                    'firstname' => 'Owner',
-                    'lastname'  => 'Access Test',
-                    'lang_id'   => 2
-                ])
+                        'type_id'   => 1,
+                        'type'      => 'IN',
+                        'firstname' => 'Owner',
+                        'lastname'  => 'Access Test',
+                        'lang_id'   => 2
+                    ])
                     ->first();
 
                 $owner_1_user = User::create([
-                    'login'         => 'owner_1_access_test@example.com',
-                    'password'      => 'abcd1234',
-                    'identity_id'   => $owner_1_identity['id']
-                ])
+                        'login'         => 'owner_1_access_test@example.com',
+                        'password'      => 'abcd1234',
+                        'identity_id'   => $owner_1_identity['id']
+                    ])
                     ->first();
 
                 $owner_1 = Owner::create([
-                    'condo_id'      => $condo_1['id'],
-                    'ownership_id'  => $ownership_1['id'],
-                    'identity_id'   => $owner_1_identity['id']
-                ])
+                        'condo_id'      => $condo_1['id'],
+                        'ownership_id'  => $ownership_1['id'],
+                        'identity_id'   => $owner_1_identity['id']
+                    ])
                     ->first();
 
                 $owner_2_identity = Identity::create([
-                    'type_id'   => 1,
-                    'type'      => 'IN',
-                    'firstname' => 'Owner',
-                    'lastname'  => 'Access Test',
-                    'lang_id'   => 2
-                ])
+                        'type_id'   => 1,
+                        'type'      => 'IN',
+                        'firstname' => 'Owner',
+                        'lastname'  => 'Access Test',
+                        'lang_id'   => 2
+                    ])
                     ->first();
 
                 User::create([
@@ -823,10 +823,10 @@ $tests = [
                 ]);
 
                 $owner_2 = Owner::create([
-                    'condo_id'      => $condo_1['id'],
-                    'ownership_id'  => $ownership_2['id'],
-                    'identity_id'   => $owner_2_identity['id']
-                ])
+                        'condo_id'      => $condo_1['id'],
+                        'ownership_id'  => $ownership_2['id'],
+                        'identity_id'   => $owner_2_identity['id']
+                    ])
                     ->first();
 
                 return [$condo_1, $condo_2, $ownership_1, $ownership_2, $owner_1_user, $owner_1, $owner_2];
@@ -1002,14 +1002,15 @@ $tests = [
 
                 Document::search(['hash', 'in', ['agency', 'condo_1', 'condo_2', 'ownership_1', 'ownership_2', 'owner_1', 'owner_2']])->delete(true);
                 Document::search(['name', 'in', [
-                    'access-test-agency.txt',
-                    'access-test-condo-1.txt',
-                    'access-test-condo-2.txt',
-                    'access-test-ownership-1.txt',
-                    'access-test-ownership-2.txt',
-                    'access-test-owner-1.txt',
-                    'access-test-owner-2.txt'
-                ]])->delete(true);
+                        'access-test-agency.txt',
+                        'access-test-condo-1.txt',
+                        'access-test-condo-2.txt',
+                        'access-test-ownership-1.txt',
+                        'access-test-ownership-2.txt',
+                        'access-test-owner-1.txt',
+                        'access-test-owner-2.txt'
+                    ]])
+                    ->delete(true);
             }
     ]
 ];

@@ -15,20 +15,21 @@ class CouncilMember extends \equal\orm\Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'relation'          => ['owner_id' => 'name'],
+                'description'       => 'Display name of the council member, inherited from the owner.',
                 'store'             => true,
                 'instant'           => true
             ],
 
             'condo_id' => [
                 'type'              => 'many2one',
-                'description'       => "The condominium the Council Member belongs to.",
+                'description'       => "The condominium for which the owner is appointed as council member.",
                 'foreign_object'    => 'realestate\property\Condominium',
                 'required'          => true
             ],
 
             'owner_id' => [
                 'type'              => 'many2one',
-                'description'       => "Owner linked to the membership.",
+                'description'       => "Owner appointed as member of the condominium council.",
                 'foreign_object'    => 'realestate\ownership\Owner',
                 'domain'            => [['condo_id', '=', 'object.condo_id']],
                 'required'          => true,
@@ -39,26 +40,26 @@ class CouncilMember extends \equal\orm\Model {
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
                 'function'          => 'calcIsActive',
-                'description'       => 'Does the vote relate to a choice.',
+                'description'       => 'Indicates whether the council membership is currently active.',
                 'store'             => true,
                 'instant'           => true
             ],
 
             'date_from' => [
                 'type'              => 'date',
-                'description'       => 'Date at which the construction finished.',
+                'description'       => 'Start date of the council membership.',
                 'dependents'        => ['is_active']
             ],
 
             'date_to' => [
                 'type'              => 'date',
-                'description'       => 'Date at which the construction finished.',
+                'description'       => 'End date of the council membership.',
                 'dependents'        => ['is_active']
             ],
 
             'role' => [
                 'type'              => 'string',
-                'description'       => 'Role assigned to the Owner in the Council.',
+                'description'       => 'Role assigned to the owner in the condominium council.',
                 'selection'         => [
                     'president',
                     'secretary',
@@ -77,6 +78,9 @@ class CouncilMember extends \equal\orm\Model {
         $today = strtotime(date('Y-m-d', time()));
         foreach($self as $id => $member) {
             $result[$id] = true;
+            if($member['date_from'] && $member['date_from'] > $today) {
+                $result[$id] = false;
+            }
             if($member['date_to'] && $member['date_to'] < $today) {
                 $result[$id] = false;
             }

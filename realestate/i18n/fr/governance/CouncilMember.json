@@ -1,0 +1,67 @@
+{
+    "name": "Membre du conseil",
+    "plural": "Membres du conseil",
+    "description": "Propriétaires désignés pour siéger au conseil de copropriété.",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Nom affiché du membre du conseil.",
+            "help": "Renseigné automatiquement depuis le propriétaire sélectionné."
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété dont le conseil est concerné.",
+            "help": "Détermine les propriétaires pouvant être sélectionnés."
+        },
+        "owner_id": {
+            "label": "Propriétaire",
+            "description": "Propriétaire désigné comme membre du conseil de copropriété.",
+            "help": "Le propriétaire doit appartenir à la copropriété sélectionnée."
+        },
+        "is_active": {
+            "label": "Actif",
+            "description": "Indique si le mandat au conseil est actuellement en cours.",
+            "help": "Calculé automatiquement à partir des dates de début et de fin."
+        },
+        "date_from": {
+            "label": "Date de début",
+            "description": "Date de début du mandat au conseil.",
+            "help": "Laissez vide si la date de début n'est pas formalisée."
+        },
+        "date_to": {
+            "label": "Date de fin",
+            "description": "Date de fin du mandat au conseil.",
+            "help": "Laissez vide tant que le membre reste en fonction."
+        },
+        "role": {
+            "label": "Rôle",
+            "description": "Fonction du propriétaire au sein du conseil de copropriété.",
+            "help": "Permet de distinguer le président, le secrétaire et les membres.",
+            "selection": {
+                "president": "Président",
+                "secretary": "Secrétaire",
+                "member": "Membre"
+            }
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Membre du conseil",
+            "description": "Fiche membre du conseil : propriétaire, rôle, statut et période du mandat.",
+            "layout": {
+                "section.member": {
+                    "label": "Membre"
+                },
+                "section.term": {
+                    "label": "Mandat"
+                }
+            }
+        },
+        "list.default": {
+            "name": "Membres du conseil",
+            "description": "Liste des membres du conseil de copropriété.",
+            "layout": {}
+        }
+    },
+    "error": {}
+}
