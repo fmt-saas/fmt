@@ -176,10 +176,13 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
     }
 
     protected static function onupdateOwnerId($self) {
-        $self->read(['owner_id' => ['identity_id']]);
+        $self->read(['state', 'owner_id' => ['identity_id']]);
         foreach($self as $id => $ownershipCommunicationPreference) {
             if($ownershipCommunicationPreference['owner_id']) {
-                self::id($id)->update(['identity_id' => $ownershipCommunicationPreference['owner_id']['identity_id']]);
+                self::id($id)->update([
+                    'state'         => $ownershipCommunicationPreference['state'],
+                    'identity_id'   => $ownershipCommunicationPreference['owner_id']['identity_id']
+                ]);
             }
         }
     }

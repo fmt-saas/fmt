@@ -50,7 +50,6 @@ if($expenseStatementCorrespondence['document_id']) {
 
 $siblingExpenseStatementCorrespondence = ExpenseStatementCorrespondence::search([
         ['condo_id', '=', $expenseStatementCorrespondence['condo_id']],
-        ['assembly_id', '=', $expenseStatementCorrespondence['assembly_id']],
         ['ownership_id', '=', $expenseStatementCorrespondence['ownership_id']],
         ['owner_id', '=', $expenseStatementCorrespondence['owner_id']],
         ['document_id', '<>', null]

@@ -424,7 +424,7 @@ if(!count($values['owners'])) {
 }
 
 // retrieve Owner : required for Correspondence but optional for preview (fallback to first owner of given ownership)
-if($params['owner_id']) {
+if(isset($params['owner_id'])) {
     $ownerCollection = Owner::id($params['owner_id']);
 }
 elseif($params['ownership_id']) {
@@ -496,7 +496,7 @@ if(!$template) {
 }
 
 foreach($template['parts_ids'] as $part_id => $part) {
-    if($part['name'] == 'subject') {
+    if($part['name'] === 'subject') {
         $subject = strip_tags($part['value']);
 
         $map_values = [
@@ -512,7 +512,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             return $map_values[$key] ?? '';
         }, $subject);
     }
-    elseif($part['name'] == 'introduction') {
+    elseif($part['name'] === 'introduction') {
         $introduction = $part['value'];
 
         $map_values = [

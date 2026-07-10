@@ -6,10 +6,13 @@
 */
 
 use communication\template\Template;
+use equal\data\DataFormatter;
 use fmt\core\Mail;
 use identity\Organisation;
 use equal\email\Email;
 use equal\email\EmailAttachment;
+use finance\accounting\FiscalPeriod;
+use fmt\setting\Setting;
 use realestate\funding\ExpenseStatementCorrespondence;
 
 [$params, $providers] = eQual::announce([
@@ -33,6 +36,28 @@ use realestate\funding\ExpenseStatementCorrespondence;
  * @var \equal\php\Context                  $context
  */
 ['context' => $context] = $providers;
+
+$dataFormatter = function ($value, $usage) {
+    if(is_null($value)) {
+        return '';
+    }
+    return DataFormatter::format($value, $usage);
+};
+
+$getFormattedDate = function($timestamp) {
+    if(empty($timestamp) || !is_numeric($timestamp)) {
+        return '';
+    }
+    try {
+        $tz = new DateTimeZone(constant('L10N_TIMEZONE'));
+        $tz_offset = $tz->getOffset(new DateTime('@' . $timestamp));
+        $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
+        return date($date_format, $timestamp + $tz_offset);
+    }
+    catch(\Throwable $e) {
+        return '';
+    }
+};
 
 if(!isset($params['id'])) {
     throw new Exception("missing_id", EQ_ERROR_INVALID_PARAM);
@@ -59,7 +84,7 @@ $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id
         'communication_method',
         'owner_id' => ['firstname', 'lastname', 'email', 'email_alt', 'lang_id'],
         'ownership_id' => ['name'],
-        'expense_statement_id' => ['name', 'emission_date'],
+        'expense_statement_id' => ['name', 'emission_date', 'fiscal_period_id'],
         'document_id' => ['data']
     ])
     ->first();
@@ -75,6 +100,19 @@ if($expenseStatementCorrespondence['communication_method'] !== 'email') {
 // #memo - document is expected to have been generated beforehand
 if(!$expenseStatementCorrespondence['document_id']) {
     throw new Exception("missing_invite_document", EQ_ERROR_INVALID_PARAM);
+}
+
+$fiscal_period_fields = [
+    'date_from',
+    'date_to'
+];
+
+$fiscalPeriod = FiscalPeriod::id($expenseStatementCorrespondence['expense_statement_id']['fiscal_period_id'])
+    ->read($fiscal_period_fields)
+    ->first();
+
+if(!$fiscalPeriod) {
+    throw new Exception('unknown_fiscal_period', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 // retrieve template (subject & body)
@@ -95,7 +133,10 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $map_values = [
             'expense_statement' => $expenseStatementCorrespondence['expense_statement_id']['name'],
             'condo'             => $expenseStatementCorrespondence['condo_id']['name'],
-            'date'              => $expenseStatementCorrespondence['expense_statement_id']['emission_date']
+            'date'              => $getFormattedDate($expenseStatementCorrespondence['expense_statement_id']['emission_date']),
+            'period'            => $getFormattedDate($fiscalPeriod['date_from']) . ' - ' . $getFormattedDate($fiscalPeriod['date_to']),
+            'period_from'       => $getFormattedDate($fiscalPeriod['date_from']),
+            'period_to'         => $getFormattedDate($fiscalPeriod['date_to'])
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -108,10 +149,13 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $body = $part['value'];
 
         $map_values = [
-            'firstname' => $expenseStatementCorrespondence['owner_id']['firstname'],
-            'lastname'  => $expenseStatementCorrespondence['owner_id']['lastname'],
-            'condo'     => $expenseStatementCorrespondence['condo_id']['name'],
-            'date'      => $expenseStatementCorrespondence['expense_statement_id']['emission_date'],
+            'firstname'         => $expenseStatementCorrespondence['owner_id']['firstname'],
+            'lastname'          => $expenseStatementCorrespondence['owner_id']['lastname'],
+            'condo'             => $expenseStatementCorrespondence['condo_id']['name'],
+            'date'              => $getFormattedDate($expenseStatementCorrespondence['expense_statement_id']['emission_date']),
+            'period'            => $getFormattedDate($fiscalPeriod['date_from']) . ' - ' . $getFormattedDate($fiscalPeriod['date_to']),
+            'period_from'       => $getFormattedDate($fiscalPeriod['date_from']),
+            'period_to'         => $getFormattedDate($fiscalPeriod['date_to'])
         ];
 
         // Replace {var} items with corresponding values, set in $map_values

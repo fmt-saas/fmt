@@ -435,13 +435,13 @@ TemplatePart::create([
     'name'          => 'subject',
     'value'         => '<p>{condo} - Décompte de charges {period}</p>',
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "period"]'
+    'variables'     => '["condo", "period", "period_from", "period_to"]'
 ]);
 TemplatePart::create([
     'name'          => 'body',
     'value'         => "<p>Bonjour,</p><p><br></p><p>Veuillez trouver en pièce jointe le décompte de charges relatif à la copropriété <strong>{condo}</strong> pour la période <strong>{period}</strong>.</p><p><br></p><p>Ce document détaille les charges réparties conformément aux décisions de l'Assemblée Générale et au règlement de copropriété.</p><p><br></p><p>Nous restons à votre disposition pour toute question ou précision complémentaire.</p>",
     'template_id'   => $template['id'],
-    'variables'     => '["condo", "period"]'
+    'variables'     => '["condo", "period", "period_from", "period_to"]'
 ]);
 
 

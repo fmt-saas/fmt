@@ -511,7 +511,7 @@ class Funding extends \sale\pay\Funding {
      * When condo_id is changed, attempt to auto-assign the assigned_employee_id
      */
     protected static function onupdateCondoId($self) {
-        $self->read(['condo_id']);
+        $self->read(['condo_id', 'state']);
         foreach($self as $id => $funding) {
             // !! no document type for Funding: search for an assignment of the 'accountant' role for the current condo
             $roleAssignment = RoleAssignment::search([['role_code', '=','accountant'], ['condo_id', '=', $funding['condo_id']]])
@@ -519,7 +519,10 @@ class Funding extends \sale\pay\Funding {
                 ->first();
 
             if($roleAssignment) {
-                self::id($id)->update(['assigned_employee_id' => $roleAssignment['employee_id']]);
+                self::id($id)->update([
+                    'state'                 => $funding['state'],
+                    'assigned_employee_id'  => $roleAssignment['employee_id']
+                ]);
             }
         }
     }
