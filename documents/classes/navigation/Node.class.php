@@ -164,6 +164,7 @@ class Node extends Model {
     }
 
     protected static function onupdateNodeVisibility($self) {
+        // #memo - document_visibility and node_visibility must remain independent
         /*
         $self->read(['node_visibility', 'node_type', 'document_id', 'nodes_ids']);
         foreach($self as $id => $node) {

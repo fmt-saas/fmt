@@ -657,6 +657,9 @@ elseif($dataImport['import_type'] == 'banks_import') {
     }
 }
 
+if(count($result['logs']) <= 0) {
+    $result['logs'][] = "INFO- file is valid (no errors found).";
+}
 
 DataImport::id($params['id'])
     ->update([
