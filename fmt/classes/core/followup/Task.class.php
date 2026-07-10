@@ -18,6 +18,11 @@ class Task extends \core\followup\Task {
     public static function getColumns(): array {
         return [
 
+            'name' => [
+                'type'              => 'string',
+                'description'       => "Name of the task."
+            ],
+
             'description' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
