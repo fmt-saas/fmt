@@ -192,6 +192,9 @@
             "name": "Facture d'achat",
             "description": "Formulaire détaillant les lignes, imputations et fundings liés.",
             "layout": {
+                "section.tasks": {
+                    "label": "Tâches"
+                },
                 "section.email": {
                     "label": "E-mail"
                 },
