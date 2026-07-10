@@ -609,7 +609,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 ->first();
             if($bankAccount) {
                 self::id($id)->update([
-                    'state' => $expenseStatement['state'],
+                    'state'                     => $expenseStatement['state'],
                     'statement_bank_account_id' => $bankAccount['id']
                 ]);
             }

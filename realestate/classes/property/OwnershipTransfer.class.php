@@ -617,71 +617,60 @@ class OwnershipTransfer extends \equal\orm\Model {
             foreach($template['parts_ids'] as $part_id => $part) {
                 if($part['name'] === 'fund_balances_description') {
                     $fund_balances_description = $part['value'];
-                    break;
                 }
                 elseif($part['name'] === 'scheduled_fund_requests_description') {
                     $scheduled_fund_requests_description = $part['value'];
-                    break;
                 }
                 elseif($part['name'] === 'judiciary_procedures_description') {
                     $judiciary_procedures_description = $part['value'];
-                    break;
                 }
                 elseif($part['name'] === 'general_assembly_minutes_description') {
                     $general_assembly_minutes_description = $part['value'];
-                    break;
                 }
                 elseif($part['name'] === 'latest_balance_sheet_description') {
                     $latest_balance_sheet_description = $part['value'];
-                    break;
                 }
                 elseif($part['name'] === 'maintenance_expenses_description') {
                     $maintenance_expenses_description = $part['value'];
-                    break;
                 }
                 elseif($part['name'] === 'fund_requests_description') {
                     $fund_requests_description = $part['value'];
-                    break;
                 }
                 elseif($part['name'] === 'commons_acquisitions_description') {
                     $commons_acquisitions_description = $part['value'];
-                    break;
                 }
                 elseif($part['name'] === 'condominium_debts_description') {
                     $condominium_debts_description = $part['value'];
-                    break;
                 }
                 elseif($part['name'] === 'bank_loan_description') {
                     $bank_loan_description = $part['value'];
-                    break;
                 }
-
             }
         }
 
         $self->update([
             // 3.94.1.1
-            'fund_balances_description' => $fund_balances_description,
+            'fund_balances_description'             => $fund_balances_description,
             // #memo - set based on actual arrears
-            // 'seller_arrears_description' => "Le montant à ce jour des arriérés dus par le cédant à la copropriété;",
+            // 'seller_arrears_description'         => "Le montant à ce jour des arriérés dus par le cédant à la copropriété;",
             // 3.94.1.3
-            'scheduled_fund_requests_description' => $scheduled_fund_requests_description,
+            'scheduled_fund_requests_description'   => $scheduled_fund_requests_description,
             // 3.94.1.4
-            'judiciary_procedures_description' => $judiciary_procedures_description,
+            'judiciary_procedures_description'      => $judiciary_procedures_description,
             // 3.94.1.5
-            'general_assembly_minutes_description' => $general_assembly_minutes_description,
+            'general_assembly_minutes_description'  => $general_assembly_minutes_description,
             // 3.94.1.6
-            'latest_balance_sheet_description' => $latest_balance_sheet_description,
+            'latest_balance_sheet_description'      => $latest_balance_sheet_description,
             // 3.94.2.1
-            'maintenance_expenses_description' => $maintenance_expenses_description,
+            'maintenance_expenses_description'      => $maintenance_expenses_description,
             // 3.94.2.2
-            'fund_requests_description' => $fund_requests_description,
+            'fund_requests_description'             => $fund_requests_description,
             // 3.94.2.3
-            'commons_acquisitions_description' => $commons_acquisitions_description,
+            'commons_acquisitions_description'      => $commons_acquisitions_description,
             // 3.94.2.4
-            'condominium_debts_description' => $condominium_debts_description,
+            'condominium_debts_description'         => $condominium_debts_description,
             // additional
-            'bank_loan_description' => $bank_loan_description
+            'bank_loan_description'                 => $bank_loan_description
         ]);
 
         $self
