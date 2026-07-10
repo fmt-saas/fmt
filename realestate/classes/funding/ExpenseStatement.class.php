@@ -595,7 +595,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
     }
 
     protected static function onupdateCondoId($self) {
-        $self->read(['condo_id']);
+        $self->read(['condo_id', 'state']);
         foreach($self as $id => $expenseStatement) {
             if(!$expenseStatement['condo_id']) {
                 continue;
@@ -608,7 +608,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 ])
                 ->first();
             if($bankAccount) {
-                self::id($id)->update(['statement_bank_account_id' => $bankAccount['id']]);
+                self::id($id)->update([
+                    'state' => $expenseStatement['state'],
+                    'statement_bank_account_id' => $bankAccount['id']
+                ]);
             }
         }
     }
