@@ -1,11 +1,11 @@
 <?php
 /*
     This file is part of Symbiose Community Edition <https://github.com/yesbabylon/symbiose>
-    Some Rights Reserved, Yesbabylon SRL, 2020-2025
+    Some Rights Reserved, Yesbabylon SRL, 2020-2026
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 
-namespace purchase\accounting\invoice\followup;
+namespace fmt\core\followup;
 
 use core\setting\Setting;
 
@@ -21,7 +21,7 @@ class Task extends \core\followup\Task {
             'description' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'description'       => "Short description of the booking task.",
+                'description'       => "Short description of the task.",
                 'store'             => true,
                 'function'          => 'calcDescription'
             ],
@@ -41,22 +41,25 @@ class Task extends \core\followup\Task {
 
             'task_model_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'purchase\accounting\invoice\followup\TaskModel',
+                'foreign_object'    => 'fmt\core\followup\TaskModel',
                 'description'       => 'The model used to create the task.',
-                'help'              => 'Based on model or arbitrary',
+                'help'              => 'Based on model or arbitrary.',
                 'required'          => false
             ],
 
             'entity' => [
                 'type'              => 'string',
-                'description'       => "Namespace of the concerned entity.",
-                'default'           => 'purchase\accounting\invoice\PurchaseInvoice'
+                'description'       => 'Namespace of the concerned entity.',
+                'selection'         => [
+                    'purchase\accounting\invoice\PurchaseInvoice'
+                ],
+                'required'          => true
             ],
 
             'entity_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'integer',
-                'description'       => 'Id of the associated entity. In this case it is the booking id.',
+                'description'       => 'Id of the associated entity.',
                 'store'             => true,
                 'instant'           => true,
                 'function'          => 'calcEntityId',
@@ -67,8 +70,7 @@ class Task extends \core\followup\Task {
                 'type'              => 'many2one',
                 'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoice',
                 'description'       => 'Purchase invoice the task relates to.',
-                'readonly'          => true,
-                'required'          => true
+                'readonly'          => true
             ],
 
             'object_class' => [
@@ -89,7 +91,7 @@ class Task extends \core\followup\Task {
     }
 
     public static function calcDescription($self): array {
-        $booking_task_description_format = Setting::get_value('sale', 'booking', 'task.description_format', '');
+        $purchase_invoice_description_format = Setting::get_value('purchase', 'accounting', 'task.description_format', '');
         $date_format = Setting::get_value('core', 'locale', 'date_format', 'm/d/Y');
 
         $result = [];
@@ -104,8 +106,8 @@ class Task extends \core\followup\Task {
             ]
         ]);
         foreach($self as $id => $task) {
-            if(isset($task['booking_id'])) {
-                $result[$id] = Setting::parse_format($booking_task_description_format, [
+            if(isset($task['purchase_invoice_id'])) {
+                $result[$id] = Setting::parse_format($purchase_invoice_description_format, [
                     'name'                  => $task['purchase_invoice_id']['name'],
                     'invoice_type'          => $task['purchase_invoice_id']['invoice_type'],
                     'description'           => $task['purchase_invoice_id']['description'],
@@ -138,7 +140,7 @@ class Task extends \core\followup\Task {
                 'not_allowed' => [
                     'message'   => 'Entity must be "purchase\accounting\invoice\PurchaseInvoice".',
                     'function'  => function ($entity, $values) {
-                        return $entity === 'purchase\accounting\invoice\PurchaseInvoice';
+                        return in_array($entity, ['purchase\accounting\invoice\PurchaseInvoice']);
                     }
                 ]
             ]
@@ -147,8 +149,11 @@ class Task extends \core\followup\Task {
     }
 
     protected static function doCancelAlerts($self, $dispatch) {
+        $self->read(['purchase_invoice_id']);
         foreach($self as $id => $task) {
-            $dispatch->cancel('purchase.accounting.invoice.followup.task.reminder', 'purchase\accounting\invoice\followup\Task', $id);
+            if($task['purchase_invoice_id']) {
+                $dispatch->cancel('purchase.accounting.invoice.followup.task.reminder', 'fmt\core\followup\Task', $id);
+            }
         }
     }
 

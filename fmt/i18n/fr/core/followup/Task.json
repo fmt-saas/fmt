@@ -15,7 +15,7 @@
         },
         "done_date": {
             "label": "Date réalisation",
-            "description": "Quandd la tâche a été réalisée.",
+            "description": "Quand la tâche a été réalisée.",
             "help": ""
         },
         "visible_date": {
@@ -39,7 +39,7 @@
             "help": ""
         },
         "entity": {
-            "label": "Namspace entité",
+            "label": "Namespace entité",
             "description": "Le namespace de l'entité concernée.",
             "help": ""
         },

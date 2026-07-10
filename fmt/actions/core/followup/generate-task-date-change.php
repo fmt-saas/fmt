@@ -1,18 +1,29 @@
 <?php
 /*
     This file is part of the eQual framework <http://www.github.com/equalframework/equal>
-    Some Rights Reserved, eQual framework, 2010-2025
+    Some Rights Reserved, eQual framework, 2010-2026
     Licensed under GNU GPL 3 license <http://www.gnu.org/licenses/>
 */
 
+use fmt\core\followup\Task;
+use fmt\core\followup\TaskModel;
 use purchase\accounting\invoice\PurchaseInvoice;
-use purchase\accounting\invoice\followup\Task;
-use purchase\accounting\invoice\followup\TaskModel;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Generate task models' tasks when the date changes.",
     'help'          => "Is meant to be triggered once each day.",
-    'params'        => [],
+    'params'        => [
+
+        'entity' => [
+            'type'              => 'string',
+            'description'       => 'Namespace of the concerned entity.',
+            'selection'         => [
+                'purchase\accounting\invoice\PurchaseInvoice'
+            ],
+            'required'          => true
+        ]
+
+    ],
     'access'        => [
         'visibility'        => 'protected'
     ],
@@ -29,7 +40,7 @@ use purchase\accounting\invoice\followup\TaskModel;
  */
 ['context' => $context] = $providers;
 
-$task_models = TaskModel::search(['entity', '=', 'purchase\accounting\invoice\PurchaseInvoice'])
+$task_models = TaskModel::search(['entity', '=', $params['entity']])
     ->read([
         'name',
         'trigger_event_id' => [
@@ -65,13 +76,19 @@ if(!empty($task_models)) {
 
     $today = date('Y-m-d', time());
 
-    $purchase_invoices = PurchaseInvoice::search()
+    $objects = $params['entity']::search()
         ->read($date_fields)
         ->get();
 
+    $map_entities_relation_field = [
+        PurchaseInvoice::getType() => 'purchase_invoice_id'
+    ];
+
+    $relation_field = $map_entities_relation_field[$params['entity']];
+
     foreach($task_models as $task_model) {
-        foreach($purchase_invoices as $invoice) {
-            $date = $invoice[$task_model['trigger_event_id']['entity_date_field']] + (86400 * $task_model['trigger_event_id']['offset']);
+        foreach($objects as $object) {
+            $date = $object[$task_model['trigger_event_id']['entity_date_field']] + (86400 * $task_model['trigger_event_id']['offset']);
             if(date('Y-m-d', $date) !== $today) {
                 continue;
             }
@@ -80,17 +97,22 @@ if(!empty($task_models)) {
 
             $deadline_date = null;
             if(isset($task_model['deadline_event_id'])) {
-                if(isset($invoice[$task_model['deadline_event_id']['entity_date_field']])) {
-                    $deadline_date = $invoice[$task_model['deadline_event_id']['entity_date_field']] + (86400 * $task_model['deadline_event_id']['offset']);
+                if(isset($object[$task_model['deadline_event_id']['entity_date_field']])) {
+                    $deadline_date = $object[$task_model['deadline_event_id']['entity_date_field']] + (86400 * $task_model['deadline_event_id']['offset']);
                 }
                 else {
                     // TODO: report problem date not set
                 }
             }
 
+            $domain = [
+                ['task_model_id', '=', $task_model['id']]
+            ];
+
+
             $task = Task::search([
                 ['task_model_id', '=', $task_model['id']],
-                ['purchase_invoice_id', '=', $invoice['id']],
+                [$relation_field, '=', $object['id']],
             ])
                 ->read(['notes'])
                 ->first();
@@ -108,7 +130,7 @@ if(!empty($task_models)) {
                 'visible_date'          => $visible_date,
                 'deadline_date'         => $deadline_date,
                 'task_model_id'         => $task_model['id'],
-                'purchase_invoice_id'   => $invoice['id'],
+                $relation_field         => $object['id'],
                 'notes'                 => $notes
             ])
                 ->read(['description']);

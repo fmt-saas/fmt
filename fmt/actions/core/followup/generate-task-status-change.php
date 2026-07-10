@@ -1,22 +1,30 @@
 <?php
 /*
     This file is part of Symbiose Community Edition <https://github.com/yesbabylon/symbiose>
-    Some Rights Reserved, Yesbabylon SRL, 2020-2025
+    Some Rights Reserved, Yesbabylon SRL, 2020-2026
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 
+use fmt\core\followup\Task;
+use fmt\core\followup\TaskModel;
 use purchase\accounting\invoice\PurchaseInvoice;
-use purchase\accounting\invoice\followup\Task;
-use purchase\accounting\invoice\followup\TaskModel;
 
 [$params, $providers] = eQual::announce([
-    'description'	=> "Generate task models' tasks when a purchase_invoice status changes.",
+    'description'	=> "Generate task models' tasks when a object status changes.",
     'params' 		=> [
 
-        'purchase_invoice_id' => [
-            'type'              => 'many2one',
-            'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoice',
-            'description'       => "PurchaseInvoice the status has just changed.",
+        'entity' => [
+            'type'              => 'string',
+            'description'       => 'Namespace of the concerned entity.',
+            'selection'         => [
+                'purchase\accounting\invoice\PurchaseInvoice'
+            ],
+            'required'          => true
+        ],
+
+        'object_id' => [
+            'type'              => 'integer',
+            'description'       => "Identifier of the object the status has just changed.",
             'required'          => true
         ]
 
@@ -70,16 +78,22 @@ if(!empty($task_models)) {
 
     $date_fields = array_keys($map_date_fields);
 
-    $invoice = PurchaseInvoice::id($params['purchase_invoice_id'])
+    $object = $params['entity']::id($params['object_id'])
         ->read(array_merge($date_fields, ['status']))
         ->first(true);
 
-    if(is_null($invoice)) {
+    if(is_null($object)) {
         throw new Exception("unknown_entity", EQ_ERROR_UNKNOWN_OBJECT);
     }
 
+    $map_entities_relation_field = [
+        PurchaseInvoice::getType() => 'purchase_invoice_id'
+    ];
+
+    $relation_field = $map_entities_relation_field[$params['entity']];
+
     foreach($task_models as $task_model) {
-        if($task_model['trigger_event_id']['entity_status'] !== $invoice['status']) {
+        if($task_model['trigger_event_id']['entity_status'] !== $object['status']) {
             continue;
         }
 
@@ -87,8 +101,8 @@ if(!empty($task_models)) {
 
         $deadline_date = null;
         if(isset($task_model['deadline_event_id'])) {
-            if(isset($invoice[$task_model['deadline_event_id']['entity_date_field']])) {
-                $deadline_date = $invoice[$task_model['deadline_event_id']['entity_date_field']] + (86400 * $task_model['deadline_event_id']['offset']);
+            if(isset($object[$task_model['deadline_event_id']['entity_date_field']])) {
+                $deadline_date = $object[$task_model['deadline_event_id']['entity_date_field']] + (86400 * $task_model['deadline_event_id']['offset']);
             }
             else {
                 // TODO: report problem date not set
@@ -96,9 +110,9 @@ if(!empty($task_models)) {
         }
 
         $task = Task::search([
-                ['task_model_id', '=', $task_model['id']],
-                ['purchase_invoice_id', '=', $invoice['id']]
-            ])
+            ['task_model_id', '=', $task_model['id']],
+            [$relation_field, '=', $object['id']]
+        ])
             ->read(['notes'])
             ->first();
 
@@ -115,7 +129,7 @@ if(!empty($task_models)) {
             'visible_date'          => $visible_date,
             'deadline_date'         => $deadline_date,
             'task_model_id'         => $task_model['id'],
-            'purchase_invoice_id'   => $invoice['id'],
+            $relation_field         => $object['id'],
             'notes'                 => $notes
         ])
             ->read(['description']);

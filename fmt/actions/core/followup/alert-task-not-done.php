@@ -6,17 +6,29 @@
 */
 
 use core\alert\MessageModel;
+use fmt\core\followup\Task;
 use purchase\accounting\invoice\PurchaseInvoice;
-use purchase\accounting\invoice\followup\Task;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Alerts followup tasks that should have be done by today.",
     'params'        => [
 
+        'entity' => [
+            'type'              => 'string',
+            'description'       => 'Namespace of the concerned entity.',
+            'selection'         => [
+                'purchase\accounting\invoice\PurchaseInvoice'
+            ],
+            'required'          => true
+        ],
+
         'message_model' => [
             'type'              => 'string',
             'description'       => "The name of the message model to use for the alert.",
-            'default'           => 'purchase.accounting.invoice.followup.task.reminder'
+            'selection'         => [
+                'purchase.accounting.invoice.followup.task.reminder'
+            ],
+            'required'          => true
         ],
 
         'severity' => [
@@ -52,7 +64,7 @@ use purchase\accounting\invoice\followup\Task;
 $domain = [
     ['is_done', '=', false],
     ['deadline_date', '<=', time()],
-    ['entity', '=', PurchaseInvoice::getType()]
+    ['entity', '=', $params['entity']]
 ];
 
 $tasks = Task::search($domain)
@@ -69,8 +81,8 @@ if(!empty($tasks)) {
     if(is_null($message_model)) {
         $message_model = MessageModel::create([
             'name'          => $params['message_model'],
-            'label'         => "PurchaseInvoice task deadline has expired",
-            'description'   => "A purchase invoice task was not handled within the required timeframe."
+            'label'         => "Task deadline has expired",
+            'description'   => "A task was not handled within the required timeframe."
         ])
             ->read(['name'])
             ->first();
@@ -88,7 +100,7 @@ if(!empty($tasks)) {
             Task::getType(),
             $id,
             $params['severity'],
-            'purcahse_accounting_invoice_followup_Task_check-done',
+            'fmt_core_followup_Task_check-done',
             $dispatch_params,
             [],
             null

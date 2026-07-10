@@ -5,12 +5,12 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 
-namespace purchase\accounting\invoice\followup;
+namespace fmt\core\followup;
 
 class TaskEvent extends \core\followup\TaskEvent {
 
     public static function getDescription(): string {
-        return "A task event associated with a purchase invoice status change or an purchase invoice date field value.";
+        return "A task event associated with an entity status change or date field value.";
     }
 
     public static function getColumns(): array {
@@ -18,20 +18,23 @@ class TaskEvent extends \core\followup\TaskEvent {
 
             'entity' => [
                 'type'              => 'string',
-                'description'       => "Namespace of the concerned entity.",
-                'default'           => 'purchase\accounting\invoice\PurchaseInvoice'
+                'description'       => 'Namespace of the concerned entity.',
+                'selection'         => [
+                    'purchase\accounting\invoice\PurchaseInvoice'
+                ],
+                'required'          => true
             ],
 
             'entity_status' => [
                 'type'              => 'string',
                 'description'       => "Status of the purchase invoice the task event is associated with.",
                 'selection'         => [
+                    // PurchaseInvoice
                     'proforma',
                     'posted',
                     'cancelled'
                 ],
-                'visible'           => ['event_type', '=', 'status_change'],
-                'default'           => 'quote'
+                'visible'           => ['event_type', '=', 'status_change']
             ],
 
             'entity_date_field' => [
@@ -39,43 +42,29 @@ class TaskEvent extends \core\followup\TaskEvent {
                 'description'       => "Date field of the entity the task event is associated with.",
                 'visible'           => ['event_type', '=', 'date_field'],
                 'selection'         => [
+                    // PurchaseInvoice
                     'due_date',
                     'date_from',
                     'date_to',
                     'emission_date'
-                ],
-                'default'           => 'due_date'
+                ]
             ],
 
             'trigger_event_task_models_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'purchase\accounting\invoice\followup\TaskModel',
+                'foreign_object'    => 'fmt\core\followup\TaskModel',
                 'foreign_field'     => 'trigger_event_id',
                 'description'       => "List of task models that uses the event as a trigger."
             ],
 
             'deadline_event_task_models_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'purchase\accounting\invoice\followup\TaskModel',
+                'foreign_object'    => 'fmt\core\followup\TaskModel',
                 'foreign_field'     => 'deadline_event_id',
                 'description'       => "List of task models that uses the event as a deadline."
             ]
 
         ];
-    }
-
-    public static function onchange($event, $values) {
-        $result = [];
-        if(isset($event['event_type'])) {
-            if($event['event_type'] === 'status_change') {
-                $result['entity_status'] = 'proforma';
-            }
-            elseif($event['event_type'] === 'date_field') {
-                $result['entity_date_field'] = 'due_date';
-            }
-        }
-
-        return $result;
     }
 
     public static function getConstraints(): array {
@@ -85,7 +74,7 @@ class TaskEvent extends \core\followup\TaskEvent {
                 'not_allowed' => [
                     'message'   => 'Entity must be "purchase\accounting\invoice\PurchaseInvoice".',
                     'function'  => function ($entity, $values) {
-                        return $entity === 'purchase\accounting\invoice\PurchaseInvoice';
+                        return in_array($entity, ['purchase\accounting\invoice\PurchaseInvoice']);
                     }
                 ]
             ],
@@ -94,11 +83,20 @@ class TaskEvent extends \core\followup\TaskEvent {
                 'invalid' => [
                     'message'   => 'Invalid PurchaseInvoice status.',
                     'function'  => function ($entity_status, $values) {
-                        return in_array($entity_status, [
-                            'proforma',
-                            'posted',
-                            'cancelled'
-                        ]);
+                        $map_statutes = [
+                            'purchase\accounting\invoice\PurchaseInvoice' => [
+                                'proforma',
+                                'posted',
+                                'cancelled'
+                            ]
+                        ];
+
+                        $allowed_statuses = [];
+                        if($values['entity'] && $map_statutes[$values['entity']]) {
+                            $allowed_statuses = $map_statutes[$values['entity']];
+                        }
+
+                        return in_array($entity_status, $allowed_statuses);
                     }
                 ]
             ],
@@ -107,12 +105,21 @@ class TaskEvent extends \core\followup\TaskEvent {
                 'invalid' => [
                     'message'   => 'Invalid PurchaseInvoice status.',
                     'function'  => function ($entity_date_field, $values) {
-                        return in_array($entity_date_field, [
-                            'due_date',
-                            'date_from',
-                            'date_to',
-                            'emission_date'
-                        ]);
+                        $map_date_fields = [
+                            'purchase\accounting\invoice\PurchaseInvoice' => [
+                                'due_date',
+                                'date_from',
+                                'date_to',
+                                'emission_date'
+                            ]
+                        ];
+
+                        $allowed_date_fields = [];
+                        if($values['entity'] && $map_date_fields[$values['entity']]) {
+                            $allowed_date_fields = $map_date_fields[$values['entity']];
+                        }
+
+                        return in_array($entity_date_field, $allowed_date_fields);
                     }
                 ]
             ]
