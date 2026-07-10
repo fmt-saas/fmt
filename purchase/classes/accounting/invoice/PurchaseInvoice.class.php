@@ -166,6 +166,13 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
                 'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
             ],
 
+            'tasks_ids' => [
+                'type'              => 'one2many',
+                'foreign_field'     => 'purchase_invoice_id',
+                'foreign_object'    => 'purchase\accounting\invoice\followup\Task',
+                'description'       => "Follow up tasks that are associated with the purchase invoice."
+            ]
+
         ];
     }
 

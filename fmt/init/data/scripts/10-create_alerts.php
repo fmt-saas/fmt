@@ -395,6 +395,19 @@ MessageModel::id($model['id'])->update([
     ], 'fr');
 
 
+$model = MessageModel::create([
+        'name'          => 'purchase.accounting.invoice.followup.task.reminder',
+        'type'          => 'accounting',
+        'label'         => 'A purchase invoice task is waiting',
+        'description'   => "The deadline of a purchase invoice's task has been reached."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Tâche facture d\'achat en attente',
+        'description'   => "La date limite de la tâche de facture d'achat est dépassée.",
+    ], 'fr');
+
 /**
  * OWNERSHIPS
  */

@@ -19,6 +19,9 @@
             "name": "Facture",
             "description": "",
             "layout": {
+                "section.tasks": {
+                    "label": "Tâches"
+                },
                 "section.invoice_lines": {
                     "label": "Lignes de facture"
                 }
