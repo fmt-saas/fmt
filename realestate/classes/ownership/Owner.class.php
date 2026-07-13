@@ -115,6 +115,15 @@ class Owner extends Identity {
                 'default'           => 0
             ],
 
+            'broadcasts_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'communication\broadcast\Broadcast',
+                'foreign_field'     => 'owners_ids',
+                'rel_table'         => 'realestate_owner_rel_broadcast',
+                'rel_foreign_key'   => 'broadcast_id',
+                'rel_local_key'     => 'owner_id',
+                'description'       => 'Broadcasts to send to the owner identity email address.'
+            ]
 
         ];
     }

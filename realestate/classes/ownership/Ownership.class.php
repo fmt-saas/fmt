@@ -312,7 +312,17 @@ class Ownership extends \equal\orm\Model {
                     'validated'
                 ],
                 'default'           => 'pending'
-            ]
+            ],
+
+            'broadcasts_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'communication\broadcast\Broadcast',
+                'foreign_field'     => 'ownerships_ids',
+                'rel_table'         => 'realestate_ownership_rel_broadcast',
+                'rel_foreign_key'   => 'broadcast_id',
+                'rel_local_key'     => 'ownership_id',
+                'description'       => 'Broadcasts to send to the ownership identity email address.'
+            ],
 
         ];
     }

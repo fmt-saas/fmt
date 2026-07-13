@@ -1217,6 +1217,16 @@
                                             "entity": "core\\Mail",
                                             "view": "list.default"
                                         }
+                                    },
+                                    {
+                                        "id": "communication.broadcasts.all",
+                                        "type": "entry",
+                                        "label": "Broadcasts",
+                                        "description": "History of all broadcasts of messages.",
+                                        "context": {
+                                            "entity": "communication\\broadcast\\Broadcast",
+                                            "view": "list.default"
+                                        }
                                     }
                                 ]
                             }

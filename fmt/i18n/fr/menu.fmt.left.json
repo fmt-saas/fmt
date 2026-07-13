@@ -449,6 +449,10 @@
             "label": "E-mails sortants",
             "description": "Historique de tous les e-mails sortants."
         },
+        "communication.broadcasts.all": {
+            "label": "Listes diffusion",
+            "description": "Historique de tous les listes de diffusion d'e-mails sortants."
+        },
         "item.infra": {
             "label": "Infrastructure",
             "description": ""

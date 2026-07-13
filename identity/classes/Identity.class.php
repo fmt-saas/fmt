@@ -735,6 +735,16 @@ class Identity extends Model {
                 'foreign_object'    => 'realestate\ownership\Owner',
                 'description'       => 'The Tenant the identity refers to.',
                 'onupdate'          => 'onupdateTenantId'
+            ],
+
+            'broadcasts_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'communication\broadcast\Broadcast',
+                'foreign_field'     => 'identities_ids',
+                'rel_table'         => 'identity_identity_rel_broadcast',
+                'rel_foreign_key'   => 'broadcast_id',
+                'rel_local_key'     => 'identity_id',
+                'description'       => 'Broadcasts to send to the identity email address.'
             ]
 
         ];
