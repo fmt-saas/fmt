@@ -142,6 +142,11 @@ class Instance extends Model {
                 'description'       => 'The current name of the FMT git branch.'
             ],
 
+            'debug_level' => [
+                'type'              => 'string',
+                'description'       => 'The current debug level set in the configuration.'
+            ],
+
             'checks_ok' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',

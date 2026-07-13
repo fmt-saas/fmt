@@ -55,6 +55,7 @@ $allowed_fmt_branches = ['main'];
 
 $required_config = [
     'ENV_MODE',
+    'DEBUG_LEVEL',
     'FILE_STORAGE_MODE',
     'SERVICE_ORM_COLLECTION_CLASS',
     'SERVICE_ACCESS_ACCESSCONTROLLER',
@@ -172,6 +173,11 @@ if(isset($fmt_version_data['up_to_date'])) {
 /*
     Configuration file
 */
+
+$data['debug_level'] = 'undefined';
+if(!empty($GLOBALS['EQ_CONFIG_ARRAY']['DEBUG_LEVEL'])) {
+    $data['debug_level'] = trim((string) $GLOBALS['EQ_CONFIG_ARRAY']['DEBUG_LEVEL']);
+}
 
 $is_config_ok = true;
 foreach($required_config as $key) {

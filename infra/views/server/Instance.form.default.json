@@ -164,6 +164,11 @@
                                                 "type": "field",
                                                 "value": "branch_fmt",
                                                 "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "debug_level",
+                                                "width": "25%"
                                             }
                                         ]
                                     }
