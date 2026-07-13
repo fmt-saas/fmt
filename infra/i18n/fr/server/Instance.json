@@ -92,6 +92,11 @@
             "description": "Nom de la branche fmt-saas/fmt.",
             "help": "Utilisée avec les contrôles de statut de branche."
         },
+        "debug_level": {
+            "label": "Debug level",
+            "description": "Niveau de debug du fichier de configuration.",
+            "help": ""
+        },
         "checks_ok": {
             "label": "Tests ok",
             "description": "Est-ce que tous les tests ont fonctionnés.",
