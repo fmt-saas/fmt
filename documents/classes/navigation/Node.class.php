@@ -64,7 +64,10 @@ class Node extends Model {
 
             'node_type' => [
                 'type'              => 'string',
-                'selection'         => ['folder', 'document'],
+                'selection'         => [
+                    'folder',
+                    'document'
+                ],
                 'description'       => 'Content type of the document (from data).',
                 'default'           => 'folder'
             ],
@@ -119,13 +122,15 @@ class Node extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'condo',        // visible to all owners of a same condo + syndic
-                    'agency'        // visible only to syndic (employees)
+                    'agency',       // visible only to syndic (employees)
+                    'ownership',    // visible to all owners of a same ownership + syndic
+                    'owner',        // visible only to a single owner or supplier
+                    'suppliership'  // visible to a specific supplier of a condo + syndic
                 ],
                 'default'           => 'agency',
                 'description'       => 'Defines who can see the node.',
                 'help'              => 'This field is synchronized with the node and is automatically updated when the parent node visibility changes.
-                    If node is a child, the `document_visibility` of the corresponding document is updated.
-                    If node is a parent, all descendant nodes are updated (cascade).',
+                    If node is a child, the `document_visibility` of the corresponding document is updated.',
                 'onupdate'          => 'onupdateNodeVisibility'
             ],
 
@@ -134,6 +139,12 @@ class Node extends Model {
                 'description'       => "The ownership that the document relates to, if any.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'owner_id' => [
+                'type'              => 'many2one',
+                'description'       => "The owner concerned by the document, if any.",
+                'foreign_object'    => 'realestate\ownership\Owner'
             ],
 
             'supplier_id' => [
@@ -164,10 +175,10 @@ class Node extends Model {
     }
 
     protected static function onupdateNodeVisibility($self) {
-        // #memo - document_visibility and node_visibility must remain independent
-        /*
         $self->read(['node_visibility', 'node_type', 'document_id', 'nodes_ids']);
         foreach($self as $id => $node) {
+            // #memo - for folders, document_visibility and node_visibility must remain independent
+            /*
             if($node['node_type'] === 'folder') {
                 // #memo - recursion is prevented by the ORM
                 $children_ids = self::computeChildrenNodesIds($id);
@@ -182,12 +193,12 @@ class Node extends Model {
                     }
                 }
             }
-            elseif($node['node_type'] === 'document' && $node['document_id']) {
+            */
+            if($node['node_type'] === 'document' && $node['document_id']) {
                 // update document visibility
                 Document::id($node['document_id'])->update(['document_visibility' => $node['node_visibility']]);
             }
         }
-        */
     }
 
     private static function computeChildrenNodesIds($id) {

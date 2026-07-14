@@ -54,6 +54,7 @@ class Document extends Model {
             'owner_id' => [
                 'type'              => 'many2one',
                 'description'       => "The owner concerned by the document, if any.",
+                'onupdate'          => 'onupdateOwnerId',
                 'foreign_object'    => 'realestate\ownership\Owner'
             ],
 
@@ -183,10 +184,10 @@ class Document extends Model {
                 'type'              => 'string',
                 'selection'         => [
                     'condo',        // visible to all owners of a same condo + syndic
+                    'agency',       // visible only to syndic (employees)
                     'ownership',    // visible to all owners of a same ownership + syndic
                     'owner',        // visible only to a single owner or supplier
-                    'suppliership', // visible to a specific supplier of a condo + syndic
-                    'agency'        // visible only to syndic (employees)
+                    'suppliership'  // visible to a specific supplier of a condo + syndic
                 ],
                 'default'           => 'agency',
                 'onupdate'          => 'onupdateDocumentVisibility',
@@ -616,7 +617,6 @@ class Document extends Model {
         }
     }
 
-
     protected static function onupdateOwnershipId($self) {
         $self
         ->read(['node_id', 'ownership_id'])
@@ -627,14 +627,23 @@ class Document extends Model {
         });
     }
 
+    protected static function onupdateOwnerId($self) {
+        $self
+        ->read(['node_id', 'owner_id'])
+        ->each(function($id, $document) {
+            if($document['node_id']) {
+                Node::id($document['node_id'])->update(['owner_id' => $document['owner_id']]);
+            }
+        });
+    }
+
     protected static function onupdateDocumentVisibility($self) {
         $self->read(['node_id', 'document_visibility']);
         foreach($self as $id => $document) {
             if(!$document['node_id']) {
                 continue;
             }
-            $node_visibility = ($document['document_visibility'] === 'agency') ? 'agency' :' condo';
-            Node::id($document['node_id'])->update(['node_visibility' => $node_visibility]);
+            Node::id($document['node_id'])->update(['node_visibility' => $document['document_visibility']]);
         }
     }
 
