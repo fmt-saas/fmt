@@ -1,0 +1,27 @@
+{
+    "name": "Dossier de propriété",
+    "plural": "Dossiers de propriété",
+    "description": "Recherche avancée sur les recherche avancées.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné par le dossier de propriété.",
+            "help": ""
+        },
+        "name": {
+            "label": "Libellé",
+            "description": "Nom du dossier.",
+            "help": ""
+        },
+        "property_lot_id": {
+            "label": "Lot",
+            "description": "Lot concerné.",
+            "help": ""
+        },
+        "property_entrance_id": {
+            "label": "Entré",
+            "description": "Entrée / bloc auquel le lot, du dossier de propriété, est rattaché.",
+            "help": ""
+        }
+    }
+}
