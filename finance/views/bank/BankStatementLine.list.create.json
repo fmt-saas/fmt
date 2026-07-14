@@ -9,6 +9,15 @@
                     "view": false
                 }
             ]
+        },
+        "selection": {
+            "default": false,
+            "actions": [
+                {
+                    "id": "ACTION.DELETE",
+                    "visible": true
+                }
+            ]
         }
     },
     "operations": {

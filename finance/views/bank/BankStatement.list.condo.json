@@ -4,6 +4,15 @@
     "header": {
         "actions": {
             "ACTION.CREATE" : false
+        },
+        "selection": {
+            "default": false,
+            "actions": [
+                {
+                    "id": "ACTION.DELETE",
+                    "visible": true
+                }
+            ]
         }
     },
     "layout": {

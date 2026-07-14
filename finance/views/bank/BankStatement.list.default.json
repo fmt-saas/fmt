@@ -1,6 +1,17 @@
 {
     "name": "Bank Statements",
     "description": "This view is intended for displaying the list of bank statements.",
+    "header": {
+        "selection": {
+            "default": false,
+            "actions": [
+                {
+                    "id": "ACTION.DELETE",
+                    "visible": true
+                }
+            ]
+        }
+    },
     "layout": {
         "items": [
             {
