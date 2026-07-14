@@ -1,0 +1,47 @@
+{
+    "name": "Ownerships",
+    "description": "List of ownerships.",
+    "controller": "realestate_ownership_Ownership_collect",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "label": "Representative",
+                "value": "representative_identity_id",
+                "width": "20%",
+                "visible": ["has_representative", "=", true]
+            },
+            {
+                "type": "field",
+                "value": "ownership_type",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "date_from",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "date_to",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "has_representative",
+                "width": "0%",
+                "visible": false
+            }
+        ]
+    }
+}

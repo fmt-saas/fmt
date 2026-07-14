@@ -1,0 +1,17 @@
+{
+    "name": "Propriétaire",
+    "plural": "Propriétaires",
+    "description": "Recherche avancée sur les propriétaires.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné par le propriétaire.",
+            "help": ""
+        },
+        "name": {
+            "label": "Libellé",
+            "description": "Nom du dossier.",
+            "help": ""
+        }
+    }
+}
