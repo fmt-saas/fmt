@@ -1704,7 +1704,7 @@ class Identity extends Model {
     }
 
 
-    protected static function oncreate($self, $orm) {
+    protected static function oncreate($self, $orm, $values) {
         $self->read(['state', 'object_class', 'type_id', 'citizen_identification']);
         foreach($self as $id => $object) {
             if(constant('FMT_INSTANCE_TYPE') === 'global') {
@@ -1721,9 +1721,10 @@ class Identity extends Model {
             if($object['object_class'] !== 'identity\\Identity') {
                 continue;
             }
+            $state = isset($values['state']) ? $values['state'] : $object['state'];
             if($object['type_id'] === 1 && (!$object['citizen_identification'] || strlen($object['citizen_identification']) <= 0)) {
                 $object['object_class']::id($id)->update([
-                    'state'                 => $object['state'],
+                    'state'                 => $state,
                     'registration_number'   => self::computeVirtualCitizenIdentification()
                 ]);
             }
