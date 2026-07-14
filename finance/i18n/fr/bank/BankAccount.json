@@ -31,6 +31,16 @@
             "label": "BIC",
             "description": "Numéro d'identification de la banque.",
             "help": ""
+        },
+        "is_primary": {
+            "label": "Principal",
+            "description": "Indique si ce compte est le compte principal.",
+            "help": ""
+        },
+        "owner_identity_id": {
+            "label": "Détenteur",
+            "description": "Identité détentrice du compte bancaire.",
+            "help": ""
         }
     },
     "view": {},
