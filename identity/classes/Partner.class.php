@@ -254,6 +254,7 @@ class Partner extends Model {
     public static function oncreate($self, $values) {
         if(isset($values['identity_id'])) {
             $fields = [
+                    'state',
                     'type_id','has_vat','vat_number','legal_name','firstname','lastname','lang_id',
                     'email','phone','mobile',
                     'address_street','address_dispatch','address_zip',

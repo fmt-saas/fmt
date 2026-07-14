@@ -255,12 +255,17 @@ class ConsumptionMeter extends \equal\orm\Model {
 
     protected static function oncreate($self, $values) {
         if(isset($values['parent_meter_id'])) {
+            $self->read(['state']);
             $parentMeter = self::id($values['parent_meter_id'])->read(['meter_type'])->first();
             if($parentMeter) {
-                $self->update([
-                        'meter_scope'   => 'unit',
-                        'meter_type'    => $parentMeter['meter_type']
-                    ]);
+                foreach($self as $id => $consumptionMeter) {
+                    $state = isset($values['state']) ? $values['state'] : $consumptionMeter['state'];
+                    self::id($id)->update([
+                            'state'         => $state,
+                            'meter_scope'   => 'unit',
+                            'meter_type'    => $parentMeter['meter_type']
+                        ]);
+                }
             }
         }
     }

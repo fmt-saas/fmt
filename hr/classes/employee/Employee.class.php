@@ -141,7 +141,7 @@ class Employee extends Identity {
     }
 
     protected static function oncreate($self, $orm) {
-        $self->read(['firstname', 'lastname', 'type_id', 'identity_id']);
+        $self->read(['state', 'firstname', 'lastname', 'type_id', 'identity_id']);
         foreach($self as $id => $employee) {
             if($employee['identity_id']) {
                 continue;
@@ -154,6 +154,7 @@ class Employee extends Identity {
                 ])
                 ->first();
             self::id($id)->update([
+                    'state'       => $employee['state'],
                     'code'        => sprintf("%03d", $id),
                     'identity_id' => $identity['id']
                 ]);

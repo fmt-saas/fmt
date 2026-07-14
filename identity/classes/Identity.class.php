@@ -1705,7 +1705,7 @@ class Identity extends Model {
 
 
     protected static function oncreate($self, $orm) {
-        $self->read(['object_class', 'type_id', 'citizen_identification']);
+        $self->read(['state', 'object_class', 'type_id', 'citizen_identification']);
         foreach($self as $id => $object) {
             if(constant('FMT_INSTANCE_TYPE') === 'global') {
                 do {
@@ -1713,13 +1713,19 @@ class Identity extends Model {
                     $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
                 } while( $existing > 0 && count($existing) > 0 );
 
-                $object['object_class']::id($id)->update(['uuid' => $uuid]);
+                $object['object_class']::id($id)->update([
+                    'state' => $object['state'],
+                    'uuid'  => $uuid
+                ]);
             }
             if($object['object_class'] !== 'identity\\Identity') {
                 continue;
             }
             if($object['type_id'] === 1 && (!$object['citizen_identification'] || strlen($object['citizen_identification']) <= 0)) {
-                $object['object_class']::id($id)->update(['registration_number' => self::computeVirtualCitizenIdentification()]);
+                $object['object_class']::id($id)->update([
+                    'state'                 => $object['state'],
+                    'registration_number'   => self::computeVirtualCitizenIdentification()
+                ]);
             }
         }
     }

@@ -291,6 +291,7 @@ class User extends \core\User {
     }
 
     public static function oncreate($self, $values, $orm = null) {
+        $self->read(['state']);
         foreach($self as $id => $user) {
             if(constant('FMT_INSTANCE_TYPE') === 'global') {
                 do {
@@ -298,14 +299,20 @@ class User extends \core\User {
                     $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
                 } while( $existing > 0 && count($existing) > 0 );
 
-                self::id($id)->update(['uuid' => $uuid]);
+                self::id($id)->update([
+                    'state' => $user['state'],
+                    'uuid'  => $uuid
+                ]);
             }
             elseif(constant('FMT_INSTANCE_TYPE') === 'agency') {
                 #memo - only one instance (itself) on agency instance
                 $instance = Instance::search()->first();
 
                 if($instance) {
-                    self::id($id)->update(['instance_id' => $instance['id']]);
+                    self::id($id)->update([
+                        'state'       => $user['state'],
+                        'instance_id' => $instance['id']
+                    ]);
                 }
             }
         }
