@@ -1159,6 +1159,19 @@ class BankStatementLine extends Model {
         return $result;
     }
 
+    protected static function candelete($self) {
+        $self->read(['status', 'bank_statement_id' => ['document_id']]);
+        foreach($self as $bankStatementLine) {
+            if(isset($bankStatementLine['bank_statement_id']['document_id'])) {
+                return ['bank_statement_id' => ['non_removable' => 'Bank statement line originating from a document cannot be deleted.']];
+            }
+            if($bankStatementLine['status'] !== 'pending') {
+                return ['status' => ['non_removable' => 'Non-draft statement line cannot be deleted.']];
+            }
+        }
+        return parent::candelete($self);
+    }
+
     public static function canupdate($self, $values = []) {
         $self->read(['status']);
 
@@ -1347,7 +1360,6 @@ class BankStatementLine extends Model {
 
         return $result;
     }
-
 
     /**
      * Generate and validate accounting entry, based on existing Payments.
@@ -1644,7 +1656,6 @@ class BankStatementLine extends Model {
         }
         BankStatement::ids(array_keys($map_statements_ids))->do('update_document_json');
     }
-
 
     protected static function defaultDate($values) {
         $result = null;

@@ -544,7 +544,7 @@ class AccountingEntryLine extends Model {
 
     protected static function oncreate($self, $values) {
         if(!array_key_exists('matching_id', $values)) {
-            $self->read(['condo_id', 'account_id' => ['id', 'operation_assignment', 'parent_account_id']]);
+            $self->read(['state', 'condo_id', 'account_id' => ['id', 'operation_assignment', 'parent_account_id']]);
             foreach($self as $id => $accountingEntryLine) {
                 if(isset($accountingEntryLine['condo_id'], $accountingEntryLine['account_id'])) {
                     $matching_account_id = $accountingEntryLine['account_id']['id'] ?? null;
@@ -579,7 +579,10 @@ class AccountingEntryLine extends Model {
                             ->first();
                     }
 
+                    $state = isset($values['state']) ? $values['state'] : $accountingEntryLine['state'];
+
                     self::id($id)->update([
+                            'state'                 => $state,
                             'matching_id'           => $matching['id'],
                             'matching_account_id'   => $matching_account_id
                         ]);

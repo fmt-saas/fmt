@@ -1,11 +1,6 @@
 {
     "name": "Navigation Node",
     "description": "Configure how a navigation node behaves and appears.",
-    "header": {
-        "actions": {
-            "ACTION.EDIT": false
-        }
-    },
     "layout": {
         "groups": [
             {

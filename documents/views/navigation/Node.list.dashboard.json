@@ -14,7 +14,7 @@
         }
     ],
     "order": "node_type,name",
-    "sort": "desc,asc",
+    "sort": "desc",
     "layout": {
         "items": [
             {

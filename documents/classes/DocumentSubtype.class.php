@@ -114,6 +114,7 @@ class DocumentSubtype extends Model {
      * This is a "private class": upon creation, assign a unique UUID if on GLOBAL instance
      */
     protected static function oncreate($self, $orm) {
+        $self->read(['state']);
         foreach($self as $id => $object) {
             if(constant('FMT_INSTANCE_TYPE') === 'global') {
                 do {
@@ -121,7 +122,10 @@ class DocumentSubtype extends Model {
                     $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
                 } while( $existing > 0 && count($existing) > 0 );
 
-                self::id($id)->update(['uuid' => $uuid]);
+                self::id($id)->update([
+                    'state' => $object['state'],
+                    'uuid'  => $uuid
+                ]);
             }
         }
     }

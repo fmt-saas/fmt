@@ -7,6 +7,7 @@
 
 use documents\navigation\Node;
 use equal\orm\Domain;
+use equal\orm\DomainCondition;
 use identity\User;
 use realestate\ownership\Owner;
 
@@ -23,6 +24,75 @@ use realestate\ownership\Owner;
             'description'   => 'Criterias that results have to match (series of conjunctions).',
             'type'          => 'array',
             'default'       => []
+        ],
+
+        'name' => [
+            'type'          => 'string',
+            'description'   => 'Name of the node.',
+            'help'          => 'Free text is allowed and can be partial.'
+        ],
+
+        'condo_id' => [
+            'type'              => 'many2one',
+            'description'       => 'The condominium the node relates to.',
+            'foreign_object'    => 'realestate\property\Condominium',
+            'default'           => function($domain = []) {
+                $condo_id = null;
+
+                $origDomain = new Domain($domain);
+                foreach($origDomain->getClauses() as $clause) {
+                    foreach($clause->getConditions() as $condition) {
+                        if($condition->getOperand() === 'condo_id') {
+                            $condo_id = $condition->getValue();
+                            break 2;
+                        }
+                    }
+                }
+
+                return $condo_id;
+            }
+        ],
+
+        'node_type' => [
+            'type'              => 'string',
+            'selection'         => [
+                '',
+                'folder',
+                'document'
+            ],
+            'description'       => 'Type of node to search.'
+        ],
+
+        'node_visibility' => [
+            'type'              => 'string',
+            'selection'         => [
+                '',
+                'condo',
+                'agency',
+                'ownership',
+                'owner',
+                'suppliership'
+            ],
+            'description'       => 'Visibility scope of the node.'
+        ],
+
+        'ownership_id' => [
+            'type'              => 'many2one',
+            'description'       => 'The ownership that the node relates to.',
+            'foreign_object'    => 'realestate\ownership\Ownership',
+            'domain'            => ['condo_id', '=', 'object.condo_id']
+        ],
+
+        'owner_id' => [
+            'type'              => 'many2one',
+            'description'       => 'The owner concerned by the node.',
+            'foreign_object'    => 'realestate\ownership\Owner'
+        ],
+
+        'supplier_id' => [
+            'type'              => 'many2one',
+            'description'       => 'The supplier the node relates to.',
+            'foreign_object'    => 'purchase\supplier\Supplier'
         ]
     ],
     'access' => [
@@ -107,6 +177,26 @@ if(!$user['employee_id'] && !$is_root && !$is_admin) {
         count($map_allowed_nodes_ids) ? ['id', 'in', array_keys($map_allowed_nodes_ids)] : ['id', '=', 0]
     );
 }
+
+$domain = new Domain($params['domain']);
+
+if(isset($params['name']) && strlen($params['name']) > 0) {
+    $domain->addCondition(new DomainCondition('name', 'ilike', '%' . $params['name'] . '%'));
+}
+
+foreach(['condo_id', 'ownership_id', 'owner_id', 'supplier_id'] as $field) {
+    if(isset($params[$field]) && $params[$field] > 0) {
+        $domain->addCondition(new DomainCondition($field, '=', $params[$field]));
+    }
+}
+
+foreach(['node_type', 'node_visibility'] as $field) {
+    if(isset($params[$field]) && strlen($params[$field]) > 0) {
+        $domain->addCondition(new DomainCondition($field, '=', $params[$field]));
+    }
+}
+
+$params['domain'] = $domain->toArray();
 
 $result = eQual::run('get', 'model_collect', $params, true);
 

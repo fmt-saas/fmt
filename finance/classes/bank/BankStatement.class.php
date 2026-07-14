@@ -520,6 +520,16 @@ class BankStatement extends Model {
         }
     }
 
+    protected static function candelete($self) {
+        $self->read(['status']);
+        foreach($self as $bankStatement) {
+            if($bankStatement['status'] !== 'pending') {
+                return ['status' => ['non_removable' => 'Non-draft statement cannot be deleted.']];
+            }
+        }
+        return parent::candelete($self);
+    }
+
     protected static function calcFiscalPeriodId($self) {
         $result = [];
         $self->read(['opening_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);

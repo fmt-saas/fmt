@@ -59,13 +59,25 @@
         },
         "node_visibility": {
             "label": "Visibilité",
-            "description": "Définit qui peut consulter le nœud (publique/protégée/privée).",
-            "help": "Synchronisé avec la hiérarchie : modifier un dossier met à jour ses descendants et leurs documents."
+            "description": "Définit qui peut consulter le nœud.",
+            "help": "Synchronisé avec la hiérarchie : modifier un dossier met à jour ses descendants et leurs documents.",
+            "selection": {
+                "condo": "Copropriété",
+                "agency": "Agence",
+                "ownership": "Propriété",
+                "owner": "Propriétaire",
+                "suppliership": "Relation fournisseur"
+            }
         },
         "ownership_id": {
             "label": "Propriété",
             "description": "Propriété ou lot concerné par le document.",
             "help": "Permet d'associer le document à un droit de propriété particulier."
+        },
+        "owner_id": {
+            "label": "Propriétaire",
+            "description": "Propriétaire concerné par le document.",
+            "help": "Permet de limiter le document à un propriétaire particulier."
         },
         "supplier_id": {
             "label": "Fournisseur",
@@ -91,6 +103,20 @@
         "list.default": {
             "name": "Fichiers",
             "description": "Vue tabulaire mixte dossiers/documents (type, description, lien de téléchargement).",
+            "actions": {
+                "action.download": {
+                    "label": "Télécharger",
+                    "description": "Télécharger le document."
+                }
+            }
+        },
+        "collect.search.default": {
+            "name": "Recherche de fichiers",
+            "description": "Recherche avancée dans les dossiers et documents."
+        },
+        "list.dashboard": {
+            "name": "Dossiers",
+            "description": "Liste des dossiers et documents visibles depuis le tableau de bord.",
             "actions": {
                 "action.download": {
                     "label": "Télécharger",
