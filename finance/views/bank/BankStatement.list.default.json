@@ -12,6 +12,8 @@
             ]
         }
     },
+    "order": "date",
+    "sort": "desc",
     "layout": {
         "items": [
             {
