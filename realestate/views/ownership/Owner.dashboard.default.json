@@ -62,16 +62,8 @@
                                                 "label": "Documents",
                                                 "description": "",
                                                 "width": "50%",
-                                                "entity": "documents\\Document",
-                                                "view": "list.dashboard",
-                                                "domain": [
-                                                    ["condo_id", "in", "user.condos_ids"],
-                                                    ["assembly_id", "is", null],
-                                                    ["supplier_id", "is", null],
-                                                    ["ownership_id", "is", null],
-                                                    ["owner_id", "is", null],
-                                                    ["document_visibility", "=", "condo"]
-                                                ]
+                                                "entity": "documents\\navigation\\Node",
+                                                "view": "list.dashboard"
                                             }
                                         ]
                                     }
