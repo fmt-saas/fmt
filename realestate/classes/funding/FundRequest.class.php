@@ -991,7 +991,14 @@ class FundRequest extends \equal\orm\Model {
      */
     public static function oncreate($self, $values) {
         if(isset($values['has_date_range']) && $values['has_date_range'] && isset($values['date_from'])) {
-            $self->update(['request_date' => $values['date_from']]);
+            $self->read(['state']);
+            foreach($self as $id => $fundRequest) {
+                $state = isset($values['state']) ? $values['state'] : $fundRequest['state'];
+                self::id($id)->update([
+                    'state'         => $state,
+                    'request_date'  => $values['date_from']
+                ]);
+            }
         }
     }
 

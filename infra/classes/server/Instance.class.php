@@ -249,7 +249,7 @@ class Instance extends Model {
      * This is a "private class": upon creation, assign a unique UUID if on GLOBAL instance
      */
     protected static function oncreate($self, $orm) {
-        $self->read(['instance_type']);
+        $self->read(['state', 'instance_type']);
         foreach($self as $id => $instance) {
             if(constant('FMT_INSTANCE_TYPE') === 'global' && $instance['instance_type'] === 'agency') {
                 // generate a new UUID
@@ -258,7 +258,10 @@ class Instance extends Model {
                     $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
                 } while( $existing > 0 && count($existing) > 0 );
 
-                $orm->update(static::class, $id, ['uuid' => $uuid]);
+                $orm->update(static::class, $id, [
+                    'state' => $instance['state'],
+                    'uuid'  => $uuid
+                ]);
             }
         }
     }

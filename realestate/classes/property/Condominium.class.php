@@ -821,14 +821,18 @@ class Condominium extends Identity {
      * This is a "private class": upon creation, assign a unique UUID if on GLOBAL instance
      */
     protected static function oncreate($self, $orm) {
-        foreach($self as $id => $object) {
+        $self->read(['state']);
+        foreach($self as $id => $condominium) {
             if(constant('FMT_INSTANCE_TYPE') === 'global') {
                 do {
                     $uuid = DataGenerator::uuid();
                     $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
                 } while( $existing > 0 && count($existing) > 0 );
 
-                self::id($id)->update(['uuid' => $uuid]);
+                self::id($id)->update([
+                    'state' => $condominium['state'],
+                    'uuid'  => $uuid
+                ]);
             }
         }
 

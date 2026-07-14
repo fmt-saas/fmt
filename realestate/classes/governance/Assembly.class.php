@@ -380,7 +380,7 @@ class Assembly extends \equal\orm\Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'documents\Document',
                 'foreign_field'     => 'assembly_id',
-                'description'       => "One or more documents that relate to the point.",
+                'description'       => "One or more documents that relate to the Assembly (attachment).",
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
