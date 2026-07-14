@@ -265,14 +265,14 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
      * Assign current Fiscal Year of the Condominium, if any.
      */
     public static function oncreate($self, $orm) {
-        $self->read(['condo_id', 'posting_date']);
+        $self->read(['state', 'condo_id', 'posting_date']);
         foreach($self as $id => $invoice) {
             if($invoice['posting_date'] && $invoice['condo_id']) {
                 // #memo - posting date is set on time() by default
                 $fiscalYear = FiscalYear::search([['condo_id', '=', $invoice['condo_id']], ['date_from', '<=', $invoice['posting_date']], ['date_to', '>=', $invoice['posting_date']]])->first();
                 if($fiscalYear) {
                     // #memo - prevent updating 'state'
-                    $orm->update(self::getType(), $id, ['fiscal_year_id' => $fiscalYear['id']], null, true);
+                    $orm->update(self::getType(), $id, ['state' => $invoice['state'], 'fiscal_year_id' => $fiscalYear['id']], null, true);
                 }
             }
         }

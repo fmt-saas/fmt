@@ -440,10 +440,16 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
 
     protected static function oncreate($self, $values, $lang) {
         if(isset($values['invoice_id'])) {
+            $self->read(['state']);
             $invoice = PurchaseInvoice::id($values['invoice_id'])
                 ->read(['description'])
                 ->first();
-            $self->update(['description' => $invoice['description']], $lang);
+            foreach($self as $id => $purchaseInvoiceLine) {
+                self::id($id)->update([
+                    'state'       => $purchaseInvoiceLine['state'],
+                    'description' => $invoice['description']
+                ], $lang);
+            }
         }
     }
 
