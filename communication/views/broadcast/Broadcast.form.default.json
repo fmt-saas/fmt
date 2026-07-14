@@ -1,0 +1,214 @@
+{
+    "name": "Model",
+    "description": "Allows to prepare and send multiple emails to a specific group of co-owners.",
+    "actions": [
+        {
+            "id": "action.validate_recipients",
+            "label": "Validate recipients",
+            "description": "Validate recipients and go to next step.",
+            "controller": "communication_broadcast_Broadcast_validate-recipients",
+            "visible": [
+                ["step", "=", "recipients_selection"],
+                ["status", "=", "creating"]
+            ]
+        },
+        {
+            "id": "action.validate_content",
+            "label": "Validate content",
+            "description": "Send multiple emails from broadcast.",
+            "controller": "communication_broadcast_Broadcast_validate-content",
+            "visible": [
+                ["step", "=", "content_edition"],
+                ["status", "=", "creating"]
+            ]
+        }
+    ],
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                { "id": "SAVE_AND_CONTINUE" },
+                { "id": "SAVE_AND_VIEW" },
+                { "id": "SAVE_AND_CLOSE" }
+            ]
+        }
+    },
+    "layout": {
+        "groups": [
+            {
+                "visible": [
+                    ["step", "=", "recipients_selection"],
+                    ["status", "=", "creating"]
+                ],
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "id": "item.select_by_ownership",
+                                                "type": "label",
+                                                "value": "Select by ownership",
+                                                "width": "100%",
+                                                "visible": ["condo_id", "<>", null]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ownerships_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.broadcast",
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "domain": [
+                                                        ["condo_id", "=", "object.condo_id"]
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {
+                                                "id": "item.select_by_owner",
+                                                "type": "label",
+                                                "value": "Select by owner",
+                                                "width": "100%",
+                                                "visible": ["condo_id", "<>", null]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "owners_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.broadcast",
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "domain": [
+                                                        ["condo_id", "=", "object.condo_id"]
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "visible": [
+                    ["status", "=", "ready"]
+                ],
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "label",
+                                                "value": "Destinataires",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "identities_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.broadcast",
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "visible": [
+                    [
+                        ["step", "=", "content_edition"],
+                        ["status", "=", "creating"]
+                    ],
+                    [
+                        ["status", "=", "ready"]
+                    ]
+                ],
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "name",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "reply_to",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "subject",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "body",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -1,0 +1,104 @@
+{
+    "name": "Diffusion",
+    "plural": "Diffusions",
+    "description": "Messages électroniques préparés et envoyés à un groupe déterminé de copropriétaires.",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Nom de la diffusion.",
+            "help": ""
+        },
+        "step": {
+            "label": "Étape",
+            "description": "Étape de création de la liste de diffusion.",
+            "help": "",
+            "selection": {
+                "recipients_selection": "Sélection destinataires",
+                "content_edition": "Édition contenu"
+            }
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Statut d'envoi de la diffusion.",
+            "help": "",
+            "selection": {
+                "creating": "Création",
+                "ready": "Prêt"
+            }
+        },
+        "reply_to": {
+            "label": "Adresse de réponse",
+            "description": "Adresse électronique à laquelle les destinataires peuvent répondre.",
+            "help": ""
+        },
+        "subject": {
+            "label": "Objet",
+            "description": "Objet du message.",
+            "help": ""
+        },
+        "body": {
+            "label": "Corps",
+            "description": "Contenu HTML du message.",
+            "help": ""
+        },
+        "attachments": {
+            "label": "Pièces jointes",
+            "description": "Liste des noms des documents joints au message.",
+            "help": "Les noms des documents sont séparés par des virgules."
+        },
+        "object_class": {
+            "label": "Classe de l'objet",
+            "description": "Classe de l'entité associée à la diffusion.",
+            "help": ""
+        },
+        "object_id": {
+            "label": "Identifiant de l'objet",
+            "description": "Identifiant de l'entité associée à la diffusion.",
+            "help": ""
+        },
+        "ownerships_ids": {
+            "label": "Lots de copropriété",
+            "description": "Lots de copropriété concernés par la diffusion.",
+            "help": ""
+        },
+        "owners_ids": {
+            "label": "Copropriétaires",
+            "description": "Copropriétaires concernés par la diffusion.",
+            "help": ""
+        },
+        "identities_ids": {
+            "label": "Identités",
+            "description": "Identités auxquelles la diffusion doit être envoyée.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Diffusion",
+            "description": "Diffusion de plusieurs e-mails à des propriétaires.",
+            "actions": {
+                "action.validate_recipients": {
+                    "label": "Valider destinataires"
+                },
+                "action.validate_content": {
+                    "label": "Valider contenu"
+                }
+            },
+            "layout": {
+                "section.recipients": {
+                    "label": "Destinataires"
+                },
+                "item.select_by_ownership": {
+                    "label": "Sélection destinataires par dossiers de propriété"
+                },
+                "item.select_by_owner": {
+                    "label": "Sélection destinataires par propriétés"
+                }
+            }
+        },
+        "list.default": {
+            "name": "Diffusions",
+            "description": "Liste des diffusions par courriel et de leur statut d'envoi."
+        }
+    }
+}
