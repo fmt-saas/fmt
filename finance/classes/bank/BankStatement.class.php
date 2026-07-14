@@ -916,7 +916,9 @@ class BankStatement extends Model {
             if(!$bankStatement['document_process_id']) {
                 continue;
             }
-            DocumentProcess::id($bankStatement['document_process_id'])->do('remove');
+            DocumentProcess::id($bankStatement['document_process_id'])
+                ->update(['document_bank_statement_id' => null])
+                ->do('remove');
         }
     }
 
