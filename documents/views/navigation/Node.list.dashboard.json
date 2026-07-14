@@ -13,9 +13,8 @@
             "visible": ["node_type", "=", "document"]
         }
     ],
-    "domain": [["node_type", "=", "folder"], ["nodes_count", ">", 0]],
-    "order": "name",
-    "sort": "asc",
+    "order": "node_type,name",
+    "sort": "desc,asc",
     "layout": {
         "items": [
             {
