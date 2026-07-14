@@ -1715,7 +1715,7 @@ class Identity extends Model {
                 } while( $existing > 0 && count($existing) > 0 );
 
                 $object['object_class']::id($id)->update([
-                    'state' => $object['state'],
+                    'state' => $state,
                     'uuid'  => $uuid
                 ]);
             }
@@ -1896,31 +1896,44 @@ class Identity extends Model {
                 }
             }
 
-            $bank_updates['supplier_id'] = $values['supplier_id'] ?? $identity['supplier_id'] ?? null;
+            $ownerIdentity = null;
+            $supplier_id = $values['supplier_id'] ?? $identity['supplier_id'] ?? null;
+            if(!$supplier_id && $identity_id !== $id) {
+                $ownerIdentity = self::id($identity_id)->read($bank_fields)->first();
+                $supplier_id = $ownerIdentity['supplier_id'] ?? null;
+            }
+            if($supplier_id) {
+                $bank_updates['supplier_id'] = $supplier_id;
+            }
 
             if(count($bank_updates)) {
                 $mainBankAccount = BankAccount::search([['owner_identity_id', '=', $identity_id], ['is_primary', '=', true]]);
                 if($mainBankAccount->count() <= 0 /*&& isset($identity['bank_account_iban'])*/) {
-                    $identity = self::id($identity_id)->read($bank_fields)->first();
-                    $supplier_id = $supplier_id ?: ($identity['supplier_id'] ?? null);
+                    $ownerIdentity = $ownerIdentity ?: self::id($identity_id)->read($bank_fields)->first();
+                    if(!$ownerIdentity) {
+                        continue;
+                    }
+
+                    $supplier_id = $supplier_id ?: ($ownerIdentity['supplier_id'] ?? null);
+
                     // prevent creation attempt if no iban is resolved
-                    if($values['bank_account_iban'] ?? $identity['bank_account_iban']) {
+                    if($values['bank_account_iban'] ?? $ownerIdentity['bank_account_iban']) {
                         $mainBankAccount = BankAccount::create([
                             'owner_identity_id' => $identity_id,
                             'is_primary'        => true,
                             'bank_account_iban' => ($values['bank_account_iban'] ?? '') !== ''
                                 ? $values['bank_account_iban']
-                                : $identity['bank_account_iban'],
+                                : $ownerIdentity['bank_account_iban'],
                             'bank_account_bic'  => ($values['bank_account_bic'] ?? '') !== ''
                                 ? $values['bank_account_bic']
-                                : $identity['bank_account_bic'],
+                                : $ownerIdentity['bank_account_bic'],
                             'bank_name'         => ($values['bank_name'] ?? '') !== ''
                                 ? $values['bank_name']
-                                : $identity['bank_name'],
+                                : $ownerIdentity['bank_name'],
                             'bank_country'      => ($values['bank_country'] ?? '') !== ''
                                 ? $values['bank_country']
-                                : $identity['bank_country'],
-                            'supplier_id'       => $identity['supplier_id']
+                                : $ownerIdentity['bank_country'],
+                            'supplier_id'       => $supplier_id
                         ]);
                     }
                 }

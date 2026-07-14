@@ -65,15 +65,15 @@ class Bank extends \purchase\supplier\Supplier {
      */
     protected static function oncreate($self, $orm, $values) {
         $self->read(['state']);
-        foreach($self as $id => $object) {
+        foreach($self as $id => $bank) {
             if(constant('FMT_INSTANCE_TYPE') === 'global') {
                 do {
                     $uuid = DataGenerator::uuid();
                     $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
                 } while( $existing > 0 && count($existing) > 0 );
-
+                $state = isset($values['state']) ? $values['state'] : $bank['state'];
                 self::id($id)->update([
-                    'state' => $object['state'],
+                    'state' => $state,
                     'uuid'  => $uuid
                 ]);
             }

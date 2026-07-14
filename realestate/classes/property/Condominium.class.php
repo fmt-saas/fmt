@@ -828,9 +828,9 @@ class Condominium extends Identity {
                     $uuid = DataGenerator::uuid();
                     $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
                 } while( $existing > 0 && count($existing) > 0 );
-
+                $state = isset($values['state']) ? $values['state'] : $condominium['state'];
                 self::id($id)->update([
-                    'state' => $condominium['state'],
+                    'state' => $state,
                     'uuid'  => $uuid
                 ]);
             }

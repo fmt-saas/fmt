@@ -102,11 +102,11 @@ class ManagingAgent extends \purchase\supplier\Supplier {
                     $uuid = DataGenerator::uuid();
                     $existing = $orm->search(static::class, ['uuid', '=', $uuid]);
                 } while( $existing > 0 && count($existing) > 0 );
-
+                $state = isset($values['state']) ? $values['state'] : $managingAgent['state'];
                 self::id($id)->update([
-                        'state' => $managingAgent['state'],
-                        'uuid'  => $uuid
-                    ]);
+                    'state' => $state,
+                    'uuid'  => $uuid
+                ]);
             }
         }
     }
