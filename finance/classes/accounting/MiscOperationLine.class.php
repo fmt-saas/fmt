@@ -226,10 +226,16 @@ class MiscOperationLine extends Model {
     // Add MiscOperation description
     protected static function oncreate($self, $values, $lang) {
         if(isset($values['misc_operation_id'])) {
+            $self->read(['state']);
             $miscOperation = MiscOperation::id($values['misc_operation_id'])
                 ->read(['description'])
                 ->first();
-            $self->update(['description' => $miscOperation['description']], $lang);
+            foreach($self as $id => $miscOperationLine) {
+                self::id($id)->update([
+                    'state'         => $miscOperationLine['state'],
+                    'description'   => $miscOperation['description']
+                ], $lang);
+            }
         }
     }
 
