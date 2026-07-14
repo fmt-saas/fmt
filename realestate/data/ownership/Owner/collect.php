@@ -7,19 +7,16 @@
 
 use equal\orm\Domain;
 use equal\orm\DomainCondition;
-use realestate\ownership\Ownership;
-use realestate\property\PropertyLot;
-use realestate\property\PropertyLotOwnership;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Advanced search for Ownership: returns a collection according to extra parameters.",
+    'description'   => "Advanced search for Owner: returns a collection according to extra parameters.",
     'extends'       => 'core_model_collect',
     'params'        => [
 
         'entity' =>  [
             'type'              => 'string',
             'description'       => "Full name of the entity to collect. (Forced to ownership)",
-            'default'           => 'realestate\ownership\Ownership'
+            'default'           => 'realestate\ownership\Owner'
         ],
 
         'domain' => [
@@ -53,21 +50,7 @@ use realestate\property\PropertyLotOwnership;
 
         'name' => [
             'type'              => 'string',
-            'description'       => "The name of the ownership."
-        ],
-
-        'property_lot_id' => [
-            'type'              => 'many2one',
-            'foreign_object'    => 'realestate\property\PropertyLot',
-            'description'       => "The property lot the ownership file relates to.",
-            'domain'            => ['condo_id', '=', 'object.condo_id']
-        ],
-
-        'property_entrance_id' => [
-            'type'              => 'many2one',
-            'foreign_object'    => 'realestate\property\PropertyEntrance',
-            'description'       => "The property entrance the ownership file relates to.",
-            'domain'            => ['condo_id', '=', 'object.condo_id']
+            'description'       => "The name of the owner."
         ]
 
     ],
@@ -92,40 +75,6 @@ if(isset($params['condo_id']) && $params['condo_id'] > 0) {
 
 if(!empty($params['name'])) {
     $domain->addCondition(new DomainCondition('name', 'ilike', "%{$params['name']}%"));
-}
-
-if(isset($params['property_lot_id']) && $params['property_lot_id'] > 0) {
-    $ownerships = Ownership::search()
-        ->read(['property_lots_ids'])
-        ->get();
-
-    $map_ownerships_ids = [];
-    foreach($ownerships as $id => $ownership) {
-        if(in_array($params['property_lot_id'], $ownership['property_lots_ids'])) {
-            $map_ownerships_ids[$id] = true;
-        }
-    }
-
-    $domain->addCondition(
-        new DomainCondition('id', 'in', array_keys($map_ownerships_ids))
-    );
-}
-
-if(isset($params['property_entrance_id']) && $params['property_entrance_id'] > 0) {
-    $property_lots_ids = PropertyLot::search(['property_entrance_id', '=', $params['property_entrance_id']])->ids();
-
-    $pro_lot_ownerships = PropertyLotOwnership::search(['property_lot_id', 'in', $property_lots_ids])
-        ->read(['ownership_id'])
-        ->get();
-
-    $map_ownerships_ids = [];
-    foreach($pro_lot_ownerships as $id => $pro_lot_ownership) {
-        $map_ownerships_ids[$pro_lot_ownership['ownership_id']] = true;
-    }
-
-    $domain->addCondition(
-        new DomainCondition('id', 'in', array_keys($map_ownerships_ids))
-    );
 }
 
 $params['domain'] = $domain->toArray();

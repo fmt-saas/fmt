@@ -124,7 +124,10 @@
                                                     "view": "list.broadcast",
                                                     "header": {
                                                         "actions": {
-                                                            "ACTION.CREATE": false
+                                                            "ACTION.CREATE": false,
+                                                            "ACTION.SELECT": [
+                                                                { "view_id": "list.broadcast-search" }
+                                                            ]
                                                         }
                                                     },
                                                     "domain": [

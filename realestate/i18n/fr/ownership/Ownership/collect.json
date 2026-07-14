@@ -1,7 +1,7 @@
 {
     "name": "Dossier de propriété",
     "plural": "Dossiers de propriété",
-    "description": "Recherche avancée sur les recherche avancées.",
+    "description": "Recherche avancée sur les dossiers de propriété.",
     "model": {
         "condo_id": {
             "label": "Copropriété",

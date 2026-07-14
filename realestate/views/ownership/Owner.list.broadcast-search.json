@@ -1,0 +1,46 @@
+{
+    "name": "Owners",
+    "description": "List of owners.",
+    "controller": "realestate_ownership_Owner_collect",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "Condominium",
+                "value": "condo_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "ownership_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "shares_full_property",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "shares_bare_property",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "shares_usufruct",
+                "width": "20%"
+            }
+        ]
+    }
+}
