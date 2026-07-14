@@ -961,11 +961,11 @@ class BankStatement extends Model {
             case 'form.manual':
             case 'form.default':
                 if(isset($event['bank_account_id'])) {
-                    $bankAccount = CondominiumBankAccount::id($event['bank_account_id'])->read(['current_balance'])->first();
+                    $bankAccount = CondominiumBankAccount::id($event['bank_account_id'])->read(['bank_account_iban', 'current_balance'])->first();
                     if($bankAccount) {
                         $result['opening_balance'] = $bankAccount['current_balance'];
+                        $result['bank_account_iban'] = $bankAccount['bank_account_iban'];
                     }
-
                 }
                 // #memo - bank_account_id controls bank_account_iban
                 /*
