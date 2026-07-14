@@ -117,7 +117,7 @@
                                                         "layout": "inline",
                                                         "actions": false
                                                     },
-                                                    "view": "list.default"
+                                                    "view": "list.dashboard"
                                                 }
                                             }
                                         ]
