@@ -6,14 +6,15 @@
 */
 
 use communication\broadcast\Broadcast;
+use core\Task;
 
 [$params, $providers] = eQual::announce([
-    'description'	=>	"Validates the selected identities as recipients.",
+    'description'	=>	"Schedules a broadcast processing.",
     'params' 		=>	[
         'id' =>  [
             'type'             => 'many2one',
             'foreign_object'   => 'communication\broadcast\Broadcast',
-            'description'      => "The broadcast concerned by the validation.",
+            'description'      => "The broadcast concerned by the scheduling.",
             'required'         => true
         ]
     ],
@@ -34,26 +35,25 @@ use communication\broadcast\Broadcast;
 ['context' => $context] = $providers;
 
 $broadcast = Broadcast::id($params['id'])
-    ->read(['step', 'status', 'identities_ids'])
+    ->read(['status'])
     ->first();
 
 if(!$broadcast) {
     throw new Exception("unknown_broadcast", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-if($broadcast['step'] !== 'recipients_selection') {
-    throw new Exception("invalid_step", EQ_ERROR_INVALID_PARAM);
-}
-
-if($broadcast['status'] !== 'draft') {
+if($broadcast['status'] !== 'ready') {
     throw new Exception("invalid_status", EQ_ERROR_INVALID_PARAM);
 }
 
-if(empty($broadcast['identities_ids'])) {
-    throw new Exception("invalid_identities", EQ_ERROR_INVALID_PARAM);
-}
+Task::create([
+    'name'          => "Handle broadcast {$broadcast['id']}",
+    'is_recurring'  => false,
+    'controller'    => 'communication_broadcast_Broadcast_process',
+    'params'        => json_encode(['id' => $broadcast['id']])
+]);
 
-Broadcast::id($broadcast['id'])->update(['step' => 'content_edition']);
+Broadcast::id($params['id'])->update(['status' => 'scheduled']);
 
 $context
     ->httpResponse()

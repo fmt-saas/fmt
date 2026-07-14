@@ -40,16 +40,19 @@ class Broadcast extends Model {
                     'content_edition'
                 ],
                 'default'           => 'recipients_selection',
-                'visible'           => ['status', '=', 'creating']
+                'visible'           => ['status', '=', 'draft']
             ],
 
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'creating',
-                    'ready'
+                    'draft',
+                    'ready',
+                    'scheduled',
+                    'processing',
+                    'processed'
                 ],
-                'default'           => 'creating',
+                'default'           => 'draft',
                 'description'       => 'Current status of the broadcast.'
             ],
 
@@ -115,6 +118,14 @@ class Broadcast extends Model {
                 'rel_foreign_key'   => 'identity_id',
                 'rel_local_key'     => 'broadcast_id',
                 'description'       => 'Identities to which the broadcast must be sent.'
+            ],
+
+            'mails_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'core\Mail',
+                'foreign_field'     => 'object_id',
+                'domain'            => ['object_class', '=', 'communication\broadcast\Broadcast'],
+                'description'       => 'List of emails sent in the context of the broadcast.'
             ]
 
         ];

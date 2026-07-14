@@ -9,7 +9,7 @@
             "controller": "communication_broadcast_Broadcast_validate-recipients",
             "visible": [
                 ["step", "=", "recipients_selection"],
-                ["status", "=", "creating"]
+                ["status", "=", "draft"]
             ]
         },
         {
@@ -19,7 +19,7 @@
             "controller": "communication_broadcast_Broadcast_validate-content",
             "visible": [
                 ["step", "=", "content_edition"],
-                ["status", "=", "creating"]
+                ["status", "=", "draft"]
             ]
         },
         {
@@ -31,9 +31,22 @@
                 "entity": "communication\\broadcast\\Broadcast",
                 "id": "object.id",
                 "fields": {
-                    "status": "creating",
+                    "status": "draft",
                     "step": "recipients_selection"
                 }
+            },
+            "visible": [
+                ["status", "=", "ready"]
+            ]
+        },
+        {
+            "id": "action.schedule",
+            "label": "Schedule",
+            "description": "Schedule the broadcast for processing.",
+            "controller": "communication_broadcast_Broadcast_schedule",
+            "params": {
+                "entity": "communication\\broadcast\\Broadcast",
+                "id": "object.id"
             },
             "visible": [
                 ["status", "=", "ready"]
@@ -54,7 +67,7 @@
             {
                 "visible": [
                     ["step", "=", "recipients_selection"],
-                    ["status", "=", "creating"]
+                    ["status", "=", "draft"]
                 ],
                 "sections": [
                     {
@@ -145,7 +158,7 @@
             },
             {
                 "visible": [
-                    ["status", "=", "ready"]
+                    ["status", "in", ["ready", "scheduled", "processing", "processed"]]
                 ],
                 "sections": [
                     {
@@ -186,10 +199,10 @@
                 "visible": [
                     [
                         ["step", "=", "content_edition"],
-                        ["status", "=", "creating"]
+                        ["status", "=", "draft"]
                     ],
                     [
-                        ["status", "=", "ready"]
+                        ["status", "in", ["ready", "scheduled", "processing", "processed"]]
                     ]
                 ],
                 "sections": [
@@ -224,6 +237,39 @@
                                                 "type": "field",
                                                 "value": "body",
                                                 "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "visible": [
+                    ["status", "=", "processed"]
+                ],
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "mails_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "limit": 5
+                                                }
                                             }
                                         ]
                                     }

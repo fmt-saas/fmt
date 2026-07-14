@@ -6,9 +6,11 @@
 */
 
 use communication\broadcast\Broadcast;
+use equal\email\Email;
+use fmt\core\Mail;
 
 [$params, $providers] = eQual::announce([
-    'description'	=>	"Validates the selected identities as recipients.",
+    'description'	=>	"Processes a broadcast, for the moment only the sending sending of emails is handled.",
     'params' 		=>	[
         'id' =>  [
             'type'             => 'many2one',
@@ -34,26 +36,41 @@ use communication\broadcast\Broadcast;
 ['context' => $context] = $providers;
 
 $broadcast = Broadcast::id($params['id'])
-    ->read(['step', 'status', 'identities_ids'])
+    ->read(['status', 'reply_to', 'subject', 'body', 'identities_ids' => ['email']])
     ->first();
 
 if(!$broadcast) {
     throw new Exception("unknown_broadcast", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-if($broadcast['step'] !== 'recipients_selection') {
-    throw new Exception("invalid_step", EQ_ERROR_INVALID_PARAM);
-}
-
-if($broadcast['status'] !== 'draft') {
+if(!in_array($broadcast['status'], ['ready', 'scheduled'])) {
     throw new Exception("invalid_status", EQ_ERROR_INVALID_PARAM);
 }
 
-if(empty($broadcast['identities_ids'])) {
-    throw new Exception("invalid_identities", EQ_ERROR_INVALID_PARAM);
+Broadcast::id($params['id'])->update(['status' => 'processing']);
+
+$mails_ids = [];
+foreach($broadcast['identities_ids'] as $identity) {
+    $message = new Email();
+
+    if(!empty($broadcast['reply_to'])) {
+        $message->setReplyTo($broadcast['reply_to']);
+    }
+
+    $message
+        ->setTo($identity['email'])
+        ->setSubject($broadcast['subject'])
+        ->setContentType("text/html")
+        ->setBody($broadcast['body']);
+
+    $mails_ids[] = Mail::queue($message, 'communication\broadcast\Broadcast', $broadcast['id']);
 }
 
-Broadcast::id($broadcast['id'])->update(['step' => 'content_edition']);
+Broadcast::id($params['id'])
+    ->update([
+        'status'    => 'processed',
+        'mails_ids' => $mails_ids
+    ]);
 
 $context
     ->httpResponse()

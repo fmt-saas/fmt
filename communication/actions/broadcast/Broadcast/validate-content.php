@@ -8,7 +8,7 @@
 use communication\broadcast\Broadcast;
 
 [$params, $providers] = eQual::announce([
-    'description'	=>	"Validate the body, subject, reply_to etc.",
+    'description'	=>	"Validates the body, subject, reply_to etc.",
     'params' 		=>	[
         'id' =>  [
             'type'             => 'many2one',
@@ -45,7 +45,7 @@ if($broadcast['step'] !== 'content_edition') {
     throw new Exception("invalid_step", EQ_ERROR_INVALID_PARAM);
 }
 
-if($broadcast['status'] !== 'creating') {
+if($broadcast['status'] !== 'draft') {
     throw new Exception("invalid_status", EQ_ERROR_INVALID_PARAM);
 }
 
