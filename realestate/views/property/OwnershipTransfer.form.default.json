@@ -653,7 +653,7 @@
                     {
                         "id": "section.attachments",
                         "label": "Attachments",
-                        "visible": [["status", "not in", ["pending", "open"]]],
+                        "visible": [["status", "<>", "pending"]],
                         "rows": [
                             {
                                 "columns": [
@@ -662,7 +662,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "attached_documents_ids",
+                                                "value": "ownership_transfer_attachments_ids",
                                                 "widget": {
                                                     "header": {
                                                         "layout": "inline",

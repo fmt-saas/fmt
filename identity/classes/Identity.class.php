@@ -1707,6 +1707,7 @@ class Identity extends Model {
     protected static function oncreate($self, $orm, $values) {
         $self->read(['state', 'object_class', 'type_id', 'citizen_identification']);
         foreach($self as $id => $object) {
+            $state = isset($values['state']) ? $values['state'] : $object['state'];
             if(constant('FMT_INSTANCE_TYPE') === 'global') {
                 do {
                     $uuid = DataGenerator::uuid();
@@ -1721,7 +1722,6 @@ class Identity extends Model {
             if($object['object_class'] !== 'identity\\Identity') {
                 continue;
             }
-            $state = isset($values['state']) ? $values['state'] : $object['state'];
             if($object['type_id'] === 1 && (!$object['citizen_identification'] || strlen($object['citizen_identification']) <= 0)) {
                 $object['object_class']::id($id)->update([
                     'state'                 => $state,

@@ -63,7 +63,7 @@ class Bank extends \purchase\supplier\Supplier {
     /**
      * This is a "private class": upon creation, assign a unique UUID if on GLOBAL instance
      */
-    protected static function oncreate($self, $orm) {
+    protected static function oncreate($self, $orm, $values) {
         $self->read(['state']);
         foreach($self as $id => $object) {
             if(constant('FMT_INSTANCE_TYPE') === 'global') {

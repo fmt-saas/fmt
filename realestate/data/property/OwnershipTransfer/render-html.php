@@ -122,7 +122,6 @@ $labels = $getLabels(
         'article_3_94.section_1.scheduled_fund_requests.title'                    => '3. the status of fund calls intended for the reserve fund and decided by the general meeting before the certain date of transfer of ownership;',
         'article_3_94.section_1.judiciary_procedures.title'                       => '4. where applicable, the list of ongoing judicial proceedings relating to the co-ownership;',
         'article_3_94.section_1.general_assembly_minutes.title'                   => '5. the minutes of ordinary and extraordinary general meetings for the last three years, as well as periodic charge statements for the last two years;',
-        'article_3_94.section_1.general_assembly_minutes.summary'                 => 'Minutes of general meetings for the last 3 years and charge statements for the last 2 years',
         'article_3_94.section_1.latest_balance_sheet.title'                       => '6. a copy of the latest balance sheet approved by the general meeting',
 
         'article_3_94.section_2.title'                                            => 'In accordance with article 3.94, paragraph 2',

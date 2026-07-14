@@ -194,7 +194,7 @@
             "help": ""
         },
         "has_intervention_record": {
-            "label": "Carnet d'intervention",
+            "label": "Dossier d’Intervention Ultérieur (DIU)",
             "description": "Indique si un carnet d'entretien futur existe pour l'immeuble.",
             "help": ""
         },

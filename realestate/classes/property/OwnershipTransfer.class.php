@@ -399,10 +399,17 @@ class OwnershipTransfer extends \equal\orm\Model {
             'attached_documents_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'documents\Document',
-                'foreign_field'     => 'ownership_transfer_ids',
-                'rel_table'         => 'realestate_ownership_transfer_rel_documents',
+                'rel_table'         => 'realestate_property_ownershiptransferattachment',
                 'rel_foreign_key'   => 'document_id',
-                'rel_local_key'     => 'transfer_id',
+                'rel_local_key'     => 'ownership_transfer_id',
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'description'       => 'Selected documents as attachment.'
+            ],
+
+            'ownership_transfer_attachments_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\OwnershipTransferAttachment',
+                'foreign_field'     => 'ownership_transfer_id',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'description'       => 'Selected documents as attachment.'
             ],
