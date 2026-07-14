@@ -1,6 +1,7 @@
 {
     "name": "Navigation Nodes",
     "description": "Browse nodes displayed in navigation menus and trees.",
+    "controller": "documents_navigation_Node_collect",
     "actions": [
         {
             "id": "action.download",
@@ -17,7 +18,7 @@
         }
     ],
     "order": "node_type,name",
-    "sort": "desc,asc",
+    "sort": "desc",
     "layout": {
         "items": [
             {
@@ -102,7 +103,7 @@
                 "value": "document_link",
                 "width": "14%",
                 "widget": {
-                    "link": "icon"
+                    "link": true
                 }
             }
         ]

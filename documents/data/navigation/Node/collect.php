@@ -55,66 +55,56 @@ if(!$user['employee_id'] && !$is_root && !$is_admin) {
     $owners = Owner::search(['identity_id', '=', $user['identity_id']])->read(['condo_id', 'ownership_id']);
 
     $owner_ids = [];
-    $condo_ids = [];
-    $ownership_ids = [];
+    $map_condo_ids = [];
+    $map_ownership_ids = [];
 
     foreach($owners as $owner_id => $owner) {
         $owner_ids[] = $owner_id;
 
         if(isset($owner['condo_id'])) {
-            $condo_ids[$owner['condo_id']] = true;
+            $map_condo_ids[$owner['condo_id']] = true;
         }
 
         if(isset($owner['ownership_id'])) {
-            $ownership_ids[$owner['ownership_id']] = true;
+            $map_ownership_ids[$owner['ownership_id']] = true;
         }
     }
 
-    $allowed_nodes_ids = [];
+    $map_allowed_nodes_ids = [];
 
-    if(count($condo_ids)) {
-        $allowed_nodes_ids = array_merge(
-            $allowed_nodes_ids,
-            Node::search([
-                    ['node_visibility', '=', 'condo'],
-                    ['condo_id', 'in', array_keys($condo_ids)]
-                ])
-                ->ids()
-        );
+    if(count($map_condo_ids)) {
+        foreach(Node::search([
+                ['node_visibility', '=', 'condo'],
+                ['condo_id', 'in', array_keys($map_condo_ids)]
+            ])
+            ->ids() as $node_id) {
+            $map_allowed_nodes_ids[$node_id] = true;
+        }
     }
 
-    if(count($ownership_ids)) {
-        $allowed_nodes_ids = array_merge(
-            $allowed_nodes_ids,
-            Node::search([
-                    ['node_visibility', '=', 'ownership'],
-                    ['ownership_id', 'in', array_keys($ownership_ids)]
-                ])
-                ->ids()
-        );
+    if(count($map_ownership_ids)) {
+        foreach(Node::search([
+                ['node_visibility', '=', 'ownership'],
+                ['ownership_id', 'in', array_keys($map_ownership_ids)]
+            ])
+            ->ids() as $node_id) {
+            $map_allowed_nodes_ids[$node_id] = true;
+        }
     }
 
     if(count($owner_ids)) {
-        $map_owner_ids = array_fill_keys($owner_ids, true);
-
-        $owner_nodes = Node::search([
+        foreach(Node::search([
                 ['node_visibility', '=', 'owner'],
-                ['document_id', '<>', null]
+                ['owner_id', 'in', $owner_ids]
             ])
-            ->read(['document_id' => ['owner_id']]);
-
-        foreach($owner_nodes as $node_id => $node) {
-            if(isset($node['document_id']['owner_id']) && isset($map_owner_ids[$node['document_id']['owner_id']])) {
-                $allowed_nodes_ids[] = $node_id;
-            }
+            ->ids() as $node_id) {
+            $map_allowed_nodes_ids[$node_id] = true;
         }
     }
 
-    $allowed_nodes_ids = array_values(array_unique($allowed_nodes_ids));
-
     $params['domain'] = Domain::conditionAdd(
         $params['domain'],
-        count($allowed_nodes_ids) ? ['id', 'in', $allowed_nodes_ids] : ['id', '=', 0]
+        count($map_allowed_nodes_ids) ? ['id', 'in', array_keys($map_allowed_nodes_ids)] : ['id', '=', 0]
     );
 }
 

@@ -1,6 +1,6 @@
 {
     "name": "Folders",
-    "description": "List of root folders, by Condominium.",
+    "description": "List of root folders, depending on current User.",
     "controller": "documents_navigation_Node_collect",
     "actions": [
         {
@@ -13,6 +13,7 @@
             "visible": ["node_type", "=", "document"]
         }
     ],
+    "domain": ["node_type', '=', folder"],
     "order": "name",
     "sort": "asc",
     "layout": {

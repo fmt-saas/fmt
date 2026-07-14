@@ -1,6 +1,7 @@
 {
     "name": "Folders",
     "description": "List of root folders, by Condominium.",
+    "controller": "documents_navigation_Node_collect",
     "actions": [
         {
             "id": "action.download",
