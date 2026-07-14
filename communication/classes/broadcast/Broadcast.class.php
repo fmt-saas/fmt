@@ -22,7 +22,8 @@ class Broadcast extends Model {
             'condo_id' => [
                 'type'              => 'many2one',
                 'description'       => "The condominium concerned by the broadcast.",
-                'foreign_object'    => 'realestate\property\Condominium'
+                'foreign_object'    => 'realestate\property\Condominium',
+                'onupdate'          => 'onupdateCondoId'
             ],
 
             'name' => [
@@ -126,6 +127,26 @@ class Broadcast extends Model {
         }
 
         return $result;
+    }
+
+    protected static function onupdateCondoId($self, $values) {
+        $self->read(['ownerships_ids', 'owners_ids', 'identities_ids']);
+        foreach($self as $id =>  $broadcast) {
+            $data = [];
+            if(!empty($broadcast['ownerships_ids'])) {
+                $data['ownerships_ids'] = array_map(fn($ownership_id) => -$ownership_id, $broadcast['ownerships_ids']);
+            }
+            if(!empty($broadcast['owners_ids'])) {
+                $data['owners_ids'] = array_map(fn($owner_id) => -$owner_id, $broadcast['owners_ids']);
+            }
+            if(!empty($broadcast['identities_ids'])) {
+                $data['identities_ids'] = array_map(fn($owner_id) => -$owner_id, $broadcast['identities_ids']);
+            }
+
+            if(!empty($data)) {
+                self::id($id)->update($data);
+            }
+        }
     }
 
     protected static function onupdateOwnershipsIds($self, $values) {

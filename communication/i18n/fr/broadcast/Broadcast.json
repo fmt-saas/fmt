@@ -82,6 +82,9 @@
                 },
                 "action.validate_content": {
                     "label": "Valider contenu"
+                },
+                "action.select_recipients": {
+                    "label": "Sélection destinataires"
                 }
             },
             "layout": {

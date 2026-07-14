@@ -21,6 +21,23 @@
                 ["step", "=", "content_edition"],
                 ["status", "=", "creating"]
             ]
+        },
+        {
+            "id": "action.select_recipients",
+            "label": "Select recipients",
+            "description": "Back to select recipients step.",
+            "controller": "model_update",
+            "params": {
+                "entity": "communication\\broadcast\\Broadcast",
+                "id": "object.id",
+                "fields": {
+                    "status": "creating",
+                    "step": "recipients_selection"
+                }
+            },
+            "visible": [
+                ["status", "=", "ready"]
+            ]
         }
     ],
     "header": {
