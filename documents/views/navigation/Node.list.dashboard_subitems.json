@@ -83,12 +83,22 @@
                 "type": "field",
                 "label": "Condominium",
                 "value": "condo_id",
-                "width": "20%"
+                "width": "20%",
+                "visible": false
             },
             {
                 "type": "field",
                 "value": "description",
                 "width": "25%"
+            },
+            {
+                "type": "field",
+                "label": "View",
+                "value": "document_link",
+                "width": "14%",
+                "widget": {
+                    "link": true
+                }
             }
         ]
     }
