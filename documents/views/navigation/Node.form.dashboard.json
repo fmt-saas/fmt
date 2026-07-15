@@ -9,6 +9,7 @@
     "layout": {
         "groups": [
             {
+                "visible": false,
                 "sections": [
                     {
                         "rows": [
@@ -122,6 +123,7 @@
                                                         "layout": "inline",
                                                         "actions": false
                                                     },
+                                                    "controller": "core_model_collect",
                                                     "view": "list.default"
                                                 }
                                             }
