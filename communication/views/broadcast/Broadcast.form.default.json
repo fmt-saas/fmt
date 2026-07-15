@@ -9,7 +9,7 @@
             "controller": "communication_broadcast_Broadcast_validate-recipients",
             "visible": [
                 ["step", "=", "recipients_selection"],
-                ["status", "=", "creating"]
+                ["status", "=", "draft"]
             ]
         },
         {
@@ -19,21 +19,31 @@
             "controller": "communication_broadcast_Broadcast_validate-content",
             "visible": [
                 ["step", "=", "content_edition"],
-                ["status", "=", "creating"]
+                ["status", "=", "draft"]
             ]
         },
         {
             "id": "action.select_recipients",
             "label": "Select recipients",
             "description": "Back to select recipients step.",
-            "controller": "model_update",
+            "controller": "model_transition",
             "params": {
                 "entity": "communication\\broadcast\\Broadcast",
-                "id": "object.id",
-                "fields": {
-                    "status": "creating",
-                    "step": "recipients_selection"
-                }
+                "transition": "select_recipients",
+                "ids": []
+            },
+            "visible": [
+                ["status", "=", "ready"]
+            ]
+        },
+        {
+            "id": "action.schedule",
+            "label": "Schedule",
+            "description": "Schedule the broadcast for processing.",
+            "controller": "communication_broadcast_Broadcast_schedule",
+            "params": {
+                "entity": "communication\\broadcast\\Broadcast",
+                "id": "object.id"
             },
             "visible": [
                 ["status", "=", "ready"]
@@ -54,7 +64,7 @@
             {
                 "visible": [
                     ["step", "=", "recipients_selection"],
-                    ["status", "=", "creating"]
+                    ["status", "=", "draft"]
                 ],
                 "sections": [
                     {
@@ -145,51 +155,12 @@
             },
             {
                 "visible": [
-                    ["status", "=", "ready"]
-                ],
-                "sections": [
-                    {
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "label",
-                                                "value": "Destinataires",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "identities_ids",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "view": "list.broadcast",
-                                                    "header": {
-                                                        "actions": {
-                                                            "ACTION.CREATE": false
-                                                        }
-                                                    },
-                                                    "limit": 5
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "visible": [
                     [
                         ["step", "=", "content_edition"],
-                        ["status", "=", "creating"]
+                        ["status", "=", "draft"]
                     ],
                     [
-                        ["status", "=", "ready"]
+                        ["status", "in", ["ready", "scheduled", "processing", "processed"]]
                     ]
                 ],
                 "sections": [
@@ -224,6 +195,76 @@
                                                 "type": "field",
                                                 "value": "body",
                                                 "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "visible": [
+                    ["status", "in", ["ready", "scheduled", "processing", "processed"]]
+                ],
+                "sections": [
+                    {
+                        "id": "section.recipients",
+                        "label": "Recipients",
+                        "visible": [
+                            ["status", "in", ["ready", "scheduled", "processing", "processed"]]
+                        ],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "identities_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.broadcast",
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "limit": 5
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.mails",
+                        "label": "Mails",
+                        "visible": [
+                            ["status", "=", "processed"]
+                        ],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "mails_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "limit": 5
+                                                }
                                             }
                                         ]
                                     }

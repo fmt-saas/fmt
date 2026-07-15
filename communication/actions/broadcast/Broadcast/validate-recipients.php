@@ -8,7 +8,7 @@
 use communication\broadcast\Broadcast;
 
 [$params, $providers] = eQual::announce([
-    'description'	=>	"Validate the selected identities as recipients.",
+    'description'	=>	"Validates the selected identities as recipients.",
     'params' 		=>	[
         'id' =>  [
             'type'             => 'many2one',
@@ -45,7 +45,7 @@ if($broadcast['step'] !== 'recipients_selection') {
     throw new Exception("invalid_step", EQ_ERROR_INVALID_PARAM);
 }
 
-if($broadcast['status'] !== 'creating') {
+if($broadcast['status'] !== 'draft') {
     throw new Exception("invalid_status", EQ_ERROR_INVALID_PARAM);
 }
 

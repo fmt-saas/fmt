@@ -6,14 +6,15 @@
 */
 
 use communication\broadcast\Broadcast;
+use core\Task;
 
 [$params, $providers] = eQual::announce([
-    'description'	=>	"Validates the body, subject, reply_to etc.",
+    'description'	=>	"Schedules a broadcast processing.",
     'params' 		=>	[
         'id' =>  [
             'type'             => 'many2one',
             'foreign_object'   => 'communication\broadcast\Broadcast',
-            'description'      => "The broadcast concerned by the validation.",
+            'description'      => "The broadcast concerned by the scheduling.",
             'required'         => true
         ]
     ],
@@ -34,26 +35,18 @@ use communication\broadcast\Broadcast;
 ['context' => $context] = $providers;
 
 $broadcast = Broadcast::id($params['id'])
-    ->read(['step', 'status', 'body'])
+    ->read(['status'])
     ->first();
 
 if(!$broadcast) {
     throw new Exception("unknown_broadcast", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-if($broadcast['step'] !== 'content_edition') {
-    throw new Exception("invalid_step", EQ_ERROR_INVALID_PARAM);
-}
-
-if($broadcast['status'] !== 'draft') {
+if($broadcast['status'] !== 'ready') {
     throw new Exception("invalid_status", EQ_ERROR_INVALID_PARAM);
 }
 
-if(empty($broadcast['body'])) {
-    throw new Exception("invalid_body", EQ_ERROR_INVALID_PARAM);
-}
-
-Broadcast::id($broadcast['id'])->transition('mark_ready');
+Broadcast::id($params['id'])->transition('schedule');
 
 $context
     ->httpResponse()

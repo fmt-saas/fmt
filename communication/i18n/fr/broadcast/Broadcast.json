@@ -22,8 +22,11 @@
             "description": "Statut d'envoi de la diffusion.",
             "help": "",
             "selection": {
-                "creating": "Création",
-                "ready": "Prêt"
+                "draft": "Brouillon",
+                "ready": "Prêt",
+                "scheduled": "Planifié",
+                "processing": "Traitement en cours",
+                "processed": "Traité"
             }
         },
         "reply_to": {
@@ -70,6 +73,11 @@
             "label": "Identités",
             "description": "Identités auxquelles la diffusion doit être envoyée.",
             "help": ""
+        },
+        "mails_ids": {
+            "label": "E-mails",
+            "description": "Emails générés par la liste de diffusion.",
+            "help": ""
         }
     },
     "view": {
@@ -85,11 +93,17 @@
                 },
                 "action.select_recipients": {
                     "label": "Sélection destinataires"
+                },
+                "action.schedule": {
+                    "label": "Envoyer"
                 }
             },
             "layout": {
                 "section.recipients": {
                     "label": "Destinataires"
+                },
+                "section.mails": {
+                    "label": "E-mails"
                 },
                 "item.select_by_ownership": {
                     "label": "Sélection destinataires par dossiers de propriété"
