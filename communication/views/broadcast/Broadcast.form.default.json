@@ -52,8 +52,8 @@
     ],
     "routes": [
         {
-            "id": "route.add_attachment",
-            "label": "Add attachment",
+            "id": "route.add_new_attachment",
+            "label": "Add new document",
             "description": "",
             "icon": "file_upload",
             "visible": [
@@ -301,7 +301,11 @@
                                                     "header": {
                                                         "layout": "inline",
                                                         "actions": {
-                                                            "ACTION.SELECT": true,
+                                                            "ACTION.SELECT": [
+                                                                {
+                                                                    "view": true
+                                                                }
+                                                            ],
                                                             "ACTION.CREATE": false
                                                         }
                                                     },

@@ -98,6 +98,12 @@
                     "label": "Envoyer"
                 }
             },
+            "routes": {
+                "route.add_new_attachment": {
+                    "label": "Ajouter une pièce jointe",
+                    "description": "Ajouter un document en pièce jointe."
+                }
+            },
             "layout": {
                 "section.recipients": {
                     "label": "Destinataires"
