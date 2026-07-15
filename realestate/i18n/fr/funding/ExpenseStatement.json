@@ -164,7 +164,7 @@
                     "label": "Tâches d'export"
                 },
                 "label.expense_statement_correspondences": {
-                    "label": "Correspondances par e-mail"
+                    "label": "Correspondances"
                 }
             },
             "actions": {
