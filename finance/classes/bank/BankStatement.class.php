@@ -596,7 +596,7 @@ class BankStatement extends Model {
 
 
     protected static function onafterPost($self) {
-        $self->read(['document_process_id', 'statement_lines_ids' => ['status']]);
+        $self->read(['document_process_id' => ['status'], 'statement_lines_ids' => ['status']]);
 
         foreach($self as $id => $bankStatement) {
             try {
@@ -613,8 +613,8 @@ class BankStatement extends Model {
                 trigger_error("APP::BankStatement::onafterPost - Failed to post BankStatementLine: {$e->getMessage()}", EQ_REPORT_WARNING);
             }
 
-            if($bankStatement['document_process_id']) {
-                DocumentProcess::id($bankStatement['document_process_id'])
+            if($bankStatement['document_process_id'] && $bankStatement['document_process_id']['status'] !== 'integrated') {
+                DocumentProcess::id($bankStatement['document_process_id']['id'])
                     // bypass all stages
                     ->update(['status' => 'validated'])
                     // mark DocumentProcess as integrated (recursion is prevented by ORM)
