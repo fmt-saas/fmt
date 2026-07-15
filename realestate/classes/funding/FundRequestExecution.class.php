@@ -133,7 +133,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
             'fund_request_execution_correspondences_ids' => [
                 'type'              => 'one2many',
-                'description'       => "Invitations sent for the assembly.",
+                'description'       => "Funding request correspondences.",
                 'foreign_object'    => 'realestate\funding\FundRequestExecutionCorrespondence',
                 'foreign_field'     => 'fund_request_execution_id'
             ],
@@ -242,7 +242,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'policies'      => [],
                 'function'      => 'doGenerateFundRequestExecutionCorrespondences'
             ],
-            'send_fund_requests' => [
+            'send_fund_request_execution_correspondences' => [
                 'description'   => 'Generate individual correspondences for requesting the fundings.',
                 'policies'      => [],
                 'function'      => 'doSendFundRequests'
@@ -481,16 +481,18 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
     }
 
     /**
-     * Generate invites for each ownership.
+     * Generate fund request correspondences for each ownership.
      */
-    protected static function doGenerateFundRequestExecutionCorrespondences($self) {
+    protected static function doGenerateFundRequestExecutionCorrespondences($self, $cron) {
         $self->read(['condo_id', 'execution_lines_ids' => ['ownership_id']]);
         foreach($self as $id => $fundRequestExecution) {
-            // remove any previously created invite
+            // remove any previously created correspondence
             FundRequestExecutionCorrespondence::search(['fund_request_execution_id', '=', $id])->delete(true);
 
             $ownerships_ids = array_column($fundRequestExecution['execution_lines_ids']->get(true), 'ownership_id');
             $ownerships = Ownership::ids($ownerships_ids)->read(['representative_owner_id']);
+
+            $now = time();
 
             foreach($ownerships as $ownership_id => $ownership) {
                 if(!$ownership['representative_owner_id']) {
@@ -528,7 +530,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         ];
                 }
 
-                // if not requested otherwise, invite must be sent through registered postal mail
+                // if not requested otherwise, fund requests must be sent through registered postal mail
                 if(!in_array(true, $communication_methods, true)) {
                     $communication_methods['postal_registered'] = true;
                 }
@@ -538,13 +540,25 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         continue;
                     }
 
-                    FundRequestExecutionCorrespondence::create([
+                    $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::create([
                         'condo_id'                  => $fundRequestExecution['condo_id'],
                         'fund_request_execution_id' => $id,
                         'ownership_id'              => $ownership_id,
                         'owner_id'                  => $ownership['representative_owner_id'],
                         'communication_method'      => $communication_method
-                    ]);
+                    ])
+                    ->first();
+
+                    // schedule generate of document
+                    $cron->schedule(
+                        "realestate_funding_FundRequestExecutionCorrespondence_generate-document.{$fundRequestExecutionCorrespondence['id']}",
+                        ++$now,
+                        'realestate_funding_FundRequestExecutionCorrespondence_generate-document',
+                        [
+                            'id'  => $fundRequestExecutionCorrespondence['id']
+                        ]
+                    );
+
                 }
             }
         }
@@ -561,15 +575,16 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         ]);
 
         foreach($self as $id => $fundRequestExecution) {
+            $is_sending_disabled = false;
             // if given, `perform_sending` prevails over `is_sending_disabled`
             if(isset($values['perform_sending'])) {
                 if(!$values['perform_sending']) {
-                    continue;
+                    $is_sending_disabled = true;
                 }
             }
             // do not generate documents, export task & email if sending is disabled
             elseif($fundRequestExecution['is_sending_disabled']) {
-                continue;
+                $is_sending_disabled = true;
             }
 
             // remove previously created exporting task (and lines), if any
@@ -579,54 +594,58 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
             $map_communication_methods = [];
 
-            foreach($fundRequestExecution['fund_request_execution_correspondences_ids'] as $fundRequestExecutionCorrespondence) {
-                // update global map to acknowledge that at least one invitation uses that communication method
+            foreach($fundRequestExecution['fund_request_execution_correspondences_ids'] as $fund_request_execution_correspondence_id => $fundRequestExecutionCorrespondence) {
+                // update global map to acknowledge that at least one correspondence uses that communication method
                 $map_communication_methods[$fundRequestExecutionCorrespondence['communication_method']] = true;
             }
 
-            if(isset($map_communication_methods['email'])) {
-                // schedule queuing of invite emails
-                $cron->schedule(
-                    "realestate.fundrequest.send-fundings.{$id}",
-                    time() + (5 * 60),
-                    'realestate_funding_FundRequestExecution_send-fundings',
-                    [
-                        'id'  => $id
-                    ]
-                );
-            }
-
-            // handle non-digital communication methods
-            if(count(array_diff(array_keys($map_communication_methods), ['email'])) > 0) {
-
-                // schedule generation of a zip archive containing printable documents
-                $exportingTask = ExportingTask::create([
-                        'name'          => "{$fundRequestExecution['name']} - Export des courriers de l'appel de fonds",
-                        'condo_id'      => $fundRequestExecution['condo_id'],
-                        'object_class'  => static::class,
-                        'object_id'     => $id
-                    ])
-                    ->first();
-
-                foreach($map_communication_methods as $communication_method => $flag) {
-                    if($communication_method === 'email') {
-                        continue;
-                    }
-                    ExportingTaskLine::create([
-                            'exporting_task_id' => $exportingTask['id'],
-                            'name'              => "{$fundRequestExecution['name']} - Export du PV - {$communication_method}",
-                            'controller'        => 'realestate_funding_FundRequestExecution_export-fundings',
-                            'params'            => json_encode([
-                                    'id'                    => $id,
-                                    'communication_method'  => $communication_method
-                                ])
-                        ]);
+            if(!$is_sending_disabled) {
+                if(isset($map_communication_methods['email'])) {
+                    // schedule queuing of fund request emails
+                    $cron->schedule(
+                        "realestate.fundrequest.send-fundings.{$id}",
+                        time() + (5 * 60),
+                        'realestate_funding_FundRequestExecution_send-fundings-emails',
+                        [
+                            'id'  => $id
+                        ]
+                    );
                 }
 
-                self::id($id)->update([
-                        'fundings_exporting_task_id' => $exportingTask['id']
-                    ]);
+                // handle non-digital communication methods
+                if(count(array_diff(array_keys($map_communication_methods), ['email'])) > 0) {
+
+                    // schedule generation of a zip archive containing printable documents
+                    $exportingTask = ExportingTask::create([
+                            'name'          => "{$fundRequestExecution['name']} - Export des courriers de l'appel de fonds",
+                            'condo_id'      => $fundRequestExecution['condo_id'],
+                            'object_class'  => static::class,
+                            'object_id'     => $id
+                        ])
+                        ->first();
+
+                    foreach($map_communication_methods as $communication_method => $flag) {
+                        if($communication_method === 'email') {
+                            // #memo - exporting tasks are meant for documents
+                            continue;
+                        }
+                        ExportingTaskLine::create([
+                                'exporting_task_id' => $exportingTask['id'],
+                                'name'              => "{$fundRequestExecution['name']} - Export de l'appel de fonds - {$communication_method}",
+                                'controller'        => 'realestate_funding_FundRequestExecution_export-fundings-letters',
+                                'params'            => json_encode([
+                                        'id'                    => $id,
+                                        'communication_method'  => $communication_method
+                                    ])
+                            ]);
+                    }
+
+                    self::id($id)->update([
+                            'fundings_exporting_task_id' => $exportingTask['id']
+                        ]);
+                }
             }
+            self::id($id)->update(['is_sending_disabled' => $is_sending_disabled]);
         }
 
     }

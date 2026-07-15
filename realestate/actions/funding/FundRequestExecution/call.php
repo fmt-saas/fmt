@@ -8,11 +8,11 @@
 use realestate\funding\FundRequestExecution;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Export assembly minutes: generate per-invitation documents (if missing), merge them into a single PDF, store the result as a non-EDMS document, and return its id.",
+    'description'   => "Call a fund request execution, generate funding requests, and optionally schedule their sending/export.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
-            'description'       => "The Fund Request Execution the export refers to.",
+            'description'       => "The Fund Request Execution to call.",
             'foreign_object'    => 'realestate\funding\FundRequestExecution',
             'required'          => true
         ],
@@ -25,7 +25,10 @@ use realestate\funding\FundRequestExecution;
         'perform_sending' => [
             'type'              => 'boolean',
             'description'       => 'If enabled, generated fund request executions will be sent automatically.',
-            'default'           => function ($id) {
+            'default'           => function ($id = null) {
+                if(!$id) {
+                    return true;
+                }
                 $fundRequestExecution = FundRequestExecution::id($id)->read(['is_sending_disabled'])->first();
                 if($fundRequestExecution && $fundRequestExecution['is_sending_disabled']) {
                     return false;
@@ -65,7 +68,7 @@ $values = [
 
 $fundRequestExecution
     ->transition('call')
-    ->do('send_fund_requests', $values);
+    ->do('send_fund_request_execution_correspondences', $values);
 
 $context->httpResponse()
         ->status(204)

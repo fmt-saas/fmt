@@ -10,7 +10,7 @@ use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestExecutionCorrespondence;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Export assembly minutes: generate per-invitation documents (if missing), merge them into a single PDF, store the result as a non-EDMS document, and return its id.",
+    'description'   => "Export funding request letters: generate per-correspondence documents (if missing), merge them into a single PDF, store the result as a non-EDMS document, and return its id.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
@@ -26,7 +26,8 @@ use realestate\funding\FundRequestExecutionCorrespondence;
                 'postal',
                 'postal_registered',
                 'postal_registered_receipt'
-            ]
+            ],
+            'required'          => true
         ]
     ],
     'response'      => [
@@ -48,31 +49,33 @@ $fundRequestExecution = FundRequestExecution::id($params['id'])
     ->first();
 
 if(!$fundRequestExecution) {
-    throw new Exception("unknown_assembly", EQ_ERROR_UNKNOWN_OBJECT);
+    throw new Exception("unknown_fund_request_execution", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-// fetch invitations relating to given communication_method
+// fetch correspondences relating to given communication_method
 $fundRequestExecutionCorrespondences = FundRequestExecutionCorrespondence::search([
         [ 'fund_request_execution_id', '=', $fundRequestExecution['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
     ])
     ->read(['is_sent', 'document_id']);
 
-// merge all generated documents (for each ownership) into a single PDF
-$temp_files = [];
-$output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
-
 foreach($fundRequestExecutionCorrespondences as $fund_request_execution_correspondence_id => $fundRequestExecutionCorrespondence) {
-    // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
     if(!$fundRequestExecutionCorrespondence['document_id']) {
         try {
-            // generate document, add it to EDMS, and attach it to invitation
+            // generate document, add it to EDMS, and attach it to the correspondence
             eQual::run('do', 'realestate_funding_FundRequestExecutionCorrespondence_generate-document', ['id' => $fund_request_execution_correspondence_id]);
         }
         catch(Exception $e) {
             // error while rendering or duplicate
         }
     }
+}
+
+// merge all generated documents (for each ownership) into a single PDF
+$temp_files = [];
+$output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
+
+foreach($fundRequestExecutionCorrespondences as $fund_request_execution_correspondence_id => $fundRequestExecutionCorrespondence) {
 
     $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($fund_request_execution_correspondence_id)
         ->read(['document_id' => ['data']])

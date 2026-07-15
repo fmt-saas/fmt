@@ -2,6 +2,15 @@
     "name": "Folders",
     "description": "List of root folders, depending on current User.",
     "controller": "documents_navigation_Node_collect",
+    "header": {
+        "selection": {
+            "default" : false
+        },
+        "actions": {
+            "ACTION.CREATE" : false
+        },
+        "advanced_search": false
+    },
     "actions": [
         {
             "id": "action.download",
