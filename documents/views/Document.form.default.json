@@ -127,6 +127,12 @@
                                                 "width": "50%"
                                             },
                                             {
+                                                "type": "field",
+                                                "label": "Visibility",
+                                                "value": "document_visibility",
+                                                "width": "50%"
+                                            },
+                                            {
                                                 "type": "label",
                                                 "value": "Document Linking",
                                                 "width": "100%",
