@@ -496,6 +496,46 @@
                 ]
             },
             {
+                "id": "item.communication",
+                "label": "Communication",
+                "description": "",
+                "icon": "mode_comment",
+                "type": "parent",
+                "children": [
+                    {
+                        "id": "item.documents.email",
+                        "type": "entry",
+                        "label": "Incoming Emails",
+                        "icon": "email",
+                        "description": "View and manage received emails.",
+                        "context": {
+                            "entity": "communication\\email\\Email",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "communication.emails.all",
+                        "type": "entry",
+                        "label": "Outgoing emails",
+                        "description": "History of all outgoing email messages.",
+                        "context": {
+                            "entity": "core\\Mail",
+                            "view": "list.default"
+                        }
+                    },
+                    {
+                        "id": "communication.broadcasts.all",
+                        "type": "entry",
+                        "label": "Broadcasts",
+                        "description": "History of all broadcasts of messages.",
+                        "context": {
+                            "entity": "communication\\broadcast\\Broadcast",
+                            "view": "list.default"
+                        }
+                    }
+                ]
+            },
+            {
                 "id": "item.accounting",
                 "label": "Accounting",
                 "description": "",
@@ -722,17 +762,6 @@
                 "icon": "picture_as_pdf",
                 "type": "parent",
                 "children": [
-                    {
-                        "id": "item.documents.email",
-                        "type": "entry",
-                        "label": "Incoming Emails",
-                        "icon": "email",
-                        "description": "View and manage received emails.",
-                        "context": {
-                            "entity": "communication\\email\\Email",
-                            "view": "list.default"
-                        }
-                    },
                     {
                         "id": "item.documents.exports",
                         "type": "entry",
@@ -1205,26 +1234,6 @@
                                         "description": "Mailboxes for incoming emails messages.",
                                         "context": {
                                             "entity": "communication\\email\\Mailbox",
-                                            "view": "list.default"
-                                        }
-                                    },
-                                    {
-                                        "id": "communication.emails.all",
-                                        "type": "entry",
-                                        "label": "Outgoing emails",
-                                        "description": "History of all outgoing email messages.",
-                                        "context": {
-                                            "entity": "core\\Mail",
-                                            "view": "list.default"
-                                        }
-                                    },
-                                    {
-                                        "id": "communication.broadcasts.all",
-                                        "type": "entry",
-                                        "label": "Broadcasts",
-                                        "description": "History of all broadcasts of messages.",
-                                        "context": {
-                                            "entity": "communication\\broadcast\\Broadcast",
                                             "view": "list.default"
                                         }
                                     }
