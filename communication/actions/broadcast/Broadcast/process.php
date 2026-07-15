@@ -8,6 +8,7 @@
 use communication\broadcast\Broadcast;
 use core\Task;
 use equal\email\Email;
+use equal\email\EmailAttachment;
 use fmt\core\Mail;
 
 [$params, $providers] = eQual::announce([
@@ -37,7 +38,14 @@ use fmt\core\Mail;
 ['context' => $context] = $providers;
 
 $broadcast = Broadcast::id($params['id'])
-    ->read(['status', 'reply_to', 'subject', 'body', 'identities_ids' => ['email']])
+    ->read([
+        'status',
+        'reply_to',
+        'subject',
+        'body',
+        'identities_ids'    => ['email'],
+        'documents_ids'     => ['name', 'data', 'content_type']
+    ])
     ->first();
 
 if(!$broadcast) {
@@ -63,6 +71,16 @@ foreach($broadcast['identities_ids'] as $identity) {
         ->setSubject($broadcast['subject'])
         ->setContentType("text/html")
         ->setBody($broadcast['body']);
+
+    foreach($broadcast['documents_ids'] as $document) {
+        $attachment = new EmailAttachment(
+            $document['name'],
+            $document['data'],
+            $document['content_type']
+        );
+
+        $message->addAttachment($attachment);
+    }
 
     $mails_ids[] = Mail::queue($message, 'communication\broadcast\Broadcast', $broadcast['id']);
 }
