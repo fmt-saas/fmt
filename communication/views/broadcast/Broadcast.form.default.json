@@ -50,6 +50,34 @@
             ]
         }
     ],
+    "routes": [
+        {
+            "id": "route.add_attachment",
+            "label": "Add attachment",
+            "description": "",
+            "icon": "file_upload",
+            "visible": [
+                [
+                    ["status", "=", "draft"],
+                    ["step", "=", "content_edition"]
+                ],
+                [
+                    ["status", "=", "ready"]
+                ]
+            ],
+            "context": {
+                "entity": "documents\\Document",
+                "view": "form.upload",
+                "purpose": "create",
+                "mode": "edit",
+                "domain": [
+                    ["condo_id", "=", "object.condo_id"],
+                    ["broadcast_id", "=", "object.id"],
+                    ["parent_node_id", "=", "object.parent_node_id"]
+                ]
+            }
+        }
+    ],
     "header": {
         "actions": {
             "ACTION.SAVE": [
@@ -206,7 +234,13 @@
             },
             {
                 "visible": [
-                    ["status", "in", ["ready", "scheduled", "processing", "processed"]]
+                    [
+                        ["status", "<>", "draft"]
+                    ],
+                    [
+                        ["status", "=", "draft"],
+                        ["step", "=", "content_edition"]
+                    ]
                 ],
                 "sections": [
                     {
@@ -227,6 +261,43 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "view": "list.broadcast",
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "limit": 5
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.documents",
+                        "label": "Documents",
+                        "visible": [
+                            [
+                                ["status", "=", "draft"],
+                                ["step", "=", "content_edition"]
+                            ],
+                            [
+                                ["status", "<>", "draft"]
+                            ]
+                        ],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "documents_ids",
+                                                "width": "100%",
+                                                "widget": {
                                                     "header": {
                                                         "actions": {
                                                             "ACTION.CREATE": false

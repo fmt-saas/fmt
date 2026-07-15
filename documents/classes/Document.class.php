@@ -458,6 +458,13 @@ class Document extends Model {
                 'description' => 'Processing status of the document.'
             ],
 
+            'broadcast_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'communication\broadcast\Broadcast',
+                'description'       => 'Optional link to the related broadcast.',
+                'visible'           => ['broadcast_id', '<>', null]
+            ]
+
         ];
     }
 

@@ -3,6 +3,7 @@
 namespace communication\broadcast;
 
 use core\Task;
+use documents\navigation\Node;
 use equal\orm\Model;
 use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
@@ -87,6 +88,18 @@ class Broadcast extends Model {
                 'description'       => 'Identifier of the related entity.'
             ],
 
+            'parent_node_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'documents\navigation\Node',
+                'function'          => 'calcParentNodeId',
+                'store'             => true,
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['condo_id', '<>', null]
+                ]
+            ],
+
             'ownerships_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\ownership\Ownership',
@@ -119,6 +132,14 @@ class Broadcast extends Model {
                 'rel_foreign_key'   => 'identity_id',
                 'rel_local_key'     => 'broadcast_id',
                 'description'       => 'Identities to which the broadcast must be sent.'
+            ],
+
+            'documents_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'documents\Document',
+                'foreign_field'     => 'broadcast_id',
+                'description'       => 'One or more documents that relate to the Broadcast (attachment).',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'mails_ids' => [
@@ -268,6 +289,28 @@ class Broadcast extends Model {
         $result = [];
         foreach($self as $id => $broadcast) {
             $result[$id] = constant('EMAIL_SMTP_ACCOUNT_EMAIL');
+        }
+
+        return $result;
+    }
+
+    public static function calcParentNodeId($self): array {
+        $result = [];
+        $self->read(['condo_id']);
+        foreach($self as $id => $assembly) {
+            if(!$assembly['condo_id']) {
+                continue;
+            }
+            // store document in related Imports folder
+            $parentNode = Node::search([
+                ['condo_id', '=', $assembly['condo_id']],
+                ['node_type', '=', 'folder'],
+                ['code', '=', 'imports']
+            ])
+                ->first();
+            if($parentNode) {
+                $result[$id] = $parentNode['id'];
+            }
         }
 
         return $result;
