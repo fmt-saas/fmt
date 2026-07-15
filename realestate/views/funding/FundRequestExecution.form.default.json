@@ -158,12 +158,14 @@
                                                 "id": "label.exporting_tasks",
                                                 "type": "label",
                                                 "value": "Export tasks",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": ["is_sending_disabled", "=", false]
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "exporting_tasks_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": ["is_sending_disabled", "=", false]
                                             },
                                             {
                                                 "id": "label.fund_request_execution_correspondences",
