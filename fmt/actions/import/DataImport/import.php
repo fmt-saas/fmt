@@ -584,7 +584,7 @@ try {
             $type = $owner['type'];
 
             // attempt to find existing identity by registration number
-            $registration_number = $owner['registration_number'] ?? $owner['citizen_identification'];
+            $registration_number = ($owner['registration_number'] ?? null) ?: ($owner['citizen_identification'] ?? null);
 
             if($registration_number && strlen($registration_number) > 0) {
                 $identity = Identity::search(['registration_number', '=', $registration_number])->read(['id'])->first();

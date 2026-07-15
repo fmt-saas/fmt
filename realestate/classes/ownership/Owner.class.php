@@ -65,6 +65,27 @@ class Owner extends Identity {
                 'unique'            => false
             ],
 
+            'registration_number' => [
+                'type'              => 'string',
+                'description'       => 'Organization registration number (company number).',
+                'visible'           => [ ['type', '<>', 'IN'] ],
+                'dependents'        => ['hash_sha256'],
+                'onupdate'          => 'onupdateRegistrationNumber',
+                'help'              => 'There might be several owners pointing to the same Identity, therefore vat_number can be duplicated.',
+                'unique'            => false
+            ],
+
+            'citizen_identification' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain:30',
+                'description'       => 'Citizen registration number, if any.',
+                'visible'           => [ ['type', '=', 'IN'] ],
+                'dependents'        => ['hash_sha256'],
+                'onupdate'          => 'onupdateCitizenIdentification',
+                'help'              => 'There might be several owners pointing to the same Identity, therefore vat_number can be duplicated.',
+                'unique'            => false
+            ],
+
             'date_to' => [
                 'type'              => 'computed',
                 'result_type'       => 'date',
