@@ -42,6 +42,12 @@
             },
             {
                 "type": "field",
+                "value": "is_paid",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "condo_id",
                 "width": "20%"
             },

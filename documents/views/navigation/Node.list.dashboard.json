@@ -9,6 +9,7 @@
         "actions": {
             "ACTION.CREATE" : false
         },
+        "layout": "inline",
         "advanced_search": false
     },
     "actions": [
