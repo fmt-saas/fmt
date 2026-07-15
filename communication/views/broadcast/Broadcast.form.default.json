@@ -26,14 +26,11 @@
             "id": "action.select_recipients",
             "label": "Select recipients",
             "description": "Back to select recipients step.",
-            "controller": "model_update",
+            "controller": "model_transition",
             "params": {
                 "entity": "communication\\broadcast\\Broadcast",
-                "id": "object.id",
-                "fields": {
-                    "status": "draft",
-                    "step": "recipients_selection"
-                }
+                "transition": "select_recipients",
+                "ids": []
             },
             "visible": [
                 ["status", "=", "ready"]

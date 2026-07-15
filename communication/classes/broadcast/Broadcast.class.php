@@ -2,6 +2,7 @@
 
 namespace communication\broadcast;
 
+use core\Task;
 use equal\orm\Model;
 use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
@@ -129,6 +130,138 @@ class Broadcast extends Model {
             ]
 
         ];
+    }
+
+    public static function getPolicies(): array {
+        return [
+            'is_valid' => [
+                'description' => 'Verifies that the state of the broadcast allows it to be ready.',
+                'function'    => 'policyIsValid'
+            ]
+        ];
+    }
+
+    protected static function policyIsValid($self) {
+        $result = [];
+        $self->read(['subject', 'body', 'identities_ids' => ['email']]);
+        foreach($self as $id => $broadcast) {
+            if(empty($broadcast['identities_ids'])) {
+                $result[$id] = [
+                    'identities_ids' => 'Recipients are needed.'
+                ];
+            }
+
+            foreach($broadcast['identities_ids'] as $identity) {
+                if(empty($identity['email'])) {
+                    $result[$id] = [
+                        'identities_ids' => 'At least one email is missing from an identity.'
+                    ];
+                    break;
+                }
+            }
+
+            if(empty($broadcast['subject'])) {
+                $result[$id] = [
+                    'subject' => 'Subject can\'t empty.'
+                ];
+            }
+
+            if(empty($broadcast['body'])) {
+                $result[$id] = [
+                    'body' => 'Body can\'t empty.'
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    public static function getWorkflow() {
+        return [
+
+            'draft' => [
+                'description' => 'The broadcast is under creation.',
+                'icon'        => 'draft',
+                'transitions' => [
+                    'mark_ready' => [
+                        'description'   => 'Mark the broadcast as ready.',
+                        'status'        => 'ready',
+                        'policies'      => ['is_valid']
+                    ]
+                ]
+            ],
+
+            'ready' => [
+                'description' => 'The broadcast processing can be scheduled.',
+                'icon'        => 'check',
+                'transitions' => [
+                    'select_recipients' => [
+                        'description'   => 'Return to the draft status to make some modifications of recipients.',
+                        'status'        => 'draft',
+                        'onbefore'      => 'onbeforeSelectRecipients'
+                    ],
+                    'schedule' => [
+                        'description'   => 'Schedule the processing of the broadcast.',
+                        'status'        => 'scheduled',
+                        'onbefore'      => 'onbeforeSchedule'
+                    ]
+                ]
+            ],
+
+            'scheduled' => [
+                'description' => 'Schedule the processing of the broadcast.',
+                'icon'        => 'schedule',
+                'transitions' => [
+                    'start_processing' => [
+                        'description'   => 'Start the processing of the broadcast.',
+                        'status'        => 'processing'
+                    ]
+                ]
+            ],
+
+            'processing' => [
+                'description' => 'Process the broadcast (e.g., generate all emails).',
+                'icon'        => 'refresh',
+                'transitions' => [
+                    'end_processing' => [
+                        'description'   => 'End the processing of the broadcast.',
+                        'status'        => 'processed',
+                        'onafter'       => 'onafterProcessing'
+                    ]
+                ]
+            ],
+
+            'processed' => [
+                'description' => 'The broadcast was processed (e.g., all emails were generated).',
+                'icon'        => 'done_all'
+            ]
+
+        ];
+    }
+
+    protected static function onbeforeSelectRecipients($self) {
+        $self->update(['step' => 'recipients_selection']);
+    }
+
+    protected static function onbeforeSchedule($self) {
+        foreach($self as $id => $broadcast) {
+            Task::create([
+                'name'          => "Handle broadcast {$id}",
+                'is_recurring'  => false,
+                'controller'    => 'communication_broadcast_Broadcast_process',
+                'params'        => json_encode(['id' => $id])
+            ]);
+        }
+    }
+
+    protected static function onafterProcessing($self) {
+        foreach($self as $id => $broadcast) {
+            Task::search([
+                ['controller', '=', 'communication_broadcast_Broadcast_process'],
+                ['params', '=', json_encode(['id' => $id])]
+            ])
+                ->delete();
+        }
     }
 
     public static function calcReplyTo($self): array {

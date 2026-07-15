@@ -53,7 +53,7 @@ if(empty($broadcast['body'])) {
     throw new Exception("invalid_body", EQ_ERROR_INVALID_PARAM);
 }
 
-Broadcast::id($broadcast['id'])->update(['status' => 'ready']);
+Broadcast::id($broadcast['id'])->transition('mark_ready');
 
 $context
     ->httpResponse()

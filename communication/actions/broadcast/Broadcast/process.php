@@ -48,7 +48,7 @@ if(!in_array($broadcast['status'], ['ready', 'scheduled'])) {
     throw new Exception("invalid_status", EQ_ERROR_INVALID_PARAM);
 }
 
-Broadcast::id($params['id'])->update(['status' => 'processing']);
+Broadcast::id($broadcast['id'])->transition('start_processing');
 
 $mails_ids = [];
 foreach($broadcast['identities_ids'] as $identity) {
@@ -67,17 +67,9 @@ foreach($broadcast['identities_ids'] as $identity) {
     $mails_ids[] = Mail::queue($message, 'communication\broadcast\Broadcast', $broadcast['id']);
 }
 
-Broadcast::id($params['id'])
-    ->update([
-        'status'    => 'processed',
-        'mails_ids' => $mails_ids
-    ]);
-
-Task::search([
-    ['controller', '=', 'communication_broadcast_Broadcast_process'],
-    ['params', '=', json_encode(['id' => $broadcast['id']])]
-])
-    ->delete();
+Broadcast::id($broadcast['id'])
+    ->transition('end_processing')
+    ->update(['mails_ids' => $mails_ids]);
 
 $context
     ->httpResponse()

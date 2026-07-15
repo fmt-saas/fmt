@@ -46,14 +46,7 @@ if($broadcast['status'] !== 'ready') {
     throw new Exception("invalid_status", EQ_ERROR_INVALID_PARAM);
 }
 
-Task::create([
-    'name'          => "Handle broadcast {$broadcast['id']}",
-    'is_recurring'  => false,
-    'controller'    => 'communication_broadcast_Broadcast_process',
-    'params'        => json_encode(['id' => $broadcast['id']])
-]);
-
-Broadcast::id($params['id'])->update(['status' => 'scheduled']);
+Broadcast::id($params['id'])->transition('schedule');
 
 $context
     ->httpResponse()
