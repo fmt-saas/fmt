@@ -1,0 +1,95 @@
+{
+    "name": "Folders",
+    "description": "List of root folders, depending on current User.",
+    "controller": "documents_navigation_Node_collect",
+    "header": {
+        "selection": {
+            "default" : false
+        },
+        "actions": {
+            "ACTION.CREATE" : false,
+            "ACTION.EDIT" : false
+        },
+        "advanced_search": false
+    },
+    "actions": [
+        {
+            "id": "action.download",
+            "inline": true,
+            "label": "Download",
+            "icon": "download",
+            "description": "Download the document.",
+            "controller": "documents_navigation_Node_download",
+            "visible": ["node_type", "=", "document"]
+        }
+    ],
+    "order": "node_type,name",
+    "sort": "desc",
+    "layout": {
+        "interactions": {
+            "click": false
+        },
+        "items": [
+            {
+                "type": "field",
+                "value": "id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "parent_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "label": "type",
+                "value": "node_type",
+                "width": "10%",
+                "sortable": true,
+                "widget": {
+                    "type": "string",
+                    "usage": "icon"
+                }
+            },
+            {
+                "type": "field",
+                "value": "name",
+                "width": "14%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "label": "Items",
+                "value": "nodes_count",
+                "width": "10%",
+                "sortable": true,
+                "widget": {
+                    "align": "center",
+                    "margin": "auto",
+                    "styles": {
+                        "text_align": "center",
+                        "text_width": "40px",
+                        "text_weight": "bold",
+                        "text_color": "white",
+                        "background_color": "#3f51b5",
+                        "border_radius": "40px"
+                    }
+                },
+                "visible": ["nodes_count", ">", 0]
+            },
+            {
+                "type": "field",
+                "label": "Condominium",
+                "value": "condo_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "25%"
+            }
+        ]
+    }
+}
