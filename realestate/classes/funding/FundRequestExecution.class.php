@@ -656,17 +656,17 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'execution_lines_ids' => ['ownership_id']
             ]);
 
-        foreach($self as $id => $requestExecution) {
+        foreach($self as $id => $fundRequestExecution) {
             // retrieve accounting entry and cancel it
-            AccountingEntry::id($requestExecution['accounting_entry_id'])->do('cancel');
+            AccountingEntry::id($fundRequestExecution['accounting_entry_id'])->do('cancel');
 
-            foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
+            foreach($fundRequestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
                 // remove related fundings (move payments to BankStatementLine Funding if any)
                 Funding::search([
-                        ['condo_id', '=', $requestExecution['condo_id']],
+                        ['condo_id', '=', $fundRequestExecution['condo_id']],
                         ['ownership_id', '=', $executionLine['ownership_id']],
                         ['funding_type', '=', 'fund_request'],
-                        ['fund_request_id', '=', $requestExecution['fund_request_id']]
+                        ['fund_request_id', '=', $fundRequestExecution['fund_request_id']]
                     ])
                     ->do('remove');
             }
