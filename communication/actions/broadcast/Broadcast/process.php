@@ -6,6 +6,7 @@
 */
 
 use communication\broadcast\Broadcast;
+use core\Task;
 use equal\email\Email;
 use fmt\core\Mail;
 
@@ -71,6 +72,12 @@ Broadcast::id($params['id'])
         'status'    => 'processed',
         'mails_ids' => $mails_ids
     ]);
+
+Task::search([
+    ['controller', '=', 'communication_broadcast_Broadcast_process'],
+    ['params', '=', json_encode(['id' => $broadcast['id']])]
+])
+    ->delete();
 
 $context
     ->httpResponse()
