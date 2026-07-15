@@ -12,6 +12,11 @@
             "label": "Libellé",
             "description": "Nom du dossier.",
             "help": ""
+        },
+        "is_council_member": {
+            "label": "Membre du conseil",
+            "description": "Filtrer parmi les membres du conseil de copropriété.",
+            "help": ""
         }
     }
 }

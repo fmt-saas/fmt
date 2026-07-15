@@ -27,7 +27,8 @@ class Broadcast extends Model {
                 'foreign_object'    => 'realestate\property\Condominium',
                 'onupdate'          => 'onupdateCondoId',
                 'required'          => true,
-                'readonly'          => true
+                'readonly'          => true,
+                'help'              => 'This field is meant to be set only once at creation'
             ],
 
             'name' => [

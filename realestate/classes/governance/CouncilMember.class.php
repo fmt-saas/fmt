@@ -57,6 +57,8 @@ class CouncilMember extends \equal\orm\Model {
                 'dependents'        => ['is_active']
             ],
 
+
+            // #deprecated
             'role' => [
                 'type'              => 'string',
                 'description'       => 'Role assigned to the owner in the condominium council.',
@@ -65,7 +67,8 @@ class CouncilMember extends \equal\orm\Model {
                     'secretary',
                     'member'
                 ],
-                'default'           => 'member'
+                'default'           => 'member',
+                'visible'           => false
             ]
 
         ];
