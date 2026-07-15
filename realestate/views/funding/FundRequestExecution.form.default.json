@@ -169,17 +169,14 @@
                                                 "id": "label.fund_request_execution_correspondences",
                                                 "type": "label",
                                                 "value": "Correspondences",
-                                                "width": "100%",
-                                                "visible": ["is_sending_disabled", "=", false]
+                                                "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "fund_request_execution_correspondences_ids",
                                                 "width": "100%",
-                                                "visible": ["is_sending_disabled", "=", false],
                                                 "widget": {
-                                                    "view": "list.default",
-                                                    "domain": ["communication_method", "=", "email"]
+                                                    "view": "list.default"
                                                 }
                                             }
                                         ]
