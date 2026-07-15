@@ -454,7 +454,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'date_from'         => $getFormattedDate($fundRequestExecution['date_from']),
             'date_to'           => $getFormattedDate($fundRequestExecution['date_to']),
             'label'             => $fundRequest['name'],
-            'type'              => $map_types_translations['fr'][$fundRequest['request_type']]
+            'type'              => $map_types_translations['fr'][$fundRequest['request_type']] ?? ''
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -470,7 +470,9 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'condo'             => $fundRequestExecution['condo_id']['name'],
             'period'            => $getFormattedDate($fundRequestExecution['date_from']) . ' - ' . $getFormattedDate($fundRequestExecution['date_to']),
             'date_from'         => $getFormattedDate($fundRequestExecution['date_from']),
-            'date_to'           => $getFormattedDate($fundRequestExecution['date_to'])
+            'date_to'           => $getFormattedDate($fundRequestExecution['date_to']),
+            'label'             => $fundRequest['name'],
+            'type'              => $map_types_translations['fr'][$fundRequest['request_type']] ?? ''
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
