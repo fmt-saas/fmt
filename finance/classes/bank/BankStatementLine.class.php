@@ -441,6 +441,10 @@ class BankStatementLine extends Model {
                 'policies'      => [ 'can_generate_accounting_entry' ],
                 'function'      => 'doGenerateAccountingEntry'
             ],
+            'refresh_bank_statement_status' => [
+                'description'   => 'Force a refresh of parent bank statement status.',
+                'function'      => 'doRefreshBankStatementStatus'
+            ],
             'cancel' => [
                 'description'   => 'Cancel the bank statement line. No further change will be possible.',
                 'help'          => 'Void the accounting entry, remove linked payments and set status to `cancelled`.',
@@ -724,6 +728,15 @@ class BankStatementLine extends Model {
     protected static function doCreateFundings($self) {
     }
 
+    protected static function doRefreshBankStatementStatus($self) {
+        $self->read(['bank_statement_id']);
+        foreach($self as $id => $bankStatementLine) {
+            if($bankStatementLine['bank_statement_id']) {
+                BankStatement::id($bankStatementLine['bank_statement_id'])->do('refresh_status');
+            }
+        }
+    }
+
     protected static function doCancel($self) {
         $self->read([
             'status',
@@ -754,7 +767,6 @@ class BankStatementLine extends Model {
         $self->read([
             'status',
             'accounting_entry_id',
-            'bank_statement_id',
             'payments_ids' => [
                 'funding_id',
             ],
@@ -787,11 +799,13 @@ class BankStatementLine extends Model {
                 }
             }
 
-            self::id($id)->update([
-                'status'              => 'pending',
-                'accounting_entry_id' => null,
-                'remaining_amount'    => null
-            ]);
+            self::id($id)
+                ->update([
+                    'status'              => 'pending',
+                    'accounting_entry_id' => null,
+                    'remaining_amount'    => null
+                ])
+                ->do('refresh_bank_statement_status');
 
             if(count($payment_ids) > 0) {
                 Payment::ids($payment_ids)->delete(true);
@@ -804,10 +818,6 @@ class BankStatementLine extends Model {
             }
 
             self::id($id)->update(['logs' => implode("\n", $logs)]);
-
-            if($bankStatementLine['bank_statement_id']) {
-                BankStatement::id($bankStatementLine['bank_statement_id'])->do('refresh_status');
-            }
         }
     }
 

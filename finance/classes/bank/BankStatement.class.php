@@ -510,7 +510,7 @@ class BankStatement extends Model {
             foreach($bankStatement['statement_lines_ids'] as $bank_statement_line_id => $bankStatementLine) {
                 if($bankStatementLine['status'] === 'pending') {
                     $status = 'pending';
-                    continue 2;
+                    break;
                 }
             }
             self::id($id)->update([
