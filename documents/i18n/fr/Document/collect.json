@@ -1,0 +1,42 @@
+{
+    "name": "Document",
+    "plural": "Documents",
+    "description": "Recherche avancée sur les documents.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Immeuble concerné par le propriétaire.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Dossier de propriété auquel le document est rattaché.",
+            "help": ""
+        },
+        "owner_id": {
+            "label": "Propriétaire",
+            "description": "Propriétaire auquel le document est rattaché.",
+            "help": ""
+        },
+        "supplier_id": {
+            "label": "Fournisseur",
+            "description": "Fournisseur auquel le document est rattaché",
+            "help": ""
+        },
+        "suppliership_id": {
+            "label": "Relation fournisseur",
+            "description": "Relation (fournisseur + copropriété) à laquelle ce document est rattaché.",
+            "help": ""
+        },
+        "document_type_id": {
+            "label": "Type",
+            "description": "Type de document.",
+            "help": ""
+        },
+        "document_subtype_id": {
+            "label": "Sous-type",
+            "description": "Sous-type de document.",
+            "help": ""
+        }
+    }
+}
