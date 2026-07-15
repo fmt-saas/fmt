@@ -286,7 +286,14 @@ $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id'])
             'date_from',
             'date_to'
         ],
-        'request_lines_ids' => ['name', 'request_amount', 'apportionment_id' => ['name', 'total_shares']],
+        'request_lines_ids' => [
+            'name',
+            'request_amount',
+            'apportionment_id' => [
+                'name',
+                'total_shares'
+            ]
+        ],
         'line_entries_ids'  => [
             '@domain' => ['ownership_id', '=', $params['ownership_id']],
             'apportionment_shares',
@@ -294,6 +301,7 @@ $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id'])
             'request_line_id'
         ],
         'request_executions_ids' => [
+            '@domain' => ['status', '=', 'posted'],
             'posting_date',
             'due_date',
             'price',
