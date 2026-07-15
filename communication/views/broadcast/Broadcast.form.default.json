@@ -114,6 +114,7 @@
                                 "columns": [
                                     {
                                         "width": "50%",
+                                        "visible": ["state", "<>", "draft"],
                                         "items": [
                                             {
                                                 "id": "item.select_by_ownership",
@@ -145,6 +146,7 @@
                                     },
                                     {
                                         "width": "50%",
+                                        "visible": ["state", "<>", "draft"],
                                         "items": [
                                             {
                                                 "id": "item.select_by_owner",
