@@ -19,7 +19,7 @@
             "help": ""
         },
         "property_entrance_id": {
-            "label": "Entré",
+            "label": "Entrée",
             "description": "Entrée / bloc auquel le lot, du dossier de propriété, est rattaché.",
             "help": ""
         }

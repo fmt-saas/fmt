@@ -135,9 +135,12 @@ class Broadcast extends Model {
             ],
 
             'documents_ids' => [
-                'type'              => 'one2many',
+                'type'              => 'many2many',
                 'foreign_object'    => 'documents\Document',
-                'foreign_field'     => 'broadcast_id',
+                'foreign_field'     => 'broadcasts_ids',
+                'rel_table'         => 'communication_broadcast_rel_document',
+                'rel_foreign_key'   => 'document_id',
+                'rel_local_key'     => 'broadcast_id',
                 'description'       => 'One or more documents that relate to the Broadcast (attachment).',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],

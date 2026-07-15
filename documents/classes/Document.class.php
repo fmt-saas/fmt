@@ -446,6 +446,17 @@ class Document extends Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'broadcasts_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'communication\broadcast\Broadcast',
+                'foreign_field'     => 'documents_ids',
+                'rel_table'         => 'communication_broadcast_rel_document',
+                'rel_foreign_key'   => 'broadcast_id',
+                'rel_local_key'     => 'document_id',
+                'description'       => 'Broadcasts for which the document is selected as attachment.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -456,13 +467,6 @@ class Document extends Model {
                 ],
                 'default'     => 'imported',
                 'description' => 'Processing status of the document.'
-            ],
-
-            'broadcast_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'communication\broadcast\Broadcast',
-                'description'       => 'Optional link to the related broadcast.',
-                'visible'           => ['broadcast_id', '<>', null]
             ]
 
         ];

@@ -44,10 +44,10 @@
             "description": "Contenu HTML du message.",
             "help": ""
         },
-        "attachments": {
+        "documents_ids": {
             "label": "Pièces jointes",
-            "description": "Liste des noms des documents joints au message.",
-            "help": "Les noms des documents sont séparés par des virgules."
+            "description": "Documents joints à la diffusion.",
+            "help": ""
         },
         "object_class": {
             "label": "Classe de l'objet",
@@ -84,11 +84,6 @@
         "form.default": {
             "name": "Diffusion",
             "description": "Diffusion de plusieurs e-mails à des propriétaires.",
-            "routes": {
-                "route.add_attachment": {
-                    "label": "Ajouter une pièce jointe"
-                }
-            },
             "actions": {
                 "action.validate_recipients": {
                     "label": "Valider destinataires"

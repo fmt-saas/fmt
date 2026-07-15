@@ -101,6 +101,12 @@ class DocumentImport extends Model {
                 'instant'           => true
             ],
 
+            'broadcast_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'communication\broadcast\Broadcast',
+                'description'       => 'Optional link to a specific broadcast.'
+            ],
+
             'document_visibility' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -121,7 +127,18 @@ class DocumentImport extends Model {
 
 
     protected static function onupdateData($self) {
-        $self->read(['condo_id', 'name', 'data', 'document_type_id', 'document_subtype_id', 'document_visibility', 'ownership_id', 'supplier_id']);
+        $self->read([
+            'condo_id',
+            'name',
+            'data',
+            'document_type_id',
+            'document_subtype_id',
+            'document_visibility',
+            'ownership_id',
+            'supplier_id',
+            /* specific objects/contexts implying additional processing */
+            'broadcast_id'
+        ]);
 
         foreach($self as $id => $documentImport) {
             if(!isset($documentImport['data']) || $documentImport['data'] === null || $documentImport['data'] === '') {
@@ -164,8 +181,13 @@ class DocumentImport extends Model {
             if($documentImport['ownership_id']) {
                 Document::id($document['id'])->update(['ownership_id' => $documentImport['ownership_id']]);
             }
+
             if($documentImport['document_visibility']) {
                 Document::id($document['id'])->update(['document_visibility' => $documentImport['document_visibility']]);
+            }
+
+            if($documentImport['broadcast_id']) {
+                Document::id($document['id'])->update(['broadcasts_ids' => [$documentImport['broadcast_id']]]);
             }
 
             // Remove current import object after successful import.

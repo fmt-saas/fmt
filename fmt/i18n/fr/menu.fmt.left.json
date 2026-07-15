@@ -450,8 +450,8 @@
             "description": "Historique de tous les e-mails sortants."
         },
         "communication.broadcasts.all": {
-            "label": "Listes diffusion",
-            "description": "Historique de tous les listes de diffusion d'e-mails sortants."
+            "label": "Envois groupés",
+            "description": "Historique de tous les envois groupés d'e-mails sortants."
         },
         "item.infra": {
             "label": "Infrastructure",

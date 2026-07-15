@@ -66,14 +66,13 @@
                 ]
             ],
             "context": {
-                "entity": "documents\\Document",
-                "view": "form.upload",
+                "entity": "documents\\import\\DocumentImport",
+                "view": "form.import",
                 "purpose": "create",
                 "mode": "edit",
                 "domain": [
                     ["condo_id", "=", "object.condo_id"],
-                    ["broadcast_id", "=", "object.id"],
-                    ["parent_node_id", "=", "object.parent_node_id"]
+                    ["broadcast_id", "=", "object.id"]
                 ]
             }
         }
@@ -298,12 +297,17 @@
                                                 "value": "documents_ids",
                                                 "width": "100%",
                                                 "widget": {
+                                                    "view": "list.default",
                                                     "header": {
+                                                        "layout": "inline",
                                                         "actions": {
+                                                            "ACTION.SELECT": true,
                                                             "ACTION.CREATE": false
                                                         }
                                                     },
-                                                    "limit": 5
+                                                    "domain": [
+                                                        ["condo_id", "=", "object.condo_id"]
+                                                    ]
                                                 }
                                             }
                                         ]

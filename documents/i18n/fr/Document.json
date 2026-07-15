@@ -99,6 +99,11 @@
             "label": "Résolution",
             "description": "Point de résolutiion auquel se rapporte le document.",
             "help": ""
+        },
+        "broadcasts_ids": {
+            "label": "Envois groupés",
+            "description": "Envois groupés auxquels ce document est joint.",
+            "help": ""
         }
     },
     "view": {
