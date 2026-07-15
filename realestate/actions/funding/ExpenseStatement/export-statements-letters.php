@@ -10,11 +10,11 @@ use realestate\funding\ExpenseStatement;
 use realestate\funding\ExpenseStatementCorrespondence;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Export expense statement: generate per-invitation documents (if missing), merge them into a single PDF, store the result as a non-EDMS document, and return its id.",
+    'description'   => "Export expense statement letters: generate per-correspondence documents (if missing), merge them into a single PDF, store the result as a non-EDMS document, and return its id.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
-            'description'       => "The Fund Request Execution the export refers to.",
+            'description'       => "The Expense Statement the export refers to.",
             'foreign_object'    => 'realestate\funding\ExpenseStatement',
             'required'          => true
         ],
@@ -52,7 +52,7 @@ if(!$expenseStatement) {
     throw new Exception("unknown_expense_statement", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-// fetch invitations relating to given communication_method
+// fetch correspondences relating to given communication_method
 $expenseStatementCorrespondences = ExpenseStatementCorrespondence::search([
         [ 'expense_statement_id', '=', $expenseStatement['id'] ],
         [ 'communication_method', '=', $params['communication_method'] ]
@@ -64,10 +64,10 @@ $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
 foreach($expenseStatementCorrespondences as $expense_statement_correspondence_id => $expenseStatementCorrespondence) {
-    // #memo - `export-statements` and `send-invitation` is the only controller where documents are generated for Export Statements
+    // #memo - `export-statements` and `send-statements` are the controllers where expense statement documents can be generated on demand
     if(!$expenseStatementCorrespondence['document_id']) {
         try {
-            // generate document, add it to EDMS, and attach it to invitation
+            // generate document, add it to EDMS, and attach it to the correspondence
             eQual::run('do', 'realestate_funding_ExpenseStatementCorrespondence_generate-document', ['id' => $expense_statement_correspondence_id]);
         }
         catch(Exception $e) {

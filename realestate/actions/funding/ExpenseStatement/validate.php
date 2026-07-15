@@ -8,18 +8,21 @@
 use realestate\funding\ExpenseStatement;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Export assembly minutes: generate per-invitation documents (if missing), merge them into a single PDF, store the result as a non-EDMS document, and return its id.",
+    'description'   => "Validate an expense statement and optionally schedule its sending/export.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
-            'description'       => "The Expense Statement the export refers to.",
+            'description'       => "The Expense Statement to validate.",
             'foreign_object'    => 'realestate\funding\ExpenseStatement',
             'required'          => true
         ],
         'perform_sending' => [
             'type'              => 'boolean',
             'description'       => 'If enabled, generated expense statement will be sent automatically.',
-            'default'           => function ($id) {
+            'default'           => function ($id = null) {
+                if(!$id) {
+                    return true;
+                }
                 $expenseStatement = ExpenseStatement::id($id)->read(['is_sending_disabled'])->first();
                 if($expenseStatement && $expenseStatement['is_sending_disabled']) {
                     return false;
@@ -46,7 +49,7 @@ $expenseStatements = ExpenseStatement::id($params['id'])
     ->read(['status', 'condo_id', 'name']);
 
 if($expenseStatements->count() <= 0) {
-    throw new Exception("unknown_fund_request_execution", EQ_ERROR_UNKNOWN_OBJECT);
+    throw new Exception("unknown_expense_statement", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 $values = [

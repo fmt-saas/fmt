@@ -755,12 +755,12 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
     }
 
     /**
-     * Generate invites for each ownership.
+     * Generate expense statement correspondences for each ownership.
      */
-    protected static function doGenerateExpenseStatementCorrespondences($self) {
+    protected static function doGenerateExpenseStatementCorrespondences($self, $cron) {
         $self->read(['condo_id', 'statement_owners_ids' => ['ownership_id']]);
         foreach($self as $id => $expenseStatement) {
-            // remove any previously created invite
+            // remove any previously created correspondence
             ExpenseStatementCorrespondence::search(['expense_statement_id', '=', $id])->delete(true);
 
             $ownerships_ids = array_column($expenseStatement['statement_owners_ids']->get(true), 'ownership_id');
@@ -802,23 +802,36 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         ];
                 }
 
-                // if not requested otherwise, invite must be sent through registered postal mail
+                // if not requested otherwise, expense statements must be sent through registered postal mail
                 if(!in_array(true, $communication_methods, true)) {
                     $communication_methods['postal_registered'] = true;
                 }
+
+                $now = time();
 
                 foreach($communication_methods as $communication_method => $communication_method_flag) {
                     if(!$communication_method_flag) {
                         continue;
                     }
 
-                    ExpenseStatementCorrespondence::create([
+                    $expenseStatementCorrespondence = ExpenseStatementCorrespondence::create([
                         'condo_id'                  => $expenseStatement['condo_id'],
                         'expense_statement_id'      => $id,
                         'ownership_id'              => $ownership_id,
                         'owner_id'                  => $ownership['representative_owner_id'],
                         'communication_method'      => $communication_method
-                    ]);
+                    ])
+                    ->first();
+
+                    // schedule generation of the correspondence document
+                    $cron->schedule(
+                        "realestate_funding_ExpenseStatementCorrespondence_generate-document.{$expenseStatementCorrespondence['id']}",
+                        ++$now,
+                        'realestate_funding_ExpenseStatementCorrespondence_generate-document',
+                        [
+                            'id'  => $expenseStatementCorrespondence['id']
+                        ]
+                    );
                 }
             }
         }
@@ -835,16 +848,16 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         ]);
 
         foreach($self as $id => $expenseStatement) {
-
+            $is_sending_disabled = false;
             // if given, `perform_sending` prevails over `is_sending_disabled`
             if(isset($values['perform_sending'])) {
                 if(!$values['perform_sending']) {
-                    continue;
+                    $is_sending_disabled = true;
                 }
             }
-            // do not generate documents, export task & email if sending is disabled
+            // do not schedule export task & email if sending is disabled
             elseif($expenseStatement['is_sending_disabled']) {
-                continue;
+                $is_sending_disabled = true;
             }
 
             // remove previously created exporting task (and lines), if any
@@ -854,54 +867,57 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             $map_communication_methods = [];
 
-            foreach($expenseStatement['expense_statement_correspondences_ids'] as $fundRequestExecutionCorrespondence) {
-                // update global map to acknowledge that at least one invitation uses that communication method
-                $map_communication_methods[$fundRequestExecutionCorrespondence['communication_method']] = true;
+            foreach($expenseStatement['expense_statement_correspondences_ids'] as $expenseStatementCorrespondence) {
+                // update global map to acknowledge that at least one correspondence uses that communication method
+                $map_communication_methods[$expenseStatementCorrespondence['communication_method']] = true;
             }
 
-            if(isset($map_communication_methods['email'])) {
-                // schedule queuing of invite emails
-                $cron->schedule(
-                    "realestate.expensestatement.send-statements.{$id}",
-                    time() + (5 * 60),
-                    'realestate_funding_ExpenseStatement_send-statements',
-                    [
-                        'id'  => $id
-                    ]
-                );
-            }
-
-            // handle non-digital communication methods
-            if(count(array_diff(array_keys($map_communication_methods), ['email'])) > 0) {
-
-                // schedule generation of a zip archive containing printable documents
-                $exportingTask = ExportingTask::create([
-                        'name'          => "{$expenseStatement['name']} - Export des courriers du décompte de charges",
-                        'condo_id'      => $expenseStatement['condo_id'],
-                        'object_class'  => static::class,
-                        'object_id'     => $id
-                    ])
-                    ->first();
-
-                foreach($map_communication_methods as $communication_method => $flag) {
-                    if($communication_method === 'email') {
-                        continue;
-                    }
-                    ExportingTaskLine::create([
-                            'exporting_task_id' => $exportingTask['id'],
-                            'name'              => "{$expenseStatement['name']} - Export du décompte de charges - {$communication_method}",
-                            'controller'        => 'realestate_funding_ExpenseStatement_export-statements',
-                            'params'            => json_encode([
-                                    'id'                    => $id,
-                                    'communication_method'  => $communication_method
-                                ])
-                        ]);
+            if(!$is_sending_disabled) {
+                if(isset($map_communication_methods['email'])) {
+                    // schedule queuing of expense statement emails
+                    $cron->schedule(
+                        "realestate.expensestatement.send-statements.{$id}",
+                        time() + (5 * 60),
+                        'realestate_funding_ExpenseStatement_send-statements-emails',
+                        [
+                            'id'  => $id
+                        ]
+                    );
                 }
 
-                self::id($id)->update([
-                        'statements_exporting_task_id' => $exportingTask['id']
-                    ]);
+                // handle non-digital communication methods
+                if(count(array_diff(array_keys($map_communication_methods), ['email'])) > 0) {
+
+                    // schedule generation of a zip archive containing printable documents
+                    $exportingTask = ExportingTask::create([
+                            'name'          => "{$expenseStatement['name']} - Export des courriers du décompte de charges",
+                            'condo_id'      => $expenseStatement['condo_id'],
+                            'object_class'  => static::class,
+                            'object_id'     => $id
+                        ])
+                        ->first();
+
+                    foreach($map_communication_methods as $communication_method => $flag) {
+                        if($communication_method === 'email') {
+                            continue;
+                        }
+                        ExportingTaskLine::create([
+                                'exporting_task_id' => $exportingTask['id'],
+                                'name'              => "{$expenseStatement['name']} - Export du décompte de charges - {$communication_method}",
+                                'controller'        => 'realestate_funding_ExpenseStatement_export-statements-letters',
+                                'params'            => json_encode([
+                                        'id'                    => $id,
+                                        'communication_method'  => $communication_method
+                                    ])
+                            ]);
+                    }
+
+                    self::id($id)->update([
+                            'statements_exporting_task_id' => $exportingTask['id']
+                        ]);
+                }
             }
+            self::id($id)->update(['is_sending_disabled' => $is_sending_disabled]);
         }
 
     }

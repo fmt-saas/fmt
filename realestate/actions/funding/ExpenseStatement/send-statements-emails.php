@@ -9,7 +9,7 @@ use realestate\funding\ExpenseStatement;
 use realestate\funding\ExpenseStatementCorrespondence;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Send all email minutes reports for the target assembly.",
+    'description'   => "Send all expense statement emails for the target expense statement.",
     'params'        => [
         'id' =>  [
             'type'              => 'many2one',
@@ -57,20 +57,21 @@ $expenseStatementCorrespondences = ExpenseStatementCorrespondence::search([
     ])
     ->read(['is_sent', 'document_id']);
 
-$expense_statement_correspondences_ids = [];
-
 foreach($expenseStatementCorrespondences as $expense_statement_correspondence_id => $expenseStatementCorrespondence) {
-    // #memo - `export-invitation` and `send-invitation` are the only controllers where documents are generated for Assembly invites
+    // #memo - `export-statements` and `send-statements` are the controllers where expense statement documents can be generated on demand
     if(!$expenseStatementCorrespondence['document_id']) {
         try {
-            // generate document, add it to EDMS, and attach it to invitation
+            // generate document, add it to EDMS, and attach it to the correspondence
             eQual::run('do', 'realestate_funding_ExpenseStatementCorrespondence_generate-document', ['id' => $expense_statement_correspondence_id]);
         }
         catch(Exception $e) {
             // error while rendering or duplicate
         }
     }
+}
 
+// send all generated documents
+foreach($expenseStatementCorrespondences as $expense_statement_correspondence_id => $expenseStatementCorrespondence)  {
     $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($expense_statement_correspondence_id)
         ->read(['document_id' => ['data']])
         ->first();
@@ -79,11 +80,6 @@ foreach($expenseStatementCorrespondences as $expense_statement_correspondence_id
         continue;
     }
 
-    $expense_statement_correspondences_ids[] = $expense_statement_correspondence_id;
-}
-
-// send all generated documents
-foreach($expense_statement_correspondences_ids as $expense_statement_correspondence_id) {
     try {
         eQual::run('do', 'realestate_funding_ExpenseStatementCorrespondence_send-email', ['id' => $expense_statement_correspondence_id]);
     }
