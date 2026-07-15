@@ -13,7 +13,7 @@
             "visible": ["node_type", "=", "document"]
         }
     ],
-    "domain": ["node_type", "=", "folder"],
+    "domain": ["parent_id", "=", null],
     "order": "name",
     "sort": "asc",
     "layout": {
