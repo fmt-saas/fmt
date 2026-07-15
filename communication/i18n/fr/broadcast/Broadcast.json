@@ -87,8 +87,8 @@
     },
     "view": {
         "form.default": {
-            "name": "Diffusion",
-            "description": "Diffusion de plusieurs e-mails à des propriétaires.",
+            "name": "Envoi groupés",
+            "description": "Diffusion d'un e-mails à plusieurs propriétaires.",
             "actions": {
                 "action.validate_recipients": {
                     "label": "Valider destinataires"
@@ -129,8 +129,8 @@
             }
         },
         "list.default": {
-            "name": "Diffusions",
-            "description": "Liste des diffusions par courriel et de leur statut d'envoi."
+            "name": "Envois groupés",
+            "description": "Envois groupés de courriel et de leur statut d'envoi."
         }
     }
 }

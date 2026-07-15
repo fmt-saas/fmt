@@ -7,6 +7,7 @@
 
 use equal\orm\Domain;
 use equal\orm\DomainCondition;
+use realestate\governance\CouncilMember;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Advanced search for Owner: returns a collection according to extra parameters.",
@@ -48,6 +49,12 @@ use equal\orm\DomainCondition;
             }
         ],
 
+        'is_council_member' => [
+            'type'              => 'boolean',
+            'description'       => 'Is the conversation between two users only.',
+            'default'           => false
+        ],
+
         'name' => [
             'type'              => 'string',
             'description'       => "The name of the owner."
@@ -75,6 +82,17 @@ if(isset($params['condo_id']) && $params['condo_id'] > 0) {
 
 if(!empty($params['name'])) {
     $domain->addCondition(new DomainCondition('name', 'ilike', "%{$params['name']}%"));
+}
+
+if($params['is_council_member']) {
+    $owners_ids = [];
+    $councilMembers = CouncilMember::search([['condo_id', '=', $params['condo_id']], ['is_active', '=', true]])->read(['owner_id']);
+    foreach($councilMembers as $council_member_id => $councilMember) {
+        $owners_ids[] = $councilMember['owner_id'];
+    }
+    if(count($owners_ids)) {
+        $domain->addCondition(new DomainCondition('id', 'in', $owners_ids));
+    }
 }
 
 $params['domain'] = $domain->toArray();

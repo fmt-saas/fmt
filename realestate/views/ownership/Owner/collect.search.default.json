@@ -30,6 +30,17 @@
                                                 "width": "100%"
                                             }
                                         ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "is_council_member",
+                                                "label": "Council Member",
+                                                "width": "100%"
+                                            }
+                                        ]
                                     }
                                 ]
                             }
