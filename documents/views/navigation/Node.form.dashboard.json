@@ -122,7 +122,7 @@
                                                         "layout": "inline",
                                                         "actions": false
                                                     },
-                                                    "view": "list.dashboard"
+                                                    "view": "list.default"
                                                 }
                                             }
                                         ]
