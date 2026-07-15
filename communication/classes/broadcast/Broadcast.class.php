@@ -141,8 +141,12 @@ class Broadcast extends Model {
     }
 
     protected static function onupdateCondoId($self, $values) {
-        $self->read(['ownerships_ids', 'owners_ids', 'identities_ids']);
-        foreach($self as $id =>  $broadcast) {
+        $self->read(['condo_id', 'ownerships_ids', 'owners_ids', 'identities_ids']);
+        foreach($self as $id => $broadcast) {
+            if($broadcast['condo_id'] === $values['condo_id']) {
+                continue;
+            }
+
             $data = [];
             if(!empty($broadcast['ownerships_ids'])) {
                 $data['ownerships_ids'] = array_map(fn($ownership_id) => -$ownership_id, $broadcast['ownerships_ids']);

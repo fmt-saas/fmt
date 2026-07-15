@@ -158,45 +158,6 @@
             },
             {
                 "visible": [
-                    ["status", "in", ["ready", "scheduled", "processing", "processed"]]
-                ],
-                "sections": [
-                    {
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "label",
-                                                "value": "Destinataires",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "identities_ids",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "view": "list.broadcast",
-                                                    "header": {
-                                                        "actions": {
-                                                            "ACTION.CREATE": false
-                                                        }
-                                                    },
-                                                    "limit": 5
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "visible": [
                     [
                         ["step", "=", "content_edition"],
                         ["status", "=", "draft"]
@@ -248,10 +209,47 @@
             },
             {
                 "visible": [
-                    ["status", "=", "processed"]
+                    ["status", "in", ["ready", "scheduled", "processing", "processed"]]
                 ],
                 "sections": [
                     {
+                        "id": "section.recipients",
+                        "label": "Recipients",
+                        "visible": [
+                            ["status", "in", ["ready", "scheduled", "processing", "processed"]]
+                        ],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "identities_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.broadcast",
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "limit": 5
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.mails",
+                        "label": "Mails",
+                        "visible": [
+                            ["status", "=", "processed"]
+                        ],
                         "rows": [
                             {
                                 "columns": [

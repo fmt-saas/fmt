@@ -95,12 +95,15 @@
                     "label": "Sélection destinataires"
                 },
                 "action.schedule": {
-                    "label": "Planifier"
+                    "label": "Envoyer"
                 }
             },
             "layout": {
                 "section.recipients": {
                     "label": "Destinataires"
+                },
+                "section.mails": {
+                    "label": "E-mails"
                 },
                 "item.select_by_ownership": {
                     "label": "Sélection destinataires par dossiers de propriété"
