@@ -503,10 +503,21 @@
                 "type": "parent",
                 "children": [
                     {
+                        "id": "communication.broadcasts.all",
+                        "type": "entry",
+                        "label": "Broadcasts",
+                        "icon": "email",
+                        "description": "History of all broadcasts of messages.",
+                        "context": {
+                            "entity": "communication\\broadcast\\Broadcast",
+                            "view": "list.default"
+                        }
+                    },
+                    {
                         "id": "item.documents.email",
                         "type": "entry",
                         "label": "Incoming Emails",
-                        "icon": "email",
+                        "icon": "move_to_inbox",
                         "description": "View and manage received emails.",
                         "context": {
                             "entity": "communication\\email\\Email",
@@ -517,19 +528,10 @@
                         "id": "communication.emails.all",
                         "type": "entry",
                         "label": "Outgoing emails",
+                        "icon": "outbox",
                         "description": "History of all outgoing email messages.",
                         "context": {
                             "entity": "core\\Mail",
-                            "view": "list.default"
-                        }
-                    },
-                    {
-                        "id": "communication.broadcasts.all",
-                        "type": "entry",
-                        "label": "Broadcasts",
-                        "description": "History of all broadcasts of messages.",
-                        "context": {
-                            "entity": "communication\\broadcast\\Broadcast",
                             "view": "list.default"
                         }
                     }
