@@ -25,7 +25,9 @@ class Broadcast extends Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium concerned by the broadcast.",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'onupdate'          => 'onupdateCondoId'
+                'onupdate'          => 'onupdateCondoId',
+                'required'          => true,
+                'readonly'          => true
             ],
 
             'name' => [

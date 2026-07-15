@@ -1,11 +1,11 @@
 {
-    "name": "Diffusion",
-    "plural": "Diffusions",
-    "description": "Messages électroniques préparés et envoyés à un groupe déterminé de copropriétaires.",
+    "name": "Envoi groupé",
+    "plural": "Envois groupés",
+    "description": "Messages électroniques à envoyer à un groupe déterminé de copropriétaires.",
     "model": {
         "name": {
             "label": "Nom",
-            "description": "Nom de la diffusion.",
+            "description": "Nom de l'envoi groupé.",
             "help": ""
         },
         "step": {
@@ -19,7 +19,7 @@
         },
         "status": {
             "label": "Statut",
-            "description": "Statut d'envoi de la diffusion.",
+            "description": "Statut de l'envoi groupé.",
             "help": "",
             "selection": {
                 "draft": "Brouillon",
@@ -78,6 +78,11 @@
             "label": "E-mails",
             "description": "Emails générés par la liste de diffusion.",
             "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée par l'envoi groupé.",
+            "help": ""
         }
     },
     "view": {
@@ -100,8 +105,9 @@
             },
             "routes": {
                 "route.add_new_attachment": {
-                    "label": "Ajouter une pièce jointe",
-                    "description": "Ajouter un document en pièce jointe."
+                    "label": "Ajouter nouveau document",
+                    "description": "Ajouter un nouveau document en pièce jointe.",
+                    "help": "Ajouter un nouveau document au dépôt documentaire de la copropriété et l'ajouter comme pièce jointe de l'envoi groupé."
                 }
             },
             "layout": {

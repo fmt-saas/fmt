@@ -298,6 +298,7 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "view": "list.default",
+                                                    "mode": "edit",
                                                     "header": {
                                                         "layout": "inline",
                                                         "actions": {

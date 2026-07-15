@@ -44,7 +44,7 @@ class Mail extends \core\Mail {
                     ]);
                 }
                 else {
-                    trigger_error('APP::Unable to create metering record for Google Doc AI call, missing metric definition "google.docai.calls.count".', EQ_REPORT_WARNING);
+                    trigger_error('APP::Unable to retrieve metering record for email counter, missing metric definition "email.outbound.count".', EQ_REPORT_WARNING);
                 }
             }
         }

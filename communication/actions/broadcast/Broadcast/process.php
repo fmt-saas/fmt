@@ -60,6 +60,10 @@ Broadcast::id($broadcast['id'])->transition('start_processing');
 
 $mails_ids = [];
 foreach($broadcast['identities_ids'] as $identity) {
+    if(!$identity['email'] || strlen($identity['email']) <= 0) {
+        continue;
+    }
+
     $message = new Email();
 
     if(!empty($broadcast['reply_to'])) {
