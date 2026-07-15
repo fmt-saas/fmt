@@ -1,0 +1,100 @@
+{
+    "name": "Document Import",
+    "description": "Document import.",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                {
+                    "id": "SAVE_AND_VIEW",
+                    "view_id": "form.default",
+                    "visible": true,
+                    "help": "Upon saving, DocumentImport is deleted therefore the on_error is raised in form.default and loads another view."
+                }
+            ],
+            "ACTION.CANCEL": false
+        }
+    },
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "name",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_type_id",
+                                                "width": "100%",
+                                                "required": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_subtype_id",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "width": "100%",
+                                                "required": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ownership_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "supplier_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_visibility",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "data",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "type": "upload",
+                                                    "autosave": false,
+                                                    "required": true,
+                                                    "height": "600"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

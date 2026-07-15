@@ -122,7 +122,7 @@
                         "icon": "description",
                         "description": "Import and reconcile other documents.",
                         "context": {
-                            "view": "form.import",
+                            "view": "form.import_and_list",
                             "entity": "documents\\import\\DocumentImport",
                             "purpose": "create"
                         }

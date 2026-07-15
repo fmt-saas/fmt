@@ -67,7 +67,7 @@
             ],
             "context": {
                 "entity": "documents\\import\\DocumentImport",
-                "view": "form.import",
+                "view": "form.import_and_close",
                 "purpose": "create",
                 "mode": "edit",
                 "domain": [
