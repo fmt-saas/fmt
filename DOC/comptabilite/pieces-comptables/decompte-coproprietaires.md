@@ -1,4 +1,4 @@
-# Décompte copropriétaires ("répartition")
+﻿# Décompte copropriétaires ("répartition")
 
 Des décomptes sont réalisés de manière **périodique** au cours d'un exercice, selon la configuration de l'ACP, et présentent la manière dont  tous les mouvements comptables de la période affectent le décompte de chaque copropriétaire.
 
@@ -63,6 +63,8 @@ Le montant couvert par le fonds est déduit des charges selon cette clé de rép
  Cela signifie que certains copropriétaires peuvent financer une charge sans en bénéficier directement (si les clés sont différentes).
 
 Le décompte des propriétaires a lieu à chaque clôture de période. On fait une seule écriture d'imputation aux copropriétaires.
+
+Dans le workflow actuel, le décompte de charges (`ExpenseStatement`) est aussi le déclencheur technique de la clôture : lorsqu'il est posté, son action `close_fiscal_period` clôture la `FiscalPeriod` liée et, s'il s'agit de la dernière période de l'exercice, clôture également le `FiscalYear`.
 
 ```
 Copropriétaire : Mme Dupont
@@ -657,3 +659,4 @@ Une structure en arborescence est générée pour chaque propriétaire, sur base
     }
 ]
 ```
+

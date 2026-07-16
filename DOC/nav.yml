@@ -61,11 +61,32 @@
     - 'Copropriétaire': utilisateurs/coproprietaire.md
     - 'Employé': utilisateurs/employe.md
 - 'Prise en main':
+    - 'Vue d''ensemble': prise-en-main-et-fonctionnement/index.md
+    - 'Concepts de base': prise-en-main-et-fonctionnement/concepts-de-base.md
     - 'Navigation':
-        - 'Adresses directes': prise-en-main-et-fonctionnement/navigation/adresses-directes.md
         - 'Menu principal (agence / syndic)': prise-en-main-et-fonctionnement/navigation/menu-principal-agence-syndic.md
+        - 'Choisir une copropriété': prise-en-main-et-fonctionnement/navigation/choisir-une-copropriete.md
+        - 'Adresses directes': prise-en-main-et-fonctionnement/navigation/adresses-directes.md
     - 'Consultation et édition des informations':
+        - 'Consulter une liste': prise-en-main-et-fonctionnement/consultation-et-edition-des-informations/consulter-une-liste.md
+        - 'Ouvrir une fiche': prise-en-main-et-fonctionnement/consultation-et-edition-des-informations/ouvrir-une-fiche.md
+        - 'Modifier une fiche': prise-en-main-et-fonctionnement/consultation-et-edition-des-informations/modifier-une-fiche.md
         - 'Edition de textes': prise-en-main-et-fonctionnement/consultation-et-edition-des-informations/edition-de-textes.md
+    - 'Copropriétés':
+        - 'Fiche copropriété': prise-en-main-et-fonctionnement/coproprietes/fiche-copropriete.md
+        - 'Lots et propriétaires': prise-en-main-et-fonctionnement/coproprietes/lots-et-proprietaires.md
+        - 'Configuration': prise-en-main-et-fonctionnement/coproprietes/configuration.md
+        - 'Documents': prise-en-main-et-fonctionnement/coproprietes/documents.md
+    - 'Comptabilité':
+        - 'Vue comptabilité': prise-en-main-et-fonctionnement/comptabilite/vue-comptabilite.md
+        - 'Exercices comptables': prise-en-main-et-fonctionnement/comptabilite/exercices-comptables.md
+        - 'Factures d''achat': prise-en-main-et-fonctionnement/comptabilite/factures-d-achat.md
+        - 'Appels de fonds': prise-en-main-et-fonctionnement/comptabilite/appels-de-fonds.md
+        - 'Décomptes de charges': prise-en-main-et-fonctionnement/comptabilite/decomptes-de-charges.md
+        - 'Relevés bancaires': prise-en-main-et-fonctionnement/comptabilite/releves-bancaires.md
+        - 'États comptables': prise-en-main-et-fonctionnement/comptabilite/etats-comptables.md
+    - 'Assemblées':
+        - 'Assemblées': prise-en-main-et-fonctionnement/assemblees/assemblees.md
 - 'Configuration & technique':
     - 'Modèles de données': modeles-de-donnees.md
     - 'Permissions & Autorisations': permissions-autorisations/permissions-autorisations.md
@@ -73,5 +94,7 @@
     - 'Synchronisation': infra/synchronisation.md
     - 'Vérification d''initialisation': infra/verification-initialisation.md
     - 'Imports': infra/imports/imports.md
+
+
 
 

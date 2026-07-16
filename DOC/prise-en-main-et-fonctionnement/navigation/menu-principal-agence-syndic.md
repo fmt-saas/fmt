@@ -1,184 +1,65 @@
-# Menu principal (utilisateurs agence / syndic)
+﻿# Menu principal (agence / syndic)
 
-Cette section décrit l’organisation du **menu principal** pour les utilisateurs de type **agence/syndic**.
+Cette page présente les grandes zones du menu utilisées par un syndic ou un employé d'agence.
 
-> Le logiciel propose plusieurs menus selon le type d’utilisateur. Ici, on décrit spécifiquement le menu **agence/syndic**.
+L'objectif n'est pas de lister tous les écrans techniques, mais d'indiquer où aller selon le travail à faire.
 
-## 🏢 Copropriété
+## Copropriétés
 
-*(Sélection préalable : copropriété et exercice actif)*
+La zone `Copropriétés` est le point d'entrée principal.
 
-### 1. Configuration
+Elle permet d'ouvrir une copropriété puis d'accéder à ses vues métier :
 
-- Lots
-- Copropriétaires
-- Locataires
-- Fournisseurs
-- Mandataires
-- Commissaires aux comptes
-- Bâtiments
+* `Copropriétaires`
+* `Lots`
+* `Documents`
+* `Assemblées`
+* `Comptabilité`
+* `Configuration`
+* `Fournisseurs`
+* `Compteurs de conso`
 
-### 2. Gestion administrative
+## Comptabilité
 
-- Assemblées générales
-- Catalogue des résolutions
-- Dossiers travaux
+Depuis une fiche `Copropriété`, la vue `Comptabilité` permet d'accéder aux opérations financières :
 
-### 3. Gestion des répartitions
+* `Exercices comptables`
+* `Appels de fonds`
+* `Factures d'achat`
+* `Décomptes de charges`
+* `Relevés bancaires`
+* `Écritures comptables`
+* `Opérations diverses`
+* `États comptables`
+* `Encaissements`
+* `Remboursements`
+* `Transferts d'argent`
 
-- Clés de répartition
-- Natures de dépense
-- Compteurs (eau, chauffage, etc.)
+## Documents
 
-### 4. Gestion comptable
+La zone `Documents` sert à retrouver ou importer les fichiers liés à la copropriété : factures, extraits bancaires, courriers, pièces d'assemblée, procès-verbaux et documents divers.
 
-- Exercices comptables
-- Budgets
-- Appels de fonds
-- Factures fournisseurs
-- Financier
-  - Prélèvements copropriétaires
-  - Paiements fournisseurs
-  - Imports CODA
-  - Extraits bancaires
-  - Paiements / Encaissements
-  - Transferts
-- Opérations diverses
-- Décomptes de charges
+## Assemblées
 
-### 5. États comptables
+La zone `Assemblées` permet de préparer et suivre les assemblées générales : résolutions, convocations, participants, procurations, présences, votes et procès-verbal.
 
-- Grand livre
-- Grand livre financier
-- Comptes comptables
-- Balance générale
-- Balance des tiers
-- Journaux comptables
-- Bilan comptable
-- Fonds détenus
-- Liste des dépenses
-  - Dépenses courantes
-  - Dépenses travaux
+## Configuration
 
-## ⚙️ Configuration (administration générale)
+La vue `Configuration` d'une copropriété regroupe les paramètres utilisés par les autres écrans :
 
-*(Commune à toutes les copropriétés ou à l’agence)*
+* `Clés de répartition`
+* `Plan comptable`
+* `Journaux comptables`
+* `Comptes bancaires`
+* `Langues`
+* `Affectations des rôles`
+* `Paramètres`
 
-- Utilisateurs
-- Agence
-- Contrôle d’accès
-- Établissements bancaires
-- Natures de biens
-- Valeurs par défaut
-- Civilités
-- Codes TVA
-- Codes journaux
-- Plan comptable
-- Natures de dépense par défaut
-- RGPD
-- Import structurel CSV
-- Modèles (Documents, Emails, Étiquettes, Annexes nominatives)
-- Communication extranet
-- Paramétrage logiciel
+## Plan de travail conseillé
 
-## 🛠 Plan de travail (actions rapides)
+Pour travailler sur une copropriété :
 
-*(Facultatif : raccourcis vers des actions courantes sur la copropriété active)*
-
-- Faire un appel
-- Saisir une facture
-- Relance copropriétaires
-- Payer une facture
-- Traiter CODA
-- Effectuer paiements / encaissements
-
-## Menu Admin
-
-### 1. Copropriétés
-
-- Liste des copropriétés
-- Bâtiments
-- Lots
-
-### 2. Personnes et organisations
-
-- Copropriétaires
-- Locataires
-- Fournisseurs
-- Mandataires
-- Salariés
-- Commissaires aux comptes
-
-### 3. Assemblées générales
-
-- Assemblées générales
-- Catalogue des résolutions
-
-### 4. Travaux et dossiers
-
-- Dossiers travaux
-
-### 5. Répartitions
-
-- Clés de répartition
-- Natures de dépense
-- Compteurs
-
-### 6. Gestion financière
-
-- Exercices comptables
-- Budgets
-- Appels de fonds
-- Factures fournisseurs
-  - Factures
-  - Contrats
-  - Imports
-- Financier
-  - Prélèvements
-  - Paiements
-  - Imports CODA
-  - Remises
-  - Extraits bancaires
-  - Paiements / Encaissements
-  - Transferts
-- Opérations diverses
-- Décomptes de charges
-- Simulations de répartition
-
-### 7. États et rapports
-
-- Grand livre
-- Grand livre financier
-- Comptes comptables
-- Balance générale
-- Balance des tiers
-- Journaux comptables
-- Bilan comptable
-- Fonds détenus
-- Liste des dépenses
-  - Dépenses courantes
-  - Dépenses travaux
-- Consultation multicopropriété
-  - Situation comptes immeuble
-  - Recherche par montant
-
-### 8. Configuration
-
-- Utilisateurs
-- Agence
-- Contrôle d’accès
-- Établissements bancaires
-- Natures de biens
-- Valeurs par défaut
-- Civilités
-- Codes TVA
-- Codes journaux
-- Plan comptable
-- Natures de dépense par défaut
-- RGPD
-- Import structurel CSV
-- Modèles
-  - Documents
-  - Emails
-- Communication extranet
-- Paramétrage logiciel
+1. Ouvrir la liste des copropriétés.
+2. Sélectionner la copropriété concernée.
+3. Utiliser les raccourcis de la fiche copropriété.
+4. Ouvrir la vue métier adaptée : `Comptabilité`, `Documents`, `Assemblées`, `Lots`, `Copropriétaires` ou `Configuration`.

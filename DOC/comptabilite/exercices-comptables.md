@@ -1,556 +1,308 @@
-# Exercices comptables
+﻿# Exercices comptables
 
 Chaque ACP définit son exercice comptable en Assemblée Générale (AG).
 
-* Un exercice est généralement d’une durée d’un an.
-* Il peut être allongé ou raccourci :
+* Un exercice est généralement d'une durée d'un an.
+* Il peut être allongé ou raccourci pour le premier exercice, à la suite d'un changement de syndic, d'une décision d'AG ou d'une clôture anticipée.
+* L'exercice peut se terminer n'importe quel mois de l'année.
+* Les décomptes de charges sont produits selon les périodes comptables générées pour l'exercice.
 
-  * pour le premier exercice (immeuble neuf / création de copropriété),
-  * ou suite à un changement de syndic / décision d’AG (cas rare),
-  * ou suite à une clôture anticipée (fin de mandat en cours d’exercice / période).
-* L’exercice peut se terminer n’importe quel mois de l’année (dates arbitraires, décidées en AG).
-* Les dates d’exercice sont définies dans les statuts mais peuvent être modifiées en AG.
-* Les décomptes de charges sont adaptés à l’exercice défini.
+Cette page décrit le fonctionnement actuel du code, principalement porté par :
 
-### Périodicité des décomptes
+* `finance\accounting\FiscalYear`
+* `finance\accounting\FiscalPeriod`
+* `realestate\funding\ExpenseStatement`
 
-Les copropriétés peuvent produire des décomptes selon une périodicité au choix, typiquement :
+## Concepts
 
-* trimestriel
-* quadrimestriel
-* semestriel
-* annuel
+Trois objets structurent le cycle comptable.
 
-> **Règle structurante** : les **décomptes** (ExpenseStatement) sont **toujours obligatoirement liés à une période** (FiscalPeriod).
-> Corollaire : une période **clôturée** a nécessairement un **ExpenseStatement validé et intégré en comptabilité**.
+* `FiscalYear` : exercice comptable. Il porte les dates, la fréquence de découpage, les périodes, le solde d'ouverture et le solde de clôture.
+* `FiscalPeriod` : période comptable opérationnelle. C'est l'unité sur laquelle les écritures sont imputées et pour laquelle un décompte de charges est produit.
+* `ExpenseStatement` : décompte de charges. Il est généré pour une période, puis son passage en comptabilité déclenche la clôture de cette période.
 
-### Numérotation des pièces et périodicité
+La règle importante est la suivante :
 
-Note : la numérotation de certaines pièces (ex. factures d’achat) peut prendre en compte la période (ex. numérotation qui recommence à chaque période).
-Lors de la création d’un exercice, le système génère des séquences de numérotation liées aux périodes, via un setting (par copropriété) :
+> La clôture opérationnelle d'une période comptable est déclenchée par l'`ExpenseStatement` de cette période. Si cette période est la dernière de l'exercice, le même traitement clôture aussi le `FiscalYear`.
 
-`finance, accounting, invoice.period_sequence.{fiscal_year_code}.{fiscal_period_code}`
+## Périodicité
 
+Un exercice est découpé selon la fréquence définie sur `FiscalYear.fiscal_period_frequency`.
 
+Fréquences prévues :
 
-## Principes généraux de gestion des exercices
+* `Y` : annuel
+* `S` : semestriel
+* `Q` : trimestriel
+* `T` : quadrimestriel
+* `M` : mensuel
 
-### Deux règles de simplification
+La génération des périodes est réalisée par l'action `FiscalYear.generate_periods`. Elle supprime les périodes existantes de l'exercice puis les recrée à partir des dates de début et de fin et de la fréquence.
 
-Pour limiter la complexité, deux règles structurantes s’appliquent au moteur de workflow :
+Pour un premier exercice, le calcul tient compte des dates configurées sur la copropriété afin de pouvoir produire une première période plus courte ou plus longue.
 
-1. **Les validations de transition (can_open, can_preclose, can_close, …) vérifient toujours vers l’arrière, jamais vers l’avant.**
-   On n’impose pas qu’un futur (exercice suivant) existe ni qu’il soit dans un état particulier pour autoriser une transition.
+## Workflow de l'exercice
 
-2. **L’ouverture d’une année comptable est toujours manuelle (jamais automatique).**
-   Aucune cascade implicite ne doit “ouvrir” un exercice à la place de l’utilisateur.
+Statuts de `FiscalYear` :
 
-Ces deux règles rendent les transitions locales, testables, et évitent les effets domino.
+* `draft`
+* `preopen`
+* `open`
+* `preclosed`
+* `closed`
 
-### Transitions strictement séquentielles
+### `draft`
 
-Une règle supplémentaire s’applique également:
+L'exercice est en préparation. Les dates, la fréquence et les périodes peuvent encore être structurées.
 
-> On ne passe **obligatoirement** que d’un état au suivant, **sans saut**, et **tous les états sont indispensables**.
+### `preopen`
 
-Exemples interdits :
-
-* `draft → open`
-* `open → closed`
-* `preopen → preclosed`
-* etc.
-
-Chaque étape doit être traversée avec son action dédiée.
-
-### Existence d’un exercice sans précédent
-
-Il est possible d’ouvrir un exercice même s’il n’existe **aucun exercice précédent** (premier exercice, migration, import partiel…).
-Dans ce cas, les règles “vers l’arrière” n’empêchent pas la transition ; les contraintes liées à l’exercice précédent ne s’appliquent que s’il existe.
-
-
-
-## Modèle : FiscalYear, FiscalPeriod, ExpenseStatement
-
-Trois concepts interagissent :
-
-* **FiscalYear** : année comptable (conteneur temporel + structure des périodes).
-* **FiscalPeriod** : période comptable (unité réelle de production/validation des décomptes).
-* **ExpenseStatement** : décompte de charges (proforma puis validé/posté).
-
-### Rôle central des périodes
-
-Le système est conçu pour que la **préclôture et la clôture** ne soient pas des opérations “directes” sur l’année (FiscalYear), mais qu’elles soient **déclenchées par la dernière période et son ExpenseStatement**.
-
-En pratique :
-
-* Mettre en **préclôture** une période ⇒ génère un **ExpenseStatement proforma**
-* **Clôturer** une période ⇒ exige un ExpenseStatement **validé + intégré en comptabilité (posté)**
-* Si la période est la **dernière de l’exercice**, alors l’état du **FiscalYear** est ajusté en conséquence.
-
-
-
-## Workflow : FiscalYear
-
-Workflow officiel :
-
-`draft → preopen → open → preclosed → closed`
-
-### Draft
-
-* Une année comptable `draft` est **vide** et **non imputable**.
-* On peut y configurer les dates et la structure des périodes.
-* Aucune écriture/aucune pièce ne peut être affectée à une année `draft`.
-
-### Pré-ouverture (preopen)
-
-La transition `draft → preopen` correspond à la **préparation structurée** de l’exercice.
+Le passage en `preopen` prépare l'exercice avant ouverture.
 
 Effets principaux :
 
-* l’année passe de `draft` à `preopen` ;
-* les dates de début et fin sont considérées comme prêtes à être activées ;
-* la cohérence des périodes est vérifiée/figée selon la politique choisie ;
-* génération des séquences de numérotation par période (si applicable) ;
-* **création automatique d’un exercice suivant en `draft`** (année suivante).
+* si aucune période n'existe, les périodes sont générées ;
+* l'ordre, le code et le nom des périodes sont recalculés ;
+* les séquences de numérotation sont générées ;
+* si aucun exercice suivant n'existe, un exercice suivant est créé en `draft`.
 
-> **Règle importante** : lorsque l’on pré-ouvre une année (preopen), il faut **toujours** créer une `draft` pour l’année suivante (même si elle ne sera pas ouverte tout de suite).
-> Ainsi, la “chaîne” peut être préparée en avance sans effet automatique d’ouverture.
+Un exercice ne peut être pré-ouvert que s'il est en `draft`, que sa structure est cohérente, et qu'il ne précède pas un exercice déjà `open`.
 
-#### Preopen en série
+### `open`
 
-Il est possible d’avoir autant d’années `preopen` en série que souhaité (préparation à l’avance).
-Aucune limitation structurelle ne l’interdit, et cela ne déclenche pas d’ouverture automatique.
+Le passage en `open` rend l'exercice actif pour l'imputation.
 
-### Ouverture (open)
+Conditions principales :
 
-La transition `preopen → open` est **manuelle**.
+* l'exercice doit être en `preopen` ;
+* un exercice suivant doit exister ;
+* cet exercice suivant doit pouvoir être pré-ouvert ;
+* les dates et périodes doivent rester cohérentes.
 
-Objectifs :
+Effets principaux :
 
-* activer l’exercice en tant qu’exercice “écrivable”
-* permettre l’imputation sur ses périodes ouvertes
+* l'exercice suivant est automatiquement passé en `preopen` ;
+* la copropriété pointe vers l'exercice ouvert via `current_fiscal_year_id`.
 
-Points clés :
+### `preclosed`
 
-* on ne force pas l’existence ni l’état du futur (règle “on ne regarde pas vers l’avant”)
-* l’ouverture ne déclenche pas une cascade “automatique” sur d’autres exercices
-* il doit être possible d’ouvrir un exercice même sans précédent (premier exercice)
+Le statut `preclosed` correspond à une préclôture de l'exercice. Dans le flux normal, cette transition est provoquée par la préclôture de la dernière période.
 
-> Contrainte métier fréquente (si conservée dans ton modèle) : un seul exercice comptable est “en cours” dans l’interface métier.
-> Cela dépend de la politique d’imputation / date pièce, mais reste compatible avec l’ouverture manuelle.
+Pour préclôturer un exercice :
 
-### Pré-clôture (preclosed)
+* l'exercice doit être `open` ;
+* l'exercice précédent, s'il existe, doit être `closed` ;
+* toutes les périodes de l'exercice doivent être `preclosed` ou `closed`.
 
-Le statut `preclosed` d’un FiscalYear est **dérivé** : on ne met pas une année en préclôture comme action principale.
-Il correspond au cas où la **dernière période** de l’exercice est en préclôture (ExpenseStatement annuel en finalisation / proforma).
+Effet principal :
 
-Définition :
+* un solde de clôture provisoire est généré via `ClosingBalance.generate_balance_lines`.
 
-* `FiscalYear.preclosed` = “la dernière période est en `preclosed`, décompte annuel non finalisé”
-* pour modifier des écritures (ajout / correction), il faudra ré-ouvrir (selon procédure) car l’année est considérée “figée” tant que le décompte n’est pas validé.
+### `closed`
 
-### Clôture (closed)
+Le statut `closed` est l'état final de l'exercice.
 
-De même, `FiscalYear.closed` est essentiellement la conséquence de la clôture de la dernière période (et de son ExpenseStatement).
+Conditions principales :
 
-Définition :
+* l'exercice doit être `open` ou `preclosed` ;
+* un exercice suivant doit exister ;
+* l'exercice suivant doit être `open` ou `preopen`.
 
-* `FiscalYear.closed` = “toutes les périodes sont clôturées, y compris la dernière, et le décompte final est intégré en compta”
+Effets principaux :
 
-Après clôture :
+* le solde de clôture définitif est généré et validé ;
+* un solde d'ouverture est généré et validé sur l'exercice suivant ;
+* si l'exercice suivant est encore `preopen`, il est automatiquement ouvert.
 
-* plus aucune imputation n’est possible sur l’exercice
-* si une erreur est détectée après clôture, une écriture d’ajustement doit être passée dans l’exercice suivant
-* une réouverture exceptionnelle n’existe que via opération spécifique (si ton modèle la prévoit), sinon elle est interdite
+Dans le flux métier normal, cette clôture est déclenchée par le décompte de charges de la dernière période, via l'action `ExpenseStatement.close_fiscal_period`.
 
----
+### Retour exceptionnel en préclôture
 
-## Workflow : FiscalPeriod
+Un exercice `closed` peut revenir en `preclosed` via la transition `repreclose`, sous conditions.
 
-Les périodes suivent toujours leur FiscalYear (structure, dates, appartenance).
-Elles sont l’unité “opérationnelle” de production des décomptes.
+Conditions principales :
 
-Workflow opérationnel :
+* l'exercice doit être `closed` ;
+* aucun exercice plus récent ne peut être déjà `closed` ;
+* l'exercice suivant doit exister ;
+* l'exercice précédent, s'il existe, doit être `closed`.
 
-`draft → preopen → open → preclosed → closed`
+Effets principaux :
 
-> Remarque : même si tu choisis d’ouvrir “directement” toutes les périodes quand l’année s’ouvre, les états existent et restent indispensables (pas de saut).
-> En pratique, `preopen` des périodes peut être géré automatiquement en même temps que le `preopen` de l’année, mais il reste un état réel (et testable).
+* la dernière période est remise en `preclosed` ;
+* le décompte posté de cette période est déverrouillé ;
+* le solde d'ouverture de l'exercice suivant est supprimé ;
+* le solde de clôture de l'exercice courant est supprimé.
 
-### Ouverture des périodes
+## Workflow des périodes
 
-Par facilité:
+Statuts de `FiscalPeriod` :
 
-* lorsqu’une année comptable est ouverte (`FiscalYear.open`), **on ouvre directement toutes ses périodes** (`FiscalPeriod.open`).
-* cela permet d’affecter des pièces sur **n’importe quelle période** tant qu’elle n’est pas fermée (`closed`).
+* `open`
+* `preclosed`
+* `closed`
 
-Règle d’imputation associée :
+Les périodes sont créées en `open` par défaut. Le code actuel ne définit pas de statuts `draft` ou `preopen` pour `FiscalPeriod`.
 
-> On ne peut imputer une pièce comptable que sur une période **open**.
-> Donc si une période est open, l’année est nécessairement dans un état permettant l’imputation (open).
+### `open`
 
-### Préclôture d’une période : point d’entrée du décompte
+La période est ouverte. Elle peut recevoir des pièces et écritures comptables, tant que les autres règles d'imputation l'autorisent.
 
-Règle structurante :
+### Préclôture d'une période
 
-* **On ne peut pas clôturer directement une période : uniquement la préclôture est directe.**
-* Mettre une période en `preclosed` correspond à **générer un ExpenseStatement**.
+La transition `FiscalPeriod.preclose` passe une période de `open` à `preclosed`.
 
-Autrement dit :
+Conditions principales :
 
-* “Générer un décompte pour une période” = `FiscalPeriod.open → FiscalPeriod.preclosed`
+* la période doit appartenir à une copropriété et à un exercice ;
+* ses dates de début et de fin doivent être définies ;
+* la période doit être `open` ;
+* l'exercice parent doit être `open` ;
+* toutes les périodes précédentes du même exercice doivent être `closed` ;
+* s'il existe déjà un `ExpenseStatement` pour la période, il doit être en `proforma`.
 
-#### Génération automatique d’un ExpenseStatement proforma
+Effets principaux :
 
-Règle explicite :
+* un `ExpenseStatement` est créé pour la période s'il n'existe pas encore ;
+* ce décompte reçoit les dates de la période, l'exercice et la copropriété ;
+* l'action `ExpenseStatement.generate_statement` est exécutée ;
+* si la période est la dernière de l'exercice, l'exercice est passé en `preclosed`.
 
-> À la préclôture d’une période (`open → preclosed`), on génère automatiquement un **ExpenseStatement proforma**.
+Cette étape correspond à la génération du décompte proforma.
 
-Ce proforma :
+### Clôture d'une période
 
-* fige un instantané des écritures de la période
-* sert à préparation/validation
-* peut inclure des informations à confirmer / modifier :
+La transition `FiscalPeriod.close` passe une période `open` ou `preclosed` en `closed`, si l'exercice parent est `open` ou `preclosed`.
 
-  * numéro de compte
-  * conditions de paiement
-  * mentions administratives, etc.
-* peut nécessiter validation par un gestionnaire et/ou comptable selon l’organisation
+Dans le flux métier, cette transition n'est pas lancée directement par l'utilisateur : elle est appelée par l'`ExpenseStatement` au moment où le décompte est posté.
 
-### Ordonnancement des périodes (séquence)
+## Workflow du décompte de charges
 
-Règle explicite :
+L'`ExpenseStatement` est l'objet qui matérialise le décompte d'une période.
 
-> Une période ne peut être pré-clôturée que si toutes les périodes précédentes sont clôturées.
+Statuts principaux :
 
-Cela impose un flux chronologique strict :
+* `proforma`
+* `posted`
+* `cancelled`
 
-* on ne prépare pas un décompte du T3 si le T2 n’est pas clôturé
-* on évite les trous et incohérences de reporting
+La transition métier importante est `validate`. Malgré son nom, elle fait passer le décompte de `proforma` à `posted`.
 
-### Clôture d’une période : validation + intégration comptable
+### Génération du proforma
 
-Règle explicite :
+La préclôture d'une période crée automatiquement un `ExpenseStatement` si aucun proforma n'existe déjà pour la période.
 
-> Pour clôturer une période, il faut **valider** et **intégrer en comptabilité** un ExpenseStatement.
+Le proforma :
 
-Donc :
+* est lié à une copropriété ;
+* est lié à un `FiscalYear` ;
+* est lié à un `FiscalPeriod` ;
+* reprend les dates de la période ;
+* génère les lignes de décompte via `generate_statement`.
 
-* `FiscalPeriod.preclosed → FiscalPeriod.closed` n’est autorisé que si :
+### Posting du décompte
 
-  * l’ExpenseStatement est validé
-  * et ses écritures / effets sont postés en compta (“intégré”)
+Lors de la transition `ExpenseStatement.validate`, le code exécute notamment :
 
-Conséquence :
+* `generate_statement`
+* `generate_accounting_entries`
+* `assign_invoice_number`
+* `clear_accounting_entry_lines`
+* `validate_accounting_entries`
+* `create_fundings`
+* `close_fiscal_period`
 
-* une période `closed` est juridiquement et comptablement finalisée
-* aucune imputation ultérieure n’est possible sur cette période
+L'action `close_fiscal_period` est le point clé :
 
+```php
+FiscalPeriod::id($expenseStatement['fiscal_period_id']['id'])->transition('close');
+if($expenseStatement['fiscal_period_id']['date_to'] === $expenseStatement['fiscal_year_id']['date_to']) {
+    FiscalYear::id($expenseStatement['fiscal_year_id']['id'])->transition('close');
+}
+```
 
+Conséquences :
 
-## Interaction FiscalPeriod ↔ FiscalYear (dernière période)
+* tout décompte posté clôture sa période comptable ;
+* si la période clôturée est la dernière de l'exercice, le même décompte clôture aussi l'exercice ;
+* le solde de clôture de l'exercice courant et le solde d'ouverture de l'exercice suivant sont générés par le workflow du `FiscalYear`.
 
-### Générer un décompte pour la dernière période
+## Ordonnancement obligatoire
 
-Règle :
+Les périodes doivent être traitées chronologiquement.
 
-* “Générer un décompte pour la dernière période d’une année” = mettre la **période + l’année** en préclôture.
+Une période ne peut être préclôturée que si toutes les périodes précédentes du même exercice sont déjà `closed`.
 
-Mécaniquement :
+Exemple :
 
-* `last_period.open → last_period.preclosed` (déclenche ExpenseStatement proforma)
-* entraîne `FiscalYear.open → FiscalYear.preclosed` (statut dérivé)
+* le T1 doit être clôturé avant la préclôture du T2 ;
+* le T2 doit être clôturé avant la préclôture du T3 ;
+* la dernière période déclenche la préclôture puis la clôture de l'exercice.
 
-### Validation du décompte final
+## Réouverture et corrections
 
-Règle :
+La réouverture est exceptionnelle et se fait en sens inverse.
 
-* “Valider un décompte” = clôturer la période correspondante (`preclosed → closed`)
-* et si c’est la dernière période :
+### Exercice fermé vers préclôturé
 
-  * clôturer également l’année (`FiscalYear.preclosed → FiscalYear.closed`)
+`FiscalYear.repreclose` :
 
-En résumé :
+* remet la dernière période en `preclosed` ;
+* supprime le solde de clôture de l'exercice ;
+* supprime le solde d'ouverture de l'exercice suivant.
 
-* l’année ne “se clôture” pas directement
-* ce sont la dernière période et son ExpenseStatement qui poussent l’année dans son état final
+### Période fermée vers préclôturée
 
+`FiscalPeriod.repreclose` :
 
+* exige que la période soit `closed` ;
+* exige que l'exercice soit `preclosed` ;
+* exige que toutes les périodes suivantes du même exercice soient `open` ;
+* déverrouille le décompte posté correspondant.
 
-## Exigences de continuité et disponibilité
+Le déverrouillage de l'`ExpenseStatement` :
 
-### Toujours au moins un FiscalYear en preopen
+* annule l'écriture comptable liée ;
+* remet les lignes d'écriture comme non décomptées ;
+* supprime les financements générés par le décompte ;
+* remet le décompte en `proforma`.
 
-Règle explicite :
+Un décompte ne peut être déverrouillé que s'il est `posted` et qu'aucun décompte posté plus récent n'existe pour la même copropriété.
 
-> Il faut toujours au moins 1 FiscalYear en `preopen` (sinon on ne peut pas faire d’écritures).
+## Récapitulatif
 
-Cette règle est un garde-fou opérationnel :
+### Ouverture
 
-* pour imputer correctement sans se retrouver “au bord” de l’exercice sans préparation du suivant
-* pour garantir que la continuité est maintenue (au moins une année suivante préparée)
+1. Créer ou disposer d'un `FiscalYear` en `draft`.
+2. Le passer en `preopen`.
+3. Les périodes sont générées si nécessaire.
+4. Les séquences sont générées.
+5. Un exercice suivant est créé en `draft` s'il manque.
+6. Passer l'exercice en `open`.
+7. L'exercice suivant est automatiquement passé en `preopen`.
 
+### Préclôture d'une période
 
+1. L'utilisateur préclôture une période `open`.
+2. Le système vérifie que toutes les périodes précédentes sont `closed`.
+3. Un `ExpenseStatement` proforma est créé ou réutilisé.
+4. Le décompte est généré.
+5. Si c'est la dernière période, l'exercice passe en `preclosed`.
 
-## Règles d’imputation (écritures / pièces)
+### Clôture d'une période
 
-### Attribution des écritures
+1. L'utilisateur valide le décompte proforma.
+2. L'`ExpenseStatement` est posté.
+3. Les écritures comptables sont générées et validées.
+4. Les lignes d'écriture incluses dans le décompte sont marquées comme décomptées.
+5. Les financements associés aux propriétaires sont créés.
+6. L'action `ExpenseStatement.close_fiscal_period` clôture la période.
 
-* Les écritures sont attribuées à un exercice selon la date de la pièce comptable (ou règle métier équivalente).
-* Les écritures sont toujours associées à une période comptable (FiscalPeriod), afin de permettre :
+### Clôture d'un exercice
 
-  * balances périodiques
-  * décomptes structurés
-  * clôtures séquentielles
-
-### Autorisations d’imputation
-
-Règle stricte actuelle :
-
-* Une pièce comptable ne peut être imputée que sur une **période open**.
-* Donc, implicitement :
-
-  * l’année doit être dans un état permettant l’ouverture des périodes (typiquement `open`)
-
-Dans la logique antérieure, tu avais aussi la notion :
-
-* exercice précédent (non clôturé)
-* exercice en cours
-* exercice à venir
-* interdiction d’imputer à plus d’un exercice dans le futur
-
-Ces principes restent compatibles, mais dans la nouvelle architecture, la contrainte la plus forte et la plus simple est :
-
-* l’imputation se fait par **période ouverte** (et donc par exercice ouvert)
-
-
-
-## Création et gestion des exercices
-
-### Ouverture / Pré-ouverture d’un exercice
-
-Action structurante : `finance/accounting/fiscalyear::open` (et/ou action `preopen` selon ton implémentation)
-
-À la création d’un exercice (pour une copropriété) :
-
-* créer la structure de périodes selon le template de périodicité choisi
-* générer les séquences par période
-* mettre l’exercice dans un état cohérent avec son cycle (`draft`, puis `preopen` manuellement)
-* créer l’exercice suivant en `draft` lors du passage en `preopen`
-* ne pas ouvrir automatiquement l’exercice suivant (ouverture toujours manuelle)
-
-### Gestion des périodes (template ACP)
-
-* possibilité d’avoir une périodicité (trimestriel/quadrimestriel/semestriel/annuel)
-* proposition d’un template de périodes modifiable par ACP
-* contrôle de continuité des périodes
-* en cas de modification des périodes :
-
-  * forcer un recalcul des assignations de périodes et balances périodiques si nécessaire
-  * pas d’impact sur la balance courante, sauf si ton modèle l’exige
-
-
-
-## Cas particuliers pour la création/modification des périodes
-
-Les trois cas suivants doivent être supportés.
-
-### 1) Première ouverture (premier exercice)
-
-Cas : immeuble neuf / première mise en comptabilité.
-
-* le premier exercice démarre à une date réelle (réception provisoire parties communes ou 1ère partie privative)
-* l’exercice se termine à une date fixée en AG
-* le premier exercice peut être plus long ou plus court que 12 mois
-* le premier exercice est automatiquement marqué `is_first` lors de l’action `Condominium::create_draft_fiscal_year`
-* une OD d’ouverture ne peut être faite que sur ce premier exercice
-* ensuite, les exercices reviennent à 12 mois à partir de la date de fin du premier exercice
-* si décompte trimestriel :
-
-  * seule la première période peut être plus longue/courte
-  * puis périodes de 3 mois en 3 mois (idem pour autres périodicités)
-
-Distinction utile :
-
-* `date_init` : date réelle de début d’exercice
-* `date_from` : date théorique calculée
-
-Méthode :
-
-1. trouver `date_from` théorique à partir de `date_to` : `date_to - 1 year + 1 day`
-2. créer les périodes comme “ouverture classique” avec exceptions :
-
-   * pour la première période :
-
-     * si `date_from < date_init` ou `date_from > date_init`, alors `date_from = date_init`
-   * pour toutes les périodes :
-
-     * si `date_to < date_init` : ignorer
-
-### 2) Modification (décision d’AG)
-
-Cas rare : AG modifie l’exercice comptable (dates/structure).
-
-Effets :
-
-* exercice plus court ou plus long
-* puis retour à la normalité ensuite
-
-Contraintes :
-
-* adaptation des périodes
-* réassignation des écritures aux nouvelles périodes si nécessaire
-* recalcul des balances périodiques / assignations
-
-### 3) Clôture anticipée (fin de mandat en cours d’année)
-
-Cas : fin de mandat du syndic en cours d’année ou de période.
-
-Objectif :
-
-* modifier la date de fin qui sert à comptabiliser les charges d’une période
-* bloquer la date de début au premier jour suivant le dernier décompte comptabilisé (pas de trous)
-
-Implications :
-
-* existence (au moins `draft`/`preopen`) de l’exercice suivant ; si absent, le créer
-* modifier date de début de l’exercice suivant (date fin + 1) avec réassignations si écritures déjà présentes
-* modifier date de fin de l’exercice courant :
-
-  * supprimer périodes postérieures à la nouvelle fin
-  * réassigner écritures vers les périodes de l’exercice suivant si nécessaire
-* ensuite :
-
-  * passage logique via les mécanismes de périodes et décomptes (préclôture/clôture)
-
-Note :
-
-* si des écritures sont déjà imputées à l’exercice suivant, c’est la responsabilité de l’ancien syndic de transmettre infos et pièces (règle organisationnelle).
-
-
-
-## ExpenseStatement (Décompte de charges)
-
-### Objectif
-
-Un ExpenseStatement est l’objet documentaire et comptable qui :
-
-* matérialise le décompte de charges lié à une période
-* permet la validation et l’intégration en comptabilité
-* conditionne la clôture de la période (et éventuellement de l’année)
-
-### Proforma
-
-À la transition `FiscalPeriod.open → FiscalPeriod.preclosed` :
-
-* génération automatique d’un ExpenseStatement **proforma**
-* possibilité de compléter/ajuster certaines données :
-
-  * numéro de compte
-  * conditions de paiement
-  * champs administratifs
-* possibilité de validation interne (gestionnaire/comptable), selon politique
-
-### Validation + intégration
-
-Pour clôturer une période, l’ExpenseStatement doit être :
-
-* validé
-* posté/intégré en comptabilité
-
-“Valider un décompte” = “clôturer la période correspondante”.
-
-
-
-## Pièces de clôture / export
-
-Après la clôture d’un exercice, une archive de clôture peut être générée, reprenant les pièces comptables à envoyer au commissaire aux comptes (ZIP contenant les fichiers XLS), typiquement :
-
-* bilan
-* balances
-* liste de frais
-* documents de clôture
-
-
-
-## Récapitulatif des statuts
-
-### FiscalYear
-
-* `draft` : année vide, non imputable
-* `preopen` : année préparée, suivante draft créée
-* `open` : année active, périodes ouvertes, imputation possible
-* `preclosed` : statut dédié à “dernière période en préclôture” (décompte annuel proforma en cours)
-* `closed` : année finalisée, conséquence de clôture de la dernière période
-
-### FiscalPeriod
-
-* `draft` : période configurée mais non active
-* `preopen` : période prête, structure validée
-* `open` : imputation possible
-* `preclosed` : proforma généré, période figée en attente de validation/intégration
-* `closed` : ExpenseStatement validé + intégré, période verrouillée
-
-
-
-
-
-
-## FiscalYear - workflow
-
-Workflow : `draft → preopen → open → preclosed → closed`
-
-| From status | To status   | Transition (action / invocation)                                                        | Conditions (`can_*`)                                                                                                                                                                                                                                              |
-| ----------- | ----------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `draft`     | `preopen`   | `FiscalYear::preopen()` (action manuelle, ex: `finance/accounting/fiscalyear::preopen`) | `canPreopen()` : FY en `draft` ; dates valides ; périodes cohérentes ; si FY précédent existe ⇒ continuité dates + absence chevauchement                                                                                                                          |
-| `preopen`   | `open`      | `FiscalYear::open()` (action manuelle, ex: `finance/accounting/fiscalyear::open`)       | `canOpen()` : FY en `preopen` ; aucune autre FY en `open` (unicité) ; si FY précédente existe ⇒ FY précédente ≠ `open` (et/ou FY précédente dans un état compatible selon règle métier) ; au moins une FY en `preopen` après l’opération (garantie de continuité) |
-| `open`      | `preclosed` | **Indirect / automatique** via `FiscalPeriod::preclose()` sur **la dernière période**   | `canPreclose()` : FY en `open` ; lastPeriod.status = `preclosed` (état dérivé)                                                                                                                                                                                    |
-| `preclosed` | `closed`    | **Indirect / automatique** via `FiscalPeriod::close()` sur **la dernière période**      | `canClose()` : FY en `preclosed` ; lastPeriod.status = `closed` (état dérivé)                                                                                                                                                                                     |
-
-### Notes FiscalYear (effets automatiques)
-
-* Lors de `draft → preopen` : création automatique d’un `FiscalYear` suivant en `draft`.
-* Les états `preclosed` et `closed` ne sont **pas invoqués directement** : ils sont déclenchés par la dernière période + ExpenseStatement.
-
-
-
-## FiscalPeriod - workflow
-
-Workflow : `draft → preopen → open → preclosed → closed`
-
-| From status | To status   | Transition (action / invocation)                                                           | Conditions (`can_*`)                                                                                                                                                                     |
-| ----------- | ----------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `draft`     | `preopen`   | `FiscalPeriod::preopen()` (souvent appelé automatiquement lors du `FiscalYear::preopen()`) | `canPreopen()` : période en `draft` ; cohérence dates ; appartient à un FY en `preopen` ou supérieur                                                                                     |
-| `preopen`   | `open`      | `FiscalPeriod::open()` (souvent appelé automatiquement lors du `FiscalYear::open()`)       | `canOpen()` : période en `preopen` ; FY parent en `open` ; (optionnel) aucune incohérence de séquence                                                                                    |
-| `open`      | `preclosed` | `FiscalPeriod::preclose()` = génération d’un décompte (ExpenseStatement proforma)          | `canPreclose()` : période en `open` ; FY parent en `open` ; toutes les périodes précédentes = `closed` ; aucune pièce “en attente” bloquante ; (si dernière période) FY doit être `open` |
-| `preclosed` | `closed`    | `FiscalPeriod::close()` = validation + intégration comptable de l’ExpenseStatement         | `canClose()` : période en `preclosed` ; ExpenseStatement existe ; ExpenseStatement.status = `validated` ; ExpenseStatement.posted = true                                                 |
-
-### Notes FiscalPeriod (effets automatiques)
-
-* Lors de `open → preclosed` :
-
-  * génération automatique d’un `ExpenseStatement` **proforma**
-  * blocage des imputations sur la période
-* Lors de `preclosed → closed` :
-
-  * intégration comptable finalisée
-  * verrouillage définitif de la période
-* Si la période est la dernière du FY :
-
-  * `period.preclose()` entraîne FY → `preclosed`
-  * `period.close()` entraîne FY → `closed`
-
-
-
-## ExpenseStatement - Workflow
-
-Workflow typique : `draft/proforma → validated → posted`
-
-| From status | To status   | Transition (action / invocation)                | Conditions (`can_*`)                                                                                                            |
-| ----------- | ----------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| (none)      | `proforma`  | auto lors de `FiscalPeriod::preclose()`         | `FiscalPeriod.canPreclose()`                                                                                                    |
-| `proforma`  | `validated` | `ExpenseStatement::validate()`                  | `canValidate()` : statement existe ; période = `preclosed` ; contrôles métier OK (comptes, montants, conditions paiement, etc.) |
-| `validated` | `posted`    | `ExpenseStatement::post()` (intégration compta) | `canPost()` : validated ; génération écritures OK ; journaux disponibles ; pas d’erreur d’équilibre                             |
-
-
-
+1. Le décompte de la dernière période est posté.
+2. `ExpenseStatement.close_fiscal_period` clôture la dernière période.
+3. Comme la date de fin de la période correspond à la date de fin de l'exercice, le `FiscalYear` est clôturé.
+4. Le solde de clôture définitif est généré.
+5. Le solde d'ouverture de l'exercice suivant est généré.
+6. L'exercice suivant est ouvert automatiquement s'il était `preopen`.
