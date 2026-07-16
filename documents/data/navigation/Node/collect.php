@@ -9,6 +9,7 @@ use documents\navigation\Node;
 use equal\orm\Domain;
 use equal\orm\DomainCondition;
 use identity\User;
+use purchase\supplier\Suppliership;
 use realestate\ownership\Owner;
 
 [$params, $providers] = eQual::announce([
@@ -86,14 +87,17 @@ use realestate\ownership\Owner;
         'owner_id' => [
             'type'              => 'many2one',
             'description'       => 'The owner concerned by the node.',
-            'foreign_object'    => 'realestate\ownership\Owner'
+            'foreign_object'    => 'realestate\ownership\Owner',
+            'domain'            => ['condo_id', '=', 'object.condo_id']
         ],
 
-        'supplier_id' => [
+        'suppliership_id' => [
             'type'              => 'many2one',
-            'description'       => 'The supplier the node relates to.',
-            'foreign_object'    => 'purchase\supplier\Supplier'
+            'foreign_object'    => 'purchase\supplier\Suppliership',
+            'description'       => 'The supplier the invoice relates to.',
+            'domain'            => ['condo_id', '=', 'object.condo_id']
         ]
+
     ],
     'access' => [
         'visibility'        => 'protected'
@@ -184,9 +188,16 @@ if(isset($params['name']) && strlen($params['name']) > 0) {
     $domain->addCondition(new DomainCondition('name', 'ilike', '%' . $params['name'] . '%'));
 }
 
-foreach(['condo_id', 'ownership_id', 'owner_id', 'supplier_id'] as $field) {
+foreach(['condo_id', 'ownership_id', 'owner_id'] as $field) {
     if(isset($params[$field]) && $params[$field] > 0) {
         $domain->addCondition(new DomainCondition($field, '=', $params[$field]));
+    }
+}
+
+if(isset($params['suppliership_id']) && $params['suppliership_id'] > 0) {
+    $suppliership = Suppliership::id($params['suppliership_id'])->read(['supplier_id'])->first();
+    if($suppliership) {
+        $domain->addCondition(new DomainCondition('supplier_id', '=', $suppliership['supplier_id']));
     }
 }
 

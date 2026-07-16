@@ -44,7 +44,7 @@
             "description": "Propriétaire concerné par le nœud.",
             "help": ""
         },
-        "supplier_id": {
+        "suppliership_id": {
             "label": "Fournisseur",
             "description": "Fournisseur associé au nœud.",
             "help": ""
