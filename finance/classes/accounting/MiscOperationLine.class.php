@@ -325,10 +325,9 @@ class MiscOperationLine extends Model {
     private static function computeIsSupplier($account_id) {
         $result = false;
         if($account_id) {
-            $account = Account::id($account_id)->read(['code'])->first();
+            $account = Account::id($account_id)->read(['code', 'operation_assignment'])->first();
             if($account) {
-                $account_class_digits_two = substr($account['code'], 0, 2);
-                $result = ($account_class_digits_two === '44');
+                $result = ($account['operation_assignment'] === 'suppliers_supplier');
             }
         }
         return $result;
@@ -337,10 +336,9 @@ class MiscOperationLine extends Model {
     private static function computeIsOwner($account_id) {
         $result = false;
         if($account_id) {
-            $account = Account::id($account_id)->read(['code'])->first();
+            $account = Account::id($account_id)->read(['code', 'operation_assignment'])->first();
             if($account) {
-                $account_class_digits_two = substr($account['code'], 0, 2);
-                $result = ($account_class_digits_two === '41');
+                $result = ($account['operation_assignment'] === 'co_owners_owner_reserve_fund' || $account['operation_assignment'] === 'co_owners_owner_working_fund');
             }
         }
         return $result;
