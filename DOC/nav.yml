@@ -33,6 +33,7 @@
     - 'Suivi des appels': budget/suivi-des-appels.md
 - 'Documents & automatisation':
     - 'Aperçu': documents/documents.md
+    - 'Import de documents': documents/import-de-documents.md
     - 'Organisation des documents':
         - 'Organisation des documents': documents/organisation-des-documents/organisation-des-documents.md
         - 'Types de documents': documents/organisation-des-documents/types-de-documents.md

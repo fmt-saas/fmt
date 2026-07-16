@@ -71,6 +71,17 @@ Cette distinction est importante :
 Tous les documents persistés ne sont donc pas nécessairement destinés à être affichés comme documents fonctionnels dans l’arborescence utilisateur. Certains documents créés dans le cadre d’un export sont liés à une tâche technique et peuvent être supprimés ou ignorés lorsque l’export n’a plus de valeur opérationnelle.
 
 
+## Import manuel de documents
+
+Les documents peuvent être ajoutés manuellement dans l’EDMS via un formulaire d’import basé sur `DocumentImport`.
+
+Ce mécanisme permet de déposer un fichier tout en précisant immédiatement son contexte documentaire : copropriété concernée, type de document, visibilité, et éventuellement dossier de propriété ou fournisseur lié.
+
+L’objet `DocumentImport` est temporaire. Il sert à collecter les informations d’upload, crée le `Document` final, puis disparaît après import.
+
+Le fonctionnement détaillé est décrit dans [Import de documents](import-de-documents.md).
+
+
 ## Documents et entités métier
 
 Les documents sont toujours **rattachés à des entités cibles** (ex. : facture, extrait bancaire, procès-verbal, virement, etc.).
@@ -233,6 +244,7 @@ Ce descripteur respecte un schéma correspondant au `document_type_id` et permet
 - d’assurer une cohérence entre les documents, leurs usages et les règles applicables.
 
 Le rôle central des `DocumentType` et des règles associées est détaillé dans la section dédiée à l’organisation des documents.
+
 
 
 

@@ -195,6 +195,12 @@ Pour l’envoi postal, l’objectif est différent. Il faut regrouper une série
 
 La génération crée les documents individuels. L’export organise ces documents pour une opération groupée.
 
+## Lien avec les envois groupés
+
+Les envois groupés par email sont documentés séparément dans [Envois et rappels](../../suivis/envois-et-rappels/envois-et-rappels.md).
+
+Un `Broadcast` permet d’envoyer un même message email à plusieurs destinataires, avec éventuellement des documents EDMS en pièces jointes. Il ne doit pas être confondu avec la génération de `DocumentCorrespondence`, qui produit un document individualisé par destinataire.
+
 ## Variabilité du contenu
 
 La variabilité du contenu est gérée au niveau de la `DocumentCorrespondence`.
