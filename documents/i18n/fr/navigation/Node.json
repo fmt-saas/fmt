@@ -111,8 +111,8 @@
             }
         },
         "collect.search.default": {
-            "name": "Recherche de fichiers",
-            "description": "Recherche avancée dans les dossiers et documents."
+            "name": "Recherche de nœuds de navigation",
+            "description": "Recherche avancée dans les dossiers et documents de la navigation documentaire."
         },
         "list.dashboard": {
             "name": "Dossiers",

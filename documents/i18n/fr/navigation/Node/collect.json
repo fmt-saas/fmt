@@ -1,0 +1,53 @@
+{
+    "name": "Nœud de navigation",
+    "plural": "Nœuds de navigation",
+    "description": "Recherche avancée sur les dossiers et documents visibles dans la navigation documentaire.",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Nom du dossier ou du document à rechercher.",
+            "help": "La recherche accepte une saisie partielle."
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle le dossier ou document est rattaché.",
+            "help": ""
+        },
+        "node_type": {
+            "label": "Type",
+            "description": "Type de nœud à rechercher.",
+            "help": "",
+            "selection": {
+                "folder": "Dossier",
+                "document": "Document"
+            }
+        },
+        "node_visibility": {
+            "label": "Visibilité",
+            "description": "Périmètre de visibilité du nœud.",
+            "help": "",
+            "selection": {
+                "condo": "Copropriété",
+                "agency": "Agence",
+                "ownership": "Propriété",
+                "owner": "Propriétaire",
+                "suppliership": "Relation fournisseur"
+            }
+        },
+        "ownership_id": {
+            "label": "Propriété",
+            "description": "Propriété ou lot concerné par le nœud.",
+            "help": ""
+        },
+        "owner_id": {
+            "label": "Propriétaire",
+            "description": "Propriétaire concerné par le nœud.",
+            "help": ""
+        },
+        "supplier_id": {
+            "label": "Fournisseur",
+            "description": "Fournisseur associé au nœud.",
+            "help": ""
+        }
+    }
+}

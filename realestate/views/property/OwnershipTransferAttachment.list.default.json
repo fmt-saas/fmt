@@ -1,0 +1,41 @@
+{
+    "name": "Ownership Transfer Attachments",
+    "description": "List EDMS documents attached to ownership transfers.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": [
+                {
+                    "view": false,
+                    "edit": true
+                }
+            ]
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "ownership_transfer_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "document_id",
+                "width": "70%"
+            },
+            {
+                "type": "field",
+                "value": "attachment_target",
+                "width": "30%"
+            }
+        ]
+    }
+}

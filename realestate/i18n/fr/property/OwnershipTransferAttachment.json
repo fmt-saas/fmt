@@ -1,0 +1,42 @@
+{
+    "name": "Pièce jointe de transfert",
+    "plural": "Pièces jointes de transfert",
+    "description": "Document GED associé à un transfert de propriété et ciblé vers une partie du courrier.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle la pièce jointe est rattachée.",
+            "help": ""
+        },
+        "ownership_transfer_id": {
+            "label": "Transfert lié",
+            "description": "Dossier de transfert auquel cette pièce jointe est associée.",
+            "help": ""
+        },
+        "document_id": {
+            "label": "Document GED",
+            "description": "Document à joindre aux communications du transfert.",
+            "help": ""
+        },
+        "attachment_target": {
+            "label": "Cible de la pièce jointe",
+            "description": "Partie du courrier de transfert dans laquelle le document doit être utilisé.",
+            "help": "",
+            "selection": {
+                "paragraph_1": "Paragraphe 1",
+                "paragraph_2": "Paragraphe 2",
+                "paragraph_1_2": "Paragraphes 1 et 2"
+            }
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Pièce jointe de transfert",
+            "description": "Formulaire de sélection du document GED et de sa cible dans le courrier."
+        },
+        "list.default": {
+            "name": "Pièces jointes de transfert",
+            "description": "Liste des documents joints au transfert, avec leur cible de courrier."
+        }
+    }
+}
