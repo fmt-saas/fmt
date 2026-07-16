@@ -1,10 +1,10 @@
-# Modèle de documents, production et logique des correspondances
+﻿# Génération de documents et correspondances
 
 ## Objectif général
 
 Le logiciel gère plusieurs types de documents formels liés à la gouvernance et à la gestion financière d’une copropriété. Bien que leur finalité juridique ou fonctionnelle diffère, ces documents reposent sur une logique commune de modélisation, de rendu, de génération, de stockage et de distribution.
 
-Cette logique vise à séparer clairement plusieurs responsabilités : la définition métier du document, le rendu technique, la persistante, l’individualisation par destinataire et la diffusion. Cette séparation garantit la cohérence du système, facilite la traçabilité, permet la prévisualisation sans persistance, et rend possible l’extension future vers d’autres canaux de distribution.
+Cette logique vise à séparer clairement plusieurs responsabilités : la définition métier du document, le rendu technique, la persistance, l’individualisation par destinataire et la diffusion. Cette séparation garantit la cohérence du système, facilite la traçabilité, permet la prévisualisation sans persistance, et rend possible l’extension future vers d’autres canaux de distribution.
 
 Les principaux types de documents concernés sont notamment :
 
@@ -15,6 +15,23 @@ Les principaux types de documents concernés sont notamment :
 * `FundRequestReminder` — rappel de paiement.
 
 Cette logique s’applique ensuite à leurs correspondances individualisées, telles que `AssemblyInvitationCorrespondence`, `AssemblyMinutesCorrespondence`, `ExpenseStatementCorrespondence`, `FundRequestCorrespondence` et `FundRequestReminderCorrespondence`.
+
+## Distinction entre preview, génération et export
+
+La logique documentaire distingue trois opérations proches, mais fonctionnellement différentes.
+
+La **preview** produit une représentation temporaire d’un document. Elle permet de vérifier un rendu ou de contrôler un template sans créer de `Document` persistant et sans créer de `DocumentCorrespondence`. Une preview peut porter sur un périmètre limité, par exemple quelques `Ownership`, afin d’obtenir rapidement un aperçu représentatif. Elle peut aussi être incomplète lorsque l’objet métier n’est pas encore dans un état définitif.
+
+La **génération** produit un document réel. Elle aboutit à un PDF stocké dans un `Document` et, lorsqu’un destinataire est concerné, à une `DocumentCorrespondence`. La génération matérialise donc une trace persistante dans le EDMS.
+
+L’**export** regroupe des documents ou des correspondances dans un output destiné à une opération de diffusion, d’impression ou d’archivage. Il ne définit pas le contenu fonctionnel du document ; il organise des documents déjà générés ou générables sous une forme exploitable, par exemple une archive `.zip` contenant un ou plusieurs PDF fusionnés.
+
+| Opération | Persistance | Entités principales | Usage |
+| --- | --- | --- | --- |
+| Preview | Non | renderer temporaire, `Ownership`, éventuellement `Owner` | Contrôler un rendu avant émission |
+| Génération | Oui | `Document`, `DocumentCorrespondence` | Créer le document destiné à un propriétaire ou destinataire |
+| Export | Oui, pour le résultat d’export | `ExportingTask`, `ExportingTaskLine`, `Document` | Regrouper, fusionner ou archiver des documents pour diffusion |
+
 
 ## Structure conceptuelle
 
@@ -57,6 +74,24 @@ L’émission globale correspond à la décision formelle de produire un documen
 Elle est datée, traçable, rattachée à un document métier, et indépendante du canal de distribution. Elle ne dépend donc pas du fait qu’un destinataire reçoive son document par email, par voie postale, via une archive papier ou, à terme, via un autre canal comme une eBox ou un portail sécurisé.
 
 Cette étape peut être représentée conceptuellement par un `DocumentIssuance`, même si le nom exact de l’entité peut dépendre de l’implémentation retenue.
+
+## Renderers HTML et PDF
+
+La génération documentaire suit une chaîne simple : **HTML → PDF**.
+
+Le renderer `render-html` produit le contenu HTML à partir du template et du contexte métier. Il concentre la logique de présentation, les données injectées dans le template et les variantes liées au contexte de rendu.
+
+Le renderer `render-pdf` appelle généralement `render-html`, puis convertit le HTML en PDF. Le PDF est donc une matérialisation du rendu HTML, et non un second endroit où réimplémenter la logique métier du document.
+
+Pour les documents liés à un seul `Ownership`, ou parfois à un seul `Owner`, des renderers spécifiques peuvent être exposés :
+
+* `single-html` produit un rendu HTML temporaire pour un contexte individualisé ;
+* `single-pdf` produit le PDF correspondant sans créer de `Document` persistant.
+
+Ces renderers sont particulièrement utiles pour les previews. Ils permettent de visualiser une version proche du futur document sans déclencher l’émission complète. Ils peuvent aussi être utilisés comme base par les renderers des correspondances, afin que la preview et le document final reposent sur la même logique de rendu.
+
+Une preview peut toutefois rester partielle. Lorsqu’un document implique plusieurs `Ownership`, le système peut limiter volontairement le rendu à un sous-ensemble représentatif. De même, si l’objet métier est encore en préparation, certaines données définitives peuvent manquer et le rendu ne doit pas être interprété comme une version juridiquement émise.
+
 
 ## Correspondence et DocumentCorrespondence
 
@@ -111,6 +146,20 @@ Pour chaque correspondance, le système génère le rendu HTML à partir du `Tem
 
 Le controller `generate-document` orchestre cette opération. Il appelle les renderers nécessaires, assure le stockage du résultat, et crée les objets de correspondance qui matérialisent les documents individuels adressés aux destinataires.
 
+### Génération des correspondances
+
+La génération d’une correspondance consiste à produire un document individualisé pour chaque destinataire.
+
+La vocation d’une `DocumentCorrespondence` est donc double :
+
+* relier le document généré au contexte métier, généralement un `Ownership` ;
+* relier ce même document au destinataire effectif, généralement un `Owner`.
+
+Dans le cas d’un document envoyé à plusieurs copropriétaires, le système ne stocke pas un unique PDF générique pour tous les destinataires. Il crée autant de correspondances que nécessaire afin que chaque destinataire dispose de son propre document, avec ses coordonnées, ses montants, ses annexes ou ses mentions personnalisées.
+
+Cette individualisation reste valable même lorsque le contenu principal est largement commun. Une convocation peut partager le même ordre du jour pour tous les propriétaires, tout en nécessitant une adresse, une formule d’appel ou une annexe nominative différente. À l’inverse, un décompte ou un appel de fonds peut être entièrement propre à chaque propriétaire.
+
+
 Le processus peut donc être résumé ainsi :
 
 1. le document métier ou la correspondance définit la source fonctionnelle du rendu ;
@@ -137,6 +186,14 @@ Le canal de distribution est une propriété de la `DocumentCorrespondence`. Il 
 Cette approche permet de distinguer clairement l’existence d’une correspondance de son éventuelle transmission. Elle permet aussi de combiner plusieurs modes de distribution pour une même émission, de respecter les préférences individuelles des destinataires et d’envisager facilement de futurs canaux.
 
 Une fois les documents générés et stockés, ils peuvent être diffusés en lot. Si le propriétaire accepte ou préfère la communication électronique, le document peut être envoyé par email. Si le propriétaire doit recevoir une version papier, le document peut être inclus dans un export, par exemple sous forme d’archive `.zip`, destinée à l’impression.
+
+L’envoi par email et l’export postal ne doivent pas être confondus avec la génération du document.
+
+Pour l’email, la règle fonctionnelle attendue est généralement : **une correspondance, un email, une pièce jointe**. L’email utilise le `Document` associé à la `DocumentCorrespondence` comme pièce jointe, et le suivi d’envoi appartient à la logique de distribution.
+
+Pour l’envoi postal, l’objectif est différent. Il faut regrouper une série de correspondances afin de produire un ou plusieurs PDF prêts à imprimer. Ces regroupements peuvent être fusionnés et placés dans une archive `.zip`, produite de manière asynchrone par les exports de correspondances.
+
+La génération crée les documents individuels. L’export organise ces documents pour une opération groupée.
 
 ## Variabilité du contenu
 
@@ -290,3 +347,5 @@ flowchart LR
     G6 --> D2
     G6 --> D3
 ```
+
+

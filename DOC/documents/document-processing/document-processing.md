@@ -1,4 +1,4 @@
-# Document processing
+﻿# Document processing
 
 Le *document processing* décrit l’ensemble des mécanismes qui permettent de **transformer un document entrant** (souvent externe) en un **objet métier exploitable**, validé et intégré dans les processus opérationnels du logiciel.
 
@@ -26,6 +26,29 @@ On distingue clairement deux cas :
 
 Le document processing s’applique exclusivement à ce second cas.
 
+
+
+### Hors périmètre : documents générés et correspondances
+
+Les documents générés nativement par l’application ne relèvent pas du `DocumentProcess`.
+
+C’est notamment le cas :
+
+* des documents produits par des renderers `render-html` puis `render-pdf` ;
+* des versions de preview produites par `single-html` ou `single-pdf` ;
+* des documents persistés dans le EDMS après génération ;
+* des `DocumentCorrespondence` créées pour individualiser un document par destinataire.
+
+Une `DocumentCorrespondence` peut bien aboutir à la création d’un `Document`, mais cela ne signifie pas qu’un processus de traitement documentaire est ouvert. Elle appartient à la logique de **production et de distribution documentaire**, tandis que le `DocumentProcess` appartient à la logique de **traitement d’un document entrant**.
+
+La distinction est donc la suivante :
+
+| Cas | Entité principale | Finalité |
+| --- | --- | --- |
+| Document importé à analyser | `DocumentProcess` | Identifier, compléter, valider et intégrer une pièce reçue |
+| Document généré par l’application | `Document` | Conserver une trace documentaire produite par le système |
+| Document individualisé pour un destinataire | `DocumentCorrespondence` | Relier un document généré à un propriétaire ou destinataire |
+| Regroupement pour impression ou archive | `ExportingTask` / `ExportingTaskLine` | Produire un export asynchrone de documents ou correspondances |
 
 
 ## Principe du `DocumentProcess`
@@ -201,4 +224,5 @@ Tout au long du processus, le `DocumentType` joue un rôle central :
 
 Le `DocumentProcess` reste générique ;
 le `DocumentType` apporte la **spécialisation métier**.
+
 

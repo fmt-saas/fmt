@@ -1,4 +1,4 @@
-- 'Accueil': index.md
+﻿- 'Accueil': index.md
 - 'Copropriété':
     - 'Création nouvelle Copropriété': copropriete/creation-nouvelle-copropriete.md
     - 'Configuration & paramétrage': copropriete/configuration.md
@@ -46,7 +46,8 @@
         - 'Intégration comptable': documents/document-processing/document-integration.md
     - 'Email Digestor': documents/email-digestor/email-digestor.md
     - 'Envoi Emails & Documents':
-        - 'Modèles de documents & logique d''emission': documents/envoi-emails-et-documents/modeles-de-documents-et-logique-d-emission.md
+        - 'Génération de documents': documents/envoi-emails-et-documents/generation-de-documents.md
+        - 'Exports de correspondances': documents/envoi-emails-et-documents/exports-de-correspondances.md
     - 'Signatures électroniques': documents/signatures-electroniques.md
 - 'Suivi & opérations':
     - 'Suivis de paiement':
@@ -71,3 +72,5 @@
     - 'Synchronisation': infra/synchronisation.md
     - 'Vérification d''initialisation': infra/verification-initialisation.md
     - 'Imports': infra/imports/imports.md
+
+

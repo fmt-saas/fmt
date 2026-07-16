@@ -1,4 +1,4 @@
-# Documents
+﻿# Documents
 
 Dans le logiciel, un **document** est un **artefact métier structuré**, porteur de liens avec les entités du système.
 
@@ -46,6 +46,29 @@ Les données binaires associées à un `Document` représentent une **trace docu
 - générée automatiquement,
 - ajoutée ultérieurement comme pièce jointe.
 
+
+
+## EDMS et conservation documentaire
+
+L’EDMS (*Electronic Document Management System*) désigne la couche de conservation documentaire du logiciel. Son rôle n’est pas de décider **quoi générer**, ni **à qui envoyer** un document, mais de conserver les artefacts documentaires produits ou importés de manière traçable.
+
+Dans ce cadre, l’entité `Document` constitue le point d’entrée principal du EDMS :
+
+- elle porte les métadonnées nécessaires à l’identification du document ;
+- elle référence le contenu binaire, par exemple un PDF, une image ou un fichier importé ;
+- elle relie ce contenu aux objets métier concernés ;
+- elle permet la consultation, le téléchargement, l’archivage ou l’export ultérieur.
+
+La logique de génération reste portée par les objets métier et leurs renderers. Une fois le résultat produit, le PDF final peut être stocké comme `Document` afin de devenir une trace documentaire persistante.
+
+Cette distinction est importante :
+
+- un `Document` peut provenir d’un import externe ;
+- un `Document` peut être généré par l’application ;
+- un `Document` peut être une pièce jointe ajoutée manuellement ;
+- un `Document` peut aussi être un artefact technique utilisé pour un export ou une impression groupée.
+
+Tous les documents persistés ne sont donc pas nécessairement destinés à être affichés comme documents fonctionnels dans l’arborescence utilisateur. Certains documents créés dans le cadre d’un export sont liés à une tâche technique et peuvent être supprimés ou ignorés lorsque l’export n’a plus de valeur opérationnelle.
 
 
 ## Documents et entités métier
@@ -210,6 +233,7 @@ Ce descripteur respecte un schéma correspondant au `document_type_id` et permet
 - d’assurer une cohérence entre les documents, leurs usages et les règles applicables.
 
 Le rôle central des `DocumentType` et des règles associées est détaillé dans la section dédiée à l’organisation des documents.
+
 
 
 
