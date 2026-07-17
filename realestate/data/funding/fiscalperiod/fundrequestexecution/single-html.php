@@ -420,6 +420,11 @@ else {
     foreach($fundRequestExecution['fundings_ids'] as $candidate_funding_id => $candidateFunding) {
         if($candidateFunding['funding_type'] === 'fund_request') {
             $funding = $candidateFunding->toArray();
+
+            foreach($fundRequestExecution['execution_lines_ids'] as $fund_request_execution_line_id => $fundRequestExecutionLine) {
+                $funding['remaining_amount'] = $fundRequestExecutionLine['price'];
+            }
+
             break;
         }
     }
