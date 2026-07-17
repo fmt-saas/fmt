@@ -1188,7 +1188,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                         'name'               => 'Appel exceptionnel nouveau propriétaire',
                         'condo_id'           => $ownershipTransfer['condo_id'],
                         'fiscal_year_id'     => $ownershipTransfer['fiscal_year_id'],
-                        'request_type'       => $condoFund['fund_type'],
+                        'request_type'       => $condoFund['fund_type'] ?? 'working_fund',
                         'request_account_id' => $condoFund['fund_account_id'],
                         'request_date'       => $ownershipTransfer['transfer_date']
                     ]);
