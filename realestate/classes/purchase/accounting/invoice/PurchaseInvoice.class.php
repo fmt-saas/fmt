@@ -1203,42 +1203,63 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     }
 
     protected static function onafterPost($self) {
-        $self->read(['document_process_id', 'has_payment_on_hold', 'has_mandate', 'fundings_ids' => ['is_sent']]);
+        $self->read(['document_process_id', 'has_payment_on_hold', 'has_mandate', 'fundings_ids' => ['is_sent', 'remaining_amount']]);
+
         foreach($self as $id => $invoice) {
 
-            if($invoice['document_process_id']) {
-                $dp = DocumentProcess::id($invoice['document_process_id']);
+            // sync document process
+            try {
+                if($invoice['document_process_id']) {
+                    $dp = DocumentProcess::id($invoice['document_process_id']);
 
-                $documentProcess = $dp->read(['status'])->first();
-                $status = $documentProcess['status'];
+                    $documentProcess = $dp->read(['status'])->first();
+                    $status = $documentProcess['status'];
 
-                if($status !== 'integrated') {
+                    if($status !== 'integrated') {
 
-                    if($status !== 'validated') {
-                        $dp->update(['status' => 'validated']);
+                        if($status !== 'validated') {
+                            $dp->update(['status' => 'validated']);
+                        }
+
+                        $dp->transition('integrate');
                     }
-
-                    $dp->transition('integrate');
                 }
             }
-
-            if(!$invoice['has_payment_on_hold'] && !$invoice['has_mandate']) {
-                foreach($invoice['fundings_ids'] as $funding_id => $funding) {
-                    if($funding['is_sent']) {
-                        continue;
-                    }
-                    \eQual::run('do', 'sale_pay_Funding_generate-sepa', ['id' => $funding_id]);
-                }
+            catch(\Exception $e) {
+                trigger_error('APP::Unable to integrate document process for posted purchase invoice ' . $id . ': ' . $e->getMessage(), EQ_REPORT_WARNING);
             }
 
-            Funding::ids($invoice['fundings_ids']->ids())->update(['name' => null]);
+            // generate SEPA if required
+            try {
+                if(!$invoice['has_payment_on_hold'] && !$invoice['has_mandate']) {
+                    foreach($invoice['fundings_ids'] as $funding_id => $funding) {
+                        if($funding['is_sent']) {
+                            continue;
+                        }
+                        if($funding['remaining_amount'] >= 0.0) {
+                            continue;
+                        }
+                        \eQual::run('do', 'sale_pay_Funding_generate-sepa', ['id' => $funding_id]);
+                    }
+                }
+            }
+            catch(\Exception $e) {
+                trigger_error('APP::Unable to generate SEPA for posted purchase invoice ' . $id . ': ' . $e->getMessage(), EQ_REPORT_WARNING);
+            }
 
             // reset computed relation fields
-            self::id($id)->update([
-                    'document_process_status' => null,
-                    'alert' => null,
-                    'name'  => null
-                ]);
+            try {
+                Funding::ids($invoice['fundings_ids']->ids())->update(['name' => null]);
+
+                self::id($id)->update([
+                        'document_process_status' => null,
+                        'alert' => null,
+                        'name'  => null
+                    ]);
+            }
+            catch(\Exception $e) {
+                trigger_error('APP::Unable to reset computed fields for posted purchase invoice ' . $id . ': ' . $e->getMessage(), EQ_REPORT_WARNING);
+            }
         }
     }
 

@@ -89,7 +89,7 @@ $fromName = $first['bank_account_id']['owner_identity_id']['name'];
 
 
 foreach($fundings as $funding) {
-    if($funding['remaining_amount'] >= 0) {
+    if($funding['remaining_amount'] >= 0.0) {
         throw new Exception('sepa_only_for_outgoing_funding', EQ_ERROR_INVALID_PARAM);
     }
     if($funding['has_mandate']) {

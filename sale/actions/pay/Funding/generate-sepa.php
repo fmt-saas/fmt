@@ -52,7 +52,6 @@ $funding = Funding::id($params['id'])
     ])
     ->first();
 
-
 if(!$funding || !$funding['bank_account_id'] || !$funding['counterpart_bank_account_id']) {
     throw new Exception('missing_bank_accounts', EQ_ERROR_INVALID_PARAM);
 }
@@ -71,6 +70,10 @@ if($funding['is_sent']) {
 
 if($funding['sepa_document_id']) {
     throw new Exception("sepa_document_already_generated", EQ_ERROR_INVALID_PARAM);
+}
+
+if($funding['remaining_amount'] >= 0.0) {
+    throw new Exception('sepa_only_for_outgoing_funding', EQ_ERROR_INVALID_PARAM);
 }
 
 if($funding['has_payment_on_hold']) {
