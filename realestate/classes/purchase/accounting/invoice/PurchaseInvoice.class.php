@@ -1053,7 +1053,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             }
 
             Funding::id($suppliershipFunding['id'])->do('refresh_status');
-            self::id($purchaseInvoice['id'])->update(['funding_id' => $suppliershipFunding['id']]);
+            self::id($id)->update(['funding_id' => $suppliershipFunding['id']]);
         }
     }
 

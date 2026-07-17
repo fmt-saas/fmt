@@ -447,6 +447,7 @@ foreach($lines as $line_id => $line) {
     $supplier_reference = null;
     $owner_share  = 0;
     $tenant_share = 0;
+    $vat_rate = 0.0;
 
     // Determine origin and fetch doc metadata
     if(!empty($line['purchase_invoice_line_id']['invoice_id'])) {
