@@ -242,7 +242,7 @@ $patterns = [
 foreach($patterns as $field => $regexList) {
     foreach($regexList as $regex) {
         if(preg_match($regex, $text, $match)) {
-            $value = trim($match[1]);
+            $value = trim($match[1] ?? '');
 
             if(preg_match('/amount_/', $field)) {
                 $value = $normalize_number($value);

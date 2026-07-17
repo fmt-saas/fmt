@@ -353,7 +353,7 @@ if (!$paymentMeansCode && $paymentTerms) {
 $output = [
     'document_type'     => $map_document_type[$invoiceType] ?? 'unknown',
     'invoice_number'    => $getValue($getEntity('invoice_id'), ''),
-    'invoice_type'      => $map_invoice_type[$invoiceType] ?? 'unknown',
+    'invoice_type'      => $map_invoice_type[$invoiceType] ?? 'invoice',
     'issue_date'        => $formatDate($issueDate),
     'due_date'          => $formatDate($dueDate),
     'currency'          => $currency,
