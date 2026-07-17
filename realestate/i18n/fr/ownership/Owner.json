@@ -1,131 +1,131 @@
 {
-    "name": "PropriÃ©taire",
-    "plural": "PropriÃ©taires",
-    "description": "Personne physique ou morale associÃ©e Ã  une quote-part d'un lot dans une copropriÃ©tÃ©.",
+    "name": "Propriétaire",
+    "plural": "Propriétaires",
+    "description": "Personne physique ou morale associée à une quote-part d'un lot dans une copropriété.",
     "model": {
         "name": {
             "label": "Nom",
-            "description": "Nom d'affichage du propriÃ©taire.",
+            "description": "Nom d'affichage du propriétaire.",
             "help": ""
         },
         "object_class": {
             "label": "Classe technique",
-            "description": "Classe technique utilisÃ©e pour la synchronisation avec l'identitÃ©.",
+            "description": "Classe technique utilisée pour la synchronisation avec l'identité.",
             "help": ""
         },
         "type": {
             "label": "Type",
-            "description": "Code du type d'identitÃ©.",
+            "description": "Code du type d'identité.",
             "help": ""
         },
         "type_id": {
             "label": "Type",
-            "description": "Type d'identitÃ© du propriÃ©taire.",
+            "description": "Type d'identité du propriétaire.",
             "help": ""
         },
         "legal_name": {
-            "label": "Nom lÃ©gal",
-            "description": "Nom complet de l'identitÃ© du propriÃ©taire.",
+            "label": "Nom légal",
+            "description": "Nom complet de l'identité du propriétaire.",
             "help": ""
         },
         "short_name": {
             "label": "Nom usuel",
-            "description": "Nom usuel ou abrÃ©gÃ© utilisÃ© pour identifier l'organisation.",
+            "description": "Nom usuel ou abrégé utilisé pour identifier l'organisation.",
             "help": ""
         },
         "firstname": {
-            "label": "PrÃ©nom",
-            "description": "PrÃ©nom du propriÃ©taire lorsqu'il s'agit d'une personne physique.",
+            "label": "Prénom",
+            "description": "Prénom du propriétaire lorsqu'il s'agit d'une personne physique.",
             "help": ""
         },
         "lastname": {
             "label": "Nom",
-            "description": "Nom de famille du propriÃ©taire lorsqu'il s'agit d'une personne physique.",
+            "description": "Nom de famille du propriétaire lorsqu'il s'agit d'une personne physique.",
             "help": ""
         },
         "registration_number": {
-            "label": "NumÃ©ro d'entreprise",
-            "description": "NumÃ©ro d'enregistrement de l'organisation ou identifiant Ã©quivalent.",
+            "label": "Numéro d'entreprise",
+            "description": "Numéro d'enregistrement de l'organisation ou identifiant équivalent.",
             "help": ""
         },
         "citizen_identification": {
-            "label": "NumÃ©ro de registre national",
-            "description": "NumÃ©ro de registre national du propriÃ©taire, si disponible.",
+            "label": "Numéro de registre national",
+            "description": "Numéro de registre national du propriétaire, si disponible.",
             "help": ""
         },
         "lang_id": {
             "label": "Langue",
-            "description": "Langue prÃ©fÃ©rÃ©e pour les communications avec le propriÃ©taire.",
+            "description": "Langue préférée pour les communications avec le propriétaire.",
             "help": ""
         },
         "has_parent": {
-            "label": "DÃ©partement ou filiale",
-            "description": "Indique si cette identitÃ© dÃ©pend d'une organisation mÃ¨re.",
+            "label": "Département ou filiale",
+            "description": "Indique si cette identité dépend d'une organisation mère.",
             "help": ""
         },
         "parent_id": {
-            "label": "Organisation mÃ¨re",
-            "description": "Organisation mÃ¨re Ã  laquelle cette identitÃ© est rattachÃ©e.",
+            "label": "Organisation mère",
+            "description": "Organisation mère à laquelle cette identité est rattachée.",
             "help": ""
         },
         "has_vat": {
             "label": "Assujetti TVA",
-            "description": "Indique si le propriÃ©taire dispose d'un numÃ©ro de TVA.",
+            "description": "Indique si le propriétaire dispose d'un numéro de TVA.",
             "help": ""
         },
         "vat_number": {
-            "label": "NumÃ©ro de TVA",
-            "description": "NumÃ©ro d'identification Ã  la TVA du propriÃ©taire.",
+            "label": "Numéro de TVA",
+            "description": "Numéro d'identification à la TVA du propriétaire.",
             "help": ""
         },
         "title": {
             "label": "Titre",
-            "description": "Titre de civilitÃ© du propriÃ©taire.",
+            "description": "Titre de civilité du propriétaire.",
             "help": ""
         },
         "date_of_birth": {
             "label": "Date de naissance",
-            "description": "Date de naissance du propriÃ©taire personne physique.",
+            "description": "Date de naissance du propriétaire personne physique.",
             "help": ""
         },
         "bank_account_iban": {
             "label": "IBAN",
-            "description": "Compte bancaire principal du propriÃ©taire.",
+            "description": "Compte bancaire principal du propriétaire.",
             "help": ""
         },
         "bank_account_bic": {
             "label": "BIC",
-            "description": "Code BIC liÃ© au compte bancaire principal.",
+            "description": "Code BIC lié au compte bancaire principal.",
             "help": ""
         },
         "email": {
             "label": "Email",
-            "description": "Adresse e-mail principale du propriÃ©taire.",
+            "description": "Adresse e-mail principale du propriétaire.",
             "help": ""
         },
         "phone": {
-            "label": "TÃ©lÃ©phone",
-            "description": "NumÃ©ro de tÃ©lÃ©phone principal du propriÃ©taire.",
+            "label": "Téléphone",
+            "description": "Numéro de téléphone principal du propriétaire.",
             "help": ""
         },
         "mobile": {
             "label": "Mobile",
-            "description": "NumÃ©ro de tÃ©lÃ©phone mobile du propriÃ©taire.",
+            "description": "Numéro de téléphone mobile du propriétaire.",
             "help": ""
         },
         "website": {
             "label": "Site Web",
-            "description": "Site Web officiel du propriÃ©taire, le cas Ã©chÃ©ant.",
+            "description": "Site Web officiel du propriétaire, le cas échéant.",
             "help": ""
         },
         "address_street": {
             "label": "Rue",
-            "description": "Rue et numÃ©ro de l'adresse principale.",
+            "description": "Rue et numéro de l'adresse principale.",
             "help": ""
         },
         "address_dispatch": {
-            "label": "ComplÃ©ment d'adresse",
-            "description": "ComplÃ©ment optionnel pour l'envoi du courrier.",
+            "label": "Complément d'adresse",
+            "description": "Complément optionnel pour l'envoi du courrier.",
             "help": ""
         },
         "address_zip": {
@@ -139,8 +139,8 @@
             "help": ""
         },
         "address_state": {
-            "label": "Ã‰tat ou rÃ©gion",
-            "description": "Ã‰tat, province ou rÃ©gion de l'adresse principale.",
+            "label": "État ou région",
+            "description": "État, province ou région de l'adresse principale.",
             "help": ""
         },
         "address_country": {
@@ -149,83 +149,83 @@
             "help": ""
         },
         "identity_id": {
-            "label": "IdentitÃ©",
-            "description": "Fiche identitÃ© correspondant au propriÃ©taire.",
-            "help": "Permet de rÃ©utiliser une identitÃ© existante. Si elle n'est pas renseignÃ©e, une identitÃ© est crÃ©Ã©e Ã  partir des valeurs encodÃ©es."
+            "label": "Identité",
+            "description": "Fiche identité correspondant au propriétaire.",
+            "help": "Permet de réutiliser une identité existante. Si elle n'est pas renseignée, une identité est créée à partir des valeurs encodées."
         },
         "ownership_id": {
-            "label": "Dossier de propriÃ©tÃ©",
-            "description": "Ownership auquel ce propriÃ©taire est rattachÃ©.",
+            "label": "Dossier de propriété",
+            "description": "Ownership auquel ce propriétaire est rattaché.",
             "help": ""
         },
         "condo_id": {
-            "label": "CopropriÃ©tÃ©",
-            "description": "CopropriÃ©tÃ© dans laquelle se situe le lot dÃ©tenu.",
+            "label": "Copropriété",
+            "description": "Copropriété dans laquelle se situe le lot détenu.",
             "help": ""
         },
         "date_to": {
             "label": "Date de sortie",
-            "description": "Date Ã  laquelle le propriÃ©taire n'a plus aucun lot actif.",
-            "help": "Utile pour conserver l'historique mÃªme aprÃ¨s cession."
+            "description": "Date à laquelle le propriétaire n'a plus aucun lot actif.",
+            "help": "Utile pour conserver l'historique même après cession."
         },
         "shares_full_property": {
-            "label": "Parts en pleine propriÃ©tÃ©",
-            "description": "Nombre de quotes-parts dÃ©tenues en pleine propriÃ©tÃ©.",
+            "label": "Parts en pleine propriété",
+            "description": "Nombre de quotes-parts détenues en pleine propriété.",
             "help": ""
         },
         "shares_bare_property": {
-            "label": "Parts en nue-propriÃ©tÃ©",
-            "description": "Nombre de quotes-parts dÃ©tenues en nue-propriÃ©tÃ©.",
+            "label": "Parts en nue-propriété",
+            "description": "Nombre de quotes-parts détenues en nue-propriété.",
             "help": ""
         },
         "shares_usufruct": {
             "label": "Parts en usufruit",
-            "description": "Nombre de quotes-parts dÃ©tenues en usufruit.",
+            "description": "Nombre de quotes-parts détenues en usufruit.",
             "help": ""
         }
     },
     "view": {
         "form.default": {
-            "name": "PropriÃ©taire",
-            "description": "Fiche dÃ©taillÃ©e d'un propriÃ©taire (identitÃ© et quotes-parts).",
+            "name": "Propriétaire",
+            "description": "Fiche détaillée d'un propriétaire (identité et quotes-parts).",
             "actions": {
                 "action.create_account": {
-                    "label": "CrÃ©er un compte utilisateur",
-                    "description": "CrÃ©er un compte utilisateur pour le copropriÃ©taire."
+                    "label": "Créer un compte utilisateur",
+                    "description": "Créer un compte utilisateur pour le copropriétaire."
                 }
             }
         },
         "form.create": {
-            "name": "Nouveau propriÃ©taire",
-            "description": "Assistant de crÃ©ation d'un propriÃ©taire et de ses parts.",
+            "name": "Nouveau propriétaire",
+            "description": "Assistant de création d'un propriétaire et de ses parts.",
             "layout": {
                 "section.identity_info": {
-                    "label": "Informations gÃ©nÃ©rales"
+                    "label": "Informations générales"
                 },
                 "section.identity_main_address": {
                     "label": "Adresse principale"
                 },
                 "section.ownership": {
-                    "label": "PropriÃ©tÃ©"
+                    "label": "Propriété"
                 }
             }
         },
         "form.error": {
-            "name": "Erreur propriÃ©taire",
-            "description": "Message affichÃ© lorsqu'une erreur inattendue survient cÃ´tÃ© portail propriÃ©taire.",
+            "name": "Erreur propriétaire",
+            "description": "Message affiché lorsqu'une erreur inattendue survient côté portail propriétaire.",
             "layout": {
                 "label.error_message": {
-                    "label": "Compte non marquÃ© comme compte propriÃ©taire.<br /><br />Une erreur inattendue est survenue. Veuillez contacter votre gestionnaire de compte."
+                    "label": "Compte non marqué comme compte propriétaire.<br /><br />Une erreur inattendue est survenue. Veuillez contacter votre gestionnaire de compte."
                 }
             }
         },
         "list.default": {
-            "name": "Liste des propriÃ©taires",
-            "description": "Vue tableau des propriÃ©taires (identitÃ©, ownership et rÃ©partition des parts)."
+            "name": "Liste des propriétaires",
+            "description": "Vue tableau des propriétaires (identité, ownership et répartition des parts)."
         },
         "dashboard.default": {
-            "name": "Mon Espace PropriÃ©taire",
-            "description": "EntrÃ©es et widgets consultÃ©s cÃ´tÃ© portail propriÃ©taire.",
+            "name": "Mon Espace Propriétaire",
+            "description": "Entrées et widgets consultés côté portail propriétaire.",
             "layout": {
                 "group.main": {
                     "label": "Tableau de bord"
@@ -237,13 +237,13 @@
                     "label": "Mes biens immobilier"
                 },
                 "item.general_assemblies": {
-                    "label": "Mes AssemblÃ©es gÃ©nÃ©rales"
+                    "label": "Mes Assemblées générales"
                 }
             }
         },
         "dashboard.error": {
-            "name": "Tableau de bord propriÃ©taire",
-            "description": "EntrÃ©es et widgets consultÃ©s cÃ´tÃ© portail propriÃ©taire.",
+            "name": "Tableau de bord propriétaire",
+            "description": "Entrées et widgets consultés côté portail propriétaire.",
             "layout": {
                 "item.error": {
                     "label": "Erreur inattendue"
