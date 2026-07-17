@@ -217,7 +217,6 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 break;
             }
         */
-        $purchaseInvoiceLine = self::id($values['id'])->read(['price', 'invoice_id' => ['status']])->first();
 
         // check VAT
         if(isset($event['vat_rate']) && $event['vat_rate'] >= 1) {
@@ -225,7 +224,9 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             $event['vat_rate'] = $result['vat_rate'];
         }
 
-        if($purchaseInvoiceLine['invoice_id']['status'] === 'posted') {
+        $purchaseInvoiceLine = self::id($values['id'] ?? 0)->read(['price', 'invoice_id' => ['status']])->first();
+
+        if($purchaseInvoiceLine && $purchaseInvoiceLine['invoice_id']['status'] === 'posted') {
             // update total
             if(array_key_exists('vat_rate', $event)) {
                 $result['total'] = round($purchaseInvoiceLine['price'] / (1 + $event['vat_rate']), 4);
