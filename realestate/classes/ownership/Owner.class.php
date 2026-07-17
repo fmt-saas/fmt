@@ -151,16 +151,118 @@ class Owner extends Identity {
 
     public static function getActions() {
         return array_merge(parent::getActions(), [
+            'assert_identity' => [
+                'description'   => 'Create or assign the related Identity when missing.',
+                'policies'      => [],
+                'function'      => 'doAssertIdentity'
+            ],
             'refresh_roles' => [
                 'description'   => 'Refresh roles assignments based on related User account.',
+                'policies'      => [],
                 'function'      => 'doRefreshRoles'
             ]
         ]);
     }
 
-    protected static function oncreate($self, $orm, $values=[]) {
-        if(isset($values['identity_id'])) {
+    protected static function oninstantiate($self, $orm, $values=[]) {
+        if(isset($values['identity_id']) && $values['identity_id']) {
             $self->do('refresh_roles');
+            return;
+        }
+        $self->do('assert_identity');
+    }
+
+    protected static function doAssertIdentity($self) {
+        static $identity_fields = [
+            'source',
+            'source_type',
+            'type_id',
+            'legal_name',
+            'short_name',
+            'firstname',
+            'lastname',
+            'gender',
+            'title',
+            'date_of_birth',
+            'lang_id',
+            'has_parent',
+            'parent_id',
+            'has_vat',
+            'vat_number',
+            'registration_number',
+            'citizen_identification',
+            'nationality',
+            'bank_account_iban',
+            'bank_account_bic',
+            'email',
+            'email_alt',
+            'phone',
+            'phone_alt',
+            'mobile',
+            'website',
+            'address_street',
+            'address_dispatch',
+            'address_zip',
+            'address_city',
+            'address_state',
+            'address_country'
+        ];
+
+        $self->read(array_merge(['identity_id'], $identity_fields));
+
+        foreach($self as $id => $owner) {
+            if($owner['identity_id']) {
+                continue;
+            }
+
+            $identity_values = [];
+            foreach($identity_fields as $field) {
+                if(!array_key_exists($field, $owner)) {
+                    continue;
+                }
+                if($owner[$field] === null || $owner[$field] === '') {
+                    continue;
+                }
+                $identity_values[$field] = $owner[$field];
+            }
+
+            $identity_id = null;
+
+            if(!$identity_id && !empty($identity_values['vat_number'])) {
+                $identity = Identity::search(['vat_number', '=', $identity_values['vat_number']])->first();
+                if($identity) {
+                    $identity_id = $identity['id'];
+                }
+            }
+
+            if(!$identity_id && !empty($identity_values['registration_number'])) {
+                $identity = Identity::search(['registration_number', '=', $identity_values['registration_number']])->first();
+                if($identity) {
+                    $identity_id = $identity['id'];
+                }
+            }
+
+            if(!$identity_id && !empty($identity_values['citizen_identification'])) {
+                $identity = Identity::search(['citizen_identification', '=', $identity_values['citizen_identification']])->first();
+                if($identity) {
+                    $identity_id = $identity['id'];
+                }
+            }
+
+            if(!$identity_id) {
+                $identity = Identity::create($identity_values)
+                    ->do('refresh_bank_accounts')
+                    ->do('refresh_addresses')
+                    ->first();
+
+                if($identity) {
+                    $identity_id = $identity['id'];
+                }
+            }
+
+            if($identity_id) {
+                self::id($id)->update(['identity_id' => $identity_id]);
+            }
         }
     }
 
@@ -216,3 +318,4 @@ class Owner extends Identity {
     }
 
 }
+
