@@ -92,7 +92,7 @@ if(!isset($data['supplier']['vat_id']) && isset($info['seller_vat'])) {
 }
 
 if(isset($data['supplier']['vat_id'])) {
-    $vat_id = strtoupper(str_replace('.', '', trim($data['supplier']['vat_id'])));
+    $vat_id = strtoupper(str_replace([' ', '.', '-'], '', trim($data['supplier']['vat_id'])));
 
     if(!preg_match('/^[A-Z]{2}/', $vat_id)) {
         $country = strtoupper(trim($data['supplier']['address']['country'] ?? ''));

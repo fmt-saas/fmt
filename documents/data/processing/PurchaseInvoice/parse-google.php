@@ -365,7 +365,7 @@ $output = [
     ],
     'customer' => [
         'name'    => $customerName,
-        'vat_id'  => $getValue($getEntity('receiver_tax_id')),
+        'vat_id'  => $extractVat($getValue($getEntity('receiver_tax_id'))),
         'address' => $customerAddress,
     ],
     'lines' => $lines,
