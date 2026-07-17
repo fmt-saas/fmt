@@ -23,6 +23,12 @@ use infra\server\Server;
             'description'       => "Name of the new instance to create.",
             'required'          => true
         ],
+        'create_dns_record' => [
+            'type'              => 'string',
+            'description'       => "Ensure that a managed OVH DNS record exists for a client instance.",
+            'required'          => true,
+            'default'           => true
+        ],
         'sync' => [
             'type'              => 'boolean',
             'description'       => "Synchronize the instance with platform.",
@@ -94,6 +100,12 @@ $instance = Instance::create([
 ])
     ->read(['uuid'])
     ->first();
+
+if($params['create_dns_record']) {
+    eQual::run('do', 'infra_server_Instance_create-dns-record', [
+        'id' => $instance['id']
+    ]);
+}
 
 $create_params = [
     'USERNAME'              => $params['instance_name'],
