@@ -165,11 +165,10 @@ class Owner extends Identity {
     }
 
     protected static function oninstantiate($self, $orm, $values=[]) {
-        if(isset($values['identity_id']) && $values['identity_id']) {
-            $self->do('refresh_roles');
-            return;
+        if(!isset($values['identity_id'])) {
+            $self->do('assert_identity');
         }
-        $self->do('assert_identity');
+        $self->do('refresh_roles');
     }
 
     protected static function doAssertIdentity($self) {
@@ -299,10 +298,15 @@ class Owner extends Identity {
     }
 
     public static function onrevertName($self) {
-        $self->read(['ownership_id']);
+        $self->read(['state', 'ownership_id' => ['state']]);
         foreach($self as $id => $owner) {
+            if($owner['state'] === 'draft') {
+                continue;
+            }
             if($owner['ownership_id']) {
-                Ownership::id($owner['ownership_id'])->update(['name' => null]);
+                if($owner['ownership_id']['state'] !== 'draft') {
+                    Ownership::id($owner['ownership_id']['id'])->update(['name' => null]);
+                }
             }
         }
     }
