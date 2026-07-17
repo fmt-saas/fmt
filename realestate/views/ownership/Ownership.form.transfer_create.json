@@ -10,6 +10,20 @@
             ]
         }
     },
+    "actions": [
+        {
+            "id": "action.validate",
+            "label": "Validate",
+            "description": "Validate & Generate accounting accounts.",
+            "controller": "core_model_transition",
+            "params": {
+                "entity": "realestate\\ownership\\Ownership",
+                "transition": "validate",
+                "ids": []
+            },
+            "confirm": false
+        }
+    ],
     "layout": {
         "groups": [
             {

@@ -584,7 +584,8 @@
                                                                 }
                                                             ]
                                                         }
-                                                    }
+                                                    },
+                                                    "domain": ["date_from", "=", "object.transfer_date"]
                                                 }
                                             }
                                         ]
