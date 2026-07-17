@@ -55,6 +55,15 @@ class Owner extends Identity {
                 'readonly'          => true
             ],
 
+            'type_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'identity\IdentityType',
+                'onupdate'          => 'onupdateTypeId',
+                'default'           => 1,
+                'dependents'        => ['type', 'name', 'identity_slug', 'slug_hash'],
+                'description'       => 'Type of identity.'
+            ],
+
             'vat_number' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain:14{10,14}',

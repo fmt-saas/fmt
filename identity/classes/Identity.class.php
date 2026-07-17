@@ -216,7 +216,7 @@ class Identity extends Model {
                 'foreign_object'    => 'identity\IdentityType',
                 'onupdate'          => 'onupdateTypeId',
                 'default'           => Setting::get_value('identity', 'organization', 'identity_type_default', 1),
-                'dependents  '      => ['type', 'name', 'identity_slug', 'slug_hash'],
+                'dependents'        => ['type', 'name', 'identity_slug', 'slug_hash'],
                 'description'       => 'Type of identity.'
             ],
 

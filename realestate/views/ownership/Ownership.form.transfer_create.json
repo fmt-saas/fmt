@@ -88,7 +88,7 @@
                                                 "widget": {
                                                     "header": {
                                                         "actions": {
-                                                            "ACTION.SELECT": true,
+                                                            "ACTION.SELECT": false,
                                                             "ACTION.CREATE": [ {
                                                                 "view_id": "form.create"
                                                             } ]

@@ -1077,16 +1077,27 @@ class OwnershipTransfer extends \equal\orm\Model {
 
 
     protected static function doPerformTransfer($self) {
-        $self->read(['condo_id', 'fiscal_year_id', 'transfer_date', 'property_lots_ids', 'old_ownership_id', 'new_ownership_id']);
+        $self->read([
+            'condo_id',
+            'fiscal_year_id',
+            'transfer_date',
+            'property_lots_ids',
+            'old_ownership_id',
+            'new_ownership_id' => ['id', 'status']
+        ]);
 
         foreach($self as $id => $ownershipTransfer) {
             // #memo - we do not check $ownershipTransfer['old_ownership_id'] since a previous Ownership might not exist (first Owner / constitution of the Condominium)
+
+            if($ownershipTransfer['new_ownership_id']['status'] !== 'validated') {
+                Ownership::id($ownershipTransfer['new_ownership_id']['id'])->transition('validate');
+            }
 
             // retrieve impacted fiscal year
 
             // set the new owner_id as active for the targeted property_lots
             PropertyLot::ids($ownershipTransfer['property_lots_ids'])
-                ->update(['active_ownership_id' => $ownershipTransfer['new_ownership_id']]);
+                ->update(['active_ownership_id' => $ownershipTransfer['new_ownership_id']['id']]);
 
             $new_date_from = strtotime(date('Y-m-d', $ownershipTransfer['transfer_date']));
             $old_date_to = strtotime('-1 day', $new_date_from);
@@ -1104,7 +1115,7 @@ class OwnershipTransfer extends \equal\orm\Model {
 
                 PropertyLotOwnership::create([
                     'condo_id'        => $ownershipTransfer['condo_id'],
-                    'ownership_id'    => $ownershipTransfer['new_ownership_id'],
+                    'ownership_id'    => $ownershipTransfer['new_ownership_id']['id'],
                     'property_lot_id' => $property_lot_id,
                     'date_from'       => $new_date_from,
                     'date_to'         => null
@@ -1206,7 +1217,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                         'fund_request_id'       => $fundRequestExecution['fund_request_id'],
                         // #memo - request_execution_id is an alias of invoice_id
                         'invoice_id'            => $fund_request_execution_id,
-                        'ownership_id'          => $ownershipTransfer['new_ownership_id']
+                        'ownership_id'          => $ownershipTransfer['new_ownership_id']['id']
                     ])
                     ->first();
 
@@ -1224,7 +1235,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                     FundRequestExecutionLineEntry::id($execution_line_entry_id)
                         ->update([
                             'request_execution_line_id' => $requestExecutionLine['id'],
-                            'ownership_id' => $ownershipTransfer['new_ownership_id']
+                            'ownership_id' => $ownershipTransfer['new_ownership_id']['id']
                         ]);
                 }
                 // adjust the amount of the execution line according to the sum of the concerned line entries

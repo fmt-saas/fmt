@@ -39,7 +39,7 @@ class Employee extends Identity {
                 'foreign_object'    => 'identity\IdentityType',
                 'onupdate'          => 'onupdateTypeId',
                 'default'           => 1,
-                'dependents  '      => ['type', 'name'],
+                'dependents'        => ['type', 'name'],
                 'description'       => 'Type of identity.',
                 'help'              => 'For employees, default to `individual`.'
             ],
