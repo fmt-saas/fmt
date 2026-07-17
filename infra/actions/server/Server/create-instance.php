@@ -24,7 +24,7 @@ use infra\server\Server;
             'required'          => true
         ],
         'create_dns_record' => [
-            'type'              => 'string',
+            'type'              => 'boolean',
             'description'       => "Ensure that a managed OVH DNS record exists for a client instance.",
             'required'          => true,
             'default'           => true
