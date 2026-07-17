@@ -83,6 +83,20 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "shares_total",
+                                                "width": "25%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
                                                 "value": "owners_ids",
                                                 "width": "100%",
                                                 "widget": {
