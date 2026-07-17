@@ -498,7 +498,14 @@
                                                     "view": "list.purchase-invoice",
                                                     "domain": ["visible_date", "<=", "date.this.day.first"],
                                                     "header": {
-                                                        "layout": "inline"
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE_INLINE": [
+                                                                {
+                                                                    "view": true
+                                                                }
+                                                            ]
+                                                        }
                                                     }
                                                 }
                                             }
