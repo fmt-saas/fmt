@@ -551,7 +551,7 @@ class Ownership extends \equal\orm\Model {
                 'transitions' => [
                     'validate' => [
                         'description' => 'Update the Ownership to `validated`.',
-                        'policies'    => ['is_valid'],
+                        'policies'    => ['has_mandatory_values', 'has_valid_owner_shares'],
                         'onafter'     => 'onafterValidate',
                         'status'      => 'validated'
                     ]
@@ -603,14 +603,18 @@ class Ownership extends \equal\orm\Model {
 
     public static function getPolicies(): array {
         return [
-            'is_valid' => [
+            'has_mandatory_values' => [
                 'description' => 'Verifies that the mandatory values are present for Condominium validation.',
-                'function'    => 'policyIsValid'
+                'function'    => 'policyHasMandatoryValues'
+            ],
+            'has_valid_owner_shares' => [
+                'description' => 'Verifies that owner shares are consistent with the ownership total.',
+                'function'    => 'policyHasValidOwnerShares'
             ]
         ];
     }
 
-    protected static function policyIsValid($self) {
+    protected static function policyHasMandatoryValues($self) {
         $result = [];
 
         $self->read(['condo_id', 'ownership_type', 'owners_ids', 'date_from', 'has_external_representative', 'representative_identity_id', 'address_recipient']);
@@ -657,13 +661,47 @@ class Ownership extends \equal\orm\Model {
                     ];
                 }
             }
-/*
-#todo - vérif cohérence parts de propriétaires (owners)
-
-
-*/
 
         }
+        return $result;
+    }
+
+    protected static function policyHasValidOwnerShares($self) {
+        $result = [];
+
+        $self->read([
+            'shares_total',
+            'owners_ids' => [
+                'shares_full_property',
+                'shares_bare_property',
+                'shares_usufruct'
+            ]
+        ]);
+
+        foreach($self as $id => $ownership) {
+            $shares_full_property = 0.0;
+            $shares_bare_property = 0.0;
+            $shares_usufruct = 0.0;
+
+            foreach($ownership['owners_ids'] as $owner) {
+                $shares_full_property += (float) ($owner['shares_full_property'] ?? 0);
+                $shares_bare_property += (float) ($owner['shares_bare_property'] ?? 0);
+                $shares_usufruct += (float) ($owner['shares_usufruct'] ?? 0);
+            }
+
+            $shares_total = (float) ($ownership['shares_total'] ?? 0);
+
+            if(abs($shares_bare_property - $shares_usufruct) >= 0.01) {
+                $result[$id]['invalid_bare_property_usufruct_shares'] =
+                    'Bare property shares total must equal usufruct shares total.';
+            }
+
+            if(abs(($shares_bare_property + $shares_full_property) - $shares_total) >= 0.01) {
+                $result[$id]['invalid_total_shares'] =
+                    'Bare property shares total plus full property shares total must equal ownership total shares.';
+            }
+        }
+
         return $result;
     }
 
