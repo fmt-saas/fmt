@@ -301,7 +301,7 @@ $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id'])
             'request_line_id'
         ],
         'request_executions_ids' => [
-            '@domain' => ['status', '=', 'posted'],
+            '@domain' => ['status', '<>', 'cancelled'],
             'posting_date',
             'due_date',
             'price',
