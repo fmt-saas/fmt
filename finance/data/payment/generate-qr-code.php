@@ -56,7 +56,7 @@ $paymentData = Data::create()
     ->setServiceTag('BCD')
     ->setIdentification('SCT')
     ->setName($params['recipient_name'])
-    ->setIban(str_replace(' ', '', $params['recipient_iban']))
+    ->setIban(str_replace([' ', '.', '-'], '', $params['recipient_iban']))
     ->setBic(str_replace(' ', '', $params['recipient_bic']))
     ->setRemittanceReference($params['payment_reference'])
     ->setAmount($params['payment_amount']);

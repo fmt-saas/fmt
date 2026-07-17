@@ -339,7 +339,7 @@ class BankAccount extends Model {
     private static function computeBankFromIban($iban, $lang='en') {
         $result = null;
 
-        $normalized_iban = strtoupper(str_replace(' ', '', trim($iban)));
+        $normalized_iban = strtoupper(str_replace([' ', '.', '-'], '', trim($iban)));
 
         if(!preg_match('/^[A-Z]{2}\d{2}[A-Z0-9]+$/', $normalized_iban)) {
             return null;

@@ -218,6 +218,7 @@ $patterns = [
     // ex. BE38 0015 0942 4272
     'iban' => [
         '/(BE\d{2} ?\d{4} ?\d{4} ?\d{4})/i',
+        '/BE\d{2}\.\d{4}\.\d{4}\.\d{4}/i',
     ],
 
     // ex. +++140/3598/57438+++
@@ -253,10 +254,10 @@ foreach($patterns as $field => $regexList) {
                 $value = $extract_address($value);
             }
             elseif($field === 'seller_vat') {
-                $value = str_replace(' ', '', $value);
+                $value = str_replace([' ', '.', '-'], '', $value);
             }
             elseif($field === 'iban') {
-                $value = str_replace(' ', '', $value);
+                $value = str_replace([' ', '.', '-'], '', $value);
             }
             elseif($field === 'payment_id') {
                 $value = str_replace('+', '', $value);

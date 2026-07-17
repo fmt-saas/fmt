@@ -90,12 +90,12 @@ $extractAddress = function ($address, $default_country = null) {
 
 $extractIban = function($iban) {
     if(!$iban) return null;
-    return str_replace(' ', '', strtoupper($iban));
+    return str_replace([' ', '.', '-'], '', strtoupper($iban));
 };
 
 $extractVat = function ($tax_id) {
     if(!$tax_id) return null;
-    return str_replace(' ', '', strtoupper($tax_id));
+    return str_replace([' ', '.', '-'], '', strtoupper($tax_id));
 };
 
 $computeBicFromIban = function($iban) {
