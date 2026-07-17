@@ -40,7 +40,7 @@ use realestate\funding\FundRequestExecutionCorrespondence;
 ['context' => $context] = $providers;
 
 $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($params['id'])
-    ->read(['ownership_id', 'owner_id', 'fund_request_execution_id' => ['id', 'fiscal_period_id', 'posting_date']])
+    ->read(['ownership_id', 'owner_id', 'fund_request_execution_id' => ['id', 'fiscal_period_id', 'posting_date', 'with_due_balance']])
     ->first();
 
 if(!$fundRequestExecutionCorrespondence) {
@@ -75,23 +75,25 @@ try {
     catch(Exception $e) {
     }
 
-    // append Owner Statement sheet
-    try {
-        // #todo
-        $date_to = $fundRequestExecution['posting_date'];
+    if($fundRequestExecution['with_due_balance']) {
+        // append Owner Statement sheet
+        try {
+            // #todo
+            $date_to = $fundRequestExecution['posting_date'];
 
-        $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
-                'date_from'         => $fiscalPeriod['date_from'],
-                'date_to'           => $fiscalPeriod['date_to'],
-                // 'date_to'           => $date_to,
-                'ownership_id'      => $fundRequestExecutionCorrespondence['ownership_id']
-            ]);
-        $temp = tempnam(sys_get_temp_dir(), 'pdf_');
-        file_put_contents($temp, $pdf);
-        $temp_files[] = $temp;
-    }
-    catch(Exception $e) {
-        // ignore (unexpected error while generation account statement)
+            $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
+                    'date_from'         => $fiscalPeriod['date_from'],
+                    'date_to'           => $fiscalPeriod['date_to'],
+                    // 'date_to'           => $date_to,
+                    'ownership_id'      => $fundRequestExecutionCorrespondence['ownership_id']
+                ]);
+            $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+            file_put_contents($temp, $pdf);
+            $temp_files[] = $temp;
+        }
+        catch(Exception $e) {
+            // ignore (unexpected error while generation account statement)
+        }
     }
 
     $escaped_files = array_map('escapeshellarg', $temp_files);

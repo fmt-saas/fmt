@@ -65,7 +65,7 @@ use finance\accounting\FiscalPeriod;
 $context = $providers['context'];
 
 $fundRequestExecution = FundRequestExecution::id($params['id'])
-    ->read(['condo_id', 'fiscal_period_id', 'status', 'posting_date', 'execution_lines_ids' => ['ownership_id']])
+    ->read(['condo_id', 'fiscal_period_id', 'status', 'posting_date', 'with_due_balance', 'execution_lines_ids' => ['ownership_id']])
     ->first();
 
 if(!$fundRequestExecution) {
@@ -105,6 +105,10 @@ try {
         }
         catch(Exception $e) {
             // ignore (ownership with no request line ?)
+        }
+
+        if(!$fundRequestExecution['with_due_balance']) {
+            continue;
         }
 
         // append Owner Statement sheet

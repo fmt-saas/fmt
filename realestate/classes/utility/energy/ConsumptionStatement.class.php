@@ -283,9 +283,9 @@ class ConsumptionStatement extends \equal\orm\Model {
                     $date_from = max($propertyLotOwnership['date_from'], $consumptionStatement['date_from']);
                     $date_to   = ($propertyLotOwnership['date_to']) ? min($propertyLotOwnership['date_to'], $consumptionStatement['date_to']) : $consumptionStatement['date_to'];
                     ConsumptionStatementLine::create(array_merge($values, [
-                            'ownership_id' => $ownership_id,
-                            'date_from' => $date_from,
-                            'date_to' => $date_to
+                            'ownership_id'  => $ownership_id,
+                            'date_from'     => $date_from,
+                            'date_to'       => $date_to
                         ]));
                 }
             }
