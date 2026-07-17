@@ -193,7 +193,6 @@ class Ownership extends \equal\orm\Model {
 
             'address_recipient' => [
                 'type'              => 'string',
-                'required'          => true,
                 'description'       => "Line to be used for sending courier to the Ownership representative(s)."
             ],
 
@@ -614,7 +613,8 @@ class Ownership extends \equal\orm\Model {
     protected static function policyIsValid($self) {
         $result = [];
 
-        $self->read(['condo_id', 'ownership_type', 'owners_ids', 'date_from', 'has_external_representative', 'representative_identity_id']);
+        $self->read(['condo_id', 'ownership_type', 'owners_ids', 'date_from', 'has_external_representative', 'representative_identity_id', 'address_recipient']);
+
         foreach($self as $id => $ownership) {
 
             if(!$ownership['condo_id']) {
@@ -641,6 +641,12 @@ class Ownership extends \equal\orm\Model {
             if(!$ownership['date_from']) {
                 $result[$id] = [
                     'missing_date_from' => 'Date from is mandatory, if not known use the date of the Condominium creation.'
+                ];
+            }
+
+            if(!$ownership['address_recipient'] || strlen($ownership['address_recipient']) <= 0) {
+                $result[$id] = [
+                    'missing_address_recipient' => 'Address recipient is mandatory.'
                 ];
             }
 

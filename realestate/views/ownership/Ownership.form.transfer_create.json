@@ -1,6 +1,15 @@
 {
     "name": "Ownership",
     "description": "Ownership creation.",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                { "id": "SAVE_AND_CONTINUE" },
+                { "id": "SAVE_AND_VIEW" },
+                { "id": "SAVE_AND_CLOSE" }
+            ]
+        }
+    },
     "layout": {
         "groups": [
             {
@@ -14,37 +23,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "code",
-                                                "width": "50%",
-                                                "widget": {
-                                                    "readonly": true
-                                                }
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "condo_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "External representative",
-                                                "value": "has_external_representative",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "representative_identity_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "label",
-                                                "value": "",
-                                                "width": "50%",
-                                                "visible": ["has_external_representative", "=", false]
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "extref_owner_reference",
                                                 "width": "50%"
                                             }
                                         ]
@@ -81,6 +60,7 @@
                     {
                         "id": "section.owners",
                         "label": "Owners",
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [
@@ -111,6 +91,7 @@
                     {
                         "id": "section.communication_preferences",
                         "label": "Communication",
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                                 {
                                 "columns": [
