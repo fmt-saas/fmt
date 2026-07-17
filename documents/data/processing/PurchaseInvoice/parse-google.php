@@ -351,7 +351,7 @@ if (!$paymentMeansCode && $paymentTerms) {
  * Final output structure (aligned with Mindee version)
  */
 $output = [
-    'document_type'     => $map_document_type[$invoiceType] ?? 'unknown',
+    'document_type'     => $map_document_type[$invoiceType] ?? 'supplier_invoice',
     'invoice_number'    => $getValue($getEntity('invoice_id'), ''),
     'invoice_type'      => $map_invoice_type[$invoiceType] ?? 'invoice',
     'issue_date'        => $formatDate($issueDate),
@@ -365,7 +365,7 @@ $output = [
     ],
     'customer' => [
         'name'    => $customerName,
-        'vat_id'  => $getValue($getEntity('customer_tax_id')),
+        'vat_id'  => $getValue($getEntity('receiver_tax_id')),
         'address' => $customerAddress,
     ],
     'lines' => $lines,

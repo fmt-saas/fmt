@@ -1597,6 +1597,25 @@ class DocumentProcess extends Model {
                                 }
                             }
                         }
+
+                        if(!$values['condo_id']) {
+                            if(isset($data['customer']['vat_id']) && strlen($data['customer']['vat_id']) > 0) {
+                                $condominiums_ids = Condominium::search([
+                                        [
+                                            ['vat_number', '=', $data['customer']['vat_id']]
+                                        ],
+                                        [
+                                            ['registration_number', '=', $data['customer']['vat_id']]
+                                        ]
+                                    ])
+                                    ->ids();
+                                if(count($condominiums_ids) === 1) {
+                                    $values['condo_id'] = current($condominiums_ids);
+                                    $logs[] = "condo_id retrieved from VAT ID '{$data['customer']['vat_id']}'";
+                                }
+                            }
+                        }
+
                         // attempt to retrieve condominium by number
                         if(!$values['condo_id']) {
                             if($values['supplier_id']) {
