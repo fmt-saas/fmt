@@ -60,9 +60,14 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "is_reached",
+                                                "value": "is_active",
                                                 "width": "25%",
                                                 "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_reached",
+                                                "width": "25%"
                                             }
                                         ]
                                     }
