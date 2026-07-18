@@ -13,7 +13,7 @@ Ownership::create([
     "description"=> "Charles Max",
     "condo_id"=> 1,
     "ownership_type"=> "unique",
-    "total_shares"=> 100,
+    "shares_total"=> 100,
     "transfer_from_id"=> null,
     "transfer_to_id"=> null,
     "representative_identity_id"=> null,
@@ -28,7 +28,7 @@ Ownership::create([
     "description"=> "Lucienne Prévaut",
     "condo_id"=> 1,
     "ownership_type"=> "unique",
-    "total_shares"=> 100,
+    "shares_total"=> 100,
     "transfer_from_id"=> null,
     "transfer_to_id"=> null,
     "representative_identity_id"=> null,
@@ -43,7 +43,7 @@ Ownership::create([
     "description"=> "Etienne Duchemin, Sarah Duchemin, Louis Duchemin",
     "condo_id"=> 1,
     "ownership_type"=> "joint",
-    "total_shares"=> 100,
+    "shares_total"=> 100,
     "transfer_from_id"=> null,
     "transfer_to_id"=> null,
     "representative_identity_id"=> null,
@@ -58,7 +58,7 @@ Ownership::create([
     "description"=> "Géraldine Desmet",
     "condo_id"=> 2,
     "ownership_type"=> "unique",
-    "total_shares"=> 100,
+    "shares_total"=> 100,
     "transfer_from_id"=> null,
     "transfer_to_id"=> null,
     "representative_identity_id"=> null,
@@ -73,7 +73,7 @@ Ownership::create([
     "description"=> "Raoul Ménart",
     "condo_id"=> 2,
     "ownership_type"=> "unique",
-    "total_shares"=> 100,
+    "shares_total"=> 100,
     "transfer_from_id"=> null,
     "transfer_to_id"=> null,
     "representative_identity_id"=> null,
@@ -88,7 +88,7 @@ Ownership::create([
     "description"=> "Roland Dupuis",
     "condo_id"=> 2,
     "ownership_type"=> "unique",
-    "total_shares"=> 100,
+    "shares_total"=> 100,
     "transfer_from_id"=> null,
     "transfer_to_id"=> null,
     "representative_identity_id"=> null,
@@ -139,6 +139,7 @@ Owner::create([
     "id" => 3,
     "condo_id" => 2,
     "ownership_id" => 7,
+    "shares_full_property" => 100,
     "identity_id" => $identity['id']
 ]);
 
@@ -183,6 +184,7 @@ Owner::create([
     "id" => 4,
     "condo_id" => 1,
     "ownership_id" => 4,
+    "shares_full_property" => 34,
     "identity_id" => $identity['id']
 ]);
 
@@ -227,6 +229,7 @@ Owner::create([
     "id" => 5,
     "condo_id" => 2,
     "ownership_id" => 6,
+    "shares_full_property" => 100,
     "identity_id" => $identity['id']
 ]);
 
@@ -271,6 +274,7 @@ Owner::create([
     "id" => 6,
     "condo_id" => 1,
     "ownership_id" => 3,
+    "shares_full_property" => 100,
     "identity_id" => $identity['id']
 ]);
 
@@ -315,6 +319,7 @@ Owner::create([
     "id" => 7,
     "condo_id" => 2,
     "ownership_id" => 5,
+    "shares_full_property" => 100,
     "identity_id" => $identity['id']
 ]);
 
@@ -359,6 +364,7 @@ Owner::create([
     "id" => 8,
     "condo_id" => 1,
     "ownership_id" => 4,
+    "shares_full_property" => 33,
     "identity_id" => $identity['id']
 ]);
 
@@ -403,6 +409,7 @@ Owner::create([
     "id" => 9,
     "condo_id" => 1,
     "ownership_id" => 4,
+    "shares_full_property" => 33,
     "identity_id" => $identity['id']
 ]);
 
@@ -446,6 +453,7 @@ Owner::create([
     "id" => 10,
     "condo_id" => 1,
     "ownership_id" => 2,
+    "shares_full_property" => 100,
     "identity_id" => $identity['id']
 ]);
 
