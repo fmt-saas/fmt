@@ -551,7 +551,7 @@ class Ownership extends \equal\orm\Model {
                 'transitions' => [
                     'validate' => [
                         'description' => 'Update the Ownership to `validated`.',
-                        'policies'    => ['has_mandatory_values', 'has_valid_owner_shares'],
+                        'policies'    => ['has_mandatory_values', 'has_valid_owner_shares', 'has_valid_communication_preferences'],
                         'onafter'     => 'onafterValidate',
                         'status'      => 'validated'
                     ]
@@ -610,6 +610,10 @@ class Ownership extends \equal\orm\Model {
             'has_valid_owner_shares' => [
                 'description' => 'Verifies that owner shares are consistent with the ownership total.',
                 'function'    => 'policyHasValidOwnerShares'
+            ],
+            'has_valid_communication_preferences' => [
+                'description' => 'Verifies that communication preferences can be used for their selected channels.',
+                'function'    => 'policyHasValidCommunicationPreferences'
             ]
         ];
     }
@@ -699,6 +703,41 @@ class Ownership extends \equal\orm\Model {
             if(abs(($shares_bare_property + $shares_full_property) - $shares_total) >= 0.01) {
                 $result[$id]['invalid_total_shares'] =
                     'Bare property shares total plus full property shares total must equal ownership total shares.';
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyHasValidCommunicationPreferences($self) {
+        $result = [];
+
+        $self->read([
+            'ownership_communication_preferences_ids' => [
+                'communication_reason',
+                'has_channel_email',
+                'identity_id' => ['email', 'email_alt']
+            ]
+        ]);
+
+        foreach($self as $id => $ownership) {
+            foreach($ownership['ownership_communication_preferences_ids'] as $communicationPreference) {
+                if(!$communicationPreference['has_channel_email']) {
+                    continue;
+                }
+
+                $identity = $communicationPreference['identity_id'] ?? null;
+                $has_email = false;
+
+                if(is_array($identity)) {
+                    $has_email = !empty($identity['email']) || !empty($identity['email_alt']);
+                }
+
+                if(!$has_email) {
+                    $reason = $communicationPreference['communication_reason'] ?? 'unknown';
+                    $result[$id]['missing_email_for_' . $reason] =
+                        'An email address is required when email is used as communication channel.';
+                }
             }
         }
 
