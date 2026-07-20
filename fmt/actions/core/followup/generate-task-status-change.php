@@ -111,7 +111,8 @@ if(!empty($task_models)) {
 
         $task = Task::search([
             ['task_model_id', '=', $task_model['id']],
-            [$relation_field, '=', $object['id']]
+            ['object_class', '=', $params['entity']],
+            ['object_id', '=', $object['id']]
         ])
             ->read(['notes'])
             ->first();
@@ -129,6 +130,7 @@ if(!empty($task_models)) {
             'visible_date'          => $visible_date,
             'deadline_date'         => $deadline_date,
             'task_model_id'         => $task_model['id'],
+            'task_type'             => 'purchase_invoice',
             $relation_field         => $object['id'],
             'notes'                 => $notes
         ])

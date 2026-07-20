@@ -38,14 +38,22 @@
             "description": "Les notes sur la tâche.",
             "help": ""
         },
-        "entity": {
-            "label": "Namespace entité",
-            "description": "Le namespace de l'entité concernée.",
+        "task_type": {
+            "label": "Type de tâche",
+            "description": "Le type technique utilisé pour résoudre l'objet concerné.",
+            "help": "",
+            "selection": {
+                "purchase_invoice": "Facture d'achat"
+            }
+        },
+        "object_class": {
+            "label": "Namespace objet",
+            "description": "Le namespace de l'objet concerné.",
             "help": ""
         },
-        "entity_id": {
-            "label": "Entité",
-            "description": "L'entité concernée.",
+        "object_id": {
+            "label": "Objet",
+            "description": "L'identifiant de l'objet concerné.",
             "help": ""
         },
         "purchase_invoice_id": {

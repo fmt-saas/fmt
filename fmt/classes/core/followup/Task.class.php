@@ -8,6 +8,7 @@
 namespace fmt\core\followup;
 
 use core\setting\Setting;
+use purchase\accounting\invoice\PurchaseInvoice;
 
 class Task extends \core\followup\Task {
 
@@ -28,7 +29,8 @@ class Task extends \core\followup\Task {
                 'result_type'       => 'string',
                 'description'       => "Short description of the task.",
                 'store'             => true,
-                'function'          => 'calcDescription'
+                'function'          => 'calcDescription',
+                'dependents'        => ['task_type', 'purchase_invoice_id']
             ],
 
             'is_done' => [
@@ -52,23 +54,14 @@ class Task extends \core\followup\Task {
                 'required'          => false
             ],
 
-            'entity' => [
+            'task_type' => [
                 'type'              => 'string',
-                'description'       => 'Namespace of the concerned entity.',
+                'description'       => 'Technical type used to resolve the related object.',
                 'selection'         => [
-                    'purchase\accounting\invoice\PurchaseInvoice'
+                    'purchase_invoice'
                 ],
+                'default'           => 'purchase_invoice',
                 'required'          => true
-            ],
-
-            'entity_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'integer',
-                'description'       => 'Id of the associated entity.',
-                'store'             => true,
-                'instant'           => true,
-                'function'          => 'calcEntityId',
-                'readonly'          => true
             ],
 
             'purchase_invoice_id' => [
@@ -79,17 +72,25 @@ class Task extends \core\followup\Task {
             ],
 
             'object_class' => [
-                'type'              => 'string',
+                'type'              => 'computed',
+                'result_type'       => 'string',
                 'description'       => 'Namespace of the concerned entity.',
-                'required'          => false,
-                'help'              => 'Overloaded to make field optional.'
+                'store'             => true,
+                'instant'           => true,
+                'function'          => 'calcObjectClass',
+                'dependents'        => ['task_type', 'purchase_invoice_id'],
+                'readonly'          => true
             ],
 
             'object_id' => [
-                'type'              => 'integer',
+                'type'              => 'computed',
+                'result_type'       => 'integer',
                 'description'       => 'Id of the associated entity.',
-                'required'          => false,
-                'help'              => 'Overloaded to make field optional.'
+                'store'             => true,
+                'instant'           => true,
+                'function'          => 'calcObjectId',
+                'dependents'        => ['task_type', 'purchase_invoice_id'],
+                'readonly'          => true
             ]
 
         ];
@@ -101,6 +102,7 @@ class Task extends \core\followup\Task {
 
         $result = [];
         $self->read([
+            'task_type',
             'purchase_invoice_id' => [
                 'name',
                 'invoice_type',
@@ -111,27 +113,51 @@ class Task extends \core\followup\Task {
             ]
         ]);
         foreach($self as $id => $task) {
-            if(isset($task['purchase_invoice_id'])) {
-                $result[$id] = Setting::parse_format($purchase_invoice_description_format, [
-                    'name'                  => $task['purchase_invoice_id']['name'],
-                    'invoice_type'          => $task['purchase_invoice_id']['invoice_type'],
-                    'description'           => $task['purchase_invoice_id']['description'],
-                    'on_hold_description'   => $task['purchase_invoice_id']['on_hold_description'],
-                    'emission_date'         => date($date_format, $task['purchase_invoice_id']['emission_date']),
-                    'posting_date'          => date($date_format, $task['purchase_invoice_id']['posting_date'])
-                ]);
+            switch($task['task_type'] ?? 'purchase_invoice') {
+                case 'purchase_invoice':
+                    if(isset($task['purchase_invoice_id'])) {
+                        $result[$id] = Setting::parse_format($purchase_invoice_description_format, [
+                            'name'                  => $task['purchase_invoice_id']['name'],
+                            'invoice_type'          => $task['purchase_invoice_id']['invoice_type'],
+                            'description'           => $task['purchase_invoice_id']['description'],
+                            'on_hold_description'   => $task['purchase_invoice_id']['on_hold_description'],
+                            'emission_date'         => date($date_format, $task['purchase_invoice_id']['emission_date']),
+                            'posting_date'          => date($date_format, $task['purchase_invoice_id']['posting_date'])
+                        ]);
+                    }
+                    break;
             }
         }
 
         return $result;
     }
 
-    public static function calcEntityId($self): array {
+    public static function calcObjectClass($self): array {
         $result = [];
-        $self->read(['purchase_invoice_id']);
+        $self->read(['task_type', 'purchase_invoice_id']);
         foreach($self as $id => $task) {
-            if(isset($task['purchase_invoice_id'])) {
-                $result[$id] = $task['purchase_invoice_id'];
+            switch($task['task_type'] ?? 'purchase_invoice') {
+                case 'purchase_invoice':
+                    if(isset($task['purchase_invoice_id'])) {
+                        $result[$id] = PurchaseInvoice::getType();
+                    }
+                    break;
+            }
+        }
+
+        return $result;
+    }
+
+    public static function calcObjectId($self): array {
+        $result = [];
+        $self->read(['task_type', 'purchase_invoice_id']);
+        foreach($self as $id => $task) {
+            switch($task['task_type'] ?? 'purchase_invoice') {
+                case 'purchase_invoice':
+                    if(isset($task['purchase_invoice_id'])) {
+                        $result[$id] = $task['purchase_invoice_id'];
+                    }
+                    break;
             }
         }
 
@@ -141,11 +167,11 @@ class Task extends \core\followup\Task {
     public static function getConstraints(): array {
         return [
 
-            'entity' =>  [
+            'object_class' =>  [
                 'not_allowed' => [
-                    'message'   => 'Entity must be "purchase\accounting\invoice\PurchaseInvoice".',
-                    'function'  => function ($entity, $values) {
-                        return in_array($entity, ['purchase\accounting\invoice\PurchaseInvoice']);
+                    'message'   => 'Object class must be "purchase\accounting\invoice\PurchaseInvoice".',
+                    'function'  => function ($object_class, $values) {
+                        return in_array($object_class, [PurchaseInvoice::getType()]);
                     }
                 ]
             ]

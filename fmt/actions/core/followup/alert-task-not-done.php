@@ -64,7 +64,7 @@ use purchase\accounting\invoice\PurchaseInvoice;
 $domain = [
     ['is_done', '=', false],
     ['deadline_date', '<=', time()],
-    ['entity', '=', $params['entity']]
+    ['object_class', '=', $params['entity']]
 ];
 
 $tasks = Task::search($domain)

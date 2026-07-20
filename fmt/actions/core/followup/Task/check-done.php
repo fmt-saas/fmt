@@ -19,6 +19,15 @@ use purchase\accounting\invoice\PurchaseInvoice;
             'required'          => true
         ],
 
+        'message_model' => [
+            'type'              => 'string',
+            'description'       => "The name of the message model to use for the alert.",
+            'selection'         => [
+                'purchase.accounting.invoice.followup.task.reminder'
+            ],
+            'default'           => 'purchase.accounting.invoice.followup.task.reminder'
+        ],
+
         'severity' => [
             'type'              => 'string',
             'description'       => "Severity of the created alerts.",
@@ -50,7 +59,7 @@ use purchase\accounting\invoice\PurchaseInvoice;
 ['context' => $context, 'dispatch' => $dispatch] = $providers;
 
 $task = Task::id($params['id'])
-    ->read(['is_done', 'entity'])
+    ->read(['is_done', 'object_class'])
     ->first(true);
 
 if(is_null($task)) {
@@ -61,11 +70,11 @@ $map_entities_message_models = [
     PurchaseInvoice::getType() => 'purchase.accounting.invoice.followup.task.reminder'
 ];
 
-if(!isset($map_entities_message_models[$task['entity']])) {
+if(!isset($map_entities_message_models[$task['object_class']])) {
     throw new Exception("not_handle_entity", EQ_ERROR_INVALID_PARAM);
 }
 
-$dispatch->cancel($map_entities_message_models[$task['entity']], Task::getType(), $task['id']);
+$dispatch->cancel($map_entities_message_models[$task['object_class']], Task::getType(), $task['id']);
 
 if(!$task['is_done']) {
     $dispatch_params = [
