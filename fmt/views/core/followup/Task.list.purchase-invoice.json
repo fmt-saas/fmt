@@ -30,7 +30,7 @@
             {
                 "type": "field",
                 "value": "notes",
-                "width": "50%"
+                "width": "60%"
             },
             {
                 "type": "field",
@@ -42,7 +42,8 @@
             {
                 "type": "field",
                 "value": "is_done",
-                "width": "20%"
+                "width": "20%",
+                "visible": false
             },
             {
                 "type": "field",

@@ -1,6 +1,6 @@
 {
-    "name": "Tâche",
-    "plural": "Tâches",
+    "name": "Suivi",
+    "plural": "Suivis",
     "description": "Une tâche qui doit être réalisée pour une entité spécifique.",
     "model": {
         "is_done": {
