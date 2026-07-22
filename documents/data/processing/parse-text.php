@@ -254,10 +254,10 @@ foreach($patterns as $field => $regexList) {
                 $value = $extract_address($value);
             }
             elseif($field === 'seller_vat') {
-                $value = str_replace([' ', '.', '-'], '', $value);
+                $value = str_replace([' ', '.', '-'], '', trim($value));
             }
             elseif($field === 'iban') {
-                $value = str_replace([' ', '.', '-'], '', $value);
+                $value = str_replace([' ', '.', '-'], '', trim($value));
             }
             elseif($field === 'payment_id') {
                 $value = str_replace('+', '', $value);
