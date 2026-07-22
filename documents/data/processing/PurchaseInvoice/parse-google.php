@@ -98,7 +98,7 @@ $extractVat = function ($tax_id) {
 
     $tax_number = str_replace([' ', '.', '-'], '', strtoupper($tax_id));
 
-    $data['customer']['vat_id'] = ctype_alpha(substr($tax_number, 0, 2))
+    return ctype_alpha(substr($tax_number, 0, 2))
         ? $tax_number
         : 'BE' . $tax_number;
 };
