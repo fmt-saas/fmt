@@ -25,7 +25,7 @@ use realestate\property\PropertyLotNature;
 ['context' => $context] = $providers;
 
 
-$property_lot_natures_ids = PropertyLotNature::search(['hierarchy', '=', 'main'])
+$property_lot_natures_ids = PropertyLotNature::search(['hierarchy', '=', 1])
     ->ids();
 
 $main_lots_qty = PropertyLot::search(['nature_id', 'in', $property_lot_natures_ids])->count();
