@@ -6,6 +6,7 @@
 */
 
 use realestate\property\PropertyLot;
+use realestate\property\PropertyLotNature;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Returns the quantity of property lots for metering use.",
@@ -23,10 +24,14 @@ use realestate\property\PropertyLot;
  */
 ['context' => $context] = $providers;
 
-$property_primary_lot_qty = PropertyLot::search(['is_primary', '=', true])->count();
+
+$property_lot_natures_ids = PropertyLotNature::search(['hierarchy', '=', 'main'])
+    ->ids();
+
+$main_lots_qty = PropertyLot::search(['nature_id', 'in', $property_lot_natures_ids])->count();
 
 $result = [
-    'value'     => $property_primary_lot_qty,
+    'value'     => $main_lots_qty,
     'unit'      => 'count',
     'logs'      => [],
     'errors'    => [],
