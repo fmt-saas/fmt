@@ -24,11 +24,10 @@ use realestate\property\PropertyLotNature;
  */
 ['context' => $context] = $providers;
 
-$parking_prop_nature = PropertyLotNature::search(['code', '=', 'PARKING'])
-    ->read(['id'])
-    ->first();
+$property_lot_natures_ids = PropertyLotNature::search(['code', 'in', ['garage', 'parking']])
+    ->ids();
 
-$parkings_qty = PropertyLot::search(['nature_id', '=', $parking_prop_nature['id']])->count();
+$parkings_qty = PropertyLot::search(['nature_id', 'in', $property_lot_natures_ids])->count();
 
 $result = [
     'value'     => $parkings_qty,
