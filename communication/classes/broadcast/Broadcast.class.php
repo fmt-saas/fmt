@@ -103,6 +103,12 @@ class Broadcast extends Model {
                 ]
             ],
 
+            'ignore_communication_preferences' => [
+                'type'              => 'boolean',
+                'description'       => 'Ignore the communication preferences of the selected ownerships.',
+                'default'           => false
+            ],
+
             'ownerships_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\ownership\Ownership',
@@ -347,39 +353,118 @@ class Broadcast extends Model {
     }
 
     protected static function onupdateOwnershipsIds($self, $values) {
-        // 1. Handle added ownerships must add their owners
+        $self->read(['ignore_communication_preferences']);
+        foreach($self as $id => $broadcast) {
+            $added_ownerships_ids = array_filter($values['ownerships_ids'], fn($ownership_id) => $ownership_id > 0);
+            $removed_ownerships_ids = array_map('abs', array_filter($values['ownerships_ids'], fn($ownership_id) => $ownership_id < 0));
 
-        $added_ownerships_ids = array_filter($values['ownerships_ids'], fn($ownership_id) => $ownership_id > 0);
+            if($broadcast['ignore_communication_preferences']) {
+                // 1. Handle added ownerships must add their owners
 
-        $added_ownerships = Ownership::ids($added_ownerships_ids)
-            ->read(['owners_ids'])
-            ->get();
+                $added_ownerships = Ownership::ids($added_ownerships_ids)
+                    ->read(['owners_ids'])
+                    ->get();
 
-        $map_owners_ids = [];
-        foreach($added_ownerships as $ownership) {
-            foreach($ownership['owners_ids'] as $owner_id) {
-                $map_owners_ids[$owner_id] = true;
+                $map_owners_ids = [];
+                foreach($added_ownerships as $ownership) {
+                    foreach($ownership['owners_ids'] as $owner_id) {
+                        $map_owners_ids[$owner_id] = true;
+                    }
+                }
+
+                if(!empty($map_owners_ids)) {
+                    $self->update(['owners_ids' => array_keys($map_owners_ids)]);
+                }
+
+                // 2. Handle removed ownerships must remove their owners/identities
+
+                $removed_ownerships = Ownership::ids($removed_ownerships_ids)
+                    ->read(['owners_ids'])
+                    ->get();
+
+                $map_owners_ids = [];
+                foreach($removed_ownerships as $ownership) {
+                    foreach($ownership['owners_ids'] as $owner_id) {
+                        $map_owners_ids[$owner_id * -1] = true;
+                    }
+                }
+
+                if(!empty($map_owners_ids)) {
+                    $self->update(['owners_ids' => array_keys($map_owners_ids)]);
+                }
+            }
+            else {
+                // 1. Handle added ownerships must add their owners
+
+                $added_ownerships = Ownership::ids($added_ownerships_ids)
+                    ->read([
+                        'ownership_communication_preferences_ids' => [
+                            '@domain' => ['communication_reason', '=', 'technical_communication'],
+                            'is_owner',
+                            'owner_id',
+                            'identity_id'
+                        ]
+                    ])
+                    ->get();
+
+                $map_owners_ids = [];
+                $map_identities_ids = [];
+                foreach($added_ownerships as $ownership) {
+                    if(!empty($ownership['ownership_communication_preferences_ids'])) {
+                        $technical_com_pref = reset($ownership['ownership_communication_preferences_ids']);
+
+                        if($technical_com_pref['is_owner']) {
+                            $map_owners_ids[$technical_com_pref['owner_id']] = true;
+                        }
+                        else {
+                            $map_identities_ids[$technical_com_pref['identity_id']] = true;
+                        }
+                    }
+                }
+
+                if(!empty($map_owners_ids)) {
+                    $self->update(['owners_ids' => array_keys($map_owners_ids)]);
+                }
+                if(!empty($map_identities_ids)) {
+                    $self->update(['identities_ids' => array_keys($map_identities_ids)]);
+                }
+
+                // 2. Handle removed ownerships must remove their owners/identities
+
+                $removed_ownerships = Ownership::ids($removed_ownerships_ids)
+                    ->read([
+                        'ownership_communication_preferences_ids' => [
+                            '@domain' => ['communication_reason', '=', 'technical_communication'],
+                            'is_owner',
+                            'owner_id',
+                            'identity_id'
+                        ]
+                    ])
+                    ->get();
+
+                $map_owners_ids = [];
+                $map_identities_ids = [];
+                foreach($removed_ownerships as $ownership) {
+                    if(!empty($ownership['ownership_communication_preferences_ids'])) {
+                        $technical_com_pref = reset($ownership['ownership_communication_preferences_ids']);
+
+                        if($technical_com_pref['is_owner']) {
+                            $map_owners_ids[$technical_com_pref['owner_id'] * -1] = true;
+                        }
+                        else {
+                            $map_identities_ids[$technical_com_pref['identity_id'] * -1] = true;
+                        }
+                    }
+                }
+
+                if(!empty($map_owners_ids)) {
+                    $self->update(['owners_ids' => array_keys($map_owners_ids)]);
+                }
+                if(!empty($map_identities_ids)) {
+                    $self->update(['identities_ids' => array_keys($map_identities_ids)]);
+                }
             }
         }
-
-        $self->update(['owners_ids' => array_keys($map_owners_ids)]);
-
-        // 2. Handle removed ownerships must remove their owners
-
-        $removed_ownerships_ids = array_map('abs', array_filter($values['ownerships_ids'], fn($ownership_id) => $ownership_id < 0));
-
-        $removed_ownerships = Ownership::ids($removed_ownerships_ids)
-            ->read(['owners_ids'])
-            ->get();
-
-        $map_owners_ids = [];
-        foreach($removed_ownerships as $ownership) {
-            foreach($ownership['owners_ids'] as $owner_id) {
-                $map_owners_ids[$owner_id * -1] = true;
-            }
-        }
-
-        $self->update(['owners_ids' => array_keys($map_owners_ids)]);
     }
 
     protected static function onupdateOwnersIds($self, $values) {

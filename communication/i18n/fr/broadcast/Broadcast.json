@@ -59,6 +59,11 @@
             "description": "Identifiant de l'entité associée à la diffusion.",
             "help": ""
         },
+        "ignore_communication_preferences": {
+            "label": "Ignorer préférences",
+            "description": "Ignorer les préférences de communication des dossiers de propriété sélectionnés.",
+            "help": ""
+        },
         "ownerships_ids": {
             "label": "Lots de copropriété",
             "description": "Lots de copropriété concernés par la diffusion.",

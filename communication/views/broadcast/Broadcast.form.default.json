@@ -99,11 +99,27 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "100%",
                                         "items": [
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "visible": ["state", "<>", "draft"],
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "label": "Ignore preferences",
+                                                "value": "ignore_communication_preferences",
                                                 "width": "100%"
                                             }
                                         ]
