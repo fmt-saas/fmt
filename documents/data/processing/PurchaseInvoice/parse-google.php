@@ -88,17 +88,22 @@ $extractAddress = function ($address, $default_country = null) {
     ];
 };
 
-$extractIban = function($iban) {
+$extractIban = function ($iban) {
     if(!$iban) return null;
     return str_replace([' ', '.', '-'], '', strtoupper($iban));
 };
 
 $extractVat = function ($tax_id) {
     if(!$tax_id) return null;
-    return str_replace([' ', '.', '-'], '', strtoupper($tax_id));
+
+    $tax_number = str_replace([' ', '.', '-'], '', strtoupper($tax_id));
+
+    $data['customer']['vat_id'] = ctype_alpha(substr($tax_number, 0, 2))
+        ? $tax_number
+        : 'BE' . $tax_number;
 };
 
-$computeBicFromIban = function($iban) {
+$computeBicFromIban = function ($iban) {
     static $map_bic;
     $result = null;
 
