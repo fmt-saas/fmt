@@ -106,7 +106,11 @@ if(isset($data['supplier']['vat_id'])) {
 }
 
 if(!isset($data['customer']['vat_id']) && isset($info['buyer_vat'])) {
-    $data['customer']['vat_id'] = $info['buyer_vat'];
+    $tax_number = $info['buyer_vat'];
+
+    $data['customer']['vat_id'] = ctype_alpha(substr($tax_number, 0, 2))
+        ? $tax_number
+        : 'BE' . $tax_number;
 }
 
 if(!isset($data['customer']['customer_number']) && isset($info['customer_number'])) {
