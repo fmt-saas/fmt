@@ -49,6 +49,16 @@
             "name": "Statuts",
             "description": "Affiche la liste des statuts.",
             "layout": {}
+        },
+        "list.server": {
+            "name": "Statuts serveur",
+            "description": "Affiche les statuts rattachés à un serveur.",
+            "layout": {}
+        },
+        "list.instance": {
+            "name": "Statuts instance",
+            "description": "Affiche les statuts rattachés à une instance.",
+            "layout": {}
         }
     }
 }

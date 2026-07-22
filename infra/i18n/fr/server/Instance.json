@@ -116,6 +116,11 @@
             "label": "Contrôles",
             "description": "Contrôles booléens de l'instance.",
             "help": "Affiche les contrôles créés ou mis à jour par synchronisation."
+        },
+        "metering_readings_ids": {
+            "label": "Relevés de consommation",
+            "description": "Relevés de consommation rattachés à l'instance.",
+            "help": "Affiche les derniers relevés générés pour cette instance."
         }
     },
     "view": {
@@ -145,6 +150,9 @@
                 },
                 "section.statuses": {
                     "label": "Statuts"
+                },
+                "section.logs": {
+                    "label": "Journaux"
                 }
             }
         },

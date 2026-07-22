@@ -1,0 +1,25 @@
+{
+    "name": "Statut serveur",
+    "plural": "Statuts serveur",
+    "description": "Données de statut rattachées à un serveur.",
+    "model": {
+        "server_id": {
+            "label": "Serveur",
+            "description": "Serveur concerné par le statut.",
+            "help": "Un statut serveur est rattaché à un seul serveur."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Statut serveur",
+            "description": "Affiche le formulaire de modification d'un statut serveur.",
+            "layout": {}
+        },
+        "list.default": {
+            "name": "Statuts serveur",
+            "description": "Affiche la liste des statuts serveur.",
+            "layout": {}
+        }
+    },
+    "error": []
+}

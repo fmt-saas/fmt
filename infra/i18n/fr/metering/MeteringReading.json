@@ -69,6 +69,10 @@
                     "description": "Valeurs mesurées pour chaque métrique active."
                 }
             }
+        },
+        "list.instance": {
+            "name": "Relevés de consommation",
+            "description": "Affiche les relevés de consommation d'une instance."
         }
     }
 }

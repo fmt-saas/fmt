@@ -62,6 +62,16 @@
             "label": "Actif",
             "description": "Indique si le quota doit respecté.",
             "help": "Désactivez ce champ pour ne pas appliquer ce quota."
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Nom d'affichage de la définition de quota.",
+            "help": "Copié depuis la définition de métrique associée."
+        },
+        "thresholds_ids": {
+            "label": "Seuils",
+            "description": "Seuils qui déclenchent une action ou marquent le quota comme atteint.",
+            "help": "Ajoutez les seuils nécessaires au suivi de ce quota."
         }
     },
     "view": {

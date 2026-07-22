@@ -41,6 +41,11 @@
             "label": "Action",
             "description": "Le contrôleur qui est déclenché lorsque le seuil est atteint.",
             "help": ""
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Nom du seuil.",
+            "help": "Utilisé pour identifier ce seuil dans la liste."
         }
     },
     "view": {

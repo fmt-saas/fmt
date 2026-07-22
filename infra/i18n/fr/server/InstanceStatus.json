@@ -1,0 +1,25 @@
+{
+    "name": "Statut instance",
+    "plural": "Statuts instance",
+    "description": "Données de statut rattachées à une instance.",
+    "model": {
+        "instance_id": {
+            "label": "Instance",
+            "description": "Instance concernée par le statut.",
+            "help": "Un statut instance est rattaché à une seule instance."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Statut instance",
+            "description": "Affiche le formulaire de modification d'un statut instance.",
+            "layout": {}
+        },
+        "list.default": {
+            "name": "Statuts instance",
+            "description": "Affiche la liste des statuts instance.",
+            "layout": {}
+        }
+    },
+    "error": []
+}
