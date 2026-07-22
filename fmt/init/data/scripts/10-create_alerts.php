@@ -599,3 +599,20 @@ MessageModel::id($model['id'])->update([
         'label'         => 'Fonds insuffisants',
         'description'   => "Le solde du compte bancaire n'est pas suffisant pour ce transfert.",
     ], 'fr');
+
+/**
+ * MONITORING
+ */
+
+$model = MessageModel::create([
+        'name'          => 'fmt.monitoring.failed_email_sending',
+        'type'          => 'monitoring',
+        'label'         => 'Send email failed',
+        'description'   => "The sending of an email failed."
+    ])
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Envoi email a échoué',
+        'description'   => "L'envoi d'un email a échoué.",
+    ], 'fr');

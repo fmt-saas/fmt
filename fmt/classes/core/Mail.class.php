@@ -7,6 +7,8 @@
 
 namespace fmt\core;
 
+use equal\email\Email;
+use equal\services\Container;
 use infra\metering\MeteringRecord;
 use infra\metering\MetricDefinition;
 
@@ -48,5 +50,29 @@ class Mail extends \core\Mail {
                 }
             }
         }
+    }
+
+    public static function queue(Email $email, string $object_class = '', int $object_id = 0, bool $monitor = true): int {
+        $mail_id = parent::queue($email, $object_class, $object_id);
+
+        if($monitor) {
+            // schedule email sent check
+
+            $container = Container::getInstance();
+
+            /* @var \equal\cron\Scheduler $cron */
+            $cron = $container->get(['cron']);
+
+            $ten_minutes = 60 * 10;
+
+            $cron->schedule(
+                "monitoring.check_email.$mail_id",
+                time() + $ten_minutes,
+                'fmt_monitoring_check-email',
+                ['id' => $mail_id]
+            );
+        }
+
+        return $mail_id;
     }
 }
