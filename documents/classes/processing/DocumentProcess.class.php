@@ -712,6 +712,20 @@ class DocumentProcess extends Model {
                 ];
                 continue;
             }
+
+            // #memo - it is the invoice (and not the DocumentProcess) that is responsible for ensuring that all required information is complete
+            // #todo - this should be called through a ValidationRule
+            try {
+                // #memo - `assert-valid` controller is called at `MarkValidated` step
+                \eQual::run('do', 'documents_processing_DocumentProcess_assert-unique', ['id' => $id]);
+            }
+            catch(\Exception $e) {
+                trigger_error("APP::DocumentProcess [{$id}] relates to a document that has already been imported: " . $e->getMessage(), EQ_REPORT_WARNING);
+                $result[$id] = [
+                    'duplicate_document' => 'Document has already been imported.'
+                ];
+                continue;
+            }
         }
         return $result;
     }
