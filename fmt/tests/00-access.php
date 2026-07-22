@@ -6,6 +6,7 @@
 */
 
 use documents\Document;
+use hr\employee\Employee;
 use identity\Group;
 use identity\Identity;
 use identity\User;
@@ -1011,6 +1012,155 @@ $tests = [
                         'access-test-owner-2.txt'
                     ]])
                     ->delete(true);
+            }
+    ],
+
+    '0215' => [
+            'description'   => "Employee access on documents.",
+            'help'          => "Verify an employee user can access documents whatever document_visibility value is set.",
+            'return'        => ['array'],
+            'arrange'       => function() use($providers) {
+                /**
+                 * @var \equal\orm\ObjectManager $orm
+                 */
+                ['orm' => $orm] = $providers;
+
+                $employee = Employee::create([
+                        'firstname' => 'Employee',
+                        'lastname'  => 'Document Access Test'
+                    ])
+                    ->read(['identity_id'])
+                    ->first();
+
+                if(!$employee || empty($employee['identity_id'])) {
+                    throw new Exception('employee_fixture_creation_failed', EQ_ERROR_UNKNOWN);
+                }
+
+                $user = User::create([
+                        'login'       => 'employee_document_access_test@example.com',
+                        'password'    => 'abcd1234',
+                        'identity_id' => $employee['identity_id']
+                    ])
+                    ->read(['id', 'employee_id'])
+                    ->first();
+
+                if(!$user || empty($user['employee_id'])) {
+                    throw new Exception('employee_user_fixture_creation_failed', EQ_ERROR_UNKNOWN);
+                }
+
+                $documents = [];
+                foreach(['agency', 'condo', 'ownership', 'owner', 'suppliership'] as $visibility) {
+                    $document_id = $orm->create(Document::getType(), [
+                        'name'                => "access-test-employee-{$visibility}.txt",
+                        'data'                => "access-test-employee-{$visibility}",
+                        'document_visibility' => $visibility
+                    ]);
+
+                    if($document_id <= 0) {
+                        throw new Exception("document_fixture_creation_failed: {$visibility}", EQ_ERROR_UNKNOWN);
+                    }
+
+                    $document_hash = Document::id($document_id)
+                        ->read(['hash'])
+                        ->first()['hash'] ?? null;
+
+                    if(!$document_hash) {
+                        throw new Exception("document_fixture_hash_missing: {$visibility}", EQ_ERROR_UNKNOWN);
+                    }
+
+                    $documents[$visibility] = [
+                        'id'   => $document_id,
+                        'hash' => $document_hash
+                    ];
+                }
+
+                return [$user['id'], $documents];
+            },
+            'act'           => function($data) use($providers) {
+                /**
+                 * @var \equal\auth\AuthenticationManager $auth
+                 */
+                ['auth' => $auth] = $providers;
+
+                [$user_id, $documents] = $data;
+                $document_ids = array_column($documents, 'id');
+                $results = [
+                    'download' => [],
+                    'read'     => false,
+                    'search'   => false
+                ];
+
+                $auth->su($user_id);
+
+                try {
+                    foreach($documents as $visibility => $document) {
+                        try {
+                            eQual::run('get', 'documents_document', ['id' => $document['hash']]);
+                            $results['download'][$visibility] = true;
+                        }
+                        catch(Exception $e) {
+                            $results['download'][$visibility] = false;
+                        }
+                    }
+
+                    try {
+                        $read_ids = Document::ids($document_ids)
+                            ->read(['id'])
+                            ->ids();
+                        $results['read'] = count(array_intersect($document_ids, $read_ids)) === count($document_ids);
+                    }
+                    catch(Exception $e) {
+                        $results['read'] = false;
+                    }
+
+                    try {
+                        $search_ids = Document::search(['id', 'in', $document_ids])->ids();
+                        $results['search'] = count(array_intersect($document_ids, $search_ids)) === count($document_ids);
+                    }
+                    catch(Exception $e) {
+                        $results['search'] = false;
+                    }
+                }
+                finally {
+                    $auth->su();
+                }
+
+                return $results;
+            },
+            'assert'        => function($results) {
+                return
+                    $results['read'] === true
+                    && $results['search'] === true
+                    && !in_array(false, $results['download'], true);
+            },
+            'rollback'      => function() use($providers) {
+                /** @var \equal\auth\AuthenticationManager $auth */
+                $auth = $providers['auth'];
+                $auth->su();
+
+                Document::search(['name', 'in', [
+                        'access-test-employee-agency.txt',
+                        'access-test-employee-condo.txt',
+                        'access-test-employee-ownership.txt',
+                        'access-test-employee-owner.txt',
+                        'access-test-employee-suppliership.txt'
+                    ]])
+                    ->delete(true);
+
+                $users = User::search(['login', '=', 'employee_document_access_test@example.com'])->read(['identity_id']);
+                $identity_ids = [];
+                foreach($users as $user) {
+                    if(isset($user['identity_id'])) {
+                        $identity_ids[] = $user['identity_id'];
+                    }
+                }
+
+                User::search(['login', '=', 'employee_document_access_test@example.com'])->delete(true);
+                Employee::search(['lastname', '=', 'Document Access Test'])->delete(true);
+
+                foreach($identity_ids as $identity_id) {
+                    Identity::id($identity_id)->delete(true);
+                }
             }
     ]
 ];
