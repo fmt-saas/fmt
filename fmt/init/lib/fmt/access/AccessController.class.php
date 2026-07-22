@@ -211,6 +211,15 @@ class AccessController extends \equal\access\AccessController {
         $schema = $model->getSchema();
         $objects = null;
 
+        if($operation === EQ_R_READ && count($object_ids)) {
+            $documentAccessHelper = new DocumentAccessHelper();
+            if($documentAccessHelper->supports($object_class)) {
+                if(!$documentAccessHelper->userCanReadObjects($orm, $this, $object_class, $object_ids, $user_id)) {
+                    return false;
+                }
+            }
+        }
+
         $is_condominium_class = ($object_class === 'realestate\property\Condominium');
         $has_condo_field = isset($schema['condo_id']) && !in_array($object_class, ['fmt\setting\SettingValue', 'fmt\setting\SettingSequence'], true);
         $has_condo_scope = $is_condominium_class || $has_condo_field;

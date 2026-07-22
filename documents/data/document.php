@@ -6,10 +6,9 @@
 */
 use documents\Document;
 use finance\bank\BankStatement;
-use identity\User;
+use fmt\access\DocumentAccessHelper;
 use realestate\funding\ExpenseStatement;
 use realestate\funding\FundRequestExecution;
-use realestate\ownership\Owner;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
@@ -43,13 +42,27 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
 /**
  * @var \equal\access\AccessController $access
  */
-['context' => $context, 'orm' => $om, 'auth' => $auth, 'adapt' => $adapt, 'access' => $access] = $providers;
+['context' => $context, 'orm' => $orm, 'auth' => $auth, 'adapt' => $adapt, 'access' => $access] = $providers;
 
 $user_id = $auth->userId();
 
-$document = Document::search(['hash', '=', $params['id']])
+$documents_ids = $orm->search(Document::getType(), ['hash', '=', $params['id']]);
+
+if(!is_array($documents_ids) || !count($documents_ids)) {
+    throw new Exception('unknown_document', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+$document_id = current($documents_ids);
+
+$documentAccessHelper = new DocumentAccessHelper();
+
+if(!$documentAccessHelper->userCanReadObjects($orm, $access, Document::getType(), [$document_id], $user_id)) {
+    throw new Exception('protected_document', EQ_ERROR_NOT_ALLOWED);
+}
+
+$document = Document::id($document_id)
     ->read([
-        'document_visibility', 'condo_id', 'ownership_id', 'owner_id', 'name', 'data', 'content_type',
+        'id', 'name', 'data', 'content_type',
         'purchase_invoice_id', 'expense_statement_id', 'fund_request_execution_id', 'bank_statement_id'
     ])
     ->first();
@@ -61,67 +74,6 @@ if(!$document) {
 $content_type = $document['content_type'];
 $filename = $document['name'];
 $output = $document['data'];
-
-// #todo - restore - make sure to test with user relating to employee, and add extra rights for admins & ROOT users
-$user = User::id($user_id)->read(['identity_id', 'employee_id'])->first();
-
-$is_root = ($user_id === EQ_ROOT_USER_ID);
-$is_admin = $access->hasGroup('admins');
-
-if(!$user['employee_id'] && !$is_root && !$is_admin) {
-    // check visibility rules
-    switch($document['document_visibility']) {
-        // visible only to syndic
-        case 'agency':
-            throw new Exception('agency_document', EQ_ERROR_NOT_ALLOWED);
-            break;
-        // visible to all condo owners + syndic
-        case 'condo':
-            // make sure user relates to condo_id of the document
-            $owners = Owner::search(['identity_id', '=', $user['identity_id']])->read(['condo_id']);
-            $found = false;
-            foreach($owners as $owner_id => $owner) {
-                if($owner['condo_id'] === $document['condo_id']) {
-                    $found = true;
-                    break;
-                }
-            }
-            if(!$found) {
-                throw new Exception('condo_document', EQ_ERROR_NOT_ALLOWED);
-            }
-            break;
-        // visible only to owners of a same ownership
-        case 'ownership':
-            // make sure the user relates to the ownership_id of the document
-            $owners = Owner::search(['identity_id', '=', $user['identity_id']])->read(['ownership_id']);
-            $found = false;
-            foreach($owners as $owner_id => $owner) {
-                if($owner['ownership_id'] === $document['ownership_id']) {
-                    $found = true;
-                    break;
-                }
-            }
-            if(!$found) {
-                throw new Exception('ownership_document', EQ_ERROR_NOT_ALLOWED);
-            }
-            break;
-        // visible only to a single owner
-        case 'owner':
-            $owners = Owner::search(['identity_id', '=', $user['identity_id']]);
-            $found = false;
-            foreach($owners as $owner_id => $owner) {
-                if($owner_id === $document['owner_id']) {
-                    $found = true;
-                    break;
-                }
-            }
-            if(!$found) {
-                throw new Exception('owner_document', EQ_ERROR_NOT_ALLOWED);
-            }
-            break;
-    }
-}
-
 
 // for accounting documents, relay to `add-overlay` to force output with additional information
 $doc_info = [];

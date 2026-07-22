@@ -6,6 +6,7 @@
 */
 namespace fmt\orm;
 
+use fmt\access\DocumentAccessHelper;
 use fmt\setting\Setting;
 use equal\orm\Domain;
 
@@ -46,6 +47,15 @@ class Collection extends \equal\orm\Collection {
             }
         }
 
+        $documentAccessHelper = new DocumentAccessHelper();
+        if($documentAccessHelper->supports($this->class)) {
+            $visibility_domain = $documentAccessHelper->getReadDomain($this->orm, $this->ac, $this->class, $user_id);
+            if(count($visibility_domain)) {
+                $domain = (new Domain($domain))
+                    ->merge(new Domain($visibility_domain))
+                    ->toArray();
+            }
+        }
         parent::search($domain, $params, $lang);
 
         return $this;
