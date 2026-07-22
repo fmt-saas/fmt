@@ -76,7 +76,7 @@ if(!$purchaseInvoice) {
 
 // check related DocumentProcess completeness - this can result in throwing an Exception
 DocumentProcess::id($purchaseInvoice['document_process_id'])
-    ->assert('is_valid');
+    ->assertPolicies('is_valid');
 
 if(strlen($purchaseInvoice['invoice_type']) <= 0) {
     $dispatch->dispatch('purchase.accounting.invoice.missing_invoice_type', $class, $id, 'important', $script, ['id' => $id]);
