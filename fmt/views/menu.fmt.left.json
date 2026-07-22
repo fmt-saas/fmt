@@ -1322,9 +1322,9 @@
                     {
                         "id": "item.infra.quota_definitions",
                         "type": "entry",
-                        "label": "Quota definitions",
+                        "label": "Quotas",
                         "icon": "data_usage",
-                        "description": "Quota definitions.",
+                        "description": "Quotas definitions.",
                         "context": {
                             "view": "list.default",
                             "entity": "infra\\quota\\Quota"
