@@ -47,6 +47,13 @@
                 "value": "nature_id",
                 "width": "25%",
                 "sortable": true
+            },
+            {
+                "type": "field",
+                "label": "Primary",
+                "value": "is_primary",
+                "width": "10%",
+                "sortable": true
             }
         ]
     }
