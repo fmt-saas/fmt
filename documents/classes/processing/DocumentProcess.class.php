@@ -1619,7 +1619,7 @@ class DocumentProcess extends Model {
                                             ['vat_number', '=', $data['customer']['vat_id']]
                                         ],
                                         [
-                                            ['registration_number', '=', $data['customer']['vat_id']]
+                                            ['registration_number', '=', substr($data['customer']['vat_id'], 2)]
                                         ]
                                     ])
                                     ->ids();
