@@ -727,11 +727,8 @@ class Ownership extends \equal\orm\Model {
                 }
 
                 $identity = $communicationPreference['identity_id'] ?? null;
-                $has_email = false;
 
-                if(is_array($identity)) {
-                    $has_email = !empty($identity['email']) || !empty($identity['email_alt']);
-                }
+                $has_email = $identity && (!empty($identity['email']) || !empty($identity['email_alt']));
 
                 if(!$has_email) {
                     $reason = $communicationPreference['communication_reason'] ?? 'unknown';
