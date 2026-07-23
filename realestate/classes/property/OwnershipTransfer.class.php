@@ -1075,7 +1075,6 @@ class OwnershipTransfer extends \equal\orm\Model {
         }
     }
 
-
     protected static function doPerformTransfer($self) {
         $self->read([
             'condo_id',
@@ -1090,7 +1089,9 @@ class OwnershipTransfer extends \equal\orm\Model {
             // #memo - we do not check $ownershipTransfer['old_ownership_id'] since a previous Ownership might not exist (first Owner / constitution of the Condominium)
 
             if($ownershipTransfer['new_ownership_id']['status'] !== 'validated') {
-                Ownership::id($ownershipTransfer['new_ownership_id']['id'])->transition('validate');
+                Ownership::id($ownershipTransfer['new_ownership_id']['id'])
+                    ->update(['date_from' => $ownershipTransfer['transfer_date']])
+                    ->transition('validate');
             }
 
             // retrieve impacted fiscal year

@@ -419,6 +419,43 @@ try {
                             ->first();
                     }
 
+                    if(!$identity) {
+                        $zip = trim((string) ($ownership_row['zip'] ?? ''));
+                        $country = strtoupper(trim((string) ($ownership_row['country'] ?? '')));
+
+                        if($type_code === 'IN') {
+                            $legal_name = TextTransformer::toAscii(trim((string) ($ownership_row['firstname'] ?? '') . ' ' . (string) ($ownership_row['lastname'] ?? '')));
+                        }
+                        else {
+                            $legal_name = TextTransformer::toAscii(trim((string) ($ownership_row['lastname'] ?? '')));
+                        }
+
+                        $legal_name = str_replace(["'", ' '], '-', $legal_name);
+
+                        if(strlen($type_code) > 0 && strlen($legal_name) > 0 && strlen($zip) > 0 && strlen($country) > 0) {
+                            $slug_parts = [
+                                $type_code,
+                                $legal_name,
+                                $zip,
+                                $country
+                            ];
+
+                            $slug = strtolower(implode('-', array_filter($slug_parts)));
+                            if(strlen($slug) > 255) {
+                                $slug = substr($slug, 0, 255);
+                            }
+                            $slug_hash = md5($slug);
+
+                            $result['logs'][] = "INFO- searching identity from ownership import sheet at row $row_index with hash `{$slug_hash}` (slug `$slug`)";
+
+                            $identity = Identity::search(['slug_hash', '=', $slug_hash])->read(['id'])->first();
+
+                            if($identity) {
+                                $result['logs'][] = "INFO- retrieved identity id {$identity['id']} from ownership import sheet at row $row_index based on hash `{$slug_hash}`";
+                            }
+                        }
+                    }
+
                     $identity_values = [];
                     $identity_fields_map = [
                         'firstname'              => 'firstname',
