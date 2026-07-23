@@ -331,150 +331,140 @@ class Ownership extends \equal\orm\Model {
         ];
     }
 
+    private static function computeAddressRecipient($id) {
+        $result = '';
 
-    // #todo - move this to calcName
-    protected static function calcAddressRecipient($self) {
-        $result = [];
+        $ownership = self::id($id)->read(['owners_ids' => ['firstname', 'lastname', 'gender', 'lang_id']])->first();
 
-        $self->read(['address_recipient', 'owners_ids' => ['firstname', 'lastname', 'gender', 'lang_id']]);
+        $owners = $ownership['owners_ids'];
 
-        foreach($self as $id => $ownership) {
-            $owners = $ownership['owners_ids'];
+        if($owners->count() <= 0) {
+            return '';
+        }
 
-            if(empty($owners)) {
-                $result[$id] = $ownership['address_recipient'];
-                continue;
+        // Langue du premier owner (1=EN, 2=FR, 3=NL)
+        $firstOwner = $owners->first();
+        $lang_id = isset($firstOwner['lang_id']) ? (int) $firstOwner['lang_id'] : 2;
+
+        // map of salutation titles, based on lang
+        $titles = [];
+        if($lang_id === 1) {
+            $titles = ['M' => 'Mr', 'F' => 'Mrs', 'X' => 'Mx', '' => ''];
+            $and = 'and';
+        }
+        elseif($lang_id === 3) {
+            $titles = ['M' => 'De heer', 'F' => 'Mevrouw', 'X' => '', '' => ''];
+            $and = 'en';
+        }
+        else {
+            $titles = ['M' => 'Monsieur', 'F' => 'Madame', 'X' => '', '' => ''];
+            $and = 'et';
+        }
+
+        // group owners by gender
+        $groups = ['M' => [], 'F' => [], 'X' => [], '' => []];
+
+        foreach($owners as $owner) {
+            $gender = strtoupper(trim($owner['gender'] ?? ''));
+            if(!in_array($gender, ['M', 'F', 'X'])) {
+                $gender = '';
             }
-
-            // Langue du premier owner (1=EN, 2=FR, 3=NL)
-            $firstOwner = $owners->first();
-            $lang_id = isset($firstOwner['lang_id']) ? (int) $firstOwner['lang_id'] : 2;
-
-            // map of salutation titles, based on lang
-            $titles = [];
-            if($lang_id === 1) {
-                $titles = ['M' => 'Mr', 'F' => 'Mrs', 'X' => 'Mx', '' => ''];
-                $and = 'and';
+            $lastname = trim($owner['lastname'] ?? '');
+            $firstname = trim($owner['firstname'] ?? '');
+            if($lastname !== '') {
+                $groups[$gender][] = [
+                    'firstname' => $firstname,
+                    'lastname'  => $lastname
+                ];
             }
-            elseif($lang_id === 3) {
-                $titles = ['M' => 'De heer', 'F' => 'Mevrouw', 'X' => '', '' => ''];
-                $and = 'en';
+        }
+
+        $count = count($owners);
+
+        // Case 1 : single owner
+        if($count === 1) {
+            $owner = $firstOwner;
+            $gender = strtoupper(trim($owner['gender'] ?? ''));
+            $lastname = trim($owner['lastname'] ?? '');
+            $title = isset($titles[$gender]) ? $titles[$gender] : '';
+            $result[$id] = trim($title . ' ' . $lastname);
+        }
+
+        // Case 2 : husband and wife with same name
+        if(!empty($groups['M']) && !empty($groups['F']) && empty($groups['X']) && empty($groups[''])) {
+            $lnM = array_column($groups['M'], 'lastname');
+            $lnF = array_column($groups['F'], 'lastname');
+            $merged = array_unique(array_merge($lnM, $lnF));
+            if(count($merged) === 1) {
+                $lastname = $merged[0];
+                $result[$id] = $titles['M'] . ' ' . $and . ' ' . $titles['F'] . ' ' . $lastname;
+            }
+            $maleNames = [];
+            foreach($groups['M'] as $o) {
+                $maleNames[] = trim($titles['M'] . ' ' . $o['lastname']);
+            }
+            $femaleNames = [];
+            foreach($groups['F'] as $o) {
+                $femaleNames[] = trim($titles['F'] . ' ' . $o['lastname']);
+            }
+            $result[$id] = implode(' ' . $and . ' ', array_merge($maleNames, $femaleNames));
+        }
+
+        // Case 3 : a single common gender
+        $filtered = array_filter($groups);
+        if(count($filtered) === 1) {
+            $key = array_key_first($filtered);
+            $ownersList = $groups[$key];
+            $title = isset($titles[$key]) ? $titles[$key] : '';
+            $lastnames = array_unique(array_column($ownersList, 'lastname'));
+            if(count($lastnames) === 1) {
+                switch($lang_id) {
+                    case 1: // EN
+                        if($key === 'M') {
+                            $title = 'Messrs';
+                        }
+                        elseif($key === 'F') {
+                            $title = 'Madams';
+                        }
+                        break;
+                    case 2: // FR
+                        if($key === 'M') {
+                            $title = 'Messieurs';
+                        }
+                        elseif($key === 'F') {
+                            $title = 'Mesdames';
+                        }
+                        break;
+                    case 3: // NL
+                        if($key === 'M') {
+                            $title = 'De heren';
+                        }
+                        elseif ($key === 'F') {
+                            $title = 'Dames';
+                        }
+                        break;
+                }
+                $result[$id] = trim($title . ' ' . $lastnames[0]);
             }
             else {
-                $titles = ['M' => 'Monsieur', 'F' => 'Madame', 'X' => '', '' => ''];
-                $and = 'et';
+                $formatted = [];
+                foreach($ownersList as $o) {
+                    $formatted[] = trim($title . ' ' . $o['lastname']);
+                }
+                $result[$id] = implode(' ' . $and . ' ', $formatted);
             }
-
-            // group owners by gender
-            $groups = ['M' => [], 'F' => [], 'X' => [], '' => []];
-
-            foreach($owners as $owner) {
-                $gender = strtoupper(trim($owner['gender'] ?? ''));
-                if(!in_array($gender, ['M', 'F', 'X'])) {
-                    $gender = '';
-                }
-                $lastname = trim($owner['lastname'] ?? '');
-                $firstname = trim($owner['firstname'] ?? '');
-                if($lastname !== '') {
-                    $groups[$gender][] = [
-                        'firstname' => $firstname,
-                        'lastname'  => $lastname
-                    ];
-                }
-            }
-
-            $count = count($owners);
-
-            // Case 1 : single owner
-            if($count === 1) {
-                $owner = $firstOwner;
-                $gender = strtoupper(trim($owner['gender'] ?? ''));
-                $lastname = trim($owner['lastname'] ?? '');
-                $title = isset($titles[$gender]) ? $titles[$gender] : '';
-                $result[$id] = trim($title . ' ' . $lastname);
-                continue;
-            }
-
-            // Case 2 : husband and wife with same name
-            if(!empty($groups['M']) && !empty($groups['F']) && empty($groups['X']) && empty($groups[''])) {
-                $lnM = array_column($groups['M'], 'lastname');
-                $lnF = array_column($groups['F'], 'lastname');
-                $merged = array_unique(array_merge($lnM, $lnF));
-                if(count($merged) === 1) {
-                    $lastname = $merged[0];
-                    $result[$id] = $titles['M'] . ' ' . $and . ' ' . $titles['F'] . ' ' . $lastname;
-                    continue;
-                }
-                $maleNames = [];
-                foreach($groups['M'] as $o) {
-                    $maleNames[] = trim($titles['M'] . ' ' . $o['lastname']);
-                }
-                $femaleNames = [];
-                foreach($groups['F'] as $o) {
-                    $femaleNames[] = trim($titles['F'] . ' ' . $o['lastname']);
-                }
-                $result[$id] = implode(' ' . $and . ' ', array_merge($maleNames, $femaleNames));
-                continue;
-            }
-
-            // Case 3 : a single common gender
-            $filtered = array_filter($groups);
-            if(count($filtered) === 1) {
-                $key = array_key_first($filtered);
-                $ownersList = $groups[$key];
-                $title = isset($titles[$key]) ? $titles[$key] : '';
-                $lastnames = array_unique(array_column($ownersList, 'lastname'));
-                if(count($lastnames) === 1) {
-                    switch($lang_id) {
-                        case 1: // EN
-                            if($key === 'M') {
-                                $title = 'Messrs';
-                            }
-                            elseif($key === 'F') {
-                                $title = 'Madams';
-                            }
-                            break;
-                        case 2: // FR
-                            if($key === 'M') {
-                                $title = 'Messieurs';
-                            }
-                            elseif($key === 'F') {
-                                $title = 'Mesdames';
-                            }
-                            break;
-                        case 3: // NL
-                            if($key === 'M') {
-                                $title = 'De heren';
-                            }
-                            elseif ($key === 'F') {
-                                $title = 'Dames';
-                            }
-                            break;
-                    }
-                    $result[$id] = trim($title . ' ' . $lastnames[0]);
-                    continue;
-                }
-                else {
-                    $formatted = [];
-                    foreach($ownersList as $o) {
-                        $formatted[] = trim($title . ' ' . $o['lastname']);
-                    }
-                    $result[$id] = implode(' ' . $and . ' ', $formatted);
-                    continue;
-                }
-            }
-
-            // Case 4 : mixed up or unknown
-            $names = [];
-            foreach($owners as $owner) {
-                $gender = strtoupper(trim($owner['gender'] ?? ''));
-                $lastname = trim($owner['lastname'] ?? '');
-                $title = isset($titles[$gender]) ? $titles[$gender] : '';
-                $names[] = trim($title . ' ' . $lastname);
-            }
-
-            $result[$id] = implode(' ' . $and . ' ', array_unique(array_filter($names)));
         }
+
+        // Case 4 : mixed up or unknown
+        $names = [];
+        foreach($owners as $owner) {
+            $gender = strtoupper(trim($owner['gender'] ?? ''));
+            $lastname = trim($owner['lastname'] ?? '');
+            $title = isset($titles[$gender]) ? $titles[$gender] : '';
+            $names[] = trim($title . ' ' . $lastname);
+        }
+
+        $result[$id] = implode(' ' . $and . ' ', array_unique(array_filter($names)));
 
         return $result;
     }
@@ -577,6 +567,11 @@ class Ownership extends \equal\orm\Model {
                 'policies'      => [],
                 'function'      => 'doNormalizeRepresentativeOwner'
             ],
+            'assert_address_recipient' => [
+                'description'   => 'Generate mandatory accounting Accounts for Ownership.',
+                'policies'      => [],
+                'function'      => 'doAssertAddressRecipient'
+            ],
             'generate_accounts' => [
                 'description'   => 'Generate mandatory accounting Accounts for Ownership.',
                 'policies'      => [],
@@ -620,7 +615,7 @@ class Ownership extends \equal\orm\Model {
     protected static function policyHasMandatoryValues($self) {
         $result = [];
 
-        $self->read(['condo_id', 'ownership_type', 'owners_ids', 'date_from', 'has_external_representative', 'representative_identity_id', 'address_recipient']);
+        $self->read(['condo_id', 'ownership_type', 'owners_ids', 'date_from', 'has_external_representative', 'representative_identity_id']);
 
         foreach($self as $id => $ownership) {
 
@@ -648,12 +643,6 @@ class Ownership extends \equal\orm\Model {
             if(!$ownership['date_from']) {
                 $result[$id] = [
                     'missing_date_from' => 'Date from is mandatory, if not known use the date of the Condominium creation.'
-                ];
-            }
-
-            if(!$ownership['address_recipient'] || strlen($ownership['address_recipient']) <= 0) {
-                $result[$id] = [
-                    'missing_address_recipient' => 'Address recipient is mandatory.'
                 ];
             }
 
@@ -1125,10 +1114,22 @@ class Ownership extends \equal\orm\Model {
     protected static function onafterValidate($self) {
         $self
             ->do('normalize_representative_owner')
+            ->do('assert_address_recipient')
             ->do('generate_accounts')
             ->do('generate_folders')
             ->do('generate_communication_prefs')
             ->do('generate_history');
+    }
+
+    protected static function doAssertAddressRecipient($self) {
+        $self->read(['address_recipient']);
+        foreach($self as $id => $ownership) {
+            if(!$ownership['address_recipient'] || strlen($ownership['address_recipient']) <= 0) {
+                self::id($id)->update([
+                    'address_recipient' => self::computeAddressRecipient($id)
+                ]);
+            }
+        }
     }
 
     protected static function calcPaymentReference($self) {
