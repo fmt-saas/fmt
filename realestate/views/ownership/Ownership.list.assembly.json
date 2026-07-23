@@ -3,7 +3,10 @@
     "description": "List of ownerships.",
     "header": {
         "layout": "inline",
-        "actions": false
+        "actions": false,
+        "selection": {
+            "default": false
+        }
     },
     "layout": {
         "interactions": {

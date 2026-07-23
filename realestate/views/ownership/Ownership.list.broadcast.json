@@ -1,6 +1,12 @@
 {
     "name": "Ownerships",
     "description": "List of ownerships.",
+    "header": {
+        "actions": false,
+        "selection": {
+            "default": false
+        }
+    },
     "layout": {
         "items": [
             {

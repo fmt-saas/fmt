@@ -2,6 +2,12 @@
     "name": "Ownerships",
     "description": "List of ownerships.",
     "controller": "realestate_ownership_Ownership_collect",
+    "header": {
+        "actions": false,
+        "selection": {
+            "default": false
+        }
+    },
     "layout": {
         "items": [
             {

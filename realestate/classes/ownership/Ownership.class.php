@@ -492,6 +492,17 @@ class Ownership extends \equal\orm\Model {
         ];
     }
 
+    public static function candelete($self) {
+        $self->read(['status']);
+        foreach($self as $ownership) {
+            if($ownership['status'] === 'validated') {
+                return ['status' => ['non_removable' => 'Validated ownership cannot be removed.']];
+            }
+        }
+
+        return parent::candelete($self);
+    }
+
     protected static function policyHasMandatoryValues($self) {
         $result = [];
 

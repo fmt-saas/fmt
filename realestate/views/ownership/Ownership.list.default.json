@@ -2,10 +2,9 @@
     "name": "Ownerships",
     "description": "List of ownerships.",
     "header": {
-        "actions": {
-            "ACTION.CREATE": [ {
-                "view_id": "form.create"
-            } ]
+        "actions": false,
+        "selection": {
+            "default": false
         }
     },
     "layout": {

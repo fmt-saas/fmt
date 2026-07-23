@@ -225,7 +225,7 @@ class Owner extends Identity {
 
             $identity_values = [];
             foreach($identity_fields as $field) {
-                if(!array_key_exists($field, $owner)) {
+                if(!($owner[$field] ?? null)) {
                     continue;
                 }
                 if($owner[$field] === null || $owner[$field] === '') {
