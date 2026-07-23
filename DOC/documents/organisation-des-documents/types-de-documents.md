@@ -16,7 +16,8 @@ Un `DocumentType` permet de déterminer, de manière programmatique :
 * le **schéma de données attendu** (`json_schema`),
 * les **règles de validation** à appliquer,
 * les **règles d’intégration et d’enregistrement**,
-* l’**organisation documentaire par défaut** (dossier logique).
+* l’**organisation documentaire par défaut** (dossier logique),
+* la **visibilité documentaire par défaut**.
 
 Il constitue ainsi le **point d’entrée unique** pour tous les mécanismes de traitement liés à un document.
 
@@ -54,6 +55,28 @@ Important :
 * la recherche et l’exploitation des documents ne reposent **jamais** sur les dossiers.
 
 L’organisation par dossier est donc une **conséquence**, pas une règle métier.
+
+---
+
+## Visibilité par défaut
+
+Chaque `DocumentType` peut définir une visibilité documentaire par défaut via `document_visibility`.
+
+Cette valeur sert à initialiser les permissions de lecture d’un nouveau `Document` au moment de l’import, de la génération ou du rattachement EDMS. Elle évite de demander à l’utilisateur de connaître toutes les règles de partage pour les catégories documentaires courantes.
+
+Les valeurs utilisées sont :
+
+| Visibilité | Usage typique |
+| --- | --- |
+| `agency` | Documents internes à l’agence ou au syndic. |
+| `condo` | Documents consultables au niveau de la copropriété. |
+| `ownership` | Documents propres à un dossier de propriété. |
+| `owner` | Documents propres à un propriétaire déterminé. |
+| `suppliership` | Documents propres à un fournisseur lié à une copropriété. |
+
+Lorsqu’un `DocumentSubtype` porte aussi une visibilité, celle-ci affine ou remplace la valeur proposée par le `DocumentType` parent.
+
+Cette visibilité reste une valeur par défaut. Elle doit pouvoir être modifiée manuellement sur le document lorsque le contexte réel du fichier l’exige, à condition que les liens métier nécessaires soient renseignés (`condo_id`, `ownership_id`, `owner_id`, `supplier_id` ou `suppliership_id`).
 
 ---
 

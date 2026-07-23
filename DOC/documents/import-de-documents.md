@@ -88,9 +88,11 @@ Les niveaux utilisés sont :
 | `condo` | Visible au niveau de la copropriété. |
 | `ownership` | Visible dans le contexte d’un dossier de propriété. |
 | `owner` | Visible pour un propriétaire déterminé, lorsque cette granularité est utilisée. |
-| `suppliership` | Visible dans le contexte d’un fournisseur lié à une copropriété. |
+| `suppliership` | Visible dans le contexte d’un fournisseur lié à une copropriété. C’est la visibilité technique utilisée pour les documents fournisseurs. |
 
 La visibilité est synchronisée avec le nœud EDMS associé. Lorsqu’un document est classé dans un nœud, la visibilité du document et celle du nœud doivent rester cohérentes.
+
+La visibilité proposée automatiquement reste modifiable manuellement. Une correction manuelle est normale lorsqu’un document ne suit pas le cas standard de son type ou de son sous-type, par exemple un document habituellement interne qui doit finalement être partagé avec la copropriété.
 
 Certains niveaux de visibilité imposent un contexte supplémentaire :
 
@@ -105,9 +107,9 @@ Le type de document (`DocumentType`) et le sous-type (`DocumentSubtype`) peuvent
 
 Lorsque l’utilisateur sélectionne un type ou un sous-type, le formulaire peut automatiquement adapter `document_visibility` à la valeur prévue par cette catégorie documentaire.
 
-Cela permet d’éviter que l’utilisateur doive connaître toutes les règles de visibilité. Par exemple, un type documentaire destiné uniquement à l’agence peut proposer automatiquement la visibilité `agency`, tandis qu’un document destiné à être partagé au niveau de la copropriété peut proposer `condo`.
+Le sous-type est prioritaire lorsqu’il définit une visibilité plus précise que le type parent. Cela permet d’éviter que l’utilisateur doive connaître toutes les règles de visibilité. Par exemple, un type documentaire destiné uniquement à l’agence peut proposer automatiquement la visibilité `agency`, tandis qu’un document destiné à être partagé au niveau de la copropriété peut proposer `condo`.
 
-L’utilisateur reste toutefois dans un formulaire d’import : il doit vérifier que la visibilité proposée correspond bien au contexte réel du document.
+L’utilisateur reste toutefois dans un formulaire d’import : il doit vérifier que la visibilité proposée correspond bien au contexte réel du document et peut la modifier avant confirmation.
 
 ## Fournisseur et suppliership
 
