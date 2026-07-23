@@ -55,6 +55,18 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "ownership_id",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ownership_transfer_id",
+                                                "width": "100%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "status",
                                                 "width": "100%",
                                                 "visible": false
