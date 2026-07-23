@@ -561,6 +561,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
     }
 }
 
+$introduction .= '<p><br /></p>' . $introduction_with_due_balance;
+
 $labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'FundRequestExecution.' . $params['view_id']));
 
 $values = [
