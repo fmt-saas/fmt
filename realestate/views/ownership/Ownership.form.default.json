@@ -14,6 +14,18 @@
             "confirm": false
         },
         {
+            "id": "action.remove",
+            "label": "Remove",
+            "description": "Remove the ownership. This action cannot be undone.",
+            "controller": "core_model_delete",
+            "confirm": true,
+            "visible": ["status", "=", "pending"],
+            "params": {
+                "entity": "realestate\\ownership\\Ownership",
+                "ids": []
+            }
+        },
+        {
             "id": "action.print_funds_request",
             "label": "Print Funds Request",
             "icon": "savings",
@@ -70,6 +82,11 @@
                                     {
                                         "width": "50%",
                                         "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "status",
+                                                "visible": false
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "code",
@@ -165,6 +182,7 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "header": {
+                                                        "pagination": "compact",
                                                         "actions": {
                                                             "ACTION.SELECT": false,
                                                             "ACTION.CREATE": [ {

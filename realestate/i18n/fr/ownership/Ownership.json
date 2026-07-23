@@ -171,6 +171,10 @@
                     "label": "Valider",
                     "description": "Valider et générer les comptes comptables."
                 },
+                "action.remove": {
+                    "label": "Supprimer",
+                    "description": "Supprimer le dossier de propriété. Cette action est définitive."
+                },
                 "action.print_funds_request": {
                     "label": "Imprimer la demande de fonds",
                     "description": "Générer le document d'appel de fonds pour l'exercice."
@@ -182,6 +186,12 @@
                 "action.generate_history": {
                     "label": "Générer l'historique",
                     "description": "Générer l'historique des attributions de lots."
+                }
+            },
+            "routes": {
+                "route.owner_statement": {
+                    "label": "Relevé propriétaire",
+                    "description": ""
                 }
             }
         },
