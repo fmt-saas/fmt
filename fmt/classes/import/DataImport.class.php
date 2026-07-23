@@ -25,7 +25,7 @@ class DataImport extends \equal\orm\Model {
                 'description'       => "The condominium the document belongs to.",
                 'help'              => "At first, this value can be left to null (might be assigned manually or retrieved from document filename).",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'visible'           => ['import_type', 'in', ['condominium_import', 'ownership_import']]
+                'visible'           => ['import_type', '=', 'condominium_import']
             ],
 
             'name' => [

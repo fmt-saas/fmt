@@ -298,23 +298,56 @@ try {
     }
     elseif($dataImport['import_type'] === 'ownership_import') {
         $ownerships_data = current($data) ?: [];
-        $condo_id = $dataImport['condo_id']['id'] ?? ($dataImport['condo_id'] ?? null);
-        $ownership_id = null;
+        $condo_id = null;
+        $condominium = null;
         $representative_owner_id = null;
         $shares_total = null;
         $shares_full_property_total = 0.0;
         $shares_bare_property_total = 0.0;
         $has_share_values = false;
+        $initial_errors = $result['errors'];
 
-        if(!$condo_id) {
-            ++$result['errors'];
-            $result['logs'][] = "ERR - missing mandatory `condo_id` for ownership import";
-        }
-        elseif(count($ownerships_data) <= 0) {
+        if(count($ownerships_data) <= 0) {
             ++$result['errors'];
             $result['logs'][] = "ERR - empty ownership import sheet";
         }
         else {
+            foreach($ownerships_data as $index => $ownership_row) {
+                $row_index = $index + 2;
+                $row_condo_code = trim((string) ($ownership_row['condo_code'] ?? ''));
+
+                if($row_condo_code === '') {
+                    ++$result['errors'];
+                    $result['logs'][] = "ERR - missing `condo_code` in ownership import sheet at row $row_index";
+                    continue;
+                }
+
+                $row_condominium = Condominium::search(['code', '=', $row_condo_code])
+                    ->read(['id', 'code', 'fiscal_year_start', 'condo_creation_date', 'construction_compliance_date'])
+                    ->first();
+
+                if(!$row_condominium) {
+                    ++$result['errors'];
+                    $result['logs'][] = "ERR - unknown `condo_code` ($row_condo_code) in ownership import sheet at row $row_index";
+                    continue;
+                }
+
+                if(!$condo_id) {
+                    $condo_id = $row_condominium['id'];
+                    $condominium = $row_condominium;
+                }
+                elseif((int) $condo_id !== (int) $row_condominium['id']) {
+                    ++$result['errors'];
+                    $result['logs'][] = "ERR - inconsistent `condo_code` ($row_condo_code) in ownership import sheet at row $row_index";
+                }
+            }
+        }
+
+        if(!$condo_id && count($ownerships_data) > 0) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - unable to retrieve condominium for ownership import";
+        }
+        elseif($result['errors'] === $initial_errors) {
             foreach($ownerships_data as $ownership_row) {
                 foreach(['shares_full_property', 'shares_bare_property'] as $field) {
                     if(array_key_exists($field, $ownership_row) && $ownership_row[$field] !== null && $ownership_row[$field] !== '') {
@@ -339,9 +372,6 @@ try {
                 $shares_total = $has_share_values ? ($shares_full_property_total + $shares_bare_property_total) : 1;
             }
 
-            $condominium = Condominium::id($condo_id)
-                ->read(['fiscal_year_start', 'condo_creation_date', 'construction_compliance_date'])
-                ->first();
             $date_from = $condominium['fiscal_year_start']
                 ?? $condominium['condo_creation_date']
                 ?? $condominium['construction_compliance_date']
@@ -578,8 +608,7 @@ try {
             $result['logs'][] = "INFO- Ownership imported successfully";
             $is_success = true;
         }
-    }
-    elseif($dataImport['import_type'] === 'condominium_import') {
+    }    elseif($dataImport['import_type'] === 'condominium_import') {
         $map_roles_ids = [];
 
         $map_external_representatives = [];

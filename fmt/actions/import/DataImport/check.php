@@ -604,7 +604,7 @@ if($dataImport['import_type'] == 'condominium_import') {
 }
 elseif($dataImport['import_type'] == 'ownership_import') {
     $ownerships_data = current($data) ?: [];
-    $condo_id = $dataImport['condo_id']['id'] ?? ($dataImport['condo_id'] ?? null);
+    $condo_id = null;
     $identity_rows = [];
     $representative_rows = [];
     $shares = [
@@ -616,11 +616,6 @@ elseif($dataImport['import_type'] == 'ownership_import') {
         'has_share_values'     => false
     ];
 
-    if(!$condo_id) {
-        ++$result['errors'];
-        $result['logs'][] = "ERR - missing mandatory `condo_id` for ownership import";
-    }
-
     if(count($ownerships_data) <= 0) {
         ++$result['errors'];
         $result['logs'][] = "ERR - empty ownership import sheet";
@@ -628,6 +623,27 @@ elseif($dataImport['import_type'] == 'ownership_import') {
 
     foreach($ownerships_data as $index => $ownership_row) {
         $row_index = $index + 2;
+        $row_condo_code = trim((string) ($ownership_row['condo_code'] ?? ''));
+
+        if($row_condo_code === '') {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing `condo_code` in ownership import sheet at row " . $row_index;
+        }
+        else {
+            $condominium = Condominium::search(['code', '=', $row_condo_code])->read(['id'])->first();
+            if(!$condominium) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - unknown `condo_code` ($row_condo_code) in ownership import sheet at row " . $row_index;
+            }
+            elseif(!$condo_id) {
+                $condo_id = $condominium['id'];
+            }
+            elseif((int) $condo_id !== (int) $condominium['id']) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - inconsistent `condo_code` ($row_condo_code) in ownership import sheet at row " . $row_index;
+            }
+        }
+
         $type_code = strtoupper(trim((string) ($ownership_row['type'] ?? '')));
         $type = null;
 
@@ -826,8 +842,7 @@ elseif($dataImport['import_type'] == 'ownership_import') {
         ++$result['errors'];
         $result['logs'][] = "ERR - multiple representative owners in ownership import sheet at rows: " . implode(', ', $representative_rows);
     }
-}
-elseif($dataImport['import_type'] == 'suppliers_import') {
+}elseif($dataImport['import_type'] == 'suppliers_import') {
     $suppliers_data = current($data);
     foreach($suppliers_data as $index => $supplier) {
         if(!$supplier['legal_name']) {
