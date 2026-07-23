@@ -435,6 +435,8 @@ else {
 $subject = 'Appels de fonds';
 $introduction = '';
 $communication = '';
+// optional text
+$introduction_with_due_balance = '';
 
 $template = Template::search([
         ['code', '=', 'fund_request_execution_correspondence'],
@@ -476,9 +478,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             return $map_values[$key] ?? '';
         }, $subject);
     }
-    elseif($part['name'] == 'introduction') {
-        $introduction = $part['value'];
-
+    elseif($fundRequest['has_date_range'] && $part['name'] === 'introduction_with_date_range') {
         $map_values = [
             'condo'             => $fundRequestExecution['condo_id']['name'],
             'period'            => $getFormattedDate($fundRequestExecution['date_from']) . ' - ' . $getFormattedDate($fundRequestExecution['date_to']),
@@ -492,11 +492,48 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
             $key = $matches[1];
             return $map_values[$key] ?? '';
-        }, $introduction);
+        }, $part['value']);
+    }
+    elseif(!$fundRequest['has_date_range'] && $part['name'] === 'introduction_without_date_range') {
+        $map_values = [
+            'condo'             => $fundRequestExecution['condo_id']['name'],
+            'period'            => $getFormattedDate($fundRequestExecution['date_from']) . ' - ' . $getFormattedDate($fundRequestExecution['date_to']),
+            'date_from'         => $getFormattedDate($fundRequestExecution['date_from']),
+            'date_to'           => $getFormattedDate($fundRequestExecution['date_to']),
+            'label'             => $fundRequest['name'],
+            'type'              => $map_types_translations['fr'][$fundRequest['request_type']] ?? ''
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $part['value']);
+    }
+    elseif($fundRequestExecution['with_due_balance'] && $part['name'] === 'introduction_with_due_balance') {
+        // Replace {var} items with corresponding values, set in $map_values
+        $introduction_with_due_balance = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $part['value']);
+    }
+    elseif($part['name'] === 'introduction') {
+        $map_values = [
+            'condo'             => $fundRequestExecution['condo_id']['name'],
+            'period'            => $getFormattedDate($fundRequestExecution['date_from']) . ' - ' . $getFormattedDate($fundRequestExecution['date_to']),
+            'date_from'         => $getFormattedDate($fundRequestExecution['date_from']),
+            'date_to'           => $getFormattedDate($fundRequestExecution['date_to']),
+            'label'             => $fundRequest['name'],
+            'type'              => $map_types_translations['fr'][$fundRequest['request_type']] ?? ''
+        ];
+
+        // Replace {var} items with corresponding values, set in $map_values
+        $introduction = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
+            $key = $matches[1];
+            return $map_values[$key] ?? '';
+        }, $part['value']);
     }
     elseif($part['name'] == 'communication_payment_amount' && $funding && $funding['remaining_amount'] >= 0.01) {
-        $communication = $part['value'];
-
         $map_values = [
             'remaining_amount'  => $formatMoney($funding['remaining_amount']),
             'due_date'          => $getFormattedDate($funding['due_date'] ?? $fundRequestExecution['due_date'] ?? time())
@@ -506,11 +543,9 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $communication = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
             $key = $matches[1];
             return $map_values[$key] ?? '';
-        }, $communication);
+        }, $part['value']);
     }
     elseif($part['name'] == 'communication_reimbursement' && $funding && $funding['remaining_amount'] < 0.0) {
-        $communication = $part['value'];
-
         $map_values = [
             'remaining_amount' => $formatMoney(abs($funding['remaining_amount']))
         ];
@@ -519,7 +554,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $communication = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
             $key = $matches[1];
             return $map_values[$key] ?? '';
-        }, $communication);
+        }, $part['value']);
     }
     elseif($part['name'] == 'communication_no_action_required' && $funding && abs($funding['remaining_amount']) < 0.01) {
         $communication = $part['value'];
