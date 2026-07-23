@@ -8,6 +8,7 @@
 use fmt\import\DataImport;
 use hr\employee\Employee;
 use identity\Identity;
+use identity\IdentityType;
 use purchase\supplier\Supplier;
 use realestate\property\Condominium;
 use realestate\property\PropertyLotNature;
@@ -46,7 +47,7 @@ $result = [
 
 
 // fetch DataImport object
-$dataImport = DataImport::id($params['id'])->read(['name', 'import_type'])->first();
+$dataImport = DataImport::id($params['id'])->read(['name', 'import_type', 'condo_id'])->first();
 
 if(!$dataImport) {
     throw new Exception("unknown_data_import", EQ_ERROR_UNKNOWN_OBJECT);
@@ -599,6 +600,231 @@ if($dataImport['import_type'] == 'condominium_import') {
             ++$result['errors'];
             $result['logs'][] = "ERR - `total_shares` for apportionment key '" . $apport_key_code . "' ({$apport_key['total_shares']}) does not match total of shares ({$total})";
         }
+    }
+}
+elseif($dataImport['import_type'] == 'ownership_import') {
+    $ownerships_data = current($data) ?: [];
+    $condo_id = $dataImport['condo_id']['id'] ?? ($dataImport['condo_id'] ?? null);
+    $identity_rows = [];
+    $representative_rows = [];
+    $shares = [
+        'rows'                 => [],
+        'shares_full_property' => 0.0,
+        'shares_bare_property' => 0.0,
+        'shares_usufruct'      => 0.0,
+        'shares_total'         => null,
+        'has_share_values'     => false
+    ];
+
+    if(!$condo_id) {
+        ++$result['errors'];
+        $result['logs'][] = "ERR - missing mandatory `condo_id` for ownership import";
+    }
+
+    if(count($ownerships_data) <= 0) {
+        ++$result['errors'];
+        $result['logs'][] = "ERR - empty ownership import sheet";
+    }
+
+    foreach($ownerships_data as $index => $ownership_row) {
+        $row_index = $index + 2;
+        $type_code = strtoupper(trim((string) ($ownership_row['type'] ?? '')));
+        $type = null;
+
+        if($type_code === '') {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing `type` in ownership import sheet at row " . $row_index;
+        }
+        else {
+            $type = IdentityType::search(['code', '=', $type_code])->read(['id'])->first();
+            if(!$type) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - unknown `type` ({$ownership_row['type']}) in ownership import sheet at row " . $row_index;
+            }
+        }
+
+        $owner_firstname = trim($ownership_row['firstname'] ?? '');
+        if($owner_firstname !== '' && !preg_match('/^[\p{L}\'\- ]+$/u', $owner_firstname)) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid chars for `firstname` ({$ownership_row['firstname']}) in ownership import sheet at row " . $row_index;
+        }
+
+        if($owner_firstname !== '' && strlen($owner_firstname) < 2) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid length (<2) for `firstname` ({$ownership_row['firstname']}) in ownership import sheet at row " . $row_index;
+        }
+
+        $owner_lastname = trim($ownership_row['lastname'] ?? '');
+        if($owner_lastname === '') {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing `lastname` in ownership import sheet at row " . $row_index;
+        }
+        elseif($type_code === 'IN' && !preg_match('/^[\p{L}\'\- ]+$/u', $owner_lastname)) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid chars for `lastname` ({$ownership_row['lastname']}) in ownership import sheet at row " . $row_index;
+        }
+
+        if(!empty($ownership_row['title']) && !in_array($ownership_row['title'], ['Madame', 'Mme', 'Monsieur', 'M', 'Mr', 'Mrs', 'Ms', 'Dr', 'Pr'], true)) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid `title` ({$ownership_row['title']}) in ownership import sheet at row " . $row_index;
+        }
+
+        $identity = null;
+
+        if(!empty($ownership_row['citizen_identification'])) {
+            $identity = Identity::search(['citizen_identification', '=', $ownership_row['citizen_identification']])->read(['id'])->first();
+
+            if(!$identity) {
+                $identity = Identity::search(['registration_number', '=', $ownership_row['citizen_identification']])->read(['id'])->first();
+            }
+        }
+
+        if(!$identity && !empty($ownership_row['registration_number'])) {
+            $identity = Identity::search(['registration_number', '=', $ownership_row['registration_number']])->read(['id'])->first();
+        }
+
+        if(!$identity && !empty($ownership_row['vat_number'])) {
+            $identity = Identity::search(['vat_number', '=', $ownership_row['vat_number']])->read(['id'])->first();
+        }
+
+        if(!$identity && $type_code === 'CO' && empty($ownership_row['registration_number'])) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing `registration_number` for company identity creation in ownership import sheet at row " . $row_index;
+        }
+
+        $identity_key = null;
+        if($identity) {
+            $identity_key = 'identity:' . $identity['id'];
+        }
+        elseif(!empty($ownership_row['citizen_identification'])) {
+            $identity_key = 'citizen_identification:' . $ownership_row['citizen_identification'];
+        }
+        elseif(!empty($ownership_row['registration_number'])) {
+            $identity_key = 'registration_number:' . $ownership_row['registration_number'];
+        }
+        elseif(!empty($ownership_row['vat_number'])) {
+            $identity_key = 'vat_number:' . $ownership_row['vat_number'];
+        }
+        else {
+            $identity_key = 'identity_row:' . $type_code . '|' . strtolower($owner_firstname) . '|' . strtolower($owner_lastname) . '|' . strtolower($ownership_row['zip'] ?? '') . '|' . strtoupper($ownership_row['country'] ?? '');
+        }
+
+        if(isset($identity_rows[$identity_key])) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - duplicate owner identity in ownership import sheet at rows {$identity_rows[$identity_key]} and $row_index";
+            continue;
+        }
+        $identity_rows[$identity_key] = $row_index;
+
+        if(isset($ownership_row['lang']) && $ownership_row['lang'] !== null && $ownership_row['lang'] !== '' && !in_array(strtolower($ownership_row['lang']), ['en', 'fr', 'nl'], true)) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid `lang` ({$ownership_row['lang']}) in ownership import sheet at row " . $row_index;
+        }
+
+        if(isset($ownership_row['country']) && $ownership_row['country'] !== null && $ownership_row['country'] !== '' && !preg_match('/^[A-Z]{2}$/', strtoupper($ownership_row['country']))) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid `country` ({$ownership_row['country']}) in ownership import sheet at row " . $row_index;
+        }
+
+        foreach(['email_1', 'email_2'] as $email_field) {
+            if(!empty($ownership_row[$email_field]) && !preg_match('/^([_a-z0-9-\.]+)(\+([_a-z0-9]+))?@(([a-z0-9-]+\.)*)([a-z0-9-]{1,63})(\.[a-z-]{2,24})$/i', $ownership_row[$email_field])) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - invalid `$email_field` ({$ownership_row[$email_field]}) in ownership import sheet at row " . $row_index;
+            }
+        }
+
+        foreach(['phone_1', 'phone_2', 'mobile_1'] as $phone_field) {
+            if(!empty($ownership_row[$phone_field]) && !preg_match('/^\+?[0-9]*$/', $ownership_row[$phone_field])) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - invalid `$phone_field` ({$ownership_row[$phone_field]}) in ownership import sheet at row " . $row_index;
+            }
+        }
+
+        if(!empty($ownership_row['date_of_birth']) && strtotime($ownership_row['date_of_birth']) === false) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid `date_of_birth` ({$ownership_row['date_of_birth']}) in ownership import sheet at row " . $row_index;
+        }
+
+        if(array_key_exists('is_representative_owner', $ownership_row) && $ownership_row['is_representative_owner'] !== null && $ownership_row['is_representative_owner'] !== '') {
+            $value = strtolower(trim((string) $ownership_row['is_representative_owner']));
+            $is_valid_boolean = is_bool($ownership_row['is_representative_owner'])
+                || is_numeric($ownership_row['is_representative_owner'])
+                || in_array($value, ['1', 'true', 'yes', 'y', 'oui', 'o', 'x', '0', 'false', 'no', 'n', 'non'], true);
+
+            if(!$is_valid_boolean) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - invalid `is_representative_owner` ({$ownership_row['is_representative_owner']}) in ownership import sheet at row " . $row_index;
+            }
+            else {
+                $is_representative_owner = is_bool($ownership_row['is_representative_owner'])
+                    ? $ownership_row['is_representative_owner']
+                    : (is_numeric($ownership_row['is_representative_owner'])
+                        ? ((float) $ownership_row['is_representative_owner']) !== 0.0
+                        : in_array($value, ['1', 'true', 'yes', 'y', 'oui', 'o', 'x'], true));
+
+                if($is_representative_owner) {
+                    $representative_rows[] = $row_index;
+                }
+            }
+        }
+
+        $shares['rows'][] = $row_index;
+
+        foreach(['shares_full_property', 'shares_bare_property', 'shares_usufruct'] as $field) {
+            if(array_key_exists($field, $ownership_row) && $ownership_row[$field] !== null && $ownership_row[$field] !== '') {
+                if(!is_numeric($ownership_row[$field])) {
+                    ++$result['errors'];
+                    $result['logs'][] = "ERR - invalid numeric value for `$field` in ownership import sheet at row " . $row_index;
+                }
+                else {
+                    $shares[$field] += (float) $ownership_row[$field];
+                    $shares['has_share_values'] = true;
+                }
+            }
+        }
+
+        if(array_key_exists('shares_total', $ownership_row) && $ownership_row['shares_total'] !== null && $ownership_row['shares_total'] !== '') {
+            if(!is_numeric($ownership_row['shares_total'])) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - invalid numeric value for `shares_total` in ownership import sheet at row " . $row_index;
+            }
+            elseif($shares['shares_total'] === null) {
+                $shares['shares_total'] = (float) $ownership_row['shares_total'];
+            }
+            elseif(abs($shares['shares_total'] - (float) $ownership_row['shares_total']) >= 0.01) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - inconsistent `shares_total` in ownership import sheet at row " . $row_index;
+            }
+        }
+    }
+
+    if($shares['has_share_values']) {
+        $rows = implode(', ', $shares['rows']);
+        $shares_full_property = $shares['shares_full_property'] ?? 0;
+        $shares_bare_property = $shares['shares_bare_property'] ?? 0;
+        $shares_usufruct = $shares['shares_usufruct'] ?? 0;
+        $shares_total = $shares['shares_total'] ?? null;
+
+        if($shares_total === null) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing `shares_total` for ownership import shares at rows: " . $rows;
+        }
+        else {
+            if(abs($shares_bare_property - $shares_usufruct) >= 0.01) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - invalid ownership shares: `shares_bare_property` sum ($shares_bare_property) must equal `shares_usufruct` sum ($shares_usufruct) at rows: " . $rows;
+            }
+
+            if(abs(($shares_bare_property + $shares_full_property) - $shares_total) >= 0.01) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - invalid ownership shares: `shares_bare_property` sum ($shares_bare_property) + `shares_full_property` sum ($shares_full_property) must equal `shares_total` ($shares_total) at rows: " . $rows;
+            }
+        }
+    }
+
+    if(count($representative_rows) > 1) {
+        ++$result['errors'];
+        $result['logs'][] = "ERR - multiple representative owners in ownership import sheet at rows: " . implode(', ', $representative_rows);
     }
 }
 elseif($dataImport['import_type'] == 'suppliers_import') {

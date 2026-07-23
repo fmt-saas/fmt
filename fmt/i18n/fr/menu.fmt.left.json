@@ -45,6 +45,10 @@
             "label": "Import fournisseurs",
             "description": "Importer des données depuis un fichier XLS."
         },
+        "item.imports.data_import.ownership": {
+            "label": "Import propriétaires",
+            "description": "Importer des données propriétaires depuis un fichier XLS."
+        },
         "item.imports.data_import.banks": {
             "label": "Import Banques",
             "description": "Importer des données depuis un fichier XLS."

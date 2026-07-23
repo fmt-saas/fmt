@@ -179,6 +179,9 @@ $map = [
     'suppliers_import' => [
         'suppliers' => ['legal_name', 'short_name', 'street', 'zip', 'city', 'country', 'phone_1', 'phone_2', 'mobile_1', 'email_1', 'email_2', 'iban_1', 'iban_2', 'iban_3', 'vat_number', 'registration_number']
     ],
+    'ownership_import' => [
+        'ownerships' => ['type', 'lastname', 'firstname', 'title', 'street', 'zip', 'city', 'country', 'lang', 'phone_1', 'phone_2', 'mobile_1', 'email_1', 'email_2', 'iban_1', 'iban_2', 'iban_3', 'date_of_birth', 'citizen_identification', 'vat_number', 'registration_number', 'shares_full_property', 'shares_bare_property', 'shares_usufruct', 'shares_total', 'is_representative_owner']
+    ],
     'banks_import' => [
         'bank'      => ['legal_name', 'short_name', 'street', 'zip', 'city', 'country', 'phone_1', 'phone_2', 'email_1', 'email_2', 'website', 'vat_number', 'registration_number', 'bic']
     ]

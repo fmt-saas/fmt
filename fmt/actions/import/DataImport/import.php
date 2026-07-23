@@ -125,7 +125,7 @@ Setting::set_value('fmt', 'organization', 'user.condo_id', null, ['user_id' => $
 
 // fetch DataImport object
 $dataImport = DataImport::id($params['id'])
-    ->read(['name', 'status', 'import_type', 'logs'])
+    ->read(['name', 'status', 'import_type', 'logs', 'condo_id'])
     ->first();
 
 if(!$dataImport) {
@@ -295,6 +295,289 @@ try {
         $result['logs'][] = "INFO- Suppliers imported successfully";
 
         $is_success = true;
+    }
+    elseif($dataImport['import_type'] === 'ownership_import') {
+        $ownerships_data = current($data) ?: [];
+        $condo_id = $dataImport['condo_id']['id'] ?? ($dataImport['condo_id'] ?? null);
+        $ownership_id = null;
+        $representative_owner_id = null;
+        $shares_total = null;
+        $shares_full_property_total = 0.0;
+        $shares_bare_property_total = 0.0;
+        $has_share_values = false;
+
+        if(!$condo_id) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing mandatory `condo_id` for ownership import";
+        }
+        elseif(count($ownerships_data) <= 0) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - empty ownership import sheet";
+        }
+        else {
+            foreach($ownerships_data as $ownership_row) {
+                foreach(['shares_full_property', 'shares_bare_property'] as $field) {
+                    if(array_key_exists($field, $ownership_row) && $ownership_row[$field] !== null && $ownership_row[$field] !== '') {
+                        $has_share_values = true;
+                        if(is_numeric($ownership_row[$field])) {
+                            if($field === 'shares_full_property') {
+                                $shares_full_property_total += (float) $ownership_row[$field];
+                            }
+                            else {
+                                $shares_bare_property_total += (float) $ownership_row[$field];
+                            }
+                        }
+                    }
+                }
+
+                if(array_key_exists('shares_total', $ownership_row) && $ownership_row['shares_total'] !== null && $ownership_row['shares_total'] !== '' && is_numeric($ownership_row['shares_total'])) {
+                    $shares_total = (float) $ownership_row['shares_total'];
+                }
+            }
+
+            if($shares_total === null) {
+                $shares_total = $has_share_values ? ($shares_full_property_total + $shares_bare_property_total) : 1;
+            }
+
+            $condominium = Condominium::id($condo_id)
+                ->read(['fiscal_year_start', 'condo_creation_date', 'construction_compliance_date'])
+                ->first();
+            $date_from = $condominium['fiscal_year_start']
+                ?? $condominium['condo_creation_date']
+                ?? $condominium['construction_compliance_date']
+                ?? strtotime(date('Y-m-d'));
+
+            $ownershipObject = Ownership::create([
+                    'condo_id'          => $condo_id,
+                    'ownership_type'    => count($ownerships_data) > 1 ? 'joint' : 'unique',
+                    'shares_total'      => $shares_total,
+                    'date_from'         => $date_from,
+                    'address_recipient' => ' '
+                ])
+                ->first();
+
+            $ownership_id = $ownershipObject['id'];
+            ++$result['created'];
+            $result['logs'][] = "INFO- created ownership id $ownership_id";
+
+            foreach($ownerships_data as $index => $ownership_row) {
+                $row_index = $index + 2;
+                ++$result['processed'];
+
+                try {
+                    $identity = null;
+
+                    if(!empty($ownership_row['citizen_identification'])) {
+                        $identity = Identity::search(['citizen_identification', '=', $ownership_row['citizen_identification']])->read(['id'])->first();
+
+                        if(!$identity) {
+                            $identity = Identity::search(['registration_number', '=', $ownership_row['citizen_identification']])->read(['id'])->first();
+                        }
+                    }
+
+                    if(!$identity && !empty($ownership_row['registration_number'])) {
+                        $identity = Identity::search(['registration_number', '=', $ownership_row['registration_number']])->read(['id'])->first();
+                    }
+
+                    if(!$identity && !empty($ownership_row['vat_number'])) {
+                        $identity = Identity::search(['vat_number', '=', $ownership_row['vat_number']])->read(['id'])->first();
+                    }
+
+                    $type_code = strtoupper(trim((string) ($ownership_row['type'] ?? '')));
+                    $type = null;
+                    if($type_code !== '') {
+                        $type = IdentityType::search(['code', '=', $type_code])
+                            ->read(['id', 'code'])
+                            ->first();
+                    }
+
+                    $identity_values = [];
+                    $identity_fields_map = [
+                        'firstname'              => 'firstname',
+                        'lastname'               => 'lastname',
+                        'street'                 => 'address_street',
+                        'zip'                    => 'address_zip',
+                        'city'                   => 'address_city',
+                        'country'                => 'address_country',
+                        'phone_1'                => 'phone',
+                        'phone_2'                => 'phone_alt',
+                        'mobile_1'               => 'mobile',
+                        'email_1'                => 'email',
+                        'email_2'                => 'email_alt',
+                        'iban_1'                 => 'bank_account_iban',
+                        'date_of_birth'          => 'date_of_birth',
+                        'citizen_identification' => 'citizen_identification',
+                        'vat_number'             => 'vat_number',
+                        'registration_number'    => 'registration_number'
+                    ];
+
+                    foreach($identity_fields_map as $source_field => $target_field) {
+                        if(array_key_exists($source_field, $ownership_row) && $ownership_row[$source_field] !== null) {
+                            $identity_values[$target_field] = $ownership_row[$source_field];
+                        }
+                    }
+
+                    if($type) {
+                        $identity_values['type_id'] = $type['id'];
+                        if($type_code !== 'IN' && !empty($ownership_row['lastname'])) {
+                            $identity_values['legal_name'] = $ownership_row['lastname'];
+                            unset($identity_values['firstname'], $identity_values['lastname']);
+                        }
+                    }
+
+                    if(isset($identity_values['date_of_birth'])) {
+                        $identity_values['date_of_birth'] = strtotime($identity_values['date_of_birth']) ?: null;
+                    }
+
+                    if(array_key_exists('country', $ownership_row) && $ownership_row['country'] !== null) {
+                        $identity_values['address_country'] = strtoupper($ownership_row['country']);
+                        $identity_values['nationality'] = strtoupper($ownership_row['country']);
+                    }
+
+                    if(array_key_exists('lang', $ownership_row) && $ownership_row['lang'] !== null) {
+                        $lang = strtolower($ownership_row['lang']);
+                        $identity_values['lang_id'] = ['en' => 1, 'fr' => 2, 'nl' => 3][$lang] ?? null;
+                    }
+
+                    if(array_key_exists('title', $ownership_row) && $ownership_row['title'] !== null && $ownership_row['title'] !== '') {
+                        $identity_values['title'] = [
+                                'Madame'   => 'Mrs',
+                                'Mme'      => 'Mrs',
+                                'Monsieur' => 'Mr',
+                                'M'        => 'Mr',
+                                'Mr'       => 'Mr',
+                                'Mrs'      => 'Mrs',
+                                'Ms'       => 'Ms',
+                                'Dr'       => 'Dr',
+                                'Pr'       => 'Pr'
+                            ][$ownership_row['title']] ?? $ownership_row['title'];
+                        $gender = [
+                                'Madame'   => 'F',
+                                'Mme'      => 'F',
+                                'Monsieur' => 'M',
+                                'M'        => 'M',
+                                'Mr'       => 'M',
+                                'Mrs'      => 'F',
+                                'Ms'       => 'F'
+                            ][$ownership_row['title']] ?? null;
+                        if($gender !== null) {
+                            $identity_values['gender'] = $gender;
+                        }
+                    }
+
+                    if(array_key_exists('vat_number', $identity_values)) {
+                        $identity_values['has_vat'] = !empty($identity_values['vat_number']);
+                    }
+
+                    if(!$identity) {
+                        if(!$type) {
+                            ++$result['errors'];
+                            $result['logs'][] = "ERR - unable to retrieve or create identity without valid `type` in ownership import sheet at row $row_index";
+                            continue;
+                        }
+
+                        $identity_values['source'] = 'manual';
+                        $identity_values['source_type'] = 'manual';
+
+                        $identity = Identity::create($identity_values)
+                            ->do('refresh_legal_name')
+                            ->do('refresh_bank_accounts')
+                            ->do('refresh_addresses')
+                            ->do('refresh_registration_number')
+                            ->read(['id'])
+                            ->first();
+
+                        $result['logs'][] = "INFO- created identity id {$identity['id']} from ownership import sheet at row $row_index";
+                    }
+                    elseif(count($identity_values)) {
+                        Identity::id($identity['id'])->update($identity_values);
+                        Identity::id($identity['id'])
+                            ->do('refresh_legal_name')
+                            ->do('refresh_bank_accounts')
+                            ->do('refresh_addresses')
+                            ->do('refresh_registration_number');
+                    }
+
+                    foreach(['iban_2', 'iban_3'] as $iban_field) {
+                        if(empty($ownership_row[$iban_field])) {
+                            continue;
+                        }
+
+                        $iban = preg_replace('/[^A-Z0-9]/i', '', $ownership_row[$iban_field]);
+                        if(!$iban) {
+                            continue;
+                        }
+
+                        $bankAccount = BankAccount::search([
+                                ['owner_identity_id', '=', $identity['id']],
+                                ['bank_account_iban', '=', $iban]
+                            ])
+                            ->first();
+
+                        if(!$bankAccount) {
+                            BankAccount::create([
+                                'owner_identity_id' => $identity['id'],
+                                'bank_account_iban' => $iban
+                            ]);
+                        }
+                    }
+
+                    $owner_values = [
+                        'condo_id'     => $condo_id,
+                        'ownership_id' => $ownership_id,
+                        'identity_id'  => $identity['id']
+                    ];
+
+                    foreach(['shares_full_property', 'shares_bare_property', 'shares_usufruct'] as $field) {
+                        if(array_key_exists($field, $ownership_row) && $ownership_row[$field] !== null && $ownership_row[$field] !== '') {
+                            $owner_values[$field] = $ownership_row[$field];
+                        }
+                    }
+
+                    $ownerObject = Owner::create($owner_values)
+                        ->first();
+
+                    Owner::id($ownerObject['id'])->do('sync_from_identity');
+                    ++$result['created'];
+
+                    if(array_key_exists('is_representative_owner', $ownership_row) && $ownership_row['is_representative_owner'] !== null && $ownership_row['is_representative_owner'] !== '') {
+                        $value = strtolower(trim((string) $ownership_row['is_representative_owner']));
+                        $is_representative_owner = is_bool($ownership_row['is_representative_owner'])
+                            ? $ownership_row['is_representative_owner']
+                            : (is_numeric($ownership_row['is_representative_owner'])
+                                ? ((float) $ownership_row['is_representative_owner']) !== 0.0
+                                : in_array($value, ['1', 'true', 'yes', 'y', 'oui', 'o', 'x'], true));
+
+                        if($is_representative_owner) {
+                            $representative_owner_id = $ownerObject['id'];
+                        }
+                    }
+
+                    $result['logs'][] = "INFO- created owner id {$ownerObject['id']} for identity id {$identity['id']} from ownership import sheet at row $row_index";
+                }
+                catch(Exception $e) {
+                    ++$result['errors'];
+                    trigger_error("APP::error while importing ownership data from import file at index $index.", EQ_REPORT_WARNING);
+                    $result['logs'][] = "ERR - error while importing ownership data from import file at row `$row_index`: " . $e->getMessage();
+                }
+            }
+
+            if($representative_owner_id) {
+                Ownership::id($ownership_id)->update([
+                    'has_representative'      => true,
+                    'representative_owner_id' => $representative_owner_id
+                ]);
+            }
+        }
+
+        $result['logs'][] = "---";
+        if($result['errors'] > 0) {
+            $result['logs'][] = "ERR - Ownership import finished with errors";
+        }
+        else {
+            $result['logs'][] = "INFO- Ownership imported successfully";
+            $is_success = true;
+        }
     }
     elseif($dataImport['import_type'] === 'condominium_import') {
         $map_roles_ids = [];

@@ -14,7 +14,7 @@ class DataImport extends \equal\orm\Model {
 
     public static function getDescription() {
         return "DataImport is a technical staging entity used by import workflows to receive an uploaded structured data file,
-            create the associated Document, select the import parser (banks, suppliers, condominium),
+            create the associated Document, select the import parser (banks, suppliers, condominium, ownership),
             and track validation/import status and logs before the final business objects are created.";
     }
 
@@ -25,7 +25,7 @@ class DataImport extends \equal\orm\Model {
                 'description'       => "The condominium the document belongs to.",
                 'help'              => "At first, this value can be left to null (might be assigned manually or retrieved from document filename).",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'visible'           => ['import_type', '=', 'condominium_import']
+                'visible'           => ['import_type', 'in', ['condominium_import', 'ownership_import']]
             ],
 
             'name' => [
@@ -53,7 +53,8 @@ class DataImport extends \equal\orm\Model {
                 'selection'         => [
                     'banks_import',
                     'suppliers_import',
-                    'condominium_import'
+                    'condominium_import',
+                    'ownership_import'
                 ],
                 'description'       => 'Targeted type of the import.',
                 'required'          => true

@@ -154,6 +154,19 @@
                         }
                     },
                     {
+                        "id": "item.imports.data_import.ownership",
+                        "type": "entry",
+                        "label": "Import Ownerships",
+                        "icon": "drive_folder_upload",
+                        "description": "Import ownership data from XLS file.",
+                        "context": {
+                            "view": "form.import",
+                            "entity": "fmt\\import\\DataImport",
+                            "purpose": "create",
+                            "domain": ["import_type", "=", "ownership_import"]
+                        }
+                    },
+                    {
                         "id": "item.imports.data_import.banks",
                         "type": "entry",
                         "label": "Import Banks",

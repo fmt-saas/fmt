@@ -691,3 +691,12 @@ $createDocumentType([
     'folder_code'           => 'imports',
     'document_visibility'   => 'agency'
 ]);
+
+$createDocumentType([
+    'id'                    => 39,
+    'name'                  => 'Import Propriétaires',
+    'code'                  => 'ownership_import',
+    'folder_code'           => 'imports',
+    'description'           => 'Fichiers d\'imports Propriétaires (temporaire).',
+    'document_visibility'   => 'agency'
+]);

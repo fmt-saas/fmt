@@ -2,6 +2,24 @@
     "name": "Import de données",
     "plural": "Imports de données",
     "description": "Entité technique de pré-import utilisée par les workflows d'import pour recevoir un fichier de données structurées, créer le Document associé, sélectionner le parseur (banques, fournisseurs, copropriété) et suivre les statuts et journaux de validation/import avant création des objets métier.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété associée à l'import.",
+            "help": "À renseigner pour limiter un import propriétaires à une copropriété donnée."
+        },
+        "import_type": {
+            "label": "Type d'import",
+            "description": "Type de données à importer.",
+            "help": "Sélectionne le parseur et le traitement à appliquer au fichier XLS.",
+            "selection": {
+                "banks_import": "Import banques",
+                "suppliers_import": "Import fournisseurs",
+                "condominium_import": "Import copropriété",
+                "ownership_import": "Import propriétaires"
+            }
+        }
+    },
     "view": {
         "form.default": {
             "actions": {
