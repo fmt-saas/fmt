@@ -377,16 +377,14 @@ try {
                 ?? $condominium['construction_compliance_date']
                 ?? strtotime(date('Y-m-d'));
 
-            $ownershipObject = Ownership::create([
+            $ownership = Ownership::create([
                     'condo_id'          => $condo_id,
                     'ownership_type'    => count($ownerships_data) > 1 ? 'joint' : 'unique',
-                    'shares_total'      => $shares_total,
-                    'date_from'         => $date_from,
-                    'address_recipient' => ' '
+                    'shares_total'      => $shares_total
                 ])
                 ->first();
 
-            $ownership_id = $ownershipObject['id'];
+            $ownership_id = $ownership['id'];
             ++$result['created'];
             $result['logs'][] = "INFO- created ownership id $ownership_id";
 
@@ -608,7 +606,8 @@ try {
             $result['logs'][] = "INFO- Ownership imported successfully";
             $is_success = true;
         }
-    }    elseif($dataImport['import_type'] === 'condominium_import') {
+    }
+    elseif($dataImport['import_type'] === 'condominium_import') {
         $map_roles_ids = [];
 
         $map_external_representatives = [];
@@ -1482,16 +1481,17 @@ finally {
         'logs' => json_encode(array_merge($logs, $result['logs']), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
     ];
 
-    if($condominium) {
+    if($dataImport['import_type'] === 'condominium_import' && $condominium) {
         $values['condo_id'] = $condominium['id'];
     }
 
-    if($is_success) {
-        $values['status'] = 'imported';
+    if($dataImport['import_type'] === 'ownership_import' && $ownership) {
+        $values['ownership_id'] = $ownership['id'];
     }
 
     DataImport::id($params['id'])
-        ->update($values);
+        ->update($values)
+        ->transition('mark_imported');
 
 }
 

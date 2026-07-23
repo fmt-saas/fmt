@@ -9,6 +9,7 @@ namespace fmt\import;
 
 use documents\Document;
 use documents\DocumentType;
+use realestate\property\OwnershipTransfer;
 
 class DataImport extends \equal\orm\Model {
 
@@ -66,6 +67,20 @@ class DataImport extends \equal\orm\Model {
                 'description'       => 'Human readable descriptor of the processing result.'
             ],
 
+            'ownership_id' => [
+                'type'              => 'many2one',
+                'description'       => "The Ownership the property is being transferred to.",
+                'foreign_object'    => 'realestate\ownership\Ownership',
+                'visible'           => ['import_type', '=', 'ownership_import']
+            ],
+
+            'ownership_transfer_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\property\OwnershipTransfer',
+                'description'       => 'Optional link to the related bank statement.',
+                'visible'           => ['import_type', '=', 'ownership_import']
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -82,7 +97,32 @@ class DataImport extends \equal\orm\Model {
         ];
     }
 
+    public static function getWorkflow() {
+        return [
+            'ready' => [
+                'description' => 'The import document is ready.',
+                'icon'        => 'draft',
+                'transitions' => [
+                    'mark_imported' => [
+                        'description'   => 'Mark the document as imported.',
+                        'onafter'       => 'onafterMarkImported',
+                        'status'        => 'imported'
+                    ]
+                ]
+            ]
+        ];
+    }
 
+    protected static function onafterMarkImported($self) {
+        $self->read(['import_type', 'ownership_transfer_id', 'ownership_id']);
+        foreach($self as $id => $dataImport) {
+            if($dataImport['import_type'] === 'ownership_import') {
+                if($dataImport['ownership_transfer_id']) {
+                    OwnershipTransfer::id($dataImport['ownership_transfer_id'])->update(['new_ownership_id' => 'ownership_id']);
+                }
+            }
+        }
+    }
 
     protected static function onupdateData($self) {
         $self->read(['name', 'data', 'import_type']);

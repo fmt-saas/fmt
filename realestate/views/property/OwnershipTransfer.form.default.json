@@ -79,6 +79,23 @@
             "target": "_blank",
             "absolute": true,
             "visible": [["object.id", "<>", "object.id"], ["pending", "<>", "object.status"]]
+        },
+        {
+            "id": "route.import.new_ownership",
+            "type": "entry",
+            "label": "Import Buyer",
+            "icon": "drive_folder_upload",
+            "description": "Import ownership data from XLS file.",
+            "context": {
+                "view": "form.import",
+                "entity": "fmt\\import\\DataImport",
+                "purpose": "create",
+                "domain": [
+                    ["import_type", "=", "ownership_import"],
+                    ["condo_id", "=", "object.condo_id"],
+                    ["ownership_transfer_id", "=", "object.id"]
+                ]
+            }
         }
     ],
     "layout": {
