@@ -332,141 +332,21 @@ class Ownership extends \equal\orm\Model {
     }
 
     private static function computeAddressRecipient($id) {
-        $result = '';
+        $ownership = self::id($id)->read(['owners_ids' => ['firstname', 'lastname']])->first();
 
-        $ownership = self::id($id)->read(['owners_ids' => ['firstname', 'lastname', 'gender', 'lang_id']])->first();
-
-        $owners = $ownership['owners_ids'];
-
-        if($owners->count() <= 0) {
+        if(!$ownership || !isset($ownership['owners_ids']) || $ownership['owners_ids']->count() <= 0) {
             return '';
         }
 
-        // Langue du premier owner (1=EN, 2=FR, 3=NL)
-        $firstOwner = $owners->first();
-        $lang_id = isset($firstOwner['lang_id']) ? (int) $firstOwner['lang_id'] : 2;
-
-        // map of salutation titles, based on lang
-        $titles = [];
-        if($lang_id === 1) {
-            $titles = ['M' => 'Mr', 'F' => 'Mrs', 'X' => 'Mx', '' => ''];
-            $and = 'and';
-        }
-        elseif($lang_id === 3) {
-            $titles = ['M' => 'De heer', 'F' => 'Mevrouw', 'X' => '', '' => ''];
-            $and = 'en';
-        }
-        else {
-            $titles = ['M' => 'Monsieur', 'F' => 'Madame', 'X' => '', '' => ''];
-            $and = 'et';
-        }
-
-        // group owners by gender
-        $groups = ['M' => [], 'F' => [], 'X' => [], '' => []];
-
-        foreach($owners as $owner) {
-            $gender = strtoupper(trim($owner['gender'] ?? ''));
-            if(!in_array($gender, ['M', 'F', 'X'])) {
-                $gender = '';
-            }
-            $lastname = trim($owner['lastname'] ?? '');
-            $firstname = trim($owner['firstname'] ?? '');
-            if($lastname !== '') {
-                $groups[$gender][] = [
-                    'firstname' => $firstname,
-                    'lastname'  => $lastname
-                ];
+        $recipients = [];
+        foreach($ownership['owners_ids'] as $owner) {
+            $name = trim(trim($owner['firstname'] ?? '') . ' ' . trim($owner['lastname'] ?? ''));
+            if($name !== '') {
+                $recipients[] = $name;
             }
         }
 
-        $count = count($owners);
-
-        // Case 1 : single owner
-        if($count === 1) {
-            $owner = $firstOwner;
-            $gender = strtoupper(trim($owner['gender'] ?? ''));
-            $lastname = trim($owner['lastname'] ?? '');
-            $title = isset($titles[$gender]) ? $titles[$gender] : '';
-            $result[$id] = trim($title . ' ' . $lastname);
-        }
-
-        // Case 2 : husband and wife with same name
-        if(!empty($groups['M']) && !empty($groups['F']) && empty($groups['X']) && empty($groups[''])) {
-            $lnM = array_column($groups['M'], 'lastname');
-            $lnF = array_column($groups['F'], 'lastname');
-            $merged = array_unique(array_merge($lnM, $lnF));
-            if(count($merged) === 1) {
-                $lastname = $merged[0];
-                $result[$id] = $titles['M'] . ' ' . $and . ' ' . $titles['F'] . ' ' . $lastname;
-            }
-            $maleNames = [];
-            foreach($groups['M'] as $o) {
-                $maleNames[] = trim($titles['M'] . ' ' . $o['lastname']);
-            }
-            $femaleNames = [];
-            foreach($groups['F'] as $o) {
-                $femaleNames[] = trim($titles['F'] . ' ' . $o['lastname']);
-            }
-            $result[$id] = implode(' ' . $and . ' ', array_merge($maleNames, $femaleNames));
-        }
-
-        // Case 3 : a single common gender
-        $filtered = array_filter($groups);
-        if(count($filtered) === 1) {
-            $key = array_key_first($filtered);
-            $ownersList = $groups[$key];
-            $title = isset($titles[$key]) ? $titles[$key] : '';
-            $lastnames = array_unique(array_column($ownersList, 'lastname'));
-            if(count($lastnames) === 1) {
-                switch($lang_id) {
-                    case 1: // EN
-                        if($key === 'M') {
-                            $title = 'Messrs';
-                        }
-                        elseif($key === 'F') {
-                            $title = 'Madams';
-                        }
-                        break;
-                    case 2: // FR
-                        if($key === 'M') {
-                            $title = 'Messieurs';
-                        }
-                        elseif($key === 'F') {
-                            $title = 'Mesdames';
-                        }
-                        break;
-                    case 3: // NL
-                        if($key === 'M') {
-                            $title = 'De heren';
-                        }
-                        elseif ($key === 'F') {
-                            $title = 'Dames';
-                        }
-                        break;
-                }
-                $result[$id] = trim($title . ' ' . $lastnames[0]);
-            }
-            else {
-                $formatted = [];
-                foreach($ownersList as $o) {
-                    $formatted[] = trim($title . ' ' . $o['lastname']);
-                }
-                $result[$id] = implode(' ' . $and . ' ', $formatted);
-            }
-        }
-
-        // Case 4 : mixed up or unknown
-        $names = [];
-        foreach($owners as $owner) {
-            $gender = strtoupper(trim($owner['gender'] ?? ''));
-            $lastname = trim($owner['lastname'] ?? '');
-            $title = isset($titles[$gender]) ? $titles[$gender] : '';
-            $names[] = trim($title . ' ' . $lastname);
-        }
-
-        $result[$id] = implode(' ' . $and . ' ', array_unique(array_filter($names)));
-
-        return $result;
+        return implode(', ', $recipients);
     }
 
     protected static function calcStatutoryShares($self) {
