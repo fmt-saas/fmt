@@ -118,7 +118,7 @@ class DataImport extends \equal\orm\Model {
         foreach($self as $id => $dataImport) {
             if($dataImport['import_type'] === 'ownership_import') {
                 if($dataImport['ownership_transfer_id']) {
-                    OwnershipTransfer::id($dataImport['ownership_transfer_id'])->update(['new_ownership_id' => 'ownership_id']);
+                    OwnershipTransfer::id($dataImport['ownership_transfer_id'])->update(['new_ownership_id' => $dataImport['ownership_id']]);
                 }
             }
         }
