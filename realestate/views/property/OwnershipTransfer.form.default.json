@@ -691,7 +691,12 @@
                                                     "header": {
                                                         "layout": "inline",
                                                         "actions": {
-                                                            "ACTION.CREATE": false
+                                                            "ACTION.CREATE": false,
+                                                            "ACTION.CREATE_INLINE": [
+                                                                {
+                                                                    "edit": ["object.status", "not in", ["financial_statement_sent", "settled", "closed"]]
+                                                                }
+                                                            ]
                                                         }
                                                     }
                                                 }
