@@ -24,6 +24,7 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
                 'description'       => 'Ownership transfer the attachment relates to.',
                 'required'          => true,
                 'ondelete'          => 'cascade',
+                'oncreate'          => 'onupdateOwnershipTransferId',
                 'onupdate'          => 'onupdateOwnershipTransferId'
             ],
 
