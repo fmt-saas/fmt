@@ -26,18 +26,6 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
                 'ondelete'          => 'cascade'
             ],
 
-            'document_filter' => [
-                'type'              => 'string',
-                'description'       => 'Pseudo type (type+subtype) of target document.',
-                'selection'         => [
-                    'all',
-                    'general_assembly_minutes',
-                    'expense_statement',
-                    'balance_sheet'
-                ],
-                'default'           => 'all'
-            ],
-
             'document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
@@ -48,37 +36,16 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
                 ]
             ],
 
-            'general_assembly_minutes_document_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'documents\Document',
-                'description'       => 'EDMS document attached to the ownership transfer.',
-                'visible'           => ['general_assembly_minutes', '=', 'object.document_filter'],
-                'domain'            => [
-                    [ ['condo_id', '=', 'object.condo_id'], ['document_type_code', '=', 'general_assembly_document'], ['document_subtype_code', '=', 'minutes'] ]
+            'attachment_section' => [
+                'type'              => 'string',
+                'description'       => 'Pseudo type (type+subtype) of target document.',
+                'selection'         => [
+                    'all',
+                    'general_assembly_minutes',
+                    'expense_statement',
+                    'balance_sheet'
                 ],
-                'onupdate'          => 'onupdateGeneralAssemblyMinutesDocumentId'
-            ],
-
-            'expense_statement_document_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'documents\Document',
-                'description'       => 'EDMS document attached to the ownership transfer.',
-                'visible'           => ['expense_statement', '=', 'object.document_filter'],
-                'domain'            => [
-                    [ ['condo_id', '=', 'object.condo_id'], ['document_type_code', '=', 'expense_statement'] ]
-                ],
-                'onupdate'          => 'onupdateExpenseStatementDocumentId'
-            ],
-
-            'balance_sheet_document_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'documents\Document',
-                'description'       => 'EDMS document attached to the ownership transfer.',
-                'visible'           => ['balance_sheet', '=', 'object.document_filter'],
-                'domain'            => [
-                    [ ['condo_id', '=', 'object.condo_id'], ['document_type_code', '=', 'balance_sheet'] ]
-                ],
-                'onupdate'          => 'onupdateBalanceSheetDocumentId'
+                'default'           => 'all'
             ],
 
             'attachment_target' => [

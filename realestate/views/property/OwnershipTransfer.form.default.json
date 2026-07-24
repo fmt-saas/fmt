@@ -678,8 +678,72 @@
                                         "width": "100%",
                                         "items": [
                                             {
+                                                "id": "label.general_assembly_minutes",
                                                 "type": "field",
-                                                "value": "ownership_transfer_attachments_ids",
+                                                "value": "General Assembly Minutes",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ownership_transfer_attachments_general_assembly_minutes_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "id": "label.expense_statements",
+                                                "type": "field",
+                                                "value": "Expense Statements",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ownership_transfer_attachments_expense_statement_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "id": "label.balance_sheets",
+                                                "type": "field",
+                                                "value": "Balance Sheets",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ownership_transfer_attachments_balance_sheet_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "id": "label.other_attachments",
+                                                "type": "field",
+                                                "value": "Other attachments",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ownership_transfer_attachments_all_ids",
+                                                "width": "100%",
                                                 "widget": {
                                                     "header": {
                                                         "layout": "inline",

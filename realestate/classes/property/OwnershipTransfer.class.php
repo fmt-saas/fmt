@@ -411,6 +411,39 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\property\OwnershipTransferAttachment',
                 'foreign_field'     => 'ownership_transfer_id',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'description'       => 'Selected documents as attachment.',
+                'help'              => 'Resulting list of all Attachments, whatever the section'
+            ],
+
+            'ownership_transfer_attachments_all_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\OwnershipTransferAttachment',
+                'foreign_field'     => 'ownership_transfer_id',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['attachment_section', '=', 'all']],
+                'description'       => 'Selected documents as attachment.'
+            ],
+
+            'ownership_transfer_attachments_expense_statement_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\OwnershipTransferAttachmentExpenseStatement',
+                'foreign_field'     => 'ownership_transfer_id',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['attachment_section', '=', 'expense_statement']],
+                'description'       => 'Selected documents as attachment.'
+            ],
+
+            'ownership_transfer_attachments_balance_sheet_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\OwnershipTransferAttachmentBalanceSheet',
+                'foreign_field'     => 'ownership_transfer_id',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['attachment_section', '=', 'balance_sheet']],
+                'description'       => 'Selected documents as attachment.'
+            ],
+
+            'ownership_transfer_attachments_general_assembly_minutes_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\OwnershipTransferAttachmentGeneralAssemblyMinutes',
+                'foreign_field'     => 'ownership_transfer_id',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['attachment_section', '=', 'general_assembly_minutes']],
                 'description'       => 'Selected documents as attachment.'
             ],
 

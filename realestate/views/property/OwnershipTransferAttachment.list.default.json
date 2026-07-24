@@ -28,32 +28,15 @@
             },
             {
                 "type": "field",
-                "value": "document_filter",
-                "width": "25%"
+                "value": "attachment_section",
+                "width": "25%",
+                "visible": false
             },
             {
                 "type": "field",
                 "label": "Document",
                 "value": "document_id",
-                "width": "40%"
-            },
-            {
-                "type": "field",
-                "label": "Document",
-                "value": "general_assembly_minutes_document_id",
-                "width": "40%"
-            },
-            {
-                "type": "field",
-                "label": "Document",
-                "value": "expense_statement_document_id",
-                "width": "40%"
-            },
-            {
-                "type": "field",
-                "label": "Document",
-                "value": "balance_sheet_document_id",
-                "width": "40%"
+                "width": "50%"
             },
             {
                 "type": "field",
