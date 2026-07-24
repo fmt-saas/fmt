@@ -6,6 +6,7 @@
 */
 
 use documents\Document;
+use equal\http\HttpRequest;
 use hr\employee\Employee;
 use identity\Group;
 use identity\Identity;
@@ -18,7 +19,6 @@ use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\property\CommonArea;
 use realestate\property\Condominium;
-use realestate\property\NotaryOffice;
 use realestate\property\OwnershipTransfer;
 use realestate\property\OwnershipTransferAdjustmentLine;
 use realestate\property\OwnershipTransferBankLoanLine;
@@ -47,7 +47,7 @@ $tests = [
             'help'              =>  "Access Controller service should be overridden by the one present in `fmt/lib` directory. ",
             'return'            =>  ['object'],
             'act'               =>  function () {
-                    list($params, $providers) = eQual::announce([
+                    [$params, $providers] = eQual::announce([
                         'providers' => ['access']
                     ]);
                     return $providers['access'];
@@ -1161,6 +1161,185 @@ $tests = [
                 foreach($identity_ids as $identity_id) {
                     Identity::id($identity_id)->delete(true);
                 }
+            }
+    ],
+
+    '0216' => [
+        'description'   => "Test access token expiration.",
+        'help'          => "Verify that access token expires after defined time.",
+        'return'        => ['array'],
+        'arrange'       => function() {
+            User::create([
+                'login'     => 'user_test@example.com',
+                'password'  => 'abcd1234',
+                'validated' => true
+            ])
+                ->first();
+        },
+        'act'           => function() use($providers) {
+            $config_path = EQ_BASEDIR.'/config/config.json';
+            $original_config = file_get_contents($config_path);
+            $config = json_decode($original_config, true);
+
+            if(!is_array($config)) {
+                throw new Exception('invalid_config', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $config['AUTH_ACCESS_TOKEN_VALIDITY'] = '1s';
+
+            $request_uri = parse_url((string) $providers['context']->httpRequest()->uri());
+            $base_url = $request_uri['scheme'].'://'.$request_uri['host'];
+            if(isset($request_uri['port'])) {
+                $base_url .= ':'.$request_uri['port'];
+            }
+
+            try {
+                $written = file_put_contents(
+                    $config_path,
+                    json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL,
+                    LOCK_EX
+                );
+                if($written === false) {
+                    throw new Exception('config_write_failed', EQ_ERROR_INVALID_CONFIG);
+                }
+
+                $response = (new HttpRequest('POST '.$base_url.'/?do=fmt_user_auth_pwd'))
+                    ->body([
+                        'login'     => 'user_test@example.com',
+                        'password'  => 'abcd1234'
+                    ])
+                    ->send();
+            }
+            finally {
+                file_put_contents($config_path, $original_config, LOCK_EX);
+            }
+
+            $set_cookie = $response->header('Set-Cookie');
+            if(!preg_match('/(?:^|,\\s*)access_token=([^;]+)/', $set_cookie, $matches)) {
+                throw new Exception('missing_access_token', EQ_ERROR_INVALID_USER);
+            }
+
+            /** @var \equal\auth\AuthenticationManager $auth */
+            $auth = $providers['auth'];
+            $token = rawurldecode($matches[1]);
+            $decoded_token = $auth->decodeToken($token)['payload'];
+
+            sleep(2);
+
+            $response = (new HttpRequest('GET '.$base_url.'/?get=fmt_user_condominiums'))
+                ->header('Authorization', 'Bearer '.$token)
+                ->send();
+
+            return [
+                'validity'  => $decoded_token['exp'] - $decoded_token['iat'],
+                'status'    => $response->getStatusCode(),
+                'body'      => $response->body()
+            ];
+        },
+        'assert'        => function($data) {
+            return $data['validity'] === 1
+                && $data['status'] === 403
+                && ($data['body']['errors']['NOT_ALLOWED'] ?? null) === 'protected_operation';
+        },
+        'rollback'      => function() use($providers) {
+            /**
+             * @var \equal\orm\ObjectManager $orm
+             */
+            ['orm' => $orm] = $providers;
+
+            $user = User::search(['login', '=', 'user_test@example.com'])
+                ->read(['id'])
+                ->first();
+
+            $orm->delete(User::getType(), [$user['id']], true);
+        }
+    ],
+
+    '0217' => [
+            'description'   => "Test access token expiration.",
+            'help'          => "Verify that access token is not expired.",
+            'return'        => ['array'],
+            'arrange'       => function() {
+                User::create([
+                    'login'     => 'user_test@example.com',
+                    'password'  => 'abcd1234',
+                    'validated' => true
+                ])
+                    ->first();
+            },
+            'act'           => function() use($providers) {
+                $config_path = EQ_BASEDIR.'/config/config.json';
+                $original_config = file_get_contents($config_path);
+                $config = json_decode($original_config, true);
+
+                if(!is_array($config)) {
+                    throw new Exception('invalid_config', EQ_ERROR_INVALID_CONFIG);
+                }
+
+                $config['AUTH_ACCESS_TOKEN_VALIDITY'] = '1s';
+
+                $request_uri = parse_url((string) $providers['context']->httpRequest()->uri());
+                $base_url = $request_uri['scheme'].'://'.$request_uri['host'];
+                if(isset($request_uri['port'])) {
+                    $base_url .= ':'.$request_uri['port'];
+                }
+
+                try {
+                    $written = file_put_contents(
+                        $config_path,
+                        json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL,
+                        LOCK_EX
+                    );
+                    if($written === false) {
+                        throw new Exception('config_write_failed', EQ_ERROR_INVALID_CONFIG);
+                    }
+
+                    $response = (new HttpRequest('POST '.$base_url.'/?do=fmt_user_auth_pwd'))
+                        ->body([
+                            'login'     => 'user_test@example.com',
+                            'password'  => 'abcd1234'
+                        ])
+                        ->send();
+                }
+                finally {
+                    file_put_contents($config_path, $original_config, LOCK_EX);
+                }
+
+                $set_cookie = $response->header('Set-Cookie');
+                if(!preg_match('/(?:^|,\\s*)access_token=([^;]+)/', $set_cookie, $matches)) {
+                    throw new Exception('missing_access_token', EQ_ERROR_INVALID_USER);
+                }
+
+                /** @var \equal\auth\AuthenticationManager $auth */
+                $auth = $providers['auth'];
+                $token = rawurldecode($matches[1]);
+                $decoded_token = $auth->decodeToken($token)['payload'];
+
+                $response = (new HttpRequest('GET '.$base_url.'/?get=fmt_user_condominiums'))
+                    ->header('Authorization', 'Bearer '.$token)
+                    ->send();
+
+                return [
+                    'validity'  => $decoded_token['exp'] - $decoded_token['iat'],
+                    'status'    => $response->getStatusCode(),
+                    'body'      => $response->body()
+                ];
+            },
+            'assert'        => function($data) {
+                return $data['validity'] === 1
+                    && $data['status'] === 200;
+            },
+            'rollback'      => function() use($providers) {
+                /**
+                 * @var \equal\orm\ObjectManager $orm
+                 */
+                ['orm' => $orm] = $providers;
+
+                $user = User::search(['login', '=', 'user_test@example.com'])
+                    ->read(['id'])
+                    ->first();
+
+                $orm->delete(User::getType(), [$user['id']], true);
             }
     ]
 ];
