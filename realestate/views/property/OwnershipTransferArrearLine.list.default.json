@@ -1,0 +1,65 @@
+{
+    "name": "Ownership Transfer Arrear Lines",
+    "description": "List arrears attached to ownership transfers.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE_INLINE": [
+                {
+                    "view": false,
+                    "edit": true
+                }
+            ]
+        }
+    },
+    "operations": {
+        "total": {
+            "due_amount": {
+                "operation": "SUM",
+                "usage": "amount/money:2"
+            }
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "ownership_transfer_id",
+                "width": "0%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "due_date",
+                "width": "16%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "description",
+                "width": "38%"
+            },
+            {
+                "type": "field",
+                "value": "arrear_line_type",
+                "width": "18%"
+            },
+            {
+                "type": "field",
+                "value": "arrear_paragraph",
+                "width": "12%"
+            },
+            {
+                "type": "field",
+                "value": "due_amount",
+                "width": "16%"
+            }
+        ]
+    }
+}

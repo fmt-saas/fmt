@@ -1,0 +1,61 @@
+{
+    "name": "Ligne d'arriere de transfert",
+    "plural": "Lignes d'arriere de transfert",
+    "description": "Ligne detaillee d'un montant en retard lie a un transfert de propriete.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriete",
+            "description": "Copropriete a laquelle la ligne d'arriere est rattachee.",
+            "help": ""
+        },
+        "ownership_transfer_id": {
+            "label": "Transfert lie",
+            "description": "Dossier de transfert auquel cette ligne d'arriere est associee.",
+            "help": ""
+        },
+        "due_date": {
+            "label": "Date d'echeance",
+            "description": "Date limite de paiement du montant en retard.",
+            "help": ""
+        },
+        "description": {
+            "label": "Description",
+            "description": "Libelle permettant d'identifier l'origine du montant en retard.",
+            "help": ""
+        },
+        "arrear_paragraph": {
+            "label": "Paragraphe",
+            "description": "Paragraphe du courrier de transfert auquel la ligne se rattache.",
+            "help": "",
+            "selection": {
+                "1": "Paragraphe 1",
+                "2": "Paragraphe 2"
+            }
+        },
+        "arrear_line_type": {
+            "label": "Type d'arriere",
+            "description": "Nature du montant en retard repris sur la ligne.",
+            "help": "",
+            "selection": {
+                "funding": "Financement",
+                "additional_provision": "Provision complementaire",
+                "processing_fee": "Frais de traitement"
+            }
+        },
+        "due_amount": {
+            "label": "Montant du",
+            "description": "Montant restant du pour cette ligne.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Ligne d'arriere de transfert",
+            "description": "Formulaire d'encodage d'un montant en retard lie au transfert."
+        },
+        "list.default": {
+            "name": "Arrieres de transfert",
+            "description": "Liste des montants en retard rattaches a un transfert de propriete."
+        }
+    }
+}
