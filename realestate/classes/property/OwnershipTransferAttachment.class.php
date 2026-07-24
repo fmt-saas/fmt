@@ -23,7 +23,8 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\property\OwnershipTransfer',
                 'description'       => 'Ownership transfer the attachment relates to.',
                 'required'          => true,
-                'ondelete'          => 'cascade'
+                'ondelete'          => 'cascade',
+                'onupdate'          => 'onupdateOwnershipTransferId'
             ],
 
             'document_id' => [
@@ -51,14 +52,26 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
                 'type'              => 'string',
                 'selection'         => [
                     'paragraph_1',
-                    'paragraph_2',
-                    'paragraph_1_2'
+                    'paragraph_2'
                 ],
                 'description'       => 'Role of the document in the ownership transfer process.',
-                'required'          => true
             ]
 
         ];
+    }
+
+    protected static function onupdateOwnershipTransferId($self) {
+        $self->read(['ownership_transfer_id' => ['status']]);
+
+        foreach($self as $id => $ownershipTransferAttachment) {
+
+            if(in_array($ownershipTransferAttachment['status'], ['pending', 'open'], true)) {
+                self::id($id)->update(['attachment_target' => 'paragraph_1']);
+            }
+            else {
+                self::id($id)->update(['attachment_target' => 'paragraph_2']);
+            }
+        }
     }
 
     protected static function onupdateGeneralAssemblyMinutesDocumentId($self) {

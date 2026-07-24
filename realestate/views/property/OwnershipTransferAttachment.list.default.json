@@ -41,7 +41,8 @@
             {
                 "type": "field",
                 "value": "attachment_target",
-                "width": "30%"
+                "width": "30%",
+                "readonly": true
             }
         ]
     }
