@@ -104,7 +104,7 @@
             "icon": "file_upload",
             "visible": [
                 [
-                    ["status", "in", ["pending", "open", "seller_documents_sent", "confirmed"]],
+                    ["status", "in", ["pending", "open", "seller_documents_sent", "confirmed"]]
                 ]
             ],
             "context": {
