@@ -26,12 +26,27 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
                 'ondelete'          => 'cascade'
             ],
 
+            'document_filter' => [
+                'type'              => 'string',
+                'description'       => 'Pseudo type (type+subtype) of target document.',
+                'selection'            => [
+                    'all',
+                    'general_assembly_minutes',
+                    'expense_statement',
+                    'balance_sheet'
+                ],
+                'required'          => true
+            ],
+
             'document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'EDMS document attached to the ownership transfer.',
                 'domain'            => [
-                    ['condo_id', '=', 'object.condo_id']
+                    [ ['condo_id', '=', 'object.condo_id'], ['all', '=', 'object.document_filter'] ],
+                    [ ['condo_id', '=', 'object.condo_id'], ['general_assembly_minutes', '=', 'object.document_filter'], ['document_type_code', '=', 'general_assembly_document'], ['document_subtype_code', '=', 'minutes'] ],
+                    [ ['condo_id', '=', 'object.condo_id'], ['expense_statement', '=', 'object.document_filter'], ['document_type_code', '=', 'expense_statement'] ],
+                    [ ['condo_id', '=', 'object.condo_id'], ['balance_sheet', '=', 'object.document_filter'], ['document_type_code', '=', 'balance_sheet'] ]
                 ],
                 'required'          => true
             ],

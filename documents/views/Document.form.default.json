@@ -35,6 +35,20 @@
             }
         },
         {
+            "id": "item.document_process",
+            "label": "Document Processing",
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "view": "form.default",
+                "mode": "view",
+                "purpose": "view",
+                "domain": [["id", "=", "object.document_process_id"]]
+            },
+            "visible": [null, "<>", "object.document_process_id"]
+        },
+        {
             "id": "item.print",
             "label": "View document",
             "icon": "open_in_new",
@@ -70,6 +84,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "hash",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_process_id",
                                                 "width": "0%",
                                                 "visible": false
                                             },

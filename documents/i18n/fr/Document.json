@@ -121,6 +121,10 @@
                     "label": "Métadonnées",
                     "description": ""
                 },
+                "item.document_process": {
+                    "label": "Traitement du document",
+                    "description": ""
+                },
                 "item.print": {
                     "label": "Afficher le document",
                     "description": "Afficher l'invitation imprimable."

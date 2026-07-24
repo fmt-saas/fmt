@@ -28,8 +28,13 @@
             },
             {
                 "type": "field",
+                "value": "document_filter",
+                "width": "25%"
+            },
+            {
+                "type": "field",
                 "value": "document_id",
-                "width": "70%"
+                "width": "40%"
             },
             {
                 "type": "field",
