@@ -498,6 +498,12 @@
                                                 "label": "Date of the notary confirmation",
                                                 "value": "confirmation_date",
                                                 "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Send correspondence with both paragraphs",
+                                                "value": "with_both_paragraphs",
+                                                "width": "50%"
                                             }
                                         ]
                                     },

@@ -164,7 +164,7 @@
 
 
         <!-- 3.94 §1 -->
-        {% if status != 'pending' %}
+        {% if status in ['pending', 'open', 'seller_documents_sent'] or with_both_paragraphs == true %}
             <h3>{{ labels['article_3_94.section_1.title'] }}</h3>
 
             <h4>{{ labels['article_3_94.section_1.fund_balances.title'] }}</h4>

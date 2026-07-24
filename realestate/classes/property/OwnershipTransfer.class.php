@@ -304,6 +304,13 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'help'              => "As per 3.94.1.6"
             ],
 
+            'with_both_paragraphs' => [
+                'type'              => 'boolean',
+                'description'       => "Send a correspondence holding both paragraphs",
+                'default'           => false,
+                'help'              => "Optional request from the buyer notary office."
+            ],
+
             'maintenance_expenses_description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',

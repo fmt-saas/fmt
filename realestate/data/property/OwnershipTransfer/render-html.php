@@ -237,6 +237,7 @@ $ownershipTransfer = OwnershipTransfer::id($params['id'])
         'transfer_fees_ids' => [
             'fee_date', 'description', 'price'
         ],
+        'with_both_paragraphs',
         'bank_loan_description',
         // 3.94.1.1
         'fund_balances_description',
@@ -423,7 +424,8 @@ $values = [
     // 3.94.2.4
     'condominium_debts_description'         => $ownershipTransfer['condominium_debts_description'],
     // additional
-    'bank_loan_description'                 => $ownershipTransfer['bank_loan_description']
+    'bank_loan_description'                 => $ownershipTransfer['bank_loan_description'],
+    'with_both_paragraphs'                  => $ownershipTransfer['with_both_paragraphs']
 ];
 
 
