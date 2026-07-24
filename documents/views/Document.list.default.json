@@ -54,7 +54,7 @@
             },
             {
                 "type": "field",
-                "label": "Language",
+                "label": "Size",
                 "value": "readable_size",
                 "width": "10%"
             },
@@ -63,6 +63,19 @@
                 "label": "Visibility",
                 "value": "document_visibility",
                 "width": "15%"
+            },
+            {
+                "type": "field",
+                "label": "Type",
+                "value": "document_type_id",
+                "width": "15%"
+            },
+            {
+                "type": "field",
+                "label": "Visibility",
+                "value": "document_subtype_id",
+                "width": "15%",
+                "visible": false
             },
             {
                 "type": "field",

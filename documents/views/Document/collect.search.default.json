@@ -67,7 +67,10 @@
                                                 "type": "field",
                                                 "value": "document_subtype_id",
                                                 "label": "Sub-type",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "domain": ["document_type_id", "=", "object.document_type_id"]
+                                                }
                                             }
                                         ]
                                     }
