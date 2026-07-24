@@ -4,6 +4,8 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use communication\template\Template;
 use fmt\setting\Setting;
 use equal\data\DataFormatter;
 use identity\Organisation;
@@ -202,7 +204,7 @@ $ownershipTransfer = OwnershipTransfer::id($params['id'])
         'has_intervention_record',
         'has_fuel_tank',
         'fuel_tank_capacity',
-        'arrears_amount',
+        'arrears_amount_1',
         'condo_id' => [
             'name', 'address_street', 'address_city', 'address_zip', 'address_city',
             'registration_number'
@@ -239,7 +241,8 @@ $ownershipTransfer = OwnershipTransfer::id($params['id'])
         // 3.94.1.1
         'fund_balances_description',
         // 3.94.1.2
-        'seller_arrears_description',
+        'has_seller_arrears_1',
+        'seller_arrears_description_1',
         // 3.94.1.3
         'scheduled_fund_requests_description',
         // 3.94.1.4
@@ -255,7 +258,10 @@ $ownershipTransfer = OwnershipTransfer::id($params['id'])
         // 3.94.2.3
         'commons_acquisitions_description',
         // 3.94.2.4
-        'condominium_debts_description'
+        'condominium_debts_description',
+        // 3.94.2.5
+        'has_seller_arrears_2',
+        'seller_arrears_description_2'
     ])
     ->first(true);
 
@@ -270,8 +276,6 @@ $arrear_fundings = Funding::search([
     ])
     ->read(['due_date', 'name', 'funding_type', 'remaining_amount'])
     ->get(true);
-
-$arrears_amount = $ownershipTransfer['arrears_amount'];
 
 $lang = $params['lang'];
 
@@ -337,6 +341,22 @@ if(in_array($ownershipTransfer['status'], ['confirmed', 'financial_statement_sen
     }
 }
 
+if(!in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'], true)) {
+
+    $template = Template::search([
+            ['code', '=', 'ownership_transfer_paragraph_1'],
+            ['type', '=', 'document']
+        ])
+        ->read( ['id', 'parts_ids' => ['name', 'value']])
+        ->first(true);
+
+    foreach($template['parts_ids'] as $part_id => $part) {
+        if($part['name'] === 'refer_to_paragraph_2') {
+            $ownershipTransfer['seller_arrears_description_1'] = $part['value'];
+        }
+    }
+}
+
 $recipient = [
     'name'              => $request_contact_name,
     'address_street'    => $request_contact_address_street,
@@ -358,7 +378,7 @@ $values = [
     'funds_requests'                        => $ownershipTransfer['fund_requests_ids'],
     'bank_loans'                            => $ownershipTransfer['bank_loan_lines_ids'],
     'arrear_fundings'                       => $arrear_fundings,
-    'arrears_amount'                        => $arrears_amount,
+    'arrears_amount_1'                      => $ownershipTransfer['arrears_amount_1'],
     'transfer_fees'                         => $ownershipTransfer['transfer_fees_ids'],
     'ownership'                             => $ownershipTransfer['old_ownership_id'],
     'ownership_shares'                      => $ownershipTransfer['ownership_shares'],
@@ -384,7 +404,8 @@ $values = [
     // 3.94.1.1
     'fund_balances_description'             => $ownershipTransfer['fund_balances_description'],
     // 3.94.1.2
-    'seller_arrears_description'            => $ownershipTransfer['seller_arrears_description'],
+    'has_seller_arrears_1'                  => $ownershipTransfer['has_seller_arrears_1'],
+    'seller_arrears_description_1'          => $ownershipTransfer['seller_arrears_description_1'],
     // 3.94.1.3
     'scheduled_fund_requests_description'   => $ownershipTransfer['scheduled_fund_requests_description'],
     // 3.94.1.4

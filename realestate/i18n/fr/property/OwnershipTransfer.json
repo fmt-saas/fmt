@@ -128,12 +128,22 @@
             "description": "Texte décrivant l'état actuel des fonds de la copropriété.",
             "help": ""
         },
-        "has_seller_arrears": {
+        "has_seller_arrears_1": {
             "label": "Arriérés vendeur",
             "description": "Indique si le vendeur présente des arriérés (section 3.94.1.2).",
             "help": ""
         },
-        "seller_arrears_description": {
+        "has_seller_arrears_2": {
+            "label": "Arriérés vendeur",
+            "description": "Indique si le vendeur présente des arriérés (section 3.94.1.2).",
+            "help": ""
+        },
+        "seller_arrears_description_1": {
+            "label": "Détails arriérés vendeur",
+            "description": "Résumé des arriérés en cours et des montants associés.",
+            "help": ""
+        },
+        "seller_arrears_description_2": {
             "label": "Détails arriérés vendeur",
             "description": "Résumé des arriérés en cours et des montants associés.",
             "help": ""
@@ -223,7 +233,7 @@
             "description": "Historique des appels de fonds utilisés pour établir le dossier.",
             "help": ""
         },
-        "arrear_fundings_ids": {
+        "arrear_lines_1_ids": {
             "label": "Financements en retard",
             "description": "Demandes de paiement non soldées liées à le propriétaire cédant.",
             "help": ""

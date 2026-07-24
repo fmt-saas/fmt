@@ -216,32 +216,44 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'help'              => "As per 3.94.1.1"
             ],
 
-            'arrears_amount' => [
-                'type'              => 'float',
-                'usage'             => 'amount/money:2',
-                'description'       => "The total pending arrears owed by the seller."
-            ],
-
-            'arrear_fundings_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'realestate\sale\pay\Funding',
-                // #memo - we do not use foreign_field here, since funding is not directly related to the transfer
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['is_paid', '=', false], ['ownership_id', '=', 'object.old_ownership_id']],
-                'description'       => 'Balances of the condominium funds with property lots shares.'
-            ],
-
-            // #todo - auto set + readonly
-            'has_seller_arrears' => [
+            'has_seller_arrears_1' => [
                 'type'              => 'boolean',
                 'description'       => "Are there any pending arrears owed by the seller?",
                 'default'           => true
             ],
 
-            'seller_arrears_description' => [
+            'arrears_amount_1' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => "The total pending arrears owed by the seller."
+            ],
+
+            'arrear_lines_1_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\OwnershipTransferArrearLine',
+                'foreign_field'     => 'ownership_transfer_id',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['arrear_paragraph', '=', '1']],
+                'description'       => 'Balances of the condominium funds with property lots shares.'
+            ],
+
+            'seller_arrears_description_1' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
                 'description'       => "Short description of the current procedures, along with involved amounts.",
                 'help'              => "As per 3.94.1.2"
+            ],
+
+            'has_seller_arrears_2' => [
+                'type'              => 'boolean',
+                'description'       => "Are there any pending arrears owed by the seller?",
+                'default'           => true
+            ],
+
+            'seller_arrears_description_2' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.small',
+                'description'       => "Short description of the current procedures, along with involved amounts.",
+                'help'              => "As per 3.94.2.2"
             ],
 
             'scheduled_fund_requests_description' => [
@@ -458,13 +470,13 @@ class OwnershipTransfer extends \equal\orm\Model {
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
-                    'pending',
-                    'open',
-                    'seller_documents_sent',
-                    'confirmed',
-                    'financial_statement_sent',
-                    'settled',
-                    'closed'
+                    'pending',                      // draft
+                    'open',                         // in progress : §1
+                    'seller_documents_sent',        // in progress, doc sent : §1
+                    'confirmed',                    // request from the notary office of the buyer : §2
+                    'financial_statement_sent',     // request from the notary office of the buyer : §2
+                    'settled',                      // sale was made, receipt from notary office : §3
+                    'closed'                        // cas is closed (§3)
                 ],
                 'default'     => 'pending',
                 'description' => 'Status of the ownership transfer.',
@@ -926,42 +938,85 @@ class OwnershipTransfer extends \equal\orm\Model {
 
     protected static function doRefreshArrears($self) {
         $self->read(['status', 'condo_id', 'old_ownership_id']);
-        foreach($self as $id => $ownershipTransfer) {
-            $arrear_fundings = Funding ::search([
-                    ['condo_id', '=', $ownershipTransfer['condo_id']],
-                    ['is_paid', '=', false],
-                    ['ownership_id', '=', $ownershipTransfer['old_ownership_id']]
-                ])
-                ->read(['due_date', 'name', 'funding_type', 'remaining_amount'])
-                ->get(true);
+        $now = strtotime('today');
 
-            $arrears_amount = array_reduce(
-                $arrear_fundings,
-                fn($total, $funding) => $total + (float) ($funding['remaining_amount'] ?? 0),
-                0.0
-            );
+        foreach($self as $id => $ownershipTransfer) {
+
+            $paragraph = (in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'])) ? '1' : '2';
+
+            $arrears_amount = 0.0;
+
+            $fiscalYear = FiscalYear::search([
+                        ['condo_id', '=', $ownershipTransfer['condo_id']],
+                        ['date_from', '<=', $now],
+                        ['status', '=', 'open']
+                    ],
+                    ['sort' => ['date_from' => 'desc'], 'limit' => 1
+                ])
+                ->read(['date_from'])
+                ->first();
+
+            if(!$fiscalYear) {
+                continue;
+            }
+
+            $date_from = $fiscalYear['date_from'];
+
+            if($paragraph === '1') {
+
+                OwnershipTransferArrearLine::search([['ownership_transfer_id', '=', $id], ['arrear_paragraph', '=', $paragraph]])->delete(true);
+
+                $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
+                    'ownership_id' => $ownershipTransfer['old_ownership_id'],
+                    'date_from'    => $date_from,
+                    'date_to'      => time()
+                ]);
+
+                if(count($data)) {
+                    $arrears_amount = end($data)['balance'] ?? 0;
+                }
+
+                $arrearFundings = Funding::search([
+                        ['condo_id', '=', $ownershipTransfer['condo_id']],
+                        ['is_paid', '=', false],
+                        ['ownership_id', '=', $ownershipTransfer['old_ownership_id']]
+                    ])
+                    ->read(['due_date', 'name', 'funding_type', 'remaining_amount']);
+
+                foreach($arrearFundings as $funding_id => $funding) {
+                    OwnershipTransferArrearLine::create([
+                        'condo_id'              => $ownershipTransfer['condo_id'],
+                        'ownership_transfer_id' => $id,
+                        'due_date'              => $funding['due_date'],
+                        'description'           => $funding['name'],
+                        'arrear_paragraph'      => '1',
+                        'arrear_line_type'      => 'funding',
+                        'due_amount'            => $funding['remaining_amount'],
+                    ]);
+                }
+
+            }
+            elseif($paragraph === '2') {
+            }
+            else {
+                continue;
+            }
 
             $values = [
-                'arrears_amount' => $arrears_amount
+                'arrears_amount_' . $paragraph => $arrears_amount
             ];
 
             $domain_template = [
-                ['type', '=', 'document']
+                ['type', '=', 'document'],
+                ['code', '=', 'ownership_transfer_paragraph_' . $paragraph]
             ];
-
-            if(in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'])) {
-                $domain_template[] = ['code', '=', 'ownership_transfer_paragraph_1'];
-            }
-            else {
-                $domain_template[] = ['code', '=', 'ownership_transfer_paragraph_2'];
-            }
 
             $template = Template::search($domain_template)
                 ->read( ['id','parts_ids' => ['name', 'value']])
                 ->first(true);
 
             if(round($arrears_amount, 2) >= 0.01) {
-                $values['has_seller_arrears'] = true;
+                $values['has_seller_arrears_' . $paragraph] = true;
 
                 foreach($template['parts_ids'] as $part_id => $part) {
                     if($part['name'] == 'seller_arrears_some_description') {
@@ -977,13 +1032,13 @@ class OwnershipTransfer extends \equal\orm\Model {
                             return $map_values[$key] ?? '';
                         }, $text);
 
-                        $values['seller_arrears_description'] = $text;
+                        $values['seller_arrears_description_' . $paragraph] = $text;
                         break;
                     }
                 }
             }
             else {
-                $values['has_seller_arrears'] = false;
+                $values['has_seller_arrears_' . $paragraph] = false;
 
                 foreach($template['parts_ids'] as $part_id => $part) {
                     if($part['name'] == 'seller_arrears_none_description') {
@@ -998,11 +1053,10 @@ class OwnershipTransfer extends \equal\orm\Model {
                             return $map_values[$key] ?? '';
                         }, $text);
 
-                        $values['seller_arrears_description'] = $text;
+                        $values['seller_arrears_description_' . $paragraph] = $text;
                         break;
                     }
                 }
-
             }
 
             self::id($id)->update($values);
@@ -1280,7 +1334,7 @@ class OwnershipTransfer extends \equal\orm\Model {
     }
 
     /**
-     * Compute already invoiced amounts to be reimbursed/charged for the sold lots based on fun requests executions already posted.
+     * Compute already invoiced amounts to be reimbursed/charged for the sold lots based on fund requests executions already posted.
      * #memo - afterwards, user is free to discard unwanted ones, if any.
      *
      */

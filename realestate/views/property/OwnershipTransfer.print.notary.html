@@ -195,15 +195,16 @@
             <div>
 
                 <!--
-                {% if arrears_amount > 0.0 %}
-                    {{ labels['article_3_94.section_1.seller_arrears.some_message'] }} {{ arrears_amount | format_money() }}<br />
+                {% if arrears_amount_1 > 0.0 %}
+                    {{ labels['article_3_94.section_1.seller_arrears.some_message'] }} {{ arrears_amount_1 | format_money() }}<br />
                 {% else %}
                     {{ labels['article_3_94.section_1.seller_arrears.none_message'] }}<br />
                 {% endif %}
                 -->
 
-                {% if seller_arrears_description is not empty %}
-                    {{ seller_arrears_description | raw }}
+                <!-- description is injected automatically in OwnershipTransfer object based on actual arrears -->
+                {% if seller_arrears_description_1 is not empty %}
+                    {{ seller_arrears_description_1 | raw }}
                 {% endif %}
 
                 <!--

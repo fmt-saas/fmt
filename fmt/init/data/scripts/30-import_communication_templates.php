@@ -824,6 +824,12 @@ TemplatePart::create([
     'variables'     => '[]'
 ]);
 
+TemplatePart::create([
+    'name'          => 'refer_to_paragraph_2',
+    'value'         => "<p>Veuillez vous référez au point correspondant dans le pagraphe 2.</p>",
+    'template_id'   => $template['id'],
+    'variables'     => '[]'
+]);
 
 TemplatePart::create([
     'name'          => 'fund_balances_description',
