@@ -29,13 +29,13 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
             'document_filter' => [
                 'type'              => 'string',
                 'description'       => 'Pseudo type (type+subtype) of target document.',
-                'selection'            => [
+                'selection'         => [
                     'all',
                     'general_assembly_minutes',
                     'expense_statement',
                     'balance_sheet'
                 ],
-                'required'          => true
+                'default'           => 'all'
             ],
 
             'document_id' => [
