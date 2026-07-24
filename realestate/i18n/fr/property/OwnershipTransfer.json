@@ -234,7 +234,7 @@
             "help": ""
         },
         "document_id": {
-            "label": "Document GED",
+            "label": "Document",
             "description": "Document principal lié dans le système documentaire.",
             "help": ""
         },
@@ -380,6 +380,14 @@
                 "route.preview.pdf": {
                     "label": "Prévisualiser l'e-mail",
                     "description": "Afficher toutes les lignes sans regroupement."
+                },
+                "route.import.new_ownership": {
+                    "label": "Importer l'acquéreur",
+                    "description": "Importer les données de propriété depuis un fichier XLS."
+                },
+                "route.add_new_attachment": {
+                    "label": "Ajouter un document",
+                    "description": ""
                 }
             }
         },

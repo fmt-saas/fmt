@@ -107,6 +107,12 @@ class DocumentImport extends Model {
                 'description'       => 'Optional link to a specific broadcast.'
             ],
 
+            'ownership_transfer_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\property\OwnershipTransfer',
+                'description'       => 'Optional link to the related ownership transfer.',
+            ],
+
             'document_visibility' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -137,7 +143,8 @@ class DocumentImport extends Model {
             'ownership_id',
             'supplier_id',
             /* specific objects/contexts implying additional processing */
-            'broadcast_id'
+            'broadcast_id',
+            'ownership_transfer_id'
         ]);
 
         foreach($self as $id => $documentImport) {
@@ -188,6 +195,10 @@ class DocumentImport extends Model {
 
             if($documentImport['broadcast_id']) {
                 Document::id($document['id'])->update(['broadcasts_ids' => [$documentImport['broadcast_id']]]);
+            }
+
+            if($documentImport['ownership_transfer_id']) {
+                Document::id($document['id'])->update(['ownership_transfers_ids' => [$documentImport['ownership_transfer_id']]]);
             }
 
             // Remove current import object after successful import.

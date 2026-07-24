@@ -14,22 +14,7 @@
             "help": ""
         },
         "document_id": {
-            "label": "Document GED",
-            "description": "Document à joindre aux communications du transfert.",
-            "help": ""
-        },
-        "general_assembly_minutes_document_id": {
-            "label": "Document GED",
-            "description": "Document à joindre aux communications du transfert.",
-            "help": ""
-        },
-        "expense_statement_document_id": {
-            "label": "Document GED",
-            "description": "Document à joindre aux communications du transfert.",
-            "help": ""
-        },
-        "balance_sheet_document_id": {
-            "label": "Document GED",
+            "label": "Document",
             "description": "Document à joindre aux communications du transfert.",
             "help": ""
         },

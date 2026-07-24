@@ -424,7 +424,7 @@ class Document extends Model {
                 'visible'           => ['assembly_id', '<>', null]
             ],
 
-            'ownership_transfer_ids' => [
+            'ownership_transfers_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\property\OwnershipTransfer',
                 'foreign_field'     => 'attached_documents_ids',

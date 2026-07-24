@@ -96,6 +96,31 @@
                     ["ownership_transfer_id", "=", "object.id"]
                 ]
             }
+        },
+        {
+            "id": "route.add_new_attachment",
+            "label": "Add new document",
+            "description": "",
+            "icon": "file_upload",
+            "visible": [
+                [
+                    ["status", "=", "draft"],
+                    ["step", "=", "content_edition"]
+                ],
+                [
+                    ["status", "=", "ready"]
+                ]
+            ],
+            "context": {
+                "entity": "documents\\import\\DocumentImport",
+                "view": "form.import_and_close",
+                "purpose": "create",
+                "mode": "edit",
+                "domain": [
+                    ["condo_id", "=", "object.condo_id"],
+                    ["broadcast_id", "=", "object.id"]
+                ]
+            }
         }
     ],
     "layout": {

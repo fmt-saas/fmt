@@ -32,6 +32,7 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'EDMS document attached to the ownership transfer.',
+                'required'          => true,
                 'domain'            => [
                     [ ['condo_id', '=', 'object.condo_id'] ]
                 ]
