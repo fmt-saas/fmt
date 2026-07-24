@@ -398,10 +398,7 @@
                                                         "layout": "inline",
                                                         "actions": {
                                                             "ACTION.CREATE": false,
-                                                            "ACTION.CREATE_INLINE": {
-                                                                "view": true,
-                                                                "edit": true
-                                                            }
+                                                            "ACTION.CREATE_INLINE": false
                                                         }
                                                     },
                                                     "view": "list.arrears"
@@ -585,6 +582,37 @@
                                                 "id": "label.seller_arrears_debts",
                                                 "type": "label",
                                                 "value": "5° Seller arrears debts",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "has_seller_arrears_2",
+                                                "width": "100%",
+                                                "visible": true,
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Owner arrears",
+                                                "value": "arrear_lines_2_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.CREATE": false,
+                                                            "ACTION.CREATE_INLINE": {
+                                                                "view": true,
+                                                                "edit": true
+                                                            }
+                                                        }
+                                                    },
+                                                    "view": "list.arrears"
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "seller_arrears_description_2",
                                                 "width": "100%"
                                             },
                                             {
