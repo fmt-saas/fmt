@@ -77,7 +77,8 @@ class RoleAssignment extends \equal\orm\Model {
                 'help'              => 'Role can be assigned both to employees and external users. When assignment relates to an employee, corresponding user_id is automatically retrieved.',
                 'onupdate'          => 'onupdateEmployeeId',
                 'visible'           => ['is_external', '=', false],
-                'domain'            => ['organization_id', '=', 'object.organization_id']
+                'domain'            => ['organization_id', '=', 'object.organization_id'],
+                'ondelete'          => 'cascade'
             ],
 
             'role_id' => [

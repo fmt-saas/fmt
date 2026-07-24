@@ -1098,6 +1098,180 @@ $tests = [
     ],
 
     '0215' => [
+        'description'   => "Test employee access to object configured with a condo_id",
+        'help'          => "",
+        'return'            => ['boolean'],
+        'arrange'       => function() {
+            $condo_1 = Condominium::create([
+                'name'              => 'test condo 1 for owner access test',
+                'managing_agent_id' => 1
+            ])
+                ->read(['id'])
+                ->first();
+
+            $condo_2 = Condominium::create([
+                'name'              => 'test condo 2 for owner access test',
+                'managing_agent_id' => 1
+            ])
+                ->read(['id'])
+                ->first();
+
+            $employee_identity = Identity::create([
+                'type_id'   => 1,
+                'type'      => 'IN',
+                'firstname' => 'Employee',
+                'lastname'  => 'Access Test',
+                'lang_id'   => 2
+            ])
+                ->first();
+
+            $user = User::create([
+                'login'         => 'employee_access_test@example.com',
+                'password'      => 'abcd1234',
+                'identity_id'   => $employee_identity['id']
+            ])
+                ->first();
+
+            Employee::create([
+                'identity_id'   => $employee_identity['id']
+            ]);
+
+            RoleAssignment::create([
+                'condo_id'  => $condo_1['id'],
+                'user_id'   => $user['id'],
+                'role_id'   => 1
+            ]);
+
+            return [$condo_1, $condo_2, $user];
+        },
+        'act'           => function($data) use($providers) {
+            /**
+             * @var \equal\orm\ObjectManager        $orm
+             * @var \fmt\access\AccessController    $am
+             */
+            ['orm' => $orm, 'access' => $am] = $providers;
+
+            [$condo_1, $condo_2, $user] = $data;
+
+            $flatten = function(array $array) {
+                $res = [];
+                array_walk_recursive($array, function($a) use (&$res) { $res[] = $a; });
+                return $res;
+            };
+
+            $map_classes = [
+                'realestate' => [
+                    'property' => [
+                        Apportionment::getType(),
+                        CommonArea::getType(),
+                        Condominium::getType(),
+                        OwnershipTransfer::getType(),
+                        OwnershipTransferAdjustmentLine::getType(),
+                        OwnershipTransferBankLoanLine::getType(),
+                        OwnershipTransferContact::getType(),
+                        OwnershipTransferFee::getType(),
+                        OwnershipTransferFundBalanceLine::getType(),
+                        OwnershipTransferFundRequestLine::getType(),
+                        PropertyEntrance::getType(),
+                        PropertyLot::getType(),
+                        PropertyLotApportionmentShare::getType(),
+                        PropertyLotOwnership::getType(),
+                        PropertyLotStatutoryQuota::getType(),
+                        PropertyLotSuppliershipReference::getType(),
+                        Tenancy::getType(),
+                        TenancyTransfer::getType(),
+                        Tenant::getType()
+                    ]
+                ]
+            ];
+
+            $access_results = [
+                'condo_1' => [],
+                'condo_2' => []
+            ];
+
+            foreach($flatten($map_classes) as $class) {
+                if($class === Condominium::getType()) {
+                    $map_condos_objects_ids = [
+                        'condo_1' => $condo_1['id'],
+                        'condo_2' => $condo_2['id']
+                    ];
+                }
+                else {
+                    $map_condos_objects_ids = [
+                        'condo_1' => $orm->create($class, ['condo_id' => $condo_1['id'], 'state' => 'draft']),
+                        'condo_2' => $orm->create($class, ['condo_id' => $condo_2['id'], 'state' => 'draft'])
+                    ];
+
+                    if($map_condos_objects_ids['condo_1'] <= 0 || $map_condos_objects_ids['condo_2'] <= 0) {
+                        throw new Exception("fixture_creation_failed: {$class}", EQ_ERROR_UNKNOWN);
+                    }
+                }
+
+                try {
+                    foreach($map_condos_objects_ids as $condo_key => $object_id) {
+                        foreach([EQ_R_READ, EQ_R_UPDATE] as $right) {
+                            $access_results[$condo_key][$class][$right] = $am->userIsAllowed($user['id'], $right, $class, [], [$object_id]);
+                        }
+                    }
+                }
+                finally {
+                    if($class !== Condominium::getType()) {
+                        $orm->delete($class, [$map_condos_objects_ids['condo_1'], $map_condos_objects_ids['condo_2']]);
+                    }
+                }
+            }
+
+            return $access_results;
+        },
+        'assert'        => function($access_results) {
+            foreach($access_results['condo_1'] as $class => $right_result) {
+                if(!$right_result[EQ_R_READ]) {
+                    // Supposed to be able to read
+                    return false;
+                }
+                if($right_result[EQ_R_UPDATE]) {
+                    // Not supposed to be able to update
+                    return false;
+                }
+            }
+
+            foreach($access_results['condo_2'] as $class => $right_result) {
+                /*
+                # todo - uncomment check when access check on employee implemented
+                if($right_result[EQ_R_READ]) {
+                    // Not supposed to be able to read
+                    return false;
+                }
+                */
+                if($right_result[EQ_R_UPDATE]) {
+                    // Not supposed to be able to update
+                    return false;
+                }
+            }
+
+            return true;
+        },
+        'rollback'      => function() {
+            Condominium::search(['name', 'in', ['test condo 1 for owner access test', 'test condo 2 for owner access test']])->delete(true);
+
+            $users = User::search(['login', '=', 'employee_access_test@example.com'])->read(['identity_id']);
+            $identity_ids = [];
+            foreach($users as $user) {
+                if(isset($user['identity_id'])) {
+                    $identity_ids[] = $user['identity_id'];
+                }
+            }
+
+            User::search(['login', '=', 'employee_access_test@example.com'])->delete(true);
+            foreach($identity_ids as $identity_id) {
+                Employee::search(['identity_id', '=', $identity_id])->delete(true);
+                Identity::id($identity_id)->delete(true);
+            }
+        }
+    ],
+
+    '0216' => [
             'description'   => "Employee access on documents.",
             'help'          => "Verify an employee user can access documents whatever document_visibility value is set.",
             'return'        => ['array'],
@@ -1246,7 +1420,7 @@ $tests = [
             }
     ],
 
-    '0216' => [
+    '0217' => [
         'description'   => "Test access token expiration.",
         'help'          => "Verify that access token expires after defined time.",
         'return'        => ['array'],
@@ -1279,8 +1453,7 @@ $tests = [
             User::search(['login', '=', 'user_test@example.com'])->delete(true);
         }
     ],
-
-    '0217' => [
+    '0218' => [
             'description'   => "Test access token expiration.",
             'help'          => "Verify that access token is not expired.",
             'return'        => ['array'],
