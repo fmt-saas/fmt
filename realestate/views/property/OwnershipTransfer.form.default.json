@@ -679,7 +679,7 @@
                                         "items": [
                                             {
                                                 "id": "label.general_assembly_minutes",
-                                                "type": "field",
+                                                "type": "label",
                                                 "value": "General Assembly Minutes",
                                                 "width": "100%"
                                             },
@@ -698,7 +698,7 @@
                                             },
                                             {
                                                 "id": "label.expense_statements",
-                                                "type": "field",
+                                                "type": "label",
                                                 "value": "Expense Statements",
                                                 "width": "100%"
                                             },
@@ -717,7 +717,7 @@
                                             },
                                             {
                                                 "id": "label.balance_sheets",
-                                                "type": "field",
+                                                "type": "fielabelld",
                                                 "value": "Balance Sheets",
                                                 "width": "100%"
                                             },
@@ -736,7 +736,7 @@
                                             },
                                             {
                                                 "id": "label.other_attachments",
-                                                "type": "field",
+                                                "type": "label",
                                                 "value": "Other attachments",
                                                 "width": "100%"
                                             },
