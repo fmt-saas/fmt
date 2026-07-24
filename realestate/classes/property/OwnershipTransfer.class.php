@@ -249,6 +249,20 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'default'           => true
             ],
 
+            'arrears_amount_2' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => "The total pending arrears owed by the seller."
+            ],
+
+            'arrear_lines_2_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\OwnershipTransferArrearLine',
+                'foreign_field'     => 'ownership_transfer_id',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['arrear_paragraph', '=', '2']],
+                'description'       => 'Balances of the condominium funds with property lots shares.'
+            ],
+
             'seller_arrears_description_2' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain.small',
