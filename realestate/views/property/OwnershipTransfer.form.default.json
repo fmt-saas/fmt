@@ -717,7 +717,7 @@
                                             },
                                             {
                                                 "id": "label.balance_sheets",
-                                                "type": "fielabelld",
+                                                "type": "label",
                                                 "value": "Balance Sheets",
                                                 "width": "100%"
                                             },

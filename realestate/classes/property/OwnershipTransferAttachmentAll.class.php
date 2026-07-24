@@ -15,7 +15,6 @@ class OwnershipTransferAttachmentAll extends OwnershipTransferAttachment {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'EDMS document attached to the ownership transfer.',
-                'visible'           => ['all', '=', 'object.document_filter'],
                 'domain'            => [
                     [ ['condo_id', '=', 'object.condo_id'] ]
                 ]
