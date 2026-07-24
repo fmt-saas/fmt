@@ -42,13 +42,43 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'EDMS document attached to the ownership transfer.',
+                'visible'           => ['all', '=', 'object.document_filter'],
                 'domain'            => [
-                    [ ['condo_id', '=', 'object.condo_id'], ['all', '=', 'object.document_filter'] ],
-                    [ ['condo_id', '=', 'object.condo_id'], ['general_assembly_minutes', '=', 'object.document_filter'], ['document_type_code', '=', 'general_assembly_document'], ['document_subtype_code', '=', 'minutes'] ],
-                    [ ['condo_id', '=', 'object.condo_id'], ['expense_statement', '=', 'object.document_filter'], ['document_type_code', '=', 'expense_statement'] ],
-                    [ ['condo_id', '=', 'object.condo_id'], ['balance_sheet', '=', 'object.document_filter'], ['document_type_code', '=', 'balance_sheet'] ]
+                    [ ['condo_id', '=', 'object.condo_id'] ]
+                ]
+            ],
+
+            'general_assembly_minutes_document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'EDMS document attached to the ownership transfer.',
+                'visible'           => ['general_assembly_minutes', '=', 'object.document_filter'],
+                'domain'            => [
+                    [ ['condo_id', '=', 'object.condo_id'], ['document_type_code', '=', 'general_assembly_document'], ['document_subtype_code', '=', 'minutes'] ],
                 ],
-                'required'          => true
+                'onupdate'          => 'onupdateGeneralAssemblyMinutesDocumentId'
+            ],
+
+            'expense_statement_document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'EDMS document attached to the ownership transfer.',
+                'visible'           => ['expense_statement', '=', 'object.document_filter'],
+                'domain'            => [
+                    [ ['condo_id', '=', 'object.condo_id'], , ['document_type_code', '=', 'expense_statement'] ],
+                ],
+                'onupdate'          => 'onupdateExpenseStatementDocumentId'
+            ],
+
+            'balance_sheet_document_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'documents\Document',
+                'description'       => 'EDMS document attached to the ownership transfer.',
+                'visible'           => ['balance_sheet', '=', 'object.document_filter'],
+                'domain'            => [
+                    [ ['condo_id', '=', 'object.condo_id'], ['document_type_code', '=', 'balance_sheet'] ]
+                ],
+                'onupdate'          => 'onupdateBalanceSheetDocumentId'
             ],
 
             'attachment_target' => [
@@ -64,4 +94,26 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
 
         ];
     }
+
+    protected static function onupdateGeneralAssemblyMinutesDocumentId($self) {
+        $self->read(['general_assembly_minutes_document_id']);
+        foreach($self as $id => $ownershipTransferAttachment) {
+            self::id($id)->update(['document_id' => $ownershipTransferAttachment['general_assembly_minutes_document_id']]);
+        }
+    }
+
+    protected static function onupdateExpenseStatementDocumentId($self) {
+        $self->read(['expense_statement_document_id']);
+        foreach($self as $id => $ownershipTransferAttachment) {
+            self::id($id)->update(['document_id' => $ownershipTransferAttachment['expense_statement_document_id']]);
+        }
+    }
+
+    protected static function onupdateBalanceSheetDocumentId($self) {
+        $self->read(['balance_sheet_document_id']);
+        foreach($self as $id => $ownershipTransferAttachment) {
+            self::id($id)->update(['document_id' => $ownershipTransferAttachment['balance_sheet_document_id']]);
+        }
+    }
+
 }

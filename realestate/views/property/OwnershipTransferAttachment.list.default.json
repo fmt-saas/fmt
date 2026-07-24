@@ -33,7 +33,26 @@
             },
             {
                 "type": "field",
+                "label": "Document",
                 "value": "document_id",
+                "width": "40%"
+            },
+            {
+                "type": "field",
+                "label": "Document",
+                "value": "general_assembly_minutes_document_id",
+                "width": "40%"
+            },
+            {
+                "type": "field",
+                "label": "Document",
+                "value": "expense_statement_document_id",
+                "width": "40%"
+            },
+            {
+                "type": "field",
+                "label": "Document",
+                "value": "balance_sheet_document_id",
                 "width": "40%"
             },
             {

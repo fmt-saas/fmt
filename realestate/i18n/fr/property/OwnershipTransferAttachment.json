@@ -18,6 +18,21 @@
             "description": "Document à joindre aux communications du transfert.",
             "help": ""
         },
+        "general_assembly_minutes_document_id": {
+            "label": "Document GED",
+            "description": "Document à joindre aux communications du transfert.",
+            "help": ""
+        },
+        "expense_statement_document_id": {
+            "label": "Document GED",
+            "description": "Document à joindre aux communications du transfert.",
+            "help": ""
+        },
+        "balance_sheet_document_id": {
+            "label": "Document GED",
+            "description": "Document à joindre aux communications du transfert.",
+            "help": ""
+        },
         "attachment_target": {
             "label": "Cible de la pièce jointe",
             "description": "Partie du courrier de transfert dans laquelle le document doit être utilisé.",
