@@ -59,10 +59,31 @@ $issue_access_token = function(string $validity): string {
             throw new Exception('config_write_failed', EQ_ERROR_INVALID_CONFIG);
         }
 
+        $script = <<<'PHP'
+            require_once getcwd().'/eq.lib.php';
+            
+            eQual::run('do', 'fmt_user_auth_pwd', [
+                'login'     => 'user_test@example.com',
+                'password'  => 'abcd1234'
+            ], false, true);
+            
+            $token = eQual::get_last_context()
+                ->httpResponse()
+                ->cookie('access_token');
+            
+            if(!$token) {
+                fwrite(STDERR, 'missing_access_token');
+                exit(1);
+            }
+            
+            echo $token;
+            PHP;
+
         $process = proc_open(
             [
                 PHP_BINARY,
-                EQ_BASEDIR.'/packages/fmt/tests/helpers/auth-pwd-token.php'
+                '-r',
+                $script
             ],
             [
                 0 => ['pipe', 'r'],
