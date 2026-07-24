@@ -104,11 +104,7 @@
             "icon": "file_upload",
             "visible": [
                 [
-                    ["status", "=", "draft"],
-                    ["step", "=", "content_edition"]
-                ],
-                [
-                    ["status", "=", "ready"]
+                    ["status", "in", ["pending", "open", "seller_documents_sent", "confirmed"]],
                 ]
             ],
             "context": {
