@@ -54,7 +54,7 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
                 'description'       => 'EDMS document attached to the ownership transfer.',
                 'visible'           => ['general_assembly_minutes', '=', 'object.document_filter'],
                 'domain'            => [
-                    [ ['condo_id', '=', 'object.condo_id'], ['document_type_code', '=', 'general_assembly_document'], ['document_subtype_code', '=', 'minutes'] ],
+                    [ ['condo_id', '=', 'object.condo_id'], ['document_type_code', '=', 'general_assembly_document'], ['document_subtype_code', '=', 'minutes'] ]
                 ],
                 'onupdate'          => 'onupdateGeneralAssemblyMinutesDocumentId'
             ],
@@ -65,7 +65,7 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
                 'description'       => 'EDMS document attached to the ownership transfer.',
                 'visible'           => ['expense_statement', '=', 'object.document_filter'],
                 'domain'            => [
-                    [ ['condo_id', '=', 'object.condo_id'], , ['document_type_code', '=', 'expense_statement'] ],
+                    [ ['condo_id', '=', 'object.condo_id'], ['document_type_code', '=', 'expense_statement'] ]
                 ],
                 'onupdate'          => 'onupdateExpenseStatementDocumentId'
             ],
