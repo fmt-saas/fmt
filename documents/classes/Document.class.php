@@ -1212,4 +1212,26 @@ class Document extends Model {
 
         return parent::cancreate($self, $values);
     }
+
+    protected static function candelete($self) {
+        $result = [];
+        $self->read([
+            'assembly_id',
+            'broadcasts_ids',
+            'document_process_id' => ['status']
+        ]);
+        foreach($self as $document) {
+            if($document['assembly_id']) {
+                $result = ['assembly_id' => ['non_removable' => 'Document linked to an assembly cannot be deleted.']];
+            }
+            if(count($document['broadcasts_ids'])) {
+                $result = ['broadcasts_ids' => ['non_removable' => 'Document linked to a broadcast cannot be deleted.']];
+            }
+            if($document['document_process_id'] && !in_array($document['document_process_id']['status'], ['integrated', 'cancelled', 'removed'])) {
+                $result = ['document_process_id' => ['non_removable' => 'Document linked to a pending process cannot be deleted.']];
+            }
+        }
+
+        return $result;
+    }
 }
