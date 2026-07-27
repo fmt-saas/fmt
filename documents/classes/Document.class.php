@@ -14,6 +14,7 @@ use equal\orm\Model;
 use identity\User;
 use infra\quota\Quota;
 use purchase\supplier\Suppliership;
+use realestate\governance\Assembly;
 
 class Document extends Model {
 
@@ -1216,18 +1217,18 @@ class Document extends Model {
     protected static function candelete($self) {
         $result = [];
         $self->read([
-            'assembly_id',
-            'broadcasts_ids',
-            'document_process_id' => ['status']
+            'assembly_id'           => ['state'],
+            'broadcasts_ids'        => ['state'],
+            'document_process_id'   => ['status']
         ]);
         foreach($self as $document) {
-            if($document['assembly_id']) {
+            if(isset($document['assembly_id']['state']) && $document['assembly_id']['state'] !== 'instance') {
                 $result = ['assembly_id' => ['non_removable' => 'Document linked to an assembly cannot be deleted.']];
             }
-            if(count($document['broadcasts_ids'])) {
+            elseif(count($document['broadcasts_ids'])) {
                 $result = ['broadcasts_ids' => ['non_removable' => 'Document linked to a broadcast cannot be deleted.']];
             }
-            if($document['document_process_id'] && !in_array($document['document_process_id']['status'], ['integrated', 'cancelled', 'removed'])) {
+            elseif(isset($document['document_process_id']['status']) && $document['document_process_id']['state'] !== 'instance' && !in_array($document['document_process_id']['status'], ['integrated', 'cancelled', 'removed'])) {
                 $result = ['document_process_id' => ['non_removable' => 'Document linked to a pending process cannot be deleted.']];
             }
         }
