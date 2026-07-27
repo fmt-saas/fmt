@@ -1219,7 +1219,8 @@ class Document extends Model {
         $self->read([
             'assembly_id'           => ['state'],
             'broadcasts_ids'        => ['state'],
-            'document_process_id'   => ['status']
+            'document_process_id'   => ['status'],
+            'ownership_transfer_id' => ['state']
         ]);
         foreach($self as $document) {
             if(isset($document['assembly_id']['state']) && $document['assembly_id']['state'] === 'instance') {
@@ -1230,6 +1231,9 @@ class Document extends Model {
             }
             elseif(isset($document['document_process_id']['state']) && $document['document_process_id']['state'] === 'instance' && !in_array($document['document_process_id']['status'], ['integrated', 'cancelled', 'removed'])) {
                 $result = ['document_process_id' => ['non_removable' => 'Document linked to a pending process cannot be deleted.']];
+            }
+            elseif(isset($document['ownership_transfer_id']['state']) && $document['ownership_transfer_id']['state'] === 'instance') {
+                $result = ['assembly_id' => ['non_removable' => 'Document linked to a transfer cannot be deleted.']];
             }
         }
 

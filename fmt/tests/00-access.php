@@ -2712,4 +2712,53 @@ $tests = [
                 Document::search(['name', '=', 'test document for document cannot delete test'])->delete(true);
             }
         ],
+    '0226' => [
+            'description'   => "Test that document cannot be delete if linked to transfer.",
+            'help'          => "A document linked to a transfer cannot be deleted.",
+            'arrange'       => function() {
+                $condo = Condominium::create([
+                    'name'              => 'test condo for document cannot delete test',
+                    'managing_agent_id' => 1
+                ])
+                    ->first();
+
+                $transfer = OwnershipTransfer::create([
+                    'condo_id'  => $condo['id']
+                ])
+                    ->first();
+
+                $document = Document::create([
+                    'condo_id'              => $condo['id'],
+                    'name'                  => 'test document for document cannot delete test',
+                    'ownership_transfer_id' => $transfer['id']
+                ])
+                    ->first(true);
+
+                return [$document];
+            },
+            'act'           => function($data) {
+                [$document] = $data;
+
+                try {
+                    Document::id($document['id'])->delete(true);
+                }
+                catch(Exception $e) {
+                }
+
+                return [$document];
+            },
+            'assert'        => function($data) {
+                [$document] = $data;
+
+                $del_document = Document::id($document['id'])->first();
+
+                return $del_document !== null;
+            },
+            'rollback'      => function() {
+                Condominium::search(['name', 'in', ['test condo for document cannot delete test']])->delete(true);
+
+                OwnershipTransfer::search(['name', '=', 'test transfer for document cannot delete test'])->delete(true);
+                Document::search(['name', '=', 'test document for document cannot delete test'])->delete(true);
+            }
+        ]
 ];
