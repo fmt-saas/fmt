@@ -20,12 +20,12 @@ use communication\email\Mailbox;
         ],
         'access_token' => [
             'type'          => 'string',
-            'usage'         => 'text/plain:2000',
+            'usage'         => 'text/plain:4096',
             'required'      => true
         ],
         'refresh_token' => [
             'type'          => 'string',
-            'usage'         => 'text/plain:2000',
+            'usage'         => 'text/plain:4096',
             'required'      => true
         ],
         'access_token_expiry' => [

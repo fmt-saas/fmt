@@ -60,14 +60,14 @@ class Mailbox extends Model {
 
             'access_token' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain:2000',
+                'usage'             => 'text/plain:4096',
                 'description'       => 'OAuth2 access token (if applicable).',
                 'visible'           => ['auth_type', '=', 'oauth']
             ],
 
             'refresh_token' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain:2000',
+                'usage'             => 'text/plain:4096',
                 'description'       => 'OAuth2 refresh token (if applicable).',
                 'visible'           => ['auth_type', '=', 'oauth']
             ],
