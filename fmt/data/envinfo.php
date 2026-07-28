@@ -47,15 +47,20 @@ use infra\server\Instance;
 ['context' => $context, 'auth' => $auth] = $providers;
 
 $api_url_global = '';
+
 if(constant('FMT_INSTANCE_TYPE') === 'agency') {
     $global_instance = Instance::search(['instance_type', '=', 'global'])
         ->read(['url'])
         ->first();
 
-    if(!empty($global_instance['url'])) {
-        $api_url_global = $global_instance['url'];
-    }
+    $api_url_global = !empty($global_instance['url']) ? $global_instance['url'] : "https://platform.fmtsolutions.be";
 }
+
+$oauth_callback_base_url = (constant('FMT_INSTANCE_TYPE') === 'agency' && !empty($api_url_global))
+    ? $api_url_global
+    : constant('BACKEND_URL');
+
+$oauth_callback_base_url = rtrim($oauth_callback_base_url, '/');
 
 $envinfo = [
     'env_mode'                  => constant('ENV_MODE'),
@@ -73,7 +78,9 @@ $envinfo = [
     'instance_type'             => constant('FMT_INSTANCE_TYPE'),
     'api_url_global'            => $api_url_global,
     'google_gmail_client_id'    => constant('GOOGLE_GMAIL_CLIENT_ID'),
-    'ms_outlook_client_id'      => constant('MS_OUTLOOK_CLIENT_ID')
+    'google_gmail_redirect_uri' => $oauth_callback_base_url . '/oauth/gmail',
+    'ms_outlook_client_id'      => constant('MS_OUTLOOK_CLIENT_ID'),
+    'ms_outlook_redirect_uri'   => $oauth_callback_base_url . '/oauth/outlook'
 ];
 
 // retrieve current User
