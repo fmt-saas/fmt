@@ -54,6 +54,20 @@ Example of received params:
 
 */
 
+$api_url_global = '';
+
+if(constant('FMT_INSTANCE_TYPE') === 'agency') {
+    $global_instance = Instance::search(['instance_type', '=', 'global'])
+        ->read(['url'])
+        ->first();
+
+    $api_url_global = !empty($global_instance['url']) ? $global_instance['url'] : "https://platform.fmtsolutions.be";
+}
+
+$oauth_callback_base_url = (constant('FMT_INSTANCE_TYPE') === 'agency' && !empty($api_url_global))
+    ? $api_url_global
+    : constant('BACKEND_URL');
+
 // Exchange authorization code for tokens (Microsoft OAuth)
 $oauthRequest = new HttpRequest('POST https://login.microsoftonline.com/common/oauth2/v2.0/token');
 
@@ -62,7 +76,7 @@ $response = $oauthRequest
     ->setBody([
         'grant_type'    => 'authorization_code',
         'code'          => $params['code'],
-        'redirect_uri'  => constant('BACKEND_URL') . '/oauth/outlook',
+        'redirect_uri'  => rtrim($oauth_callback_base_url, '/') . '/oauth/outlook',
         'client_id'     => constant('MS_OUTLOOK_CLIENT_ID'),
         'client_secret' => constant('MS_OUTLOOK_CLIENT_SECRET'),
         // mandatory for MS token exchange

@@ -56,14 +56,29 @@ Example of received params:
 
 */
 
+$api_url_global = '';
+
+if(constant('FMT_INSTANCE_TYPE') === 'agency') {
+    $global_instance = Instance::search(['instance_type', '=', 'global'])
+        ->read(['url'])
+        ->first();
+
+    $api_url_global = !empty($global_instance['url']) ? $global_instance['url'] : "https://platform.fmtsolutions.be";
+}
+
+$oauth_callback_base_url = (constant('FMT_INSTANCE_TYPE') === 'agency' && !empty($api_url_global))
+    ? $api_url_global
+    : constant('BACKEND_URL');
+
 // Exchange authorization code for tokens (Google OAuth)
 $oauthRequest = new HttpRequest('POST https://oauth2.googleapis.com/token');
+
 $response = $oauthRequest
             ->header('Content-Type', 'application/x-www-form-urlencoded')
             ->setBody([
                 'grant_type'    => 'authorization_code',
                 'code'          => $params['code'],
-                'redirect_uri'  => constant('BACKEND_URL') . '/oauth/gmail',
+                'redirect_uri'  => rtrim($oauth_callback_base_url, '/') . '/oauth/gmail',
                 'client_id'     => constant('GOOGLE_GMAIL_CLIENT_ID'),
                 'client_secret' => constant('GOOGLE_GMAIL_CLIENT_SECRET')
             ])
