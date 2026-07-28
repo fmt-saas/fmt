@@ -198,7 +198,7 @@ if(!isset($params['is_owner'])) {
 
 $identity_id = 0;
 
-if(isset($params['is_owner'])) {
+if(isset($params['is_owner']) && $params['is_owner']) {
     $owner = Owner::id($params['owner_id'])
         ->read(['id', 'name', 'identity_id'])
         ->first(true);
