@@ -33,7 +33,14 @@ use infra\server\Instance;
         'accept-origin'     => '*'
     ],
     'providers'     => ['context', 'auth', 'orm'],
-    'constants'     => ['BACKEND_URL', 'AUTH_ACCESS_TOKEN_VALIDITY', 'AUTH_TOKEN_HTTPS', 'FMT_INSTANCE_TYPE', 'GOOGLE_GMAIL_CLIENT_ID', 'GOOGLE_GMAIL_CLIENT_SECRET']
+    'constants'     => [
+        'BACKEND_URL',
+        'AUTH_ACCESS_TOKEN_VALIDITY',
+        'AUTH_TOKEN_HTTPS',
+        'FMT_INSTANCE_TYPE',
+        'GOOGLE_GMAIL_CLIENT_ID',
+        'GOOGLE_GMAIL_CLIENT_SECRET'
+    ]
 ]);
 
 /**
