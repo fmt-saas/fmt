@@ -90,7 +90,7 @@ $body = [
     'refresh_token' => $mailbox['refresh_token'],
 
     // Microsoft requires scope even for refresh
-    'scope'         => 'openid profile email offline_access User.Read Mail.ReadWrite IMAP.AccessAsUser.All'
+    'scope'         => 'openid profile email offline_access User.Read Mail.Send Mail.ReadWrite IMAP.AccessAsUser.All'
 ];
 
 $oauthRequest = new HttpRequest("POST $tokenUrl");
