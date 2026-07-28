@@ -27,9 +27,11 @@ use infra\server\Instance;
     ],
     'constants'     => [
         'BACKEND_URL',
+        'AUTH_ACCESS_TOKEN_VALIDITY',
+        'AUTH_TOKEN_HTTPS',
+        'FMT_INSTANCE_TYPE',
         'MS_OUTLOOK_CLIENT_ID',
-        'MS_OUTLOOK_CLIENT_SECRET',
-        'AUTH_ACCESS_TOKEN_VALIDITY'
+        'MS_OUTLOOK_CLIENT_SECRET'
     ],
     'access'        => [
         'visibility' => 'public'
