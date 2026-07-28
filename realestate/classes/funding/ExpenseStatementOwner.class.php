@@ -215,7 +215,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
 
             $accounts = Account::ids($accounts_ids)->read(['name', 'code'])->get();
             $property_lots = PropertyLot::ids($property_lots_ids)->read(['name', 'code', 'property_lot_ref', 'property_lot_nature', 'statutory_shares', 'is_primary', 'primary_lot_id'])->get();
-            $apportionments = Apportionment::ids($apportionments_ids)->read(['name', 'total_shares'])->get();
+            $apportionments = Apportionment::ids($apportionments_ids)->read(['name', 'code', 'total_shares'])->get();
 
             $account_code_map = [];
             foreach($accounts as $account_id => $account) {
@@ -293,6 +293,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                         $expense_ref['apportionments'][$apportionment_id] = [
                             'id'            => $apportionment_id,
                             'name'          => $apportionments[$apportionment_id]['name'] ?? 'private',
+                            'code'          => $apportionments[$apportionment_id]['code'] ?? '',
                             'total_shares'  => $apportionments[$apportionment_id]['total_shares'] ?? 0,
                             'shares'        => $line['shares'],
                             'accounts'      => []
@@ -394,6 +395,15 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                 $lot['expenses'] = array_values($lot['expenses']);
 
                 foreach($lot['expenses'] as &$expense) {
+                    uasort(
+                        $expense['apportionments'],
+                        static function ($a, $b) {
+                            return strcmp($a['code'] ?? '', $b['code'] ?? '')
+                                ?: strcmp($a['name'] ?? '', $b['name'] ?? '')
+                                ?: (($a['id'] ?? 0) <=> ($b['id'] ?? 0));
+                        }
+                    );
+
                     $expense['apportionments'] = array_values($expense['apportionments']);
                 }
             }

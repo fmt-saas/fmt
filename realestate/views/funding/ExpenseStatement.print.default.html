@@ -614,6 +614,7 @@
                                                 (apport_key): {
                                                     'id': apport.id,
                                                     'name': apport.name,
+                                                    'code': apport.code|default(''),
                                                     'total': 0,
                                                     'total_shares': apport.total_shares,
                                                     'owner': 0,
@@ -745,7 +746,7 @@
 
                                     {% set is_last_apport = 0 %}
 
-                                    {% for apport_id, apport in common_apport_totals %}
+                                    {% for apport_id, apport in common_apport_totals|sort((a, b) => (a.code|default('')) <=> (b.code|default(''))) %}
 
                                         {% if loop.last %}
                                             {% set is_last_apport = 1 %}
