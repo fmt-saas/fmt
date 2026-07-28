@@ -63,7 +63,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "can_received",
+                                                "value": "can_receive",
                                                 "width": "100%"
                                             }
                                         ]

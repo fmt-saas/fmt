@@ -131,6 +131,7 @@ $buildOwnerExpenses = function (array $owner): array {
                     $expenses[$expense_type]['apportionments'][$apportionment_id] = [
                         'id'            => $apportionment['id'],
                         'name'          => $apportionment['name'],
+                        'code'          => $apportionment['code'] ?? '',
                         'total_shares'  => $apportionment['total_shares'],
                         'shares'        => $apportionment['shares'],
                         'accounts'      => [],
@@ -183,6 +184,17 @@ $buildOwnerExpenses = function (array $owner): array {
 
         }
         $is_first_lot = false;
+    }
+
+    foreach($expenses as &$expense) {
+        uasort(
+            $expense['apportionments'],
+            static function ($a, $b) {
+                return strcmp($a['code'] ?? '', $b['code'] ?? '')
+                    ?: strcmp($a['name'] ?? '', $b['name'] ?? '')
+                    ?: (($a['id'] ?? 0) <=> ($b['id'] ?? 0));
+            }
+        );
     }
 
     return $expenses;
