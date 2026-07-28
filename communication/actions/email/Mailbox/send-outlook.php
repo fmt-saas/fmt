@@ -134,6 +134,7 @@ $mailbox = Mailbox::id($params['id'])
         'access_token',
         'access_token_expiry',
         'refresh_token_expiry',
+        'can_send',
         'email'
     ])
     ->first();
@@ -148,6 +149,13 @@ if(!$mailbox) {
 if($mailbox['status'] !== 'validated') {
     throw new Exception(
         "non_validated_mailbox",
+        EQ_ERROR_INVALID_PARAM
+    );
+}
+
+if(!$mailbox['can_send']) {
+    throw new Exception(
+        "non_sendable_mailbox",
         EQ_ERROR_INVALID_PARAM
     );
 }
@@ -211,6 +219,9 @@ $email = Email::id($params['email_id'])
         'subject',
         'from',
         'to',
+        'reply_to',
+        'cc',
+        'bcc',
         'direction',
         'date',
         'body'
@@ -232,6 +243,9 @@ if((int) $email['mailbox_id'] !== (int) $mailbox['id']) {
 }
 
 $to_recipients = $build_recipients($email['to']);
+$cc_recipients = $build_recipients($email['cc'] ?? '');
+$bcc_recipients = $build_recipients($email['bcc'] ?? '');
+$reply_to_recipients = $build_recipients($email['reply_to'] ?? '');
 
 if(empty($to_recipients)) {
     throw new Exception(
@@ -339,6 +353,19 @@ $draft_payload = [
         ]
     ]
 ];
+
+
+if(!empty($cc_recipients)) {
+    $draft_payload['ccRecipients'] = $cc_recipients;
+}
+
+if(!empty($bcc_recipients)) {
+    $draft_payload['bccRecipients'] = $bcc_recipients;
+}
+
+if(!empty($reply_to_recipients)) {
+    $draft_payload['replyTo'] = $reply_to_recipients;
+}
 
 $draft_id = null;
 $message_sent = false;
@@ -518,13 +545,15 @@ try {
 
     // SEND DRAFT
 
-    $graph_request(
+    $send_response = $graph_request(
         'POST',
         "https://graph.microsoft.com/v1.0/me/messages/{$encoded_draft_id}/send",
         '',
         [],
         [202]
     );
+
+    $send_status = $send_response->getStatusCode();
 
     /*
      * A 202 response means Microsoft accepted the send request.
@@ -536,9 +565,12 @@ try {
     // UPDATE LOCAL EMAIL
 
     $update_values = [
-        'from'      => $mailbox['email'],
-        'direction' => 'outgoing',
-        'date'      => time()
+        'from'            => $mailbox['email'],
+        'direction'       => 'outgoing',
+        'date'            => time(),
+        'status'          => 'processed',
+        'response_status' => 250,
+        'response'        => sprintf('Microsoft Graph accepted send request (HTTP %d).', $send_status)
     ];
 
     /*

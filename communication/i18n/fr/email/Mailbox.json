@@ -89,5 +89,8 @@
                 }
             }
         }
+    },
+    "error": {
+        "non_sendable_mailbox": "Cette boite mail ne peut pas envoyer d e-mails."
     }
 }

@@ -22,6 +22,18 @@ class Mailbox extends Model {
                 'store'             => true
             ],
 
+            'can_send' => [
+                'type'              => 'boolean',
+                'default'           => false,
+                'description'       => 'Indicates whether the mailbox can be used to send emails.',
+            ],
+
+            'can_receive' => [
+                'type'              => 'boolean',
+                'default'           => false,
+                'description'       => 'Indicates whether the mailbox can receive and import emails.',
+            ],
+
             'email' => [
                 'type'              => 'string',
                 'usage'             => 'email',
