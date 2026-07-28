@@ -14,6 +14,7 @@ use equal\orm\Model;
 use identity\User;
 use infra\quota\Quota;
 use purchase\supplier\Suppliership;
+use realestate\governance\Assembly;
 
 class Document extends Model {
 
@@ -1211,5 +1212,31 @@ class Document extends Model {
         }
 
         return parent::cancreate($self, $values);
+    }
+
+    protected static function candelete($self) {
+        $result = [];
+        $self->read([
+            'assembly_id'           => ['state'],
+            'broadcasts_ids'        => ['state'],
+            'document_process_id'   => ['status'],
+            'ownership_transfer_id' => ['state']
+        ]);
+        foreach($self as $document) {
+            if(isset($document['assembly_id']['state']) && $document['assembly_id']['state'] === 'instance') {
+                $result = ['assembly_id' => ['non_removable' => 'Document linked to an assembly cannot be deleted.']];
+            }
+            elseif(count($document['broadcasts_ids'])) {
+                $result = ['broadcasts_ids' => ['non_removable' => 'Document linked to a broadcast cannot be deleted.']];
+            }
+            elseif(isset($document['document_process_id']['state']) && $document['document_process_id']['state'] === 'instance' && !in_array($document['document_process_id']['status'], ['integrated', 'cancelled', 'removed'])) {
+                $result = ['document_process_id' => ['non_removable' => 'Document linked to a pending process cannot be deleted.']];
+            }
+            elseif(isset($document['ownership_transfer_id']['state']) && $document['ownership_transfer_id']['state'] === 'instance') {
+                $result = ['assembly_id' => ['non_removable' => 'Document linked to a transfer cannot be deleted.']];
+            }
+        }
+
+        return $result;
     }
 }

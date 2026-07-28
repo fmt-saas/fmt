@@ -5,7 +5,9 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use communication\broadcast\Broadcast;
 use documents\Document;
+use documents\processing\DocumentProcess;
 use hr\employee\Employee;
 use identity\Group;
 use identity\Identity;
@@ -13,6 +15,7 @@ use identity\User;
 use core\Permission;
 use hr\role\Role;
 use hr\role\RoleAssignment;
+use realestate\governance\Assembly;
 use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
@@ -834,8 +837,8 @@ $tests = [
             }
         ],
     '0214' => [
-            'description'   => "Test access on document by document_visibility.",
-            'help'          => "",
+            'description'   => "Test owner access on document by document_visibility.",
+            'help'          => "Data controller documents_document is checked, get document by its hash.",
             'arrange'       => function() {
                 $condo_1 = Condominium::create([
                         'name'              => 'test condo 1 for owner access test',
@@ -1096,182 +1099,1252 @@ $tests = [
                     ->delete(true);
             }
     ],
-
     '0215' => [
-        'description'   => "Test employee access to object configured with a condo_id",
-        'help'          => "",
-        'return'            => ['boolean'],
-        'arrange'       => function() {
-            $condo_1 = Condominium::create([
-                'name'              => 'test condo 1 for owner access test',
-                'managing_agent_id' => 1
-            ])
-                ->read(['id'])
-                ->first();
+            'description'   => "Test owner access on document by document_visibility.",
+            'help'          => "Data controller model_collect is checked, get document by its id.",
+            'arrange'       => function() {
+                $condo_1 = Condominium::create([
+                    'name'              => 'test condo 1 for owner access test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
 
-            $condo_2 = Condominium::create([
-                'name'              => 'test condo 2 for owner access test',
-                'managing_agent_id' => 1
-            ])
-                ->read(['id'])
-                ->first();
+                $condo_2 = Condominium::create([
+                    'name'              => 'test condo 2 for owner access test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
 
-            $employee_identity = Identity::create([
-                'type_id'   => 1,
-                'type'      => 'IN',
-                'firstname' => 'Employee',
-                'lastname'  => 'Access Test',
-                'lang_id'   => 2
-            ])
-                ->first();
+                $ownership_1 = Ownership::create([
+                    'condo_id'          => $condo_1['id'],
+                    'description'       => 'test ownership 1 for owner access test',
+                    'date_from'         => time(),
+                    'address_recipient' => 'Address ownership 1'
+                ])
+                    ->first();
 
-            $user = User::create([
-                'login'         => 'employee_access_test@example.com',
-                'password'      => 'abcd1234',
-                'identity_id'   => $employee_identity['id']
-            ])
-                ->first();
+                $ownership_2 = Ownership::create([
+                    'condo_id'          => $condo_1['id'],
+                    'description'       => 'test ownership 2 for owner access test',
+                    'date_from'         => time(),
+                    'address_recipient' => 'Address ownership 2'
+                ])
+                    ->first();
 
-            Employee::create([
-                'identity_id'   => $employee_identity['id']
-            ]);
+                $owner_1_identity = Identity::create([
+                    'type_id'   => 1,
+                    'type'      => 'IN',
+                    'firstname' => 'Owner',
+                    'lastname'  => 'Access Test',
+                    'lang_id'   => 2
+                ])
+                    ->first();
 
-            RoleAssignment::create([
-                'condo_id'  => $condo_1['id'],
-                'user_id'   => $user['id'],
-                'role_id'   => 1
-            ]);
+                $owner_1_user = User::create([
+                    'login'         => 'owner_1_access_test@example.com',
+                    'password'      => 'abcd1234',
+                    'identity_id'   => $owner_1_identity['id']
+                ])
+                    ->first();
 
-            return [$condo_1, $condo_2, $user];
-        },
-        'act'           => function($data) use($providers) {
-            /**
-             * @var \equal\orm\ObjectManager        $orm
-             * @var \fmt\access\AccessController    $am
-             */
-            ['orm' => $orm, 'access' => $am] = $providers;
+                $owner_1 = Owner::create([
+                    'condo_id'      => $condo_1['id'],
+                    'ownership_id'  => $ownership_1['id'],
+                    'identity_id'   => $owner_1_identity['id']
+                ])
+                    ->first();
 
-            [$condo_1, $condo_2, $user] = $data;
+                $owner_2_identity = Identity::create([
+                    'type_id'   => 1,
+                    'type'      => 'IN',
+                    'firstname' => 'Owner',
+                    'lastname'  => 'Access Test',
+                    'lang_id'   => 2
+                ])
+                    ->first();
 
-            $flatten = function(array $array) {
-                $res = [];
-                array_walk_recursive($array, function($a) use (&$res) { $res[] = $a; });
-                return $res;
-            };
+                User::create([
+                    'login'         => 'owner_2_access_test@example.com',
+                    'password'      => 'abcd1234',
+                    'identity_id'   => $owner_2_identity['id']
+                ]);
 
-            $map_classes = [
-                'realestate' => [
-                    'property' => [
-                        Apportionment::getType(),
-                        CommonArea::getType(),
-                        Condominium::getType(),
-                        OwnershipTransfer::getType(),
-                        OwnershipTransferAdjustmentLine::getType(),
-                        OwnershipTransferBankLoanLine::getType(),
-                        OwnershipTransferContact::getType(),
-                        OwnershipTransferFee::getType(),
-                        OwnershipTransferFundBalanceLine::getType(),
-                        OwnershipTransferFundRequestLine::getType(),
-                        PropertyEntrance::getType(),
-                        PropertyLot::getType(),
-                        PropertyLotApportionmentShare::getType(),
-                        PropertyLotOwnership::getType(),
-                        PropertyLotStatutoryQuota::getType(),
-                        PropertyLotSuppliershipReference::getType(),
-                        Tenancy::getType(),
-                        TenancyTransfer::getType(),
-                        Tenant::getType()
+                $owner_2 = Owner::create([
+                    'condo_id'      => $condo_1['id'],
+                    'ownership_id'  => $ownership_2['id'],
+                    'identity_id'   => $owner_2_identity['id']
+                ])
+                    ->first();
+
+                return [$condo_1, $condo_2, $ownership_1, $ownership_2, $owner_1_user, $owner_1, $owner_2];
+            },
+            'act'           => function($data) use($providers) {
+                /**
+                 * @var \equal\orm\ObjectManager            $orm
+                 * @var \equal\auth\AuthenticationManager   $auth
+                 */
+                ['orm' => $orm, 'auth' => $auth] = $providers;
+
+                [$condo_1, $condo_2, $ownership_1, $ownership_2, $owner_1_user, $owner_1, $owner_2] = $data;
+
+                $checkAccess = function($document_id, $user_id) use($auth) {
+                    $auth->su($user_id);
+
+                    try {
+                        $documents = eQual::run('get', 'model_collect', [
+                            'entity'    => 'documents\Document',
+                            'domain'    => ['id', '=', $document_id]
+                        ]);
+
+                        $has_access = count($documents) === 1;
+                    }
+                    catch(Exception $e) {
+                        $has_access = false;
+                    }
+
+                    $auth->su();
+
+                    return $has_access;
+                };
+
+                $access_results = [
+                    'agency'    => null,
+                    'condo'     => [],
+                    'ownership' => [],
+                    'owner'     => []
+                ];
+
+                $documents = [
+                    'agency' => [
+                        'result_group'  => 'agency',
+                        'name'          => 'access-test-agency.txt',
+                        'data'          => 'access-test-agency',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'document_visibility'   => 'agency'
+                        ]
+                    ],
+                    'condo_1' => [
+                        'result_group'  => 'condo',
+                        'name'          => 'access-test-condo-1.txt',
+                        'data'          => 'access-test-condo-1',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'document_visibility'   => 'condo'
+                        ]
+                    ],
+                    'condo_2' => [
+                        'result_group'  => 'condo',
+                        'name'          => 'access-test-condo-2.txt',
+                        'data'          => 'access-test-condo-2',
+                        'values'        => [
+                            'condo_id'              => $condo_2['id'],
+                            'document_visibility'   => 'condo'
+                        ]
+                    ],
+                    'ownership_1' => [
+                        'result_group'  => 'ownership',
+                        'name'          => 'access-test-ownership-1.txt',
+                        'data'          => 'access-test-ownership-1',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_1['id'],
+                            'document_visibility'   => 'ownership'
+                        ]
+                    ],
+                    'ownership_2' => [
+                        'result_group'  => 'ownership',
+                        'name'          => 'access-test-ownership-2.txt',
+                        'data'          => 'access-test-ownership-2',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_2['id'],
+                            'document_visibility'   => 'ownership'
+                        ]
+                    ],
+                    'owner_1' => [
+                        'result_group'  => 'owner',
+                        'name'          => 'access-test-owner-1.txt',
+                        'data'          => 'access-test-owner-1',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_1['id'],
+                            'owner_id'              => $owner_1['id'],
+                            'document_visibility'   => 'owner'
+                        ]
+                    ],
+                    'owner_2' => [
+                        'result_group'  => 'owner',
+                        'name'          => 'access-test-owner-2.txt',
+                        'data'          => 'access-test-owner-2',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_1['id'],
+                            'owner_id'              => $owner_2['id'],
+                            'document_visibility'   => 'owner'
+                        ]
                     ]
-                ]
-            ];
+                ];
 
-            $access_results = [
-                'condo_1' => [],
-                'condo_2' => []
-            ];
+                foreach($documents as $key => $document) {
+                    $document_id = $orm->create(Document::getType(), array_merge([
+                        'name'  => $document['name'],
+                        'data'  => $document['data']
+                    ], $document['values']));
 
-            foreach($flatten($map_classes) as $class) {
-                if($class === Condominium::getType()) {
-                    $map_condos_objects_ids = [
-                        'condo_1' => $condo_1['id'],
-                        'condo_2' => $condo_2['id']
-                    ];
+                    if($document_id <= 0) {
+                        throw new Exception("document_fixture_creation_failed: {$key}", EQ_ERROR_UNKNOWN);
+                    }
+
+                    if($document['result_group'] === 'agency') {
+                        $access_results['agency'] = $checkAccess($document_id, $owner_1_user['id']);
+                    }
+                    else {
+                        $access_results[$document['result_group']][$key] = $checkAccess($document_id, $owner_1_user['id']);
+                    }
+
+                    Document::id($document_id)->delete(true);
                 }
-                else {
-                    $map_condos_objects_ids = [
-                        'condo_1' => $orm->create($class, ['condo_id' => $condo_1['id'], 'state' => 'draft']),
-                        'condo_2' => $orm->create($class, ['condo_id' => $condo_2['id'], 'state' => 'draft'])
-                    ];
 
-                    if($map_condos_objects_ids['condo_1'] <= 0 || $map_condos_objects_ids['condo_2'] <= 0) {
-                        throw new Exception("fixture_creation_failed: {$class}", EQ_ERROR_UNKNOWN);
+                return $access_results;
+            },
+            'assert'        => function($access_results) {
+                return
+                    // access denied to agency document for owner 1
+                    $access_results['agency'] === false
+                    // access allowed to condo document, condo 1, for owner 1
+                    && $access_results['condo']['condo_1'] === true
+                    // access denied to condo document, condo 2, for owner 1
+                    && $access_results['condo']['condo_2'] === false
+                    // access allowed to ownership document, ownership 1, for owner 1
+                    && $access_results['ownership']['ownership_1'] === true
+                    // access denied to ownership document, ownership 2, for owner 1
+                    && $access_results['ownership']['ownership_2'] === false
+                    // access allowed to owner document, owner 1, for owner 1
+                    && $access_results['owner']['owner_1'] === true
+                    // access denied to owner document, owner 2, for owner 1
+                    && $access_results['owner']['owner_2'] === false;
+            },
+            'rollback'      => function() {
+                Condominium::search(['name', 'in', ['test condo 1 for owner access test', 'test condo 2 for owner access test']])->delete(true);
+
+                Ownership::search(['description', 'in', ['test ownership 1 for owner access test', 'test ownership 2 for owner access test']])->delete(true);
+
+                $users = User::search(['login', 'in', ['owner_1_access_test@example.com', 'owner_2_access_test@example.com']])->read(['identity_id']);
+                $identity_ids = [];
+                foreach($users as $user) {
+                    if(isset($user['identity_id'])) {
+                        $identity_ids[] = $user['identity_id'];
                     }
                 }
 
-                try {
-                    foreach($map_condos_objects_ids as $condo_key => $object_id) {
-                        foreach([EQ_R_READ, EQ_R_UPDATE] as $right) {
-                            $access_results[$condo_key][$class][$right] = $am->userIsAllowed($user['id'], $right, $class, [], [$object_id]);
+                User::search(['login', 'in', ['owner_1_access_test@example.com', 'owner_2_access_test@example.com']])->delete(true);
+                foreach($identity_ids as $identity_id) {
+                    Owner::search(['identity_id', '=', $identity_id])->delete(true);
+                    Identity::id($identity_id)->delete(true);
+                }
+
+                Document::search(['hash', 'in', ['agency', 'condo_1', 'condo_2', 'ownership_1', 'ownership_2', 'owner_1', 'owner_2']])->delete(true);
+                Document::search(['name', 'in', [
+                    'access-test-agency.txt',
+                    'access-test-condo-1.txt',
+                    'access-test-condo-2.txt',
+                    'access-test-ownership-1.txt',
+                    'access-test-ownership-2.txt',
+                    'access-test-owner-1.txt',
+                    'access-test-owner-2.txt'
+                ]])
+                    ->delete(true);
+            }
+        ],
+    '0216' => [
+            'description'   => "Test owner access on document by document_visibility.",
+            'help'          => "Data controller documents_Document_collect is checked, get document by its id.",
+            'arrange'       => function() {
+                $condo_1 = Condominium::create([
+                    'name'              => 'test condo 1 for owner access test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
+
+                $condo_2 = Condominium::create([
+                    'name'              => 'test condo 2 for owner access test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
+
+                $ownership_1 = Ownership::create([
+                    'condo_id'          => $condo_1['id'],
+                    'description'       => 'test ownership 1 for owner access test',
+                    'date_from'         => time(),
+                    'address_recipient' => 'Address ownership 1'
+                ])
+                    ->first();
+
+                $ownership_2 = Ownership::create([
+                    'condo_id'          => $condo_1['id'],
+                    'description'       => 'test ownership 2 for owner access test',
+                    'date_from'         => time(),
+                    'address_recipient' => 'Address ownership 2'
+                ])
+                    ->first();
+
+                $owner_1_identity = Identity::create([
+                    'type_id'   => 1,
+                    'type'      => 'IN',
+                    'firstname' => 'Owner',
+                    'lastname'  => 'Access Test',
+                    'lang_id'   => 2
+                ])
+                    ->first();
+
+                $owner_1_user = User::create([
+                    'login'         => 'owner_1_access_test@example.com',
+                    'password'      => 'abcd1234',
+                    'identity_id'   => $owner_1_identity['id']
+                ])
+                    ->first();
+
+                $owner_1 = Owner::create([
+                    'condo_id'      => $condo_1['id'],
+                    'ownership_id'  => $ownership_1['id'],
+                    'identity_id'   => $owner_1_identity['id']
+                ])
+                    ->first();
+
+                $owner_2_identity = Identity::create([
+                    'type_id'   => 1,
+                    'type'      => 'IN',
+                    'firstname' => 'Owner',
+                    'lastname'  => 'Access Test',
+                    'lang_id'   => 2
+                ])
+                    ->first();
+
+                User::create([
+                    'login'         => 'owner_2_access_test@example.com',
+                    'password'      => 'abcd1234',
+                    'identity_id'   => $owner_2_identity['id']
+                ]);
+
+                $owner_2 = Owner::create([
+                    'condo_id'      => $condo_1['id'],
+                    'ownership_id'  => $ownership_2['id'],
+                    'identity_id'   => $owner_2_identity['id']
+                ])
+                    ->first();
+
+                return [$condo_1, $condo_2, $ownership_1, $ownership_2, $owner_1_user, $owner_1, $owner_2];
+            },
+            'act'           => function($data) use($providers) {
+                /**
+                 * @var \equal\orm\ObjectManager            $orm
+                 * @var \equal\auth\AuthenticationManager   $auth
+                 */
+                ['orm' => $orm, 'auth' => $auth] = $providers;
+
+                [$condo_1, $condo_2, $ownership_1, $ownership_2, $owner_1_user, $owner_1, $owner_2] = $data;
+
+                $checkAccess = function($document_id, $user_id) use($auth) {
+                    $auth->su($user_id);
+
+                    try {
+                        $documents = eQual::run('get', 'documents_Document_collect', [
+                            'entity'    => 'documents\Document',
+                            'domain'    => ['id', '=', $document_id]
+                        ]);
+
+                        if(is_string($documents)) {
+                            $documents = json_decode($documents);
+                        }
+
+                        $has_access = count($documents) === 1;
+                    }
+                    catch(Exception $e) {
+                        $has_access = false;
+                    }
+
+                    $auth->su();
+
+                    return $has_access;
+                };
+
+                $access_results = [
+                    'agency'    => null,
+                    'condo'     => [],
+                    'ownership' => [],
+                    'owner'     => []
+                ];
+
+                $documents = [
+                    'agency' => [
+                        'result_group'  => 'agency',
+                        'name'          => 'access-test-agency.txt',
+                        'data'          => 'access-test-agency',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'document_visibility'   => 'agency'
+                        ]
+                    ],
+                    'condo_1' => [
+                        'result_group'  => 'condo',
+                        'name'          => 'access-test-condo-1.txt',
+                        'data'          => 'access-test-condo-1',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'document_visibility'   => 'condo'
+                        ]
+                    ],
+                    'condo_2' => [
+                        'result_group'  => 'condo',
+                        'name'          => 'access-test-condo-2.txt',
+                        'data'          => 'access-test-condo-2',
+                        'values'        => [
+                            'condo_id'              => $condo_2['id'],
+                            'document_visibility'   => 'condo'
+                        ]
+                    ],
+                    'ownership_1' => [
+                        'result_group'  => 'ownership',
+                        'name'          => 'access-test-ownership-1.txt',
+                        'data'          => 'access-test-ownership-1',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_1['id'],
+                            'document_visibility'   => 'ownership'
+                        ]
+                    ],
+                    'ownership_2' => [
+                        'result_group'  => 'ownership',
+                        'name'          => 'access-test-ownership-2.txt',
+                        'data'          => 'access-test-ownership-2',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_2['id'],
+                            'document_visibility'   => 'ownership'
+                        ]
+                    ],
+                    'owner_1' => [
+                        'result_group'  => 'owner',
+                        'name'          => 'access-test-owner-1.txt',
+                        'data'          => 'access-test-owner-1',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_1['id'],
+                            'owner_id'              => $owner_1['id'],
+                            'document_visibility'   => 'owner'
+                        ]
+                    ],
+                    'owner_2' => [
+                        'result_group'  => 'owner',
+                        'name'          => 'access-test-owner-2.txt',
+                        'data'          => 'access-test-owner-2',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_1['id'],
+                            'owner_id'              => $owner_2['id'],
+                            'document_visibility'   => 'owner'
+                        ]
+                    ]
+                ];
+
+                foreach($documents as $key => $document) {
+                    $document_id = $orm->create(Document::getType(), array_merge([
+                        'name'  => $document['name'],
+                        'data'  => $document['data']
+                    ], $document['values']));
+
+                    if($document_id <= 0) {
+                        throw new Exception("document_fixture_creation_failed: {$key}", EQ_ERROR_UNKNOWN);
+                    }
+
+                    if($document['result_group'] === 'agency') {
+                        $access_results['agency'] = $checkAccess($document_id, $owner_1_user['id']);
+                    }
+                    else {
+                        $access_results[$document['result_group']][$key] = $checkAccess($document_id, $owner_1_user['id']);
+                    }
+
+                    Document::id($document_id)->delete(true);
+                }
+
+                return $access_results;
+            },
+            'assert'        => function($access_results) {
+                return
+                    // access denied to agency document for owner 1
+                    $access_results['agency'] === false
+                    // access allowed to condo document, condo 1, for owner 1
+                    && $access_results['condo']['condo_1'] === true
+                    // access denied to condo document, condo 2, for owner 1
+                    && $access_results['condo']['condo_2'] === false
+                    // access allowed to ownership document, ownership 1, for owner 1
+                    && $access_results['ownership']['ownership_1'] === true
+                    // access denied to ownership document, ownership 2, for owner 1
+                    && $access_results['ownership']['ownership_2'] === false
+                    // access allowed to owner document, owner 1, for owner 1
+                    && $access_results['owner']['owner_1'] === true
+                    // access denied to owner document, owner 2, for owner 1
+                    && $access_results['owner']['owner_2'] === false;
+            },
+            'rollback'      => function() {
+                Condominium::search(['name', 'in', ['test condo 1 for owner access test', 'test condo 2 for owner access test']])->delete(true);
+
+                Ownership::search(['description', 'in', ['test ownership 1 for owner access test', 'test ownership 2 for owner access test']])->delete(true);
+
+                $users = User::search(['login', 'in', ['owner_1_access_test@example.com', 'owner_2_access_test@example.com']])->read(['identity_id']);
+                $identity_ids = [];
+                foreach($users as $user) {
+                    if(isset($user['identity_id'])) {
+                        $identity_ids[] = $user['identity_id'];
+                    }
+                }
+
+                User::search(['login', 'in', ['owner_1_access_test@example.com', 'owner_2_access_test@example.com']])->delete(true);
+                foreach($identity_ids as $identity_id) {
+                    Owner::search(['identity_id', '=', $identity_id])->delete(true);
+                    Identity::id($identity_id)->delete(true);
+                }
+
+                Document::search(['hash', 'in', ['agency', 'condo_1', 'condo_2', 'ownership_1', 'ownership_2', 'owner_1', 'owner_2']])->delete(true);
+                Document::search(['name', 'in', [
+                    'access-test-agency.txt',
+                    'access-test-condo-1.txt',
+                    'access-test-condo-2.txt',
+                    'access-test-ownership-1.txt',
+                    'access-test-ownership-2.txt',
+                    'access-test-owner-1.txt',
+                    'access-test-owner-2.txt'
+                ]])
+                    ->delete(true);
+            }
+        ],
+    '0217' => [
+            'description'   => "Test owner delete document restricted by document_visibility.",
+            'help'          => "For the moment owners cannot delete documents.",
+            'arrange'       => function() {
+                $condo_1 = Condominium::create([
+                    'name'              => 'test condo 1 for owner access test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
+
+                $condo_2 = Condominium::create([
+                    'name'              => 'test condo 2 for owner access test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
+
+                $ownership_1 = Ownership::create([
+                    'condo_id'          => $condo_1['id'],
+                    'description'       => 'test ownership 1 for owner access test',
+                    'date_from'         => time(),
+                    'address_recipient' => 'Address ownership 1'
+                ])
+                    ->first();
+
+                $ownership_2 = Ownership::create([
+                    'condo_id'          => $condo_1['id'],
+                    'description'       => 'test ownership 2 for owner access test',
+                    'date_from'         => time(),
+                    'address_recipient' => 'Address ownership 2'
+                ])
+                    ->first();
+
+                $owner_1_identity = Identity::create([
+                    'type_id'   => 1,
+                    'type'      => 'IN',
+                    'firstname' => 'Owner',
+                    'lastname'  => 'Access Test',
+                    'lang_id'   => 2
+                ])
+                    ->first();
+
+                $owner_1_user = User::create([
+                    'login'         => 'owner_1_access_test@example.com',
+                    'password'      => 'abcd1234',
+                    'identity_id'   => $owner_1_identity['id']
+                ])
+                    ->first();
+
+                $owner_1 = Owner::create([
+                    'condo_id'      => $condo_1['id'],
+                    'ownership_id'  => $ownership_1['id'],
+                    'identity_id'   => $owner_1_identity['id']
+                ])
+                    ->first();
+
+                $owner_2_identity = Identity::create([
+                    'type_id'   => 1,
+                    'type'      => 'IN',
+                    'firstname' => 'Owner',
+                    'lastname'  => 'Access Test',
+                    'lang_id'   => 2
+                ])
+                    ->first();
+
+                User::create([
+                    'login'         => 'owner_2_access_test@example.com',
+                    'password'      => 'abcd1234',
+                    'identity_id'   => $owner_2_identity['id']
+                ]);
+
+                $owner_2 = Owner::create([
+                    'condo_id'      => $condo_1['id'],
+                    'ownership_id'  => $ownership_2['id'],
+                    'identity_id'   => $owner_2_identity['id']
+                ])
+                    ->first();
+
+                return [$condo_1, $condo_2, $ownership_1, $ownership_2, $owner_1_user, $owner_1, $owner_2];
+            },
+            'act'           => function($data) use($providers) {
+                /**
+                 * @var \equal\orm\ObjectManager            $orm
+                 * @var \equal\auth\AuthenticationManager   $auth
+                 */
+                ['orm' => $orm, 'auth' => $auth] = $providers;
+
+                [$condo_1, $condo_2, $ownership_1, $ownership_2, $owner_1_user, $owner_1, $owner_2] = $data;
+
+                $checkDelete = function($document_id, $user_id) use($auth) {
+                    $documents = eQual::run('get', 'model_collect', [
+                        'entity'    => 'documents\Document',
+                        'domain'    => ['id', '=', $document_id]
+                    ]);
+
+                    if(count($documents) !== 1) {
+                        throw new Exception("document_does_not_exist", EQ_ERROR_UNKNOWN);
+                    }
+
+                    $auth->su($user_id);
+
+                    try {
+                        Document::id($document_id)->delete();
+                    }
+                    catch(Exception $e) {
+                    }
+
+                    $auth->su();
+
+                    $documents = eQual::run('get', 'model_collect', [
+                        'entity'    => 'documents\Document',
+                        'domain'    => ['id', '=', $document_id]
+                    ]);
+
+                    $can_delete = false;
+                    if(empty($documents)) {
+                        $can_delete = true;
+                    }
+
+                    return $can_delete;
+                };
+
+                $delete_results = [
+                    'agency'    => null,
+                    'condo'     => [],
+                    'ownership' => [],
+                    'owner'     => []
+                ];
+
+                $documents = [
+                    'agency' => [
+                        'result_group'  => 'agency',
+                        'name'          => 'access-test-agency.txt',
+                        'data'          => 'access-test-agency',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'document_visibility'   => 'agency'
+                        ]
+                    ],
+                    'condo_1' => [
+                        'result_group'  => 'condo',
+                        'name'          => 'access-test-condo-1.txt',
+                        'data'          => 'access-test-condo-1',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'document_visibility'   => 'condo'
+                        ]
+                    ],
+                    'condo_2' => [
+                        'result_group'  => 'condo',
+                        'name'          => 'access-test-condo-2.txt',
+                        'data'          => 'access-test-condo-2',
+                        'values'        => [
+                            'condo_id'              => $condo_2['id'],
+                            'document_visibility'   => 'condo'
+                        ]
+                    ],
+                    'ownership_1' => [
+                        'result_group'  => 'ownership',
+                        'name'          => 'access-test-ownership-1.txt',
+                        'data'          => 'access-test-ownership-1',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_1['id'],
+                            'document_visibility'   => 'ownership'
+                        ]
+                    ],
+                    'ownership_2' => [
+                        'result_group'  => 'ownership',
+                        'name'          => 'access-test-ownership-2.txt',
+                        'data'          => 'access-test-ownership-2',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_2['id'],
+                            'document_visibility'   => 'ownership'
+                        ]
+                    ],
+                    'owner_1' => [
+                        'result_group'  => 'owner',
+                        'name'          => 'access-test-owner-1.txt',
+                        'data'          => 'access-test-owner-1',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_1['id'],
+                            'owner_id'              => $owner_1['id'],
+                            'document_visibility'   => 'owner'
+                        ]
+                    ],
+                    'owner_2' => [
+                        'result_group'  => 'owner',
+                        'name'          => 'access-test-owner-2.txt',
+                        'data'          => 'access-test-owner-2',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_1['id'],
+                            'owner_id'              => $owner_2['id'],
+                            'document_visibility'   => 'owner'
+                        ]
+                    ]
+                ];
+
+                foreach($documents as $key => $document) {
+                    $document_id = $orm->create(Document::getType(), array_merge([
+                        'name'  => $document['name'],
+                        'data'  => $document['data']
+                    ], $document['values']));
+
+                    if($document_id <= 0) {
+                        throw new Exception("document_fixture_creation_failed: {$key}", EQ_ERROR_UNKNOWN);
+                    }
+
+                    if($document['result_group'] === 'agency') {
+                        $delete_results['agency'] = $checkDelete($document_id, $owner_1_user['id']);
+                    }
+                    else {
+                        $delete_results[$document['result_group']][$key] = $checkDelete($document_id, $owner_1_user['id']);
+                    }
+
+                    Document::id($document_id)->delete(true);
+                }
+
+                return $delete_results;
+            },
+            'assert'        => function($delete_results) {
+                return
+                    // delete denied to agency document for owner 1
+                    $delete_results['agency'] === false
+                    // delete denied to condo document, condo 1, for owner 1
+                    && $delete_results['condo']['condo_1'] === false
+                    // delete denied to condo document, condo 2, for owner 1
+                    && $delete_results['condo']['condo_2'] === false
+                    // delete denied to ownership document, ownership 1, for owner 1
+                    && $delete_results['ownership']['ownership_1'] === false
+                    // delete denied to ownership document, ownership 2, for owner 1
+                    && $delete_results['ownership']['ownership_2'] === false
+                    // delete denied to owner document, owner 1, for owner 1
+                    && $delete_results['owner']['owner_1'] === false
+                    // delete denied to owner document, owner 2, for owner 1
+                    && $delete_results['owner']['owner_2'] === false;
+            },
+            'rollback'      => function() {
+                Condominium::search(['name', 'in', ['test condo 1 for owner access test', 'test condo 2 for owner access test']])->delete(true);
+
+                Ownership::search(['description', 'in', ['test ownership 1 for owner access test', 'test ownership 2 for owner access test']])->delete(true);
+
+                $users = User::search(['login', 'in', ['owner_1_access_test@example.com', 'owner_2_access_test@example.com']])->read(['identity_id']);
+                $identity_ids = [];
+                foreach($users as $user) {
+                    if(isset($user['identity_id'])) {
+                        $identity_ids[] = $user['identity_id'];
+                    }
+                }
+
+                User::search(['login', 'in', ['owner_1_access_test@example.com', 'owner_2_access_test@example.com']])->delete(true);
+                foreach($identity_ids as $identity_id) {
+                    Owner::search(['identity_id', '=', $identity_id])->delete(true);
+                    Identity::id($identity_id)->delete(true);
+                }
+
+                Document::search(['hash', 'in', ['agency', 'condo_1', 'condo_2', 'ownership_1', 'ownership_2', 'owner_1', 'owner_2']])->delete(true);
+                Document::search(['name', 'in', [
+                    'access-test-agency.txt',
+                    'access-test-condo-1.txt',
+                    'access-test-condo-2.txt',
+                    'access-test-ownership-1.txt',
+                    'access-test-ownership-2.txt',
+                    'access-test-owner-1.txt',
+                    'access-test-owner-2.txt'
+                ]])
+                    ->delete(true);
+            }
+        ],
+    '0218' => [
+            'description'   => "Test owner delete document restricted by document_visibility.",
+            'help'          => "For the moment owners cannot delete documents.",
+            'arrange'       => function() {
+                $condo_1 = Condominium::create([
+                    'name'              => 'test condo 1 for owner access test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
+
+                $condo_2 = Condominium::create([
+                    'name'              => 'test condo 2 for owner access test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
+
+                $ownership_1 = Ownership::create([
+                    'condo_id'          => $condo_1['id'],
+                    'description'       => 'test ownership 1 for owner access test',
+                    'date_from'         => time(),
+                    'address_recipient' => 'Address ownership 1'
+                ])
+                    ->first();
+
+                $ownership_2 = Ownership::create([
+                    'condo_id'          => $condo_1['id'],
+                    'description'       => 'test ownership 2 for owner access test',
+                    'date_from'         => time(),
+                    'address_recipient' => 'Address ownership 2'
+                ])
+                    ->first();
+
+                $owner_1_identity = Identity::create([
+                    'type_id'   => 1,
+                    'type'      => 'IN',
+                    'firstname' => 'Owner',
+                    'lastname'  => 'Access Test',
+                    'lang_id'   => 2
+                ])
+                    ->first();
+
+                $owner_1_user = User::create([
+                    'login'         => 'owner_1_access_test@example.com',
+                    'password'      => 'abcd1234',
+                    'identity_id'   => $owner_1_identity['id']
+                ])
+                    ->first();
+
+                $owner_1 = Owner::create([
+                    'condo_id'      => $condo_1['id'],
+                    'ownership_id'  => $ownership_1['id'],
+                    'identity_id'   => $owner_1_identity['id']
+                ])
+                    ->first();
+
+                $owner_2_identity = Identity::create([
+                    'type_id'   => 1,
+                    'type'      => 'IN',
+                    'firstname' => 'Owner',
+                    'lastname'  => 'Access Test',
+                    'lang_id'   => 2
+                ])
+                    ->first();
+
+                User::create([
+                    'login'         => 'owner_2_access_test@example.com',
+                    'password'      => 'abcd1234',
+                    'identity_id'   => $owner_2_identity['id']
+                ]);
+
+                $owner_2 = Owner::create([
+                    'condo_id'      => $condo_1['id'],
+                    'ownership_id'  => $ownership_2['id'],
+                    'identity_id'   => $owner_2_identity['id']
+                ])
+                    ->first();
+
+                return [$condo_1, $condo_2, $ownership_1, $ownership_2, $owner_1_user, $owner_1, $owner_2];
+            },
+            'act'           => function($data) use($providers) {
+                /**
+                 * @var \equal\orm\ObjectManager            $orm
+                 * @var \equal\auth\AuthenticationManager   $auth
+                 */
+                ['orm' => $orm, 'auth' => $auth] = $providers;
+
+                [$condo_1, $condo_2, $ownership_1, $ownership_2, $owner_1_user, $owner_1, $owner_2] = $data;
+
+                $checkArchive = function($document_id, $user_id) use($auth) {
+                    $documents = eQual::run('get', 'model_collect', [
+                        'entity'    => 'documents\Document',
+                        'domain'    => ['id', '=', $document_id]
+                    ]);
+
+                    if(count($documents) !== 1) {
+                        throw new Exception("document_does_not_exist", EQ_ERROR_UNKNOWN);
+                    }
+
+                    $auth->su($user_id);
+
+                    try {
+                        Document::id($document_id)->archive();
+                    }
+                    catch(Exception $e) {
+                    }
+
+                    $auth->su();
+
+                    $documents = eQual::run('get', 'model_collect', [
+                        'entity'    => 'documents\Document',
+                        'domain'    => ['id', '=', $document_id]
+                    ]);
+
+                    $can_delete = false;
+                    if(empty($documents)) {
+                        $can_delete = true;
+                    }
+
+                    return $can_delete;
+                };
+
+                $archive_results = [
+                    'agency'    => null,
+                    'condo'     => [],
+                    'ownership' => [],
+                    'owner'     => []
+                ];
+
+                $documents = [
+                    'agency' => [
+                        'result_group'  => 'agency',
+                        'name'          => 'access-test-agency.txt',
+                        'data'          => 'access-test-agency',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'document_visibility'   => 'agency'
+                        ]
+                    ],
+                    'condo_1' => [
+                        'result_group'  => 'condo',
+                        'name'          => 'access-test-condo-1.txt',
+                        'data'          => 'access-test-condo-1',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'document_visibility'   => 'condo'
+                        ]
+                    ],
+                    'condo_2' => [
+                        'result_group'  => 'condo',
+                        'name'          => 'access-test-condo-2.txt',
+                        'data'          => 'access-test-condo-2',
+                        'values'        => [
+                            'condo_id'              => $condo_2['id'],
+                            'document_visibility'   => 'condo'
+                        ]
+                    ],
+                    'ownership_1' => [
+                        'result_group'  => 'ownership',
+                        'name'          => 'access-test-ownership-1.txt',
+                        'data'          => 'access-test-ownership-1',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_1['id'],
+                            'document_visibility'   => 'ownership'
+                        ]
+                    ],
+                    'ownership_2' => [
+                        'result_group'  => 'ownership',
+                        'name'          => 'access-test-ownership-2.txt',
+                        'data'          => 'access-test-ownership-2',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_2['id'],
+                            'document_visibility'   => 'ownership'
+                        ]
+                    ],
+                    'owner_1' => [
+                        'result_group'  => 'owner',
+                        'name'          => 'access-test-owner-1.txt',
+                        'data'          => 'access-test-owner-1',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_1['id'],
+                            'owner_id'              => $owner_1['id'],
+                            'document_visibility'   => 'owner'
+                        ]
+                    ],
+                    'owner_2' => [
+                        'result_group'  => 'owner',
+                        'name'          => 'access-test-owner-2.txt',
+                        'data'          => 'access-test-owner-2',
+                        'values'        => [
+                            'condo_id'              => $condo_1['id'],
+                            'ownership_id'          => $ownership_1['id'],
+                            'owner_id'              => $owner_2['id'],
+                            'document_visibility'   => 'owner'
+                        ]
+                    ]
+                ];
+
+                foreach($documents as $key => $document) {
+                    $document_id = $orm->create(Document::getType(), array_merge([
+                        'name'  => $document['name'],
+                        'data'  => $document['data']
+                    ], $document['values']));
+
+                    if($document_id <= 0) {
+                        throw new Exception("document_fixture_creation_failed: {$key}", EQ_ERROR_UNKNOWN);
+                    }
+
+                    if($document['result_group'] === 'agency') {
+                        $archive_results['agency'] = $checkArchive($document_id, $owner_1_user['id']);
+                    }
+                    else {
+                        $archive_results[$document['result_group']][$key] = $checkArchive($document_id, $owner_1_user['id']);
+                    }
+
+                    Document::id($document_id)->delete(true);
+                }
+
+                return $archive_results;
+            },
+            'assert'        => function($archive_results) {
+                return
+                    // archive denied to agency document for owner 1
+                    $archive_results['agency'] === false
+                    // archive denied to condo document, condo 1, for owner 1
+                    && $archive_results['condo']['condo_1'] === false
+                    // archive denied to condo document, condo 2, for owner 1
+                    && $archive_results['condo']['condo_2'] === false
+                    // archive denied to ownership document, ownership 1, for owner 1
+                    && $archive_results['ownership']['ownership_1'] === false
+                    // archive denied to ownership document, ownership 2, for owner 1
+                    && $archive_results['ownership']['ownership_2'] === false
+                    // archive denied to owner document, owner 1, for owner 1
+                    && $archive_results['owner']['owner_1'] === false
+                    // archive denied to owner document, owner 2, for owner 1
+                    && $archive_results['owner']['owner_2'] === false;
+            },
+            'rollback'      => function() {
+                Condominium::search(['name', 'in', ['test condo 1 for owner access test', 'test condo 2 for owner access test']])->delete(true);
+
+                Ownership::search(['description', 'in', ['test ownership 1 for owner access test', 'test ownership 2 for owner access test']])->delete(true);
+
+                $users = User::search(['login', 'in', ['owner_1_access_test@example.com', 'owner_2_access_test@example.com']])->read(['identity_id']);
+                $identity_ids = [];
+                foreach($users as $user) {
+                    if(isset($user['identity_id'])) {
+                        $identity_ids[] = $user['identity_id'];
+                    }
+                }
+
+                User::search(['login', 'in', ['owner_1_access_test@example.com', 'owner_2_access_test@example.com']])->delete(true);
+                foreach($identity_ids as $identity_id) {
+                    Owner::search(['identity_id', '=', $identity_id])->delete(true);
+                    Identity::id($identity_id)->delete(true);
+                }
+
+                Document::search(['hash', 'in', ['agency', 'condo_1', 'condo_2', 'ownership_1', 'ownership_2', 'owner_1', 'owner_2']])->delete(true);
+                Document::search(['name', 'in', [
+                    'access-test-agency.txt',
+                    'access-test-condo-1.txt',
+                    'access-test-condo-2.txt',
+                    'access-test-ownership-1.txt',
+                    'access-test-ownership-2.txt',
+                    'access-test-owner-1.txt',
+                    'access-test-owner-2.txt'
+                ]])
+                    ->delete(true);
+            }
+        ],
+
+    '0219' => [
+            'description'   => "Test employee access to object configured with a condo_id",
+            'help'          => "",
+            'return'        => ['boolean'],
+            'arrange'       => function() {
+                $condo_1 = Condominium::create([
+                    'name'              => 'test condo 1 for owner access test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
+
+                $condo_2 = Condominium::create([
+                    'name'              => 'test condo 2 for owner access test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
+
+                $employee_identity = Identity::create([
+                    'type_id'   => 1,
+                    'type'      => 'IN',
+                    'firstname' => 'Employee',
+                    'lastname'  => 'Access Test',
+                    'lang_id'   => 2
+                ])
+                    ->first();
+
+                $user = User::create([
+                    'login'         => 'employee_access_test@example.com',
+                    'password'      => 'abcd1234',
+                    'identity_id'   => $employee_identity['id']
+                ])
+                    ->first();
+
+                Employee::create([
+                    'identity_id'   => $employee_identity['id']
+                ]);
+
+                RoleAssignment::create([
+                    'condo_id'  => $condo_1['id'],
+                    'user_id'   => $user['id'],
+                    'role_id'   => 1
+                ]);
+
+                return [$condo_1, $condo_2, $user];
+            },
+            'act'           => function($data) use($providers) {
+                /**
+                 * @var \equal\orm\ObjectManager        $orm
+                 * @var \fmt\access\AccessController    $am
+                 */
+                ['orm' => $orm, 'access' => $am] = $providers;
+
+                [$condo_1, $condo_2, $user] = $data;
+
+                $flatten = function(array $array) {
+                    $res = [];
+                    array_walk_recursive($array, function($a) use (&$res) { $res[] = $a; });
+                    return $res;
+                };
+
+                $map_classes = [
+                    'realestate' => [
+                        'property' => [
+                            Apportionment::getType(),
+                            CommonArea::getType(),
+                            Condominium::getType(),
+                            OwnershipTransfer::getType(),
+                            OwnershipTransferAdjustmentLine::getType(),
+                            OwnershipTransferBankLoanLine::getType(),
+                            OwnershipTransferContact::getType(),
+                            OwnershipTransferFee::getType(),
+                            OwnershipTransferFundBalanceLine::getType(),
+                            OwnershipTransferFundRequestLine::getType(),
+                            PropertyEntrance::getType(),
+                            PropertyLot::getType(),
+                            PropertyLotApportionmentShare::getType(),
+                            PropertyLotOwnership::getType(),
+                            PropertyLotStatutoryQuota::getType(),
+                            PropertyLotSuppliershipReference::getType(),
+                            Tenancy::getType(),
+                            TenancyTransfer::getType(),
+                            Tenant::getType()
+                        ]
+                    ]
+                ];
+
+                $access_results = [
+                    'condo_1' => [],
+                    'condo_2' => []
+                ];
+
+                foreach($flatten($map_classes) as $class) {
+                    if($class === Condominium::getType()) {
+                        $map_condos_objects_ids = [
+                            'condo_1' => $condo_1['id'],
+                            'condo_2' => $condo_2['id']
+                        ];
+                    }
+                    else {
+                        $map_condos_objects_ids = [
+                            'condo_1' => $orm->create($class, ['condo_id' => $condo_1['id'], 'state' => 'draft']),
+                            'condo_2' => $orm->create($class, ['condo_id' => $condo_2['id'], 'state' => 'draft'])
+                        ];
+
+                        if($map_condos_objects_ids['condo_1'] <= 0 || $map_condos_objects_ids['condo_2'] <= 0) {
+                            throw new Exception("fixture_creation_failed: {$class}", EQ_ERROR_UNKNOWN);
+                        }
+                    }
+
+                    try {
+                        foreach($map_condos_objects_ids as $condo_key => $object_id) {
+                            foreach([EQ_R_READ, EQ_R_UPDATE] as $right) {
+                                $access_results[$condo_key][$class][$right] = $am->userIsAllowed($user['id'], $right, $class, [], [$object_id]);
+                            }
+                        }
+                    }
+                    finally {
+                        if($class !== Condominium::getType()) {
+                            $orm->delete($class, [$map_condos_objects_ids['condo_1'], $map_condos_objects_ids['condo_2']]);
                         }
                     }
                 }
-                finally {
-                    if($class !== Condominium::getType()) {
-                        $orm->delete($class, [$map_condos_objects_ids['condo_1'], $map_condos_objects_ids['condo_2']]);
+
+                return $access_results;
+            },
+            'assert'        => function($access_results) {
+                foreach($access_results['condo_1'] as $class => $right_result) {
+                    if(!$right_result[EQ_R_READ]) {
+                        // Supposed to be able to read
+                        return false;
+                    }
+                    if($right_result[EQ_R_UPDATE]) {
+                        // Not supposed to be able to update
+                        return false;
                     }
                 }
-            }
 
-            return $access_results;
-        },
-        'assert'        => function($access_results) {
-            foreach($access_results['condo_1'] as $class => $right_result) {
-                if(!$right_result[EQ_R_READ]) {
-                    // Supposed to be able to read
-                    return false;
+                foreach($access_results['condo_2'] as $class => $right_result) {
+                    /*
+                    # todo - uncomment check when access check on employee implemented
+                    if($right_result[EQ_R_READ]) {
+                        // Not supposed to be able to read
+                        return false;
+                    }
+                    */
+                    if($right_result[EQ_R_UPDATE]) {
+                        // Not supposed to be able to update
+                        return false;
+                    }
                 }
-                if($right_result[EQ_R_UPDATE]) {
-                    // Not supposed to be able to update
-                    return false;
-                }
-            }
 
-            foreach($access_results['condo_2'] as $class => $right_result) {
-                /*
-                # todo - uncomment check when access check on employee implemented
-                if($right_result[EQ_R_READ]) {
-                    // Not supposed to be able to read
-                    return false;
-                }
-                */
-                if($right_result[EQ_R_UPDATE]) {
-                    // Not supposed to be able to update
-                    return false;
-                }
-            }
+                return true;
+            },
+            'rollback'      => function() {
+                Condominium::search(['name', 'in', ['test condo 1 for owner access test', 'test condo 2 for owner access test']])->delete(true);
 
-            return true;
-        },
-        'rollback'      => function() {
-            Condominium::search(['name', 'in', ['test condo 1 for owner access test', 'test condo 2 for owner access test']])->delete(true);
+                $users = User::search(['login', '=', 'employee_access_test@example.com'])->read(['identity_id']);
+                $identity_ids = [];
+                foreach($users as $user) {
+                    if(isset($user['identity_id'])) {
+                        $identity_ids[] = $user['identity_id'];
+                    }
+                }
 
-            $users = User::search(['login', '=', 'employee_access_test@example.com'])->read(['identity_id']);
-            $identity_ids = [];
-            foreach($users as $user) {
-                if(isset($user['identity_id'])) {
-                    $identity_ids[] = $user['identity_id'];
+                User::search(['login', '=', 'employee_access_test@example.com'])->delete(true);
+                foreach($identity_ids as $identity_id) {
+                    Employee::search(['identity_id', '=', $identity_id])->delete(true);
+                    Identity::id($identity_id)->delete(true);
                 }
             }
+        ],
 
-            User::search(['login', '=', 'employee_access_test@example.com'])->delete(true);
-            foreach($identity_ids as $identity_id) {
-                Employee::search(['identity_id', '=', $identity_id])->delete(true);
-                Identity::id($identity_id)->delete(true);
-            }
-        }
-    ],
-
-    '0216' => [
+    '0220' => [
             'description'   => "Employee access on documents.",
             'help'          => "Verify an employee user can access documents whatever document_visibility value is set.",
             'return'        => ['array'],
@@ -1420,40 +2493,40 @@ $tests = [
             }
     ],
 
-    '0217' => [
-        'description'   => "Test access token expiration.",
-        'help'          => "Verify that access token expires after defined time.",
-        'return'        => ['array'],
-        'arrange'       => function() {
-            User::create([
-                'login'     => 'user_test@example.com',
-                'password'  => 'abcd1234',
-                'validated' => true
-            ])
-                ->first();
-        },
-        'act'           => function() use($providers, $issue_access_token) {
-            /** @var \equal\auth\AuthenticationManager $auth */
-            $auth = $providers['auth'];
-            $token = $issue_access_token('1s');
-            $decoded_token = $auth->decodeToken($token)['payload'];
+    '0221' => [
+            'description'   => "Test access token expiration.",
+            'help'          => "Verify that access token expires after defined time.",
+            'return'        => ['array'],
+            'arrange'       => function() {
+                User::create([
+                    'login'     => 'user_test@example.com',
+                    'password'  => 'abcd1234',
+                    'validated' => true
+                ])
+                    ->first();
+            },
+            'act'           => function() use($providers, $issue_access_token) {
+                /** @var \equal\auth\AuthenticationManager $auth */
+                $auth = $providers['auth'];
+                $token = $issue_access_token('1s');
+                $decoded_token = $auth->decodeToken($token)['payload'];
 
-            sleep(2);
+                sleep(2);
 
-            return [
-                'validity'  => $decoded_token['exp'] - $decoded_token['iat'],
-                'expired'   => $auth->retrieveAccessToken($token) === null
-            ];
-        },
-        'assert'        => function($data) {
-            return $data['validity'] === 1
-                && $data['expired'] === true;
-        },
-        'rollback'      => function() {
-            User::search(['login', '=', 'user_test@example.com'])->delete(true);
-        }
-    ],
-    '0218' => [
+                return [
+                    'validity'  => $decoded_token['exp'] - $decoded_token['iat'],
+                    'expired'   => $auth->retrieveAccessToken($token) === null
+                ];
+            },
+            'assert'        => function($data) {
+                return $data['validity'] === 1
+                    && $data['expired'] === true;
+            },
+            'rollback'      => function() {
+                User::search(['login', '=', 'user_test@example.com'])->delete(true);
+            }
+        ],
+    '0222' => [
             'description'   => "Test access token expiration.",
             'help'          => "Verify that access token is not expired.",
             'return'        => ['array'],
@@ -1483,5 +2556,209 @@ $tests = [
             'rollback'      => function() {
                 User::search(['login', '=', 'user_test@example.com'])->delete(true);
             }
-    ]
+    ],
+
+    '0223' => [
+            'description'   => "Test that document cannot be delete if linked to assembly.",
+            'help'          => "A document linked to an assembly cannot be deleted.",
+            'return'        => ['array'],
+            'arrange'       => function() {
+                $condo = Condominium::create([
+                    'name'              => 'test condo for document cannot delete test',
+                    'managing_agent_id' => 1
+                ])
+                    ->read(['id'])
+                    ->first();
+
+                $assembly = Assembly::create([
+                    'condo_id'              => $condo['id'],
+                    'name'                  => "test assembly for document cannot delete test",
+                    'assembly_template_id'  => 1
+                ])
+                    ->first();
+
+                $document = Document::create([
+                    'condo_id'      => $condo['id'],
+                    'name'          => 'test document for document cannot delete test',
+                    'assembly_id'   => $assembly['id']
+                ])
+                    ->first(true);
+
+                return [$document];
+            },
+            'act'           => function($data) {
+                [$document] = $data;
+
+                try {
+                    Document::id($document['id'])->delete(true);
+                }
+                catch(Exception $e) {
+                }
+
+                return [$document];
+            },
+            'assert'        => function($data) {
+                [$document] = $data;
+
+                $del_document = Document::id($document['id'])->first();
+
+                return $del_document !== null;
+            },
+            'rollback'      => function() {
+                Condominium::search(['name', 'in', ['test condo for document cannot delete test']])->delete(true);
+
+                Assembly::search(['name', '=', 'test assembly for document cannot delete test'])->delete(true);
+                Document::search(['name', '=', 'test document for document cannot delete test'])->delete(true);
+            }
+        ],
+    '0224' => [
+            'description'   => "Test that document cannot be delete if linked to broadcast.",
+            'help'          => "A document linked to a broadcast cannot be deleted.",
+            'return'        => ['array'],
+            'arrange'       => function() {
+                $condo = Condominium::create([
+                    'name'              => 'test condo for document cannot delete test',
+                    'managing_agent_id' => 1
+                ])
+                    ->first();
+
+                $broadcast = Broadcast::create([
+                    'condo_id'              => $condo['id'],
+                    'name'                  => "test broadcast for document cannot delete test"
+                ])
+                    ->first();
+
+                $document = Document::create([
+                    'condo_id'          => $condo['id'],
+                    'name'              => 'test document for document cannot delete test',
+                    'broadcasts_ids'    => [$broadcast['id']]
+                ])
+                    ->first(true);
+
+                return [$document];
+            },
+            'act'           => function($data) {
+                [$document] = $data;
+
+                try {
+                    Document::id($document['id'])->delete(true);
+                }
+                catch(Exception $e) {
+                }
+
+                return [$document];
+            },
+            'assert'        => function($data) {
+                [$document] = $data;
+
+                $del_document = Document::id($document['id'])->first();
+
+                return $del_document !== null;
+            },
+            'rollback'      => function() {
+                Condominium::search(['name', 'in', ['test condo for document cannot delete test']])->delete(true);
+
+                Broadcast::search(['name', '=', 'test broadcast for document cannot delete test'])->delete(true);
+                Document::search(['name', '=', 'test document for document cannot delete test'])->delete(true);
+            }
+        ],
+    '0225' => [
+            'description'   => "Test that document cannot be delete if linked to pending process.",
+            'help'          => "A document linked to a process cannot be deleted.",
+            'arrange'       => function() {
+                $condo = Condominium::create([
+                    'name'              => 'test condo for document cannot delete test',
+                    'managing_agent_id' => 1
+                ])
+                    ->first();
+
+                $process = DocumentProcess::create([
+                    'condo_id'  => $condo['id'],
+                    'name'      => "test process for document cannot delete test"
+                ])
+                    ->first();
+
+                $document = Document::create([
+                    'condo_id'              => $condo['id'],
+                    'name'                  => 'test document for document cannot delete test',
+                    'document_process_id'   => $process['id']
+                ])
+                    ->first(true);
+
+                return [$document];
+            },
+            'act'           => function($data) {
+                [$document] = $data;
+
+                try {
+                    Document::id($document['id'])->delete(true);
+                }
+                catch(Exception $e) {
+                }
+
+                return [$document];
+            },
+            'assert'        => function($data) {
+                [$document] = $data;
+
+                $del_document = Document::id($document['id'])->first();
+
+                return $del_document !== null;
+            },
+            'rollback'      => function() {
+                Condominium::search(['name', 'in', ['test condo for document cannot delete test']])->delete(true);
+
+                DocumentProcess::search(['name', '=', 'test process for document cannot delete test'])->delete(true);
+                Document::search(['name', '=', 'test document for document cannot delete test'])->delete(true);
+            }
+        ],
+    '0226' => [
+            'description'   => "Test that document cannot be delete if linked to transfer.",
+            'help'          => "A document linked to a transfer cannot be deleted.",
+            'arrange'       => function() {
+                $condo = Condominium::create([
+                    'name'              => 'test condo for document cannot delete test',
+                    'managing_agent_id' => 1
+                ])
+                    ->first();
+
+                $transfer = OwnershipTransfer::create([
+                    'condo_id'  => $condo['id']
+                ])
+                    ->first();
+
+                $document = Document::create([
+                    'condo_id'              => $condo['id'],
+                    'name'                  => 'test document for document cannot delete test',
+                    'ownership_transfer_id' => $transfer['id']
+                ])
+                    ->first(true);
+
+                return [$document];
+            },
+            'act'           => function($data) {
+                [$document] = $data;
+
+                try {
+                    Document::id($document['id'])->delete(true);
+                }
+                catch(Exception $e) {
+                }
+
+                return [$document];
+            },
+            'assert'        => function($data) {
+                [$document] = $data;
+
+                $del_document = Document::id($document['id'])->first();
+
+                return $del_document !== null;
+            },
+            'rollback'      => function() {
+                Condominium::search(['name', 'in', ['test condo for document cannot delete test']])->delete(true);
+
+                OwnershipTransfer::search(['name', '=', 'test transfer for document cannot delete test'])->delete(true);
+                Document::search(['name', '=', 'test document for document cannot delete test'])->delete(true);
+            }
+        ]
 ];
