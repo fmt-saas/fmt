@@ -26,13 +26,11 @@ use infra\server\Server;
         'create_dns_record' => [
             'type'              => 'boolean',
             'description'       => "Ensure that a managed OVH DNS record exists for a client instance.",
-            'required'          => true,
             'default'           => true
         ],
         'sync' => [
             'type'              => 'boolean',
             'description'       => "Synchronize the instance with platform.",
-            'required'          => true,
             'default'           => false
         ],
         'sync_level' => [
@@ -44,15 +42,13 @@ use infra\server\Server;
                 'optional',
                 'demo'
             ],
-            'required'          => true,
             'default'           => 'required'
         ],
         'init' => [
             'type'              => 'boolean',
             'description'       => "Initialize the instance after creation.",
             'help'              => "The instance will take some minutes for the instance to be fully initialized.",
-            'default'           => false,
-            'required'          => true
+            'default'           => false
         ]
     ],
     'access'            => [
