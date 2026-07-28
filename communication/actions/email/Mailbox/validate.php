@@ -64,6 +64,9 @@ $map_providers = [
     'microsoft'  => 'imap.outlook.com'
 ];
 
+$user_id = $auth->userId();
+$auth->su();
+
 // attempt to retrieve a matching Mailbox
 $mailbox = Mailbox::search([
         ['email', '=', $params['email']],
@@ -86,6 +89,8 @@ Mailbox::id($mailbox['id'])
         'imap_server'           => $map_providers[$params['provider']],
         'status'                => 'validated'
     ]);
+
+$auth->su($user_id);
 
 $context->httpResponse()
         ->status(204)
