@@ -352,7 +352,7 @@ try {
         [
             'Content-Type' => 'application/json'
         ],
-        [201]
+        [200, 201]
     );
 
     $draft = $create_response->body();
