@@ -50,11 +50,11 @@ $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
 try {
 
-    foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
+    foreach($assembly['ownerships_ids'] as $ownership) {
         try {
             $pdf = eQual::run('get', 'realestate_governance_Assembly_voteforms_single-pdf', [
                     'id'            => $assembly['id'],
-                    'ownership_id'  => $ownership_id
+                    'ownership_id'  => $ownership['id']
                 ]);
             $temp = tempnam(sys_get_temp_dir(), 'pdf_');
             file_put_contents($temp, $pdf);

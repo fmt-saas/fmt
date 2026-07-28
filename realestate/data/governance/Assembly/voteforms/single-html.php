@@ -199,6 +199,10 @@ if(!$assembly) {
     throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
+if(!in_array($params['ownership_id'], $assembly['ownerships_ids'])) {
+    throw new Exception('ownership_not_part_of_assembly', EQ_ERROR_INVALID_PARAM);
+}
+
 $organisation = Organisation::id(1)
     ->read([
         'name', 'address_street', 'address_dispatch', 'address_zip',
