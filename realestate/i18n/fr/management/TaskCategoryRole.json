@@ -1,0 +1,40 @@
+{
+    "name": "Rôle de catégorie de tâche",
+    "plural": "Rôles de catégorie de tâche",
+    "description": "Règle de visibilité par rôle pour une catégorie de tâche.",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Nom affiché de la règle.",
+            "help": "Ce nom est calculé depuis la catégorie et le rôle."
+        },
+        "category_id": {
+            "label": "Catégorie",
+            "description": "Catégorie concernée par la règle.",
+            "help": "Choisissez la catégorie dont la visibilité est restreinte."
+        },
+        "role_id": {
+            "label": "Rôle",
+            "description": "Rôle autorisé à voir la catégorie.",
+            "help": "Choisissez le rôle collaborateur autorisé à voir la catégorie."
+        },
+        "role_code": {
+            "label": "Code rôle",
+            "description": "Code du rôle autorisé.",
+            "help": "Ce code est repris automatiquement depuis le rôle sélectionné."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Rôle de catégorie de tâche",
+            "description": "Formulaire de gestion d'une règle de visibilité par rôle.",
+            "layout": {}
+        },
+        "list.default": {
+            "name": "Rôles de catégorie de tâche",
+            "description": "Liste des règles de visibilité par rôle.",
+            "layout": {}
+        }
+    },
+    "error": {}
+}

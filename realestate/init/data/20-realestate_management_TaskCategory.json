@@ -1,0 +1,58 @@
+[
+    {
+        "name": "realestate\\management\\TaskCategory",
+        "lang": "en",
+        "data": [
+            {
+                "id": 1,
+                "name": "Finance",
+                "code": "finance",
+                "description": "Fund calls, statements, account extracts, reimbursements, payment reminders and financial formal notices."
+            },
+            {
+                "id": 2,
+                "name": "Legal",
+                "code": "legal",
+                "description": "Sales, transfers, notary questionnaires, dated statements, statutes, base deeds, contracts and disputes."
+            },
+            {
+                "id": 3,
+                "name": "Governance",
+                "code": "governance",
+                "description": "General meetings, notices, proxies, votes, minutes, condominium council and statutory auditor topics."
+            },
+            {
+                "id": 4,
+                "name": "Communications",
+                "code": "communication",
+                "description": "Collective messages, general information, announcements, interventions, building access, incidents, instructions and building life."
+            }
+        ]
+    },
+    {
+        "name": "realestate\\management\\TaskCategory",
+        "lang": "fr",
+        "data": [
+            {
+                "id": 1,
+                "name": "Finance",
+                "description": "Appels de fonds, décomptes, extraits de compte, remboursements, rappels de paiement, mises en demeure financières."
+            },
+            {
+                "id": 2,
+                "name": "Juridique",
+                "description": "Ventes, mutations, questionnaires notariaux, états datés, statuts, actes de base, contrats, contentieux."
+            },
+            {
+                "id": 3,
+                "name": "Gouvernance",
+                "description": "Assemblées générales, convocations, procurations, votes, procès-verbaux, conseil de copropriété, commissaire aux comptes."
+            },
+            {
+                "id": 4,
+                "name": "Communications",
+                "description": "Messages collectifs, informations générales, annonces, interventions, accès aux immeubles, incidents, consignes et vie de l'immeuble."
+            }
+        ]
+    }
+]
