@@ -1,0 +1,49 @@
+{
+    "name": "Processus de gestion",
+    "plural": "Processus de gestion",
+    "description": "Les processus de gestion décrivent des périmètres de gestion de copropriété et les rôles collaborateurs qui leur sont assignés.",
+    "model": {
+        "name": {
+            "label": "Nom",
+            "description": "Libellé court du processus de gestion.",
+            "help": "Utilisez un libellé compréhensible par les collaborateurs."
+        },
+        "code": {
+            "label": "Code",
+            "description": "Code unique du processus de gestion.",
+            "help": "Utilisez un code stable en minuscules, sans espace."
+        },
+        "description": {
+            "label": "Description",
+            "description": "Périmètre couvert par le processus de gestion.",
+            "help": "Précisez les types de demandes couvertes par ce processus de gestion."
+        },
+        "mailbox_id": {
+            "label": "Boîte mail",
+            "description": "Boîte mail associée, si applicable.",
+            "help": "Laissez vide si le processus de gestion ne dépend pas d'une boîte mail."
+        },
+        "roles_ids": {
+            "label": "Rôles assignés",
+            "description": "Rôles assignés à ce processus de gestion.",
+            "help": "Ajoutez les rôles responsables de ce processus de gestion."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Processus de gestion",
+            "description": "Formulaire de gestion d'un processus de gestion.",
+            "layout": {
+                "section.roles": {
+                    "label": "Rôles assignés"
+                }
+            }
+        },
+        "list.default": {
+            "name": "Processus de gestion",
+            "description": "Liste des processus de gestion.",
+            "layout": {}
+        }
+    },
+    "error": {}
+}

@@ -92,6 +92,15 @@ class Role extends Group {
                 'description'       => 'Groups that are granted to employees assigned with the role.'
             ],
 
+            'management_processes_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'realestate\management\ManagementProcess',
+                'foreign_field'     => 'roles_ids',
+                'rel_table'         => 'realestate_management_managementprocess_rel_role',
+                'rel_foreign_key'   => 'management_process_id',
+                'rel_local_key'     => 'role_id',
+                'description'       => 'Management processes assigned to this role.'
+            ]
         ];
     }
 

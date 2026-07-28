@@ -1,8 +1,8 @@
 <?php
 
-use realestate\management\TaskCategory;
+use realestate\management\ManagementProcess;
 
-$categories = [
+$processes = [
     'finance' => [
         'en' => [
             'name'        => 'Finance',
@@ -45,15 +45,15 @@ $categories = [
     ]
 ];
 
-foreach($categories as $code => $translations) {
-    $category = TaskCategory::search([['code', '=', $code]])->first();
+foreach($processes as $code => $translations) {
+    $process = ManagementProcess::search([['code', '=', $code]])->first();
 
-    if(!$category) {
-        $category = TaskCategory::create(array_merge(['code' => $code], $translations['en']))->first();
+    if(!$process) {
+        $process = ManagementProcess::create(array_merge(['code' => $code], $translations['en']))->first();
     }
     else {
-        TaskCategory::id($category['id'])->update($translations['en'], 'en');
+        ManagementProcess::id($process['id'])->update($translations['en'], 'en');
     }
 
-    TaskCategory::id($category['id'])->update($translations['fr'], 'fr');
+    ManagementProcess::id($process['id'])->update($translations['fr'], 'fr');
 }

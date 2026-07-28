@@ -1,30 +1,35 @@
 {
-    "name": "Task Categories",
-    "description": "List of task categories.",
+    "name": "Management Processes",
+    "description": "List of management processes.",
     "layout": {
         "items": [
             {
                 "type": "field",
                 "value": "name",
-                "width": "25%",
+                "width": "20%",
                 "sortable": true
             },
             {
                 "type": "field",
                 "value": "code",
-                "width": "15%",
+                "width": "10%",
                 "sortable": true
             },
             {
                 "type": "field",
                 "value": "description",
-                "width": "35%"
+                "width": "30%"
             },
             {
                 "type": "field",
                 "value": "mailbox_id",
-                "width": "25%",
+                "width": "20%",
                 "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "roles_ids",
+                "width": "20%"
             }
         ]
     }

@@ -42,6 +42,11 @@
             "label": "Groupes",
             "description": "Groupes automatiquement ajoutés lors de l'affectation du rôle.",
             "help": ""
+        },
+        "management_processes_ids": {
+            "label": "Processus de gestion",
+            "description": "Processus de gestion associés à ce rôle.",
+            "help": "Consultez cette relation pour connaître les processus de gestion affectés au rôle."
         }
     },
     "view": {

@@ -1,6 +1,6 @@
 [
     {
-        "name": "realestate\\management\\TaskCategory",
+        "name": "realestate\\management\\ManagementProcess",
         "lang": "en",
         "data": [
             {
@@ -30,7 +30,7 @@
         ]
     },
     {
-        "name": "realestate\\management\\TaskCategory",
+        "name": "realestate\\management\\ManagementProcess",
         "lang": "fr",
         "data": [
             {

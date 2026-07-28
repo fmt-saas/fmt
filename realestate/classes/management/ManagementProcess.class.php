@@ -6,28 +6,28 @@
 */
 namespace realestate\management;
 
-class TaskCategory extends \equal\orm\Model {
+class ManagementProcess extends \equal\orm\Model {
 
     public static function getName() {
-        return 'Task Category';
+        return 'Management Process';
     }
 
     public static function getDescription() {
-        return 'Task categories identify management areas and define their visibility by employee role.';
+        return 'Management processes identify condominium management areas and define the employee roles assigned to them.';
     }
 
     public static function getColumns() {
         return [
             'name' => [
                 'type'              => 'string',
-                'description'       => 'Short label to identify the task category.',
+                'description'       => 'Short label to identify the management process.',
                 'required'          => true,
                 'multilang'         => true
             ],
 
             'code' => [
                 'type'              => 'string',
-                'description'       => 'Unique code used to identify the category.',
+                'description'       => 'Unique code used to identify the management process.',
                 'required'          => true,
                 'unique'            => true
             ],
@@ -35,22 +35,24 @@ class TaskCategory extends \equal\orm\Model {
             'description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain',
-                'description'       => 'Scope and intended usage of the category.',
+                'description'       => 'Scope and intended usage of the management process.',
                 'multilang'         => true
             ],
 
             'mailbox_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'communication\email\Mailbox',
-                'description'       => 'Mailbox associated with the category, if any.'
+                'description'       => 'Mailbox associated with the management process, if any.'
             ],
 
-            'visibility_roles_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'realestate\management\TaskCategoryRole',
-                'foreign_field'     => 'category_id',
-                'description'       => 'Roles allowed to view this category.',
-                'ondetach'          => 'delete'
+            'roles_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'hr\role\Role',
+                'foreign_field'     => 'management_processes_ids',
+                'rel_table'         => 'realestate_management_managementprocess_rel_role',
+                'rel_foreign_key'   => 'role_id',
+                'rel_local_key'     => 'management_process_id',
+                'description'       => 'Roles assigned to this management process.'
             ]
         ];
     }

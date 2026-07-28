@@ -1,6 +1,6 @@
 {
-    "name": "Task Category",
-    "description": "Form for managing a task category.",
+    "name": "Management Process",
+    "description": "Form for managing a management process.",
     "layout": {
         "groups": [
             {
@@ -51,8 +51,8 @@
             {
                 "sections": [
                     {
-                        "id": "section.visibility",
-                        "label": "Visibility",
+                        "id": "section.roles",
+                        "label": "Assigned roles",
                         "rows": [
                             {
                                 "columns": [
@@ -61,7 +61,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "visibility_roles_ids",
+                                                "value": "roles_ids",
                                                 "width": "100%"
                                             }
                                         ]
