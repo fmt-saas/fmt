@@ -393,7 +393,7 @@ $values = [
 
     'organisation'                          => $organisation,
     'organisation_logo'                     => $getOrganisationLogo($organisation['id']),
-    'condominium'                           => $condominium['condo_id'],
+    'condominium'                           => $condominium,
 
     'property_lots'                         => $ownershipTransfer['property_lots_ids'],
     'funds_balances'                        => $ownershipTransfer['fund_balances_ids'],
