@@ -16,6 +16,7 @@ use fmt\setting\Setting;
 use hr\role\Role;
 use identity\Identity;
 use purchase\supplier\Suppliership;
+use sale\price\PriceList;
 
 class Condominium extends Identity {
 
@@ -437,6 +438,11 @@ class Condominium extends Identity {
                 'policies'      => [],
                 'function'      => 'doGenerateFolders'
             ],
+            'generate_price_list' => [
+                'description'   => 'Generate default Price List.',
+                'policies'      => [],
+                'function'      => 'doGeneratePriceList'
+            ],
             'sync_from_identity' => [
                 'description'   => 'Force sync values from related identity.',
                 'function'      => 'doSyncFromIdentity'
@@ -569,9 +575,9 @@ class Condominium extends Identity {
         foreach($self as $id => $condominium) {
 
             if(!$condominium['managing_agent_id']) {
-                $result[$id] = [
+                /*$result[$id] = [
                     'missing_managing_agent_id' => 'The managing agent must be provided.'
-                ];
+                ];*/
             }
 
             // verify that the code is unique
@@ -596,11 +602,11 @@ class Condominium extends Identity {
                 }
             }
 
-            if(count($map_mandatory_roles_ids)) {
+            /*if(count($map_mandatory_roles_ids)) {
                 $result[$id] = [
                     'missing_mandatory_role' => 'At least one mandatory role is missing.'
                 ];
-            }
+            }*/
 
             // #todo - check which of these must be mandatory
             /*
@@ -925,6 +931,19 @@ class Condominium extends Identity {
         }
     }
 
+    protected static function doGeneratePriceList($self) {
+        $self->read(['name']);
+        foreach($self as $id => $condominium) {
+            PriceList::create([
+                'condo_id'      => $id,
+                'name'          => "Default",
+                'description'   => "Default price list for condominium {$condominium['name']}.",
+                'date_from'     => mktime(0, 0, 0, 1, 1, date('Y')),
+                'date_to'       => mktime(23, 59, 59, 12, 31, date('Y'))
+            ]);
+        }
+    }
+
     /**
      * Create mandatory dependencies for new Condominium
      * This is meant to be done only once, at the Condominium validation.
@@ -938,7 +957,9 @@ class Condominium extends Identity {
             // 3 - create journals
             ->do('generate_journals')
             // 4 - create folders
-            ->do('generate_folders');
+            ->do('generate_folders')
+            // 5 - create price list
+            ->do('generate_price_list');
     }
 
     protected static function onupdateCurrentFiscalYearId($self) {
