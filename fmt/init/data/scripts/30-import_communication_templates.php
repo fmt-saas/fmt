@@ -812,14 +812,14 @@ $template = Template::create([
 
 TemplatePart::create([
     'name'          => 'seller_arrears_some_description',
-    'value'         => "<p>OUI, il existe des arriérés.</p><p><br /></p><p><em>Ce montant ne comprend pas les majorations, pénalités financières, intérêts, frais et dépens résultant des statuts de la copropriété, de décisions d’assemblées générales ou de décisions judiciaires. Le décompte définitif ne pourra être arrêté qu’au jour de la réception des sommes dues.</em></p><p>&nbsp;</p><p><em>Nous rappelons également que le copropriétaire cédant restera redevable de sa quote-part dans le(s) décompte(s) de charges à établir jusqu’à la date de signature de l’acte authentique, ainsi que des honoraires du syndic liés à la gestion du dossier de transfert de propriété.</em></p>",
+    'value'         => "<p>OUI, il existe des arriérés qui s’élèvent à ce jour au montant de <strong>{amount} €</strong>.</p><p><br></p><p><em>Ce montant ne comprend pas les majorations, pénalités financières, intérêts, frais et dépens résultant des statuts de la copropriété, de décisions d’assemblées générales ou de décisions judiciaires. Le décompte définitif ne pourra être arrêté qu’au jour de la réception des sommes dues.</em></p><p>&nbsp;</p><p><em>Nous rappelons également que le copropriétaire cédant restera redevable de sa quote-part dans le(s) décompte(s) de charges à établir jusqu’à la date de signature de l’acte authentique, ainsi que des honoraires du syndic liés à la gestion du dossier de transfert de propriété.</em></p>",
     'template_id'   => $template['id'],
     'variables'     => '["amount"]'
 ]);
 
 TemplatePart::create([
     'name'          => 'seller_arrears_none_description',
-    'value'         => "<p>NON, il n’existe aucun arriéré à ce jour.</p><p><br /></p><p><em>Nous rappelons toutefois que le copropriétaire cédant restera redevable de sa quote-part dans le(s) décompte(s) de charges à établir jusqu’à la date de signature de l’acte authentique, ainsi que des honoraires du syndic liés à la gestion du dossier de transfert de propriété.</em></p>",
+    'value'         => "<p>NON, il n’existe aucun arriéré à ce jour.</p><p><br></p><p><em>Nous rappelons toutefois que le copropriétaire cédant restera redevable de sa quote-part dans le(s) décompte(s) de charges à établir jusqu’à la date de signature de l’acte authentique, ainsi que des honoraires du syndic liés à la gestion du dossier de transfert de propriété.</em></p>",
     'template_id'   => $template['id'],
     'variables'     => '[]'
 ]);
@@ -881,14 +881,14 @@ $template = Template::create([
 
 TemplatePart::create([
     'name'          => 'seller_arrears_some_description',
-    'value'         => "<p>OUI, il existe des arriérés qui s’élèvent à ce jour au montant de <strong>{amount} €</strong>.</p><p><br /></p><p><em>Ce montant ne comprend pas les majorations, pénalités financières, intérêts, frais et dépens résultant des statuts de la copropriété, de décisions d’assemblées générales ou de décisions judiciaires. Le décompte définitif ne pourra être arrêté qu’au jour de la réception des sommes dues.</em></p><p>&nbsp;</p><p><em>Nous rappelons également que le copropriétaire cédant restera redevable de sa quote-part dans le(s) décompte(s) de charges à établir jusqu’à la date de signature de l’acte authentique, ainsi que des honoraires du syndic liés à la gestion du dossier de transfert de propriété.</em></p>",
+    'value'         => "<p>OUI, il existe des arriérés.</p><p><br></p><p><em>Ce montant ne comprend pas les majorations, pénalités financières, intérêts, frais et dépens résultant des statuts de la copropriété, de décisions d’assemblées générales ou de décisions judiciaires. Le décompte définitif ne pourra être arrêté qu’au jour de la réception des sommes dues.</em></p><p><br></p><p><em>*Les provisions complémentaires sont réclamées au nom et pour compte de la copropriété en vue de s’assurer de ne pas devoir réclamer un éventuel décompte de régularisation trop important au profit de la copropriété, celui-ci est calculé sur une moyenne de 3 mois de charges.</em></p><p><br></p><p><em>**Ces frais seront facturés dans le prochain décompte de charges du par le cédant.</em></p><p><br></p><p><em>Nous rappelons également que le copropriétaire cédant restera redevable de sa quote-part dans le(s) décompte(s) de charges à établir jusqu’à la date de signature de l’acte authentique.</em></p>",
     'template_id'   => $template['id'],
     'variables'     => '["amount"]'
 ]);
 
 TemplatePart::create([
     'name'          => 'seller_arrears_none_description',
-    'value'         => "<p>NON, il n’existe aucun arriéré à ce jour.</p><p><br /></p><p><em>Nous rappelons toutefois que le copropriétaire cédant restera redevable de sa quote-part dans le(s) décompte(s) de charges à établir jusqu’à la date de signature de l’acte authentique, ainsi que des honoraires du syndic liés à la gestion du dossier de transfert de propriété.</em></p>",
+    'value'         => "<p>NON, il n’existe aucun arriéré à ce jour, cependant, merci de vous référer au tableau ci-dessous.</p><p><br></p><p><em>*Les provisions complémentaires sont réclamées au nom et pour compte de la copropriété en vue de s’assurer de ne pas devoir réclamer un éventuel décompte de régularisation trop important au profit de la copropriété, celui-ci est calculé sur une moyenne de 3 mois de charges.</em></p><p><br></p><p><em>**Ces frais seront facturés dans le prochain décompte de charges du par le cédant.</em></p><p><br></p><p><em>﻿﻿Nous rappelons également que le copropriétaire cédant restera redevable de sa quote-part dans le(s) décompte(s) de charges à établir jusqu’à la date de signature de l’acte authentique.</em></p>",
     'template_id'   => $template['id'],
     'variables'     => '[]'
 ]);

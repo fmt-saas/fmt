@@ -193,47 +193,10 @@
 
             <h4>{{ labels['article_3_94.section_1.seller_arrears.title'] }}</h4>
             <div>
-
-                <!-- description is injected automatically in OwnershipTransfer object based on actual arrears -->
+                <!-- #memo - description is injected automatically in OwnershipTransfer object based on actual arrears -->
                 {% if seller_arrears_description_1 is not empty %}
                     {{ seller_arrears_description_1 | raw }}
                 {% endif %}
-
-                <!--
-                <table>
-                    <tr>
-                        <th>{{ labels['arrears.table.th.due_date'] }}</th>
-                        <th>{{ labels['arrears.table.th.label'] }}</th>
-                        <th>{{ labels['arrears.table.th.type'] }}</th>
-                        <th>{{ labels['arrears.table.th.remaining'] }}</th>
-                    </tr>
-                    {% for arrear_funding in arrear_fundings %}
-                    <tr>
-                        <td>{{ arrear_funding.due_date | date(date_format, timezone) }}</td>
-                        <td>{{ arrear_funding.name }}</td>
-                        <td>{{ arrear_funding.funding_type }}</td>
-                        <td>{{ arrear_funding.remaining_amount  | format_money() }}</td>
-                    </tr>
-                    {% endfor %}
-                </table>
-                <table>
-                    <tr>
-                        <th>{{ labels['transfer_fees.table.th.file_fees'] }}</th>
-                        <th>{{ labels['transfer_fees.table.th.date'] }}</th>
-                        <th>{{ labels['transfer_fees.table.th.description'] }}</th>
-                        <th>{{ labels['transfer_fees.table.th.amount'] }}</th>
-                    </tr>
-                    {% for transfer_fee in transfer_fees %}
-                    <tr>
-                        <td></td>
-                        <td>{{ transfer_fee.fee_date | date(date_format, timezone) }}</td>
-                        <td>{{ transfer_fee.description }}</td>
-                        <td>{{ transfer_fee.price  | format_money() }}</td>
-                    </tr>
-                    {% endfor %}
-                </table>
-                -->
-
             </div>
 
             <h4>{{ labels['article_3_94.section_1.scheduled_fund_requests.title'] }}</h4>
@@ -368,24 +331,39 @@
             <div>
                 <table>
                     <tr>
-                        <th>{{ labels['arrears.table.th.due_date'] }}</th>
                         <th>{{ labels['arrears.table.th.label'] }}</th>
-                        <th>{{ labels['arrears.table.th.type'] }}</th>
                         <th>{{ labels['arrears.table.th.remaining'] }}</th>
                     </tr>
-                    {% for arrear_funding in arrear_fundings %}
+
+                    {% set funding_arrears_amount = 0 %}
+                    {% for arrear_line in arrear_lines_2 %}
+                        {% if arrear_line.arrear_line_type == 'funding' %}
+                            {% set funding_arrears_amount = funding_arrears_amount + arrear_line.due_amount %}
+                        {% endif %}
+                    {% endfor %}
+
                     <tr>
-                        <td>{{ arrear_funding.due_date | date(date_format, timezone) }}</td>
-                        <td>{{ arrear_funding.name }}</td>
-                        <td>{{ arrear_funding.funding_type }}</td>
-                        <td>{{ arrear_funding.remaining_amount  | format_money() }}</td>
+                        <td></td>
+                        <td>{{ labels['arrears.funding_group.label'] ?? 'arrears' }}</td>
+                        <td>{{ funding_arrears_amount | format_money() }}</td>
                     </tr>
+
+                    {% for arrear_line in arrear_lines_2 %}
+                        {% if arrear_line.arrear_line_type != 'funding' %}
+                        <tr>
+                            <td>{{ arrear_line.description }}</td>
+                            <td>{{ arrear_line.due_amount  | format_money() }}</td>
+                        </tr>
+                        {% endif %}
                     {% endfor %}
                 </table>
             </div>
+
             <div>
-                <small>{{ labels['arrears.penalties_notice'] }}<br />
-            {{ labels['arrears.additional_provisions_notice'] }}</small>
+                <!-- #memo - description is injected automatically in OwnershipTransfer object based on actual arrears -->
+                {% if seller_arrears_description_2 is not empty %}
+                    {{ seller_arrears_description_2 | raw }}
+                {% endif %}
             </div>
             <div>
                 <p>{{ labels['payment.current_fiscal_year_notice'] }}</p>

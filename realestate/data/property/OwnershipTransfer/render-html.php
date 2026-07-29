@@ -11,6 +11,7 @@ use equal\data\DataFormatter;
 use identity\Organisation;
 use realestate\property\NotaryOffice;
 use realestate\property\OwnershipTransfer;
+use realestate\property\OwnershipTransferArrearLine;
 use realestate\sale\pay\Funding;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
@@ -269,12 +270,28 @@ if(!$ownershipTransfer) {
     throw new Exception('unknown_ownership_transfer', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$arrear_fundings = Funding::search([
+$arrear_lines_1 = OwnershipTransferArrearLine::search([
         ['condo_id', '=', $ownershipTransfer['condo_id']['id']],
-        ['is_paid', '=', false],
-        ['ownership_id', '=', $ownershipTransfer['old_ownership_id']['id']]
+        ['arrear_paragraph', '=', '1'],
+        ['ownership_transfer_id', '=', $ownershipTransfer['id']]
     ])
-    ->read(['due_date', 'name', 'funding_type', 'remaining_amount'])
+    ->read(['due_date', 'description', 'arrear_line_type', 'due_amount'])
+    ->get(true);
+
+$arrear_lines_1 = OwnershipTransferArrearLine::search([
+        ['condo_id', '=', $ownershipTransfer['condo_id']['id']],
+        ['arrear_paragraph', '=', '1'],
+        ['ownership_transfer_id', '=', $ownershipTransfer['id']]
+    ])
+    ->read(['due_date', 'description', 'arrear_line_type', 'due_amount'])
+    ->get(true);
+
+$arrear_lines_2 = OwnershipTransferArrearLine::search([
+        ['condo_id', '=', $ownershipTransfer['condo_id']['id']],
+        ['arrear_paragraph', '=', '2'],
+        ['ownership_transfer_id', '=', $ownershipTransfer['id']]
+    ])
+    ->read(['due_date', 'description', 'arrear_line_type', 'due_amount'])
     ->get(true);
 
 $lang = $params['lang'];
@@ -377,7 +394,8 @@ $values = [
     'funds_balances'                        => $ownershipTransfer['fund_balances_ids'],
     'funds_requests'                        => $ownershipTransfer['fund_requests_ids'],
     'bank_loans'                            => $ownershipTransfer['bank_loan_lines_ids'],
-    'arrear_fundings'                       => $arrear_fundings,
+    'arrear_lines_1'                        => $arrear_lines_1,
+    'arrear_lines_2'                        => $arrear_lines_2,
 
     'transfer_fees'                         => $ownershipTransfer['transfer_fees_ids'],
     'ownership'                             => $ownershipTransfer['old_ownership_id'],
@@ -422,6 +440,9 @@ $values = [
     'commons_acquisitions_description'      => $ownershipTransfer['commons_acquisitions_description'],
     // 3.94.2.4
     'condominium_debts_description'         => $ownershipTransfer['condominium_debts_description'],
+    // 3.94.2.5
+    'has_seller_arrears_2'                  => $ownershipTransfer['has_seller_arrears_2'],
+    'seller_arrears_description_2'          => $ownershipTransfer['seller_arrears_description_2'],
     // additional
     'bank_loan_description'                 => $ownershipTransfer['bank_loan_description'],
     'with_both_paragraphs'                  => $ownershipTransfer['with_both_paragraphs']
