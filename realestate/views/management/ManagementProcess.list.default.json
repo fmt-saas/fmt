@@ -5,6 +5,12 @@
         "items": [
             {
                 "type": "field",
+                "value": "id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
                 "value": "name",
                 "width": "20%",
                 "sortable": true
@@ -25,11 +31,6 @@
                 "value": "mailbox_id",
                 "width": "20%",
                 "sortable": true
-            },
-            {
-                "type": "field",
-                "value": "roles_ids",
-                "width": "20%"
             }
         ]
     }

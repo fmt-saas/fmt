@@ -161,25 +161,29 @@
             "label": "Agence",
             "description": ""
         },
-        "organisation": {
+        "item.organization.organization": {
             "label": "Agence",
             "description": "Consulter et modifier les détails de l'organisation."
         },
-        "employees": {
+        "item.organization.employees": {
             "label": "Employés",
             "description": "Lister et gérer les employés."
         },
-        "teams": {
+        "item.organization.teams": {
             "label": "Équipes",
             "description": "Gérer les équipes de travail."
         },
-        "roles": {
+        "item.organization.roles": {
             "label": "Rôles",
             "description": "Définir et attribuer les rôles des employés."
         },
-        "assignments": {
+        "item.organization.assignments": {
             "label": "Affectations",
             "description": "Gérer les affectations de rôles."
+        },
+        "item.organization.management_processes": {
+            "label": "Tâches de gestion",
+            "description": "Gérer les affectations des tâches de gestion."
         },
         "item.accounting": {
             "label": "Comptabilité",

@@ -448,7 +448,7 @@
                 "type": "parent",
                 "children": [
                     {
-                        "id": "organisation",
+                        "id": "item.organization.organization",
                         "type": "entry",
                         "label": "Organisation",
                         "icon": "corporate_fare",
@@ -463,7 +463,7 @@
                         }
                     },
                     {
-                        "id": "employees",
+                        "id": "item.organization.employees",
                         "type": "entry",
                         "label": "Employees",
                         "icon": "person",
@@ -474,7 +474,7 @@
                         }
                     },
                     {
-                        "id": "teams",
+                        "id": "item.organization.teams",
                         "type": "entry",
                         "label": "Teams",
                         "icon": "groups",
@@ -485,7 +485,7 @@
                         }
                     },
                     {
-                        "id": "roles",
+                        "id": "item.organization.roles",
                         "type": "entry",
                         "label": "Roles",
                         "icon": "assignment_ind",
@@ -496,7 +496,7 @@
                         }
                     },
                     {
-                        "id": "assignments",
+                        "id": "item.organization.assignments",
                         "type": "entry",
                         "label": "Assignments",
                         "icon": "group_add",
@@ -507,7 +507,7 @@
                         }
                     },
                     {
-                        "id": "management_processes",
+                        "id": "item.organization.management_processes",
                         "type": "entry",
                         "label": "Management Processes",
                         "icon": "account_tree",
