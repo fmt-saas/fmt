@@ -4,12 +4,12 @@
     "description": "Paramétrages des comptes de messagerie (identifiants, serveur IMAP, authentification et statut).",
     "model": {
         "can_send": {
-            "label": "Peut envoyer",
+            "label": "Envois",
             "description": "Indique si la boîte mail peut être utilisée pour envoyer des e-mails.",
             "help": ""
         },
         "can_receive": {
-            "label": "Peut recevoir",
+            "label": "Réception",
             "description": "Indique si la boîte mail peut recevoir et importer des e-mails.",
             "help": ""
         },

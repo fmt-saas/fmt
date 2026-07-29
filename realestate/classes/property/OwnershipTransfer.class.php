@@ -540,6 +540,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'transitions' => [
                     'confirm' => [
                         'description' => 'Update the document to `confirmed`.',
+                        'onafter' => 'onafterConfirm',
                         'status' => 'confirmed',
                     ],
                     'to_complete' => [
@@ -748,12 +749,17 @@ class OwnershipTransfer extends \equal\orm\Model {
 
         $self
             ->do('generate_fund_balance_lines')
-            ->do('generate_fund_request_lines');
+            ->do('generate_fund_request_lines')
+            ->do('refresh_arrears');
     }
 
     protected static function onafterSettle($self) {
         $self
-            ->do('generate_adjustments')
+            ->do('generate_adjustments');
+    }
+
+    protected static function onafterConfirm($self) {
+        $self
             ->do('refresh_arrears');
     }
 
@@ -1010,7 +1016,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                         'ownership_transfer_id' => $id,
                         'due_date'              => $funding['due_date'],
                         'description'           => $funding['name'],
-                        'arrear_paragraph'      => '1',
+                        'arrear_paragraph'      => $paragraph,
                         'arrear_line_type'      => 'funding',
                         'due_amount'            => $funding['remaining_amount'],
                     ]);
@@ -1018,6 +1024,55 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             }
             elseif($paragraph === '2') {
+                OwnershipTransferArrearLine::search([['ownership_transfer_id', '=', $id], ['arrear_paragraph', '=', $paragraph]])->delete(true);
+
+                $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
+                    'ownership_id' => $ownershipTransfer['old_ownership_id'],
+                    'date_from'    => $date_from,
+                    'date_to'      => time()
+                ]);
+
+                if(count($data)) {
+                    $arrears_amount = end($data)['balance'] ?? 0;
+                }
+
+                $arrearFundings = Funding::search([
+                        ['condo_id', '=', $ownershipTransfer['condo_id']],
+                        ['is_paid', '=', false],
+                        ['ownership_id', '=', $ownershipTransfer['old_ownership_id']]
+                    ])
+                    ->read(['due_date', 'name', 'funding_type', 'remaining_amount']);
+
+                foreach($arrearFundings as $funding_id => $funding) {
+                    OwnershipTransferArrearLine::create([
+                        'condo_id'              => $ownershipTransfer['condo_id'],
+                        'ownership_transfer_id' => $id,
+                        'due_date'              => $funding['due_date'],
+                        'description'           => $funding['name'],
+                        'arrear_paragraph'      => $paragraph,
+                        'arrear_line_type'      => 'funding',
+                        'due_amount'            => $funding['remaining_amount'],
+                    ]);
+                }
+
+                OwnershipTransferArrearLine::create([
+                    'condo_id'              => $ownershipTransfer['condo_id'],
+                    'ownership_transfer_id' => $id,
+                    'description'           => 'Provisions complémentaires',
+                    'arrear_paragraph'      => $paragraph,
+                    'arrear_line_type'      => 'additional_provision',
+                    'due_amount'            => 0.0,
+                ]);
+
+                OwnershipTransferArrearLine::create([
+                    'condo_id'              => $ownershipTransfer['condo_id'],
+                    'ownership_transfer_id' => $id,
+                    'description'           => 'Frais de dossier (3.94 §4)',
+                    'arrear_paragraph'      => $paragraph,
+                    'arrear_line_type'      => 'processing_fee',
+                    'due_amount'            => 0.0,
+                ]);
+
             }
             else {
                 continue;
@@ -1658,9 +1713,8 @@ class OwnershipTransfer extends \equal\orm\Model {
 
     protected static function onupdateOldOwnershipId($self) {
         // make sure no propertylots from other ownership
-        $self
-            ->read(['condo_id', 'property_lots_ids', 'old_ownership_id'])
-            ->do('refresh_arrears');
+        $self->read(['condo_id', 'property_lots_ids', 'old_ownership_id']);
+
         foreach($self as $id => $ownershipTransfer) {
             $changes = [];
             // retrieve all property lots that are not part of the ownership transfer

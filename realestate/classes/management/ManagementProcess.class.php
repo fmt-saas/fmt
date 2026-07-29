@@ -34,7 +34,6 @@ class ManagementProcess extends \equal\orm\Model {
 
             'description' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain',
                 'description'       => 'Scope and intended usage of the management process.',
                 'multilang'         => true
             ],
