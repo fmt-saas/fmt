@@ -2190,11 +2190,11 @@ class Assembly extends \equal\orm\Model {
                 // #todo #demo - reactivate - for demo only
                 /*
                 // find related email (there should be only one)
-                $email = \core\Mail::search([['object_id', '=', $assembly_invitation_correspondence_id], ['object_class', '=', 'realestate\governance\AssemblyInvitationCorrespondence']])
+                $email = \core\email\Email::search([['object_id', '=', $assembly_invitation_correspondence_id], ['object_class', '=', 'realestate\governance\AssemblyInvitationCorrespondence']])
                     ->read(['status'])
                     ->first();
                 if(!$email) {
-                    trigger_error("APP::Missing \core\Mail object for AssemblyInvitationCorrespondence[{$assembly_invitation_correspondence_id}]", EQ_REPORT_ERROR);
+                    trigger_error("APP::Missing \core\email\Email object for AssemblyInvitationCorrespondence[{$assembly_invitation_correspondence_id}]", EQ_REPORT_ERROR);
                     $result[$id] = [
                         'invite_email_not_found' => 'At least one correspondence is not attached to a mandatory email.'
                     ];
