@@ -343,7 +343,6 @@
                     {% endfor %}
 
                     <tr>
-                        <td></td>
                         <td>{{ labels['arrears.funding_group.label'] ?? 'arrears' }}</td>
                         <td>{{ funding_arrears_amount | format_money() }}</td>
                     </tr>
@@ -366,10 +365,9 @@
                 {% endif %}
             </div>
             <div>
-                <p>{{ labels['payment.current_fiscal_year_notice'] }}</p>
                 <p>{{ labels['payment.account_instruction'] }} <strong>{{ condominium.name }}</strong> :<br />
-                    {{ organisation.bank_account_iban }}<br />
-                    {{ organisation.bank_account_bic }}<br />
+                    {{ condominium.bank_account_iban }}<br />
+                    {{ condominium.bank_account_bic }}<br />
                     {{ labels['payment.reference_instruction'] }}
                 </p>
             </div>

@@ -9,6 +9,7 @@ use communication\template\Template;
 use fmt\setting\Setting;
 use equal\data\DataFormatter;
 use identity\Organisation;
+use realestate\property\Condominium;
 use realestate\property\NotaryOffice;
 use realestate\property\OwnershipTransfer;
 use realestate\property\OwnershipTransferArrearLine;
@@ -189,6 +190,7 @@ $labels = $getLabels(
 $ownershipTransfer = OwnershipTransfer::id($params['id'])
     ->read([
         'status',
+        'condo_id',
         'condo_shares',
         'ownership_shares',
         'is_notary_request',
@@ -205,10 +207,6 @@ $ownershipTransfer = OwnershipTransfer::id($params['id'])
         'has_intervention_record',
         'has_fuel_tank',
         'fuel_tank_capacity',
-        'condo_id' => [
-            'name', 'address_street', 'address_city', 'address_zip', 'address_city',
-            'registration_number'
-        ],
         'old_ownership_id' => ['name', 'owners_ids' => ['name']],
         'property_lots_ids' => ['name'],
         'fund_balances_ids' => [
@@ -271,7 +269,7 @@ if(!$ownershipTransfer) {
 }
 
 $arrear_lines_1 = OwnershipTransferArrearLine::search([
-        ['condo_id', '=', $ownershipTransfer['condo_id']['id']],
+        ['condo_id', '=', $ownershipTransfer['condo_id']],
         ['arrear_paragraph', '=', '1'],
         ['ownership_transfer_id', '=', $ownershipTransfer['id']]
     ])
@@ -279,7 +277,7 @@ $arrear_lines_1 = OwnershipTransferArrearLine::search([
     ->get(true);
 
 $arrear_lines_1 = OwnershipTransferArrearLine::search([
-        ['condo_id', '=', $ownershipTransfer['condo_id']['id']],
+        ['condo_id', '=', $ownershipTransfer['condo_id']],
         ['arrear_paragraph', '=', '1'],
         ['ownership_transfer_id', '=', $ownershipTransfer['id']]
     ])
@@ -287,7 +285,7 @@ $arrear_lines_1 = OwnershipTransferArrearLine::search([
     ->get(true);
 
 $arrear_lines_2 = OwnershipTransferArrearLine::search([
-        ['condo_id', '=', $ownershipTransfer['condo_id']['id']],
+        ['condo_id', '=', $ownershipTransfer['condo_id']],
         ['arrear_paragraph', '=', '2'],
         ['ownership_transfer_id', '=', $ownershipTransfer['id']]
     ])
@@ -308,9 +306,16 @@ $organisation = Organisation::id(1)
     ])
     ->first();
 
+$condominium = Condominium::id($ownershipTransfer['condo_id'])
+    // primary condominium Bank Account
+    ->read([
+        'name', 'address_street', 'address_city', 'address_zip', 'address_city',
+        'bank_account_iban', 'bank_account_bic',
+        'registration_number'
+    ])
+    ->first();
 
-$organisation['bank_account_iban'] = DataFormatter::format($organisation['bank_account_iban'], 'iban');
-$organisation['phone'] = DataFormatter::format($organisation['phone'], 'phone');
+$condominium['bank_account_iban'] = DataFormatter::format($condominium['bank_account_iban'], 'iban');
 
 // compute contact details
 $request_contact_name = $ownershipTransfer['request_contact_name'];
@@ -388,7 +393,7 @@ $values = [
 
     'organisation'                          => $organisation,
     'organisation_logo'                     => $getOrganisationLogo($organisation['id']),
-    'condominium'                           => $ownershipTransfer['condo_id'],
+    'condominium'                           => $condominium['condo_id'],
 
     'property_lots'                         => $ownershipTransfer['property_lots_ids'],
     'funds_balances'                        => $ownershipTransfer['fund_balances_ids'],

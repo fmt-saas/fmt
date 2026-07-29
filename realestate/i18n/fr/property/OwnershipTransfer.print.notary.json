@@ -48,8 +48,6 @@
     "arrears.table.th.type": "Type",
     "arrears.table.th.remaining": "Restant",
     "arrears.funding_group.label": "arriérés",
-    "arrears.penalties_notice": "Ces montants ne comprennent pas les majorations dues aux pénalités financières, intérêts, frais et dépens, que celles-ci résultent des statuts de la copropriété, de décisions d’assemblées générales ou de justice. Le calcul final ne pouvant être entrepris que le jour de la réception des montants dus.",
-    "arrears.additional_provisions_notice": "*Les provisions complémentaires sont réclamées au nom et pour compte de la copropriété en vue de s’assurer ne pas devoir réclamer un éventuel décompte de régularisation trop important au profit de la copropriété, celui-ci est calculé sur une moyenne de 3 mois de charges.",
 
     "transfer_fees.table.th.file_fees": "Frais de dossiers (3.94 §4)",
     "transfer_fees.table.th.date": "Date",
@@ -63,8 +61,7 @@
     "fund_requests.table.th.owner_planned": "Quote-part planifiée",
     "fund_requests.last_ago_notice": "Nous vous invitons à consulter PV de la dernière AGO afin de connaitre les modalités de ces appels et leurs échéances.",
 
-    "payment.current_fiscal_year_notice": "Ce montant ne tient pas compte du décompte de charge de l’exercice comptable en cours.",
-    "payment.account_instruction": "Tout paiement est à effectuer sur le compte de l’ACP",
+    "payment.account_instruction": "Tout paiement est à effectuer sur le compte de la Copropriété",
     "payment.reference_instruction": "avec la référence VCS renseignée.",
 
     "additional_information.title": "Informations complémentaires",
