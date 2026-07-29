@@ -1,11 +1,14 @@
 {
     "name": "Families",
     "description": "This view is intended for displaying the list of families.",
-    "access": {
-        "groups": ["pos.default.users", "sale.default.users"]
-     },
     "layout": {
         "items": [
+            {
+                "type": "field",
+                "value": "id",
+                "width": "10%",
+                "visible": false
+            },
             {
                 "type": "field",
                 "value": "name",

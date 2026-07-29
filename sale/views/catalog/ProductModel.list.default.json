@@ -1,9 +1,6 @@
 {
     "name": "Product Models",
     "description": "This view is intended for displaying the list of product models.",
-    "access": {
-        "groups": ["pos.default.users", "sale.default.users"]
-    },
     "header": {
         "actions": {
             "ACTION.CREATE" : [
@@ -16,6 +13,12 @@
     },
     "layout": {
         "items": [
+            {
+                "type": "field",
+                "value": "id",
+                "width": "10%",
+                "visible": false
+            },
             {
                 "type": "field",
                 "value": "name",

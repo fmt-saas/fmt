@@ -1,9 +1,6 @@
 {
     "name": "Product",
-    "description": "A Product is a variant of a Product Model. There is always at least one Product for a given Product Model.",
-    "access": {
-        "groups": ["pos.default.users", "sale.default.users"]
-    },
+    "description": "A Product is a variant of a product model. There is always at least one product for a given product model.",
     "layout": {
         "groups": [
             {
@@ -96,18 +93,6 @@
                                                 "value": "can_buy",
                                                 "width": "50%",
                                                 "visible": ["state", "<>", "draft"]
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_pack",
-                                                "width": "50%",
-                                                "visible": ["state", "<>", "draft"]
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_own_price",
-                                                "width": "50%",
-                                                "visible": [["state", "<>", "draft"], ["is_pack", "=", true]]
                                             }
                                         ]
                                     }
@@ -179,36 +164,9 @@
                         ]
                     },
                     {
-                        "id": "section.pack_lines",
-                        "label": "Pack Products",
-                        "visible": [
-                            ["state", "<>", "draft"],
-                            ["is_pack", "=", true]
-                        ],
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "pack_lines_ids",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
                         "id": "section.prices",
                         "label": "Prices",
-                        "visible": [
-                            [["state", "<>", "draft"], ["is_pack", "=", false]],
-                            [["state", "<>", "draft"], ["has_own_price", "=", true]]
-                        ],
+                        "visible": ["state", "<>", "draft"],
                         "rows": [
                             {
                                 "columns": [

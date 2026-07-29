@@ -4,15 +4,16 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
 namespace sale\price;
+
 use equal\orm\Model;
 
 class PriceListCategory extends Model {
-    public static function getColumns() {
-        /**
-         */
 
+    public static function getColumns(): array {
         return [
+
             'name' => [
                 'type'              => 'string',
                 'description'       => "Short label to ease identification of the list."
@@ -23,7 +24,8 @@ class PriceListCategory extends Model {
                 'foreign_object'    => 'sale\price\PriceList',
                 'foreign_field'     => 'price_list_category_id',
                 'description'       => "Lists that are related to this category, if any."
-            ]            
+            ]
+
         ];
     }
 }

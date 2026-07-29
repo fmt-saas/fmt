@@ -4,22 +4,23 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
 namespace sale\catalog;
 
 use equal\orm\Model;
 
 class Category extends Model {
 
-    public static function getName() {
+    public static function getName(): string {
         return "Product Category";
     }
 
-    public static function getDescription() {
+    public static function getDescription(): string {
         return "Product categories allow to group products in arbitrary ways."
             ." Categories are not related to Families nor Groups.";
     }
 
-    public static function getColumns() {
+    public static function getColumns(): array {
         return [
 
             'name' => [
@@ -49,7 +50,7 @@ class Category extends Model {
                 'rel_table'         => 'sale_product_rel_productmodel_category',
                 'rel_foreign_key'   => 'productmodel_id',
                 'rel_local_key'     => 'category_id',
-                'description'       => 'List of product models assigned to this category.'
+                'description'       => "List of product models assigned to this category."
             ]
 
         ];

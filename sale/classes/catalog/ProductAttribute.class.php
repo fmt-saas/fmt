@@ -4,22 +4,23 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
 namespace sale\catalog;
 
 use equal\orm\Model;
 
 class ProductAttribute extends Model {
 
-    public static function getName() {
+    public static function getName(): string {
         return "Attribute";
     }
 
-    public static function getDescription() {
+    public static function getDescription(): string {
         return "A Product Attribute corresponds to the value of an attribute available for a Product of a given Family."
             ." It is equivalent to the M2M table between Product and Option (the possible values for the attributes are limited by OptionValue).";
     }
 
-    public static function getColumns() {
+    public static function getColumns(): array {
         return [
 
             'product_id' => [
@@ -57,9 +58,14 @@ class ProductAttribute extends Model {
         ];
     }
 
-    public static function onchange($event, $values) {
-        $result = [];
+    public function getUnique(): array {
+        return [
+            ['product_id', 'option_id']
+        ];
+    }
 
+    public static function onchange($event, $values): array {
+        $result = [];
         if(isset($event['option_id'])) {
             $result['option_value_id'] = null;
         }
@@ -75,11 +81,5 @@ class ProductAttribute extends Model {
         }
 
         return $result;
-    }
-
-    public function getUnique() {
-        return [
-            ['product_id', 'option_id']
-        ];
     }
 }

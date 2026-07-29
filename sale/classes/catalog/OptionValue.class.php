@@ -11,35 +11,35 @@ use equal\orm\Model;
 
 class OptionValue extends Model {
 
-    public static function getDescription() {
+    public static function getDescription(): string {
         return 'Option values are the possible values to which an option, for a given product attribute, can be set to.';
     }
 
-    public static function getColumns() {
+    public static function getColumns(): array {
         return [
 
             'name' => [
                 'type'              => 'string',
-                'description'       => 'Name of the option value.',
+                'description'       => "Name of the option value.",
                 'required'          => true
             ],
 
             'value' => [
                 'type'              => 'string',
-                'description'       => 'The choice (possible value) for the related option.'
+                'description'       => "The choice (possible value) for the related option."
             ],
 
             'description' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain',
-                'description'       => 'Short description of the value.',
+                'description'       => "Short description of the value.",
                 'multilang'         => true
             ],
 
             'option_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\catalog\Option',
-                'description'       => 'Product Option this value relates to.',
+                'description'       => "Product Option this value relates to.",
                 'required'          => true
             ]
 

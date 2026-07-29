@@ -1,11 +1,14 @@
 {
-    "name": "Price Lists",
+    "name": "Price lists",
     "description": "This view is intended for displaying the list of price lists.",
-    "access": {
-        "groups": ["sale.default.users"]
-    },
     "layout": {
         "items": [
+            {
+                "type": "field",
+                "value": "id",
+                "width": "10%",
+                "visible": false
+            },
             {
                 "type": "field",
                 "value": "name",

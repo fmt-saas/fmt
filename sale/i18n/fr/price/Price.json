@@ -8,9 +8,23 @@
             "description": "Le nom d'affichage du prix.",
             "help": ""
         },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée par le prix.",
+            "help": ""
+        },
         "price": {
             "label": "Prix HTVA",
             "description": "Prix hors taxes.",
+            "help": ""
+        },
+        "price_type": {
+            "label": "Type",
+            "description": "Type de prix.",
+            "selection": {
+                "direct": "direct",
+                "computed": "calculé"
+            },
             "help": ""
         },
         "price_vat": {
@@ -23,15 +37,6 @@
             "description": "Taux de TVA appliqué au prix.",
             "help": ""
         },
-        "price_type": {
-            "label": "Type",
-            "description": "Type de prix.",
-            "selection": {
-                "direct": "direct",
-                "computed": "calculé"
-            },
-            "help": ""
-        },
         "calculation_method_id": {
             "label": "Méthode de calcul",
             "description": "Méthode à utiliser pour le calcul des prix.",
@@ -40,6 +45,11 @@
         "price_list_id": {
             "label": "Liste de prix",
             "description": "La liste de prix à laquelle appartient le prix.",
+            "help": ""
+        },
+        "is_active": {
+            "label": "Actif ?",
+            "description": "Le prix est en cours d'application.",
             "help": ""
         },
         "accounting_rule_id": {
@@ -51,12 +61,7 @@
             "label": "Produit",
             "description": "Le produit (sku) auquel le prix s'applique.",
             "help": ""
-        },
-		"is_active": {
-			"label": "Actif?",
-			"description": "Le prix est en cours d'application.",
-			"help": ""
-		}
+        }
     },
     "view": {
         "form.default": {
@@ -65,7 +70,7 @@
             "layout": {}
         },
         "list.default": {
-            "name": "Liste de Prix",
+            "name": "Prix",
             "description": "Liste des prix.",
             "layout": {}
         }

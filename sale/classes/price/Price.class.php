@@ -4,6 +4,7 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
 namespace sale\price;
 
 use equal\orm\Model;
@@ -11,12 +12,16 @@ use finance\accounting\AccountingRule;
 
 class Price extends Model {
 
-    public static function getDescription() {
+    public static function getName(): string {
+        return 'Price';
+    }
+
+    public static function getDescription(): string {
         return 'A price is an amount of money that corresponds to the sale price of a product or service.'
             .' It is described by an amount, a vat rate, an accounting rule and is part of a price list.';
     }
 
-    public static function getColumns() {
+    public static function getColumns(): array {
         return [
 
             'name' => [
@@ -24,12 +29,14 @@ class Price extends Model {
                 'function'          => 'calcName',
                 'result_type'       => 'string',
                 'store'             => true,
-                'description'       => 'The display name of the price.'
+                'description'       => "The display name of the price."
             ],
 
             'condo_id' => [
-                'type'              => 'many2one',
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
                 'foreign_object'    => 'realestate\property\Condominium',
+                'relation'          => ['price_list_id' => 'condo_id'],
                 'description'       => "The condominium the tenancy relates to.",
                 'help'              => "If set, relates to the specific condominium the price applies to."
             ],
@@ -43,6 +50,13 @@ class Price extends Model {
                 'visible'           => ['price_type', '=', 'direct']
             ],
 
+            'price_type' => [
+                'type'              => 'string',
+                'description'       => "If computed a calculation method is used to compute the price amount.",
+                'selection'         => ['direct', 'computed'],
+                'default'           => 'direct'
+            ],
+
             'price_vat' => [
                 'type'              => 'computed',
                 'result_type'       => 'float',
@@ -53,11 +67,15 @@ class Price extends Model {
                 'visible'           => ['price_type', '=', 'direct']
             ],
 
-            'price_type' => [
-                'type'              => 'string',
-                'description'       => 'If computed a calculation method is used to compute the price amount.',
-                'selection'         => ['direct', 'computed'],
-                'default'           => 'direct'
+            'vat_rate' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/rate',
+                'relation'          => ['accounting_rule_id' => ['vat_rule_id' => 'rate']],
+                'description'       => "VAT rate applied on the price (from accounting rule).",
+                'store'             => true,
+                'readonly'          => true,
+                'visible'           => ['price_type', '=', 'direct']
             ],
 
             'calculation_method_id' => [
@@ -78,7 +96,7 @@ class Price extends Model {
             'is_active' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
-                'function'          => 'calcIsActive',
+                'relation'          => ['price_list_id' => 'is_active'],
                 'store'             => true,
                 'instant'           => true,
                 'description'       => "Is the price currently applicable?"
@@ -97,58 +115,50 @@ class Price extends Model {
                 'description'       => "The Product (sku) the price applies to.",
                 'required'          => true,
                 'dependents'        => ['name']
-            ],
-
-            'vat_rate' => [
-                'type'              => 'computed',
-                'result_type'       => 'float',
-                'usage'             => 'amount/rate',
-                'relation'          => ['accounting_rule_id' => ['vat_rule_id' => 'rate']],
-                'description'       => 'VAT rate applied on the price (from accounting rule).',
-                'store'             => true,
-                'readonly'          => true,
-                'visible'           => ['price_type', '=', 'direct']
             ]
 
         ];
     }
 
-    public static function calcName($self) {
+    public function getUnique(): array {
+        return [
+            ['product_id', 'price_list_id']
+        ];
+    }
+
+    public static function calcName($self): array {
         $result = [];
-        $self->read(['product_id' => ['id', 'sku'], 'price_list_id' => ['name']]);
+        $self->read([
+            'product_id'    => ['sku'],
+            'price_list_id' => ['name']
+        ]);
         foreach($self as $id => $product) {
             if(isset($product['product_id'], $product['price_list_id'])) {
                 $result[$id] = "{$product['product_id']['sku']} [{$product['product_id']['id']}] - {$product['price_list_id']['name']}";
             }
         }
+
         return $result;
     }
 
-    public static function calcPriceVat($self) {
+    public static function calcPriceVat($self): array {
         $result = [];
         $self->read(['price', 'vat_rate']);
         foreach($self as $id => $price) {
             $result[$id] = self::computePriceVatIncluded($price['price'], $price['vat_rate']);
         }
+
         return $result;
     }
 
-    public static function calcIsActive($self) {
-        $result = [];
-        $self->read(['price_list_id' => 'is_active']);
-        foreach($self as $id => $price) {
-            if(isset($price['price_list_id']['is_active'])) {
-                $result[$id] = $price['price_list_id']['is_active'];
-            }
-        }
-        return $result;
-    }
-
-    public static function onchange($event, $values) {
+    public static function onchange($event, $values): array {
         $result = [];
 
         if(isset($event['accounting_rule_id'])) {
-            $rule = AccountingRule::id($event['accounting_rule_id'])->read(['vat_rule_id' => 'rate'])->first();
+            $rule = AccountingRule::id($event['accounting_rule_id'])
+                ->read(['vat_rule_id' => 'rate'])
+                ->first();
+
             $result['vat_rate'] = $rule['vat_rule_id']['rate'];
         }
 
@@ -162,18 +172,11 @@ class Price extends Model {
         return $result;
     }
 
-    public static function computePriceVatIncluded($price, $vat_rate) {
+    public static function computePriceVatIncluded($price, $vat_rate): float {
         return round($price * (1.0 + $vat_rate), 2);
     }
 
-    public static function computePriceVatExcluded($price_vat, $vat_rate) {
+    public static function computePriceVatExcluded($price_vat, $vat_rate): float {
         return $price_vat / (1.0 + $vat_rate);
     }
-
-    public function getUnique() {
-        return [
-            ['product_id', 'price_list_id']
-        ];
-    }
-
 }

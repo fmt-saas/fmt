@@ -1257,6 +1257,16 @@
                         ]
                     },
                     {
+                        "id": "catalog",
+                        "label": "Catalog",
+                        "description": "",
+                        "icon": "mode_comment",
+                        "type": "parent",
+                        "children": [
+
+                        ]
+                    },
+                    {
                         "id": "item.config.pricelist",
                         "type": "entry",
                         "label": "Price list",
