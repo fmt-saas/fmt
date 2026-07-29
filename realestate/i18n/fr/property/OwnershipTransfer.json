@@ -173,6 +173,11 @@
             "description": "Texte accompagnant le dernier bilan partagé (3.94.1.6).",
             "help": ""
         },
+        "with_both_paragraphs": {
+            "label": "Inclure les deux paragraphes",
+            "description": "Indique si la correspondance doit reprendre les informations des paragraphes 1 et 2.",
+            "help": "À activer lorsqu'une demande spécifique de l'étude notariale de l'acquéreur le requiert."
+        },
         "maintenance_expenses_description": {
             "label": "Délais d'entretien",
             "description": "État synthétique des dépenses de maintenance (3.94.2.1).",
@@ -332,6 +337,9 @@
                 },
                 "label.latest_balance_sheet": {
                     "label": "6) Dernier bilan validé en AG"
+                },
+                "with_both_paragraphs": {
+                    "label": "Inclure les deux paragraphes"
                 },
                 "section.information_statements": {
                     "label": "3.94 §2"
