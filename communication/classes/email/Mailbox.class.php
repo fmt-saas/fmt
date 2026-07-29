@@ -54,13 +54,28 @@ class Mailbox extends Model {
 
             'imap_server' => [
                 'type'              => 'string',
-                'description'       => 'IMAP server hostname.'
+                'description'       => 'IMAP server hostname.',
+                'visible'           => ['auth_type', '=', 'basic']
             ],
 
             'imap_port' => [
                 'type'              => 'integer',
                 'default'           => 993,
-                'description'       => 'IMAP server port.'
+                'description'       => 'IMAP server port.',
+                'visible'           => ['auth_type', '=', 'basic']
+            ],
+
+            'smtp_server' => [
+                'type'              => 'string',
+                'description'       => 'SMTP server hostname for outgoing emails.',
+                'visible'           => ['auth_type', '=', 'basic']
+            ],
+
+            'smtp_port' => [
+                'type'              => 'integer',
+                'default'           => 587,
+                'description'       => 'SMTP server port for outgoing emails.',
+                'visible'           => ['auth_type', '=', 'basic']
             ],
 
             'auth_type' => [
@@ -68,6 +83,13 @@ class Mailbox extends Model {
                 'selection'         => ['basic', 'oauth'],
                 'default'           => 'basic',
                 'description'       => 'Authentication type.'
+            ],
+
+            'auth_provider' => [
+                'type'              => 'string',
+                'selection'         => ['google', 'microsoft'],
+                'description'       => 'OAuth provider.',
+                'visible'           => ['auth_type', '=', 'oauth']
             ],
 
             'access_token' => [

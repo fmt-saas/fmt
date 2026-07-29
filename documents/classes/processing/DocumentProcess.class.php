@@ -703,7 +703,7 @@ class DocumentProcess extends Model {
 
     protected static function policyCanPerformIdentification($self): array {
         $result = [];
-        $self->read(['status', 'document_type_id']);
+        $self->read(['status', 'document_type_id', 'report_html']);
         foreach($self as $id => $documentProcess) {
             // #memo - we must allow assigning document_type_id manually
             if($documentProcess['status'] != 'created') {
@@ -721,6 +721,13 @@ class DocumentProcess extends Model {
             }
             catch(\Exception $e) {
                 trigger_error("APP::DocumentProcess [{$id}] relates to a document that has already been imported: " . $e->getMessage(), EQ_REPORT_WARNING);
+                $report_html = $documentProcess['report_html'];
+                if(strlen($report_html) > 0) {
+                    $report_html .= "<br />";
+                }
+                $report_html .= "<b>Interruption</b><br />Process interrupted: duplicate document already imported.";
+                self::id($id)->update(['report_html' => $report_html]);
+
                 $result[$id] = [
                     'duplicate_document' => 'Document has already been imported.'
                 ];

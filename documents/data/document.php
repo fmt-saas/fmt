@@ -109,7 +109,7 @@ elseif($document['bank_statement_id']) {
     $doc_info[] = $bankStatement['name'];
 }
 
-if(count($doc_info)) {
+if(count($doc_info) && $content_type === 'application/pdf') {
     $output = eQual::run('get', 'documents_Document_add-overlay', ['id' => $document['id'], 'resize' => 0.9, 'overlay_text' => implode(' | ', $doc_info)]);
 }
 

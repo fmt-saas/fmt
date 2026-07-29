@@ -35,7 +35,7 @@ use communication\email\Mailbox;
 
 
 $mailbox = Mailbox::id($params['id'])
-    ->read(['auth_type', 'imap_server'])
+    ->read(['auth_type', 'auth_provider', 'imap_server'])
     ->first();
 
 if(!$mailbox) {
@@ -43,17 +43,30 @@ if(!$mailbox) {
 }
 
 if($mailbox['auth_type'] === 'basic') {
-    eQual::run('do', 'communication_email_Mailbox_fetch-imap', ['id' => $params['id']], true);
+    eQual::run('do', 'communication_email_Mailbox_fetch-imap', ['id' => $mailbox['id']], true);
 }
-else {
-    switch($mailbox['imap_server']) {
-        case 'imap.outlook.com':
-            eQual::run('do', 'communication_email_Mailbox_fetch-outlook', ['id' => $params['id']], true);
+elseif($mailbox['auth_type'] === 'oauth') {
+    switch($mailbox['auth_provider']) {
+        case 'microsoft':
+            eQual::run('do', 'communication_email_Mailbox_fetch-outlook', ['id' => $mailbox['id']], true);
             break;
-        case 'imap.gmail.com':
-            eQual::run('do', 'communication_email_Mailbox_fetch-gmail', ['id' => $params['id']], true);
+        case 'google':
+            eQual::run('do', 'communication_email_Mailbox_fetch-gmail', ['id' => $mailbox['id']], true);
+            break;
+        default:
+            switch($mailbox['imap_server']) {
+                case 'imap.outlook.com':
+                    eQual::run('do', 'communication_email_Mailbox_fetch-outlook', ['id' => $mailbox['id']], true);
+                    break;
+                case 'imap.gmail.com':
+                    eQual::run('do', 'communication_email_Mailbox_fetch-gmail', ['id' => $mailbox['id']], true);
+                    break;
+            }
             break;
     }
+}
+else {
+    throw new Exception('unknown_auth_type', EQ_ERROR_INVALID_CONFIG);
 }
 
 $context->httpResponse()

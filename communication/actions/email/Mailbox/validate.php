@@ -16,6 +16,7 @@ use communication\email\Mailbox;
         ],
         'provider' => [
             'type'          => 'string',
+            'selection'     => ['google', 'microsoft'],
             'required'      => true
         ],
         'access_token' => [
@@ -86,6 +87,7 @@ Mailbox::id($mailbox['id'])
         'refresh_token'         => $params['refresh_token'],
         'access_token_expiry'   => $params['access_token_expiry'],
         'refresh_token_expiry'  => $params['refresh_token_expiry'],
+        'auth_provider'         => $params['provider'],
         'imap_server'           => $map_providers[$params['provider']],
         'status'                => 'validated'
     ]);

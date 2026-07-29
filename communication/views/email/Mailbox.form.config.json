@@ -47,6 +47,11 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "auth_provider",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "status",
                                                 "width": "100%",
                                                 "visible": false
@@ -68,6 +73,16 @@
                                             {
                                                 "type": "field",
                                                 "value": "imap_port",
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "smtp_server",
+                                                "width": "75%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "smtp_port",
                                                 "width": "25%"
                                             }
                                         ]

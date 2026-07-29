@@ -38,10 +38,29 @@
             "description": "Port réseau utilisé pour l'accès IMAP.",
             "help": ""
         },
+        "smtp_server": {
+            "label": "Serveur SMTP",
+            "description": "Nom d'hôte du serveur SMTP utilisé pour l'envoi des e-mails.",
+            "help": ""
+        },
+        "smtp_port": {
+            "label": "Port SMTP",
+            "description": "Port réseau utilisé pour l'envoi SMTP.",
+            "help": ""
+        },
         "auth_type": {
             "label": "Type d'authentification",
             "description": "Choix entre authentification basique ou OAuth.",
             "help": ""
+        },
+        "auth_provider": {
+            "label": "Fournisseur OAuth",
+            "description": "Fournisseur utilisé pour l'authentification OAuth.",
+            "help": "",
+            "selection": {
+                "google": "Google",
+                "microsoft": "Microsoft"
+            }
         },
         "access_token": {
             "label": "Jeton d'accès",
