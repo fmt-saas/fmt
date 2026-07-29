@@ -229,7 +229,7 @@
             "confirm": true,
             "visible": [
                 [ ["state", "=", "instance"], ["status", "=", "created"] ],
-                [ ["state", "=", "instance"], ["has_target_object", "=", false] ]
+                [ ["state", "=", "instance"], ["has_target_object", "=", false], ["status", "<>", "removed"]]
             ]
         }
     ],
