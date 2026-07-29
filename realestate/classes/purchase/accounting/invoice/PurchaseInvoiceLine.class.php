@@ -338,7 +338,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             if($event['property_lot_id']) {
                 $propertyOwnerships = PropertyLotOwnership::search([['property_lot_id', '=', $event['property_lot_id']]])->read(['ownership_id'])->get(true);
                 $ownerships_ids = array_map(function ($a) {return $a['ownership_id'];}, $propertyOwnerships);
-                if(!$values['ownership_id'] || !in_array($values['ownership_id'], $ownerships_ids) ) {
+                if(!isset($values['ownership_id']) || !in_array($values['ownership_id'], $ownerships_ids) ) {
                     $result['ownership_id'] = [
                         'domain' => [['condo_id', '=', $values['condo_id']], ['id', 'in', $ownerships_ids]]
                     ];
