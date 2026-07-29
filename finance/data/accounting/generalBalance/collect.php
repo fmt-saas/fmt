@@ -414,7 +414,7 @@ $map_final_opening_balances = [];
 $grouped_operations = ['co_owners_owner_reserve_fund', 'co_owners_owner_working_fund', 'co_owners_former','co_owners_repayment'];
 
 foreach($map_accounts_ids as $account_id => $_) {
-    $balance = round($map_opening_balances[$account_id], 2) ?? 0;
+    $balance = round($map_opening_balances[$account_id] ?? 0, 2);
 
     $account = $accounts[$account_id];
 
@@ -463,7 +463,7 @@ foreach($map_final_accounts_ids as $account_id => $_) {
     $account = $accounts[$account_id]->toArray();
 
     // 1. Opening balance
-    $opening_balance = round($map_final_opening_balances[$account_id], 2) ?? 0;
+    $opening_balance = round($map_final_opening_balances[$account_id] ?? 0, 2);
     $current_balance[$account_id] = $opening_balance;
 
     $result[] = [
@@ -504,7 +504,8 @@ foreach($map_final_accounts_ids as $account_id => $_) {
 
             $row['entry_date'] = date('c', $line['entry_date']);
 
-            $row['balance'] = round($row['balance'], 2);
+            // #memo - no `balance` in AccountingEntryLine
+            // $row['balance'] = round($row['balance'], 2);
             $account_rows[] = $row;
         }
 

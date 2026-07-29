@@ -530,6 +530,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                     ],
                     'confirm' => [
                         'description' => 'Update the document to `confirmed`.',
+                        'onafter' => 'onafterConfirm',
                         'status' => 'confirmed'
                     ]
                 ],
@@ -969,7 +970,7 @@ class OwnershipTransfer extends \equal\orm\Model {
 
         foreach($self as $id => $ownershipTransfer) {
 
-            $paragraph = (in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'])) ? '1' : '2';
+            $paragraph = (in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'], true)) ? '1' : '2';
 
             $arrears_amount = 0.0;
 
