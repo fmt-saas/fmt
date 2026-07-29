@@ -1,16 +1,16 @@
 {
-    "name": "Ligne d'arriere de transfert",
-    "plural": "Lignes d'arriere de transfert",
-    "description": "Ligne detaillee d'un montant en retard lie a un transfert de propriete.",
+    "name": "Ligne d'arriéré de mutation",
+    "plural": "Lignes d'arriéré de mutation",
+    "description": "Ligne detaillee d'un montant en retard lie a un mutation de propriété.",
     "model": {
         "condo_id": {
             "label": "Copropriete",
-            "description": "Copropriete a laquelle la ligne d'arriere est rattachee.",
+            "description": "Copropriété a laquelle la ligne d'arriéré est rattachée.",
             "help": ""
         },
         "ownership_transfer_id": {
             "label": "Transfert lie",
-            "description": "Dossier de transfert auquel cette ligne d'arriere est associee.",
+            "description": "Dossier de transfert auquel cette ligne d'arriéré est associée.",
             "help": ""
         },
         "due_date": {
@@ -20,7 +20,7 @@
         },
         "description": {
             "label": "Description",
-            "description": "Libelle permettant d'identifier l'origine du montant en retard.",
+            "description": "Libellé permettant d'identifier l'origine du montant en retard.",
             "help": ""
         },
         "arrear_paragraph": {
@@ -33,7 +33,7 @@
             }
         },
         "arrear_line_type": {
-            "label": "Type d'arriere",
+            "label": "Type d'arriéré",
             "description": "Nature du montant en retard repris sur la ligne.",
             "help": "",
             "selection": {
@@ -50,12 +50,12 @@
     },
     "view": {
         "form.default": {
-            "name": "Ligne d'arriere de transfert",
-            "description": "Formulaire d'encodage d'un montant en retard lie au transfert."
+            "name": "Ligne d'arriéré de mutation",
+            "description": "Formulaire d'encodage d'un montant en retard lié à la mutation."
         },
         "list.default": {
-            "name": "Arrieres de transfert",
-            "description": "Liste des montants en retard rattaches a un transfert de propriete."
+            "name": "Arriérés de mutation",
+            "description": "Liste des montants en retard rattachés à une mutation de propriété."
         }
     }
 }

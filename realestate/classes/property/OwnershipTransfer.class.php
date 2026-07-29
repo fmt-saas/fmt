@@ -222,12 +222,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'default'           => true
             ],
 
-            'arrears_amount_1' => [
-                'type'              => 'float',
-                'usage'             => 'amount/money:2',
-                'description'       => "The total pending arrears owed by the seller."
-            ],
-
             'arrear_lines_1_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\property\OwnershipTransferArrearLine',
@@ -247,12 +241,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'type'              => 'boolean',
                 'description'       => "Are there any pending arrears owed by the seller?",
                 'default'           => true
-            ],
-
-            'arrears_amount_2' => [
-                'type'              => 'float',
-                'usage'             => 'amount/money:2',
-                'description'       => "The total pending arrears owed by the seller."
             ],
 
             'arrear_lines_2_ids' => [
@@ -1011,18 +999,29 @@ class OwnershipTransfer extends \equal\orm\Model {
                     ])
                     ->read(['due_date', 'name', 'funding_type', 'remaining_amount']);
 
-                foreach($arrearFundings as $funding_id => $funding) {
+                if($arrearFundings->count() > 0) {
+                    foreach($arrearFundings as $funding_id => $funding) {
+                        OwnershipTransferArrearLine::create([
+                            'condo_id'              => $ownershipTransfer['condo_id'],
+                            'ownership_transfer_id' => $id,
+                            'due_date'              => $funding['due_date'],
+                            'description'           => $funding['name'],
+                            'arrear_paragraph'      => $paragraph,
+                            'arrear_line_type'      => 'funding',
+                            'due_amount'            => $funding['remaining_amount'],
+                        ]);
+                    }
+                }
+                else {
                     OwnershipTransferArrearLine::create([
                         'condo_id'              => $ownershipTransfer['condo_id'],
                         'ownership_transfer_id' => $id,
-                        'due_date'              => $funding['due_date'],
-                        'description'           => $funding['name'],
+                        'description'           => 'arriérés',
                         'arrear_paragraph'      => $paragraph,
                         'arrear_line_type'      => 'funding',
-                        'due_amount'            => $funding['remaining_amount'],
+                        'due_amount'            => 0.0
                     ]);
                 }
-
             }
             elseif($paragraph === '2') {
                 OwnershipTransferArrearLine::search([['ownership_transfer_id', '=', $id], ['arrear_paragraph', '=', $paragraph]])->delete(true);
@@ -1044,22 +1043,34 @@ class OwnershipTransfer extends \equal\orm\Model {
                     ])
                     ->read(['due_date', 'name', 'funding_type', 'remaining_amount']);
 
-                foreach($arrearFundings as $funding_id => $funding) {
+                if($arrearFundings->count() > 0) {
+                    foreach($arrearFundings as $funding_id => $funding) {
+                        OwnershipTransferArrearLine::create([
+                            'condo_id'              => $ownershipTransfer['condo_id'],
+                            'ownership_transfer_id' => $id,
+                            'due_date'              => $funding['due_date'],
+                            'description'           => $funding['name'],
+                            'arrear_paragraph'      => $paragraph,
+                            'arrear_line_type'      => 'funding',
+                            'due_amount'            => $funding['remaining_amount'],
+                        ]);
+                    }
+                }
+                else {
                     OwnershipTransferArrearLine::create([
                         'condo_id'              => $ownershipTransfer['condo_id'],
                         'ownership_transfer_id' => $id,
-                        'due_date'              => $funding['due_date'],
-                        'description'           => $funding['name'],
+                        'description'           => 'arriérés',
                         'arrear_paragraph'      => $paragraph,
                         'arrear_line_type'      => 'funding',
-                        'due_amount'            => $funding['remaining_amount'],
+                        'due_amount'            => 0.0
                     ]);
                 }
 
                 OwnershipTransferArrearLine::create([
                     'condo_id'              => $ownershipTransfer['condo_id'],
                     'ownership_transfer_id' => $id,
-                    'description'           => 'Provisions complémentaires',
+                    'description'           => 'Provisions complémentaires (3.95)',
                     'arrear_paragraph'      => $paragraph,
                     'arrear_line_type'      => 'additional_provision',
                     'due_amount'            => 0.0,
@@ -1079,9 +1090,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 continue;
             }
 
-            $values = [
-                'arrears_amount_' . $paragraph => $arrears_amount
-            ];
+            $values = [];
 
             $domain_template = [
                 ['type', '=', 'document'],
@@ -1099,16 +1108,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                     if($part['name'] == 'seller_arrears_some_description') {
                         $text = $part['value'];
 
-                        $map_values = [
-                            'amount' => $arrears_amount,
-                        ];
-
-                        // Replace {var} items with corresponding values, set in $map_values
-                        $text = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
-                            $key = $matches[1];
-                            return $map_values[$key] ?? '';
-                        }, $text);
-
                         $values['seller_arrears_description_' . $paragraph] = $text;
                         break;
                     }
@@ -1120,15 +1119,6 @@ class OwnershipTransfer extends \equal\orm\Model {
                 foreach($template['parts_ids'] as $part_id => $part) {
                     if($part['name'] == 'seller_arrears_none_description') {
                         $text = $part['value'];
-
-                        $map_values = [
-                        ];
-
-                        // Replace {var} items with corresponding values, set in $map_values
-                        $text = preg_replace_callback('/\{(\w+)\}/', function ($matches) use ($map_values) {
-                            $key = $matches[1];
-                            return $map_values[$key] ?? '';
-                        }, $text);
 
                         $values['seller_arrears_description_' . $paragraph] = $text;
                         break;

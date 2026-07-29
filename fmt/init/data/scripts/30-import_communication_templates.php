@@ -812,7 +812,7 @@ $template = Template::create([
 
 TemplatePart::create([
     'name'          => 'seller_arrears_some_description',
-    'value'         => "<p>OUI, il existe des arriérés qui s’élèvent à ce jour au montant de <strong>{amount} €</strong>.</p><p><br /></p><p><em>Ce montant ne comprend pas les majorations, pénalités financières, intérêts, frais et dépens résultant des statuts de la copropriété, de décisions d’assemblées générales ou de décisions judiciaires. Le décompte définitif ne pourra être arrêté qu’au jour de la réception des sommes dues.</em></p><p>&nbsp;</p><p><em>Nous rappelons également que le copropriétaire cédant restera redevable de sa quote-part dans le(s) décompte(s) de charges à établir jusqu’à la date de signature de l’acte authentique, ainsi que des honoraires du syndic liés à la gestion du dossier de transfert de propriété.</em></p>",
+    'value'         => "<p>OUI, il existe des arriérés.</p><p><br /></p><p><em>Ce montant ne comprend pas les majorations, pénalités financières, intérêts, frais et dépens résultant des statuts de la copropriété, de décisions d’assemblées générales ou de décisions judiciaires. Le décompte définitif ne pourra être arrêté qu’au jour de la réception des sommes dues.</em></p><p>&nbsp;</p><p><em>Nous rappelons également que le copropriétaire cédant restera redevable de sa quote-part dans le(s) décompte(s) de charges à établir jusqu’à la date de signature de l’acte authentique, ainsi que des honoraires du syndic liés à la gestion du dossier de transfert de propriété.</em></p>",
     'template_id'   => $template['id'],
     'variables'     => '["amount"]'
 ]);

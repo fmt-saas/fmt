@@ -204,7 +204,6 @@ $ownershipTransfer = OwnershipTransfer::id($params['id'])
         'has_intervention_record',
         'has_fuel_tank',
         'fuel_tank_capacity',
-        'arrears_amount_1',
         'condo_id' => [
             'name', 'address_street', 'address_city', 'address_zip', 'address_city',
             'registration_number'
@@ -379,7 +378,7 @@ $values = [
     'funds_requests'                        => $ownershipTransfer['fund_requests_ids'],
     'bank_loans'                            => $ownershipTransfer['bank_loan_lines_ids'],
     'arrear_fundings'                       => $arrear_fundings,
-    'arrears_amount_1'                      => $ownershipTransfer['arrears_amount_1'],
+
     'transfer_fees'                         => $ownershipTransfer['transfer_fees_ids'],
     'ownership'                             => $ownershipTransfer['old_ownership_id'],
     'ownership_shares'                      => $ownershipTransfer['ownership_shares'],

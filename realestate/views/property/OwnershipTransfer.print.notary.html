@@ -194,14 +194,6 @@
             <h4>{{ labels['article_3_94.section_1.seller_arrears.title'] }}</h4>
             <div>
 
-                <!--
-                {% if arrears_amount_1 > 0.0 %}
-                    {{ labels['article_3_94.section_1.seller_arrears.some_message'] }} {{ arrears_amount_1 | format_money() }}<br />
-                {% else %}
-                    {{ labels['article_3_94.section_1.seller_arrears.none_message'] }}<br />
-                {% endif %}
-                -->
-
                 <!-- description is injected automatically in OwnershipTransfer object based on actual arrears -->
                 {% if seller_arrears_description_1 is not empty %}
                     {{ seller_arrears_description_1 | raw }}
