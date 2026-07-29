@@ -34,10 +34,18 @@ class PriceList extends Model {
                 'description'       => "Description of the list."
             ],
 
+            'organization_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'identity\Organisation',
+                'description'       => "The organization the price list relates to.",
+                'help'              => "Relates to the specific organization the price applies to.",
+                'default'           => 1
+            ],
+
             'condo_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\Condominium',
-                'description'       => "The condominium the tenancy relates to.",
+                'description'       => "The condominium the price list relates to.",
                 'help'              => "If set, relates to the specific condominium the price applies to."
             ],
 
