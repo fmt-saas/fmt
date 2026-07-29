@@ -831,7 +831,7 @@ class DocumentProcess extends Model {
 
     protected static function policyIsUnique($self, $dispatch): array {
         $result = [];
-        $self->read(['condo_id', 'document_id' => ['hash']]);
+        $self->read(['condo_id', 'report_html', 'document_id' => ['id', 'hash']]);
         foreach($self as $id => $documentProcess) {
 
             if(!$documentProcess['condo_id']) {
@@ -904,6 +904,13 @@ class DocumentProcess extends Model {
 */
             if($has_duplicate) {
                 $dispatch->dispatch('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $id, 'important');
+                $report_html = $documentProcess['report_html'];
+                if(strlen($report_html) > 0) {
+                    $report_html .= "<br />";
+                }
+                $report_html .= "<b>Interruption</b><br />Process interrupted: duplicate document already imported.";
+                self::id($id)->update(['report_html' => $report_html]);
+
                 $result[$id] = [
                     'duplicate_document' => 'This document has already been imported'
                 ];
