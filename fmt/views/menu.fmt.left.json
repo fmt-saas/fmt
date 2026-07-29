@@ -1259,24 +1259,89 @@
                     {
                         "id": "catalog",
                         "label": "Catalog",
-                        "description": "",
-                        "icon": "mode_comment",
+                        "description": "Manage all things related to products.",
+                        "icon": "style",
                         "type": "parent",
                         "children": [
-
+                            {
+                                "id": "catalog.products",
+                                "type": "entry",
+                                "label": "Products",
+                                "icon": "",
+                                "description": "The list of products.",
+                                "context": {
+                                    "entity": "sale\\catalog\\Product",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "catalog.product_models",
+                                "type": "entry",
+                                "label": "Product models",
+                                "icon": "",
+                                "description": "The list of product models.",
+                                "context": {
+                                    "entity": "sale\\catalog\\ProductModel",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "catalog.product_families",
+                                "type": "entry",
+                                "label": "Product families",
+                                "icon": "",
+                                "description": "The list of product families.",
+                                "context": {
+                                    "entity": "sale\\catalog\\Family",
+                                    "view": "list.default"
+                                }
+                            }
                         ]
                     },
                     {
-                        "id": "item.config.pricelist",
-                        "type": "entry",
-                        "label": "Price list",
-                        "icon": "price_check",
-                        "description": "Manage organisation price lists.",
-                        "context": {
-                            "entity": "sale\\price\\PriceList",
-                            "view": "list.org",
-                            "domain": ["condo_id", "=", null]
-                        }
+                        "id": "price_conf",
+                        "label": "Price configuration",
+                        "description": "Manage all things related to prices.",
+                        "icon": "attach_money",
+                        "type": "parent",
+                        "children": [
+                            {
+                                "id": "price_conf.prices",
+                                "type": "entry",
+                                "label": "Prices",
+                                "icon": "attach_money",
+                                "description": "Manage prices.",
+                                "context": {
+                                    "entity": "sale\\price\\Price",
+                                    "view": "list.default",
+                                    "domain": ["condo_id", "=", null]
+                                }
+                            },
+                            {
+                                "id": "price_conf.price_lists",
+                                "type": "entry",
+                                "label": "Price lists",
+                                "icon": "price_check",
+                                "description": "Manage price lists.",
+                                "context": {
+                                    "entity": "sale\\price\\PriceList",
+                                    "view": "list.org",
+                                    "domain": ["condo_id", "=", null]
+                                }
+                            },
+                            {
+                                "id": "price_conf.price_list_categories",
+                                "type": "entry",
+                                "label": "Price list categories",
+                                "icon": "sell",
+                                "description": "Manage price list categories.",
+                                "context": {
+                                    "entity": "sale\\price\\PriceListCategory",
+                                    "view": "list.default",
+                                    "domain": ["condo_id", "=", null]
+                                }
+                            }
+                        ]
                     },
                     {
                         "id": "item.config.payment_terms",

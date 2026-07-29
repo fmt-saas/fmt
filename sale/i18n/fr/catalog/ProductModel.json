@@ -89,7 +89,7 @@
     },
     "view": {
         "form.default": {
-            "name": "Modèle du produit",
+            "name": "Modèle de produit",
             "description": "Les modèles de produits servent de dénominateur commun pour les variantes de produits (appelées Produits).",
             "layout": {
                 "section.details": {
@@ -113,7 +113,7 @@
             }
         },
         "list.default": {
-            "name": "Modèles du produit",
+            "name": "Modèles de produits",
             "description": "Liste des modèles du produit.",
             "layout": {}
         }

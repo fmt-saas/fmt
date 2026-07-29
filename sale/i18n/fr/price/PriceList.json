@@ -1,7 +1,7 @@
 {
-    "name": "Liste de Prix",
-    "plural": "Listes de Prix",
-    "description": "La liste des prix du produit.",
+    "name": "Liste de prix",
+    "plural": "Listes de prix",
+    "description": "La liste des prix de produits.",
     "model": {
         "name": {
             "label": "Identifiant",
@@ -72,7 +72,7 @@
             "layout": {}
         },
         "list.default": {
-            "name": "Liste de Prix",
+            "name": "Liste de prix",
             "description": "Liste des prix.",
             "layout": {}
         }

@@ -1,7 +1,7 @@
 {
     "name": "Prix",
     "plural": "Prix",
-    "description": "Le prix du produit.",
+    "description": "Les prix des produit.",
     "model": {
         "name": {
             "label": "Nom",
