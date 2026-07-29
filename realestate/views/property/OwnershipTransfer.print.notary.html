@@ -365,9 +365,9 @@
                 {% endif %}
             </div>
             <div>
-                <p>{{ labels['payment.account_instruction'] }} <strong>{{ condominium.name }}</strong> :<br />
-                    {{ condominium.bank_account_iban }}<br />
-                    {{ condominium.bank_account_bic }}<br />
+                <p>{{ labels['payment.account.instruction'] }} <strong>{{ condominium.name }}</strong> :<br />
+                    {{ labels['payment.account.iban'] }}: {{ condominium.bank_account_iban }}<br />
+                    {{ labels['payment.account.bic'] }}: {{ condominium.bank_account_bic }}<br />
                     {{ labels['payment.reference_instruction'] }}
                 </p>
             </div>

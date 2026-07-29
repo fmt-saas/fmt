@@ -61,7 +61,9 @@
     "fund_requests.table.th.owner_planned": "Quote-part planifiée",
     "fund_requests.last_ago_notice": "Nous vous invitons à consulter PV de la dernière AGO afin de connaitre les modalités de ces appels et leurs échéances.",
 
-    "payment.account_instruction": "Tout paiement est à effectuer sur le compte de la Copropriété",
+    "payment.account.instruction": "Tout paiement est à effectuer sur le compte de la Copropriété",
+    "payment.account.iban": "IBAN",
+    "payment.account.bic": "BIC",
     "payment.reference_instruction": "avec la référence VCS renseignée.",
 
     "additional_information.title": "Informations complémentaires",
