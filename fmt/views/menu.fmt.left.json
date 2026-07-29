@@ -505,6 +505,17 @@
                             "entity": "hr\\role\\RoleAssignment",
                             "view": "list.default"
                         }
+                    },
+                    {
+                        "id": "management_processes",
+                        "type": "entry",
+                        "label": "Management Processes",
+                        "icon": "account_tree",
+                        "description": "List and manage management processes.",
+                        "context": {
+                            "entity": "realestate\\management\\ManagementProcess",
+                            "view": "list.default"
+                        }
                     }
                 ]
             },
