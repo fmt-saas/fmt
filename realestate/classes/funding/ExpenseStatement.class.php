@@ -2076,7 +2076,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
     protected static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['status', 'name', 'payment_status', 'statements_exporting_task_id'];
+        $allowed_fields = ['status', 'name', 'payment_status', 'is_sending_disabled', 'statements_exporting_task_id'];
 
         foreach($self as $id => $invoice) {
             if($invoice['status'] === 'posted') {
