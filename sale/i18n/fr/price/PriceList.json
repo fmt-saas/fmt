@@ -69,7 +69,16 @@
         "form.default": {
             "name": "Liste de prix",
             "description": "",
-            "layout": {}
+            "actions": {
+                "action.clone": {
+                    "label": "Dupliquer année prochaine"
+                }
+            },
+            "layout": {
+                "section.prices": {
+                    "label": "Prix"
+                }
+            }
         },
         "list.default": {
             "name": "Liste de prix",

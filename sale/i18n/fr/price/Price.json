@@ -18,15 +18,6 @@
             "description": "Prix hors taxes.",
             "help": ""
         },
-        "price_type": {
-            "label": "Type",
-            "description": "Type de prix.",
-            "selection": {
-                "direct": "direct",
-                "computed": "calculé"
-            },
-            "help": ""
-        },
         "price_vat": {
             "label": "Prix TVAC",
             "description": "Prix taxes incluses.",
@@ -35,11 +26,6 @@
         "vat_rate": {
             "label": "Taux TVA",
             "description": "Taux de TVA appliqué au prix.",
-            "help": ""
-        },
-        "calculation_method_id": {
-            "label": "Méthode de calcul",
-            "description": "Méthode à utiliser pour le calcul des prix.",
             "help": ""
         },
         "price_list_id": {

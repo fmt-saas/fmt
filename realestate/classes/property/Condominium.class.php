@@ -575,9 +575,9 @@ class Condominium extends Identity {
         foreach($self as $id => $condominium) {
 
             if(!$condominium['managing_agent_id']) {
-                /*$result[$id] = [
+                $result[$id] = [
                     'missing_managing_agent_id' => 'The managing agent must be provided.'
-                ];*/
+                ];
             }
 
             // verify that the code is unique
@@ -602,11 +602,11 @@ class Condominium extends Identity {
                 }
             }
 
-            /*if(count($map_mandatory_roles_ids)) {
+            if(count($map_mandatory_roles_ids)) {
                 $result[$id] = [
                     'missing_mandatory_role' => 'At least one mandatory role is missing.'
                 ];
-            }*/
+            }
 
             // #todo - check which of these must be mandatory
             /*
@@ -932,15 +932,38 @@ class Condominium extends Identity {
     }
 
     protected static function doGeneratePriceList($self) {
+        $year = date('Y');
+
+        $date_from = mktime(0, 0, 0, 1, 1, $year);
+        $date_to = mktime(23, 59, 59, 12, 31, $year);
+
+        $default_price_list = PriceList::search([
+            ['condo_id', '=', null],
+            ['date_from', '=', $date_from],
+            ['date_to', '=', $date_to]
+        ])
+            ->first();
+
         $self->read(['name']);
         foreach($self as $id => $condominium) {
-            PriceList::create([
-                'condo_id'      => $id,
-                'name'          => "Default",
-                'description'   => "Default price list for condominium {$condominium['name']}.",
-                'date_from'     => mktime(0, 0, 0, 1, 1, date('Y')),
-                'date_to'       => mktime(23, 59, 59, 12, 31, date('Y'))
-            ]);
+            if($default_price_list) {
+                \eQual::run('do', 'sale_price_PriceList_clone', [
+                    'id'                => $default_price_list['id'],
+                    'condo_id'          => $condominium['id'],
+                    'target_year'       => $year,
+                    'indexation_rate'   => 0.0
+                ]);
+            }
+            else {
+                // If no price list is configured, then create a price list without any price.
+                PriceList::create([
+                    'condo_id'      => $id,
+                    'name'          => "Default $year",
+                    'description'   => "Default $year price list for condominium {$condominium['name']}.",
+                    'date_from'     => $date_from,
+                    'date_to'       => $date_to
+                ]);
+            }
         }
     }
 

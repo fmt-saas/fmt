@@ -373,6 +373,10 @@
                     "label": "Assemblées",
                     "description": ""
                 },
+                "item.prices": {
+                    "label": "Prix",
+                    "description": ""
+                },
                 "item.config": {
                     "label": "Configuration",
                     "description": ""

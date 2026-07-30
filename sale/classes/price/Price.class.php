@@ -38,7 +38,9 @@ class Price extends Model {
                 'foreign_object'    => 'realestate\property\Condominium',
                 'relation'          => ['price_list_id' => 'condo_id'],
                 'description'       => "The condominium the tenancy relates to.",
-                'help'              => "If set, relates to the specific condominium the price applies to."
+                'help'              => "If set, relates to the specific condominium the price applies to.",
+                'store'             => true,
+                'instant'           => true
             ],
 
             'price' => [
@@ -46,15 +48,7 @@ class Price extends Model {
                 'usage'             => 'amount/money:4',
                 'description'       => "Tax excluded price.",
                 'required'          => true,
-                'dependents'        => ['price_vat'],
-                'visible'           => ['price_type', '=', 'direct']
-            ],
-
-            'price_type' => [
-                'type'              => 'string',
-                'description'       => "If computed a calculation method is used to compute the price amount.",
-                'selection'         => ['direct', 'computed'],
-                'default'           => 'direct'
+                'dependents'        => ['price_vat']
             ],
 
             'price_vat' => [
@@ -63,8 +57,7 @@ class Price extends Model {
                 'function'          => 'calcPriceVat',
                 'usage'             => 'amount/money:2',
                 'description'       => "Tax included price. This field is used to allow encoding prices VAT incl.",
-                'store'             => true,
-                'visible'           => ['price_type', '=', 'direct']
+                'store'             => true
             ],
 
             'vat_rate' => [
@@ -74,14 +67,7 @@ class Price extends Model {
                 'relation'          => ['accounting_rule_id' => ['vat_rule_id' => 'rate']],
                 'description'       => "VAT rate applied on the price (from accounting rule).",
                 'store'             => true,
-                'readonly'          => true,
-                'visible'           => ['price_type', '=', 'direct']
-            ],
-
-            'calculation_method_id' => [
-                'type'              => 'string',
-                'description'       => "Method to use for price computation.",
-                'visible'           => ['price_type', '=', 'computed']
+                'readonly'          => true
             ],
 
             'price_list_id' => [
@@ -90,7 +76,7 @@ class Price extends Model {
                 'description'       => "The Price List the price belongs to.",
                 'required'          => true,
                 'ondelete'          => 'cascade',
-                'dependents'        => ['name']
+                'dependents'        => ['name', 'condo_id']
             ],
 
             'is_active' => [
@@ -122,7 +108,7 @@ class Price extends Model {
 
     public function getUnique(): array {
         return [
-            ['product_id', 'price_list_id']
+            ['condo_id', 'product_id', 'price_list_id']
         ];
     }
 

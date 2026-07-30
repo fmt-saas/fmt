@@ -1,6 +1,15 @@
 {
     "name": "Price Lists",
     "description": "",
+    "actions": [
+        {
+            "id": "action.clone",
+            "label": "Repeat next year",
+            "icon": "",
+            "description": "Clone list for following year.",
+            "controller": "sale_price_PriceList_clone"
+        }
+    ],
     "layout": {
         "groups": [
             {
