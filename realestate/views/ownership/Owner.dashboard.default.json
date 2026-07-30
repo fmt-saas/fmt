@@ -1,6 +1,7 @@
 {
     "name": "Owner dashboard",
     "description": "",
+    "domain": ["condo_id", "in", "user.condos_ids"],
     "layout": {
         "groups": [
 			{
