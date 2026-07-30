@@ -55,10 +55,17 @@ $owners = Owner::ids($ids)->read(['identity_id']);
 $groups_ids = Group::search(['name', 'in', ['users']])->ids();
 
 foreach($owners as $owner_id => $owner) {
-    $identity = Identity::id($owner['identity_id'])->read(['email', 'user_id'])->first();
+    $identity = Identity::id($owner['identity_id'])
+        ->read(['name', 'email', 'user_id'])
+        ->first();
 
     // #memo in case the user already exists, simply ignore the request
-    if(!$identity['user_id'] && $identity['email']) {
+    if(!$identity['user_id']) {
+
+        if(!$identity['email']) {
+            trigger_error("APP::Ignored user creation for identity {$identity['name']} of owner [{$owner_id}] without email address", EQ_REPORT_WARNING);
+            continue;
+        }
 
         $new_user_id = $orm->create(User::getType(), [
                 // #memo - Capabilities for EQ_R_UPDATE are based on 'creator' context

@@ -9,7 +9,6 @@
     },
     "order": "is_paid,due_date",
     "sort": "asc,desc",
-    "domain": ["remaining_amount", "<>", 0],
     "on_empty": {
         "message": "Pas de paiement en attente. Tout est en ordre."
     },

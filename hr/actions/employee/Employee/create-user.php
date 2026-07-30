@@ -67,7 +67,7 @@ foreach($employees as $employee_id => $employee) {
     // #memo in case the user already exists, simply ignore the request
     if(!$identity['user_id']) {
         if(!$identity['email']) {
-            trigger_error("APP::ignored user creation for identity {$identity['name']} with no email.", EQ_REPORT_WARNING);
+            trigger_error("APP::Ignored user creation for identity {$identity['name']} of employee [{$employee_id}] without email address.", EQ_REPORT_WARNING);
             continue;
         }
 
