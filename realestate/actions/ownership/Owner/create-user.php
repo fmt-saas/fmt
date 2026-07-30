@@ -81,6 +81,8 @@ foreach($owners as $owner_id => $owner) {
             ->do('sync_from_identity');
 
         Owner::id($owner_id)->update(['user_id' => $new_user_id]);
+
+        eQual::run('do', 'identity_User_send-confirmation', ['id' => $new_user_id]);
     }
 }
 

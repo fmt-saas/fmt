@@ -92,6 +92,8 @@ foreach($employees as $employee_id => $employee) {
             ->do('sync_from_identity');
 
         Employee::id($employee_id)->update(['user_id' => $new_user_id]);
+
+        eQual::run('do', 'identity_User_send-confirmation', ['id' => $new_user_id]);
     }
     // force refreshing role assignments
     RoleAssignment::ids($employee['role_assignments_ids'])->read(['user_id']);
