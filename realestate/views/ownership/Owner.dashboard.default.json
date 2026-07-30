@@ -55,7 +55,10 @@
                                                 "width": "50%",
                                                 "entity": "realestate\\governance\\Assembly",
                                                 "view": "list.dashboard",
-                                                "domain": ["condo_id", "in", "user.condos_ids"]
+                                                "domain": [
+                                                    ["condo_id", "in", "user.condos_ids"],
+                                                    ["ownerships_ids", "contains", "user.ownerships_ids"]
+                                                ]
                                             },
                                             {
                                                 "id": "item.documents",
