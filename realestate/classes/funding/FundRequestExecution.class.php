@@ -822,6 +822,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         ['account_id', '=', $ownershipAccount['id']],
                         ['accounting_entry_id', '=', $requestExecution['accounting_entry_id']]
                     ])
+                    ->read(['description'])
                     ->first();
 
                 if(!$accountingEntryLine) {
@@ -848,7 +849,8 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
                 $ownershipFunding = Funding::create([
                         'condo_id'                  => $requestExecution['condo_id'],
-                        'description'               => $requestExecution['fund_request_id']['name'],
+                        // 'description'               => $requestExecution['fund_request_id']['name'],
+                        'description'               => $accountingEntryLine['description'],
                         'fund_request_id'           => $requestExecution['fund_request_id']['id'],
                         'fund_request_execution_id' => $id,
                         'ownership_id'              => $ownership_id,

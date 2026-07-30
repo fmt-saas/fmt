@@ -1225,6 +1225,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         ['account_id', '=', $ownershipAccount['id']],
                         ['accounting_entry_id', '=', $expenseStatement['accounting_entry_id']]
                     ])
+                    ->read(['description'])
                     ->first();
 
                 if(!$accountingEntryLine) {
@@ -1269,7 +1270,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 // generate theoretical Funding
                 $ownershipFunding = Funding::create([
                         'condo_id'                          => $expenseStatement['condo_id'],
-                        'description'                       => $expenseStatement['name'],
+                        'description'                       => $accountingEntryLine['description'],
                         'expense_statement_id'              => $id,
                         'ownership_id'                      => $ownership_id,
                         'accounting_account_id'             => $fundingOwnershipAccount['id'],
