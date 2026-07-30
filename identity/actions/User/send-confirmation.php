@@ -7,6 +7,7 @@
 use equal\email\Email;
 use equal\html\HtmlTemplate;
 use core\Mail;
+use identity\Organisation;
 use identity\User;
 
 [$params, $providers] = eQual::announce([
@@ -92,14 +93,18 @@ try {
         }
     }
 
-    $message_ids = [];
+    $organisation = Organisation::id(1)->read(['name'])->first();
 
     $password = $generate_confirmation_secret();
 
     User::id($user['id'])->update(['password' => $password]);
 
-    $subject = '';
-    $mail_params = array_merge($user, ['password' => $password]);
+    $subject = $organisation['name'] . '- Création de votre compte utilisateur';
+
+    $mail_params = array_merge($user, [
+            'password'  => $password,
+            'org_name'  => $organisation['name']
+        ]);
 
     $template = new HtmlTemplate($html, [
             'subject'      => function ($params, $attributes) use (&$subject) {
@@ -107,18 +112,18 @@ try {
                 return '';
             },
             'display_name' => function ($params, $attributes) {
-                $name = trim(($params['firstname'] ?? '').' '.($params['lastname'] ?? ''));
+                $name = trim(($params['firstname'] ?? '') . ' ' . ($params['lastname'] ?? ''));
                 return $name ?: ($params['username'] ?: $params['login']);
             },
             'confirm_url'  => function ($params, $attributes) {
-                $code = base64_encode($params['login'].':'.$params['password']);
-                $url = rtrim(constant('BACKEND_URL'), '/').'/?do=user_confirm&code='.rawurlencode($code);
+                $code = base64_encode($params['login'].':' . $params['password']);
+                $url = rtrim(constant('BACKEND_URL'), '/') . '/?do=user_confirm&code=' . rawurlencode($code);
                 $label = htmlspecialchars($attributes['title'], ENT_QUOTES, 'UTF-8');
                 $href = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
                 return "<a href=\"{$href}\">{$label}</a>";
             },
             'origin'       => function ($params, $attributes) {
-                return constant('EMAIL_SMTP_ACCOUNT_DISPLAYNAME');
+                return $params['org_name'];
             }
         ],
         $mail_params);
