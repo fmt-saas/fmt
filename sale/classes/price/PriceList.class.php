@@ -117,6 +117,12 @@ class PriceList extends Model {
         ];
     }
 
+    public function getUnique(): array {
+        return [
+            ['condo_id', 'date_from', 'date_to']
+        ];
+    }
+
     public static function calcDuration($self): array {
         $result = [];
         $self->read(['date_from', 'date_to']);
