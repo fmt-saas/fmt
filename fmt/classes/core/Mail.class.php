@@ -81,10 +81,7 @@ class Mail extends \core\Mail {
         $email = self::createMail($email, $object_class, $object_id);
         $email_id = $email['id'];
 
-        Email::id($email_id)->update([
-                'direction'     => 'outgoing',
-                'mailbox_id'    => $mailbox_id
-            ]);
+        Email::id($email_id)->update(['direction' => 'outgoing']);
 
         // #todo store this as setting in config.json
         $monitor = true;

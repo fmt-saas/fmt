@@ -6,8 +6,9 @@
 */
 
 use communication\broadcast\BroadcastMessage;
+use communication\email\Email;
 use core\Task;
-use equal\email\Email;
+use equal\email\Email as EmailMessage;
 use equal\email\EmailAttachment;
 use fmt\core\Mail;
 use realestate\management\ManagementProcess;
@@ -69,7 +70,7 @@ foreach($broadcast['identities_ids'] as $identity) {
         continue;
     }
 
-    $message = new Email();
+    $message = new EmailMessage();
 
     if(!empty($broadcast['reply_to'])) {
         $message->setReplyTo($broadcast['reply_to']);
@@ -81,22 +82,16 @@ foreach($broadcast['identities_ids'] as $identity) {
         ->setContentType("text/html")
         ->setBody($broadcast['body']);
 
-    foreach($broadcast['documents_ids'] as $document) {
-        $attachment = new EmailAttachment(
-            $document['name'],
-            $document['data'],
-            $document['content_type']
-        );
-
-        $message->addAttachment($attachment);
-    }
-
-    Mail::queue(
+    $email_id = Mail::queue(
         $message,
         'communication\broadcast\BroadcastMessage',
-        $broadcast['id'],
-        $managementProcess['mailbox_id']
+        $broadcast['id']
     );
+
+    Email::id($email_id)->update([
+        'mailbox_id'                => $managementProcess['mailbox_id'],
+        'attachment_documents_ids'  => $broadcast['documents_ids']
+    ]);
 }
 
 BroadcastMessage::id($broadcast['id'])

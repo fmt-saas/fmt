@@ -458,6 +458,17 @@ class Document extends Model {
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'attached_emails_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'communication\email\Email',
+                'foreign_field'     => 'attachment_documents_ids',
+                'rel_table'         => 'communication_email_rel_documents',
+                'rel_foreign_key'   => 'email_id',
+                'rel_local_key'     => 'document_id',
+                'description'       => 'Emails the document is attached to.',
+                'help'              => 'Email messages for which the document has been sent as attachment.'
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [

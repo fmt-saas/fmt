@@ -30,17 +30,28 @@ class Email extends Model {
                 'relation'          => ['subject']
             ],
 
+            'message_id' => [
+                'type'              => 'string',
+                'description'       => "Unique string identifier of the message.",
+                'help'              => "Internet message identifier per RFC 5322.",
+                // 'unique'            => true
+            ],
+
             'mailbox_id' => [
                 'type'              => 'many2one',
                 'description'       => "The mailbox the email relates to, if any.",
                 'foreign_object'    => 'communication\email\Mailbox'
             ],
 
-            'message_id' => [
-                'type'              => 'string',
-                'description'       => "Unique string identifier of the message.",
-                'help'              => "Internet message identifier per RFC 5322.",
-                // 'unique'            => true
+            'attachment_documents_ids' => [
+                'type'              => 'many2many',
+                'foreign_object'    => 'documents\Document',
+                'foreign_field'     => 'attached_emails_ids',
+                'rel_table'         => 'communication_email_rel_documents',
+                'rel_foreign_key'   => 'document_id',
+                'rel_local_key'     => 'email_id',
+                'description'       => 'Documents attached to the email.',
+                'help'              => 'Documents linked to the email message to be sent as attachments.'
             ],
 
             'ownership_id' => [
@@ -61,7 +72,8 @@ class Email extends Model {
                 'type'              => 'one2many',
                 'foreign_field'     => 'email_id',
                 'foreign_object'    => 'documents\Document',
-                'description'       => 'Documents attached to the email.'
+                'description'       => 'Documents attached to the email.',
+                'help'              => 'Document that was created when importing attachment from the email message.'
             ],
 
             'case_file_id' => [

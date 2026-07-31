@@ -24,7 +24,7 @@
             "help": ""
         },
         "to": {
-            "label": "Destinataires",
+            "label": "Destinataire(s)",
             "description": "Adresse(s) principales (champ TO).",
             "help": ""
         },

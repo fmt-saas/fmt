@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use communication\email\Email;
 use equal\email\Email as EmailMessage;
 use equal\email\EmailAttachment;
 use fmt\core\Mail;
@@ -84,25 +85,7 @@ $document = Document::create([
 
 
 $attachment_documents_ids = $ownershipTransfer['attached_documents_ids'];
-
 $attachment_documents_ids[] = $document['id'];
-
-$map_processed_documents_ids = [];
-
-/** @var EmailAttachment[] */
-$emailAttachments = [];
-
-// add attachments based on documents selected in ownership transfer file
-
-foreach($attachment_documents_ids as $document_id) {
-    if(isset($map_processed_documents_ids[$document_id])) {
-        continue;
-    }
-    $map_processed_documents_ids[$document_id] = true;
-
-    $document = Document::id($document_id)->read(['name', 'data', 'content_type'])->first();
-    $emailAttachments[] = new EmailAttachment($document['name'], $document['data'], $document['content_type']);
-}
 
 $recipients_emails = array_map(function ($a) { return $a['email']; }, $ownershipTransfer['contacts_ids']);
 $recipient_email = array_shift($recipients_emails);
@@ -140,22 +123,11 @@ $message->setTo($recipient_email)
             </p>
         ");
 
-/*
-// #todo - don't send while testing
 if(count($recipients_emails)) {
     foreach($recipients_emails as $email) {
         $message->addCc($email);
     }
 }
-*/
-
-// append attachments to message
-/*
-// #todo
-foreach($attachments as $attachment) {
-    $message->addAttachment($attachment);
-}
-*/
 
 $managementProcess = ManagementProcess::search(['code', '=', 'legal'])->read(['mailbox_id'])->first();
 if(!$managementProcess || !$managementProcess['mailbox_id']) {
@@ -163,12 +135,16 @@ if(!$managementProcess || !$managementProcess['mailbox_id']) {
 }
 
 // queue message
-Mail::queue(
+$email_id = Mail::queue(
     $message,
     'realestate\property\OwnershipTransfer',
-    $ownershipTransfer['id'],
-    $managementProcess['mailbox_id']
+    $ownershipTransfer['id']
 );
+
+Email::id($email_id)->update([
+        'mailbox_id'                => $managementProcess['mailbox_id'],
+        'attachment_documents_ids'  => $attachment_documents_ids
+    ]);
 
 $context->httpResponse()
         ->status(204)

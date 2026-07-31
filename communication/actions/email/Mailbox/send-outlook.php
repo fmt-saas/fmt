@@ -209,22 +209,17 @@ $email = Email::id($params['email_id'])
         'bcc',
         'direction',
         'date',
-        'body'
+        'body',
+        'attachment_documents_ids'
     ])
     ->first();
 
 if(!$email) {
-    throw new Exception(
-        "unknown_email",
-        EQ_ERROR_INVALID_PARAM
-    );
+    throw new Exception("unknown_email", EQ_ERROR_INVALID_PARAM);
 }
 
 if((int) $email['mailbox_id'] !== (int) $mailbox['id']) {
-    throw new Exception(
-        "email_mailbox_mismatch",
-        EQ_ERROR_INVALID_PARAM
-    );
+    throw new Exception("email_mailbox_mismatch", EQ_ERROR_INVALID_PARAM);
 }
 
 $to_recipients = $build_recipients($email['to']);
@@ -233,25 +228,14 @@ $bcc_recipients = $build_recipients($email['bcc'] ?? '');
 $reply_to_recipients = $build_recipients($email['reply_to'] ?? '');
 
 if(empty($to_recipients)) {
-    throw new Exception(
-        "missing_email_recipient",
-        EQ_ERROR_INVALID_PARAM
-    );
+    throw new Exception("missing_email_recipient", EQ_ERROR_INVALID_PARAM);
 }
 
 
 // LOAD ATTACHMENTS
 
-$documents = Document::search([
-        'email_id',
-        '=',
-        $email['id']
-    ])
-    ->read([
-        'id',
-        'name',
-        'data'
-    ])
+$documents = Document::ids($email['attachment_documents_ids'])
+    ->read(['id', 'name', 'data'])
     ->get(true);
 
 
