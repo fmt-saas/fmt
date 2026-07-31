@@ -45,8 +45,7 @@
             {
                 "type": "field",
                 "value": "status",
-                "width": "20%",
-                "visible": false
+                "width": "20%"
             }
         ]
     }
