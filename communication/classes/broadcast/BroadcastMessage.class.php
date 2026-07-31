@@ -78,7 +78,7 @@ class BroadcastMessage extends Model {
             'body' => [
                 'type'              => 'string',
                 'usage'             => 'text/html',
-                'description'       => 'Subject of the message'
+                'description'       => 'Content of the message.'
             ],
 
             'object_class' => [
@@ -150,7 +150,7 @@ class BroadcastMessage extends Model {
                 'rel_table'         => 'communication_broadcast_rel_document',
                 'rel_foreign_key'   => 'document_id',
                 'rel_local_key'     => 'broadcast_id',
-                'description'       => 'One or more documents that relate to the broadcast message (attachment).',
+                'description'       => 'Attachments linked to the broadcast message.',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
