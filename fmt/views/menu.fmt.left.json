@@ -545,7 +545,8 @@
                         "description": "View and manage received emails.",
                         "context": {
                             "entity": "communication\\email\\Email",
-                            "view": "list.default"
+                            "view": "list.default",
+                            "domain": ["direction", "=", "incoming"]
                         }
                     },
                     {
@@ -555,8 +556,9 @@
                         "icon": "outbox",
                         "description": "History of all outgoing email messages.",
                         "context": {
-                            "entity": "core\\Mail",
-                            "view": "list.default"
+                            "entity": "communication\\email\\Email",
+                            "view": "list.default",
+                            "domain": ["direction", "=", "outgoing"]
                         }
                     }
                 ]
