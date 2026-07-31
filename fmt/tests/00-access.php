@@ -5,7 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use communication\broadcast\Broadcast;
+use communication\broadcast\BroadcastMessage;
 use documents\Document;
 use documents\processing\DocumentProcess;
 use hr\employee\Employee;
@@ -2622,7 +2622,7 @@ $tests = [
                 ])
                     ->first();
 
-                $broadcast = Broadcast::create([
+                $broadcast = BroadcastMessage::create([
                     'condo_id'              => $condo['id'],
                     'name'                  => "test broadcast for document cannot delete test"
                 ])
@@ -2658,7 +2658,7 @@ $tests = [
             'rollback'      => function() {
                 Condominium::search(['name', 'in', ['test condo for document cannot delete test']])->delete(true);
 
-                Broadcast::search(['name', '=', 'test broadcast for document cannot delete test'])->delete(true);
+                BroadcastMessage::search(['name', '=', 'test broadcast for document cannot delete test'])->delete(true);
                 Document::search(['name', '=', 'test document for document cannot delete test'])->delete(true);
             }
         ],

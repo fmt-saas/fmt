@@ -314,7 +314,7 @@ class Ownership extends \equal\orm\Model {
 
             'broadcasts_ids' => [
                 'type'              => 'many2many',
-                'foreign_object'    => 'communication\broadcast\Broadcast',
+                'foreign_object'    => 'communication\broadcast\BroadcastMessage',
                 'foreign_field'     => 'ownerships_ids',
                 'rel_table'         => 'realestate_ownership_rel_broadcast',
                 'rel_foreign_key'   => 'broadcast_id',

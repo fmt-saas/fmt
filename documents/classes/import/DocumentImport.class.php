@@ -103,7 +103,7 @@ class DocumentImport extends Model {
 
             'broadcast_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'communication\broadcast\Broadcast',
+                'foreign_object'    => 'communication\broadcast\BroadcastMessage',
                 'description'       => 'Optional link to a specific broadcast.'
             ],
 

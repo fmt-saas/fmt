@@ -533,7 +533,7 @@
                         "icon": "email",
                         "description": "History of all broadcasts of messages.",
                         "context": {
-                            "entity": "communication\\broadcast\\Broadcast",
+                            "entity": "communication\\broadcast\\BroadcastMessage",
                             "view": "list.default"
                         }
                     },

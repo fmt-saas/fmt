@@ -449,7 +449,7 @@ class Document extends Model {
 
             'broadcasts_ids' => [
                 'type'              => 'many2many',
-                'foreign_object'    => 'communication\broadcast\Broadcast',
+                'foreign_object'    => 'communication\broadcast\BroadcastMessage',
                 'foreign_field'     => 'documents_ids',
                 'rel_table'         => 'communication_broadcast_rel_document',
                 'rel_foreign_key'   => 'broadcast_id',

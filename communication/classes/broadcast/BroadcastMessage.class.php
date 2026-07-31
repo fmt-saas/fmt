@@ -9,14 +9,14 @@ use realestate\management\ManagementProcess;
 use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
 
-class Broadcast extends Model {
+class BroadcastMessage extends Model {
 
     public static function constants() {
         return ['EMAIL_SMTP_ACCOUNT_EMAIL'];
     }
 
     public static function getDescription(): string {
-        return 'Allows to prepare and send multiple emails to a specific group of co-owners.';
+        return 'Allows to prepare and send a message by email to a specific group of co-owners.';
     }
 
     public static function getColumns(): array {
@@ -150,7 +150,7 @@ class Broadcast extends Model {
                 'rel_table'         => 'communication_broadcast_rel_document',
                 'rel_foreign_key'   => 'document_id',
                 'rel_local_key'     => 'broadcast_id',
-                'description'       => 'One or more documents that relate to the Broadcast (attachment).',
+                'description'       => 'One or more documents that relate to the broadcast message (attachment).',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
@@ -159,7 +159,7 @@ class Broadcast extends Model {
                 'foreign_object'    => 'core\Mail',
                 'foreign_field'     => 'object_id',
                 'domain'            => [
-                    ['object_class', '=', 'communication\broadcast\Broadcast'],
+                    ['object_class', '=', 'communication\broadcast\BroadcastMessage'],
                     ['object_id', '=', 'object.id']
                 ],
                 'description'       => 'List of emails sent in the context of the broadcast.'
@@ -284,7 +284,7 @@ class Broadcast extends Model {
             Task::create([
                 'name'          => "Handle broadcast {$id}",
                 'is_recurring'  => false,
-                'controller'    => 'communication_broadcast_Broadcast_process',
+                'controller'    => 'communication_broadcast_BroadcastMessage_process',
                 'params'        => json_encode(['id' => $id])
             ]);
         }
@@ -293,7 +293,7 @@ class Broadcast extends Model {
     protected static function onafterProcessing($self) {
         foreach($self as $id => $broadcast) {
             Task::search([
-                    ['controller', '=', 'communication_broadcast_Broadcast_process'],
+                    ['controller', '=', 'communication_broadcast_BroadcastMessage_process'],
                     ['params', '=', json_encode(['id' => $id])]
                 ])
                 ->delete();

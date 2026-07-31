@@ -5,7 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use communication\broadcast\Broadcast;
+use communication\broadcast\BroadcastMessage;
 use core\Task;
 use equal\email\Email;
 use equal\email\EmailAttachment;
@@ -17,7 +17,7 @@ use realestate\management\ManagementProcess;
     'params' 		=>	[
         'id' =>  [
             'type'             => 'many2one',
-            'foreign_object'   => 'communication\broadcast\Broadcast',
+            'foreign_object'   => 'communication\broadcast\BroadcastMessage',
             'description'      => "The broadcast concerned by the validation.",
             'required'         => true
         ]
@@ -38,7 +38,7 @@ use realestate\management\ManagementProcess;
  */
 ['context' => $context] = $providers;
 
-$broadcast = Broadcast::id($params['id'])
+$broadcast = BroadcastMessage::id($params['id'])
     ->read([
         'status',
         'reply_to',
@@ -62,7 +62,7 @@ if(!$managementProcess || !$managementProcess['mailbox_id']) {
     throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
 }
 
-Broadcast::id($broadcast['id'])->transition('start_processing');
+BroadcastMessage::id($broadcast['id'])->transition('start_processing');
 
 foreach($broadcast['identities_ids'] as $identity) {
     if(!$identity['email'] || strlen($identity['email']) <= 0) {
@@ -93,13 +93,13 @@ foreach($broadcast['identities_ids'] as $identity) {
 
     Mail::queue(
         $message,
-        'communication\broadcast\Broadcast',
+        'communication\broadcast\BroadcastMessage',
         $broadcast['id'],
         $managementProcess['mailbox_id']
     );
 }
 
-Broadcast::id($broadcast['id'])
+BroadcastMessage::id($broadcast['id'])
     ->transition('end_processing');
 
 $context

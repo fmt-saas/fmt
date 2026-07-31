@@ -147,7 +147,7 @@ class Owner extends Identity {
 
             'broadcasts_ids' => [
                 'type'              => 'many2many',
-                'foreign_object'    => 'communication\broadcast\Broadcast',
+                'foreign_object'    => 'communication\broadcast\BroadcastMessage',
                 'foreign_field'     => 'owners_ids',
                 'rel_table'         => 'realestate_owner_rel_broadcast',
                 'rel_foreign_key'   => 'broadcast_id',

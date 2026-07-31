@@ -6,7 +6,7 @@
             "id": "action.validate_recipients",
             "label": "Validate recipients",
             "description": "Validate recipients and go to next step.",
-            "controller": "communication_broadcast_Broadcast_validate-recipients",
+            "controller": "communication_broadcast_BroadcastMessage_validate-recipients",
             "visible": [
                 ["step", "=", "recipients_selection"],
                 ["status", "=", "draft"]
@@ -16,7 +16,7 @@
             "id": "action.validate_content",
             "label": "Validate content",
             "description": "Send multiple emails from broadcast.",
-            "controller": "communication_broadcast_Broadcast_validate-content",
+            "controller": "communication_broadcast_BroadcastMessage_validate-content",
             "visible": [
                 ["step", "=", "content_edition"],
                 ["status", "=", "draft"]
@@ -28,7 +28,7 @@
             "description": "Back to select recipients step.",
             "controller": "model_transition",
             "params": {
-                "entity": "communication\\broadcast\\Broadcast",
+                "entity": "communication\\broadcast\\BroadcastMessage",
                 "transition": "select_recipients",
                 "ids": []
             },
@@ -40,9 +40,9 @@
             "id": "action.schedule",
             "label": "Schedule",
             "description": "Schedule the broadcast for processing.",
-            "controller": "communication_broadcast_Broadcast_schedule",
+            "controller": "communication_broadcast_BroadcastMessage_schedule",
             "params": {
-                "entity": "communication\\broadcast\\Broadcast",
+                "entity": "communication\\broadcast\\BroadcastMessage",
                 "id": "object.id"
             },
             "visible": [

@@ -739,7 +739,7 @@ class Identity extends Model {
 
             'broadcasts_ids' => [
                 'type'              => 'many2many',
-                'foreign_object'    => 'communication\broadcast\Broadcast',
+                'foreign_object'    => 'communication\broadcast\BroadcastMessage',
                 'foreign_field'     => 'identities_ids',
                 'rel_table'         => 'identity_identity_rel_broadcast',
                 'rel_foreign_key'   => 'broadcast_id',
