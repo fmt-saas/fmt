@@ -418,10 +418,10 @@ class Condominium extends Identity {
                 'policies'      => ['can_create_draft_fiscal_year'],
                 'function'      => 'doCreateDraftFiscalYear'
             ],
-            'generate_sequences' => [
+            'generate_settings' => [
                 'description'   => 'Generate mandatory sequences for Condominium (for related entities codes).',
                 'policies'      => [],
-                'function'      => 'doGenerateSequences'
+                'function'      => 'doGenerateSettings'
             ],
             'generate_account_chart' => [
                 'description'   => 'Generate mandatory default Chart of accounts for Condominium.',
@@ -854,7 +854,7 @@ class Condominium extends Identity {
      * - entrances:         realestate.organization.property_entrance.sequence   [condo_id]
      * - purchase invoice:  purchase.accounting.invoice.sequence                 [condo_id]
      */
-    protected static function doGenerateSequences($self) {
+    protected static function doGenerateSettings($self) {
         foreach($self as $id => $condominium) {
             Setting::assert_sequence('realestate', 'organization', 'ownership.sequence', 1, ['condo_id' => $id]);
             Setting::assert_sequence('realestate', 'organization', 'property_lot.sequence', 1, ['condo_id' => $id]);
@@ -973,15 +973,15 @@ class Condominium extends Identity {
      */
     protected static function onafterValidate($self) {
         $self
-            // 1 - create specific sequences for accounting entries, invoices, lots, owners, ...
-            ->do('generate_sequences')
-            // 2 - create (empty) account chart
+            // create specific sequences for accounting entries, invoices, lots, owners, ...
+            ->do('generate_settings')
+            // create (empty) account chart
             ->do('generate_account_chart')
-            // 3 - create journals
+            // create journals
             ->do('generate_journals')
-            // 4 - create folders
+            // create folders
             ->do('generate_folders')
-            // 5 - create price list
+            // create price list
             ->do('generate_price_list');
     }
 

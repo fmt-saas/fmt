@@ -51,7 +51,7 @@ $organisation = Organisation::id(1)->read(['signature'])->first();
 $signature = '';
 
 if($organisation) {
-    $signature = $organisation['signature'];
+    $signature = $organisation['signature'] ?? '';
 }
 
 $assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id'])

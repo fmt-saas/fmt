@@ -86,7 +86,6 @@ foreach($fundRequestExecutionCorrespondences as $fund_request_execution_correspo
     }
     catch(Exception $e) {
         trigger_error('APP::Error while sending documents ' . $e->getMessage(), EQ_REPORT_ERROR);
-        throw new Exception($e->getMessage(), EQ_ERROR_INVALID_CONFIG);
     }
 }
 

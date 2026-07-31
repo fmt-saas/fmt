@@ -43,7 +43,7 @@ if(!isset($params['id'])) {
 $organisation = Organisation::id(1)->read(['signature'])->first();
 $signature = '';
 if($organisation) {
-    $signature = $organisation['signature'];
+    $signature = $organisation['signature'] ?? '';
 }
 
 $paymentReminderCorrespondence = PaymentReminderCorrespondence::id($params['id'])
