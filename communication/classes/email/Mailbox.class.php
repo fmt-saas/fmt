@@ -42,6 +42,13 @@ class Mailbox extends Model {
                 'dependents'        => ['name']
             ],
 
+            'signature' => [
+                'type'              => 'string',
+                'usage'             => 'text/html',
+                'description'       => 'Mailbox signature to append to communications.',
+                'multilang'         => true
+            ],
+
             'login' => [
                 'type'              => 'string',
                 'visible'           => ['auth_type', '=', 'basic']

@@ -21,16 +21,33 @@ ProductModel::search()->delete();
 Product::search()->delete();
 Price::search()->delete();
 
+$product_model = ProductModel::create([
+        'name'      => 'Frais de dossier mutation',
+        'family_id' => 1,
+        'can_buy'   => false,
+        'can_sell'  => true
+    ])
+    ->first();
+
+Product::create([
+        'product_model_id'  => $product_model['id'],
+        'label'             => "Frais de dossier mutation",
+        'sku'               => "OWNERSHIP_TRANSFER_FEE",
+        'can_buy'           => false,
+        'can_sell'          => true
+    ])
+    ->first();
+
 /*
     Reminder products and there prices
 */
 
 $product_model = ProductModel::create([
-    'name'      => 'Frais rappel paiement',
-    'family_id' => 1,
-    'can_buy'   => false,
-    'can_sell'  => true
-])
+        'name'      => 'Frais rappel paiement',
+        'family_id' => 1,
+        'can_buy'   => false,
+        'can_sell'  => true
+    ])
     ->first();
 
 $products_ids = [];
@@ -43,12 +60,12 @@ foreach([1, 2, 3, 4] as $reminder_lvl) {
     ];
 
     $reminder_product = Product::create([
-        'product_model_id'  => $product_model['id'],
-        'label'             => "Frais rappel paiement ($map_number_label[$reminder_lvl])",
-        'sku'               => "rappel_paiement_lvl_$reminder_lvl",
-        'can_buy'           => false,
-        'can_sell'          => true
-    ])
+            'product_model_id'  => $product_model['id'],
+            'label'             => "Frais rappel paiement ($map_number_label[$reminder_lvl])",
+            'sku'               => "PAYMENT_REMINDER_L$reminder_lvl",
+            'can_buy'           => false,
+            'can_sell'          => true
+        ])
         ->first();
 
     $products_ids[] = $reminder_product['id'];
