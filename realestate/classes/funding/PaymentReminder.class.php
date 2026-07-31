@@ -340,7 +340,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                     $reminder_product = Product::search(['sku', '=', $reminder_lvl_product_sku])->first();
 
                     if($reminder_product) {
-                        $price_id = \eQual::run('get', 'realestate_property_Condominium_product-price', [
+                        $price_id = \eQual::run('get', 'sale_price_product-price', [
                             'id'            => $condo_id,
                             'product_id'    => $reminder_product['id']
                         ]);

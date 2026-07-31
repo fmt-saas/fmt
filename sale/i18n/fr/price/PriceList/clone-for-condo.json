@@ -1,0 +1,29 @@
+{
+    "description": "Cloner la liste de prix, elle peut servir à créer la liste de l'année suivante.",
+    "model": {
+        "id": {
+            "label": "Liste de prix",
+            "description": "La liste de prix à cloner pour l'année à venir.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété pour laquelle la liste de prix doit être créée.",
+            "help": "Une liste globale sera créée si aucune copropriété n'est sélectionnée."
+        },
+        "target_year": {
+            "label": "Année",
+            "description": "L'année à affecter à la nouvelle liste de prix.",
+            "help": ""
+        },
+        "indexation_rate": {
+            "label": "Indexation prix",
+            "description": "Le taux d'indexation pour augmenter les prix de la liste.",
+            "help": "Si le taux d'indexation donné est de 2,5 %, alors un prix de 10,00 € devient : 10,00 × 1,025 = 10,25 €."
+        }
+    },
+    "view": {
+    },
+    "error": {
+    }
+}

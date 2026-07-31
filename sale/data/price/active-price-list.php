@@ -5,17 +5,15 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use realestate\property\Condominium;
 use sale\price\PriceList;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Returns the active price list for the given date.",
     'params'        => [
-        'id' => [
+        'condo_id' => [
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\property\Condominium',
-            'description'       => "The condominium for which we want the price list.",
-            'required'          => true
+            'description'       => "The condominium for which we want the price list."
         ],
         'date' => [
             'type'              => 'date',
@@ -24,8 +22,13 @@ use sale\price\PriceList;
         ],
         'allow_pending' => [
             'type'              => 'boolean',
-            'description'       => "Allow or not the possibility to return a pending list if no published one is found.",
-            'default'           => false
+            'description'       => "Allow fallback on pending price list if published not found.",
+            'default'           => true
+        ],
+        'allow_global' => [
+            'type'              => 'boolean',
+            'description'       => "Allow fallback on global price list if condo specific list not found.",
+            'default'           => true
         ]
     ],
     'response'      => [
@@ -41,21 +44,45 @@ use sale\price\PriceList;
  */
 ['context' => $context] = $providers;
 
-$condo = Condominium::id($params['id'])->first();
-
-if(!$condo) {
-    throw new Exception("unknown_condo", EQ_ERROR_UNKNOWN_OBJECT);
+$base_domain = [
+    ['date_from', '<=', $params['date']],
+    ['date_to', '>=', $params['date']]
+];
+if(isset($params['condo_id'])) {
+    $base_domain[] = ['condo_id', '=', $params['condo_id']];
 }
 
 $price_list = PriceList::search([
+    ['condo_id', '=', $params['condo_id']],
     ['date_from', '<=', $params['date']],
     ['date_to', '>=', $params['date']],
     ['status', '=', 'published']
 ])
     ->first();
 
-if($params['allow_pending'] && !$price_list) {
+if(!$price_list && $params['allow_pending']) {
     $price_list = PriceList::search([
+        ['condo_id', '=', $params['condo_id']],
+        ['date_from', '<=', $params['date']],
+        ['date_to', '>=', $params['date']],
+        ['status', '=', 'pending']
+    ])
+        ->first();
+}
+
+if(!$price_list && $params['allow_global']) {
+    $price_list = PriceList::search([
+        ['condo_id', '=', null],
+        ['date_from', '<=', $params['date']],
+        ['date_to', '>=', $params['date']],
+        ['status', '=', 'published']
+    ])
+        ->first();
+}
+
+if(!$price_list && $params['allow_global'] && $params['allow_pending']) {
+    $price_list = PriceList::search([
+        ['condo_id', '=', null],
         ['date_from', '<=', $params['date']],
         ['date_to', '>=', $params['date']],
         ['status', '=', 'pending']
