@@ -7,9 +7,13 @@
         "items": [
             {
                 "type": "field",
-                "value": "name",
-                "width": "25%",
-                "sortable": true
+                "value": "created",
+                "width": "15%",
+                "sortable": true,
+                "readonly": true,
+                "widget": {
+                    "usage": "date"
+                }
             },
             {
                 "type": "field",
@@ -26,16 +30,6 @@
                 "value": "status",
                 "width": "15%",
                 "sortable": true
-            },
-            {
-                "type": "field",
-                "value": "created",
-                "width": "15%",
-                "sortable": true,
-                "readonly": true,
-                "widget": {
-                    "usage": "date"
-                }
             }
         ]
     }
