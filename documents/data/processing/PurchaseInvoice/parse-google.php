@@ -10,10 +10,11 @@
     'help'          => 'See https://cloud.google.com/document-ai/docs/reference/rest/v1/Document#Entity',
     'params'        => [
         'json' => [
-            'type' => 'string',
-            'usage' => 'text/json',
-            'description' => 'JSON array of `entities` from Google Cloud DocAI Invoice Parser.',
-            'required' => true
+            'type'          => 'string',
+            'usage'         => 'text/json.medium',
+            'description'   => 'JSON array of `entities` from Google Cloud DocAI Invoice Parser.',
+            'help'          => 'Payload samples can weight up to 500kB.',
+            'required'      => true
         ],
     ],
     'access' => [
