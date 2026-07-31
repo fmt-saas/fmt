@@ -320,7 +320,12 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
 
                 // get the reminder amount using settings "realestate.features.payment_reminder.*"
                 $reminder_amount = 0.0;
-                $reminder_lvl_product_id = Setting::get_value('realestate', 'features', "payment_reminder.level_$reminder_level.product_id");
+
+                $reminder_lvl_product_id = Setting::get_value('realestate', 'features', "payment_reminder.level_$reminder_level.product_id", null, ['condo_id' => $condo_id]);
+                if(!$reminder_lvl_product_id) {
+                    $reminder_lvl_product_id = Setting::get_value('realestate', 'features', "payment_reminder.level_$reminder_level.product_id");
+                }
+
                 if($reminder_lvl_product_id) {
                     $price_id = \eQual::run('get', 'realestate_property_Condominium_product-price', [
                         'id'            => $condo_id,
