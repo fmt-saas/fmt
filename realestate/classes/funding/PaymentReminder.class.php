@@ -14,6 +14,7 @@ use fmt\setting\Setting;
 use realestate\ownership\Ownership;
 use realestate\ownership\OwnershipCommunicationPreference;
 use realestate\sale\pay\Funding;
+use sale\catalog\Product;
 use sale\price\Price;
 
 class PaymentReminder extends \sale\pay\PaymentReminder {
@@ -321,23 +322,27 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 // get the reminder amount using settings "realestate.features.payment_reminder.*"
                 $reminder_amount = 0.0;
 
-                $reminder_lvl_product_id = Setting::get_value('realestate', 'features', "payment_reminder.level_$reminder_level.product_id", null, ['condo_id' => $condo_id]);
-                if(!$reminder_lvl_product_id) {
-                    $reminder_lvl_product_id = Setting::get_value('realestate', 'features', "payment_reminder.level_$reminder_level.product_id");
-                }
+                $reminder_lvl_product_sku = Setting::get_value('realestate', 'features', "payment_reminder.level_$reminder_level.sku", null, [
+                    ['condo_id' => $condo_id],  // by condo
+                    []                          // fallback on global
+                ]);
 
-                if($reminder_lvl_product_id) {
-                    $price_id = \eQual::run('get', 'realestate_property_Condominium_product-price', [
-                        'id'            => $condo_id,
-                        'product_id'    => $reminder_lvl_product_id
-                    ]);
+                if($reminder_lvl_product_sku) {
+                    $reminder_product = Product::search(['sku', '=', $reminder_lvl_product_sku])->first();
 
-                    if($price_id) {
-                        $price = Price::id($price_id)
-                            ->read(['price_vat'])
-                            ->first();
+                    if($reminder_product) {
+                        $price_id = \eQual::run('get', 'realestate_property_Condominium_product-price', [
+                            'id'            => $condo_id,
+                            'product_id'    => $reminder_product['id']
+                        ]);
 
-                        $reminder_amount += $price['price_vat'];
+                        if($price_id) {
+                            $price = Price::id($price_id)
+                                ->read(['price_vat'])
+                                ->first();
+
+                            $reminder_amount += $price['price_vat'];
+                        }
                     }
                 }
 

@@ -66,6 +66,7 @@ foreach([1, 2, 3, 4] as $reminder_lvl) {
             'can_buy'           => false,
             'can_sell'          => true
         ])
+        ->read(['sku'])
         ->first();
 
     $products_ids[] = $reminder_product['id'];
@@ -73,18 +74,18 @@ foreach([1, 2, 3, 4] as $reminder_lvl) {
     $setting = Setting::search([
         'package'   => 'realestate',
         'section'   => 'features',
-        'code'      => "payment_reminder.level_$reminder_lvl.product_id",
+        'code'      => "payment_reminder.level_$reminder_lvl.sku",
     ])
         ->first();
 
     if($setting) {
         SettingValue::search(['setting_id', '=', $setting['id']])
             ->update([
-                'value' => $reminder_product['id']
+                'value' => $reminder_product['sku']
             ]);
     }
     else {
-        Setting::assert_value('realestate', 'features', "payment_reminder.level_$reminder_lvl.product_id", $reminder_product['id']);
+        Setting::assert_value('realestate', 'features', "payment_reminder.level_$reminder_lvl.sku", $reminder_product['sku']);
     }
 }
 

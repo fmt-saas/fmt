@@ -4,12 +4,13 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
 namespace fmt\setting;
 
 class Setting extends \core\setting\Setting {
 
 
-    public static function getColumns() {
+    public static function getColumns(): array {
         return [
 
             'setting_values_ids' => [
@@ -33,7 +34,7 @@ class Setting extends \core\setting\Setting {
         ];
     }
 
-    protected static function getSelectorKeys() {
+    protected static function getSelectorKeys(): array {
         return ['user_id', 'organisation_id', 'condo_id', 'ownership_id'];
     }
 
@@ -45,4 +46,21 @@ class Setting extends \core\setting\Setting {
         return SettingSequence::class;
     }
 
+    public static function get_value(string $package, string $section, string $code, $default = null, array $selectors = [], string $lang = null) {
+        if(empty($selectors) || is_string($selectors[0])) {
+            // handle unique selector given
+            $selectors = [$selectors];
+        }
+
+        $setting_value = null;
+        foreach($selectors as $selector) {
+            $set_value = parent::get_value($package, $section, $code, null, $selector, $lang);
+            if(!is_null($set_value)) {
+                $setting_value = $set_value;
+                break;
+            }
+        }
+
+        return $setting_value ?? $default;
+    }
 }
