@@ -4,11 +4,12 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
-use equal\email\Email;
+use equal\email\Email as EmailMessage;
 use equal\html\HtmlTemplate;
 use core\Mail;
 use identity\Organisation;
 use identity\User;
+use realestate\management\ManagementProcess;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send a confirmation email to newly created User accounts.",
@@ -128,14 +129,24 @@ try {
         ],
         $mail_params);
 
-    $message = new Email();
+    $message = new EmailMessage();
 
     $message->setTo($user['login'])
         ->setSubject($subject)
         ->setContentType('text/html')
         ->setBody($template->getHtml());
 
-    Mail::queue($message);
+    $managementProcess = ManagementProcess::search(['code', '=', 'communication'])->read(['mailbox_id'])->first();
+    if(!$managementProcess || !$managementProcess['mailbox_id']) {
+        throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
+    }
+
+    Mail::queue(
+        $message,
+        'identity\User',
+        $user['id'],
+        $managementProcess['mailbox_id']
+    );
 }
 finally {
     $auth->su($current_user_id);

@@ -7,7 +7,8 @@
 namespace communication\email;
 
 use equal\orm\Model;
-
+use infra\metering\MeteringRecord;
+use infra\metering\MetricDefinition;
 
 class Email extends Model {
 
@@ -166,7 +167,8 @@ class Email extends Model {
                 ],
                 'default'           => 'pending',
                 'description'       => 'Sending status of the mail.',
-                'visible'           => [['direction', '=', 'outgoing']]
+                'visible'           => [['direction', '=', 'outgoing']],
+                'onupdate'          => 'onupdateStatus',
             ]
 
         ];
@@ -198,5 +200,27 @@ class Email extends Model {
         return $result;
     }
 
+    protected static function onupdateStatus($self) {
+        $self->read(['direction', 'status']);
+        foreach($self as $email) {
+            if($email['direction'] !== 'outgoing') {
+                continue;
+            }
+            if($email['status'] === 'sent') {
+                $metric_def = MetricDefinition::search(['code', '=', 'email.outbound.count'])
+                    ->read(['id'])
+                    ->first();
+
+                if($metric_def) {
+                    MeteringRecord::create([
+                        'metric_definition_id' => $metric_def['id']
+                    ]);
+                }
+                else {
+                    trigger_error('APP::Unable to retrieve metering record for email counter, missing metric definition "email.outbound.count".', EQ_REPORT_WARNING);
+                }
+            }
+        }
+    }
 
 }

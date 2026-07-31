@@ -9,11 +9,12 @@ use communication\template\Template;
 use equal\data\DataFormatter;
 use fmt\core\Mail;
 use identity\Organisation;
-use equal\email\Email;
+use equal\email\Email as EmailMessage;
 use equal\email\EmailAttachment;
 use finance\accounting\FiscalPeriod;
 use fmt\setting\Setting;
 use realestate\funding\ExpenseStatementCorrespondence;
+use realestate\management\ManagementProcess;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send a single email for a given Expense Statement correspondence.",
@@ -177,7 +178,7 @@ $recipient_email = $expenseStatementCorrespondence['owner_id']['email']
     ?? null;
 
 if(!$recipient_email || $recipient_email === '') {
-    throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
+    throw new Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
 }
 
 /** @var EmailAttachment[] */
@@ -189,7 +190,7 @@ $main_attachment_name = 'Invitation Assemblée - ' . $expenseStatementCorrespond
 $attachments[] = new EmailAttachment($main_attachment_name.'.pdf', (string) $expenseStatementCorrespondence['document_id']['data'], 'application/pdf');
 
 // create message
-$message = new Email();
+$message = new EmailMessage();
 $message->setTo($recipient_email)
         ->setSubject($subject)
         ->setContentType("text/html")
@@ -200,9 +201,18 @@ foreach($attachments as $attachment) {
     $message->addAttachment($attachment);
 }
 
-// queue message
-Mail::queue($message, 'realestate\governance\ExpenseStatementCorrespondence', $expenseStatementCorrespondence['id']);
+$managementProcess = ManagementProcess::search(['code', '=', 'finance'])->read(['mailbox_id'])->first();
+if(!$managementProcess || !$managementProcess['mailbox_id']) {
+    throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
+}
 
+// queue message
+Mail::queue(
+    $message,
+    'realestate\governance\ExpenseStatementCorrespondence',
+    $expenseStatementCorrespondence['id'],
+    $managementProcess['mailbox_id']
+);
 
 // mark invitation as sent
 ExpenseStatementCorrespondence::id($expenseStatementCorrespondence['id'])

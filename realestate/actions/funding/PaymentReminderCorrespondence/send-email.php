@@ -7,10 +7,11 @@
 
 use communication\template\Template;
 use fmt\core\Mail;
-use equal\email\Email;
+use equal\email\Email as EmailMessage;
 use equal\email\EmailAttachment;
 use identity\Organisation;
 use realestate\funding\PaymentReminderCorrespondence;
+use realestate\management\ManagementProcess;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send a single email for a given Payment Reminder correspondence.",
@@ -134,7 +135,7 @@ $attachments = [];
 $main_attachment_name = 'Rappel de paiement - ' . $paymentReminderCorrespondence['condo_id']['name'] . ' - ' . $paymentReminderCorrespondence['ownership_id']['name'];
 $attachments[] = new EmailAttachment($main_attachment_name . '.pdf', (string) $paymentReminderCorrespondence['document_id']['data'], 'application/pdf');
 
-$message = new Email();
+$message = new EmailMessage();
 $message->setTo($recipient_email)
         ->setSubject($subject)
         ->setContentType('text/html')
@@ -144,7 +145,17 @@ foreach($attachments as $attachment) {
     $message->addAttachment($attachment);
 }
 
-Mail::queue($message, 'realestate\\funding\\PaymentReminderCorrespondence', $paymentReminderCorrespondence['id']);
+$managementProcess = ManagementProcess::search(['code', '=', 'finance'])->read(['mailbox_id'])->first();
+if(!$managementProcess || !$managementProcess['mailbox_id']) {
+    throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
+}
+
+Mail::queue(
+    $message,
+    'realestate\funding\PaymentReminderCorrespondence',
+    $paymentReminderCorrespondence['id'],
+    $managementProcess['mailbox_id']
+);
 
 PaymentReminderCorrespondence::id($paymentReminderCorrespondence['id'])
     ->update(['sent_date' => time()])

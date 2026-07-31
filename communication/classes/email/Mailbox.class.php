@@ -133,9 +133,29 @@ class Mailbox extends Model {
 
             'emails_ids' => [
                 'type'              => 'one2many',
-                'description'       => "The email received from the Mailbox.",
+                'description'       => "All email messaged of the Mailbox.",
                 'foreign_object'    => 'communication\email\Email',
                 'foreign_field'     => 'mailbox_id'
+            ],
+
+            'incoming_emails_ids' => [
+                'type'              => 'one2many',
+                'description'       => "The email received in the Mailbox.",
+                'foreign_object'    => 'communication\email\Email',
+                'foreign_field'     => 'mailbox_id',
+                'domain'            => [
+                    'direction', '=', 'incoming'
+                ]
+            ],
+
+            'outgoing_emails_ids' => [
+                'type'              => 'one2many',
+                'description'       => "The email sent with the Mailbox.",
+                'foreign_object'    => 'communication\email\Email',
+                'foreign_field'     => 'mailbox_id',
+                'domain'            => [
+                    'direction', '=', 'outgoing'
+                ]
             ],
 
             'status' => [

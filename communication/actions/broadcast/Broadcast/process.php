@@ -10,6 +10,7 @@ use core\Task;
 use equal\email\Email;
 use equal\email\EmailAttachment;
 use fmt\core\Mail;
+use realestate\management\ManagementProcess;
 
 [$params, $providers] = eQual::announce([
     'description'	=>	"Processes a broadcast, for the moment only the sending sending of emails is handled.",
@@ -56,9 +57,13 @@ if(!in_array($broadcast['status'], ['ready', 'scheduled'])) {
     throw new Exception("invalid_status", EQ_ERROR_INVALID_PARAM);
 }
 
+$managementProcess = ManagementProcess::search(['code', '=', 'communication'])->read(['mailbox_id'])->first();
+if(!$managementProcess || !$managementProcess['mailbox_id']) {
+    throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
+}
+
 Broadcast::id($broadcast['id'])->transition('start_processing');
 
-$mails_ids = [];
 foreach($broadcast['identities_ids'] as $identity) {
     if(!$identity['email'] || strlen($identity['email']) <= 0) {
         continue;
@@ -86,12 +91,16 @@ foreach($broadcast['identities_ids'] as $identity) {
         $message->addAttachment($attachment);
     }
 
-    $mails_ids[] = Mail::queue($message, 'communication\broadcast\Broadcast', $broadcast['id']);
+    Mail::queue(
+        $message,
+        'communication\broadcast\Broadcast',
+        $broadcast['id'],
+        $managementProcess['mailbox_id']
+    );
 }
 
 Broadcast::id($broadcast['id'])
-    ->transition('end_processing')
-    ->update(['mails_ids' => $mails_ids]);
+    ->transition('end_processing');
 
 $context
     ->httpResponse()

@@ -8,9 +8,10 @@
 use communication\template\Template;
 use fmt\core\Mail;
 use identity\Organisation;
-use equal\email\Email;
+use equal\email\Email as EmailMessage;
 use equal\email\EmailAttachment;
 use realestate\governance\AssemblyInvitationCorrespondence;
+use realestate\management\ManagementProcess;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send a single email for a given Assembly Invitation.",
@@ -155,7 +156,7 @@ $main_attachment_name = 'Invitation Assemblée - ' . $assemblyInvitationCorrespo
 $attachments[] = new EmailAttachment($main_attachment_name.'.pdf', (string) $assemblyInvitationCorrespondence['document_id']['data'], 'application/pdf');
 
 // create message
-$message = new Email();
+$message = new EmailMessage();
 $message->setTo($recipient_email)
         ->setSubject($subject)
         ->setContentType("text/html")
@@ -166,9 +167,18 @@ foreach($attachments as $attachment) {
     $message->addAttachment($attachment);
 }
 
-// queue message
-Mail::queue($message, 'realestate\governance\AssemblyInvitationCorrespondence', $assemblyInvitationCorrespondence['id']);
+$managementProcess = ManagementProcess::search(['code', '=', 'governance'])->read(['mailbox_id'])->first();
+if(!$managementProcess || !$managementProcess['mailbox_id']) {
+    throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
+}
 
+// queue message
+Mail::queue(
+    $message,
+    'realestate\governance\AssemblyInvitationCorrespondence',
+    $assemblyInvitationCorrespondence['id'],
+    $managementProcess['mailbox_id']
+);
 
 // mark invitation as sent
 AssemblyInvitationCorrespondence::id($assemblyInvitationCorrespondence['id'])

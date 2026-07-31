@@ -158,7 +158,10 @@ class Broadcast extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'core\Mail',
                 'foreign_field'     => 'object_id',
-                'domain'            => ['object_class', '=', 'communication\broadcast\Broadcast'],
+                'domain'            => [
+                    ['object_class', '=', 'communication\broadcast\Broadcast'],
+                    ['object_id', '=', 'object.id']
+                ],
                 'description'       => 'List of emails sent in the context of the broadcast.'
             ]
 

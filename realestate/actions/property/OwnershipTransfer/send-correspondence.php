@@ -5,7 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use equal\email\Email;
+use equal\email\Email as EmailMessage;
 use equal\email\EmailAttachment;
 use fmt\core\Mail;
 use core\Lang;
@@ -13,6 +13,7 @@ use core\Lang;
 use documents\Document;
 use documents\DocumentType;
 use documents\navigation\Node;
+use realestate\management\ManagementProcess;
 use realestate\property\OwnershipTransfer;
 
 
@@ -119,7 +120,7 @@ if(!$sender_email || $sender_email === '') {
 }
 
 // create message
-$message = new Email();
+$message = new EmailMessage();
 $message->setTo($recipient_email)
         ->setReplyTo($sender_email)
         ->setSubject("Demande d’informations / Convention de cession du droit de propriété")
@@ -156,9 +157,18 @@ foreach($attachments as $attachment) {
 }
 */
 
-// queue message
-Mail::queue($message, 'realestate\property\OwnershipTransfer', $ownershipTransfer['id']);
+$managementProcess = ManagementProcess::search(['code', '=', 'legal'])->read(['mailbox_id'])->first();
+if(!$managementProcess || !$managementProcess['mailbox_id']) {
+    throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
+}
 
+// queue message
+Mail::queue(
+    $message,
+    'realestate\property\OwnershipTransfer',
+    $ownershipTransfer['id'],
+    $managementProcess['mailbox_id']
+);
 
 $context->httpResponse()
         ->status(204)

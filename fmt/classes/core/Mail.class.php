@@ -7,12 +7,17 @@
 
 namespace fmt\core;
 
-use equal\email\Email;
+use communication\email\Email;
+use equal\email\Email as EmailMessage;
 use equal\services\Container;
 use infra\metering\MeteringRecord;
 use infra\metering\MetricDefinition;
 
 class Mail extends \core\Mail {
+
+    public static function constants() {
+        return ['FMT_EMAIL_DOMAIN_FILTER_ENABLED', 'FMT_EMAIL_DOMAIN_ALLOWED'];
+    }
 
     public static function getColumns() {
         return [
@@ -52,11 +57,37 @@ class Mail extends \core\Mail {
         }
     }
 
-    public static function queue(Email $email, string $object_class = '', int $object_id = 0, bool $monitor = true): int {
-        $mail_id = parent::queue($email, $object_class, $object_id);
+    public static function send(EmailMessage $email, string $object_class = '', int $object_id = 0): int {
+        // instant email sending is disabled
+        return 0;
+    }
+
+    public static function queue(EmailMessage $email, string $object_class = '', int $object_id = 0, int $mailbox_id = 0): int {
+
+        if(constant('FMT_EMAIL_DOMAIN_FILTER_ENABLED')) {
+            $email_address = $email->to;
+            $domain = strtolower(substr(strrchr($email_address, '@'), 1));
+
+            $allowed_domains = array_map(
+                static fn(string $domain): string => strtolower(trim($domain)),
+                explode(',', constant('FMT_EMAIL_DOMAIN_ALLOWED'))
+            );
+
+            if(!in_array($domain, $allowed_domains, true)) {
+                return 0;
+            }
+        }
+
+        $email = self::createMail($email, $object_class, $object_id);
+        $email_id = $email['id'];
+
+        Email::id($email_id)->update(['mailbox_id' => $mailbox_id]);
+
+        // #todo store this as setting in config.json
+        $monitor = true;
 
         if($monitor) {
-            // schedule email sent check
+            // schedule email sending status check
 
             $container = Container::getInstance();
 
@@ -66,13 +97,13 @@ class Mail extends \core\Mail {
             $ten_minutes = 60 * 10;
 
             $cron->schedule(
-                "monitoring.check_email.$mail_id",
+                "monitoring.check_email.$email_id",
                 time() + $ten_minutes,
                 'fmt_monitoring_check-email',
-                ['id' => $mail_id]
+                ['id' => $email_id]
             );
         }
 
-        return $mail_id;
+        return $email_id;
     }
 }

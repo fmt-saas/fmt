@@ -69,7 +69,17 @@
                                         ]
                                     }
                                 ]
-                            },
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.incoming",
+                        "label": "Inbox",
+                        "rows": [
                             {
                                 "columns": [
                                     {
@@ -77,7 +87,27 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "emails_ids",
+                                                "value": "incoming_emails_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.outgoing",
+                        "label": "Outbox",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "outgoing_emails_ids",
                                                 "width": "100%"
                                             }
                                         ]

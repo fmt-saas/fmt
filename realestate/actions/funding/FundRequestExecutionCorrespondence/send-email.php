@@ -7,11 +7,12 @@
 
 use communication\template\Template;
 use fmt\core\Mail;
-use equal\email\Email;
+use equal\email\Email as EmailMessage;
 use equal\email\EmailAttachment;
 use identity\Organisation;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecutionCorrespondence;
+use realestate\management\ManagementProcess;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send a single email for a given Fund Request Execution correspondence.",
@@ -145,7 +146,7 @@ $attachments = [];
 $main_attachment_name = 'Appel de fonds - ' . $fundRequestExecutionCorrespondence['condo_id']['name'] . ' - ' . $fundRequestExecutionCorrespondence['ownership_id']['name'];
 $attachments[] = new EmailAttachment($main_attachment_name . '.pdf', (string) $fundRequestExecutionCorrespondence['document_id']['data'], 'application/pdf');
 
-$message = new Email();
+$message = new EmailMessage();
 $message->setTo($recipient_email)
         ->setSubject($subject)
         ->setContentType('text/html')
@@ -155,7 +156,17 @@ foreach($attachments as $attachment) {
     $message->addAttachment($attachment);
 }
 
-Mail::queue($message, 'realestate\funding\FundRequestExecutionCorrespondence', $fundRequestExecutionCorrespondence['id']);
+$managementProcess = ManagementProcess::search(['code', '=', 'finance'])->read(['mailbox_id'])->first();
+if(!$managementProcess || !$managementProcess['mailbox_id']) {
+    throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
+}
+
+Mail::queue(
+    $message,
+    'realestate\funding\FundRequestExecutionCorrespondence',
+    $fundRequestExecutionCorrespondence['id'],
+    $managementProcess['mailbox_id']
+);
 
 FundRequestExecutionCorrespondence::id($fundRequestExecutionCorrespondence['id'])
     ->update(['sent_date' => time()])
