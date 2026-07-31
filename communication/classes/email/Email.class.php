@@ -70,7 +70,7 @@ class Email extends Model {
             'date' => [
                 'type'              => 'datetime',
                 'description'       => 'Date and time of the email message.',
-                'default'           => function() { return time(); }
+                'default'           => fn() => time()
             ],
 
             'direction' => [

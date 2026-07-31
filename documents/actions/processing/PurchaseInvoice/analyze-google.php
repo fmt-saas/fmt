@@ -76,7 +76,7 @@ $request
     ->body([
         'rawDocument' => [
             'content'  => base64_encode($document['data']),
-            'mimeType' => 'application/pdf'
+            'mimeType' => $document['content_type']
         ]
     ]);
 

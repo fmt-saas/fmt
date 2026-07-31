@@ -140,38 +140,23 @@ $mailbox = Mailbox::id($params['id'])
     ->first();
 
 if(!$mailbox) {
-    throw new Exception(
-        "unknown_mailbox",
-        EQ_ERROR_INVALID_PARAM
-    );
+    throw new Exception("unknown_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
 if($mailbox['status'] !== 'validated') {
-    throw new Exception(
-        "non_validated_mailbox",
-        EQ_ERROR_INVALID_PARAM
-    );
+    throw new Exception("non_validated_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
 if(!$mailbox['can_send']) {
-    throw new Exception(
-        "non_sendable_mailbox",
-        EQ_ERROR_INVALID_PARAM
-    );
+    throw new Exception("non_sendable_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
 if($mailbox['auth_type'] !== 'oauth') {
-    throw new Exception(
-        "non_oauth_mailbox",
-        EQ_ERROR_INVALID_PARAM
-    );
+    throw new Exception("non_oauth_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
 if($mailbox['refresh_token_expiry'] < time()) {
-    throw new Exception(
-        "expired_refresh_token",
-        EQ_ERROR_INVALID_PARAM
-    );
+    throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
 }
 
 
@@ -566,7 +551,6 @@ try {
 
     $update_values = [
         'from'            => $mailbox['email'],
-        'direction'       => 'outgoing',
         'date'            => time(),
         'status'          => 'processed',
         'response_status' => 250,
