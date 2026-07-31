@@ -85,6 +85,7 @@ foreach($expenseStatementCorrespondences as $expense_statement_correspondence_id
     }
     catch(Exception $e) {
         trigger_error('APP::Error while sending documents ' . $e->getMessage(), EQ_REPORT_ERROR);
+        continue;
     }
 }
 

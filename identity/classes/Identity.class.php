@@ -17,6 +17,7 @@ use infra\server\Instance;
 use sale\customer\Customer;
 use purchase\supplier\Supplier;
 use realestate\management\ManagingAgent;
+use realestate\ownership\Owner;
 use realestate\property\Condominium;
 use realestate\property\Tenant;
 
@@ -1183,7 +1184,7 @@ class Identity extends Model {
     }
 
     protected static function updateField($self, $field) {
-        $self->read([$field, 'identity_id', 'user_id', 'contact_id', 'employee_id', 'customer_id', 'condominium_id', 'supplier_id', 'organisation_id', 'managing_agent_id', 'tenant_id', ]);
+        $self->read([$field, 'identity_id', 'user_id', 'contact_id', 'employee_id', 'customer_id', 'condominium_id', 'supplier_id', 'organisation_id', 'managing_agent_id', 'tenant_id', 'owners_ids']);
         $orm = Container::getInstance()->get(['orm']);
         // prevent loop update propagation
         $events = $orm->disableEvents();
@@ -1230,6 +1231,9 @@ class Identity extends Model {
             }
             if($identity['tenant_id']) {
                 Tenant::id($identity['tenant_id'])->update([$field => $identity[$field]]);
+            }
+            if(count($identity['owners_ids'])) {
+                Owner::ids($identity['owners_ids'])->update([$field => $identity[$field]]);
             }
         }
         $orm->enableEvents($events);
