@@ -171,8 +171,7 @@ class Email extends Model {
                 ],
                 'default'           => 'pending',
                 'description'       => 'Sending status of the mail.',
-                'visible'           => [['direction', '=', 'outgoing']],
-                'onupdate'          => 'onupdateStatus',
+                'onupdate'          => 'onupdateStatus'
             ]
 
         ];
