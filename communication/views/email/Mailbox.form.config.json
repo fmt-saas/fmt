@@ -80,7 +80,8 @@
                                     }
                                 ]
                             },
-{
+                            {
+                                "visible": ["admins", "in", "user.groups"],
                                 "columns": [
                                     {
                                         "width": "50%",
