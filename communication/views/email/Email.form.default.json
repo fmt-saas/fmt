@@ -151,7 +151,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "documents_ids",
+                                                "value": "attachment_documents_ids",
                                                 "width": "100%"
                                             }
                                         ]
