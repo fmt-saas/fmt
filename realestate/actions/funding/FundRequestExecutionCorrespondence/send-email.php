@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use communication\email\Email;
 use communication\template\Template;
 use fmt\core\Mail;
 use equal\email\Email as EmailMessage;
@@ -52,7 +53,7 @@ $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($pa
         'owner_id' => ['firstname', 'lastname', 'email', 'email_alt', 'lang_id'],
         'ownership_id' => ['name'],
         'fund_request_execution_id' => ['name', 'due_date', 'fund_request_id'],
-        'document_id' => ['data']
+        'document_id'
     ])
     ->first();
 
@@ -142,31 +143,27 @@ if(!$recipient_email || $recipient_email === '') {
     throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
 }
 
-$attachments = [];
-$main_attachment_name = 'Appel de fonds - ' . $fundRequestExecutionCorrespondence['condo_id']['name'] . ' - ' . $fundRequestExecutionCorrespondence['ownership_id']['name'];
-$attachments[] = new EmailAttachment($main_attachment_name . '.pdf', (string) $fundRequestExecutionCorrespondence['document_id']['data'], 'application/pdf');
-
 $message = new EmailMessage();
 $message->setTo($recipient_email)
         ->setSubject($subject)
         ->setContentType('text/html')
         ->setBody($body);
 
-foreach($attachments as $attachment) {
-    $message->addAttachment($attachment);
-}
-
 $managementProcess = ManagementProcess::search(['code', '=', 'finance'])->read(['mailbox_id'])->first();
 if(!$managementProcess || !$managementProcess['mailbox_id']) {
     throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
 }
 
-Mail::queue(
+$email_id = Mail::queue(
     $message,
     'realestate\funding\FundRequestExecutionCorrespondence',
-    $fundRequestExecutionCorrespondence['id'],
-    $managementProcess['mailbox_id']
+    $fundRequestExecutionCorrespondence['id']
 );
+
+Email::id($email_id)->update([
+    'mailbox_id'                => $managementProcess['mailbox_id'],
+    'attachment_documents_ids'  => [ $fundRequestExecutionCorrespondence['document_id'] ]
+]);
 
 FundRequestExecutionCorrespondence::id($fundRequestExecutionCorrespondence['id'])
     ->update(['sent_date' => time()])

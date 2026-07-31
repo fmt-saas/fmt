@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use communication\email\Email;
 use communication\template\Template;
 use equal\data\DataFormatter;
 use fmt\core\Mail;
@@ -86,7 +87,7 @@ $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id
         'owner_id' => ['firstname', 'lastname', 'email', 'email_alt', 'lang_id'],
         'ownership_id' => ['name'],
         'expense_statement_id' => ['name', 'emission_date', 'fiscal_period_id'],
-        'document_id' => ['data']
+        'document_id'
     ])
     ->first();
 
@@ -181,14 +182,6 @@ if(!$recipient_email || $recipient_email === '') {
     throw new Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
 }
 
-/** @var EmailAttachment[] */
-$attachments = [];
-
-$main_attachment_name = 'Invitation Assemblée - ' . $expenseStatementCorrespondence['condo_id']['name'] . ' - ' . $expenseStatementCorrespondence['ownership_id']['name'];
-
-// push main attachment
-$attachments[] = new EmailAttachment($main_attachment_name.'.pdf', (string) $expenseStatementCorrespondence['document_id']['data'], 'application/pdf');
-
 // create message
 $message = new EmailMessage();
 $message->setTo($recipient_email)
@@ -196,23 +189,22 @@ $message->setTo($recipient_email)
         ->setContentType("text/html")
         ->setBody($body);
 
-// append attachments to message
-foreach($attachments as $attachment) {
-    $message->addAttachment($attachment);
-}
-
 $managementProcess = ManagementProcess::search(['code', '=', 'finance'])->read(['mailbox_id'])->first();
 if(!$managementProcess || !$managementProcess['mailbox_id']) {
     throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
 }
 
 // queue message
-Mail::queue(
+$email_id = Mail::queue(
     $message,
     'realestate\governance\ExpenseStatementCorrespondence',
-    $expenseStatementCorrespondence['id'],
-    $managementProcess['mailbox_id']
+    $expenseStatementCorrespondence['id']
 );
+
+Email::id($email_id)->update([
+    'mailbox_id'                => $managementProcess['mailbox_id'],
+    'attachment_documents_ids'  => [ $expenseStatementCorrespondence['document_id'] ]
+]);
 
 // mark invitation as sent
 ExpenseStatementCorrespondence::id($expenseStatementCorrespondence['id'])

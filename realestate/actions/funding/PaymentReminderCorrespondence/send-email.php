@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use communication\email\Email;
 use communication\template\Template;
 use fmt\core\Mail;
 use equal\email\Email as EmailMessage;
@@ -54,7 +55,7 @@ $paymentReminderCorrespondence = PaymentReminderCorrespondence::id($params['id']
         'ownership_id' => ['name'],
         'payment_reminder_id' => ['name', 'emission_date', 'due_amount'],
         'payment_reminder_owner_id' => ['due_amount'],
-        'document_id' => ['data']
+        'document_id'
     ])
     ->first();
 
@@ -131,31 +132,27 @@ if(!$recipient_email || $recipient_email === '') {
     throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
 }
 
-$attachments = [];
-$main_attachment_name = 'Rappel de paiement - ' . $paymentReminderCorrespondence['condo_id']['name'] . ' - ' . $paymentReminderCorrespondence['ownership_id']['name'];
-$attachments[] = new EmailAttachment($main_attachment_name . '.pdf', (string) $paymentReminderCorrespondence['document_id']['data'], 'application/pdf');
-
 $message = new EmailMessage();
 $message->setTo($recipient_email)
         ->setSubject($subject)
         ->setContentType('text/html')
         ->setBody($body);
 
-foreach($attachments as $attachment) {
-    $message->addAttachment($attachment);
-}
-
 $managementProcess = ManagementProcess::search(['code', '=', 'finance'])->read(['mailbox_id'])->first();
 if(!$managementProcess || !$managementProcess['mailbox_id']) {
     throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
 }
 
-Mail::queue(
+$email_id = Mail::queue(
     $message,
     'realestate\funding\PaymentReminderCorrespondence',
-    $paymentReminderCorrespondence['id'],
-    $managementProcess['mailbox_id']
+    $paymentReminderCorrespondence['id']
 );
+
+Email::id($email_id)->update([
+    'mailbox_id'                => $managementProcess['mailbox_id'],
+    'attachment_documents_ids'  => [ $paymentReminderCorrespondence['document_id'] ]
+]);
 
 PaymentReminderCorrespondence::id($paymentReminderCorrespondence['id'])
     ->update(['sent_date' => time()])

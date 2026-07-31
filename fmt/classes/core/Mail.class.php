@@ -62,7 +62,7 @@ class Mail extends \core\Mail {
         return 0;
     }
 
-    public static function queue(EmailMessage $email, string $object_class = '', int $object_id = 0, int $mailbox_id = 0): int {
+    public static function queue(EmailMessage $email, string $object_class = '', int $object_id = 0): int {
 
         if(constant('FMT_EMAIL_DOMAIN_FILTER_ENABLED')) {
             $email_address = $email->to;
