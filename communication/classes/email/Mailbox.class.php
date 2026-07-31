@@ -7,7 +7,7 @@
 namespace communication\email;
 
 use equal\orm\Model;
-
+use realestate\management\ManagementProcess;
 
 class Mailbox extends Model {
 
@@ -166,10 +166,23 @@ class Mailbox extends Model {
                     'validated'
                 ],
                 'default'           => 'pending',
-                'description'       => 'Status of the mailbox.'
+                'description'       => 'Status of the mailbox.',
+                'onupdate'          => 'onupdateStatus'
             ]
 
         ];
+    }
+
+    protected static function onupdateStatus($self) {
+        $self->read(['status', 'can_send']);
+        foreach($self as $id => $mailbox) {
+            if($mailbox['status'] === 'validated' && $mailbox['can_send']) {
+                $mailboxes = self::search([['status', '=', 'validated'], ['can_send', '=', true], ['id', '<>', $id]]);
+                if($mailboxes->count() <= 0) {
+                    ManagementProcess::search()->update(['mailbox_id' => $id]);
+                }
+            }
+        }
     }
 
 }

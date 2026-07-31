@@ -39,7 +39,7 @@
             },
             {
                 "type": "field",
-                "value": "date_to",
+                "value": "mailbox_id",
                 "width": "20%"
             },
             {
