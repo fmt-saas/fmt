@@ -281,6 +281,15 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                     ])
                     ->read(['due_date']);
 
+                $reminder_limit = Setting::get_value('realestate', 'features', "payment_reminder.count", null, [
+                    ['condo_id' => $condo_id],  // by condo
+                    []                          // fallback on global
+                ]);
+
+                if($previousReminderOwnerLines->count() >= $reminder_limit) {
+                    continue;
+                }
+
                 if(!isset($map_ownership_balances[$ownership_id])) {
                     $map_ownership_balances[$ownership_id] = 0;
 
