@@ -61,7 +61,13 @@
         "status": {
             "label": "Statut",
             "description": "Indique si l'Email est en attente ou traité (sortant).",
-            "help": ""
+            "help": "",
+            "selection": {
+                "pending" : "en attente",
+                "failing" : "en échec",
+                "processed" : "traité",
+                "sent" : "envoyé"
+            }
         },
         "response_status": {
             "label": "Code SMTP",
