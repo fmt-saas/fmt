@@ -89,6 +89,7 @@ foreach($assembly_minutes_correspondences_ids as $assembly_invitation_id) {
     }
     catch(Exception $e) {
         trigger_error('APP::Error while sending documents ' . $e->getMessage(), EQ_REPORT_ERROR);
+        continue;
     }
 }
 
