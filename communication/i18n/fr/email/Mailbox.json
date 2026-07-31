@@ -91,6 +91,16 @@
         "form.default": {
             "name": "Boîte mail",
             "description": "Formulaire de configuration d'une boîte aux lettres (serveur, authentification, jetons).",
+            "actions": {
+                "action.fetch_emails": {
+                    "label": "Recevoir",
+                    "description": "Récupérer les derniers e-mails et importer les pièces jointes."
+                },
+                "action.flush_emails": {
+                    "label": "Envoyer",
+                    "description": "Envoyer les e-mails sortants en attente."
+                }
+            },
             "layout": {
                 "section.messages": {
                     "label": "Messages"
