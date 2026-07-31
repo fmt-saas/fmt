@@ -6,7 +6,6 @@
 */
 
 use fmt\setting\Setting;
-use fmt\setting\SettingValue;
 use sale\catalog\Product;
 use sale\catalog\ProductModel;
 use sale\price\Price;
@@ -64,22 +63,9 @@ foreach([1, 2, 3, 4] as $reminder_lvl) {
 
     $products_ids[] = $reminder_product['id'];
 
-    $setting = Setting::search([
-        'package'   => 'realestate',
-        'section'   => 'features',
-        'code'      => "payment_reminder.level_$reminder_lvl.sku",
-    ])
-        ->first();
-
-    if($setting) {
-        SettingValue::search(['setting_id', '=', $setting['id']])
-            ->update([
-                'value' => $reminder_product['sku']
-            ]);
-    }
-    else {
-        Setting::assert_value('realestate', 'features', "payment_reminder.level_$reminder_lvl.sku", $reminder_product['sku']);
-    }
+    $setting_code = "payment_reminder.level_$reminder_lvl.sku";
+    Setting::assert_value('realestate', 'features', $setting_code);
+    Setting::set_value('realestate', 'features', $setting_code, $reminder_product['sku']);
 }
 
 $price_list_category = PriceListCategory::create([
