@@ -4,6 +4,8 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
+use communication\email\Email;
 use equal\email\Email as EmailMessage;
 use equal\html\HtmlTemplate;
 use core\Mail;
@@ -141,12 +143,15 @@ try {
         throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
     }
 
-    Mail::queue(
+    $email_id = Mail::queue(
         $message,
         'identity\User',
-        $user['id'],
-        $managementProcess['mailbox_id']
+        $user['id']
     );
+
+    Email::id($email_id)->update([
+        'mailbox_id'                => $managementProcess['mailbox_id']
+    ]);
 }
 finally {
     $auth->su($current_user_id);

@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use communication\email\Email;
 use communication\template\Template;
 use fmt\core\Mail;
 use identity\Organisation;
@@ -62,7 +63,7 @@ $assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id']
         'owner_id' => ['firstname', 'lastname', 'email', 'email_alt', 'lang_id'],
         'ownership_id' => ['name'],
         'assembly_id' => ['name', 'assembly_date', 'assembly_type'],
-        'document_id' => ['data']
+        'document_id'
     ])
     ->first();
 
@@ -132,7 +133,6 @@ foreach($template['parts_ids'] as $part_id => $part) {
     }
 }
 
-
 // retrieve recipient
 $recipient_email = $assemblyMinutesCorrespondence['owner_id']['email']
     ?? $assemblyMinutesCorrespondence['owner_id']['email_alt']
@@ -142,14 +142,6 @@ if(!$recipient_email || $recipient_email === '') {
     throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
 }
 
-/** @var EmailAttachment[] */
-$attachments = [];
-
-$main_attachment_name = 'Invitation Assemblée - ' . $assemblyMinutesCorrespondence['condo_id']['name'] . ' - ' . $assemblyMinutesCorrespondence['ownership_id']['name'];
-
-// push main attachment
-$attachments[] = new EmailAttachment($main_attachment_name.'.pdf', (string) $assemblyMinutesCorrespondence['document_id']['data'], 'application/pdf');
-
 // create message
 $message = new EmailMessage();
 $message->setTo($recipient_email)
@@ -157,23 +149,22 @@ $message->setTo($recipient_email)
         ->setContentType("text/html")
         ->setBody($body);
 
-// append attachments to message
-foreach($attachments as $attachment) {
-    $message->addAttachment($attachment);
-}
-
 $managementProcess = ManagementProcess::search(['code', '=', 'governance'])->read(['mailbox_id'])->first();
 if(!$managementProcess || !$managementProcess['mailbox_id']) {
     throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
 }
 
 // queue message
-Mail::queue(
+$email_id = Mail::queue(
     $message,
     'realestate\governance\AssemblyMinutesCorrespondence',
-    $assemblyMinutesCorrespondence['id'],
-    $managementProcess['mailbox_id']
+    $assemblyMinutesCorrespondence['id']
 );
+
+Email::id($email_id)->update([
+        'mailbox_id'                => $managementProcess['mailbox_id'],
+        'attachment_documents_ids'  => [ $assemblyMinutesCorrespondence['document_id'] ]
+    ]);
 
 // mark invitation as sent
 AssemblyMinutesCorrespondence::id($assemblyMinutesCorrespondence['id'])
