@@ -47,7 +47,7 @@ class Setting extends \core\setting\Setting {
     }
 
     public static function get_value(string $package, string $section, string $code, $default = null, array $selectors = [], string $lang = null) {
-        if(empty($selectors) || is_string($selectors[0])) {
+        if((is_array($selectors) && empty($selectors)) || is_string($selectors[0])) {
             // handle unique selector given
             $selectors = [$selectors];
         }
