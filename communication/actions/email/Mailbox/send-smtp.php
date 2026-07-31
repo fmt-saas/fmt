@@ -123,7 +123,8 @@ $email = Email::id($params['email_id'])
         'bcc',
         'direction',
         'status',
-        'body'
+        'body',
+        'attachment_documents_ids'
     ])
     ->first();
 
@@ -170,7 +171,7 @@ if(!empty($reply_to_recipients)) {
     $message->setReplyTo($reply_to_recipients[0]);
 }
 
-$documents = Document::search(['email_id', '=', $email['id']])
+$documents = Document::ids($email['attachment_documents_ids'])
     ->read([
         'id',
         'name',

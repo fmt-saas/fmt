@@ -177,7 +177,8 @@ $email = Email::id($params['email_id'])
         'bcc',
         'direction',
         'status',
-        'body'
+        'body',
+        'attachment_documents_ids'
     ])
     ->first();
 
@@ -206,7 +207,7 @@ if(empty($to_recipients)) {
     throw new Exception('missing_email_recipient', EQ_ERROR_INVALID_PARAM);
 }
 
-$documents = Document::search(['email_id', '=', $email['id']])
+$documents = Document::ids($email['attachment_documents_ids'])
     ->read([
         'id',
         'name',
