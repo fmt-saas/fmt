@@ -552,8 +552,8 @@ class Document extends Model {
                     'condo_id'              => $document['condo_id'] ?? null,
                     'name'                  => $document['name'],
                     'assigned_employee_id'  => $user['employee_id'] ?? null,
-                    'document_type_id'      => $document['document_type_id'],
-                    'document_subtype_id'   => $document['document_subtype_id'],
+                    'document_type_id'      => $document['document_type_id'] ?? 1,
+                    'document_subtype_id'   => $document['document_subtype_id'] ?? null,
                 ])
                 // #memo - this will sync back the document_process_id
                 ->update(['document_id' => $id]);

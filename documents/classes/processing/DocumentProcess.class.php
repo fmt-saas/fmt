@@ -87,7 +87,6 @@ class DocumentProcess extends Model {
                 'description'       => 'Document type associated with the document.',
                 'onupdate'          => 'onupdateDocumentTypeId',
                 'dependents'        => ['document_type_code'],
-                // #todo - use a dedicated entity PurchaseInvoiceImport
                 'default'           => 1
             ],
 

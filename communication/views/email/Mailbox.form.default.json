@@ -11,7 +11,10 @@
             "params": {
                 "id": "object.id"
             },
-            "visible": ["validated", "=", "object.status"]
+            "visible": [
+                ["can_receive", "=", true],
+                ["validated", "=", "object.status"]
+            ]
         }
     ],
     "routes": [
