@@ -218,23 +218,18 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "name",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "reply_to",
-                                                "width": "33%"
+                                                "value": "subject",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "label",
                                                 "value": "",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "subject",
-                                                "width": "100%"
+                                                "value": "reply_to",
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",

@@ -5,6 +5,7 @@ namespace communication\broadcast;
 use core\Task;
 use documents\navigation\Node;
 use equal\orm\Model;
+use realestate\management\ManagementProcess;
 use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
 
@@ -292,19 +293,19 @@ class Broadcast extends Model {
     protected static function onafterProcessing($self) {
         foreach($self as $id => $broadcast) {
             Task::search([
-                ['controller', '=', 'communication_broadcast_Broadcast_process'],
-                ['params', '=', json_encode(['id' => $id])]
-            ])
+                    ['controller', '=', 'communication_broadcast_Broadcast_process'],
+                    ['params', '=', json_encode(['id' => $id])]
+                ])
                 ->delete();
         }
     }
 
     public static function calcReplyTo($self): array {
         $result = [];
+        $managementProcess = ManagementProcess::search(['code', '=', 'communication'])->read(['mailbox_id' => ['email']])->first();
         foreach($self as $id => $broadcast) {
-            $result[$id] = constant('EMAIL_SMTP_ACCOUNT_EMAIL');
+            $result[$id] = $managementProcess['mailbox_id']['email'] ?? constant('EMAIL_SMTP_ACCOUNT_EMAIL');
         }
-
         return $result;
     }
 
