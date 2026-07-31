@@ -51,7 +51,7 @@ $graph_page_size = 50;
 
 
 $mailbox = Mailbox::id($params['id'])
-    ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'email', 'date_last_sync'])
+    ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'email', 'created', 'date_last_sync'])
     ->first();
 
 if(!$mailbox) {
@@ -89,14 +89,14 @@ catch(Exception $e) {
 
 // GRAPH API REQUEST : FETCH NEW EMAILS
 
-$since = str_replace('+00:00', 'Z', gmdate('c', $mailbox['date_last_sync']));
+$since = str_replace('+00:00', 'Z', gmdate('c', $mailbox['date_last_sync'] ?? $mailbox['created']));
 $query = http_build_query([
     '$filter'   => "receivedDateTime ge $since",
     '$orderby'  => 'receivedDateTime asc',
     '$top'      => $graph_page_size
 ]);
 
-$url = "https://graph.microsoft.com/v1.0/me/messages?$query";
+$url = "https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$query";
 $new_date_last_sync = time();
 $imported_messages_count = 0;
 $fetch_limit_reached = false;

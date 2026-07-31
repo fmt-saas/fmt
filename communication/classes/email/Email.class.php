@@ -35,7 +35,8 @@ class Email extends Model {
 
             'message_id' => [
                 'type'              => 'string',
-                'description'       => "Unique string identifier of the message as per RFC 5322.",
+                'description'       => "Unique string identifier of the message.",
+                'help'              => "Internet message identifier per RFC 5322.",
                 // 'unique'            => true
             ],
 

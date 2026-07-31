@@ -50,15 +50,18 @@ use documents\Document;
  * @throws Exception
  */
 $getMessagesPage = function($access_token, $after, $page_token = null, $max_results = 50) {
-    $params = ['maxResults' => $max_results];
+    $params = ['maxResults' => $max_results, 'labelIds' => 'INBOX'];
+
     if($after > 0) {
         $params['q'] = "after:$after";
     }
+
     if($page_token) {
         $params['pageToken'] = $page_token;
     }
 
     $url = "https://gmail.googleapis.com/gmail/v1/users/me/messages";
+
     if(!empty($params)) {
         $url .= '?'.http_build_query($params);
     }
@@ -249,7 +252,7 @@ $gmail_page_size = 50;
 
 // check consistency
 $mailbox = Mailbox::id($params['id'])
-    ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'date_last_sync'])
+    ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'created', 'date_last_sync'])
     ->first();
 
 if(!$mailbox) {
@@ -274,7 +277,7 @@ try {
         eQual::run('do', 'communication_email_Mailbox_refresh-token-gmail', ['id' => $params['id']]);
 
         $mailbox = Mailbox::id($params['id'])
-            ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'date_last_sync'])
+            ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'created', 'date_last_sync'])
             ->first();
     }
 }
@@ -293,7 +296,7 @@ $message_refs = [];
 $last_processed_message_date = null;
 
 do {
-    $page = $getMessagesPage($mailbox['access_token'], $mailbox['date_last_sync'], $next_page_token, $gmail_page_size);
+    $page = $getMessagesPage($mailbox['access_token'], $mailbox['date_last_sync'] ?? $mailbox['created'], $next_page_token, $gmail_page_size);
 
     foreach($page['messages'] as $message_ref) {
         $message_refs[] = $message_ref;

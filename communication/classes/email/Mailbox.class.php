@@ -128,7 +128,7 @@ class Mailbox extends Model {
             'date_last_sync' => [
                 'type'              => 'datetime',
                 'description'       => 'Time of the last emails fetch.',
-                'default'           => 0
+                'default'           => fn() => (time() - 86400)
             ],
 
             'emails_ids' => [

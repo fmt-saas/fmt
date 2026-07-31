@@ -32,53 +32,9 @@
             {
                 "sections": [
                     {
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "50%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "name",
-                                                "width": "100%",
-                                                "widget": {
-                                                    "heading": true
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "width": "20%",
-                                        "items": [
-                                        ]
-                                    },
-                                    {
-                                        "width": "25%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "can_send",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "can_receive",
-                                                "width": "100%"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "sections": [
-                    {
                         "id": "section.incoming",
                         "label": "Inbox",
+                        "visible": ["can_receive", "=", true],
                         "rows": [
                             {
                                 "columns": [
@@ -89,6 +45,18 @@
                                                 "type": "field",
                                                 "value": "incoming_emails_ids",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "can_send",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "can_receive",
+                                                "width": "0%",
+                                                "visible": false
                                             }
                                         ]
                                     }
@@ -99,6 +67,7 @@
                     {
                         "id": "section.outgoing",
                         "label": "Outbox",
+                        "visible": ["can_send", "=", true],
                         "rows": [
                             {
                                 "columns": [
