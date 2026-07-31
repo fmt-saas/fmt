@@ -1,6 +1,6 @@
 {
-    "name": "Model",
-    "description": "Allows to prepare and send multiple emails to a specific group of co-owners.",
+    "name": "Broadcast message",
+    "description": "Allows to prepare and send a message by email to a specific group of co-owners.",
     "actions": [
         {
             "id": "action.validate_recipients",

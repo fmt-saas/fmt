@@ -1,0 +1,42 @@
+{
+    "name": "Broadcast messages",
+    "description": "List of broadcast messages.",
+    "sort": "desc",
+    "order": "created",
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "name",
+                "width": "25%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "condo_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "subject",
+                "width": "25%"
+            },
+            {
+                "type": "field",
+                "value": "status",
+                "width": "15%",
+                "sortable": true
+            },
+            {
+                "type": "field",
+                "value": "created",
+                "width": "15%",
+                "sortable": true,
+                "readonly": true,
+                "widget": {
+                    "usage": "date"
+                }
+            }
+        ]
+    }
+}
