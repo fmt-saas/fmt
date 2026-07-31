@@ -1306,21 +1306,12 @@
                                     "entity": "sale\\catalog\\Family",
                                     "view": "list.default"
                                 }
-                            }
-                        ]
-                    },
-                    {
-                        "id": "price_conf",
-                        "label": "Price configuration",
-                        "description": "Manage all things related to prices.",
-                        "icon": "attach_money",
-                        "type": "parent",
-                        "children": [
+                            },
                             {
-                                "id": "price_conf.prices",
+                                "id": "catalog.prices",
                                 "type": "entry",
                                 "label": "Prices",
-                                "icon": "attach_money",
+                                "icon": "",
                                 "description": "Manage prices.",
                                 "context": {
                                     "entity": "sale\\price\\Price",
@@ -1329,10 +1320,10 @@
                                 }
                             },
                             {
-                                "id": "price_conf.price_lists",
+                                "id": "catalog.price_lists",
                                 "type": "entry",
                                 "label": "Price lists",
-                                "icon": "price_check",
+                                "icon": "",
                                 "description": "Manage price lists.",
                                 "context": {
                                     "entity": "sale\\price\\PriceList",
@@ -1341,10 +1332,10 @@
                                 }
                             },
                             {
-                                "id": "price_conf.price_list_categories",
+                                "id": "catalog.price_list_categories",
                                 "type": "entry",
                                 "label": "Price list categories",
-                                "icon": "sell",
+                                "icon": "",
                                 "description": "Manage price list categories.",
                                 "context": {
                                     "entity": "sale\\price\\PriceListCategory",

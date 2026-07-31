@@ -10,32 +10,29 @@ use sale\price\Price;
 use sale\price\PriceList;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Clone a given price list for the given coming year.",
+    'description'   => "Clone a given price list for the given year.",
     'params'        => [
         'id' => [
             'type'              => 'many2one',
             'foreign_object'    => 'sale\price\PriceList',
-            'description'       => "The PriceList that needs to be cloned for the coming year.",
+            'description'       => "The PriceList that needs to be cloned for the given year.",
             'required'          => true
         ],
         'condo_id' => [
             'type'              => 'many2one',
-            'foreign_object'    => 'sale\price\PriceList',
-            'description'       => "The condominium for which the price list is needed.",
-            'visible'           => false
+            'foreign_object'    => 'realestate\property\Condominium',
+            'description'       => "The condominium for which the price list is needed."
         ],
         'target_year' => [
             'type'              => 'int',
             'description'       => "The year to assign to the new price list.",
-            'default'           => intval(date('Y')) + 1,
-            'required'          => true
+            'default'           => intval(date('Y')) + 1
         ],
         'indexation_rate' => [
             'type'              => 'float',
             'description'       => "The rate of indexation to increase the prices of the list.",
             'help'              => "If given indexation rate is 2.5, then a price of 10.00 € becomes: 10.00 × 1.025 = 10,25 €.",
-            'default'           => 0.0,
-            'required'          => true
+            'default'           => 0.0
         ]
     ],
     'response'      => [
@@ -88,10 +85,6 @@ else {
     $condo = $price_list['condo_id'];
 }
 
-if(!$condo) {
-    throw new Exception("unknown_condominium", EQ_ERROR_UNKNOWN);
-}
-
 
 /*
     Check that the wanted price list does not already exist
@@ -115,6 +108,12 @@ if($already_existing_price_list) {
 /*
     Create price list and prices
 */
+
+$description = "Default {$params['target_year']} price list";
+if($params['condo_id']) {
+    $description .= " for condominium {$condo['name']}";
+}
+$description .= ".";
 
 $new_price_list = PriceList::create([
     'condo_id'      => $condo['id'],

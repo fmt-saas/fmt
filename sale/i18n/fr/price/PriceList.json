@@ -71,7 +71,7 @@
             "description": "",
             "actions": {
                 "action.clone": {
-                    "label": "Dupliquer année prochaine"
+                    "label": "Dupliquer"
                 }
             },
             "layout": {

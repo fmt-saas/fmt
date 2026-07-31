@@ -6,8 +6,8 @@
             "id": "action.clone",
             "label": "Clone",
             "icon": "",
-            "description": "Clone the list, can be used to create the following year's list.",
-            "controller": "sale_price_PriceList_clone-for-condo",
+            "description": "Clone the price list, can be used to create the following year's list.",
+            "controller": "sale_price_PriceList_clone",
             "confirm": true
         }
     ],

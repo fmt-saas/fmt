@@ -477,19 +477,15 @@
             "label": "Familles",
             "description": ""
         },
-        "price_conf": {
-            "label": "Prix",
-            "description": "Gestion des prix."
-        },
-        "price_conf.prices": {
+        "catalog.prices": {
             "label": "Prix",
             "description": ""
         },
-        "price_conf.price_lists": {
-            "label": "Listes",
+        "catalog.price_lists": {
+            "label": "Listes prix",
             "description": ""
         },
-        "price_conf.price_list_categories": {
+        "catalog.price_list_categories": {
             "label": "Catégories listes",
             "description": ""
         },

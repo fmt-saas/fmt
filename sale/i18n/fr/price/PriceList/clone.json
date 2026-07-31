@@ -1,9 +1,15 @@
 {
+    "description": "Cloner la liste de prix, elle peut servir à créer la liste de l'année suivante.",
     "model": {
         "id": {
             "label": "Liste de prix",
             "description": "La liste de prix à cloner pour l'année à venir.",
             "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété pour laquelle la liste de prix doit être créée.",
+            "help": "Une liste globale sera créée si aucune copropriété n'est sélectionnée."
         },
         "target_year": {
             "label": "Année",
