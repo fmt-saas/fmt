@@ -45,8 +45,8 @@ $broadcast = BroadcastMessage::id($params['id'])
         'reply_to',
         'subject',
         'body',
+        'documents_ids',
         'identities_ids'    => ['email'],
-        'documents_ids'     => ['name', 'data', 'content_type']
     ])
     ->first();
 

@@ -46,7 +46,8 @@ $context = $providers['context'];
 
 $ownershipTransfer = OwnershipTransfer::id($params['id'])
     ->read([
-        'status', 'attached_documents_ids',
+        'status',
+        'attached_documents_ids',
         'condo_id' => ['id', 'name'],
         'old_ownership_id' => ['name'],
         'contacts_ids' => ['email']

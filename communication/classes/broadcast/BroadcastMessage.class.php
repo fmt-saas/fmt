@@ -156,7 +156,7 @@ class BroadcastMessage extends Model {
 
             'mails_ids' => [
                 'type'              => 'one2many',
-                'foreign_object'    => 'core\Mail',
+                'foreign_object'    => 'communication\email\Email',
                 'foreign_field'     => 'object_id',
                 'domain'            => [
                     ['object_class', '=', 'communication\broadcast\BroadcastMessage'],
