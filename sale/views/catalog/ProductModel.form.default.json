@@ -1,9 +1,6 @@
 {
     "name": "Product Model",
     "description": "Product Models act as common denominator for products variants (referred to as Products).",
-    "access": {
-        "groups": ["pos.default.users", "sale.default.users"]
-     },
     "layout": {
         "groups": [
             {
@@ -51,31 +48,6 @@
                                                 "type": "field",
                                                 "value": "consumable_type",
                                                 "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "tracking_type",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "service_type",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "schedule_type",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "schedule_default_value",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "schedule_offset",
-                                                "width": "50%"
                                             }
                                         ]
                                     },
@@ -112,16 +84,6 @@
                                             {
                                                 "type": "field",
                                                 "value": "can_buy",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "is_pack",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "has_own_price",
                                                 "width": "50%"
                                             }
                                         ]

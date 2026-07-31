@@ -461,6 +461,38 @@
             "label": "Envois groupés",
             "description": "Historique de tous les envois groupés d'e-mails sortants."
         },
+        "catalog": {
+            "label": "Catalogue",
+            "description": "Gestion du catalogue des produits."
+        },
+        "catalog.products": {
+            "label": "Produits",
+            "description": ""
+        },
+        "catalog.product_models": {
+            "label": "Modèles",
+            "description": ""
+        },
+        "catalog.product_families": {
+            "label": "Familles",
+            "description": ""
+        },
+        "price_conf": {
+            "label": "Prix",
+            "description": "Gestion des prix."
+        },
+        "price_conf.prices": {
+            "label": "Prix",
+            "description": ""
+        },
+        "price_conf.price_lists": {
+            "label": "Listes",
+            "description": ""
+        },
+        "price_conf.price_list_categories": {
+            "label": "Catégories listes",
+            "description": ""
+        },
         "item.infra": {
             "label": "Infrastructure",
             "description": ""

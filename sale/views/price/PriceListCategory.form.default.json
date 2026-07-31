@@ -1,9 +1,6 @@
 {
     "name": "Price List Categories",
     "description": "",
-    "access": {
-        "groups": ["sale.default.users"]
-     },
     "layout": {
         "groups": [
             {

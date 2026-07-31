@@ -33,21 +33,6 @@
             "description": "Modèle de produit du variant.",
             "help": ""
         },
-        "prices_ids": {
-            "label": "Prix",
-            "description": "Liste de  prix  liés au produit.",
-            "help": ""
-        },
-        "is_pack": {
-            "label": "Pack",
-            "description": "Contient d'autres produits.",
-            "help": ""
-        },
-        "has_own_price": {
-            "label": "A son propre prix",
-            "description": "Pack avec prix propre.",
-            "help": ""
-        },
         "family_id": {
             "label": "Famille",
             "description": "Famille à laquelle appartient le produit.",
@@ -68,19 +53,24 @@
             "description": "Section statistique associée au produit.",
             "help": ""
         },
-        "pack_lines_ids": {
-            "label": "Produits du pack",
-            "description": "Liste des produits du pack.",
-            "help": ""
-        },
         "product_attributes_ids": {
             "label": "Attributs",
             "description": "Attributs définis pour le produit.",
             "help": ""
         },
+        "prices_ids": {
+            "label": "Prix",
+            "description": "Liste de prix liés au produit.",
+            "help": ""
+        },
         "groups_ids": {
             "label": "Groupes",
             "description": "Groupes de produits.",
+            "help": ""
+        },
+        "subscriptions_ids": {
+            "label": "Abonnements",
+            "description": "Liste des abonnements.",
             "help": ""
         }
     },
@@ -100,9 +90,6 @@
                 },
                 "section.groups": {
                     "label": "Groupes"
-                },
-                "section.pack_lines": {
-                    "label": "Produits du pack"
                 },
                 "section.prices": {
                     "label": "Prix"

@@ -16,6 +16,7 @@ use fmt\setting\Setting;
 use hr\role\Role;
 use identity\Identity;
 use purchase\supplier\Suppliership;
+use sale\price\PriceList;
 
 class Condominium extends Identity {
 
@@ -436,6 +437,11 @@ class Condominium extends Identity {
                 'description'   => 'Generate default folders for Documents repository.',
                 'policies'      => [],
                 'function'      => 'doGenerateFolders'
+            ],
+            'generate_price_list' => [
+                'description'   => 'Generate default Price List.',
+                'policies'      => [],
+                'function'      => 'doGeneratePriceList'
             ],
             'sync_from_identity' => [
                 'description'   => 'Force sync values from related identity.',
@@ -925,6 +931,42 @@ class Condominium extends Identity {
         }
     }
 
+    protected static function doGeneratePriceList($self) {
+        $year = date('Y');
+
+        $date_from = mktime(0, 0, 0, 1, 1, $year);
+        $date_to = mktime(23, 59, 59, 12, 31, $year);
+
+        $default_price_list = PriceList::search([
+            ['condo_id', '=', null],
+            ['date_from', '=', $date_from],
+            ['date_to', '=', $date_to]
+        ])
+            ->first();
+
+        $self->read(['name']);
+        foreach($self as $id => $condominium) {
+            if($default_price_list) {
+                \eQual::run('do', 'sale_price_PriceList_clone', [
+                    'id'                => $default_price_list['id'],
+                    'condo_id'          => $condominium['id'],
+                    'target_year'       => $year,
+                    'indexation_rate'   => 0.0
+                ]);
+            }
+            else {
+                // If no price list is configured, then create a price list without any price.
+                PriceList::create([
+                    'condo_id'      => $id,
+                    'name'          => "Default $year",
+                    'description'   => "Default $year price list for condominium {$condominium['name']}.",
+                    'date_from'     => $date_from,
+                    'date_to'       => $date_to
+                ]);
+            }
+        }
+    }
+
     /**
      * Create mandatory dependencies for new Condominium
      * This is meant to be done only once, at the Condominium validation.
@@ -938,7 +980,9 @@ class Condominium extends Identity {
             // 3 - create journals
             ->do('generate_journals')
             // 4 - create folders
-            ->do('generate_folders');
+            ->do('generate_folders')
+            // 5 - create price list
+            ->do('generate_price_list');
     }
 
     protected static function onupdateCurrentFiscalYearId($self) {

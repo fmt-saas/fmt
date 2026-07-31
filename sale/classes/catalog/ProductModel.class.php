@@ -11,17 +11,17 @@ use equal\orm\Model;
 
 class ProductModel extends Model {
 
-    public static function getName() {
+    public static function getName(): string {
         return "Product Model";
     }
 
-    public static function getDescription() {
+    public static function getDescription(): string {
         return "Product Models act as common denominator for products variants (referred to as \"Products\")."
             ." These objects are used for catalogs generation: for instance, if a picture is related to a Product, it is associated on the Product Model level."
             ." A Product Model has at minimum one variant, which means at minimum one SKU.";
     }
 
-    public static function getColumns() {
+    public static function getColumns(): array {
         return [
 
             'name' => [
@@ -41,19 +41,19 @@ class ProductModel extends Model {
             'selling_accounting_rule_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountingRule',
-                'description'       => 'Accounting rule to use in case of sell.'
+                'description'       => "Accounting rule to use in case of sell."
             ],
 
             'buying_accounting_rule_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\AccountingRule',
-                'description'       => 'Accounting rule to use in case of purchase.'
+                'description'       => "Accounting rule to use in case of purchase."
             ],
 
             'stat_section_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\stats\StatSection',
-                'description'       => 'Statistics section to which relates the product, if any.'
+                'description'       => "Statistics section to which relates the product, if any."
             ],
 
             'can_buy' => [
@@ -70,24 +70,9 @@ class ProductModel extends Model {
                 'onupdate'          => 'onupdateCanSell'
             ],
 
-            'is_pack' => [
-                'type'              => 'boolean',
-                'description'       => "Is the product a bundle of other products?",
-                'default'           => false,
-                'onupdate'          => 'onupdateIsPack'
-            ],
-
-            'has_own_price' => [
-                'type'              => 'boolean',
-                'description'       => 'Has the pack its own price, or do we use each sub-product price?',
-                'default'           => false,
-                'visible'           => ['is_pack', '=', true],
-                'onupdate'          => 'onupdateHasOwnPrice'
-            ],
-
             'type' => [
                 'type'              => 'string',
-                'description'       => 'Is the product a consumable or a service.',
+                'description'       => "Is the product a consumable or a service.",
                 'selection'         => [
                     'consumable',
                     'service'
@@ -98,60 +83,12 @@ class ProductModel extends Model {
 
             'consumable_type' => [
                 'type'              => 'string',
-                'description'       => 'Is the consumable product storable.',
+                'description'       => "Is the consumable product storable.",
                 'selection'         => [
                     'simple',
                     'storable'
                 ],
                 'visible'           => ['type', '=', 'consumable']
-            ],
-
-            'service_type' => [
-                'type'              => 'string',
-                'description'       => 'Is the service product schedulable.',
-                'selection'         => [
-                    'simple',
-                    'schedulable'
-                ],
-                'visible'           => ['type', '=', 'service'],
-                'default'           => 'simple'
-            ],
-
-            'schedule_type' => [
-                'type'              => 'string',
-                'description'       => 'Is the service schedulable on a specific time or on a time range.',
-                'selection'         => [
-                    'time',
-                    'timerange'
-                ],
-                'default'           => 'time',
-                'visible'           => [ ['type', '=', 'service'], ['service_type', '=', 'schedulable'] ]
-            ],
-
-            'schedule_default_value' => [
-                'type'              => 'string',
-                'description'       => "Default value of the schedule according to type (time: '9:00', timerange: '9:00-10:00').",
-                'visible'           => [ ['type', '=', 'service'], ['service_type', '=', 'schedulable'] ]
-            ],
-
-            'schedule_offset' => [
-                'type'              => 'integer',
-                'description'       => 'Default number of days to set-off the service from a sojourn start date.',
-                'default'           => 0,
-                'visible'           => [ ['type', '=', 'service'], ['service_type', '=', 'schedulable'] ]
-            ],
-
-            'tracking_type' => [
-                'type'              => 'string',
-                'description'       => 'How is the stored consumable product tracked.',
-                'selection'         => [
-                    'none',
-                    'batch',
-                    'sku',
-                    'upc'
-                ],
-                'visible'           => [ ['type', '=', 'consumable'], ['consumable_type', '=', 'storable'] ],
-                'default'           => 'sku'
             ],
 
             'description_delivery' => [
@@ -172,7 +109,7 @@ class ProductModel extends Model {
                 'type'              => 'many2many',
                 'foreign_object'    => 'sale\catalog\Group',
                 'foreign_field'     => 'product_models_ids',
-                'description'       => 'Linked groups.',
+                'description'       => "Linked groups.",
                 'rel_table'         => 'sale_catalog_product_rel_productmodel_group',
                 'rel_foreign_key'   => 'group_id',
                 'rel_local_key'     => 'productmodel_id',
@@ -183,7 +120,7 @@ class ProductModel extends Model {
                 'type'              => 'many2many',
                 'foreign_object'    => 'sale\catalog\Category',
                 'foreign_field'     => 'product_models_ids',
-                'description'       => 'Linked categories',
+                'description'       => "Linked categories",
                 'rel_table'         => 'sale_product_rel_productmodel_category',
                 'rel_foreign_key'   => 'category_id',
                 'rel_local_key'     => 'productmodel_id'
@@ -206,51 +143,42 @@ class ProductModel extends Model {
         ];
     }
 
-    public static function onupdateIsPack($self) {
-        $self->read(['products_ids', 'is_pack']);
-        foreach($self as $id => $model) {
-            Product::ids($model['products_ids'])->update(['is_pack' => $model['is_pack']]);
-        }
-    }
-
-    public static function onupdateHasOwnPrice($self) {
-        $self->read(['products_ids', 'has_own_price']);
-        foreach($self as $id => $model) {
-            Product::ids($model['products_ids'])->update(['has_own_price' => $model['has_own_price']]);
-        }
-    }
-
-    public static function onupdateCanSell($self) {
+    public static function onupdateCanSell($self): void {
         $self->read(['products_ids', 'can_sell']);
-        foreach($self as $id => $model) {
+        foreach($self as $model) {
             Product::ids($model['products_ids'])->update(['can_sell' => $model['can_sell']]);
         }
     }
 
-    public static function onupdateCanBuy($self) {
+    public static function onupdateCanBuy($self): void {
         $self->read(['products_ids', 'can_buy']);
-        foreach($self as $id => $model) {
+        foreach($self as $model) {
             Product::ids($model['products_ids'])->update(['can_buy' => $model['can_buy']]);
         }
     }
 
-    public static function onupdateFamilyId($self) {
+    public static function onupdateFamilyId($self): void {
         $self->read(['products_ids', 'family_id']);
-        foreach($self as $id => $model) {
+        foreach($self as $model) {
             Product::ids($model['products_ids'])->update(['family_id' => $model['family_id']]);
         }
     }
 
-    public static function onupdateGroupsIds($self) {
+    public static function onupdateGroupsIds($self): void {
         $self->read(['products_ids', 'groups_ids']);
-        foreach($self as $mid => $model) {
-            $products = Product::ids($model['products_ids'])->read(['groups_ids'])->get();
+        foreach($self as $model) {
+            $products = Product::ids($model['products_ids'])
+                ->read(['groups_ids'])
+                ->get();
+
             foreach($products as $pid => $product) {
                 if(!$product['groups_ids']) {
                     continue;
                 }
+
                 $groups_ids = array_map(function($a) {return "-$a";}, $product['groups_ids']);
                 $groups_ids = array_merge($groups_ids, (array) $model['groups_ids']);
+
                 Product::id($pid)->update(['groups_ids' => $groups_ids]);
             }
         }

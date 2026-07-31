@@ -1,6 +1,15 @@
 {
-    "name": "Option Value",
-    "description": "OptionValue objects are the possible values to which an option, for a given Product Attribute, can be set to.",
+    "name": "Price Lists",
+    "description": "",
+    "actions": [
+        {
+            "id": "action.clone",
+            "label": "Repeat next year",
+            "icon": "",
+            "description": "Clone list for following year.",
+            "controller": "sale_price_PriceList_clone"
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -14,21 +23,16 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "label": "Name",
                                                 "value": "name",
-                                                "width": "66%",
+                                                "width": "100%",
                                                 "widget": {
                                                     "heading": true
                                                 }
                                             },
                                             {
-                                                "type": "label",
-                                                "width": "33%"
-                                            },
-                                            {
                                                 "type": "field",
-                                                "value": "value",
-                                                "width": "50%"
+                                                "value": "description",
+                                                "width": "100%"
                                             }
                                         ]
                                     },
@@ -36,15 +40,25 @@
                                         "width": "50%",
                                         "items": [
                                             {
-                                                "type": "label",
-                                                "width": "33%"
+                                                "type": "field",
+                                                "value": "date_from",
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Option",
-                                                "value": "option_id",
-                                                "width": "66%",
-                                                "readonly": true
+                                                "value": "date_to",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "label": "Category of Price List",
+                                                "value": "price_list_category_id",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "status",
+                                                "width": "50%"
                                             }
                                         ]
                                     }
@@ -57,8 +71,8 @@
             {
                 "sections": [
                     {
-                        "id": "section.description",
-                        "label": "Description",
+                        "id": "section.prices",
+                        "label": "Prices",
                         "rows": [
                             {
                                 "columns": [
@@ -67,7 +81,8 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "description",
+                                                "label": "Prices",
+                                                "value": "prices_ids",
                                                 "width": "100%"
                                             }
                                         ]
@@ -78,6 +93,6 @@
                     }
                 ]
             }
-       ]
+        ]
     }
 }

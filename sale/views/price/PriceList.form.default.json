@@ -1,9 +1,6 @@
 {
     "name": "Price Lists",
     "description": "",
-    "access": {
-        "groups": ["sale.default.users"]
-     },
     "layout": {
         "groups": [
             {
@@ -13,7 +10,7 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "33%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
@@ -22,11 +19,16 @@
                                                 "widget": {
                                                     "heading": true
                                                 }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "description",
+                                                "width": "100%"
                                             }
                                         ]
                                     },
                                     {
-                                        "width": "66%",
+                                        "width": "50%",
                                         "items": [
                                             {
                                                 "type": "field",
@@ -52,7 +54,17 @@
                                         ]
                                     }
                                 ]
-                            },
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.prices",
+                        "label": "Prices",
+                        "rows": [
                             {
                                 "columns": [
                                     {

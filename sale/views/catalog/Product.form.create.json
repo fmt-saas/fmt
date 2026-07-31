@@ -1,9 +1,6 @@
 {
     "name": "Product",
     "description": "A Product is a variant of a Product Model. There is always at least one Product for a given Product Model.",
-    "access": {
-        "groups": ["pos.default.users", "sale.default.users"]
-    },
     "extends": {
         "entity": "sale\\catalog\\Product",
         "view": "form.default"
@@ -13,7 +10,6 @@
             "section.product",
             "section.attributes",
             "section.groups",
-            "section.pack_lines",
             "section.prices",
             "section.attributes"
         ],

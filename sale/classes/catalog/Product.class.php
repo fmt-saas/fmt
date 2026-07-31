@@ -4,23 +4,24 @@
     (c) 2025-2026 Yesbabylon SA
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
+
 namespace sale\catalog;
 
 use equal\orm\Model;
 
 class Product extends Model {
 
-    public static function getName() {
+    public static function getName(): string {
         return "Product";
     }
 
-    public static function getDescription() {
+    public static function getDescription(): string {
         return "A Product is a variant of a Product Model. There is always at least one Product for a given Product Model."
             ." Within the organisation, a product is always referenced by a SKU code (assigned to each variant of a Product Model)."
             ." A SKU code identifies a single product with all its specific characteristics.";
     }
 
-    public static function getColumns() {
+    public static function getColumns(): array {
         return [
 
             'name' => [
@@ -28,12 +29,12 @@ class Product extends Model {
                 'result_type'       => 'string',
                 'function'          => 'calcName',
                 'store'             => true,
-                'description'       => 'The full name of the product (label + sku).'
+                'description'       => "The full name of the product (label + sku)."
             ],
 
             'label' => [
                 'type'              => 'string',
-                'description'       => 'Human readable memo for identifying the product. Allows duplicates.',
+                'description'       => "Human readable memo for identifying the product. Allows duplicates.",
                 'required'          => true,
                 'dependents'        => ['name']
             ],
@@ -60,48 +61,46 @@ class Product extends Model {
 
             'product_model_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => ProductModel::getType(),
+                'foreign_object'    => 'sale\catalog\ProductModel',
                 'description'       => "Product Model of this variant.",
                 'required'          => true,
-                'onupdate'          => 'onupdateProductModelId'
+                'readonly'          => true
             ],
 
             'family_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
-                'function'          => 'calcFamilyId',
+                'relation'          => ['product_model_id' => 'family_id'],
                 'foreign_object'    => 'sale\catalog\Family',
                 'description'       => "Product Family which current product belongs to.",
-                'store'             => true,
-                'readonly'          => true
+                'store'             => true
             ],
 
-            'is_pack' => [
+            'can_buy' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
-                'function'          => 'calcIsPack',
-                'description'       => 'Is the product a pack? (from model).',
-                'store'             => true,
-                'readonly'          => true
+                'relation'          => ['product_model_id' => 'can_buy'],
+                'description'       => "Can this product be purchased? (from model)",
+                'help'              => "Field can_buy is adapted when related value is changed in parent ProductModel.",
+                'store'             => true
             ],
 
-            'has_own_price' => [
+            'can_sell' => [
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
-                'function'          => 'calcHasOwnPrice',
-                'description'       => 'Product is a pack with its own price (from model).',
-                'visible'           => ['is_pack', '=', true],
-                'store'             => true,
-                'readonly'          => true
+                'relation'          => ['product_model_id' => 'can_sell'],
+                'description'       => "Can this product be sold? (from model)",
+                'help'              => "Field can_sell is adapted when related value is changed in parent ProductModel.",
+                'store'             => true
             ],
 
-            'pack_lines_ids' => [
-                'type'              => 'one2many',
-                'foreign_object'    => 'sale\catalog\PackLine',
-                'foreign_field'     => 'parent_product_id',
-                'description'       => "Products that are bundled in the pack.",
-                'ondetach'          => 'delete',
-                'visible'           => ['is_pack', '=', true]
+            'stat_section_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'relation'          => ['product_model_id' => 'stat_section_id'],
+                'foreign_object'    => 'finance\stats\StatSection',
+                'description'       => "Statistics section (overloads the model one, if any).",
+                'store'             => true
             ],
 
             'product_attributes_ids' => [
@@ -121,37 +120,11 @@ class Product extends Model {
                 'ondetach'          => 'delete'
             ],
 
-            'stat_section_id' => [
-                'type'              => 'many2one',
-                'foreign_object'    => 'finance\stats\StatSection',
-                'description'       => 'Statistics section (overloads the model one, if any).'
-            ],
-
-            'can_buy' => [
-                'type'              => 'computed',
-                'result_type'       => 'boolean',
-                'function'          => 'calcCanBuy',
-                'description'       => "Can this product be purchased? (from model)",
-                'help'              => "Field can_buy is adapted when related value is changed in parent ProductModel.",
-                'store'             => true,
-                'readonly'          => true
-            ],
-
-            'can_sell' => [
-                'type'              => 'computed',
-                'result_type'       => 'boolean',
-                'function'          => 'calcCanSell',
-                'description'       => "Can this product be sold? (from model)",
-                'help'              => "Field can_sell is adapted when related value is changed in parent ProductModel.",
-                'store'             => true,
-                'readonly'          => true
-            ],
-
             'groups_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'sale\catalog\Group',
                 'foreign_field'     => 'products_ids',
-                'description'       => 'Linked groups.',
+                'description'       => "Linked groups.",
                 'rel_table'         => 'sale_catalog_product_rel_product_group',
                 'rel_foreign_key'   => 'group_id',
                 'rel_local_key'     => 'product_id'
@@ -161,85 +134,30 @@ class Product extends Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'sale\subscription\Subscription',
                 'foreign_field'     => 'product_id',
-                'description'       => 'The subscriptions needed for the product.'
-            ],
+                'description'       => "The subscriptions needed for the product."
+            ]
 
         ];
     }
 
-    /**
-     * Computes the display name of the product as a concatenation of Label and SKU.
-     *
-     */
-    public static function calcName($self) {
+    public static function calcName($self): array {
         $result = [];
         $self->read(['label', 'sku']);
         foreach($self as $id => $product) {
-            $result[$id] = '';
-            if( isset($product['label']) && strlen($product['label']) ){
-                $result[$id] .= $product['label'];
+            $name = '';
+            if(!empty($product['label'])) {
+                $name .= $product['label'];
             }
-            if( isset($product['sku']) && strlen($product['sku']) ) {
-                if(strlen($result[$id])) {
-                    $result[$id] .= ' ';
+            if(!empty($product['sku'])) {
+                if(!empty($name)) {
+                    $name .= ' ';
                 }
-                $result[$id] .= "[{$product['sku']}]";
+                $name .= "[{$product['sku']}]";
             }
-        }
-        return $result;
-    }
 
-    public static function calcIsPack($self): array {
-        return self::calcFromProductModel($self, 'is_pack');
-    }
-
-    public static function calcHasOwnPrice($self): array {
-        return self::calcFromProductModel($self, 'has_own_price');
-    }
-
-    public static function calcCanBuy($self): array {
-        return self::calcFromProductModel($self, 'can_buy');
-    }
-
-    public static function calcCanSell($self): array {
-        return self::calcFromProductModel($self, 'can_sell');
-    }
-
-    public static function calcFamilyId($self): array {
-        return self::calcFromProductModel($self, 'family_id');
-    }
-
-    private static function calcFromProductModel($self, $column): array {
-        $result = [];
-        $self->read(['product_model_id' => [$column]]);
-        foreach($self as $id => $product) {
-            if(isset($product['product_model_id'][$column])) {
-                $result[$id] = $product['product_model_id'][$column];
-            }
+            $result[$id] = $name;
         }
 
         return $result;
     }
-
-    public static function onupdateProductModelId($self) {
-        $self->read(['groups_ids', 'product_model_id' => ['is_pack', 'has_own_price','can_sell','can_buy' , 'groups_ids', 'family_id']]);
-        foreach($self as $id => $product) {
-            if($product['groups_ids'] && count($product['groups_ids'])) {
-                self::id($id)
-                    // remove current groups
-                    ->update(['groups_ids' => array_map(function ($a) { return -$a; }, $product['groups_ids'])]);
-            }
-            self::id($id)
-                // set values according to assigned model
-                ->update([
-                    'is_pack'       => null,
-                    'has_own_price' => null,
-                    'can_sell'      => null,
-                    'can_buy'       => null,
-                    'groups_ids'    => $product['product_model_id']['groups_ids'] ?? [],
-                    'family_id'     => null
-                ]);
-        }
-    }
-
 }

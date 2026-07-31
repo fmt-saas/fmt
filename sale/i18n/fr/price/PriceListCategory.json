@@ -1,7 +1,7 @@
 {
-	"name": "Catégorie de Liste de Prix",
-	"plural": "Catégories de Liste de Prix",
-	"description": "La liste des prix du produit.",
+	"name": "Catégorie de liste de prix",
+	"plural": "Catégories de liste de prix",
+	"description": "La liste des prix des produits.",
 	"model": {
 		"name": {
 			"label": "Identification",
@@ -16,12 +16,12 @@
 	},
 	"view": {
 		"form.default": {
-			"name": "Catégorie de Liste de Prix",
+			"name": "Catégorie de liste de prix",
 			"description": "",
 			"layout": {}
 		},
 		"list.default": {
-			"name": "CatégorieS de Liste de Prix",
+			"name": "Catégories de liste de prix",
 			"description": "Liste des catégories de prix.",
 			"layout": {}
 		}

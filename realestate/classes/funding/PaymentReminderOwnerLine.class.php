@@ -93,6 +93,14 @@ class PaymentReminderOwnerLine extends \equal\orm\Model {
                 'default'           => 0
             ],
 
+            'reminder_amount' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => 'Amount due because of the reminder.',
+                'help'              => 'Amount calculated using settings "realestate.features.payment_reminder.*".',
+                'default'           => 0.0
+            ],
+
             'status' => [
                 'type'              => 'string',
                 'selection'         => [

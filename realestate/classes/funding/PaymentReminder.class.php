@@ -10,9 +10,11 @@ namespace realestate\funding;
 use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
 use finance\accounting\FiscalYear;
+use fmt\setting\Setting;
 use realestate\ownership\Ownership;
 use realestate\ownership\OwnershipCommunicationPreference;
 use realestate\sale\pay\Funding;
+use sale\price\Price;
 
 class PaymentReminder extends \sale\pay\PaymentReminder {
 
@@ -316,6 +318,24 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 $paymentReminderOwner = $map_payment_reminder_ownership[$ownership_id];
                 $reminder_level = $previousReminderOwnerLines->count() + 1;
 
+                // get the reminder amount using settings "realestate.features.payment_reminder.*"
+                $reminder_amount = 0.0;
+                $reminder_lvl_product_id = Setting::get_value('realestate', 'features', "payment_reminder.level_$reminder_level.product_id");
+                if($reminder_lvl_product_id) {
+                    $price_id = \eQual::run('get', 'realestate_property_Condominium_product-price', [
+                        'id'            => $condo_id,
+                        'product_id'    => $reminder_lvl_product_id
+                    ]);
+
+                    if($price_id) {
+                        $price = Price::id($price_id)
+                            ->read(['price_vat'])
+                            ->first();
+
+                        $reminder_amount += $price['price_vat'];
+                    }
+                }
+
                 PaymentReminderOwnerLine::create([
                     'condo_id'                  => $condo_id,
                     'ownership_id'              => $ownership_id,
@@ -323,6 +343,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                     'payment_reminder_id'       => $id,
                     'payment_reminder_owner_id' => $paymentReminderOwner['id'],
                     'due_amount'                => $funding['remaining_amount'],
+                    'reminder_amount'           => $reminder_amount,
                     'due_date'                  => $now + (15 * 86400),
                     'reminder_level'            => $reminder_level
                 ]);

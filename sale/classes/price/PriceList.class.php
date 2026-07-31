@@ -11,17 +11,18 @@ use equal\orm\Model;
 
 class PriceList extends Model {
 
-    public static function getName() {
+    public static function getName(): string {
         return 'Price list';
     }
 
-    public static function getDescription() {
+    public static function getDescription(): string {
         return 'A price list allows to easily manage prices, to create a period of validity for them.'
             .' Prices of active lists will be proposed to the users.';
     }
 
-    public static function getColumns() {
+    public static function getColumns(): array {
         return [
+
             'name' => [
                 'type'              => 'string',
                 'description'       => "Short label to ease identification of the list.",
@@ -33,10 +34,18 @@ class PriceList extends Model {
                 'description'       => "Description of the list."
             ],
 
+            'organization_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'identity\Organisation',
+                'description'       => "The organization the price list relates to.",
+                'help'              => "Relates to the specific organization the price applies to.",
+                'default'           => 1
+            ],
+
             'condo_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\Condominium',
-                'description'       => "The condominium the tenancy relates to.",
+                'description'       => "The condominium the price list relates to.",
                 'help'              => "If set, relates to the specific condominium the price applies to."
             ],
 
@@ -57,10 +66,10 @@ class PriceList extends Model {
                 'result_type'       => 'integer',
                 'function'          => 'calcDuration',
                 'store'             => true,
-                'description'       => "Pricelist validity duration, in days."
+                'description'       => "Price list validity duration, in days."
             ],
 
-            // #memo - once published, a pricelist shouldn't be editable
+            // #memo - once published, a price list shouldn't be editable
             'status' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -79,18 +88,16 @@ class PriceList extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'boolean',
                 'function'          => 'calcIsActive',
-                'description'       => "Is the pricelist currently applicable? ",
+                'description'       => "Is the price list currently applicable? ",
                 'help'              => "When this flag is set to true, it means the list is eligible for future bookings. i.e. with a 'date_to' in the future and 'published'.",
                 'store'             => true,
                 'readonly'          => true
             ],
 
-            // #todo - make this field persistent
             'prices_count' => [
                 'type'              => 'computed',
                 'result_type'       => 'integer',
                 'function'          => 'calcPricesCount',
-                // 'store'             => true,
                 'description'       => "Number of prices defined in list."
             ],
 
@@ -110,34 +117,45 @@ class PriceList extends Model {
         ];
     }
 
-    public static function calcDuration($self) {
+    public function getUnique(): array {
+        return [
+            ['condo_id', 'date_from', 'date_to']
+        ];
+    }
+
+    public static function calcDuration($self): array {
         $result = [];
         $self->read(['date_from', 'date_to']);
         foreach($self as $id => $list) {
             $result[$id] = round( ($list['date_to'] - $list['date_from']) / (60 * 60 * 24));
         }
+
         return $result;
     }
 
-    public static function calcIsActive($self) {
+    public static function calcIsActive($self): array {
         $result = [];
         $self->read(['prices_ids', 'date_from', 'date_to', 'status']);
         $now = time();
         foreach($self as $id => $list) {
-            $result[$id] = boolval( $list['date_from'] <= $now && $list['date_to'] >= $now && $list['status'] == 'published' );
-            Price::ids($list['prices_ids'])->update(['is_active' => null]);
+            $is_active = $list['date_from'] <= $now && $list['date_to'] >= $now && $list['status'] == 'published';
+
+            Price::ids($list['prices_ids'])
+                ->update(['is_active' => $is_active]);
+
+            $result[$id] = $is_active;
         }
+
         return $result;
     }
 
-
-    public static function calcPricesCount($self) {
+    public static function calcPricesCount($self): array {
         $result = [];
         $self->read(['prices_ids']);
         foreach($self as $id => $list) {
             $result[$id] = count($list['prices_ids']);
         }
+
         return $result;
     }
-
 }

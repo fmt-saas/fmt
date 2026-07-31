@@ -1,9 +1,6 @@
 {
     "name": "Category",
     "description": "Categories are not related to Families and allow a different way of grouping Products.",
-    "access": {
-        "groups": ["pos.default.users", "sale.default.users"]
-     },
     "layout": {
         "groups": [
             {

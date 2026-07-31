@@ -11,15 +11,15 @@ use equal\orm\Model;
 
 class Family extends Model {
 
-	public static function getName() {
+	public static function getName(): string {
         return "Product Family";
     }
 
-    public static function getDescription() {
-        return 'A Product Family is a group of goods produced under the same brand. Families support hierarchy.';
+    public static function getDescription(): string {
+        return "A Product Family is a group of goods produced under the same brand. Families support hierarchy.";
     }
 
-    public static function getColumns() {
+    public static function getColumns(): array {
         return [
 
             'name' => [
@@ -35,7 +35,7 @@ class Family extends Model {
                 'type'              => 'one2many', 
                 'foreign_object'    => 'sale\catalog\Family', 
                 'foreign_field'     => 'parent_id',
-                'description'       => 'Product families that belongs to current family, if any.'
+                'description'       => "Product families that belongs to current family, if any."
             ],
 
             'parent_id' => [
@@ -49,7 +49,7 @@ class Family extends Model {
             'path' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
-                'description'       => 'Full path of the family with ancestors.',
+                'description'       => "Full path of the family with ancestors.",
                 'store'             => true,
                 'function'          => 'calcPath',
                 'dependents'        => ['children_ids' => ['path']]
@@ -75,7 +75,7 @@ class Family extends Model {
         return $result;
     }
 
-    public static function addParentPath($path, $parent_id = null) {
+    public static function addParentPath($path, $parent_id = null): string {
         if(is_null($parent_id)) {
             return $path;
         }
@@ -90,14 +90,14 @@ class Family extends Model {
         );
     }
 
-    public static function canupdate($self, $values) {
+    public static function canupdate($self, $values): array {
         if(isset($values['parent_id'])) {
             $value_parent_ids = self::getParentIds($values['parent_id']);
 
             $self->read(['parent_id']);
             foreach($self as $id => $family) {
                 if($values['parent_id'] === $id || in_array($id, $value_parent_ids)) {
-                    return ['parent_id' => ['invalid' => 'A family cannot be parent of itself.']];
+                    return ['parent_id' => ['invalid' => "A family cannot be parent of itself."]];
                 }
             }
         }
@@ -109,7 +109,7 @@ class Family extends Model {
         return parent::canupdate($self, $values);
     }
 
-    public static function getParentIds($id, $ids = []) {
+    public static function getParentIds($id, $ids = []): array {
         $family = self::id($id)
             ->read(['parent_id'])
             ->first();

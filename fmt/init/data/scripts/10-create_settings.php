@@ -60,3 +60,11 @@ Setting::assert_value('realestate', 'features', 'reminder_penalty.fixed_fee', 0.
 Setting::assert_value('realestate', 'features', 'reminder_penalty.percentage_fee', 0.0);
 Setting::assert_value('realestate', 'features', 'reminder_penalty.interest_rate_monthly', 0.0);
 // Setting::assert_value('realestate', 'features', 'reminder_penalty.accounting_account_id', true);
+
+
+// Plan de rappels
+Setting::assert_value('realestate', 'features', 'payment_reminder.count', 4);
+Setting::assert_value('realestate', 'features', 'payment_reminder.level_1.product_id');
+Setting::assert_value('realestate', 'features', 'payment_reminder.level_2.product_id');
+Setting::assert_value('realestate', 'features', 'payment_reminder.level_3.product_id');
+Setting::assert_value('realestate', 'features', 'payment_reminder.level_4.product_id');
