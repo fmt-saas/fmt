@@ -89,22 +89,26 @@
                                             {
                                                 "type": "field",
                                                 "value": "imap_server",
-                                                "width": "75%"
+                                                "width": "75%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "imap_port",
-                                                "width": "25%"
+                                                "width": "25%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "smtp_server",
-                                                "width": "75%"
+                                                "width": "75%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "smtp_port",
-                                                "width": "25%"
+                                                "width": "25%",
+                                                "readonly": true
                                             }
                                         ]
                                     },
@@ -114,22 +118,26 @@
                                             {
                                                 "type": "field",
                                                 "value": "login",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "password",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "access_token",
-                                                "width": "100%"
+                                                "value": "access0_token",
+                                                "width": "100%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "refresh_token",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "readonly": true
                                             }
                                         ]
                                     }

@@ -146,14 +146,23 @@ do {
             ->first();
 
         // handle attachments
-        $attUrl = "https://graph.microsoft.com/v1.0/me/messages/{$message_id}/attachments";
+        $encoded_message_id = rawurlencode($message_id);
+        $attUrl = "https://graph.microsoft.com/v1.0/me/messages/{$encoded_message_id}/attachments";
 
         $attReq = new HttpRequest("GET $attUrl");
         $attRes = $attReq
             ->header("Authorization", "Bearer " . $mailbox['access_token'])
             ->send();
 
-        $attachments = $attRes->body()['value'] ?? [];
+        $attData = $attRes->body();
+        $attStatus = $attRes->getStatusCode();
+
+        if($attStatus < 200 || $attStatus > 299) {
+            trigger_error("APP::Graph API attachments error: " . json_encode($attData), EQ_REPORT_ERROR);
+            throw new Exception("graph_api_attachments_error", EQ_ERROR_INVALID_PARAM);
+        }
+
+        $attachments = $attData['value'] ?? [];
 
         // #todo - en cas d'absence de document, reponse automatique pour dire donnant le cadre dans lequel ce mail sera traite (pas lu, uniq. piece jointe) -> si info importante : envoyer sur autre adresse
 

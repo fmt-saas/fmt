@@ -20,6 +20,7 @@
             "label": "Settings",
             "description": "",
             "icon": "settings",
+            "visible": ["admins", "in", "user.groups"],
             "context": {
                 "entity": "communication\\email\\Mailbox",
                 "view": "form.config",
