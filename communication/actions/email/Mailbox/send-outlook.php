@@ -421,7 +421,7 @@ try {
                 [
                     'Content-Type' => 'application/json'
                 ],
-                [201]
+                [200, 201]
             );
 
             continue;
@@ -446,7 +446,7 @@ try {
             [
                 'Content-Type' => 'application/json'
             ],
-            [201]
+            [200, 201]
         );
 
         $session = $session_response->body();
@@ -499,7 +499,6 @@ try {
                 [
                     // Intermediate chunk accepted.
                     202,
-
                     // Final chunk accepted.
                     200,
                     201
