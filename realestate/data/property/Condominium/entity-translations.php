@@ -53,7 +53,7 @@ if(isset($params['field'])) {
     if(!isset($schema[$params['field']])) {
         throw new Exception("unknown_field", EQ_ERROR_INVALID_PARAM);
     }
-    if(!$schema[$params['field']]['multilang']) {
+    if(!isset($schema[$params['field']]['multilang']) || !$schema[$params['field']]['multilang']) {
         throw new Exception("not_multilang_field", EQ_ERROR_INVALID_PARAM);
     }
 }
