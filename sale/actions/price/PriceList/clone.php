@@ -85,10 +85,6 @@ else {
     $condo = $price_list['condo_id'];
 }
 
-if($params['indexation_rate'] === 0.0) {
-    throw new Exception("invalid_indexation_rate", EQ_ERROR_INVALID_PARAM);
-}
-
 
 /*
     Check that the wanted price list does not already exist

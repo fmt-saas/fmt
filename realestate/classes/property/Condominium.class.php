@@ -950,8 +950,7 @@ class Condominium extends Identity {
                 \eQual::run('do', 'sale_price_PriceList_clone', [
                     'id'                => $default_price_list['id'],
                     'condo_id'          => $condominium['id'],
-                    'target_year'       => $year,
-                    'indexation_rate'   => 0.0
+                    'target_year'       => $year
                 ]);
             }
             else {
