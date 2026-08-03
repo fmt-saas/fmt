@@ -8,7 +8,7 @@
 use core\Translation;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Returns a given object translations for a specific condominium.",
+    'description'   => "Returns a given object translations depending on the linked condominium languages configurations.",
     'params' => [
         'id' => [
             'type'              => 'integer',
@@ -38,7 +38,8 @@ use core\Translation;
 ]);
 
 /**
- * @var \equal\php\Context  $context
+ * @var \equal\php\Context          $context
+ * @var \equal\orm\ObjectManager    $orm
  */
 ['context' => $context, 'orm' => $orm] = $providers;
 
@@ -93,16 +94,19 @@ foreach($multilang_fields as $field) {
     $field_result = [];
     foreach($object['condo_id']['condo_langs_ids'] as $condo_lang) {
         if($condo_lang['code'] === constant('DEFAULT_LANG')) {
+            // handle default language (values from the object)
             $field_result[constant('DEFAULT_LANG')] = [
                 'value'             => $object[$field],
                 'possible_values'   => [],
             ];
         }
         else {
+            // handle additional languages (values from translations objects)
             $translation_value = null;
             foreach($translations as $translation) {
                 if($translation['language'] === $condo_lang['code'] && $translation['object_field'] === $field) {
                     $translation_value = $translation['value'];
+                    break;
                 }
             }
 
