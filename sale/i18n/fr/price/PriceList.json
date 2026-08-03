@@ -72,6 +72,9 @@
             "actions": {
                 "action.clone": {
                     "label": "Dupliquer"
+                },
+                "action.index-prices": {
+                    "label": "Indexer prix"
                 }
             },
             "layout": {

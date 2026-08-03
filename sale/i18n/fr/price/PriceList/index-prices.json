@@ -1,0 +1,19 @@
+{
+    "description": "Indexer les prix de la liste de prix.",
+    "model": {
+        "id": {
+            "label": "Liste de prix",
+            "description": "La liste de prix dont les prix doivent êtres indexés.",
+            "help": ""
+        },
+        "indexation_rate": {
+            "label": "Indexation prix",
+            "description": "Le taux d'indexation pour augmenter les prix de la liste.",
+            "help": "Si le taux d'indexation donné est de 2,5 %, alors un prix de 10,00 € devient : 10,00 × 1,025 = 10,25 €."
+        }
+    },
+    "view": {
+    },
+    "error": {
+    }
+}

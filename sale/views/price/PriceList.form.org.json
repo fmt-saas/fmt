@@ -9,6 +9,14 @@
             "description": "Clone the price list, can be used to create the following year's list.",
             "controller": "sale_price_PriceList_clone",
             "confirm": true
+        },
+        {
+            "id": "action.index-prices",
+            "label": "Index prices",
+            "icon": "",
+            "description": "Index the prices of the list using a indexation value.",
+            "controller": "sale_price_PriceList_index-prices",
+            "confirm": true
         }
     ],
     "layout": {

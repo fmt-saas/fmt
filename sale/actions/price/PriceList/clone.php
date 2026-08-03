@@ -67,7 +67,7 @@ $price_list = PriceList::id($params['id'])
     ->first();
 
 if(!$price_list) {
-    throw new Exception("unknown_price_list", EQ_ERROR_UNKNOWN);
+    throw new Exception("unknown_price_list", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 $price_list_year = intval(date('Y', $price_list['date_from']));
@@ -83,6 +83,10 @@ if(isset($params['condo_id'])) {
 }
 else {
     $condo = $price_list['condo_id'];
+}
+
+if($params['indexation_rate'] === 0.0) {
+    throw new Exception("invalid_indexation_rate", EQ_ERROR_INVALID_PARAM);
 }
 
 
