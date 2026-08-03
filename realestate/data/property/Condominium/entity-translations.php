@@ -60,13 +60,13 @@ if(isset($params['field'])) {
 
 $multilang_fields = [];
 foreach($schema as $field => $conf) {
-    if($conf['multilang']) {
+    if($conf['multilang'] ?? false) {
         $multilang_fields[] = $field;
     }
 }
 
 $object = $entity::id($params['id'])
-    ->read(array_merge(['condo_id' => ['condo_langs_ids' => ['code']]], $multilang_fields))
+    ->read(array_merge(['condo_id' => ['condo_langs_ids' => ['code', 'is_primary']]], $multilang_fields))
     ->first(true);
 
 if(!$object) {
@@ -97,7 +97,6 @@ foreach($multilang_fields as $field) {
             // handle default language (values from the object)
             $field_result[constant('DEFAULT_LANG')] = [
                 'value'             => $object[$field],
-                'is_primary'        => true,
                 'possible_values'   => [],
             ];
         }
@@ -113,7 +112,6 @@ foreach($multilang_fields as $field) {
 
             $field_result[$condo_lang['code']] = [
                 'value'             => $translation_value,
-                'is_primary'        => false,
                 'possible_values'   => []
             ];
         }
