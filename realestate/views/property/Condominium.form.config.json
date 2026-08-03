@@ -56,6 +56,17 @@
                 "view": "list.default",
                 "domain": [["condo_id", "=", "object.id"]]
             }
+        },
+        {
+            "id": "item.prices",
+            "label": "Catalog & Prices",
+            "description": "Prices.",
+            "icon": "attach_money",
+            "context": {
+                "entity": "sale\\price\\PriceList",
+                "view": "list.condo",
+                "domain": [["condo_id", "=", "object.id"]]
+            }
         }
     ],
     "layout": {
