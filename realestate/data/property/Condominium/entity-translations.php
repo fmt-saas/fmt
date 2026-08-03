@@ -97,6 +97,7 @@ foreach($multilang_fields as $field) {
             // handle default language (values from the object)
             $field_result[constant('DEFAULT_LANG')] = [
                 'value'             => $object[$field],
+                'is_primary'        => true,
                 'possible_values'   => [],
             ];
         }
@@ -112,6 +113,7 @@ foreach($multilang_fields as $field) {
 
             $field_result[$condo_lang['code']] = [
                 'value'             => $translation_value,
+                'is_primary'        => false,
                 'possible_values'   => []
             ];
         }
