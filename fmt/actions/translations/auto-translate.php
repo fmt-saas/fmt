@@ -6,7 +6,7 @@
 */
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Returns a given object currently stored translations depending on the linked condominium languages configuration.",
+    'description'   => "Automatically translates the missing multilang fields of a given object.",
     'params' => [
         'id' => [
             'type'              => 'integer',
@@ -21,12 +21,17 @@
         'field' => [
             'type'              => 'string',
             'description'       => "Optional parameter, the field we want the translations for.",
-            'help'              => "If empty all entity multilang fields returned."
+            'help'              => "If empty all entity multilang fields handled."
         ],
-        'lang' => [
+        'source_lang' => [
             'type'              => 'string',
-            'description'       => "Optional parameter, the language for which we want the translations.",
-            'help'              => "If empty all condominium languages returned."
+            'description'       => "The language from which we want the translations.",
+            'default'           => constant('DEFAULT_LANG')
+        ],
+        'target_lang' => [
+            'type'              => 'string',
+            'description'       => "Optional parameter, the language for which we want the translation.",
+            'help'              => "If empty all condominium languages are handled."
         ]
     ],
     'access'        => [
@@ -66,51 +71,46 @@ if(isset($params['field'])) {
     }
 }
 
-$multilang_fields = [];
-if(!isset($params['field'])) {
-    foreach($schema as $field => $conf) {
-        if($conf['multilang'] ?? false) {
-            $multilang_fields[] = $field;
-        }
-    }
-}
-else {
-    $multilang_fields = [$params['field']];
-}
-
-$object = $entity::id($params['id'])
-    ->read(['condo_id' => ['condo_langs_ids' => ['code']]])
-    ->first(true);
+$object = $entity::id($params['id'])->first();
 
 if(!$object) {
     throw new Exception("unknown_object", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-if(!$object['condo_id']) {
-    throw new Exception("object_not_linked_to_condo", EQ_ERROR_INVALID_PARAM);
+
+/*
+    Get translation suggestions
+*/
+
+$suggestions_params = [
+    'id'            => $params['id'],
+    'entity'        => $params['entity'],
+    'source_lang'   => $params['source_lang']
+];
+if(isset($params['field'])) {
+    $suggestions_params['field'] = $params['field'];
 }
+if(isset($params['target_lang'])) {
+    $suggestions_params['target_lang'] = $params['target_lang'];
+}
+
+$suggestions_data = eQual::run('get', 'fmt_translations_suggestions-google', $suggestions_params);
 
 
 /*
-    Create response
+    Apply translation suggestions
 */
 
-$result = [];
-foreach($object['condo_id']['condo_langs_ids'] as $condo_lang) {
-    if(isset($params['lang']) && $params['lang'] !== $condo_lang['code']) {
+foreach($suggestions_data as $lang => $values) {
+    if($lang === $params['source_lang']) {
+        // should not happen but skip to be sure
         continue;
     }
 
-    $translated_object = $entity::id($params['id'])
-        ->read($multilang_fields, $condo_lang['code'])
-        ->first(true);
-
-    foreach($multilang_fields as $multilang_field) {
-        $result[$condo_lang['code']][$multilang_field] = $translated_object[$multilang_field];
-    }
+    $entity::id($params['id'])->update($values, $lang);
 }
+
 
 $context
     ->httpResponse()
-    ->body($result)
     ->send();

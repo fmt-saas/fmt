@@ -9,7 +9,7 @@ use equal\auth\JWT;
 use equal\http\HttpRequest;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Returns a given object currently stored translations depending on the linked condominium languages configuration.",
+    'description'   => "Returns suggestions for missing translations of a given object.",
     'params' => [
         'id' => [
             'type'              => 'integer',
@@ -29,13 +29,12 @@ use equal\http\HttpRequest;
         'source_lang' => [
             'type'              => 'string',
             'description'       => "The language from which we want the translations.",
-            'help'              => "If empty all condominium languages returned.",
             'default'           => constant('DEFAULT_LANG')
         ],
         'target_lang' => [
             'type'              => 'string',
             'description'       => "Optional parameter, the language for which we want the translation.",
-            'help'              => "If empty all condominium languages handle."
+            'help'              => "If empty all condominium languages are handled."
         ]
     ],
     'access'        => [
@@ -55,6 +54,10 @@ use equal\http\HttpRequest;
  * @var \equal\orm\ObjectManager    $orm
  */
 ['context' => $context, 'orm' => $orm] = $providers;
+
+/**
+ * Methods
+ */
 
 // #todo - create a reusable get ctrl to get google token (see the one for document AI)
 $fetchToken = function($private_key, $client_email) {
@@ -118,6 +121,11 @@ $translate = function($project_id, $token, $contents, $source, $target) {
     return json_decode($response->getBody(true), true);
 };
 
+
+/**
+ * Action
+ */
+
 // #memo - key is expected to be provided as a PEM string, with \n for new lines (as in Google JSON credentials file)
 // #todo - create private key and client for translation API
 $private_key  = str_replace("\\n", "\n", constant('GOOGLE_DOCAI_PRIVATE_KEY'));
@@ -128,6 +136,11 @@ $project_id = constant('GOOGLE_DOCAI_PROJECT_ID');
 
 $data = $fetchToken($private_key, $client_email);
 $token = $data['access_token'];
+
+
+/*
+    Get current values of the multilang fields for all languages
+*/
 
 $current_values_params = [
     'id'        => $params['id'],
@@ -145,6 +158,11 @@ foreach($current_values[$params['source_lang']] as $field => $value) {
         $source_lang_values[$field] = $value;
     }
 }
+
+
+/*
+    Create response
+*/
 
 $result = [];
 foreach($current_values as $lang => $values) {
