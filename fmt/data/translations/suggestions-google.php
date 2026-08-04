@@ -94,7 +94,7 @@ $fetchToken = function($private_key, $client_email) {
     return $response->body();
 };
 
-$translate = function($project_id, $token, $contents, $source, $target, $mime_type = 'text/plain') {
+$translate = function($project_id, $token, $contents, $source, $target) {
     $url = "https://translation.googleapis.com/v3/projects/{$project_id}/locations/global:translateText";
 
     $request = new HttpRequest("POST {$url}");
@@ -104,8 +104,7 @@ $translate = function($project_id, $token, $contents, $source, $target, $mime_ty
         ->body([
             'contents'              => [$contents],
             'sourceLanguageCode'    => $source,
-            'targetLanguageCode'    => $target,
-            'mimeType'              => $mime_type
+            'targetLanguageCode'    => $target
         ]);
 
     $response = $request->send();
