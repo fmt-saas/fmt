@@ -727,6 +727,21 @@
                     ["opening", "attendance_closure", "mandate_validation", "representation_validation", "assembly_validation", "agenda_processing"]
                 ]
             ]
+        },
+        {
+            "id": "route.missing-translations",
+            "label": "Missing translations",
+            "description": "",
+            "icon": "translate",
+            "context": {
+                "entity": "fmt\\translations\\collect-missing",
+                "view": "list.default",
+                "domain": [
+                    ["condo_id", "=", "object.condo_id"],
+                    ["entity", "=", "realestate\\governance\\AssemblyItem"],
+                    ["assembly_id", "=", "object.id"]
+                ]
+            }
         }
     ],
     "layout": {
