@@ -5,10 +5,8 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-use core\Translation;
-
 [$params, $providers] = eQual::announce([
-    'description'   => "Returns a given object translations depending on the linked condominium languages configurations.",
+    'description'   => "Returns a given object translations depending on the linked condominium languages configuration.",
     'params' => [
         'id' => [
             'type'              => 'integer',
@@ -59,14 +57,19 @@ if(isset($params['field'])) {
 }
 
 $multilang_fields = [];
-foreach($schema as $field => $conf) {
-    if($conf['multilang'] ?? false) {
-        $multilang_fields[] = $field;
+if(!isset($params['field'])) {
+    foreach($schema as $field => $conf) {
+        if($conf['multilang'] ?? false) {
+            $multilang_fields[] = $field;
+        }
     }
+}
+else {
+    $multilang_fields = [$params['field']];
 }
 
 $object = $entity::id($params['id'])
-    ->read(array_merge(['condo_id' => ['condo_langs_ids' => ['code', 'is_primary']]], $multilang_fields))
+    ->read(['condo_id' => ['condo_langs_ids' => ['code', 'is_primary']]])
     ->first(true);
 
 if(!$object) {
@@ -78,46 +81,14 @@ if(!$object['condo_id']) {
 }
 
 $result = [];
+foreach($object['condo_id']['condo_langs_ids'] as $condo_lang) {
+    $translated_object = $entity::id($params['id'])
+        ->read($multilang_fields, $condo_lang['code'])
+        ->first(true);
 
-$translations = Translation::search([
-    ['object_class', '=', $params['entity']],
-    ['object_id', '=', $params['id']],
-])
-    ->read(['language', 'object_field', 'value'])
-    ->get(true);
-
-foreach($multilang_fields as $field) {
-    if(!empty($params['field']) && $field !== $params['field']) {
-        continue;
+    foreach($multilang_fields as $multilang_field) {
+        $result[$condo_lang['code']][$multilang_field] = $translated_object[$multilang_field];
     }
-
-    $field_result = [];
-    foreach($object['condo_id']['condo_langs_ids'] as $condo_lang) {
-        if($condo_lang['code'] === constant('DEFAULT_LANG')) {
-            // handle default language (values from the object)
-            $field_result[constant('DEFAULT_LANG')] = [
-                'value'             => $object[$field],
-                'possible_values'   => [],
-            ];
-        }
-        else {
-            // handle additional languages (values from translations objects)
-            $translation_value = null;
-            foreach($translations as $translation) {
-                if($translation['language'] === $condo_lang['code'] && $translation['object_field'] === $field) {
-                    $translation_value = $translation['value'];
-                    break;
-                }
-            }
-
-            $field_result[$condo_lang['code']] = [
-                'value'             => $translation_value,
-                'possible_values'   => []
-            ];
-        }
-    }
-
-    $result[$field] = $field_result;
 }
 
 $context
