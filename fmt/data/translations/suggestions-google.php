@@ -148,7 +148,7 @@ foreach($current_values[$params['source_lang']] as $field => $value) {
 
 $result = [];
 foreach($current_values as $lang => $values) {
-    if($lang === $params['source_lang']) {
+    if($lang === $params['source_lang'] || (isset($params['target_lang']) && $params['target_lang'] !== $lang)) {
         continue;
     }
 
