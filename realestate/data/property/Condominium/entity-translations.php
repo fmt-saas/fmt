@@ -20,7 +20,13 @@
         ],
         'field' => [
             'type'              => 'string',
-            'description'       => "Optional parameter, the field we want the translations for."
+            'description'       => "Optional parameter, the field we want the translations for.",
+            'help'              => "If empty all entity multilang fields returned."
+        ],
+        'lang' => [
+            'type'              => 'string',
+            'description'       => "Optional parameter, the language for which we want the translations.",
+            'help'              => "If empty all condominium languages returned."
         ]
     ],
     'access'        => [
@@ -82,6 +88,10 @@ if(!$object['condo_id']) {
 
 $result = [];
 foreach($object['condo_id']['condo_langs_ids'] as $condo_lang) {
+    if(isset($params['lang']) && $params['lang'] !== $condo_lang['code']) {
+        continue;
+    }
+
     $translated_object = $entity::id($params['id'])
         ->read($multilang_fields, $condo_lang['code'])
         ->first(true);
