@@ -6,11 +6,11 @@
 */
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Returns a given object translations depending on the linked condominium languages configuration.",
+    'description'   => "Returns a given object currently stored translations depending on the linked condominium languages configuration.",
     'params' => [
         'id' => [
             'type'              => 'integer',
-            'description'       => "The id of the concerned object",
+            'description'       => "The id of the concerned object.",
             'required'          => true
         ],
         'entity' => [
@@ -75,7 +75,7 @@ else {
 }
 
 $object = $entity::id($params['id'])
-    ->read(['condo_id' => ['condo_langs_ids' => ['code', 'is_primary']]])
+    ->read(['condo_id' => ['condo_langs_ids' => ['code']]])
     ->first(true);
 
 if(!$object) {
