@@ -138,21 +138,22 @@ class Quota extends Model {
         $self->read(['metric_definition_id' => ['collector']]);
         foreach ($self as $id => $quota) {
             $inspect_res = \eQual::run('get', $quota['metric_definition_id']['collector']);
-            // #memo - each action handler is in charge of setting (or not) the is_reached flag
             self::id($id)->update(['value' => $inspect_res['value']]);
         }
     }
 
     protected static function doCheckThreshold($self): void {
         $self->do('refresh-value');
-        $self->read(['value', 'thresholds_ids' => ['value', 'max_value', 'action']]);
+        $self->read(['value', 'is_reached', 'thresholds_ids' => ['value', 'max_value', 'threshold_type', 'action']]);
         foreach($self as $id => $quota) {
             foreach($quota['thresholds_ids'] as $threshold) {
                 if($quota['value'] >= $threshold['value']) {
-                    self::id($quota['id'])->update(['is_reached' => true]);
-                }
-                if($threshold['max_value'] && $quota['value'] > $threshold['max_value']) {
-                    \eQual::run('do', $threshold['action']);
+                    if($threshold['threshold_type'] === 'blocking' && !$quota['is_reached']) {
+                        self::id($quota['id'])->update(['is_reached' => true]);
+                    }
+                    if(!isset($threshold['max_value']) || $quota['value'] < $threshold['max_value']) {
+                        \eQual::run('do', $threshold['action']);
+                    }
                 }
             }
         }

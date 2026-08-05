@@ -45,12 +45,12 @@
         },
         "value": {
             "label": "Valeur",
-            "description": "Valeur actuel d'utilisation du quota.",
+            "description": "Valeur d'utilisation actuelle du quota.",
             "help": ""
         },
         "display_value": {
             "label": "Valeur",
-            "description": "Valeur d'affichage actuel d'utilisation du quota.",
+            "description": "Valeur d'affichage d'utilisation actuelle du quota.",
             "help": ""
         },
         "is_reached": {

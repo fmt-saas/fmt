@@ -24,7 +24,8 @@ class QuotaThreshold extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'infra\quota\Quota',
                 'description'       => 'The quota that includes the threshold.',
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['quota_type'],
             ],
 
             'quota_type' => [
@@ -37,6 +38,15 @@ class QuotaThreshold extends Model {
                 'relation'          => ['quota_id' => 'quota_type'],
                 'description'       => 'Is the quota based on an instantaneous value or on the accumulated amount over a given period?.',
                 'store'             => true
+            ],
+
+            'threshold_type' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'blocking',
+                    'non_blocking'
+                ],
+                'default'           => 'non_blocking'
             ],
 
             'value' => [
