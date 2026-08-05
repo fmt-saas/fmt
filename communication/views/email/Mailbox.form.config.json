@@ -7,6 +7,7 @@
             "label": "OAuth connect",
             "icon": "login",
             "description": "Provide authentication info for connection.",
+            "visible": ["auth_type", "=", "oauth"],
             "component": {
                 "name": "communicationAddMailbox",
                 "data": {

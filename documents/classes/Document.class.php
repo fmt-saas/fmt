@@ -1199,9 +1199,9 @@ class Document extends Model {
         }
 
         $quota = Quota::search([
-            ['code', '=', 'edms.document.count'],
-            ['is_active', '=', true]
-        ])
+                ['code', '=', 'edms.document.count'],
+                ['is_active', '=', true]
+            ])
             ->do('check-thresholds')
             ->read(['is_reached'])
             ->first();
@@ -1211,9 +1211,9 @@ class Document extends Model {
         }
 
         $quota = Quota::search([
-            ['code', '=', 'edms.storage.size'],
-            ['is_active', '=', true]
-        ])
+                ['code', '=', 'edms.storage.size'],
+                ['is_active', '=', true]
+            ])
             ->do('check-thresholds')
             ->read(['is_reached'])
             ->first();

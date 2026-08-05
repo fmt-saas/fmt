@@ -436,13 +436,14 @@ foreach($map_accounts_ids as $account_id => $_) {
 
     $account = $accounts[$account_id]->toArray();
 
+    /*
     if($params['suppliers_only'] && !isset($account['suppliership_id'])) {
         continue;
     }
-
     elseif($params['ownerships_only'] && !isset($account['ownership_id'])) {
         continue;
     }
+    */
 
     // 1. Opening balance
     $opening_balance = $map_opening_balances[$account_id] ?? 0;

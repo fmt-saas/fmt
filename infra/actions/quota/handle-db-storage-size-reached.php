@@ -32,7 +32,7 @@ if(!$quota) {
     throw new Exception('unknown_quota_usage', EQ_ERROR_INVALID_CONFIG);
 }
 
-Quota::id($quota['id'])->update(['is_reached' => true]);
+
 
 $context
     ->httpResponse()

@@ -50,18 +50,13 @@
             },
             {
                 "type": "field",
-                "value": "imap_server",
-                "width": "20%"
-            },
-            {
-                "type": "field",
-                "value": "imap_port",
-                "width": "15%"
-            },
-            {
-                "type": "field",
                 "value": "auth_type",
                 "width": "15%"
+            },
+            {
+                "type": "field",
+                "value": "auth_provider",
+                "width": "20%"
             },
             {
                 "type": "field",

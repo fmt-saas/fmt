@@ -126,6 +126,11 @@
             "label": "Ligne d'extrait",
             "description": "Ligne associée sur l'extrait bancaire.",
             "help": ""
+        },
+        "alert": {
+            "label": "Suivi",
+            "description": "Niveau d'alerte sur le suivi du processus.",
+            "help": ""
         }
     },
     "view": {

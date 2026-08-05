@@ -146,9 +146,12 @@ class Quota extends Model {
     protected static function doCheckThreshold($self): void {
         $self->do('refresh-value');
         $self->read(['value', 'thresholds_ids' => ['value', 'max_value', 'action']]);
-        foreach($self as $quota) {
+        foreach($self as $id => $quota) {
             foreach($quota['thresholds_ids'] as $threshold) {
-                if($quota['value'] >= $threshold['value'] && (!$threshold['max_value'] || $quota['value'] < $threshold['max_value'])) {
+                if($quota['value'] >= $threshold['value']) {
+                    self::id($quota['id'])->update(['is_reached' => true]);
+                }
+                if($threshold['max_value'] && $quota['value'] > $threshold['max_value']) {
                     \eQual::run('do', $threshold['action']);
                 }
             }

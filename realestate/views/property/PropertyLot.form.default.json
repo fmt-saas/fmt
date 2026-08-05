@@ -148,8 +148,8 @@
                                                 "widget": {
                                                     "header": {
                                                         "actions": {
-                                                            "ACTION.SELECT": true,
-                                                            "ACTION.CREATE": false
+                                                            "ACTION.SELECT": false,
+                                                            "ACTION.CREATE": true
                                                         }
                                                     }
                                                 }

@@ -77,7 +77,9 @@ $request
         'rawDocument' => [
             'content'  => base64_encode($document['data']),
             'mimeType' => $document['content_type']
-        ]
+        ],
+        // #todo -investigate - should reduce the returned payload (not tested)
+        // 'fieldMask' => 'entities'
     ]);
 
 $response = $request->send();
