@@ -16,6 +16,17 @@ use realestate\property\Condominium;
             'description'       => "Criteria that results have to match (serie of conjunctions)",
             'default'           => []
         ],
+        'language' => [
+            'type'              => 'string',
+            'description'       => "Filter the target language to display.",
+            'selection'         => [
+                'all',
+                'en',
+                'fr',
+                'nl'
+            ],
+            'default'           => 'all'
+        ],
 
         // Fields
         'entity' => [
@@ -121,6 +132,9 @@ foreach($domain->getClauses() as $clause) {
 
     foreach($condo['condo_langs_ids'] as $condo_lang) {
         if($condo_lang['code'] === constant('DEFAULT_LANG')) {
+            continue;
+        }
+        if($params['language'] !== 'all' && $params['language'] !== $condo_lang['code']) {
             continue;
         }
 
