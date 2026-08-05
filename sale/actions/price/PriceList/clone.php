@@ -67,7 +67,7 @@ $price_list = PriceList::id($params['id'])
     ->first();
 
 if(!$price_list) {
-    throw new Exception("unknown_price_list", EQ_ERROR_UNKNOWN);
+    throw new Exception("unknown_price_list", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 $price_list_year = intval(date('Y', $price_list['date_from']));

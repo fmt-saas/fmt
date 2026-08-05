@@ -310,6 +310,10 @@
                 "item.bank_accounts": {
                     "label": "Comptes bancaires",
                     "description": ""
+                },
+                "item.prices": {
+                    "label": "Catalogue & Prix",
+                    "description": ""
                 }
             }
         },
@@ -371,10 +375,6 @@
                 },
                 "item.governance": {
                     "label": "Assemblées",
-                    "description": ""
-                },
-                "item.prices": {
-                    "label": "Prix",
                     "description": ""
                 },
                 "item.config": {
