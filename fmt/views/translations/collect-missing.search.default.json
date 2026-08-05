@@ -1,0 +1,31 @@
+{
+    "name": "Missing translations search",
+    "description": "Advanced collector for missing translations.",
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "language",
+                                                "label": "Target language",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -67,6 +67,15 @@
                 ["assembly_step", "=", "agenda_processing"],
                 ["status", "in", ["adjourned", "closed"]]
             ]
+        },
+        {
+            "id": "action.auto_translate",
+            "label": "Auto-translate",
+            "description": "Auto-translate multilang fields.",
+            "controller": "fmt_translations_auto-translate",
+            "params": {
+                "entity": "realestate\\governance\\AssemblyItem"
+            }
         }
     ],
     "routes": [
