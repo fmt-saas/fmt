@@ -105,7 +105,7 @@ $translate = function($project_id, $token, $contents, $source, $target) {
         ->header("Authorization", "Bearer {$token}")
         ->header("Content-Type", "application/json")
         ->body([
-            'contents'              => [$contents],
+            'contents'              => $contents,
             'sourceLanguageCode'    => $source,
             'targetLanguageCode'    => $target
         ]);
@@ -150,14 +150,11 @@ if(isset($params['field'])) {
     $current_values_params['field'] = $params['field'];
 }
 
-$current_values = eQual::run('get', 'fmt_translations_current-values', $current_values_params);
+$map_langs_current_values = eQual::run('get', 'fmt_translations_current-values', $current_values_params);
 
-$source_lang_values = [];
-foreach($current_values[$params['source_lang']] as $field => $value) {
-    if(!empty($value)) {
-        $source_lang_values[$field] = $value;
-    }
-}
+// separate source current values from other languages
+$source_lang_values = $map_langs_current_values[$params['source_lang']];
+unset($map_langs_current_values[$params['source_lang']]);
 
 
 /*
@@ -165,15 +162,17 @@ foreach($current_values[$params['source_lang']] as $field => $value) {
 */
 
 $result = [];
-foreach($current_values as $lang => $values) {
-    if($lang === $params['source_lang'] || (isset($params['target_lang']) && $params['target_lang'] !== $lang)) {
+foreach($map_langs_current_values as $lang => $current_values) {
+    if(isset($params['target_lang']) && $params['target_lang'] !== $lang) {
         continue;
     }
 
     $missing_values = [];
-    foreach($source_lang_values as $field => $value) {
-        if(empty($values[$field]) && preg_match("/[a-z]/i", $value)) {
-            $missing_values[$field] = $value;
+    foreach($source_lang_values as $field => $source_value) {
+        $stripped_current_value = strip_tags($current_values[$field]);
+
+        if(empty($stripped_current_value) && preg_match("/[a-z]/i", $source_value)) {
+            $missing_values[$field] = $source_value;
         }
     }
 
