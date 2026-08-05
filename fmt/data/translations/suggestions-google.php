@@ -172,7 +172,7 @@ foreach($current_values as $lang => $values) {
 
     $missing_values = [];
     foreach($source_lang_values as $field => $value) {
-        if(empty($values[$field])) {
+        if(empty($values[$field]) && preg_match("/[a-z]/i", $value)) {
             $missing_values[$field] = $value;
         }
     }

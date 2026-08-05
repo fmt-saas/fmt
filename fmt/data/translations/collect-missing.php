@@ -136,7 +136,7 @@ foreach($domain->getClauses() as $clause) {
                     // skip value already translated
                     continue;
                 }
-                if(empty($base_object[$multilang_field])) {
+                if(empty($base_object[$multilang_field]) || !preg_match("/[a-z]/i", $base_object[$multilang_field])) {
                     // skip no value to translate
                     continue;
                 }
