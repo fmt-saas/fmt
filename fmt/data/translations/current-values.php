@@ -21,7 +21,7 @@
         'field' => [
             'type'              => 'string',
             'description'       => "Optional parameter, the field we want the translations for.",
-            'help'              => "If empty all entity multilang fields returned."
+            'help'              => "If empty all entity's multilang fields are returned."
         ],
         'lang' => [
             'type'              => 'string',
@@ -51,36 +51,25 @@
     Check given parameters
 */
 
+$translations_params = [
+    'id'        => $params['id'],
+    'entity'    => $params['entity']
+];
+
+if(isset($params['field']) && $params['field'] !== '') {
+    $translations_params['field'] = $params['field'];
+}
+
+$translations = eQual::run('get', 'core_model_translations', $translations_params);
+
 $entity = $orm->getModel($params['entity']);
 if(!$entity) {
     throw new Exception("unknown_entity", EQ_ERROR_INVALID_PARAM);
 }
 
-$schema = $entity->getSchema();
-if(isset($params['field'])) {
-    if(!isset($schema[$params['field']])) {
-        throw new Exception("unknown_field", EQ_ERROR_INVALID_PARAM);
-    }
-    if(!isset($schema[$params['field']]['multilang']) || !$schema[$params['field']]['multilang']) {
-        throw new Exception("not_multilang_field", EQ_ERROR_INVALID_PARAM);
-    }
-}
-
-$multilang_fields = [];
-if(!isset($params['field'])) {
-    foreach($schema as $field => $conf) {
-        if($conf['multilang'] ?? false) {
-            $multilang_fields[] = $field;
-        }
-    }
-}
-else {
-    $multilang_fields = [$params['field']];
-}
-
 $object = $entity::id($params['id'])
     ->read(['condo_id' => ['condo_langs_ids' => ['code']]])
-    ->first(true);
+    ->first();
 
 if(!$object) {
     throw new Exception("unknown_object", EQ_ERROR_UNKNOWN_OBJECT);
@@ -96,17 +85,15 @@ if(!$object['condo_id']) {
 */
 
 $result = [];
-foreach($object['condo_id']['condo_langs_ids'] as $condo_lang) {
-    if(isset($params['lang']) && $params['lang'] !== $condo_lang['code']) {
+foreach($object['condo_id']['condo_langs_ids'] as $condoLang) {
+    $lang = $condoLang['code'];
+
+    if(isset($params['lang']) && $params['lang'] !== '' && $params['lang'] !== $lang) {
         continue;
     }
 
-    $translated_object = $entity::id($params['id'])
-        ->read($multilang_fields, $condo_lang['code'])
-        ->first(true);
-
-    foreach($multilang_fields as $multilang_field) {
-        $result[$condo_lang['code']][$multilang_field] = $translated_object[$multilang_field];
+    if(isset($translations[$lang])) {
+        $result[$lang] = $translations[$lang];
     }
 }
 
