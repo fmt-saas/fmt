@@ -94,7 +94,7 @@ if(isset($params['target_lang'])) {
     $suggestions_params['target_lang'] = $params['target_lang'];
 }
 
-$suggestions_data = eQual::run('get', 'fmt_translations_suggestions-google', $suggestions_params);
+$suggestions_data = eQual::run('get', 'fmt_translations_suggestions', $suggestions_params);
 
 
 /*
