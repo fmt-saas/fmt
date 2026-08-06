@@ -12,6 +12,7 @@ use equal\http\HttpRequest;
     'params'        => [
         'token' => [
             'type'              => 'string',
+            'usage'             => 'text/plain:2048',
             'description'       => "Google API access token.",
             'required'          => true
         ],
