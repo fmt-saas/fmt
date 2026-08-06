@@ -6,6 +6,7 @@
 */
 
 use documents\Document;
+use finance\accounting\AccountChart;
 use finance\accounting\FiscalYear;
 
 [$params, $providers] = eQual::announce([
@@ -30,6 +31,76 @@ use finance\accounting\FiscalYear;
  * @var \equal\php\Context  $context
  */
 ['context' => $context] = $providers;
+
+$getBalanceSheetDoc = function($period_id) {
+    $balance_sheet = Document::search([
+        ['document_type_code', '=', 'balance_sheet'],
+        ['expense_statement_id.fiscal_period_id', '=', $period_id]
+    ])
+        ->read(['name', 'extension', 'hash'])
+        ->first(true);
+
+    if(!$balance_sheet) {
+        throw new Exception('balance_sheet_doc_missing', EQ_ERROR_UNKNOWN_OBJECT);
+    }
+
+    return [
+        'name'      => $balance_sheet['name'],
+        'extension' => $balance_sheet['extension'],
+        'data'      => eQual::run('get', 'documents_document', ['id' => $balance_sheet['hash']])
+    ];
+};
+
+$getAccountingChartDoc = function($condo_id) {
+    $accountingChart = AccountChart::search([
+        ['condo_id', '=', $condo_id],
+        ['status', '=', 'active']
+    ])
+        ->read([
+            'accounts_ids' => [
+                'code',
+                'parent_account_id' => ['code'],
+                'description',
+                'account_class',
+                'account_type',
+                'account_nature'
+            ]
+        ])
+        ->first();
+
+    if(!$accountingChart) {
+        throw new Exception('accounting_chart_missing', EQ_ERROR_UNKNOWN_OBJECT);
+    }
+
+    $header = ['Code', 'Parent', 'Description', 'Classe', 'Type', 'Nature'];
+
+    $tmp_file = sys_get_temp_dir()
+        . DIRECTORY_SEPARATOR
+        . uniqid('csv_', true)
+        . '.csv';
+
+    $fp = fopen($tmp_file, 'w');
+    fputcsv($fp, $header, ',', '"', '');
+    foreach($accountingChart['accounts_ids'] as $fields) {
+        $line_data = [
+            'code'              => $fields['code'],
+            'parent'            => $fields['parent_account_id']['code'],
+            'description'       => $fields['description'],
+            'account_class'     => $fields['account_class'],
+            'account_type'      => $fields['account_type'],
+            'account_nature'    => $fields['account_nature']
+        ];
+
+        fputcsv($fp, $line_data, ',', '"', '');
+    }
+    fclose($fp);
+
+    return [
+        'name'      => 'plan_comptable',
+        'extension' => 'csv',
+        'data'      => file_get_contents($tmp_file)
+    ];
+};
 
 $createZipArchive = function($map_documents) {
     $tmp_file = sys_get_temp_dir()
@@ -89,23 +160,12 @@ $map_documents = [
     '04_Coproprietaires' => []
 ];
 
-foreach($fiscalYear['fiscal_periods_ids'] as $period) {
-    $balance_sheet = Document::search([
-        ['document_type_code', '=', 'balance_sheet'],
-        ['expense_statement_id.fiscal_period_id', '=', $period['id']]
-    ])
-        ->read(['name', 'extension', 'hash'])
-        ->first(true);
+$map_documents['01_Etat_de_cloture'][] = $getAccountingChartDoc($fiscalYear['condo_id']);
 
-    if(!$balance_sheet) {
-        throw new Exception('balance_sheet_doc_missing', EQ_ERROR_UNKNOWN_OBJECT);
-    }
-
-    $map_documents['01_Etat_de_cloture'][] = [
-        'name'      => $balance_sheet['name'],
-        'extension' => $balance_sheet['extension'],
-        'data'      => eQual::run('get', 'documents_document', ['id' => $balance_sheet['hash']])
-    ];
+foreach($fiscalYear['fiscal_periods_ids'] as $id => $period) {
+    $map_documents['01_Etat_de_cloture'][] = $getBalanceSheetDoc($id);
+    // #todo - handle compte_de_resultats.pdf when the document generation is handled
+    // #todo - handle balance_de_cloture.pdf when the document generation is handled
 }
 
 $document = Document::create([
