@@ -397,6 +397,14 @@ class Document extends Model {
                 'visible'           => ['document_type_code', '=', 'misc'],
             ],
 
+            'fiscal_year_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => 'Fiscal year to which the document relates, if any.',
+                'readonly'          => true,
+                'visible'           => ['document_type_code', '=', 'general_balance']
+            ],
+
             'ownership_transfer_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\property\OwnershipTransfer',

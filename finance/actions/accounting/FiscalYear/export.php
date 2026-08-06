@@ -102,6 +102,44 @@ $getAccountingChartDoc = function($condo_id) {
     ];
 };
 
+$getGeneralBalance = function($fiscal_year_id) {
+    $general_balance = Document::search([
+        ['document_type_code', '=', 'general_balance'],
+        ['fiscal_year_id', '=', $fiscal_year_id]
+    ])
+        ->read(['name', 'extension', 'hash'])
+        ->first(true);
+
+    if(!$general_balance) {
+        throw new Exception('general_balance_doc_missing', EQ_ERROR_UNKNOWN_OBJECT);
+    }
+
+    return [
+        'name'      => $general_balance['name'],
+        'extension' => $general_balance['extension'],
+        'data'      => eQual::run('get', 'documents_document', ['id' => $general_balance['hash']])
+    ];
+};
+
+$getLedgerBalance = function($fiscal_year_id) {
+    $general_ledger = Document::search([
+        ['document_type_code', '=', 'general_ledger'],
+        ['fiscal_year_id', '=', $fiscal_year_id]
+    ])
+        ->read(['name', 'extension', 'hash'])
+        ->first(true);
+
+    if(!$general_ledger) {
+        throw new Exception('general_ledger_doc_missing', EQ_ERROR_UNKNOWN_OBJECT);
+    }
+
+    return [
+        'name'      => $general_ledger['name'],
+        'extension' => $general_ledger['extension'],
+        'data'      => eQual::run('get', 'documents_document', ['id' => $general_ledger['hash']])
+    ];
+};
+
 $createZipArchive = function($map_documents) {
     $tmp_file = sys_get_temp_dir()
         . DIRECTORY_SEPARATOR
@@ -160,7 +198,19 @@ $map_documents = [
     '04_Coproprietaires' => []
 ];
 
+
+/*
+    Fiscal year
+*/
+
 $map_documents['01_Etat_de_cloture'][] = $getAccountingChartDoc($fiscalYear['condo_id']);
+
+$map_documents['02_Livres_comptables'][] = $getGeneralBalance($fiscalYear['id']);
+$map_documents['02_Livres_comptables'][] = $getLedgerBalance($fiscalYear['id']);
+
+/*
+    Fiscal periods
+*/
 
 foreach($fiscalYear['fiscal_periods_ids'] as $id => $period) {
     $map_documents['01_Etat_de_cloture'][] = $getBalanceSheetDoc($id);

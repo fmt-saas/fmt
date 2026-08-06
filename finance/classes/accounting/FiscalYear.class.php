@@ -5,6 +5,9 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 namespace finance\accounting;
+
+use documents\Document;
+use documents\DocumentType;
 use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
 use equal\orm\Model;
@@ -251,6 +254,11 @@ class FiscalYear extends Model {
                 'description'   => 'Create an exporting task to export documents related to the fiscal year.',
                 'policies'      => ['can_export_documents'],
                 'function'      => 'doExportDocuments'
+            ],
+            'generate_closing_documents' => [
+                'description'   => 'Create necessary documents when the fiscal year is closed.',
+                'policies'      => ['can_export_documents'],
+                'function'      => 'doGenerateClosingDocuments'
             ]
         ];
     }
@@ -724,6 +732,59 @@ class FiscalYear extends Model {
         }
     }
 
+    protected static function doGenerateClosingDocuments($self) {
+        $self->read(['condo_id', 'name']);
+        foreach($self as $id => $fiscalYear) {
+
+            // 1) Create document general balance
+
+            $general_balance_doc = \eQual::run(
+                'get',
+                'finance_accounting_generalBalance_render-pdf',
+                [
+                    'params' => [
+                        'condo_id'          => $fiscalYear['condo_id'],
+                        'fiscal_year_id'    => $id
+                    ]
+                ]
+            );
+
+            Document::create([
+                'name'                  => "Balance Générale Des Comptes - {$fiscalYear['name']}",
+                'condo_id'              => $fiscalYear['condo_id'],
+                'fiscal_year_id'        => $id,
+                'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'general_balance'])->first()) ? $dt['id'] : null,
+                'document_visibility'   => 'agency',
+                'is_origin'             => true,
+                'data'                  => $general_balance_doc
+            ]);
+
+
+            // 2) Create document general ledger
+
+            $general_ledger_doc = \eQual::run(
+                'get',
+                'finance_accounting_generalLedger_render-pdf',
+                [
+                    'params' => [
+                        'condo_id'          => $fiscalYear['condo_id'],
+                        'fiscal_year_id'    => $id
+                    ]
+                ]
+            );
+
+            Document::create([
+                'name'                  => "Grand Livre - {$fiscalYear['name']}",
+                'condo_id'              => $fiscalYear['condo_id'],
+                'fiscal_year_id'        => $id,
+                'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'general_ledger'])->first()) ? $dt['id'] : null,
+                'document_visibility'   => 'agency',
+                'is_origin'             => true,
+                'data'                  => $general_ledger_doc
+            ]);
+        }
+    }
+
     protected static function onbeforePreopen($self) {
         $self->read(['condo_id', 'fiscal_periods_ids']);
         foreach($self as $id => $fiscalYear) {
@@ -966,7 +1027,7 @@ class FiscalYear extends Model {
 
         foreach($self as $id => $fiscalYear) {
 
-            // 2) generate closing balance for the fiscal year
+            // 1) generate closing balance for the fiscal year
 
             // remove any previously created closing balance
             if($fiscalYear['closing_balance_id']) {
@@ -984,6 +1045,9 @@ class FiscalYear extends Model {
             self::id($id)->update(['closing_balance_id' => $closingBalance['id']]);
 
             // #memo - OpeningBalance for next fiscal year is created in `onafterClose`
+
+            // 2) generate immutable annual documents
+            self::id($id)->do('generate_closing_documents');
         }
     }
 
