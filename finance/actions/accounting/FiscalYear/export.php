@@ -8,6 +8,7 @@
 use documents\Document;
 use finance\accounting\AccountChart;
 use finance\accounting\FiscalYear;
+use finance\bank\BankStatement;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
@@ -104,45 +105,45 @@ $getAccountingChartDoc = function($condo_id) {
 };
 
 $getGeneralBalance = function($fiscal_year_id) {
-    $general_balance = Document::search([
+    $generalBalance = Document::search([
         ['document_type_code', '=', 'general_balance'],
         ['fiscal_year_id', '=', $fiscal_year_id]
     ])
         ->read(['name', 'extension', 'hash'])
         ->first(true);
 
-    if(!$general_balance) {
+    if(!$generalBalance) {
         throw new Exception('general_balance_doc_missing', EQ_ERROR_UNKNOWN_OBJECT);
     }
 
     return [
-        'name'      => $general_balance['name'],
-        'extension' => $general_balance['extension'],
-        'data'      => eQual::run('get', 'documents_document', ['id' => $general_balance['hash']])
+        'name'      => $generalBalance['name'],
+        'extension' => $generalBalance['extension'],
+        'data'      => eQual::run('get', 'documents_document', ['id' => $generalBalance['hash']])
     ];
 };
 
 $getLedgerBalance = function($fiscal_year_id) {
-    $general_ledger = Document::search([
+    $generalLedger = Document::search([
         ['document_type_code', '=', 'general_ledger'],
         ['fiscal_year_id', '=', $fiscal_year_id]
     ])
         ->read(['name', 'extension', 'hash'])
         ->first(true);
 
-    if(!$general_ledger) {
+    if(!$generalLedger) {
         throw new Exception('general_ledger_doc_missing', EQ_ERROR_UNKNOWN_OBJECT);
     }
 
     return [
-        'name'      => $general_ledger['name'],
-        'extension' => $general_ledger['extension'],
-        'data'      => eQual::run('get', 'documents_document', ['id' => $general_ledger['hash']])
+        'name'      => $generalLedger['name'],
+        'extension' => $generalLedger['extension'],
+        'data'      => eQual::run('get', 'documents_document', ['id' => $generalLedger['hash']])
     ];
 };
 
 $getSupplierInvoices = function($fiscal_year_id) {
-    $purchase_invoices = PurchaseInvoice::search(['fiscal_year_id', '=', $fiscal_year_id])
+    $purchaseInvoices = PurchaseInvoice::search(['fiscal_year_id', '=', $fiscal_year_id])
         ->read(['document_id' => ['name', 'extension', 'data']])
         ->get();
 
@@ -154,7 +155,26 @@ $getSupplierInvoices = function($fiscal_year_id) {
                 'data'      => $invoice['document_id']['data']
             ];
         },
-        $purchase_invoices
+        $purchaseInvoices
+    );
+};
+
+$getBankStatements = function($fiscal_year_id) {
+    $bankStatements = BankStatement::search([
+        ['fiscal_year_id', '=', $fiscal_year_id]
+    ])
+        ->read(['document_id' => ['name', 'extension', 'data']])
+        ->get();
+
+    return array_map(
+        function($bankStatement) {
+            return [
+                'name'      => $bankStatement['document_id']['name'],
+                'extension' => $bankStatement['document_id']['extension'],
+                'data'      => $bankStatement['document_id']['data']
+            ];
+        },
+        $bankStatements
     );
 };
 
@@ -228,6 +248,7 @@ $map_documents['02_Livres_comptables'][] = $getGeneralBalance($fiscalYear['id'])
 $map_documents['02_Livres_comptables'][] = $getLedgerBalance($fiscalYear['id']);
 
 $map_documents['03_Pieces_justificatives/facture_achats'] = $getSupplierInvoices($fiscalYear['id']);
+$map_documents['03_Pieces_justificatives/extraits_bancaires'] = $getBankStatements($fiscalYear['id']);
 
 /*
     Fiscal periods
