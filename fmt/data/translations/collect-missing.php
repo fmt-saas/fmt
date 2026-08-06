@@ -6,10 +6,9 @@
 */
 
 use equal\orm\Domain;
-use realestate\property\Condominium;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Automatically translates the missing multilang fields of a given object.",
+    'description'   => "Returns missing translations for the multilang fields of objects matching a domain.",
     'params' => [
         'domain' => [
             'type'              => 'array',
@@ -43,8 +42,7 @@ use realestate\property\Condominium;
         ],
         'original_lang' => [
             'type'              => 'string',
-            'description'       => "Language of the base value the translation should be based on.",
-            'default'           => constant('DEFAULT_LANG')
+            'description'       => "Language of the base value the translation should be based on."
         ],
         'original_value' => [
             'type'              => 'string',
@@ -67,7 +65,6 @@ use realestate\property\Condominium;
         'charset'       => 'UTF-8',
         'accept-origin' => '*'
     ],
-    'constants'     => ['DEFAULT_LANG'],
     'providers'     => ['context', 'orm']
 ]);
 
@@ -78,6 +75,23 @@ use realestate\property\Condominium;
 ['context' => $context, 'orm' => $orm] = $providers;
 
 $domain = new Domain($params['domain']);
+$requested_original_lang = $params['original_lang'] ?? '';
+
+$is_translatable_value = static function($value): bool {
+    if(!is_string($value)) {
+        return false;
+    }
+
+    return preg_match("/[a-z]/i", strip_tags($value)) === 1;
+};
+
+$is_empty_translation = static function($value): bool {
+    if(!is_string($value)) {
+        return empty($value);
+    }
+
+    return trim(strip_tags($value)) === '';
+};
 
 $result = [];
 foreach($domain->getClauses() as $clause) {
@@ -103,65 +117,64 @@ foreach($domain->getClauses() as $clause) {
         throw new Exception("missing_entity", EQ_ERROR_MISSING_PARAM);
     }
 
-    $condo = Condominium::id($condo_id)
-        ->read(['condo_langs_ids' => ['code']])
-        ->first();
-
     $entity = $orm->getModel($object_class);
     if(!$entity) {
         throw new Exception("unknown_entity", EQ_ERROR_INVALID_PARAM);
     }
 
-    $multilang_fields = [];
-    foreach($entity->getSchema() as $field => $conf) {
-        if($conf['multilang'] ?? false) {
-            $multilang_fields[] = $field;
-        }
+    $schema = $entity->getSchema();
+    if(isset($schema['condo_id'])) {
+        $sub_domain[] = ['condo_id', '=', $condo_id];
     }
 
-    $base_objects = [];
-    foreach($condo['condo_langs_ids'] as $condo_lang) {
-        if($condo_lang['code'] !== constant('DEFAULT_LANG')) {
+    $object_ids = $entity::search($sub_domain)->ids();
+
+    foreach($object_ids as $object_id) {
+        $current_values = eQual::run('get', 'fmt_translations_current-values', [
+            'id'        => $object_id,
+            'entity'    => $object_class
+        ]);
+
+        if(!is_array($current_values) || !count($current_values)) {
             continue;
         }
 
-        $base_objects = $entity::search($sub_domain)
-            ->read($multilang_fields)
-            ->get();
-    }
-
-    foreach($condo['condo_langs_ids'] as $condo_lang) {
-        if($condo_lang['code'] === constant('DEFAULT_LANG')) {
-            continue;
+        $original_lang = $requested_original_lang;
+        if($original_lang === '' || !isset($current_values[$original_lang])) {
+            $original_lang = array_key_first($current_values);
         }
-        if($params['language'] !== 'all' && $params['language'] !== $condo_lang['code']) {
+
+        if(!$original_lang || !isset($current_values[$original_lang])) {
             continue;
         }
 
-        $translated_objects = $entity::search($sub_domain)
-            ->read($multilang_fields, $condo_lang['code'])
-            ->get();
+        $source_values = $current_values[$original_lang];
 
-        foreach($translated_objects as $id => $translated_object) {
-            $base_object = $base_objects[$id];
+        foreach($current_values as $target_lang => $target_values) {
+            if($target_lang === $original_lang) {
+                continue;
+            }
+            if($params['language'] !== 'all' && $params['language'] !== $target_lang) {
+                continue;
+            }
 
-            foreach($multilang_fields as $multilang_field) {
-                if(!empty($translated_object[$multilang_field])) {
+            foreach($source_values as $field => $source_value) {
+                if(!$is_empty_translation($target_values[$field] ?? null)) {
                     // skip value already translated
                     continue;
                 }
-                if(empty($base_object[$multilang_field]) || !preg_match("/[a-z]/i", $base_object[$multilang_field])) {
+                if(!$is_translatable_value($source_value)) {
                     // skip no value to translate
                     continue;
                 }
 
                 $result[] = [
                     'entity'            => $object_class,
-                    'object_id'         => $id,
-                    'field'             => $multilang_field,
-                    'original_lang'     => constant('DEFAULT_LANG'),
-                    'original_value'    => $base_object[$multilang_field],
-                    'target_lang'       => $condo_lang['code'],
+                    'object_id'         => $object_id,
+                    'field'             => $field,
+                    'original_lang'     => $original_lang,
+                    'original_value'    => $source_value,
+                    'target_lang'       => $target_lang,
                     'target_value'      => ''
                 ];
             }
