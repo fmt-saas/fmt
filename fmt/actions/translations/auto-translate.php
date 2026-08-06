@@ -96,6 +96,11 @@ if(isset($params['target_lang'])) {
 
 $suggestions_data = eQual::run('get', 'fmt_translations_suggestions', $suggestions_params);
 
+if(!is_array($suggestions_data)) {
+    trigger_error("APP::Invalid translation suggestions response: " . json_encode($suggestions_data), EQ_REPORT_ERROR);
+    throw new Exception("invalid_translation_suggestions_response", EQ_ERROR_UNKNOWN);
+}
+
 
 /*
     Apply translation suggestions
@@ -105,6 +110,11 @@ foreach($suggestions_data as $lang => $values) {
     if($lang === $params['source_lang']) {
         // should not happen but skip to be sure
         continue;
+    }
+
+    if(!is_array($values)) {
+        trigger_error("APP::Invalid translation suggestions values for language $lang: " . json_encode($values), EQ_REPORT_ERROR);
+        throw new Exception("invalid_translation_suggestions_response", EQ_ERROR_UNKNOWN);
     }
 
     $entity::id($params['id'])->update($values, $lang);

@@ -10,7 +10,7 @@ use equal\http\HttpRequest;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Returns a Google Translation API access token.",
-    'params'        => (object) [],
+    'params'        => [],
     'access'        => [
         'visibility'    => 'protected'
     ],
