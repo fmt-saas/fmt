@@ -4,14 +4,16 @@ use infra\metering\MetricDefinition;
 use infra\quota\Quota;
 use infra\quota\QuotaThreshold;
 
+$currentWeekStart = strtotime('Monday this week', time());
+$currentWeekEnd = strtotime('Sunday this week 23:59:59', time());
+
 $propertyMainLotsCountMetricDefinition = MetricDefinition::create([
         'code'        => 'property.main_lots.count',
         'name'        => 'Nombre de lots principaux',
         'description' => 'Nombre de lots principaux actifs dans l\'instance.',
         'category'    => 'fmt',
         'unit'        => 'count',
-        'value_type'  => 'integer',
-        'collector'   => 'infra_metering_inspect-property-main-lots-count',
+        'collector'   => 'infra_metering_read-property-main-lots-count',
         'is_active'   => true
     ], 'fr')
     ->first();
@@ -47,8 +49,7 @@ $propertyParkingsCountMetricDefinition = MetricDefinition::create([
         'description' => 'Nombre de garages et parkings actifs dans l\'instance.',
         'category'    => 'fmt',
         'unit'        => 'count',
-        'value_type'  => 'integer',
-        'collector'   => 'infra_metering_inspect-property-parkings-count',
+        'collector'   => 'infra_metering_read-property-parkings-count',
         'is_active'   => true
     ], 'fr')
     ->first();
@@ -84,8 +85,7 @@ $edmsDocumentCountMetricDefinition = MetricDefinition::create([
         'description' => 'Nombre total de documents stockés dans l\'EDMS.',
         'category'    => 'edms',
         'unit'        => 'count',
-        'value_type'  => 'integer',
-        'collector'   => 'infra_metering_inspect-edms-document-count',
+        'collector'   => 'infra_metering_read-edms-document-count',
         'is_active'   => true
     ], 'fr')
     ->first();
@@ -121,8 +121,7 @@ $edmsStorageSizeMetricDefinition = MetricDefinition::create([
         'description' => 'Volume total consommé par les documents stockés dans l\'EDMS.',
         'category'    => 'edms',
         'unit'        => 'bytes',
-        'value_type'  => 'integer',
-        'collector'   => 'infra_metering_inspect-edms-storage-size',
+        'collector'   => 'infra_metering_read-edms-storage-size',
         'is_active'   => true
     ], 'fr')
     ->first();
@@ -158,8 +157,7 @@ $googleDocaiCallsCountMetricDefinition = MetricDefinition::create([
         'description' => 'Nombre d\'appels effectués vers Google Document AI.',
         'category'    => 'google_doc_ai',
         'unit'        => 'calls',
-        'value_type'  => 'integer',
-        'collector'   => 'infra_metering_inspect-google-docai-calls-count',
+        'collector'   => 'infra_metering_read-google-docai-calls-count',
         'is_active'   => true
     ], 'fr')
     ->first();
@@ -170,9 +168,8 @@ $googleDocaiCallsCountQuota = Quota::create([
         'name'                 => 'Appels Google Document AI',
         'quota_type'           => 'period',
         'period_duration'      => 'week',
-        'period_start'         => null,
-        'period_end'           => null,
-        'availability_controller' => 'infra_quota_check-auth-users-count-availability',
+        'period_start'         => $currentWeekStart,
+        'period_end'           => $currentWeekEnd,
         'value'                => 0,
         'is_reached'           => false,
         'is_active'            => false
@@ -182,6 +179,7 @@ $googleDocaiCallsCountQuota = Quota::create([
 $googleDocaiCallsCountQuotaThreshold = QuotaThreshold::create([
         'name'      => 'Max semaine - appels Google Document AI',
         'quota_id'  => $googleDocaiCallsCountQuota['id'],
+        'threshold_type' => 'blocking',
         'value'     => 100,
         'max_value' => null,
         'action'    => 'infra_quota_handle-google-docai-calls-count-reached'
@@ -194,23 +192,23 @@ $authUsersCountMetricDefinition = MetricDefinition::create([
         'description' => 'Nombre de comptes utilisateurs actifs sur l\'instance.',
         'category'    => 'auth',
         'unit'        => 'count',
-        'value_type'  => 'integer',
-        'collector'   => 'infra_metering_inspect-instance-users-count',
+        'collector'   => 'infra_metering_read-instance-users-count',
         'is_active'   => true
     ], 'fr')
     ->first();
 
 $authUsersCountQuota = Quota::create([
-        'metric_definition_id' => $authUsersCountMetricDefinition['id'],
-        'code'                 => 'auth.users.count',
-        'name'                 => 'Nombre de comptes utilisateurs',
-        'quota_type'           => 'instant',
-        'period_duration'      => 'week',
-        'period_start'         => null,
-        'period_end'           => null,
-        'value'                => 0,
-        'is_reached'           => false,
-        'is_active'            => false
+        'metric_definition_id'      => $authUsersCountMetricDefinition['id'],
+        'code'                      => 'auth.users.count',
+        'name'                      => 'Nombre de comptes utilisateurs',
+        'quota_type'                => 'instant',
+        'period_duration'           => 'week',
+        'period_start'              => null,
+        'period_end'                => null,
+        'availability_controller'   => 'infra_quota_check-auth-users-count-availability',
+        'value'                     => 0,
+        'is_reached'                => false,
+        'is_active'                 => false
     ], 'fr')
     ->first();
 
@@ -230,8 +228,7 @@ $emailOutboundCountMetricDefinition = MetricDefinition::create([
         'description' => 'Nombre d\'emails envoyés depuis l\'instance sur la période considérée.',
         'category'    => 'mail',
         'unit'        => 'count',
-        'value_type'  => 'integer',
-        'collector'   => 'infra_metering_inspect-mail-outbound-count',
+        'collector'   => 'infra_metering_read-mail-outbound-count',
         'is_active'   => true
     ], 'fr')
     ->first();
@@ -242,8 +239,8 @@ $emailOutboundCountQuota = Quota::create([
         'name'                 => 'Emails envoyés',
         'quota_type'           => 'period',
         'period_duration'      => 'week',
-        'period_start'         => null,
-        'period_end'           => null,
+        'period_start'         => $currentWeekStart,
+        'period_end'           => $currentWeekEnd,
         'value'                => 0,
         'is_reached'           => false,
         'is_active'            => false
@@ -253,6 +250,7 @@ $emailOutboundCountQuota = Quota::create([
 $emailOutboundCountQuotaThreshold = QuotaThreshold::create([
         'name'      => 'Max semaine - emails envoyés',
         'quota_id'  => $emailOutboundCountQuota['id'],
+        'threshold_type' => 'blocking',
         'value'     => 100,
         'max_value' => null,
         'action'    => 'infra_quota_handle-mail-outbound-count-reached'
@@ -265,16 +263,15 @@ $dbStorageSizeMetricDefinition = MetricDefinition::create([
         'description' => 'Taille totale consommée par la base de données de l\'instance.',
         'category'    => 'database',
         'unit'        => 'bytes',
-        'value_type'  => 'integer',
-        'collector'   => 'infra_metering_inspect-db-storage-size',
+        'collector'   => 'infra_metering_read-db-storage-size',
         'is_active'   => true
     ], 'fr')
     ->first();
 
 $dbStorageSizeQuota = Quota::create([
         'metric_definition_id' => $dbStorageSizeMetricDefinition['id'],
+        'code'                 => 'db.storage.size',
         'name'                 => 'Taille de la base de données',
-        'description'          => 'Taille totale consommée par la base de données de l\'instance.',
         'quota_type'           => 'instant',
         'period_duration'      => 'week',
         'period_start'         => null,
@@ -288,6 +285,7 @@ $dbStorageSizeQuota = Quota::create([
 $dbStorageSizeQuotaThreshold = QuotaThreshold::create([
         'name'      => 'Max - taille de la base de données',
         'quota_id'  => $dbStorageSizeQuota['id'],
+        'threshold_type' => 'blocking',
         'value'     => 524288000,
         'max_value' => null,
         'action'    => 'infra_quota_handle-db-storage-size-reached'

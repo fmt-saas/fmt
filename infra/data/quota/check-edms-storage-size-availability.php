@@ -45,18 +45,6 @@ use infra\quota\Quota;
  */
 ['context' => $context] = $providers;
 
-$is_threshold_reached = function(int $value, array $threshold): bool {
-    if($value < intval($threshold['value'])) {
-        return false;
-    }
-
-    if(isset($threshold['max_value']) && !is_null($threshold['max_value'])) {
-        return $value <= intval($threshold['max_value']);
-    }
-
-    return true;
-};
-
 $quota = Quota::search(['code', '=', $params['code']])
     ->read(['value', 'is_active', 'thresholds_ids' => ['id', 'value', 'max_value', 'threshold_type']])
     ->first();
@@ -91,7 +79,7 @@ if($quota['is_active']) {
         if($threshold['threshold_type'] !== 'blocking') {
             continue;
         }
-        if($is_threshold_reached($projected_value, $threshold)) {
+        if($projected_value > $threshold['value']) {
             $result['allowed'] = false;
             $result['reason'] = 'quota_unavailable';
             $result['threshold_id'] = $threshold['id'] ?? null;

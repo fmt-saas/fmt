@@ -1198,29 +1198,11 @@ class Document extends Model {
             }
         }
 
-        $quota = Quota::search([
-                ['code', '=', 'edms.document.count'],
-                ['is_active', '=', true]
-            ])
-            ->do('check-thresholds')
-            ->read(['is_reached'])
-            ->first();
+        Quota::search([['code', '=', 'edms.document.count']])
+            ->do('check-availability', $values);
 
-        if($quota && $quota['is_reached']) {
-            return ['quota' => ['quota_reached' => 'The quota for document quantity has been reached.']];
-        }
-
-        $quota = Quota::search([
-                ['code', '=', 'edms.storage.size'],
-                ['is_active', '=', true]
-            ])
-            ->do('check-thresholds')
-            ->read(['is_reached'])
-            ->first();
-
-        if($quota && $quota['is_reached']) {
-            return ['quota' => ['quota_reached' => 'The quota for document storage size has been reached.']];
-        }
+        Quota::search([['code', '=', 'edms.storage.size']])
+            ->do('check-availability', $values);
 
         return parent::cancreate($self, $values);
     }

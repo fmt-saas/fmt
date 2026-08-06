@@ -10,12 +10,18 @@
             },
             {
                 "type": "field",
-                "value": "definition_id",
+                "value": "quota_id",
                 "width": "16%"
             },
             {
                 "type": "field",
                 "value": "quota_type",
+                "width": "16%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "threshold_type",
                 "width": "16%"
             },
             {

@@ -46,11 +46,11 @@ if(constant('FMT_INSTANCE_TYPE') !== 'agency') {
 $measured_at = time();
 
 $metering_reading = MeteringReading::create([
-    'instance_id'   => 1,
-    'measured_at'   => $measured_at,
-    'period_start'  => $params['period_start'],
-    'period_end'    => $params['period_start'],
-])
+        'instance_id'   => 1,
+        'measured_at'   => $measured_at,
+        'period_start'  => $params['period_start'],
+        'period_end'    => $params['period_start'],
+    ])
     ->read(['id'])
     ->first();
 

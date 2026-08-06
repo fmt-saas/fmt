@@ -11,8 +11,7 @@ use infra\quota\Quota;
 
 [$params, $providers] = eQual::announce([
     'description'	=>	"Send emails that are currently in spool queue.",
-    'params' 		=>	[
-    ],
+    'params' 		=>	[],
     'access' => [
         'visibility'        => 'private'
     ],
@@ -29,21 +28,17 @@ use infra\quota\Quota;
  */
 ['context' => $context] = $providers;
 
-$quota = Quota::search([
-    ['code', '=', 'email.outbound.count'],
-    ['is_active', '=', true]
-])
-    ->do('check-thresholds')
-    ->read(['is_reached'])
-    ->first();
-
-if($quota && $quota['is_reached']) {
-    throw new Exception('quota_reached', EQ_ERROR_NOT_ALLOWED);
-}
+Quota::search([
+        ['code', '=', 'email.outbound.count']
+    ])
+    ->do('check-availability');
 
 Mail::flush();
 
-Quota::id($quota['id'])->do('check-thresholds');
+Quota::search([
+        ['code', '=', 'email.outbound.count']
+    ])
+    ->do('check-thresholds');
 
 $context
     ->httpResponse()

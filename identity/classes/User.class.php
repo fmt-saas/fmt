@@ -273,19 +273,8 @@ class User extends \core\User {
     }
 
     public static function cancreate($self, $values): array {
-        $quota = Quota::search([
-            ['code', '=', 'auth.users.count'],
-            ['is_active', '=', true]
-        ])
-            ->do('check-thresholds')
-            ->read(['is_reached'])
-            ->first();
-
-        if($quota && $quota['is_reached']) {
-            if((isset($values['employee_id']) && $values['employee_id']) || (isset($values['owner_id']) && $values['owner_id']) || (isset($values['validated']) && $values['validated'])) {
-                return ['quota' => ['quota_reached' => 'The quota for non-system user creation has been reached.']];
-            }
-        }
+        Quota::search([['code', '=', 'auth.users.count']])
+            ->do('check-availability', $values);
 
         return [];
     }
@@ -320,20 +309,6 @@ class User extends \core\User {
     }
 
     public static function canupdate($self, $values): array {
-        $quota = Quota::search([
-            ['code', '=', 'auth.users.count'],
-            ['is_active', '=', true]
-        ])
-            ->do('check-thresholds')
-            ->read(['is_reached'])
-            ->first();
-
-        if($quota && $quota['is_reached']) {
-            if((isset($values['employee_id']) && $values['employee_id']) || (isset($values['owner_id']) && $values['owner_id']) || (isset($values['validated']) && $values['validated'])) {
-                return ['quota' => ['quota_reached' => 'The quota for non-system user creation has been reached.']];
-            }
-        }
-
         return [];
     }
 
