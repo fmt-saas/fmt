@@ -30,17 +30,22 @@
                                             {
                                                 "type": "field",
                                                 "value": "quota_type",
-                                                "width": "25%"
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "threshold_type",
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "value",
-                                                "width": "25%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "max_value",
-                                                "width": "25%"
+                                                "width": "33%"
                                             }
                                         ]
                                     }

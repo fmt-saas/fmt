@@ -49,6 +49,16 @@ class QuotaThreshold extends Model {
                 'default'           => 'non_blocking'
             ],
 
+            'trigger_policy' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'always',
+                    'on_reach'
+                ],
+                'default'           => 'on_reach',
+                'description'       => 'Determines whether the action is triggered every time the threshold matches or only when the quota becomes reached.'
+            ],
+
             'value' => [
                 'type'              => 'integer',
                 'description'       => 'Threshold value that must be reached to trigger the controller.',
@@ -78,8 +88,7 @@ class QuotaThreshold extends Model {
 
             'action' => [
                 'type'              => 'string',
-                'description'       => 'The controller that is triggered when the threshold is reached.',
-                'required'          => true
+                'description'       => 'Optional controller to be triggered when the threshold is reached.',
             ]
 
         ];

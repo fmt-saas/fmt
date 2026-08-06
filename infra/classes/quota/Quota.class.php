@@ -164,15 +164,24 @@ class Quota extends Model {
     }
 
     protected static function doCheckThreshold($self): void {
-        $self->read(['value', 'is_reached', 'thresholds_ids' => ['value', 'max_value', 'threshold_type', 'action']]);
+        $self->read(['value', 'is_reached', 'thresholds_ids' => ['value', 'max_value', 'threshold_type', 'trigger_policy', 'action']]);
         foreach($self as $id => $quota) {
             $is_reached = false;
+            $was_reached = $quota['is_reached'];
             foreach($quota['thresholds_ids'] as $threshold) {
                 if($quota['value'] >= $threshold['value']) {
                     if($threshold['threshold_type'] === 'blocking') {
                         $is_reached = true;
                     }
-                    if(!empty($threshold['action']) && $quota['value'] <= ($threshold['max_value'] ?? PHP_INT_MAX)) {
+
+                    $should_trigger = !empty($threshold['action'])
+                        && $quota['value'] <= ($threshold['max_value'] ?? PHP_INT_MAX)
+                        && (
+                            ($threshold['trigger_policy'] ?? 'on_reach') === 'always'
+                            || !$was_reached
+                        );
+
+                    if($should_trigger) {
                         \eQual::run('do', $threshold['action']);
                     }
                 }
@@ -184,23 +193,8 @@ class Quota extends Model {
     }
 
     protected static function doCheckAvailability($self, $values): void {
-        // first pass - check if already blocked
-        $self->read(['is_active', 'is_reached']);
-
-        foreach($self as $id => $quota) {
-            if(!$quota['is_active']) {
-                continue;
-            }
-
-            if($quota['is_reached']) {
-                throw new \Exception('quota_unavailable', EQ_ERROR_NOT_ALLOWED);
-            }
-        }
-
-        // second pass - invoke availability_controller
         $delta = intval($values['delta'] ?? 0);
-        $self
-            ->read([
+        $self->read([
                 'code',
                 'value',
                 'is_active',
@@ -214,6 +208,9 @@ class Quota extends Model {
             }
 
             if(empty($quota['availability_controller'])) {
+                if($quota['is_reached']) {
+                    throw new \Exception('quota_unavailable', EQ_ERROR_NOT_ALLOWED);
+                }
                 continue;
             }
 
@@ -224,18 +221,10 @@ class Quota extends Model {
 
             $availability = \eQual::run('get', $quota['availability_controller'], $controller_params);
 
-            if(!is_array($availability) || !array_key_exists('allowed', $availability)) {
-                throw new \Exception('invalid_quota_availability_response', EQ_ERROR_INVALID_CONFIG);
-            }
-
             if(is_array($availability) && isset($availability['allowed']) && !$availability['allowed']) {
                 throw new \Exception($availability['reason'] ?? 'quota_unavailable', EQ_ERROR_NOT_ALLOWED);
             }
         }
-
-        $self
-            ->do('refresh-value')
-            ->do('check-thresholds');
     }
 
     public static function calcDisplayValue($self): array {

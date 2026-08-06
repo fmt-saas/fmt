@@ -24,7 +24,9 @@ use infra\quota\Quota;
  */
 ['context' => $context] = $providers;
 
-Quota::search(['is_active', '=', true])->do('refresh-value');
+Quota::search(['is_active', '=', true])
+    ->do('refresh-value')
+    ->do('check-thresholds');
 
 $context
     ->httpResponse()

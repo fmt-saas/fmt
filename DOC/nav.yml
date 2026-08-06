@@ -92,6 +92,7 @@
     - 'Modèles de données': modeles-de-donnees.md
     - 'Permissions & Autorisations': permissions-autorisations/permissions-autorisations.md
     - 'Authentification': infra/authentification.md
+    - 'Quotas': infra/quotas.md
     - 'Synchronisation': infra/synchronisation.md
     - 'Vérification d''initialisation': infra/verification-initialisation.md
     - 'Imports': infra/imports/imports.md
