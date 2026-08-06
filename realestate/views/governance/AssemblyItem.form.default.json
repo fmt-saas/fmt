@@ -73,6 +73,7 @@
             "label": "Auto-translate",
             "description": "Auto-translate multilang fields.",
             "controller": "fmt_translations_auto-translate",
+            "visible": ["admins", "in", "user.groups"],
             "params": {
                 "entity": "realestate\\governance\\AssemblyItem"
             }

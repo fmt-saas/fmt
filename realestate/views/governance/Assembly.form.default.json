@@ -733,6 +733,7 @@
             "label": "Missing translations",
             "description": "",
             "icon": "translate",
+            "visible": ["admins", "in", "user.groups"],
             "context": {
                 "entity": "fmt\\translations\\collect-missing",
                 "view": "list.default",

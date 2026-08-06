@@ -362,6 +362,10 @@
                 "route.print_voteforms": {
                     "label": "Bulletins de votes vierges",
                     "description": "Imprimer les bulletins de votes pour vote manuscrit."
+                },
+                "route.missing-translations": {
+                    "label": "Traductions manquantes",
+                    "description": ""
                 }
             },
             "actions": {
@@ -456,6 +460,10 @@
                 "action.close_minutes_signing": {
                     "label": "Clore la signature du procès-verbal",
                     "description": "Clore la signature du procès-verbal."
+                },
+                "action.close": {
+                    "label": "Clore",
+                    "description": "Clore l'assemblée."
                 }
             }
         },
@@ -474,14 +482,10 @@
         "list.default": {
             "name": "Assemblées",
             "description": "Vue des assemblées planifiées et de leur statut.",
-            "header": {
-                "selection": {
-                    "actions" : {
-                        "action.duplicate": {
-                            "label": "Dupliquer l'assemblée",
-                            "description": "Créer une nouvelle assemblée en copiant la sélection."
-                        }
-                    }
+            "actions": {
+                "action.duplicate": {
+                    "label": "Dupliquer l'assemblée",
+                    "description": "Créer une nouvelle assemblée en copiant la sélection."
                 }
             },
             "layout": {}
