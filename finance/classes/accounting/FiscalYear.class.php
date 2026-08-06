@@ -5,6 +5,8 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 namespace finance\accounting;
+use documents\export\ExportingTask;
+use documents\export\ExportingTaskLine;
 use equal\orm\Model;
 use fmt\setting\Setting;
 use realestate\property\Condominium;
@@ -245,6 +247,11 @@ class FiscalYear extends Model {
                 'policies'      => [],
                 'function'      => 'doAttemptTransition'
             ],
+            'export_documents' => [
+                'description'   => 'Create an exporting task to export documents related to the fiscal year.',
+                'policies'      => ['can_export_documents'],
+                'function'      => 'doExportDocuments'
+            ]
         ];
     }
 
@@ -377,6 +384,10 @@ class FiscalYear extends Model {
             'can_generate_sequences' => [
                 'description' => 'Verifies that a sequences can be generated.',
                 'function'    => 'policyCanGenerateSequence'
+            ],
+            'can_export_documents' => [
+                'description' => 'Verifies that the documents can be exported.',
+                'function'    => 'policyCanExportDocuments'
             ]
         ];
     }
@@ -652,6 +663,20 @@ class FiscalYear extends Model {
         return $result;
     }
 
+    protected static function policyCanExportDocuments($self): array {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $fiscalYear) {
+            if($fiscalYear['status'] !== 'closed') {
+                $result[$id] = [
+                    'fiscal_year_not_closed' => 'Fiscal year status must be closed.'
+                ];
+            }
+        }
+
+        return $result;
+    }
+
     /**
     * Attempts to perform a transition to the specified state ($values['status']).
     * Does nothing if the fiscal year is already in the target state.
@@ -676,6 +701,26 @@ class FiscalYear extends Model {
                 continue;
             }
             self::id($id)->transition($map_status_transition[$values['status']]);
+        }
+    }
+
+    protected static function doExportDocuments($self) {
+        $self->read(['name', 'condo_id']);
+        foreach($self as $id => $fiscalYear) {
+            $exportingTask = ExportingTask::create([
+                'name'          => "{$fiscalYear['name']} - Export des documents comptable",
+                'condo_id'      => $fiscalYear['condo_id'],
+                'object_class'  => static::class,
+                'object_id'     => $id
+            ])
+                ->first();
+
+            ExportingTaskLine::create([
+                'exporting_task_id' => $exportingTask['id'],
+                'name'              => "{$fiscalYear['name']} - Export des documents comptable - Tous",
+                'controller'        => 'finance_accounting_FiscalYear_export',
+                'params'            => json_encode(['id' => $id])
+            ]);
         }
     }
 
