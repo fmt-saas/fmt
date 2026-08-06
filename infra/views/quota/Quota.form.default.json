@@ -68,6 +68,11 @@
                                                 "value": "is_reached",
                                                 "width": "25%",
                                                 "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "availability_controller",
+                                                "width": "50%"
                                             }
                                         ]
                                     }

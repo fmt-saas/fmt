@@ -13,6 +13,11 @@
             "description": "Code unique de la définition.",
             "help": ""
         },
+        "availability_controller": {
+            "label": "Contrôleur de disponibilité",
+            "description": "Vérifie si une consommation candidate est autorisée.",
+            "help": "Laissez vide pour utiliser l'évaluation générique des seuils bloquants."
+        },
         "quota_type": {
             "label": "Type",
             "description": "Est-ce que le quota est basé sur une valeur instantanée ou accumulée sur une période définie?.",
@@ -86,5 +91,12 @@
             "layout": []
         }
     },
-    "error": []
+    "error": {
+        "errors": {
+            "invalid_quota_delta": "L'incrément de quota à vérifier est invalide.",
+            "ambiguous_quota_availability_check": "La vérification de disponibilité doit cibler un seul quota.",
+            "invalid_quota_availability_response": "Le contrôleur de disponibilité du quota a retourné une réponse invalide.",
+            "quota_unavailable": "Le quota ne permet pas cette consommation."
+        }
+    }
 }

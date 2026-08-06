@@ -41,6 +41,12 @@ class Quota extends Model {
                 'instant'           => true
             ],
 
+            'availability_controller' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain.short',
+                'description'       => 'Checks candidate quota consumption availability.'
+            ],
+
             'quota_type' => [
                 'type'              => 'string',
                 'selection'         => [
@@ -92,7 +98,7 @@ class Quota extends Model {
 
             'is_reached' => [
                 'type'              => 'boolean',
-                'description'       => 'Is the quota exceeded, in most cases the feature must be blocked.',
+                'description'       => 'Indicates whether a blocking threshold is currently reached.',
                 'default'           => false
             ],
 
@@ -129,34 +135,107 @@ class Quota extends Model {
             'check-thresholds' => [
                 'description'   => 'Check the threshold and trigger action if defined threshold value reached.',
                 'function'      => 'doCheckThreshold'
+            ],
+
+            'check-availability' => [
+                'description'   => 'Check whether a candidate quota increment is allowed.',
+                'function'      => 'doCheckAvailability'
             ]
 
         ];
     }
 
     protected static function doRefreshValue($self): void {
-        $self->read(['metric_definition_id' => ['collector']]);
-        foreach ($self as $id => $quota) {
-            $inspect_res = \eQual::run('get', $quota['metric_definition_id']['collector']);
+        $self->read(['quota_type', 'period_start', 'period_end', 'metric_definition_id' => ['collector']]);
+        foreach($self as $id => $quota) {
+            $params = [];
+            if($quota['quota_type'] === 'period') {
+                if(!is_null($quota['period_start'])) {
+                    $params['period_start'] = $quota['period_start'];
+                }
+                if(!is_null($quota['period_end'])) {
+                    $params['period_end'] = $quota['period_end'];
+                }
+            }
+
+            $inspect_res = \eQual::run('get', $quota['metric_definition_id']['collector'], $params);
             self::id($id)->update(['value' => $inspect_res['value']]);
         }
     }
 
     protected static function doCheckThreshold($self): void {
-        $self->do('refresh-value');
         $self->read(['value', 'is_reached', 'thresholds_ids' => ['value', 'max_value', 'threshold_type', 'action']]);
         foreach($self as $id => $quota) {
+            $is_reached = false;
             foreach($quota['thresholds_ids'] as $threshold) {
                 if($quota['value'] >= $threshold['value']) {
-                    if($threshold['threshold_type'] === 'blocking' && !$quota['is_reached']) {
-                        self::id($quota['id'])->update(['is_reached' => true]);
+                    if($threshold['threshold_type'] === 'blocking') {
+                        $is_reached = true;
                     }
-                    if(!isset($threshold['max_value']) || $quota['value'] < $threshold['max_value']) {
+                    if(!empty($threshold['action']) && $quota['value'] <= ($threshold['max_value'] ?? PHP_INT_MAX)) {
                         \eQual::run('do', $threshold['action']);
                     }
                 }
             }
+            if($quota['is_reached'] !== $is_reached) {
+                self::id($id)->update(['is_reached' => $is_reached]);
+            }
         }
+    }
+
+    protected static function doCheckAvailability($self, $values): void {
+        // first pass - check if already blocked
+        $self->read(['is_active', 'is_reached']);
+
+        foreach($self as $id => $quota) {
+            if(!$quota['is_active']) {
+                continue;
+            }
+
+            if($quota['is_reached']) {
+                throw new \Exception('quota_unavailable', EQ_ERROR_NOT_ALLOWED);
+            }
+        }
+
+        // second pass - invoke availability_controller
+        $delta = intval($values['delta'] ?? 0);
+        $self
+            ->read([
+                'code',
+                'value',
+                'is_active',
+                'is_reached',
+                'availability_controller'
+            ]);
+
+        foreach($self as $id => $quota) {
+            if(!$quota['is_active']) {
+                continue;
+            }
+
+            if(empty($quota['availability_controller'])) {
+                continue;
+            }
+
+            $controller_params = array_merge($values, [
+                'code'  => $quota['code'],
+                'delta' => $delta
+            ]);
+
+            $availability = \eQual::run('get', $quota['availability_controller'], $controller_params);
+
+            if(!is_array($availability) || !array_key_exists('allowed', $availability)) {
+                throw new \Exception('invalid_quota_availability_response', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            if(is_array($availability) && isset($availability['allowed']) && !$availability['allowed']) {
+                throw new \Exception($availability['reason'] ?? 'quota_unavailable', EQ_ERROR_NOT_ALLOWED);
+            }
+        }
+
+        $self
+            ->do('refresh-value')
+            ->do('check-thresholds');
     }
 
     public static function calcDisplayValue($self): array {

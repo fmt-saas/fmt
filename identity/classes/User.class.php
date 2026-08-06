@@ -338,28 +338,12 @@ class User extends \core\User {
     }
 
     public static function onupdateValidated($self): void {
-        Quota::search([
-            ['code', '=', 'auth.users.count'],
-            ['is_active', '=', true]
-        ])
-            ->do('check-thresholds');
     }
 
     public static function onupdateIsEmployee($self): void {
-        Quota::search([
-            ['code', '=', 'auth.users.count'],
-            ['is_active', '=', true]
-        ])
-            ->do('check-thresholds');
     }
 
     public static function onupdateIsOwner($self): void {
-        Quota::search([
-            ['code', '=', 'auth.users.count'],
-            ['is_active', '=', true]
-        ])
-            ->do('check-thresholds');
-
     }
 
     protected static function onupdateInstanceUuid($self) {
