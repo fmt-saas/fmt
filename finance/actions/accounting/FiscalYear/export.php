@@ -8,6 +8,7 @@
 use documents\Document;
 use finance\accounting\AccountChart;
 use finance\accounting\FiscalYear;
+use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Create a ZIP/PDF file that contains accounting documents of a fiscal year for a statutory auditor review.",
@@ -140,6 +141,23 @@ $getLedgerBalance = function($fiscal_year_id) {
     ];
 };
 
+$getSupplierInvoices = function($fiscal_year_id) {
+    $purchase_invoices = PurchaseInvoice::search(['fiscal_year_id', '=', $fiscal_year_id])
+        ->read(['document_id' => ['name', 'extension', 'data']])
+        ->get();
+
+    return array_map(
+        function($invoice) {
+            return [
+                'name'      => $invoice['document_id']['name'],
+                'extension' => $invoice['document_id']['extension'],
+                'data'      => $invoice['document_id']['data']
+            ];
+        },
+        $purchase_invoices
+    );
+};
+
 $createZipArchive = function($map_documents) {
     $tmp_file = sys_get_temp_dir()
         . DIRECTORY_SEPARATOR
@@ -192,10 +210,11 @@ if($fiscalYear['status'] !== 'closed') {
 }
 
 $map_documents = [
-    '01_Etat_de_cloture' => [],
-    '02_Livres_comptables' => [],
-    '03_Pieces_justificatives' => [],
-    '04_Coproprietaires' => []
+    '01_Etat_de_cloture'                        => [],
+    '02_Livres_comptables'                      => [],
+    '03_Pieces_justificatives'                  => [],
+    '03_Pieces_justificatives/facture_achats'   => [],
+    '04_Coproprietaires'                        => []
 ];
 
 
@@ -207,6 +226,8 @@ $map_documents['01_Etat_de_cloture'][] = $getAccountingChartDoc($fiscalYear['con
 
 $map_documents['02_Livres_comptables'][] = $getGeneralBalance($fiscalYear['id']);
 $map_documents['02_Livres_comptables'][] = $getLedgerBalance($fiscalYear['id']);
+
+$map_documents['03_Pieces_justificatives/facture_achats'] = $getSupplierInvoices($fiscalYear['id']);
 
 /*
     Fiscal periods
