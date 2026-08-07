@@ -34,6 +34,10 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
  */
 ['context' => $context] = $providers;
 
+/**
+ * Methods
+ */
+
 $getBalanceSheetDoc = function($period_id) {
     $balance_sheet = Document::search([
         ['document_type_code', '=', 'balance_sheet'],
@@ -178,6 +182,46 @@ $getBankStatements = function($fiscal_year_id) {
     );
 };
 
+$getFundRequests = function($fiscal_year_id) {
+    $fundRequestDocs = Document::search([
+        ['document_type_code', '=', 'fund_request'],
+        ['fund_request_id.fiscal_year_id', '=', $fiscal_year_id]
+    ])
+        ->read(['name', 'extension', 'data'])
+        ->get();
+
+    return array_map(
+        function($fundRequestDoc) {
+            return [
+                'name'      => $fundRequestDoc['name'],
+                'extension' => $fundRequestDoc['extension'],
+                'data'      => $fundRequestDoc['data']
+            ];
+        },
+        $fundRequestDocs
+    );
+};
+
+$getExpenseStatements = function($fiscal_year_id) {
+    $expenseStatementDocs = Document::search([
+        ['document_type_code', '=', 'expense_statement'],
+        ['expense_statement_id.fiscal_year_id', 'in', $fiscal_year_id]
+    ])
+        ->read(['name', 'extension', 'data'])
+        ->get();
+
+    return array_map(
+        function($expenseStatementDoc) {
+            return [
+                'name'      => $expenseStatementDoc['name'],
+                'extension' => $expenseStatementDoc['extension'],
+                'data'      => $expenseStatementDoc['data']
+            ];
+        },
+        $expenseStatementDocs
+    );
+};
+
 $createZipArchive = function($map_documents) {
     $tmp_file = sys_get_temp_dir()
         . DIRECTORY_SEPARATOR
@@ -206,6 +250,11 @@ $createZipArchive = function($map_documents) {
     return file_get_contents($tmp_file);
 };
 
+
+/**
+ * Action
+ */
+
 $fiscalYear = FiscalYear::id($params['id'])
     ->read([
         'condo_id',
@@ -230,11 +279,14 @@ if($fiscalYear['status'] !== 'closed') {
 }
 
 $map_documents = [
-    '01_Etat_de_cloture'                        => [],
-    '02_Livres_comptables'                      => [],
-    '03_Pieces_justificatives'                  => [],
-    '03_Pieces_justificatives/facture_achats'   => [],
-    '04_Coproprietaires'                        => []
+    '01_Etat_de_cloture'                            => [],
+    '02_Livres_comptables'                          => [],
+    '03_Pieces_justificatives'                      => [],
+    '03_Pieces_justificatives/facture_achats'       => [],
+    '03_Pieces_justificatives/extraits_bancaires'   => [],
+    '04_Coproprietaires'                            => [],
+    '04_Coproprietaires/appels_de_fonds'            => [],
+    '04_Coproprietaires/decomptes_de_charges'       => []
 ];
 
 
@@ -243,6 +295,8 @@ $map_documents = [
 */
 
 $map_documents['01_Etat_de_cloture'][] = $getAccountingChartDoc($fiscalYear['condo_id']);
+// #todo - handle compte_de_resultats.pdf when the document generation is handled (related to fiscal period or year?)
+// #todo - handle balance_de_cloture.pdf when the document generation is handled (related to fiscal period or year?)
 
 $map_documents['02_Livres_comptables'][] = $getGeneralBalance($fiscalYear['id']);
 $map_documents['02_Livres_comptables'][] = $getLedgerBalance($fiscalYear['id']);
@@ -250,15 +304,22 @@ $map_documents['02_Livres_comptables'][] = $getLedgerBalance($fiscalYear['id']);
 $map_documents['03_Pieces_justificatives/facture_achats'] = $getSupplierInvoices($fiscalYear['id']);
 $map_documents['03_Pieces_justificatives/extraits_bancaires'] = $getBankStatements($fiscalYear['id']);
 
+$map_documents['04_Coproprietaires/appels_de_fonds'] = $getFundRequests($fiscalYear['id']);
+$map_documents['04_Coproprietaires/decomptes_de_charges'] = $getExpenseStatements($fiscalYear['id']);
+
+
 /*
     Fiscal periods
 */
 
 foreach($fiscalYear['fiscal_periods_ids'] as $id => $period) {
     $map_documents['01_Etat_de_cloture'][] = $getBalanceSheetDoc($id);
-    // #todo - handle compte_de_resultats.pdf when the document generation is handled
-    // #todo - handle balance_de_cloture.pdf when the document generation is handled
 }
+
+
+/*
+    Generate document
+*/
 
 $document = Document::create([
     'name'          => "{$fiscalYear['name']} - Export des documents comptable - Tous",
