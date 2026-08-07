@@ -24,7 +24,7 @@ use infra\metering\MetricDefinition;
         'content-type'  => 'application/json',
         'charset'       => 'utf-8'
     ],
-    'constants'     => ['GOOGLE_DOCAI_PROJECT_ID', 'GOOGLE_DOCAI_PROCESSOR_ID'],
+    'constants'     => ['GOOGLE_PROJECT_NUMBER', 'GOOGLE_DOCUMENT_AI_PROCESSOR_ID'],
     'access'        => [ 'visibility' => 'protected' ],
     'providers'     => ['context', 'report']
 ]);
@@ -63,8 +63,8 @@ $document = Document::id($params['id'])
 $data = eQual::run('get', 'documents_processing_google_token');
 $token = $data['token'];
 
-$project_id = constant('GOOGLE_DOCAI_PROJECT_ID');
-$processor_id = constant('GOOGLE_DOCAI_PROCESSOR_ID');
+$project_id = constant('GOOGLE_PROJECT_NUMBER');
+$processor_id = constant('GOOGLE_DOCUMENT_AI_PROCESSOR_ID');
 
 $url = "https://eu-documentai.googleapis.com/v1/projects/{$project_id}/locations/eu/processors/{$processor_id}:process";
 

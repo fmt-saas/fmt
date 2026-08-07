@@ -40,7 +40,7 @@ use equal\http\HttpRequest;
         'charset'       => 'UTF-8',
         'accept-origin' => '*'
     ],
-    'constants'     => ['GOOGLE_DOCAI_PROJECT_ID'],
+    'constants'     => ['GOOGLE_PROJECT_NUMBER'],
     'providers'     => ['context']
 ]);
 
@@ -49,7 +49,7 @@ use equal\http\HttpRequest;
  */
 ['context' => $context] = $providers;
 
-$project_id = constant('GOOGLE_DOCAI_PROJECT_ID');
+$project_id = constant('GOOGLE_PROJECT_NUMBER');
 $url = "https://translation.googleapis.com/v3/projects/{$project_id}/locations/global:translateText";
 
 $request = new HttpRequest("POST {$url}");

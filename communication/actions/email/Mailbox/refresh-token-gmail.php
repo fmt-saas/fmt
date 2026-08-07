@@ -25,7 +25,7 @@ use equal\http\HttpRequest;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'constants'     => ['GOOGLE_GMAIL_CLIENT_ID', 'GOOGLE_GMAIL_CLIENT_SECRET'],
+    'constants'     => ['GOOGLE_OAUTH_CLIENT_ID', 'GOOGLE_OAUTH_CLIENT_SECRET'],
     'providers'     => ['context', 'auth', 'orm']
 ]);
 
@@ -65,8 +65,8 @@ if($mailbox['refresh_token_expiry'] < time()) {
 
 $body = [
     'grant_type'    => 'refresh_token',
-    'client_id'     => constant('GOOGLE_GMAIL_CLIENT_ID'),
-    'client_secret' => constant('GOOGLE_GMAIL_CLIENT_SECRET'),
+    'client_id'     => constant('GOOGLE_OAUTH_CLIENT_ID'),
+    'client_secret' => constant('GOOGLE_OAUTH_CLIENT_SECRET'),
     'refresh_token' => $mailbox['refresh_token']
 ];
 

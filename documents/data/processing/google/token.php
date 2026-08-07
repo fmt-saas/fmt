@@ -10,7 +10,7 @@ use equal\http\HttpRequest;
 [$params, $providers] = eQual::announce([
     'description' => 'Génère un JWT signé à partir des credentials Google.',
     'params' => [],
-    'constants' => ['GOOGLE_DOCAI_PRIVATE_KEY', 'GOOGLE_DOCAI_CLIENT_EMAIL'],
+    'constants' => ['GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY', 'GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL'],
     'response' => [
         'content-type' => 'application/json',
         'charset' => 'utf-8'
@@ -22,8 +22,8 @@ use equal\http\HttpRequest;
 ['context' => $context] = $providers;
 
 // #memo - key is expected to be provided as a PEM string, with \n for new lines (as in Google JSON credentials file)
-$private_key  = str_replace("\\n", "\n", constant('GOOGLE_DOCAI_PRIVATE_KEY'));
-$client_email = constant('GOOGLE_DOCAI_CLIENT_EMAIL');
+$private_key  = str_replace("\\n", "\n", constant('GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY'));
+$client_email = constant('GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL');
 
 $time = time();
 

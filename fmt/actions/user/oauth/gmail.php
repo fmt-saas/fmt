@@ -38,8 +38,8 @@ use infra\server\Instance;
         'AUTH_ACCESS_TOKEN_VALIDITY',
         'AUTH_TOKEN_HTTPS',
         'FMT_INSTANCE_TYPE',
-        'GOOGLE_GMAIL_CLIENT_ID',
-        'GOOGLE_GMAIL_CLIENT_SECRET'
+        'GOOGLE_OAUTH_CLIENT_ID',
+        'GOOGLE_OAUTH_CLIENT_SECRET'
     ]
 ]);
 
@@ -86,8 +86,8 @@ $response = $oauthRequest
                 'grant_type'    => 'authorization_code',
                 'code'          => $params['code'],
                 'redirect_uri'  => rtrim($oauth_callback_base_url, '/') . '/oauth/gmail',
-                'client_id'     => constant('GOOGLE_GMAIL_CLIENT_ID'),
-                'client_secret' => constant('GOOGLE_GMAIL_CLIENT_SECRET')
+                'client_id'     => constant('GOOGLE_OAUTH_CLIENT_ID'),
+                'client_secret' => constant('GOOGLE_OAUTH_CLIENT_SECRET')
             ])
             ->send();
 

@@ -59,7 +59,19 @@ use infra\server\Server;
         'charset'           => 'utf-8',
         'accept-origin'     => '*'
     ],
-    'constants'         => ['BACKEND_URL', 'FMT_INSTANCE_TYPE', 'GOOGLE_DOCAI_PRIVATE_KEY', 'GOOGLE_DOCAI_CLIENT_EMAIL', 'GOOGLE_DOCAI_PROJECT_ID', 'GOOGLE_DOCAI_PROCESSOR_ID', 'GOOGLE_GMAIL_CLIENT_ID', 'GOOGLE_GMAIL_CLIENT_SECRET', 'MS_TENANT_ID', 'MS_OUTLOOK_CLIENT_ID', 'MS_OUTLOOK_CLIENT_SECRET'],
+    'constants'         => [
+        'BACKEND_URL',
+        'FMT_INSTANCE_TYPE',
+        'GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY',
+        'GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL',
+        'GOOGLE_PROJECT_NUMBER',
+        'GOOGLE_DOCUMENT_AI_PROCESSOR_ID',
+        'GOOGLE_OAUTH_CLIENT_ID',
+        'GOOGLE_OAUTH_CLIENT_SECRET',
+        'MS_TENANT_ID',
+        'MS_OUTLOOK_CLIENT_ID',
+        'MS_OUTLOOK_CLIENT_SECRET'
+    ],
     'providers'         => ['context']
 ]);
 
@@ -114,15 +126,15 @@ $create_params = [
     'SYNC'                  => $params['sync'],
     'AUTH_SECRET_KEY'       => substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 20),
     'SECRETS'               => base64_encode(json_encode([
-        'GOOGLE_DOCAI_PRIVATE_KEY'  => constant('GOOGLE_DOCAI_PRIVATE_KEY'),
-        'GOOGLE_DOCAI_CLIENT_EMAIL' => constant('GOOGLE_DOCAI_CLIENT_EMAIL'),
-        'GOOGLE_DOCAI_PROJECT_ID'   => constant('GOOGLE_DOCAI_PROJECT_ID'),
-        'GOOGLE_DOCAI_PROCESSOR_ID' => constant('GOOGLE_DOCAI_PROCESSOR_ID'),
-        'GOOGLE_GMAIL_CLIENT_ID'    => constant('GOOGLE_GMAIL_CLIENT_ID'),
-        'GOOGLE_GMAIL_CLIENT_SECRET'=> constant('GOOGLE_GMAIL_CLIENT_SECRET'),
-        'MS_TENANT_ID'              => constant('MS_TENANT_ID'),
-        'MS_OUTLOOK_CLIENT_ID'      => constant('MS_OUTLOOK_CLIENT_ID'),
-        'MS_OUTLOOK_CLIENT_SECRET'  => constant('MS_OUTLOOK_CLIENT_SECRET')
+        'GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY'    => constant('GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY'),
+        'GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL'   => constant('GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL'),
+        'GOOGLE_PROJECT_NUMBER'                 => constant('GOOGLE_PROJECT_NUMBER'),
+        'GOOGLE_DOCUMENT_AI_PROCESSOR_ID'       => constant('GOOGLE_DOCUMENT_AI_PROCESSOR_ID'),
+        'GOOGLE_OAUTH_CLIENT_ID'                => constant('GOOGLE_OAUTH_CLIENT_ID'),
+        'GOOGLE_OAUTH_CLIENT_SECRET'            => constant('GOOGLE_OAUTH_CLIENT_SECRET'),
+        'MS_TENANT_ID'                          => constant('MS_TENANT_ID'),
+        'MS_OUTLOOK_CLIENT_ID'                  => constant('MS_OUTLOOK_CLIENT_ID'),
+        'MS_OUTLOOK_CLIENT_SECRET'              => constant('MS_OUTLOOK_CLIENT_SECRET')
     ]))
 ];
 

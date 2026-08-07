@@ -38,7 +38,7 @@ use infra\server\Instance;
         'NOTIFICATIONS_ENABLED',
         'USER_ACCOUNT_REGISTRATION',
         'FMT_INSTANCE_TYPE',
-        'GOOGLE_GMAIL_CLIENT_ID',
+        'GOOGLE_OAUTH_CLIENT_ID',
         'MS_OUTLOOK_CLIENT_ID'
     ],
     'providers'     => ['context', 'auth']
@@ -77,7 +77,7 @@ $envinfo = [
     'account_registration'      => constant('USER_ACCOUNT_REGISTRATION'),
     'instance_type'             => constant('FMT_INSTANCE_TYPE'),
     'api_url_global'            => $api_url_global,
-    'google_gmail_client_id'    => constant('GOOGLE_GMAIL_CLIENT_ID'),
+    'google_gmail_client_id'    => constant('GOOGLE_OAUTH_CLIENT_ID'),
     'google_gmail_redirect_uri' => $oauth_callback_base_url . '/oauth/gmail',
     'ms_outlook_client_id'      => constant('MS_OUTLOOK_CLIENT_ID'),
     'ms_outlook_redirect_uri'   => $oauth_callback_base_url . '/oauth/outlook'
