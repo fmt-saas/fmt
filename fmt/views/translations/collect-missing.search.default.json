@@ -15,7 +15,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "language",
-                                                "label": "Target language",
+                                                "label": "Langue cible",
                                                 "width": "100%"
                                             }
                                         ]

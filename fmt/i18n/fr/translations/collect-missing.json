@@ -1,0 +1,71 @@
+{
+    "name": "Traduction manquante",
+    "plural": "Traductions manquantes",
+    "description": "Collecteur listant les valeurs multilingues encore à traduire.",
+    "model": {
+        "domain": {
+            "label": "Domaine",
+            "description": "Critères utilisés pour filtrer les objets à analyser.",
+            "help": ""
+        },
+        "language": {
+            "label": "Langue cible",
+            "description": "Langue cible à afficher dans les résultats.",
+            "selection": {
+                "all": "Toutes",
+                "en": "Anglais",
+                "fr": "Français",
+                "nl": "Néerlandais"
+            },
+            "help": "Sélectionnez une langue pour limiter la collecte aux traductions manquantes dans cette langue."
+        },
+        "entity": {
+            "label": "Entité",
+            "description": "Entité de l'objet pour lequel une traduction manque.",
+            "help": ""
+        },
+        "object_id": {
+            "label": "ID objet",
+            "description": "Identifiant de l'objet pour lequel une traduction manque.",
+            "help": ""
+        },
+        "field": {
+            "label": "Champ",
+            "description": "Nom du champ à traduire.",
+            "help": ""
+        },
+        "original_lang": {
+            "label": "Langue source",
+            "description": "Langue de la valeur utilisée comme base de traduction.",
+            "help": ""
+        },
+        "original_value": {
+            "label": "Valeur source",
+            "description": "Valeur à traduire.",
+            "help": ""
+        },
+        "target_lang": {
+            "label": "Langue cible",
+            "description": "Langue dans laquelle la valeur source doit être traduite.",
+            "help": ""
+        },
+        "target_value": {
+            "label": "Traduction",
+            "description": "Valeur traduite.",
+            "help": ""
+        }
+    },
+    "view": {
+        "list.default": {
+            "name": "Traductions manquantes",
+            "description": "Liste des valeurs multilingues encore à traduire.",
+            "layout": {}
+        },
+        "search.default": {
+            "name": "Recherche de traductions manquantes",
+            "description": "Collecteur avancé des traductions manquantes.",
+            "layout": {}
+        }
+    },
+    "error": {}
+}

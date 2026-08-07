@@ -1,4 +1,4 @@
-﻿- 'Accueil': index.md
+- 'Accueil': index.md
 - 'Copropriété':
     - 'Création nouvelle Copropriété': copropriete/creation-nouvelle-copropriete.md
     - 'Configuration & paramétrage': copropriete/configuration.md
