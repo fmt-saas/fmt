@@ -9,6 +9,7 @@ use documents\Document;
 use finance\accounting\AccountChart;
 use finance\accounting\FiscalYear;
 use finance\bank\BankStatement;
+use realestate\ownership\Ownership;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
@@ -242,6 +243,34 @@ $getExpenseStatements = function($fiscal_year_id) {
     );
 };
 
+$getOwnerAccountStatements = function($condo_id, $date_from, $date_to) {
+    $ownerships = Ownership::search(['condo_id', '=', $condo_id])
+        ->read(['code', 'date_from', 'date_to'])
+        ->get();
+
+    $documents = [];
+    foreach($ownerships as $ownership_id => $ownership) {
+        if(!empty($ownership['date_from']) && $ownership['date_from'] > $date_to) {
+            continue;
+        }
+        if(!empty($ownership['date_to']) && $ownership['date_to'] < $date_from) {
+            continue;
+        }
+
+        $documents[] = [
+            'name'      => "Situation de compte - {$ownership['code']}",
+            'extension' => 'pdf',
+            'data'      => eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
+                'ownership_id'  => $ownership_id,
+                'date_from'     => $date_from,
+                'date_to'       => $date_to
+            ])
+        ];
+    }
+
+    return $documents;
+};
+
 $createZipArchive = function($map_documents) {
     $tmp_file = sys_get_temp_dir()
         . DIRECTORY_SEPARATOR
@@ -280,6 +309,8 @@ $fiscalYear = FiscalYear::id($params['id'])
         'condo_id',
         'name',
         'status',
+        'date_from',
+        'date_to',
         'fiscal_periods_ids' => [
             '@sort' => ['date_from' => 'asc'],
             'date_from',
@@ -307,7 +338,8 @@ $map_documents = [
     '03_Pieces_justificatives/autres_pieces'        => [],
     '04_Coproprietaires'                            => [],
     '04_Coproprietaires/appels_de_fonds'            => [],
-    '04_Coproprietaires/decomptes_de_charges'       => []
+    '04_Coproprietaires/decomptes_de_charges'       => [],
+    '04_Coproprietaires/situations_de_compte'       => []
 ];
 
 
@@ -328,6 +360,7 @@ $map_documents['03_Pieces_justificatives/autres_pieces'] = $getMiscOperations($f
 
 $map_documents['04_Coproprietaires/appels_de_fonds'] = $getFundRequests($fiscalYear['id']);
 $map_documents['04_Coproprietaires/decomptes_de_charges'] = $getExpenseStatements($fiscalYear['id']);
+$map_documents['04_Coproprietaires/situations_de_compte'] = $getOwnerAccountStatements($fiscalYear['condo_id'], $fiscalYear['date_from'], $fiscalYear['date_to']);
 
 
 /*
