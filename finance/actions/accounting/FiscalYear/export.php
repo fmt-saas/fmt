@@ -182,6 +182,26 @@ $getBankStatements = function($fiscal_year_id) {
     );
 };
 
+$getMiscOperations = function($fiscal_year_id) {
+    $miscOpDocs = Document::search([
+        ['document_type_code', '=', 'misc_operation'],
+        ['misc_operation_id.fiscal_year_id', '=', $fiscal_year_id]
+    ])
+        ->read(['name', 'extension', 'data'])
+        ->get();
+
+    return array_map(
+        function($miscOpDoc) {
+            return [
+                'name'      => $miscOpDoc['name'],
+                'extension' => $miscOpDoc['extension'],
+                'data'      => $miscOpDoc['data']
+            ];
+        },
+        $miscOpDocs
+    );
+};
+
 $getFundRequests = function($fiscal_year_id) {
     $fundRequestDocs = Document::search([
         ['document_type_code', '=', 'fund_request'],
@@ -284,6 +304,7 @@ $map_documents = [
     '03_Pieces_justificatives'                      => [],
     '03_Pieces_justificatives/facture_achats'       => [],
     '03_Pieces_justificatives/extraits_bancaires'   => [],
+    '03_Pieces_justificatives/autres_pieces'        => [],
     '04_Coproprietaires'                            => [],
     '04_Coproprietaires/appels_de_fonds'            => [],
     '04_Coproprietaires/decomptes_de_charges'       => []
@@ -303,6 +324,7 @@ $map_documents['02_Livres_comptables'][] = $getLedgerBalance($fiscalYear['id']);
 
 $map_documents['03_Pieces_justificatives/facture_achats'] = $getSupplierInvoices($fiscalYear['id']);
 $map_documents['03_Pieces_justificatives/extraits_bancaires'] = $getBankStatements($fiscalYear['id']);
+$map_documents['03_Pieces_justificatives/autres_pieces'] = $getMiscOperations($fiscalYear['id']);
 
 $map_documents['04_Coproprietaires/appels_de_fonds'] = $getFundRequests($fiscalYear['id']);
 $map_documents['04_Coproprietaires/decomptes_de_charges'] = $getExpenseStatements($fiscalYear['id']);

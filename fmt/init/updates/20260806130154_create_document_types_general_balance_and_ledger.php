@@ -36,3 +36,12 @@ $createDocumentType([
     'description'           => 'Document présentant, par compte et par ordre chronologique, l’ensemble des écritures comptables enregistrées sur une période donnée.',
     'document_visibility'   => 'agency',
 ]);
+
+$createDocumentType([
+    'id'                    => 42,
+    'name'                  => 'OD',
+    'code'                  => 'misc_operation',
+    'folder_code'           => 'operation_statements',
+    'description'           => 'Document présentant, le justificatif d\'une opération diverse.',
+    'document_visibility'   => 'agency',
+]);
