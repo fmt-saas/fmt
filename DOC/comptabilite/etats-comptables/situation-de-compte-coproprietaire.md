@@ -26,7 +26,7 @@ Ces opérations peuvent notamment provenir de :
 Chaque mouvement est présenté sous forme d’une ligne contenant les informations suivantes :
 
 | Champ   | Description                                        |
-| - | -- |
+|---------|----------------------------------------------------|
 | Date    | Date comptable de l’opération                      |
 | Infos   | Libellé explicatif de l’opération                  |
 | Débit   | Montant porté au débit du compte copropriétaire    |
