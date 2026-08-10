@@ -6,6 +6,8 @@
 */
 
 use documents\Document;
+use documents\DocumentSubtype;
+use documents\DocumentType;
 use finance\accounting\AccountChart;
 use finance\accounting\FiscalYear;
 use finance\bank\BankStatement;
@@ -20,6 +22,16 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
             'foreign_object'    => 'finance\accounting\FiscalYear',
             'description'       => "The fiscal year the accounting export is needed for.",
             'help'              => "One of fiscal year or period dates is mandatory."
+        ],
+        'export_type' => [
+            'type'              => 'string',
+            'description'       => "Choose the export type, all documents in an archive or a consolidated PDF to ease printing.",
+            'help'              => "Csv files aren't handled in case of a consolidated PDF export.",
+            'selection'         => [
+                'archive',
+                'consolidated_pdf'
+            ],
+            'default'          => 'archive'
         ]
     ],
     'response'      => [
@@ -27,19 +39,31 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context']
+    'providers'     => ['context', 'auth']
 ]);
 
 /**
- * @var \equal\php\Context  $context
+ * @var \equal\php\Context                  $context
+ * @var \equal\auth\AuthenticationManager   $auth
  */
-['context' => $context] = $providers;
+['context' => $context, 'auth' => $auth] = $providers;
 
 /**
  * Methods
  */
 
-$getBalanceSheetDoc = function($period_id) {
+$getDocumentByHash = function($hash) use($auth) {
+    $user_id = $auth->userId();
+    $auth->su();
+
+    $document_data = eQual::run('get', 'documents_document', ['id' => $hash]);
+
+    $auth->su($user_id);
+
+    return $document_data;
+};
+
+$getBalanceSheetDoc = function($period_id) use($getDocumentByHash) {
     $balance_sheet = Document::search([
         ['document_type_code', '=', 'balance_sheet'],
         ['expense_statement_id.fiscal_period_id', '=', $period_id]
@@ -54,7 +78,7 @@ $getBalanceSheetDoc = function($period_id) {
     return [
         'name'      => $balance_sheet['name'],
         'extension' => $balance_sheet['extension'],
-        'data'      => eQual::run('get', 'documents_document', ['id' => $balance_sheet['hash']])
+        'data'      => $getDocumentByHash($balance_sheet['hash'])
     ];
 };
 
@@ -109,7 +133,7 @@ $getAccountingChartDoc = function($condo_id) {
     ];
 };
 
-$getGeneralBalance = function($fiscal_year_id) {
+$getGeneralBalance = function($fiscal_year_id) use($getDocumentByHash) {
     $generalBalance = Document::search([
         ['document_type_code', '=', 'general_balance'],
         ['fiscal_year_id', '=', $fiscal_year_id]
@@ -124,11 +148,11 @@ $getGeneralBalance = function($fiscal_year_id) {
     return [
         'name'      => $generalBalance['name'],
         'extension' => $generalBalance['extension'],
-        'data'      => eQual::run('get', 'documents_document', ['id' => $generalBalance['hash']])
+        'data'      => $getDocumentByHash($generalBalance['hash'])
     ];
 };
 
-$getLedgerBalance = function($fiscal_year_id) {
+$getLedgerBalance = function($fiscal_year_id) use($getDocumentByHash) {
     $generalLedger = Document::search([
         ['document_type_code', '=', 'general_ledger'],
         ['fiscal_year_id', '=', $fiscal_year_id]
@@ -143,100 +167,100 @@ $getLedgerBalance = function($fiscal_year_id) {
     return [
         'name'      => $generalLedger['name'],
         'extension' => $generalLedger['extension'],
-        'data'      => eQual::run('get', 'documents_document', ['id' => $generalLedger['hash']])
+        'data'      => $getDocumentByHash($generalLedger['hash'])
     ];
 };
 
-$getSupplierInvoices = function($fiscal_year_id) {
+$getSupplierInvoices = function($fiscal_year_id) use($getDocumentByHash) {
     $purchaseInvoices = PurchaseInvoice::search(['fiscal_year_id', '=', $fiscal_year_id])
-        ->read(['document_id' => ['name', 'extension', 'data']])
+        ->read(['document_id' => ['name', 'extension', 'hash']])
         ->get();
 
     return array_map(
-        function($invoice) {
+        function($invoice) use($getDocumentByHash) {
             return [
                 'name'      => $invoice['document_id']['name'],
                 'extension' => $invoice['document_id']['extension'],
-                'data'      => $invoice['document_id']['data']
+                'data'      => $getDocumentByHash($invoice['document_id']['hash'])
             ];
         },
         $purchaseInvoices
     );
 };
 
-$getBankStatements = function($fiscal_year_id) {
+$getBankStatements = function($fiscal_year_id) use($getDocumentByHash) {
     $bankStatements = BankStatement::search([
         ['fiscal_year_id', '=', $fiscal_year_id]
     ])
-        ->read(['document_id' => ['name', 'extension', 'data']])
+        ->read(['document_id' => ['name', 'extension', 'hash']])
         ->get();
 
     return array_map(
-        function($bankStatement) {
+        function($bankStatement) use($getDocumentByHash) {
             return [
                 'name'      => $bankStatement['document_id']['name'],
                 'extension' => $bankStatement['document_id']['extension'],
-                'data'      => $bankStatement['document_id']['data']
+                'data'      => $getDocumentByHash($bankStatement['document_id']['hash'])
             ];
         },
         $bankStatements
     );
 };
 
-$getMiscOperations = function($fiscal_year_id) {
+$getMiscOperations = function($fiscal_year_id) use($getDocumentByHash) {
     $miscOpDocs = Document::search([
         ['document_type_code', '=', 'misc_operation'],
         ['misc_operation_id.fiscal_year_id', '=', $fiscal_year_id]
     ])
-        ->read(['name', 'extension', 'data'])
+        ->read(['name', 'extension', 'hash'])
         ->get();
 
     return array_map(
-        function($miscOpDoc) {
+        function($miscOpDoc) use($getDocumentByHash) {
             return [
                 'name'      => $miscOpDoc['name'],
                 'extension' => $miscOpDoc['extension'],
-                'data'      => $miscOpDoc['data']
+                'data'      => $getDocumentByHash($miscOpDoc['document_id']['hash'])
             ];
         },
         $miscOpDocs
     );
 };
 
-$getFundRequests = function($fiscal_year_id) {
+$getFundRequests = function($fiscal_year_id) use($getDocumentByHash) {
     $fundRequestDocs = Document::search([
         ['document_type_code', '=', 'fund_request'],
         ['fund_request_id.fiscal_year_id', '=', $fiscal_year_id]
     ])
-        ->read(['name', 'extension', 'data'])
+        ->read(['name', 'extension', 'hash'])
         ->get();
 
     return array_map(
-        function($fundRequestDoc) {
+        function($fundRequestDoc) use($getDocumentByHash) {
             return [
                 'name'      => $fundRequestDoc['name'],
                 'extension' => $fundRequestDoc['extension'],
-                'data'      => $fundRequestDoc['data']
+                'data'      => $getDocumentByHash($fundRequestDoc['hash'])
             ];
         },
         $fundRequestDocs
     );
 };
 
-$getExpenseStatements = function($fiscal_year_id) {
+$getExpenseStatements = function($fiscal_year_id) use($getDocumentByHash) {
     $expenseStatementDocs = Document::search([
         ['document_type_code', '=', 'expense_statement'],
         ['expense_statement_id.fiscal_year_id', 'in', $fiscal_year_id]
     ])
-        ->read(['name', 'extension', 'data'])
+        ->read(['name', 'extension', 'hash'])
         ->get();
 
     return array_map(
-        function($expenseStatementDoc) {
+        function($expenseStatementDoc) use($getDocumentByHash) {
             return [
                 'name'      => $expenseStatementDoc['name'],
                 'extension' => $expenseStatementDoc['extension'],
-                'data'      => $expenseStatementDoc['data']
+                'data'      => $getDocumentByHash($expenseStatementDoc['hash'])
             ];
         },
         $expenseStatementDocs
@@ -269,6 +293,34 @@ $getOwnerAccountStatements = function($condo_id, $date_from, $date_to) {
     }
 
     return $documents;
+};
+
+$createConsolidatedPdf = function($map_documents) {
+    $temp_files = [];
+    foreach($map_documents as $dir_name => $documents) {
+        foreach($documents as $document) {
+            if($document['extension'] === 'pdf') {
+                $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+                file_put_contents($temp, $document['data']);
+                $temp_files[] = $temp;
+            }
+        }
+    }
+
+    $tmp_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
+
+    $escaped_files = array_map('escapeshellarg', $temp_files);
+    $escaped_output = escapeshellarg($tmp_file);
+    $cmd = 'qpdf --empty --pages ' . implode(' ', $escaped_files) . ' -- ' . $escaped_output . ' 2>&1';
+
+    exec($cmd, $output_lines, $result_code);
+
+    if ($result_code !== 0 || !file_exists($tmp_file)) {
+        trigger_error("APP::qpdf merge failed:\n" . implode("\n", $output_lines), EQ_REPORT_ERROR);
+        throw new Exception('pdf_merge_failed', EQ_ERROR_UNKNOWN);
+    }
+
+    return file_get_contents($tmp_file);
 };
 
 $createZipArchive = function($map_documents) {
@@ -306,11 +358,11 @@ $createZipArchive = function($map_documents) {
 
 $fiscalYear = FiscalYear::id($params['id'])
     ->read([
-        'condo_id',
         'name',
         'status',
         'date_from',
         'date_to',
+        'condo_id' => ['name'],
         'fiscal_periods_ids' => [
             '@sort' => ['date_from' => 'asc'],
             'date_from',
@@ -347,7 +399,7 @@ $map_documents = [
     Fiscal year
 */
 
-$map_documents['01_Etat_de_cloture'][] = $getAccountingChartDoc($fiscalYear['condo_id']);
+$map_documents['01_Etat_de_cloture'][] = $getAccountingChartDoc($fiscalYear['condo_id']['id']);
 // #todo - handle compte_de_resultats.pdf when the document generation is handled (related to fiscal period or year?)
 // #todo - handle balance_de_cloture.pdf when the document generation is handled (related to fiscal period or year?)
 
@@ -360,7 +412,7 @@ $map_documents['03_Pieces_justificatives/autres_pieces'] = $getMiscOperations($f
 
 $map_documents['04_Coproprietaires/appels_de_fonds'] = $getFundRequests($fiscalYear['id']);
 $map_documents['04_Coproprietaires/decomptes_de_charges'] = $getExpenseStatements($fiscalYear['id']);
-$map_documents['04_Coproprietaires/situations_de_compte'] = $getOwnerAccountStatements($fiscalYear['condo_id'], $fiscalYear['date_from'], $fiscalYear['date_to']);
+$map_documents['04_Coproprietaires/situations_de_compte'] = $getOwnerAccountStatements($fiscalYear['condo_id']['id'], $fiscalYear['date_from'], $fiscalYear['date_to']);
 
 
 /*
@@ -376,13 +428,27 @@ foreach($fiscalYear['fiscal_periods_ids'] as $id => $period) {
     Generate document
 */
 
+$condo_name = str_replace(' ', '_', $fiscalYear['condo_id']['name']);
+
+$year_from = date('Y', $fiscalYear['date_from']);
+$year_to = date('Y', $fiscalYear['date_to']);
+
+$year = $year_from;
+if($year_to !== $year_from) {
+    $year .= '-' . $year_to;
+}
+$year = $year_from;
+
 $document = Document::create([
-    'name'          => "{$fiscalYear['name']} - Export des documents comptable - Tous",
-    'content_type'  => $params['content_type'],
-    'data'          => $createZipArchive($map_documents),
-    'condo_id'      => $fiscalYear['condo_id']
+    'name'              => "{$condo_name}_EXERCICE_$year".($params['export_type'] === 'consolidated_pdf' ? '_PDF' : ''),
+    'content_type'      => $params['content_type'],
+    'data'              => $params['export_type'] === 'consolidated_pdf' ? $createConsolidatedPdf($map_documents) : $createZipArchive($map_documents),
+    'condo_id'          => $fiscalYear['condo_id']['id'],
+    'document_type'     => ($dt = DocumentType::search(['code', '=', 'auditor_document'])->first()) ? $dt['id'] : null,
+    'document_subtype'  => ($dt = DocumentSubtype::search(['code', '=', 'auditor_documents'])->first()) ? $dt['id'] : null
 ])
     ->first();
+
 
 $context
     ->httpResponse()

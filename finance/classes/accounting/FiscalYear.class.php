@@ -250,15 +250,20 @@ class FiscalYear extends Model {
                 'policies'      => [],
                 'function'      => 'doAttemptTransition'
             ],
+            'generate_closing_documents' => [
+                'description'   => 'Create necessary documents when the fiscal year is closed.',
+                'policies'      => ['can_generate_closing_documents'],
+                'function'      => 'doGenerateClosingDocuments'
+            ],
             'export_documents' => [
                 'description'   => 'Create an exporting task to export documents related to the fiscal year.',
                 'policies'      => ['can_export_documents'],
                 'function'      => 'doExportDocuments'
             ],
-            'generate_closing_documents' => [
-                'description'   => 'Create necessary documents when the fiscal year is closed.',
+            'export_documents_as_consolidated_pdf' => [
+                'description'   => 'Create an exporting task to export documents related to the fiscal year as a consolidated PDF.',
                 'policies'      => ['can_export_documents'],
-                'function'      => 'doGenerateClosingDocuments'
+                'function'      => 'doExportDocumentsAsConsolidatedPdf'
             ]
         ];
     }
@@ -396,6 +401,10 @@ class FiscalYear extends Model {
             'can_export_documents' => [
                 'description' => 'Verifies that the documents can be exported.',
                 'function'    => 'policyCanExportDocuments'
+            ],
+            'can_generate_closing_documents' => [
+                'description' => 'Verifies that the closing documents can be generated.',
+                'function'    => 'policyCanGenerateClosingDocuments'
             ]
         ];
     }
@@ -685,6 +694,20 @@ class FiscalYear extends Model {
         return $result;
     }
 
+    protected static function policyCanGenerateClosingDocuments($self): array {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $fiscalYear) {
+            if($fiscalYear['status'] !== 'closed') {
+                $result[$id] = [
+                    'fiscal_year_not_closed' => 'Fiscal year status must be closed.'
+                ];
+            }
+        }
+
+        return $result;
+    }
+
     /**
     * Attempts to perform a transition to the specified state ($values['status']).
     * Does nothing if the fiscal year is already in the target state.
@@ -728,6 +751,26 @@ class FiscalYear extends Model {
                 'name'              => "{$fiscalYear['name']} - Export des documents comptable - Tous",
                 'controller'        => 'finance_accounting_FiscalYear_export',
                 'params'            => json_encode(['id' => $id])
+            ]);
+        }
+    }
+
+    protected static function doExportDocumentsAsConsolidatedPdf($self) {
+        $self->read(['name', 'condo_id']);
+        foreach($self as $id => $fiscalYear) {
+            $exportingTask = ExportingTask::create([
+                'name'          => "{$fiscalYear['name']} - Export des documents comptable",
+                'condo_id'      => $fiscalYear['condo_id'],
+                'object_class'  => static::class,
+                'object_id'     => $id
+            ])
+                ->first();
+
+            ExportingTaskLine::create([
+                'exporting_task_id' => $exportingTask['id'],
+                'name'              => "{$fiscalYear['name']} - Export des documents comptable - PDF consolidé",
+                'controller'        => 'finance_accounting_FiscalYear_export',
+                'params'            => json_encode(['id' => $id, 'export_type' => 'consolidated_pdf'])
             ]);
         }
     }
