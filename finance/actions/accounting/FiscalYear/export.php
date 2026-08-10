@@ -346,6 +346,32 @@ $createZipArchive = function($map_documents) {
         }
     }
 
+    $map_documents_quantities = [
+        "01_Etat_de_cloture:"       => 0,
+        "02_Livres_comptables:"     => 0,
+        "03_Pieces_justificatives:" => 0,
+        "04_Coproprietaires:"       => 0
+    ];
+    foreach($map_documents as $dir_name => $documents) {
+        $cat = explode('/', $dir_name)[0];
+
+        $map_documents_quantities[$cat] += count($documents);
+    }
+
+    $export_log = [
+        "Date: ".date("Y-m-d H:i"),
+        "",
+        "01_Etat_de_cloture: {$map_documents_quantities['01_Etat_de_cloture']} documents",
+        "02_Livres_comptables: {$map_documents_quantities['02_Livres_comptables']} documents",
+        "03_Pieces_justificatives: {$map_documents_quantities['03_Pieces_justificatives']} documents",
+        "04_Coproprietaires: {$map_documents_quantities['04_Coproprietaires']} documents"
+    ];
+
+    $zip->addFromString(
+        'rapport_export.txt',
+        implode(PHP_EOL, $export_log)
+    );
+
     $zip->close();
 
     return file_get_contents($tmp_file);
