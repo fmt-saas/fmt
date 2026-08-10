@@ -429,6 +429,7 @@ foreach($fiscalYear['fiscal_periods_ids'] as $id => $period) {
 */
 
 $condo_name = str_replace(' ', '_', $fiscalYear['condo_id']['name']);
+$condo_name = preg_replace('/[^a-zA-Z0-9_%\[().\]\\/-]/s', '', $condo_name);
 
 $year_from = date('Y', $fiscalYear['date_from']);
 $year_to = date('Y', $fiscalYear['date_to']);
