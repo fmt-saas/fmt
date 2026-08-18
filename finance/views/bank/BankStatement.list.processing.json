@@ -9,7 +9,9 @@
             "default": false,
             "actions": [
                 {
-                    "id": "ACTION.DELETE",
+                    "id": "action.delete",
+                    "label": "Delete",
+                    "icon": "delete",
                     "visible": true,
                     "controller": "finance_bank_BankStatement_delete",
                     "confirm": true

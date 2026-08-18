@@ -172,6 +172,10 @@
                 "action.import": {
                     "label": "Importer",
                     "description": "Importer un relevé bancaire."
+                },
+                "action.delete": {
+                    "label": "Supprimer",
+                    "description": "Supprimer définitivement les relevés bancaires sélectionnés, uniquement s'ils sont à traiter."
                 }
             },
             "layout": {
@@ -182,11 +186,23 @@
         },
         "list.condo": {
             "name": "Relevés bancaires",
-            "description": "Relevés bancaires filtrés par copropriété."
+            "description": "Relevés bancaires filtrés par copropriété.",
+            "actions": {
+                "action.delete": {
+                    "label": "Supprimer",
+                    "description": "Supprimer définitivement les relevés bancaires sélectionnés, uniquement s'ils sont à traiter."
+                }
+            }
         },
         "list.processing": {
             "name": "Relevés bancaires",
             "description": "Liste des relevés bancaires en traitement documentaire.",
+            "actions": {
+                "action.delete": {
+                    "label": "Supprimer",
+                    "description": "Supprimer définitivement les relevés bancaires sélectionnés, uniquement s'ils sont à traiter."
+                }
+            },
             "routes": {
                 "item.import": {
                     "label": "Importer relevé bancaire",
