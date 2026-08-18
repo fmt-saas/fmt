@@ -5,6 +5,11 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 namespace finance\accounting;
+
+use documents\Document;
+use documents\DocumentType;
+use documents\export\ExportingTask;
+use documents\export\ExportingTaskLine;
 use equal\orm\Model;
 use fmt\setting\Setting;
 use realestate\property\Condominium;
@@ -245,6 +250,21 @@ class FiscalYear extends Model {
                 'policies'      => [],
                 'function'      => 'doAttemptTransition'
             ],
+            'generate_closing_documents' => [
+                'description'   => 'Create necessary documents when the fiscal year is closed.',
+                'policies'      => ['can_generate_closing_documents'],
+                'function'      => 'doGenerateClosingDocuments'
+            ],
+            'export_documents' => [
+                'description'   => 'Create an exporting task to export documents related to the fiscal year.',
+                'policies'      => ['can_export_documents'],
+                'function'      => 'doExportDocuments'
+            ],
+            'export_documents_as_consolidated_pdf' => [
+                'description'   => 'Create an exporting task to export documents related to the fiscal year as a consolidated PDF.',
+                'policies'      => ['can_export_documents'],
+                'function'      => 'doExportDocumentsAsConsolidatedPdf'
+            ]
         ];
     }
 
@@ -377,6 +397,14 @@ class FiscalYear extends Model {
             'can_generate_sequences' => [
                 'description' => 'Verifies that a sequences can be generated.',
                 'function'    => 'policyCanGenerateSequence'
+            ],
+            'can_export_documents' => [
+                'description' => 'Verifies that the documents can be exported.',
+                'function'    => 'policyCanExportDocuments'
+            ],
+            'can_generate_closing_documents' => [
+                'description' => 'Verifies that the closing documents can be generated.',
+                'function'    => 'policyCanGenerateClosingDocuments'
             ]
         ];
     }
@@ -652,6 +680,34 @@ class FiscalYear extends Model {
         return $result;
     }
 
+    protected static function policyCanExportDocuments($self): array {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $fiscalYear) {
+            if($fiscalYear['status'] !== 'closed') {
+                $result[$id] = [
+                    'fiscal_year_not_closed' => 'Fiscal year status must be closed.'
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanGenerateClosingDocuments($self): array {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $fiscalYear) {
+            if($fiscalYear['status'] !== 'closed') {
+                $result[$id] = [
+                    'fiscal_year_not_closed' => 'Fiscal year status must be closed.'
+                ];
+            }
+        }
+
+        return $result;
+    }
+
     /**
     * Attempts to perform a transition to the specified state ($values['status']).
     * Does nothing if the fiscal year is already in the target state.
@@ -676,6 +732,99 @@ class FiscalYear extends Model {
                 continue;
             }
             self::id($id)->transition($map_status_transition[$values['status']]);
+        }
+    }
+
+    protected static function doExportDocuments($self) {
+        $self->read(['name', 'condo_id']);
+        foreach($self as $id => $fiscalYear) {
+            $exportingTask = ExportingTask::create([
+                'name'          => "{$fiscalYear['name']} - Export des documents comptable",
+                'condo_id'      => $fiscalYear['condo_id'],
+                'object_class'  => static::class,
+                'object_id'     => $id
+            ])
+                ->first();
+
+            ExportingTaskLine::create([
+                'exporting_task_id' => $exportingTask['id'],
+                'name'              => "{$fiscalYear['name']} - Export des documents comptable - Tous",
+                'controller'        => 'finance_accounting_FiscalYear_export',
+                'params'            => json_encode(['id' => $id])
+            ]);
+        }
+    }
+
+    protected static function doExportDocumentsAsConsolidatedPdf($self) {
+        $self->read(['name', 'condo_id']);
+        foreach($self as $id => $fiscalYear) {
+            $exportingTask = ExportingTask::create([
+                'name'          => "{$fiscalYear['name']} - Export des documents comptable",
+                'condo_id'      => $fiscalYear['condo_id'],
+                'object_class'  => static::class,
+                'object_id'     => $id
+            ])
+                ->first();
+
+            ExportingTaskLine::create([
+                'exporting_task_id' => $exportingTask['id'],
+                'name'              => "{$fiscalYear['name']} - Export des documents comptable - PDF consolidé",
+                'controller'        => 'finance_accounting_FiscalYear_export',
+                'params'            => json_encode(['id' => $id, 'export_type' => 'consolidated_pdf'])
+            ]);
+        }
+    }
+
+    protected static function doGenerateClosingDocuments($self) {
+        $self->read(['condo_id', 'name']);
+        foreach($self as $id => $fiscalYear) {
+
+            // 1) Create document general balance
+
+            $general_balance_doc = \eQual::run(
+                'get',
+                'finance_accounting_generalBalance_render-pdf',
+                [
+                    'params' => [
+                        'condo_id'          => $fiscalYear['condo_id'],
+                        'fiscal_year_id'    => $id
+                    ]
+                ]
+            );
+
+            Document::create([
+                'name'                  => "Balance Générale Des Comptes - {$fiscalYear['name']}",
+                'condo_id'              => $fiscalYear['condo_id'],
+                'fiscal_year_id'        => $id,
+                'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'general_balance'])->first()) ? $dt['id'] : null,
+                'document_visibility'   => 'agency',
+                'is_origin'             => true,
+                'data'                  => $general_balance_doc
+            ]);
+
+
+            // 2) Create document general ledger
+
+            $general_ledger_doc = \eQual::run(
+                'get',
+                'finance_accounting_generalLedger_render-pdf',
+                [
+                    'params' => [
+                        'condo_id'          => $fiscalYear['condo_id'],
+                        'fiscal_year_id'    => $id
+                    ]
+                ]
+            );
+
+            Document::create([
+                'name'                  => "Grand Livre - {$fiscalYear['name']}",
+                'condo_id'              => $fiscalYear['condo_id'],
+                'fiscal_year_id'        => $id,
+                'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'general_ledger'])->first()) ? $dt['id'] : null,
+                'document_visibility'   => 'agency',
+                'is_origin'             => true,
+                'data'                  => $general_ledger_doc
+            ]);
         }
     }
 
@@ -921,7 +1070,7 @@ class FiscalYear extends Model {
 
         foreach($self as $id => $fiscalYear) {
 
-            // 2) generate closing balance for the fiscal year
+            // 1) generate closing balance for the fiscal year
 
             // remove any previously created closing balance
             if($fiscalYear['closing_balance_id']) {
@@ -939,6 +1088,9 @@ class FiscalYear extends Model {
             self::id($id)->update(['closing_balance_id' => $closingBalance['id']]);
 
             // #memo - OpeningBalance for next fiscal year is created in `onafterClose`
+
+            // 2) generate immutable annual documents
+            self::id($id)->do('generate_closing_documents');
         }
     }
 

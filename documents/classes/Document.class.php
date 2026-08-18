@@ -394,7 +394,15 @@ class Document extends Model {
                 'description'       => 'Miscellaneous operation targeted by the funding, if any.',
                 'help'              => 'This is for the unexpected movements, for which the Funding was created at bank statement line reconcile.',
                 'readonly'          => true,
-                'visible'           => ['document_type_code', '=', 'misc'],
+                'visible'           => ['document_type_code', '=', 'misc_operation'],
+            ],
+
+            'fiscal_year_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalYear',
+                'description'       => 'Fiscal year to which the document relates, if any.',
+                'readonly'          => true,
+                'visible'           => ['document_type_code', '=', 'general_balance']
             ],
 
             'ownership_transfer_id' => [

@@ -10,6 +10,7 @@ use documents\DocumentType;
 use documents\DocumentSubtype;
 use documents\navigation\Node;
 use realestate\funding\ExpenseStatementCorrespondence;
+use realestate\ownership\Ownership;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Create a document for a given expense statement correspondence.",
@@ -64,6 +65,11 @@ if($siblingExpenseStatementCorrespondence) {
 
 if(!$document_id) {
 
+    // retrieve ownership code to avoid duplicate document name
+    $ownership = Ownership::id($expenseStatementCorrespondence['ownership_id'])
+        ->read(['code'])
+        ->first();
+
     // generate document and add it to EDMS
     $data = eQual::run('get', 'realestate_funding_ExpenseStatementCorrespondence_render-pdf', ['id' => $expenseStatementCorrespondence['id']]);
 
@@ -80,7 +86,7 @@ if(!$document_id) {
         ->first();
 
     $document = Document::create([
-            'name'                  => 'Décompte de charges - ' . $expenseStatementCorrespondence['name'],
+            'name'                  => "Décompte de charges - {$expenseStatementCorrespondence['name']} - {$ownership['code']}",
             'data'                  => $data,
             'condo_id'              => $expenseStatementCorrespondence['condo_id'],
             'expense_statement_id'  => $expenseStatementCorrespondence['expense_statement_id'],

@@ -700,3 +700,30 @@ $createDocumentType([
     'description'           => 'Fichiers d\'imports Propriétaires (temporaire).',
     'document_visibility'   => 'agency'
 ]);
+
+$createDocumentType([
+    'id'                    => 40,
+    'name'                  => 'Balance Générale Des Comptes',
+    'code'                  => 'general_balance',
+    'folder_code'           => 'operation_statements',
+    'description'           => 'Document présentant, pour chaque compte, le total des mouvements au débit et au crédit ainsi que le solde sur une période comptable donnée.',
+    'document_visibility'   => 'agency',
+]);
+
+$createDocumentType([
+    'id'                    => 41,
+    'name'                  => 'Grand Livre',
+    'code'                  => 'general_ledger',
+    'folder_code'           => 'operation_statements',
+    'description'           => 'Document présentant, par compte et par ordre chronologique, l’ensemble des écritures comptables enregistrées sur une période donnée.',
+    'document_visibility'   => 'agency',
+]);
+
+$createDocumentType([
+    'id'                    => 42,
+    'name'                  => 'OD',
+    'code'                  => 'misc_operation',
+    'folder_code'           => 'operation_statements',
+    'description'           => 'Document présentant, le justificatif d\'une opération diverse.',
+    'document_visibility'   => 'agency',
+]);
