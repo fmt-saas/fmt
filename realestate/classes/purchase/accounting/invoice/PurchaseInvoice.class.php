@@ -1429,6 +1429,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             ]);
 
         foreach($self as $id => $invoice) {
+            // remove existing pending accounting entries, if any (there should be none)
+            AccountingEntry::search([
+                    ['status', '=', 'pending'],
+                    ['purchase_invoice_id', '=', $id],
+                    ['condo_id', '=', $invoice['condo_id']]
+                ])
+                ->delete(true);
 
             $date_from = $date_to = $invoice['posting_date'];
 
