@@ -1,0 +1,24 @@
+{
+    "name": "Supprimer un relevé bancaire",
+    "plural": "Supprimer des relevés bancaires",
+    "description": "Supprime définitivement les relevés bancaires sélectionnés, uniquement lorsqu'ils sont à traiter.",
+    "model": {
+        "id": {
+            "label": "Relevé bancaire",
+            "description": "Relevé bancaire à supprimer.",
+            "help": "Seuls les relevés au statut À traiter peuvent être supprimés."
+        },
+        "ids": {
+            "label": "Relevés bancaires",
+            "description": "Liste des relevés bancaires à supprimer.",
+            "help": "Tous les relevés sélectionnés doivent être au statut À traiter."
+        }
+    },
+    "error": {
+        "errors": {
+            "no_bank_statement_selected": "Aucun relevé bancaire sélectionné.",
+            "unknown_bank_statement": "Au moins un relevé bancaire sélectionné est introuvable.",
+            "non_pending_bank_statement": "Seuls les relevés bancaires à traiter peuvent être supprimés."
+        }
+    }
+}

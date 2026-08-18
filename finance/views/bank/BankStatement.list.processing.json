@@ -10,7 +10,9 @@
             "actions": [
                 {
                     "id": "ACTION.DELETE",
-                    "visible": true
+                    "visible": true,
+                    "controller": "finance_bank_BankStatement_delete",
+                    "confirm": true
                 }
             ]
         }
