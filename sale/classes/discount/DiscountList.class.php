@@ -74,7 +74,7 @@ class DiscountList extends Model {
     }
 
     public static function onupdateDiscountClassId($om, $oids, $values, $lang) {
-        $om->write(__CLASS__, $oids, ['rate_class_id' => null]);
+        $om->update(__CLASS__, $oids, ['rate_class_id' => null]);
         // force immediate re-computing
         $om->read(__CLASS__, $oids, ['rate_class_id']);
     }
