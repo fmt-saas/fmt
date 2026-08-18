@@ -112,7 +112,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'foreign_field'     => 'invoice_id',
                 'description'       => 'Detailed lines of the invoice.',
                 'ondetach'          => 'delete',
-                'dependencies'      => ['total', 'price'],
+                'dependents'        => ['total', 'price'],
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 

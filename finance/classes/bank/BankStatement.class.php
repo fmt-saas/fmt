@@ -74,6 +74,7 @@ class BankStatement extends Model {
                 'description'       => 'Date at which the statement was received.',
                 'help'              => "This is for information only and might not be accurate with the actual date/time at which the statement was generated.
                     By convention all banks release at maximum 1 statement per day, so this date is always at midnight (00:00:00) of the given day.",
+                // #memo - we leave this field as non-readonly but perform a check based on status in `canupdate()`
                 'dependents'        => ['name']
             ],
 
