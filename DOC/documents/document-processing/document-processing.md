@@ -106,13 +106,34 @@ Un objet métier peut exister sous un statut temporaire (`draft`, `proforma`) to
 
 
 
-Tous les élément cibles qui font l'objet d'un suivi de traitement (DocumentProcess) ont des champs qui permettent de faire les liens : 
+### Coordination entre `DocumentProcess` et document cible
 
-* assigned_employee_id
-* alert
-* document_process_status 
+Le workflow est réparti entre deux responsabilités complémentaires :
 
-Ces champs sont synchronisés lors des actions réalisées par les utilisateurs.
+* le `DocumentProcess` porte le workflow de traitement, l’assignation et les permissions utilisateur ;
+* le document cible porte les informations métier propres à sa nature, par exemple la complétude ou les données de validation.
+
+Une transition vers l’étape suivante peut donc dépendre de l’état des deux objets :
+
+* côté `DocumentProcess`, le passage à l’étape suivante dépend de l’état du document cible lorsque des informations métier sont requises ;
+* côté document cible, les actions qui font avancer le traitement dépendent du statut courant du `DocumentProcess`.
+
+Tous les éléments cibles qui font l’objet d’un suivi de traitement (`DocumentProcess`) disposent de champs de liaison et de suivi :
+
+* `assigned_employee_id`
+* `alert`
+* `document_process_status`
+
+Ces champs sont synchronisés lors des actions réalisées par les utilisateurs. Le champ `document_process_status` permet notamment au document cible d’exposer l’état de son `DocumentProcess` sans porter directement le workflow de traitement.
+
+Pour éviter les confusions, les transitions du workflow du `DocumentProcess` ne sont pas directement accessibles depuis la vue formulaire du `DocumentProcess`. Elles doivent être appelées indirectement via les actions du document cible, qui vérifient à la fois l’état métier du document et le statut du `DocumentProcess`.
+
+Exemple pour une `PurchaseInvoice` :
+
+* le statut métier de la facture reste présent, mais aucune action ne permet de l’activer directement dans le cadre du document processing ;
+* le workflow de traitement est accessible uniquement via le `DocumentProcess` associé ;
+* la facture expose le statut de son `DocumentProcess` via un champ dédié ;
+* des actions spécifiques sur la facture, équivalentes aux transitions du `DocumentProcess`, appellent les transitions du `DocumentProcess` selon son statut courant.
 
 
 

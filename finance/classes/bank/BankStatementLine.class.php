@@ -60,7 +60,8 @@ class BankStatementLine extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\bank\BankStatement',
                 'description'       => 'The bank statement the line relates to.',
-                'required'          => true
+                'required'          => true,
+                'ondelete'          => 'cascade'
             ],
 
             'accounting_entry_id' => [
