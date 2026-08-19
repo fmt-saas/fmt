@@ -154,6 +154,10 @@
                 "action.post": {
                     "label": "Intégrer",
                     "description": "Générer la configuration obligatoire."
+                },
+                "action.delete": {
+                    "label": "Supprimer",
+                    "description": "Supprimer définitivement le relevé bancaire, uniquement s'il est à traiter."
                 }
             },
             "layout": {
