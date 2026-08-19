@@ -60,5 +60,5 @@ foreach($bankStatements as $bankStatement) {
 $bankStatements->delete(true);
 
 $context->httpResponse()
-    ->status(204)
+    ->status(205)
     ->send();
