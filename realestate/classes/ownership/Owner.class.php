@@ -173,7 +173,7 @@ class Owner extends Identity {
         ]);
     }
 
-    protected static function oninstantiate($self) {
+    protected static function oninstantiate($self, $values=[]) {
         if(!isset($values['identity_id'])) {
             $self->do('assert_identity');
         }
