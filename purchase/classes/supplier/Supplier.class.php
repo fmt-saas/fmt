@@ -286,7 +286,8 @@ class Supplier extends Identity {
         }
     }
 
-    public static function onafterinstantitate($self) {
+    public static function onafterinstantiate($self, $values, $orm) {
+        parent::onafterinstantiate($self, $values, $orm);
         $self->do('refresh_identity_lists');
     }
 
