@@ -1751,8 +1751,8 @@ class Identity extends Model {
                     'type_id','legal_name','firstname','lastname','lang_id',
                     'has_vat','vat_number','citizen_identification', 'registration_number',
                     'email','phone','mobile',
-                    'address_street','address_dispatch','address_zip',
-                    'address_city','address_state','address_country'
+                    'bank_account_iban', 'bank_account_bic', 'bank_name', 'bank_country',
+                    'address_street','address_dispatch','address_zip', 'address_city','address_state','address_country'
                 ];
 
             $self->read(array_merge($common_fields, ['identity_id', 'state']));
@@ -1826,6 +1826,9 @@ class Identity extends Model {
                     if(!$identity_id) {
                         // #memo - do not use Identity::create
                         $identity_id = $orm->create(Identity::getType(), $identity_values);
+                        Identity::id($identity_id)
+                            ->do('refresh_bank_accounts')
+                            ->do('refresh_addresses');
                     }
 
                     // #memo - classes that inherit from Identity should have a callback onupdateIdentityId (in order to assign back the right field: 'user_id', 'customer_id', 'supplier_id', 'employee_id', ...)
