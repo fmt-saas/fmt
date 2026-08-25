@@ -22,6 +22,16 @@ class Supplier extends Identity {
         return "A supplier is a company from which the organisation buys goods and services.";
     }
 
+    public static function getActions() {
+        return array_merge(parent::getActions(), [
+            'refresh_identity_lists' => [
+                'description'   => 'Synchronize the supplier main address and bank account with the related identity lists.',
+                'policies'      => [],
+                'function'      => 'doRefreshIdentityLists'
+            ]
+        ]);
+    }
+
     public static function getColumns() {
 
         return [
@@ -190,6 +200,53 @@ class Supplier extends Identity {
         }
     }
 
+    protected static function doRefreshIdentityLists($self) {
+        static $identity_fields = [
+            'address_street',
+            'address_dispatch',
+            'address_zip',
+            'address_city',
+            'address_state',
+            'address_country',
+            'bank_account_iban',
+            'bank_account_bic',
+            'bank_name',
+            'bank_country'
+        ];
+
+        $self->read(array_merge(['identity_id'], $identity_fields));
+
+        foreach($self as $id => $supplier) {
+            if(!$supplier['identity_id']) {
+                continue;
+            }
+
+            $values = [];
+            foreach($identity_fields as $field) {
+                if(isset($supplier[$field]) && $supplier[$field] !== '') {
+                    $values[$field] = $supplier[$field];
+                }
+            }
+
+            $identity = Identity::id($supplier['identity_id'])
+                ->read(['supplier_id'])
+                ->first();
+
+            if($identity && (int) $identity['supplier_id'] !== (int) $id) {
+                $values['supplier_id'] = $id;
+            }
+
+            if(!count($values)) {
+                continue;
+            }
+
+            Identity::id($supplier['identity_id'])
+                ->update($values)
+                ->do('refresh_addresses')
+                ->do('refresh_bank_accounts');
+        }
+    }
+
     protected static function calcSupplierTypeCode($self) {
         $result = [];
         $self->read(['object_class']);
@@ -227,6 +284,10 @@ class Supplier extends Identity {
                 Identity::id($supplier['identity_id'])->update(['supplier_id' => $id]);
             }
         }
+    }
+
+    public static function onafterinstantitate($self) {
+        $self->do('refresh_identity_lists');
     }
 
 }
