@@ -46,19 +46,21 @@ if(!$documentProcess) {
 }
 
 
-$existingDocument = Document::search([
+$existingDocuments = Document::search([
         ['id', '<>', $documentProcess['document_id']['id']],
         ['hash_sha256', '=', $documentProcess['document_id']['hash_sha256']]
     ])
-    ->read(['document_process_id' => ['status']])
-    ->first();
+    ->read(['document_process_id' => ['status']]);
 
-if($existingDocument
-    && isset($existingDocument['document_process_id']['status'])
-    && !in_array($existingDocument['document_process_id']['status'], ['cancelled', 'removed'])
-) {
-    $dispatch->dispatch('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $params['id'], 'important');
-    throw new Exception("duplicate_document", EQ_ERROR_INVALID_PARAM);
+// #memo - document might be present several times and only the first version being cancelled
+foreach($existingDocuments as $document_id => $existingDocument) {
+    if($existingDocument
+        && isset($existingDocument['document_process_id']['status'])
+        && !in_array($existingDocument['document_process_id']['status'], ['cancelled', 'removed'])
+    ) {
+        $dispatch->dispatch('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $params['id'], 'important');
+        throw new Exception("duplicate_document", EQ_ERROR_INVALID_PARAM);
+    }
 }
 
 // a 2xx response mean validation was successful, in all other cases, an Exception is raised
