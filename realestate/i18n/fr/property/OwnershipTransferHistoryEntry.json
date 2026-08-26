@@ -1,0 +1,51 @@
+{
+    "name": "Entrée d'historique du transfert",
+    "plural": "Entrées d'historique du transfert",
+    "description": "Mémo en lecture seule des e-mails envoyés depuis un transfert de propriété.",
+    "model": {
+        "ownership_transfer_id": {
+            "label": "Transfert lié",
+            "description": "Dossier de transfert depuis lequel l'e-mail a été envoyé.",
+            "help": "Renseigné automatiquement."
+        },
+        "email_id": {
+            "label": "E-mail",
+            "description": "E-mail créé pour cette correspondance de transfert.",
+            "help": "Ouvrir ce lien pour consulter l'e-mail associé."
+        },
+        "sent_at": {
+            "label": "Date d'envoi",
+            "description": "Date et heure de mise en file d'envoi.",
+            "help": "Renseignée automatiquement lors de l'envoi."
+        },
+        "transfer_status": {
+            "label": "Statut du transfert",
+            "description": "Statut du dossier au moment de l'envoi.",
+            "help": "Conserve l'étape du dossier au moment de l'envoi.",
+            "selection": {
+                "pending": "En attente",
+                "open": "Ouvert",
+                "seller_documents_sent": "Documents vendeur envoyés",
+                "confirmed": "Confirmé",
+                "financial_statement_sent": "État financier envoyé",
+                "settled": "Réglé",
+                "closed": "Clôturé"
+            }
+        },
+        "recipients": {
+            "label": "Destinataires",
+            "description": "Liste calculée des adresses e-mail destinataires.",
+            "help": "Les destinataires principaux, en copie et en copie cachée sont regroupés ici."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Envoi du transfert",
+            "description": "Détails du mémo d'envoi, sans le contenu de l'e-mail."
+        },
+        "list.default": {
+            "name": "Historique des envois",
+            "description": "Date, statut du dossier, destinataires et lien vers chaque e-mail envoyé."
+        }
+    }
+}

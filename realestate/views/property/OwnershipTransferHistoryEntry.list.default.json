@@ -1,0 +1,47 @@
+{
+    "name": "Ownership Transfer History Entries",
+    "description": "Emails sent from an ownership transfer, without their content.",
+    "sort": "desc",
+    "order": "sent_at",
+    "header": {
+        "actions": {
+            "ACTION.CREATE": false
+        }
+    },
+    "layout": {
+        "items": [
+            {
+                "type": "field",
+                "value": "sent_at",
+                "width": "20%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "transfer_status",
+                "width": "20%",
+                "sortable": true,
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "recipients",
+                "width": "40%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "email_id",
+                "width": "20%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "ownership_transfer_id",
+                "width": "0%",
+                "visible": false
+            }
+        ]
+    }
+}
