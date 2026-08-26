@@ -94,22 +94,13 @@ $attachment_documents_ids[] = $document['id'];
 $recipients_emails = array_map(function ($a) { return $a['email']; }, $ownershipTransfer['contacts_ids']);
 $recipient_email = array_shift($recipients_emails);
 
-// #todo - bypass real recipient while testing
-$recipient_email = constant('EMAIL_SMTP_ACCOUNT_EMAIL');
-$sender_email = constant('EMAIL_SMTP_ACCOUNT_EMAIL');
-
 if(!$recipient_email || $recipient_email === '') {
-    throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
-}
-
-if(!$sender_email || $sender_email === '') {
     throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
 }
 
 // create message
 $message = new EmailMessage();
 $message->setTo($recipient_email)
-        ->setReplyTo($sender_email)
         ->setSubject("Demande d’informations / Convention de cession du droit de propriété")
         ->setContentType("text/html")
         ->setBody("
@@ -144,6 +135,10 @@ $email_id = Mail::queue(
     'realestate\property\OwnershipTransfer',
     $ownershipTransfer['id']
 );
+
+if($email_id === 0) {
+    throw new Exception('email_not_queued', EQ_ERROR_INVALID_CONFIG);
+}
 
 Email::id($email_id)->update([
         'mailbox_id'                => $managementProcess['mailbox_id'],

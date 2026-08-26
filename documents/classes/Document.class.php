@@ -437,7 +437,7 @@ class Document extends Model {
                 'type'              => 'many2many',
                 'foreign_object'    => 'realestate\property\OwnershipTransfer',
                 'foreign_field'     => 'attached_documents_ids',
-                'rel_table'         => 'realestate_ownership_transfer_rel_documents',
+                'rel_table'         => 'realestate_property_ownershiptransferattachment',
                 'rel_foreign_key'   => 'transfer_id',
                 'rel_local_key'     => 'document_id',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
