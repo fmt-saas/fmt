@@ -23,9 +23,7 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\property\OwnershipTransfer',
                 'description'       => 'Ownership transfer the attachment relates to.',
                 'required'          => true,
-                'ondelete'          => 'cascade',
-                'oncreate'          => 'onupdateOwnershipTransferId',
-                'onupdate'          => 'onupdateOwnershipTransferId'
+                'ondelete'          => 'cascade'
             ],
 
             'document_id' => [
@@ -51,29 +49,34 @@ class OwnershipTransferAttachment extends \equal\orm\Model {
             ],
 
             'attachment_target' => [
-                'type'              => 'string',
+                'type'              => 'computed',
+                'result_type'       => 'string',
                 'selection'         => [
                     'paragraph_1',
                     'paragraph_2'
                 ],
                 'description'       => 'Role of the document in the ownership transfer process.',
+                'function'          => 'calcAttachmentTarget',
+                'store'             => true,
+                'instant'           => true
             ]
 
         ];
     }
 
-    protected static function onupdateOwnershipTransferId($self) {
+    protected static function calcAttachmentTarget($self) {
+        $result = [];
         $self->read(['ownership_transfer_id' => ['status']]);
-
         foreach($self as $id => $ownershipTransferAttachment) {
-
-            if(in_array($ownershipTransferAttachment['status'], ['pending', 'open'], true)) {
-                self::id($id)->update(['attachment_target' => 'paragraph_1']);
+            if(!isset($ownershipTransferAttachment['ownership_transfer_id'], $ownershipTransferAttachment['ownership_transfer_id']['status'])) {
+                continue;
             }
-            else {
-                self::id($id)->update(['attachment_target' => 'paragraph_2']);
-            }
+            $result[$id] =
+                in_array($ownershipTransferAttachment['ownership_transfer_id']['status'], ['pending', 'open'], true)
+                ? 'paragraph_1'
+                : 'paragraph_2';
         }
+        return $result;
     }
 
     protected static function onupdateGeneralAssemblyMinutesDocumentId($self) {
