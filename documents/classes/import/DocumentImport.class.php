@@ -198,11 +198,25 @@ class DocumentImport extends Model {
                 Document::id($document['id'])->update(['broadcasts_ids' => [$documentImport['broadcast_id']]]);
             }
             elseif($documentImport['ownership_transfer_id']) {
+                $attachment_section = 'all';
+                $documentType = DocumentType::id($documentImport['document_type_id'])->read(['code'])->first();
+                if($documentType) {
+                    if($documentType['code'] === 'expense_statement') {
+                        $attachment_section = 'expense_statement';
+                    }
+                    elseif($documentType['code'] === 'general_assembly_document') {
+                        $attachment_section = 'general_assembly_minutes';
+                    }
+                    elseif($documentType['code'] === 'balance_sheet') {
+                        $attachment_section = 'balance_sheet';
+                    }
+                }
+
                 OwnershipTransferAttachment::create([
                     'condo_id'              => $documentImport['condo_id'],
                     'ownership_transfer_id' => $documentImport['ownership_transfer_id'],
                     'document_id'           => $document['id'],
-                    'attachment_section'    => 'all'
+                    'attachment_section'    => $attachment_section
                 ]);
             }
 
