@@ -397,6 +397,10 @@
                 "action.perform_transfer": {
                     "label": "Effectuer le transfert",
                     "description": "Générer les comptes comptables."
+                },
+                "action.refresh_info": {
+                    "label": "Actualiser les informations",
+                    "description": "Actualiser les arriérés du propriétaire."
                 }
             },
             "routes": {
