@@ -432,6 +432,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             'attached_documents_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'documents\Document',
+                'foreign_field'     => 'ownership_transfers_ids',
                 'rel_table'         => 'realestate_property_ownershiptransferattachment',
                 'rel_foreign_key'   => 'document_id',
                 'rel_local_key'     => 'ownership_transfer_id',

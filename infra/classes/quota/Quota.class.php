@@ -193,6 +193,15 @@ class Quota extends Model {
     }
 
     protected static function doCheckAvailability($self, $values): void {
+        // Availability controllers only need binary payload metadata.
+        if(isset($values['data']) && is_string($values['data'])) {
+            $values['content_size'] = max(
+                intval($values['content_size'] ?? 0),
+                strlen($values['data'])
+            );
+            unset($values['data']);
+        }
+
         $delta = intval($values['delta'] ?? 0);
         $self->read([
                 'code',

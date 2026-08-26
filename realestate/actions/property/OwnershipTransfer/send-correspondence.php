@@ -47,7 +47,7 @@ $context = $providers['context'];
 $ownershipTransfer = OwnershipTransfer::id($params['id'])
     ->read([
         'status',
-        'attached_documents_ids',
+        'ownership_transfer_attachments_ids' => ['document_id'],
         'condo_id' => ['id', 'name'],
         'old_ownership_id' => ['name'],
         'contacts_ids' => ['email']
@@ -85,7 +85,10 @@ $document = Document::create([
     ->first();
 
 
-$attachment_documents_ids = $ownershipTransfer['attached_documents_ids'];
+$attachment_documents_ids = array_column(
+    $ownershipTransfer['ownership_transfer_attachments_ids'],
+    'document_id'
+);
 $attachment_documents_ids[] = $document['id'];
 
 $recipients_emails = array_map(function ($a) { return $a['email']; }, $ownershipTransfer['contacts_ids']);
