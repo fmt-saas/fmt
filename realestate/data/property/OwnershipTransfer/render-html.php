@@ -87,6 +87,17 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
     return $result;
 };
 
+$sanitize_quill_html = function($html) {
+    if(!is_string($html)) {
+        return $html;
+    }
+
+    return preg_replace([
+        '/<span\b[^>]*class\s*=\s*(["\'])[^"\']*\bql-cursor\b[^"\']*\1[^>]*>.*?<\/span>/isu',
+        '/<p\b[^>]*>\s*<br\s*\/?>\s*<\/p>/iu'
+    ], '', $html);
+};
+
 $getLabels = function ($lang, $view_i18n_file_path, $default_labels = []) {
     $readLabels = function($path) {
         if(!$path || !file_exists($path)) {
@@ -377,6 +388,26 @@ if(!in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents
             $ownershipTransfer['seller_arrears_description_1'] = $part['value'];
         }
     }
+}
+
+// sanitize html fields against Quill rendering
+$html_fields = [
+    'fund_balances_description',
+    'seller_arrears_description_1',
+    'scheduled_fund_requests_description',
+    'judiciary_procedures_description',
+    'general_assembly_minutes_description',
+    'latest_balance_sheet_description',
+    'maintenance_expenses_description',
+    'fund_requests_description',
+    'commons_acquisitions_description',
+    'condominium_debts_description',
+    'seller_arrears_description_2',
+    'bank_loan_description'
+];
+
+foreach($html_fields as $field) {
+    $ownershipTransfer[$field] = $sanitize_quill_html($ownershipTransfer[$field]);
 }
 
 $recipient = [

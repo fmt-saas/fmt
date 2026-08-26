@@ -211,7 +211,7 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             'fund_balances_description' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
+                'usage'             => 'text/html.small',
                 'description'       => "Short description of the current balances of the condominium funds.",
                 'help'              => "As per 3.94.1.1"
             ],
@@ -238,7 +238,7 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             'seller_arrears_description_1' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
+                'usage'             => 'text/html.small',
                 'description'       => "Short description of the current procedures, along with involved amounts.",
                 'help'              => "As per 3.94.1.2"
             ],
@@ -265,14 +265,14 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             'seller_arrears_description_2' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
+                'usage'             => 'text/html.small',
                 'description'       => "Short description of the current procedures, along with involved amounts.",
                 'help'              => "As per 3.94.2.2"
             ],
 
             'scheduled_fund_requests_description' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
+                'usage'             => 'text/html.small',
                 'description'       => "Short description of the current procedures, along with involved amounts.",
                 'help'              => "As per 3.94.1.3"
             ],
@@ -285,21 +285,21 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             'judiciary_procedures_description' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
+                'usage'             => 'text/html.small',
                 'description'       => "Short description of the current procedures, along with involved amounts.",
                 'help'              => "As per 3.94.1.4"
             ],
 
             'general_assembly_minutes_description' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
+                'usage'             => 'text/html.small',
                 'description'       => "Short text introducing the General Assembly minutes.",
                 'help'              => "As per 3.94.1.5"
             ],
 
             'latest_balance_sheet_description' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
+                'usage'             => 'text/html.small',
                 'description'       => "Short text introducting the latest balance sheet.",
                 'help'              => "As per 3.94.1.6"
             ],
@@ -313,28 +313,28 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             'maintenance_expenses_description' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
+                'usage'             => 'text/html.small',
                 'description'       => "Short description of the current maintenance expenses.",
                 'help'              => "As per 3.94.2.1"
             ],
 
             'fund_requests_description' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
+                'usage'             => 'text/html.small',
                 'description'       => "Short description of the current fund requests.",
                 'help'              => "As per 3.94.2.2"
             ],
 
             'commons_acquisitions_description' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
+                'usage'             => 'text/html.small',
                 'description'       => "Short description of the current common acquisitions.",
                 'help'              => "As per 3.94.2.3"
             ],
 
             'condominium_debts_description' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
+                'usage'             => 'text/html.small',
                 'description'       => "Short description of the current condominium debts.",
                 'help'              => "As per 3.94.2.4"
             ],
@@ -388,7 +388,7 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             'bank_loan_description' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain.small',
+                'usage'             => 'text/html.small',
                 'description'       => "Short description about ba&nk loan(s), if any."
             ],
 
