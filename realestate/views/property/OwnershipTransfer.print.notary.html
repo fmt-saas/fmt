@@ -336,7 +336,9 @@
                     </tr>
 
                     {% set funding_arrears_amount = 0 %}
+                    {% set seller_arrears_total_amount = 0 %}
                     {% for arrear_line in arrear_lines_2 %}
+                        {% set seller_arrears_total_amount = seller_arrears_total_amount + arrear_line.due_amount %}
                         {% if arrear_line.arrear_line_type == 'funding' %}
                             {% set funding_arrears_amount = funding_arrears_amount + arrear_line.due_amount %}
                         {% endif %}
@@ -355,6 +357,11 @@
                         </tr>
                         {% endif %}
                     {% endfor %}
+
+                    <tr>
+                        <td><strong>{{ labels['arrears.table.footer.total'] }}</strong></td>
+                        <td><strong>{{ seller_arrears_total_amount | format_money() }}</strong></td>
+                    </tr>
                 </table>
             </div>
 

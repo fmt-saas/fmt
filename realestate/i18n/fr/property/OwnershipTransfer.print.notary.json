@@ -47,6 +47,7 @@
     "arrears.table.th.label": "Libellé",
     "arrears.table.th.type": "Type",
     "arrears.table.th.remaining": "Restant",
+    "arrears.table.footer.total": "Total",
     "arrears.funding_group.label": "arriérés",
 
     "transfer_fees.table.th.file_fees": "Frais de dossiers (3.94 §4)",
