@@ -218,7 +218,7 @@ $ownershipTransfer = OwnershipTransfer::id($params['id'])
         'has_intervention_record',
         'has_fuel_tank',
         'fuel_tank_capacity',
-        'old_ownership_id' => ['name', 'owners_ids' => ['name']],
+        'old_ownership_id' => ['name', 'payment_reference', 'owners_ids' => ['name']],
         'property_lots_ids' => ['name'],
         'fund_balances_ids' => [
             'condo_fund_id' => ['name'],
@@ -327,6 +327,7 @@ $condominium = Condominium::id($ownershipTransfer['condo_id'])
     ->first();
 
 $condominium['bank_account_iban'] = DataFormatter::format($condominium['bank_account_iban'], 'iban');
+$ownershipTransfer['old_ownership_id']['payment_reference'] = DataFormatter::format($ownershipTransfer['old_ownership_id']['payment_reference'], 'VCS');
 
 // compute contact details
 $request_contact_name = $ownershipTransfer['request_contact_name'];

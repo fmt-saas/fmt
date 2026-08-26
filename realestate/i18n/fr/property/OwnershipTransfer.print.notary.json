@@ -46,7 +46,7 @@
     "arrears.table.th.due_date": "Date d'échéance",
     "arrears.table.th.label": "Libellé",
     "arrears.table.th.type": "Type",
-    "arrears.table.th.remaining": "Restant",
+    "arrears.table.th.remaining": "Montant",
     "arrears.table.footer.total": "Total",
     "arrears.funding_group.label": "arriérés",
 
