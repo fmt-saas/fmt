@@ -171,7 +171,15 @@ unset($result['groups_ids']);
 // unset($result['role_assignments_ids']);
 
 // renew JWT access token
-$access_token = $auth->token($authenticated_user_id, constant('AUTH_ACCESS_TOKEN_VALIDITY'), ['auth_type' => 'pwd', 'auth_level' => 1]);
+$access_token = $auth->token(
+        $authenticated_user_id,
+        constant('AUTH_ACCESS_TOKEN_VALIDITY'),
+        [
+            'method'    => 'pwd',
+            'level'     => 1,
+            'exp'       => time() + constant('AUTH_ACCESS_TOKEN_VALIDITY')
+        ]
+    );
 
 // send back basic info of the User object
 $context->httpResponse()
