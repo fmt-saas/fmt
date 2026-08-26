@@ -1212,7 +1212,10 @@ class OwnershipTransfer extends \equal\orm\Model {
                 ->delete(true);
 
             // retrieve latest date to take under account
-            $date = null;
+            // #memo - table must always hold the most up to date info
+            $date = time();
+
+            /*
             if(in_array($ownershipTransfer['status'], ['pending', 'open', 'seller_documents_sent'], true)) {
                 $date = $ownershipTransfer['request_date'];
             }
@@ -1222,6 +1225,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             else {
                 $date = $ownershipTransfer['transfer_date'];
             }
+            */
 
             // retrieve pivot date
             /*

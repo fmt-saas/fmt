@@ -65,7 +65,7 @@
     "payment.account.instruction": "Tout paiement est à effectuer sur le compte de la Copropriété",
     "payment.account.iban": "IBAN",
     "payment.account.bic": "BIC",
-    "payment.reference_instruction": "avec la référence VCS renseignée.",
+    "payment.reference_instruction": "avec la référence",
 
     "additional_information.title": "Informations complémentaires",
     "additional_information.bank_loans": "Emprunt(s) bancaire(s)",
