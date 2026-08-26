@@ -16,6 +16,7 @@ use documents\DocumentType;
 use documents\navigation\Node;
 use realestate\management\ManagementProcess;
 use realestate\property\OwnershipTransfer;
+use realestate\property\OwnershipTransferHistoryEntry;
 
 
 [$params, $providers] = eQual::announce([
@@ -144,6 +145,13 @@ Email::id($email_id)->update([
         'mailbox_id'                => $managementProcess['mailbox_id'],
         'attachment_documents_ids'  => $attachment_documents_ids
     ]);
+
+OwnershipTransferHistoryEntry::create([
+    'ownership_transfer_id' => $ownershipTransfer['id'],
+    'email_id'               => $email_id,
+    'sent_at'                => time(),
+    'transfer_status'        => $ownershipTransfer['status']
+]);
 
 $context->httpResponse()
         ->status(204)

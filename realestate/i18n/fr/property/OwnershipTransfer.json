@@ -248,6 +248,11 @@
             "description": "Messages transmis depuis le dossier de transfert.",
             "help": ""
         },
+        "history_entries_ids": {
+            "label": "Historique des envois",
+            "description": "Mémo des e-mails envoyés depuis le dossier, sans leur contenu.",
+            "help": "Alimenté automatiquement après chaque mise en envoi."
+        },
         "document_id": {
             "label": "Document",
             "description": "Document principal lié dans le système documentaire.",
@@ -303,7 +308,7 @@
                     "label": "Contacts"
                 },
                 "section.emails": {
-                    "label": "E-mails"
+                    "label": "Historique des envois"
                 },
                 "section.attachments": {
                     "label": "Pièces jointes"

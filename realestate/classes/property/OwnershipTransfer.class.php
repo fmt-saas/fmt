@@ -423,6 +423,14 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description'       => 'List of emails sent in the context of the transfer.'
             ],
 
+            'history_entries_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\property\OwnershipTransferHistoryEntry',
+                'foreign_field'     => 'ownership_transfer_id',
+                'description'       => 'History of emails sent in the context of the transfer.',
+                'readonly'          => true
+            ],
+
             'document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
