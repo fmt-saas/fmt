@@ -12,6 +12,7 @@ use documents\DocumentSubtype;
 use documents\DocumentType;
 use equal\orm\Model;
 use purchase\supplier\Suppliership;
+use realestate\property\OwnershipTransferAttachment;
 
 // Ephemeral entity used by the front-end to import historical condominium documents into the EDMS.
 // It creates the actual Document after upload, validates the metadata and lets Document hooks place it in the right folder.
@@ -198,7 +199,12 @@ class DocumentImport extends Model {
             }
 
             if($documentImport['ownership_transfer_id']) {
-                Document::id($document['id'])->update(['ownership_transfers_ids' => [$documentImport['ownership_transfer_id']]]);
+                OwnershipTransferAttachment::create([
+                    'condo_id'             => $documentImport['condo_id'],
+                    'ownership_transfer_id' => $documentImport['ownership_transfer_id'],
+                    'document_id'           => $document['id'],
+                    'attachment_section'    => 'all'
+                ]);
             }
 
             // Remove current import object after successful import.

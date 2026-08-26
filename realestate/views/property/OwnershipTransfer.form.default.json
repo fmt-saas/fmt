@@ -114,7 +114,7 @@
                 "mode": "edit",
                 "domain": [
                     ["condo_id", "=", "object.condo_id"],
-                    ["broadcast_id", "=", "object.id"]
+                    ["ownership_transfer_id", "=", "object.id"]
                 ]
             }
         }

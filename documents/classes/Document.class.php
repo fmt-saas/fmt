@@ -438,7 +438,7 @@ class Document extends Model {
                 'foreign_object'    => 'realestate\property\OwnershipTransfer',
                 'foreign_field'     => 'attached_documents_ids',
                 'rel_table'         => 'realestate_property_ownershiptransferattachment',
-                'rel_foreign_key'   => 'transfer_id',
+                'rel_foreign_key'   => 'ownership_transfer_id',
                 'rel_local_key'     => 'document_id',
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
                 'description'       => 'Ownership transfers for which the document is selected as attachment.'
