@@ -6,6 +6,7 @@
 */
 
 use communication\email\Email;
+use communication\template\Template;
 use equal\email\Email as EmailMessage;
 use equal\email\EmailAttachment;
 use fmt\core\Mail;
@@ -49,7 +50,11 @@ $ownershipTransfer = OwnershipTransfer::id($params['id'])
     ->read([
         'status',
         'ownership_transfer_attachments_ids' => ['document_id'],
-        'condo_id' => ['id', 'name'],
+        'condo_id' => [
+            'id',
+            'name',
+            'managing_agent_id' => ['name']
+        ],
         'old_ownership_id' => ['name'],
         'contacts_ids' => ['email']
     ])
@@ -99,25 +104,44 @@ if(!$recipient_email || $recipient_email === '') {
     throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
 }
 
+$subject = '';
+$body = '';
+
+$template = Template::search([
+        ['code', '=', 'ownership_transfer_correspondence'],
+        ['type', '=', 'email']
+    ])
+    ->read(['id', 'parts_ids' => ['name', 'value']])
+    ->first(true);
+
+$map_values = [
+    'condo'          => $ownershipTransfer['condo_id']['name'],
+    'managing_agent' => $ownershipTransfer['condo_id']['managing_agent_id']['name'] ?? ''
+];
+
+foreach($template['parts_ids'] as $part) {
+    if($part['name'] === 'subject') {
+        $subject = strip_tags($part['value']);
+    }
+    elseif($part['name'] === 'body') {
+        $body = $part['value'];
+    }
+}
+
+$interpolate = function ($matches) use ($map_values) {
+    $key = $matches[1];
+    return $map_values[$key] ?? '';
+};
+
+$subject = preg_replace_callback('/\{(\w+)\}/', $interpolate, $subject);
+$body = preg_replace_callback('/\{(\w+)\}/', $interpolate, $body);
+
 // create message
 $message = new EmailMessage();
 $message->setTo($recipient_email)
-        ->setSubject("Demande d’informations / Convention de cession du droit de propriété")
+        ->setSubject($subject)
         ->setContentType("text/html")
-        ->setBody("
-            <p>Bonjour,</p>
-            <p>
-                Dans le cadre de la perspective de vente d’un ou plusieurs lots situés au sein de la copropriété {$ownershipTransfer['condo_id']['name']}, vous trouverez en pièce jointe les informations disponibles à ce jour concernant la situation de la copropriété et des lots concernés.
-            </p>
-            <p>
-                Nous restons bien entendu à disposition pour toute précision complémentaire que vous jugeriez utile dans le cadre de la suite de la procédure.
-            </p>
-            <p>
-                Bien cordialement,<br />
-                <strong>L’équipe de gestion</strong><br />
-                <em>[Nom de l’organisation ou du syndic]</em><br />
-            </p>
-        ");
+        ->setBody($body);
 
 if(count($recipients_emails)) {
     foreach($recipients_emails as $email) {
