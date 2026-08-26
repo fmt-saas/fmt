@@ -197,10 +197,9 @@ class DocumentImport extends Model {
             if($documentImport['broadcast_id']) {
                 Document::id($document['id'])->update(['broadcasts_ids' => [$documentImport['broadcast_id']]]);
             }
-
-            if($documentImport['ownership_transfer_id']) {
+            elseif($documentImport['ownership_transfer_id']) {
                 OwnershipTransferAttachment::create([
-                    'condo_id'             => $documentImport['condo_id'],
+                    'condo_id'              => $documentImport['condo_id'],
                     'ownership_transfer_id' => $documentImport['ownership_transfer_id'],
                     'document_id'           => $document['id'],
                     'attachment_section'    => 'all'
