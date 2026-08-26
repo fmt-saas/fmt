@@ -64,6 +64,18 @@
                                                 "type": "field",
                                                 "value": "document_visibility",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ownership_transfer_id",
+                                                "width": "0%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "broadcast_id",
+                                                "width": "0%",
+                                                "visible": false
                                             }
                                         ]
                                     }
