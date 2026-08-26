@@ -762,7 +762,7 @@ class BankStatementLine extends Model {
     }
 
     /**
-     * #memo - There are no FundingAllocation on BankStatementLine (only real payments are relevant)
+     * #memo - There are no FundingAllocation on BankStatementLine (only real Payments are relevant)
      */
     protected static function doUnlock($self, $orm) {
         $self->read([
@@ -1578,7 +1578,8 @@ class BankStatementLine extends Model {
                         if($fundingAccountingEntryLine) {
                             AccountingEntryLine::id($creditAccountingEntryLine['id'])
                                 ->do('attempt_match_with_line', [
-                                    'accounting_entry_line_id' => $fundingAccountingEntryLine['id']
+                                    'accounting_entry_line_id' => $fundingAccountingEntryLine['id'],
+                                    'ignore_status'             => true
                                 ]);
                             $logs[] = "Triggered attempt_match_with_line for payment {$payment_id} against funding entry line {$fundingAccountingEntryLine['id']}";
                         }

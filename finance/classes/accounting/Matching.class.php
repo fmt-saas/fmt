@@ -137,7 +137,8 @@ class Matching extends Model {
             ->read(['balance_amount', 'is_balanced', 'matching_level']);
 
         foreach($self as $id => $matching) {
-            AccountingEntryLine::ids($matching['accounting_entry_lines_ids'])->do('refresh_matching_level');
+            AccountingEntryLine::ids($matching['accounting_entry_lines_ids'])
+                ->do('refresh_matching_level');
         }
 
     }
@@ -158,13 +159,16 @@ class Matching extends Model {
 
     protected static function calcBalanceAmount($self) {
         $result = [];
-        $self->read(['accounting_entry_lines_ids' => ['debit', 'credit']]);
+        $self->read(['accounting_entry_lines_ids' => ['status', 'debit', 'credit']]);
         foreach($self as $id => $matching) {
             $credit = 0.0;
             $debit = 0.0;
-            foreach($matching['accounting_entry_lines_ids'] as $accounting_entry) {
-                $credit += $accounting_entry['credit'];
-                $debit  += $accounting_entry['debit'];
+            foreach($matching['accounting_entry_lines_ids'] as $accountingEntryLine) {
+                if($accountingEntryLine['status'] !== 'validated') {
+                    continue;
+                }
+                $credit += $accountingEntryLine['credit'];
+                $debit  += $accountingEntryLine['debit'];
             }
             $result[$id] = round($debit - $credit, 2);
         }
@@ -173,9 +177,16 @@ class Matching extends Model {
 
     protected static function calcIsBalanced($self) {
         $result = [];
-        $self->read(['balance_amount']);
+        $self->read(['balance_amount', 'accounting_entry_lines_ids' => ['status']]);
         foreach($self as $id => $matching) {
-            $result[$id] = abs($matching['balance_amount']) < 0.01;
+            $has_validated_line = false;
+            foreach($matching['accounting_entry_lines_ids'] as $accountingEntryLine) {
+                if($accountingEntryLine['status'] === 'validated') {
+                    $has_validated_line = true;
+                    break;
+                }
+            }
+            $result[$id] = $has_validated_line && abs($matching['balance_amount']) < 0.01;
         }
         return $result;
     }

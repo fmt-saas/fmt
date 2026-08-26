@@ -298,7 +298,8 @@ class AccountingEntryLine extends Model {
                     'validated',
                     'reversed'
                 ],
-                'default'           => 'pending'
+                'default'           => 'pending',
+                'onupdate'          => 'onupdateStatus'
             ]
 
         ];
@@ -412,7 +413,7 @@ class AccountingEntryLine extends Model {
 
         $self->read(['id', 'condo_id', 'status', 'debit', 'credit', 'account_id', 'matching_account_id', 'matching_id' => ['id', 'balance_amount']]);
         foreach($self as $id => $sourceAccountingEntryLine) {
-            if($sourceAccountingEntryLine['status'] !== 'validated') {
+            if(!($values['ignore_status'] ?? false) && $sourceAccountingEntryLine['status'] !== 'validated') {
                 continue;
             }
 
@@ -673,6 +674,19 @@ class AccountingEntryLine extends Model {
     protected static function onupdateDebit($self) {
         $self->read(['matching_id']);
         foreach($self as $id => $accountingEntryLine) {
+            if($accountingEntryLine['matching_id']) {
+                Matching::id($accountingEntryLine['matching_id'])->do('refresh_matching_level');
+            }
+        }
+    }
+
+    /**
+     * #memo For AccountingEntryLines, status is updated through `$accountingEntry['entry_lines_ids']->update(['status' => 'validated']);`
+     *
+     */
+    protected static function onupdateStatus($self) {
+        $self->read(['matching_id']);
+        foreach($self as $accountingEntryLine) {
             if($accountingEntryLine['matching_id']) {
                 Matching::id($accountingEntryLine['matching_id'])->do('refresh_matching_level');
             }
