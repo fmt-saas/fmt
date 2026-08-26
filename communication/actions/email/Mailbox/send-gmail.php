@@ -212,7 +212,8 @@ $documents = Document::ids($email['attachment_documents_ids'])
         'id',
         'name',
         'data',
-        'content_type'
+        'content_type',
+        'extension'
     ])
     ->get(true);
 
@@ -275,6 +276,15 @@ else {
         }
 
         $document_name = trim((string) ($document['name'] ?? '')) ?: 'attachment';
+
+        if(pathinfo($document_name, PATHINFO_EXTENSION) === '') {
+            $extension = ltrim(trim((string) ($document['extension'] ?? '')), '.');
+
+            if($extension !== '') {
+                $document_name = rtrim($document_name, '.') . '.' . $extension;
+            }
+        }
+
         $content_type = $document['content_type'] ?: 'application/octet-stream';
         $filename = $encode_header_parameter($document_name);
 

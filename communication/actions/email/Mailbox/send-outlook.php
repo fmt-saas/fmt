@@ -235,7 +235,7 @@ if(empty($to_recipients)) {
 // LOAD ATTACHMENTS
 
 $documents = Document::ids($email['attachment_documents_ids'])
-    ->read(['id', 'name', 'data'])
+    ->read(['id', 'name', 'data', 'content_type', 'extension'])
     ->get(true);
 
 
@@ -375,6 +375,14 @@ try {
 
         if($document_name === '') {
             $document_name = 'attachment';
+        }
+
+        if(pathinfo($document_name, PATHINFO_EXTENSION) === '') {
+            $extension = ltrim(trim((string) ($document['extension'] ?? '')), '.');
+
+            if($extension !== '') {
+                $document_name = rtrim($document_name, '.') . '.' . $extension;
+            }
         }
 
         $document_data = $document['data'] ?? null;

@@ -176,7 +176,8 @@ $documents = Document::ids($email['attachment_documents_ids'])
         'id',
         'name',
         'data',
-        'content_type'
+        'content_type',
+        'extension'
     ])
     ->get(true);
 
@@ -187,8 +188,18 @@ foreach($documents as $document) {
         continue;
     }
 
+    $document_name = trim((string) ($document['name'] ?? '')) ?: 'attachment';
+
+    if(pathinfo($document_name, PATHINFO_EXTENSION) === '') {
+        $extension = ltrim(trim((string) ($document['extension'] ?? '')), '.');
+
+        if($extension !== '') {
+            $document_name = rtrim($document_name, '.') . '.' . $extension;
+        }
+    }
+
     $message->addAttachment(new EmailAttachment(
-        trim((string) ($document['name'] ?? '')) ?: 'attachment',
+        $document_name,
         $document_data,
         $document['content_type'] ?: 'application/octet-stream'
     ));
