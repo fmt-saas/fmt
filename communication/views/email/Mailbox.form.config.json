@@ -138,7 +138,8 @@
                                                 "type": "field",
                                                 "value": "refresh_token",
                                                 "width": "100%",
-                                                "readonly": true
+                                                "readonly": true,
+                                                "visible": false
                                             }
                                         ]
                                     }

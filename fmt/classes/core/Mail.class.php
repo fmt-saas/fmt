@@ -8,6 +8,7 @@
 namespace fmt\core;
 
 use communication\email\Email;
+use communication\email\Mailbox;
 use equal\email\Email as EmailMessage;
 use equal\services\Container;
 use infra\metering\MeteringRecord;
@@ -60,6 +61,32 @@ class Mail extends \core\Mail {
     public static function send(EmailMessage $email, string $object_class = '', int $object_id = 0): int {
         // instant email sending is disabled
         return 0;
+    }
+
+    public static function flush() {
+        $mailboxes = Mailbox::search([
+                ['status', '=', 'validated'],
+                ['can_send', '=', true]
+            ])
+            ->read(['id'])
+            ->get(true);
+
+        foreach($mailboxes as $mailbox) {
+            try {
+                \eQual::run(
+                    'do',
+                    'communication_email_Mailbox_flush',
+                    ['id' => $mailbox['id']],
+                    true
+                );
+            }
+            catch(\Exception $e) {
+                trigger_error(
+                    "APP::Mail::flush() failed for mailbox {$mailbox['id']}: {$e->getMessage()}",
+                    EQ_REPORT_ERROR
+                );
+            }
+        }
     }
 
     public static function queue(EmailMessage $email, string $object_class = '', int $object_id = 0): int {
