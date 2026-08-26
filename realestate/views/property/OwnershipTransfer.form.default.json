@@ -69,14 +69,14 @@
             "confirm": false
         },
         {
-            "id": "action.refresh_arrears",
-            "label": "Refresh arrears",
+            "id": "action.refresh_info",
+            "label": "Refresh info",
             "description": "Refresh arrears of the owner.",
             "controller": "core_model_do",
             "visible": ["status", "not in", ["settled", "closed"]],
             "params": {
                 "entity": "realestate\\property\\OwnershipTransfer",
-                "action": "refresh_arrears",
+                "action": "refresh",
                 "ids": []
             },
             "confirm": false

@@ -757,9 +757,13 @@ class OwnershipTransfer extends \equal\orm\Model {
             'bank_loan_description'                 => $bank_loan_description
         ]);
 
+        $self->do('refresh');
+    }
+
+    protected static function doRefresh($self) {
         $self
-            ->do('generate_fund_balance_lines')
-            ->do('generate_fund_request_lines')
+            ->do('refresh_fund_balance_lines')
+            ->do('refresh_fund_request_lines')
             ->do('refresh_arrears');
     }
 
@@ -802,22 +806,26 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'policies'      => ['can_generate_adjustments'],
                 'function'      => 'doGenerateAdjustments'
             ],
-            'generate_fund_balance_lines' => [
+            'refresh_fund_balance_lines' => [
                 'description'   => 'Generate the table of condo funds balances.',
                 'policies'      => [],
-                'function'      => 'doGenerateFundBalanceLines'
+                'function'      => 'doRefreshFundBalanceLines'
             ],
-            'generate_fund_request_lines' => [
+            'refresh_fund_request_lines' => [
                 'description'   => 'Generate the table of condo funds requests.',
                 'policies'      => [],
-                'function'      => 'doGenerateFundRequestLines'
+                'function'      => 'doRefreshFundRequestLines'
             ],
             'refresh_arrears' => [
                 'description'   => 'Refresh values related to arrears owed by the seller.',
                 'policies'      => [],
                 'function'      => 'doRefreshArrears'
+            ],
+            'refresh' => [
+                'description'   => 'Refresh all values related to arrears and shares.',
+                'policies'      => [],
+                'function'      => 'doRefresh'
             ]
-
         ]);
     }
 
@@ -1001,7 +1009,11 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             if($paragraph === '1') {
 
-                OwnershipTransferArrearLine::search([['ownership_transfer_id', '=', $id], ['arrear_paragraph', '=', $paragraph]])->delete(true);
+                OwnershipTransferArrearLine::search([
+                        ['ownership_transfer_id', '=', $id],
+                        ['arrear_paragraph', '=', $paragraph]
+                    ])
+                    ->delete(true);
 
                 $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
                     'ownership_id' => $ownershipTransfer['old_ownership_id'],
@@ -1162,10 +1174,13 @@ class OwnershipTransfer extends \equal\orm\Model {
         }
     }
 
-    protected static function doGenerateFundRequestLines($self) {
+    protected static function doRefreshFundRequestLines($self) {
         $self->read(['condo_id', 'fiscal_year_id']);
         foreach($self as $id => $ownershipTransfer) {
-            OwnershipTransferFundRequestLine::search(['ownership_transfer_id', '=', $id])->delete(true);
+            OwnershipTransferFundRequestLine::search([
+                    ['ownership_transfer_id', '=', $id]
+                ])
+                ->delete(true);
 
             // retrieve fund requests
             $fund_requests_ids = FundRequest::search([['condo_id', '=', $ownershipTransfer['condo_id']], ['fiscal_year_id', '=', $ownershipTransfer['fiscal_year_id']]])->ids();
@@ -1180,7 +1195,7 @@ class OwnershipTransfer extends \equal\orm\Model {
         }
     }
 
-    protected static function doGenerateFundBalanceLines($self) {
+    protected static function doRefreshFundBalanceLines($self) {
         $self->read(['condo_id', 'fiscal_year_id', 'request_date', 'confirmation_date', 'transfer_date', 'status']);
         foreach($self as $id => $ownershipTransfer) {
             if(!$ownershipTransfer['condo_id']) {
@@ -1191,7 +1206,10 @@ class OwnershipTransfer extends \equal\orm\Model {
                 continue;
             }
 
-            OwnershipTransferFundBalanceLine::search(['ownership_transfer_id', '=', $id])->delete(true);
+            OwnershipTransferFundBalanceLine::search([
+                    ['ownership_transfer_id', '=', $id]
+                ])
+                ->delete(true);
 
             // retrieve latest date to take under account
             $date = null;
