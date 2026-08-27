@@ -14,6 +14,17 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "condo_id",
+                                                "label": "Condominium",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "25%",
+                                        "items": [
+                                            {
+                                                "type": "field",
                                                 "value": "fiscal_year_id",
                                                 "label": "Fiscal year",
                                                 "width": "100%"
