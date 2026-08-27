@@ -202,8 +202,8 @@
             "description": "Consulter et gérer les écritures."
         },
         "item.accounting.misc_operations": {
-            "label": "Opérations diverses",
-            "description": "Traiter les opérations diverses."
+            "label": "Opérations comptables",
+            "description": "Traiter les opérations comptables."
         },
         "fund_requests": {
             "label": "Appels de fonds",

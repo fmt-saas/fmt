@@ -1,6 +1,6 @@
 {
     "name": "Opération diverse",
-    "plural": "Opérations diverses",
+    "plural": "Opérations comptables",
     "description": "Écriture comptable ponctuelle utilisée hors factures ou mouvements standards.",
     "model": {
         "condo_id": {
@@ -166,7 +166,7 @@
             }
         },
         "list.default": {
-            "name": "Opérations diverses",
+            "name": "Opérations comptables",
             "description": "Liste filtrable des opérations avec journal, statut et justification."
         }
     },

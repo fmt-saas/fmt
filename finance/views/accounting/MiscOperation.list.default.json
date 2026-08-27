@@ -1,6 +1,7 @@
 {
     "name": "Miscellaneous Operation",
     "description": "This class represents miscellaneous accounting operation. It provides functionalities for creating misc journal entries that are not classified under standard categories.",
+    "controller": "finance_accounting_MiscOperation_collect",
     "header": {
         "actions": {
             "ACTION.CREATE": [
@@ -8,6 +9,9 @@
                     "view_id": "form.create"
                 }
             ]
+        },
+        "advanced_search": {
+            "open": true
         }
     },
     "layout": {

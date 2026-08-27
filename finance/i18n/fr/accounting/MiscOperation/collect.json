@@ -1,0 +1,30 @@
+{
+    "name": "Recherche d'opérations comptables",
+    "plural": "Recherches d'opérations comptables",
+    "description": "Collecteur avancé des opérations comptables.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété courante de la liste des opérations.",
+            "help": "Détermine les exercices comptables et journaux proposés."
+        },
+        "fiscal_year_id": {
+            "label": "Exercice comptable",
+            "description": "Exercice comptable auquel les opérations sont rattachées.",
+            "help": "Seuls les exercices de la copropriété courante sont proposés."
+        },
+        "journal_id": {
+            "label": "Journal",
+            "description": "Journal auquel les opérations sont rattachées.",
+            "help": "Seuls les journaux de la copropriété courante sont proposés."
+        }
+    },
+    "view": {
+        "collect.search.default": {
+            "name": "Recherche d'opérations comptables",
+            "description": "Filtres avancés par exercice comptable et journal.",
+            "layout": {}
+        }
+    },
+    "error": {}
+}
