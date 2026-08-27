@@ -52,7 +52,8 @@ use equal\orm\DomainCondition;
             'type'           => 'many2one',
             'foreign_object' => 'finance\accounting\Journal',
             'description'    => 'The journal the miscellaneous operations relate to.',
-            'domain'         => ['condo_id', '=', 'object.condo_id']
+            'domain'         => ['condo_id', '=', 'object.condo_id'],
+            'visible'        => ['condo_id', '<>', null]
         ]
     ],
     'response' => [
