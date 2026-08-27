@@ -1,0 +1,62 @@
+{
+    "name": "Ownership Transfer Settlement Correspondence",
+    "description": "Review a seller or buyer settlement correspondence.",
+    "header": {"actions": false},
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "id": "section.general",
+                        "label": "Recipient and delivery",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {"type": "field", "value": "condo_id", "width": "100%", "visible": false},
+                                            {"type": "field", "value": "settlement_id", "width": "100%"},
+                                            {"type": "field", "value": "recipient_role", "width": "100%"},
+                                            {"type": "field", "value": "ownership_id", "width": "50%"},
+                                            {"type": "field", "value": "owner_id", "width": "50%"}
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {"type": "field", "value": "communication_method", "width": "50%"},
+                                            {"type": "field", "value": "email_address", "width": "50%"},
+                                            {"type": "field", "value": "is_sent", "width": "33%"},
+                                            {"type": "field", "value": "sent_date", "width": "33%"},
+                                            {"type": "field", "value": "is_acknowledged", "width": "33%"},
+                                            {"type": "field", "value": "has_document", "width": "50%"},
+                                            {"type": "field", "value": "document_id", "width": "50%"}
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.mails",
+                        "label": "Emails",
+                        "visible": ["communication_method", "=", "email"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {"type": "field", "value": "mails_ids", "width": "100%"}
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

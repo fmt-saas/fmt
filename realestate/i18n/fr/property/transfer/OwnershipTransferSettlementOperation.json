@@ -1,0 +1,31 @@
+{
+    "name": "Opération de régularisation de mutation",
+    "plural": "Opérations de régularisation de mutation",
+    "description": "Regroupement traçable des lignes d'une source dans une opération diverse comptable.",
+    "model": {
+        "settlement_id": {"label": "Régularisation", "description": "Dossier ayant généré l'opération.", "help": "Renseigné automatiquement lors de la validation."},
+        "condo_id": {"label": "Copropriété", "description": "Copropriété concernée par l'opération.", "help": "Reprise automatiquement depuis le dossier."},
+        "operation_key": {"label": "Clé d'opération", "description": "Clé technique stable garantissant l'idempotence.", "help": "Une validation répétée retrouve l'opération existante grâce à cette clé."},
+        "source_type": {
+            "label": "Type de source",
+            "description": "Nature de la source corrigée par l'opération.",
+            "help": "Une opération distincte est produite pour chaque source ou fonds.",
+            "selection": {"working_fund": "Fonds de roulement", "fund_request_execution": "Exécution d'appel de fonds", "expense_statement": "Décompte"}
+        },
+        "condo_fund_id": {"label": "Fonds de copropriété", "description": "Fonds de roulement corrigé par l'opération.", "help": "Renseigné uniquement pour une source de type fonds de roulement."},
+        "fund_request_execution_id": {"label": "Exécution d'appel", "description": "Exécution d'appel de fonds corrigée par l'opération.", "help": "Le document source reste inchangé."},
+        "expense_statement_id": {"label": "Décompte", "description": "Décompte corrigé par l'opération.", "help": "Le décompte source reste inchangé."},
+        "accounting_entry_id": {"label": "Écriture comptable", "description": "Écriture comptable équilibrée créée pour la correction.", "help": "Permet de retrouver les débits et crédits générés."},
+        "accounting_date": {"label": "Date comptable", "description": "Date à laquelle l'opération est comptabilisée.", "help": "Doit appartenir à une période ouverte ou préclôturée."},
+        "amount": {"label": "Montant", "description": "Montant net transféré par l'opération.", "help": "Les débits et crédits sont générés à partir du même montant arrondi."},
+        "lines_ids": {"label": "Lignes de régularisation", "description": "Lignes détaillées regroupées dans l'opération.", "help": "Conserve le détail par lot et par source."}
+    },
+    "view": {
+        "form.default": {
+            "name": "Opération de régularisation",
+            "description": "Détail de l'écriture et des lignes regroupées.",
+            "layout": {"section.general": {"label": "Opération"}, "section.lines": {"label": "Lignes de régularisation"}}
+        },
+        "list.default": {"name": "Opérations de régularisation", "description": "Liste des opérations diverses générées par les régularisations."}
+    }
+}

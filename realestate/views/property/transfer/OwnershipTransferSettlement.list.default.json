@@ -1,0 +1,16 @@
+{
+    "name": "Ownership Transfer Settlements",
+    "description": "List accounting regularizations linked to ownership transfers.",
+    "layout": {
+        "items": [
+            {"type": "field", "value": "condo_id", "width": "12%"},
+            {"type": "field", "value": "ownership_transfer_id", "width": "14%"},
+            {"type": "field", "value": "seller_ownership_id", "width": "14%"},
+            {"type": "field", "value": "buyer_ownership_id", "width": "14%"},
+            {"type": "field", "value": "transfer_date", "width": "10%", "sortable": true},
+            {"type": "field", "value": "accounting_date", "width": "10%", "sortable": true},
+            {"type": "field", "value": "included_total", "width": "12%", "sortable": true},
+            {"type": "field", "value": "status", "width": "10%", "sortable": true}
+        ]
+    }
+}

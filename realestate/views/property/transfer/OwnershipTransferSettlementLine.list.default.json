@@ -1,0 +1,25 @@
+{
+    "name": "Ownership Transfer Settlement Lines",
+    "description": "List calculated economic movements retained for ownership transfer settlements.",
+    "operations": {
+        "total": {
+            "calculated_amount": {"operation": "SUM", "usage": "amount/money:2"},
+            "applied_amount": {"operation": "SUM", "usage": "amount/money:2"}
+        }
+    },
+    "layout": {
+        "items": [
+            {"type": "field", "value": "settlement_id", "width": "12%", "visible": false},
+            {"type": "field", "value": "correction_type", "width": "14%"},
+            {"type": "field", "value": "source_type", "width": "12%"},
+            {"type": "field", "value": "property_lot_id", "width": "12%"},
+            {"type": "field", "value": "period_from", "width": "10%"},
+            {"type": "field", "value": "period_to", "width": "10%"},
+            {"type": "field", "value": "calculated_amount", "width": "10%"},
+            {"type": "field", "value": "applied_amount", "width": "10%"},
+            {"type": "field", "value": "is_included", "width": "8%"},
+            {"type": "field", "value": "is_obsolete", "width": "8%"},
+            {"type": "field", "value": "operation_id", "width": "12%", "visible": false}
+        ]
+    }
+}

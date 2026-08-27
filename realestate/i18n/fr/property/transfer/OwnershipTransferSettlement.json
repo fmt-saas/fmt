@@ -1,0 +1,51 @@
+{
+    "name": "Régularisation de mutation",
+    "plural": "Régularisations de mutation",
+    "description": "Dossier centralisant le calcul, la comptabilisation et la communication de la régularisation d'une mutation.",
+    "model": {
+        "name": {"label": "Nom", "description": "Nom technique de la régularisation.", "help": "Généré automatiquement à partir de la mutation."},
+        "ownership_transfer_id": {"label": "Mutation", "description": "Mutation régularisée par ce dossier.", "help": "Une seule régularisation est autorisée par mutation."},
+        "condo_id": {"label": "Copropriété", "description": "Copropriété concernée par la mutation.", "help": "Reprise lors de la préparation de la régularisation."},
+        "seller_ownership_id": {"label": "Propriété vendeuse", "description": "Propriété qui cède les lots transférés.", "help": "Conservée comme donnée de contexte du dossier."},
+        "buyer_ownership_id": {"label": "Propriété acquéreuse", "description": "Propriété qui acquiert les lots transférés.", "help": "Conservée comme donnée de contexte du dossier."},
+        "transfer_date": {"label": "Date de mutation", "description": "Date à partir de laquelle l'acquéreur détient les lots.", "help": "Le jour de la mutation appartient à l'acquéreur."},
+        "snapshot_at": {"label": "Sources figées le", "description": "Date et heure de la photographie des sources comptabilisées.", "help": "Délimite les documents pris en compte par le calcul."},
+        "accounting_date": {"label": "Date comptable", "description": "Date utilisée pour comptabiliser les opérations diverses.", "help": "Elle doit appartenir à une période comptable autorisée."},
+        "status": {
+            "label": "Statut",
+            "description": "Étape actuelle de la régularisation.",
+            "help": "Le dossier est verrouillé après validation comptable.",
+            "selection": {"draft": "Brouillon", "validated": "Validée", "closed": "Clôturée"}
+        },
+        "calculation_version": {"label": "Version du calcul", "description": "Version des règles ayant produit les lignes.", "help": "Permet de reproduire et d'auditer le calcul."},
+        "calculation_hash": {"label": "Empreinte du calcul", "description": "Empreinte des entrées et résultats du calcul.", "help": "Permet de détecter un brouillon devenu obsolète."},
+        "recalculated_at": {"label": "Recalculée le", "description": "Date et heure du dernier recalcul du brouillon.", "help": "Renseigné automatiquement."},
+        "validated_at": {"label": "Validée le", "description": "Date et heure de la validation comptable.", "help": "Renseigné automatiquement lors de la création des OD."},
+        "closed_at": {"label": "Clôturée le", "description": "Date et heure de clôture de la régularisation.", "help": "Renseigné après émission des deux correspondances."},
+        "seller_net_amount": {"label": "Net vendeur", "description": "Montant net crédité au vendeur ; une valeur négative est débitée.", "help": "Somme des mouvements retenus pour le vendeur."},
+        "buyer_net_amount": {"label": "Net acquéreur", "description": "Montant net débité à l'acquéreur.", "help": "Une valeur négative est créditée."},
+        "included_total": {"label": "Total inclus", "description": "Total des lignes retenues dans la régularisation.", "help": "Calculé à partir des montants appliqués."},
+        "excluded_total": {"label": "Total exclu", "description": "Total des lignes volontairement exclues.", "help": "Chaque exclusion doit être justifiée."},
+        "has_accounted_sources": {"label": "Sources comptabilisées", "description": "Indique si des sources comptabilisées ont été trouvées.", "help": "Alimente l'alerte synthétique du dossier."},
+        "alert_summary": {"label": "Synthèse de l'alerte", "description": "Résumé des sources et montants nécessitant une régularisation.", "help": "Mis à jour lors de la préparation et du recalcul."},
+        "lines_ids": {"label": "Lignes de régularisation", "description": "Mouvements économiques calculés pour les lots transférés.", "help": "Chaque ligne conserve les montants réels, théoriques et retenus."},
+        "operations_ids": {"label": "Opérations diverses", "description": "Opérations comptables générées à la validation.", "help": "Une opération est créée par source ou fonds corrigé."},
+        "correspondences_ids": {"label": "Correspondances", "description": "Courriers destinés au vendeur et à l'acquéreur.", "help": "La clôture requiert l'émission réussie des deux courriers."},
+        "logs": {"label": "Journal technique", "description": "Trace technique des traitements exécutés sur le dossier.", "help": "Réservé au diagnostic et à l'audit."}
+    },
+    "view": {
+        "form.default": {
+            "name": "Régularisation de mutation",
+            "description": "Contrôle du calcul, des OD et des correspondances d'une mutation.",
+            "layout": {
+                "section.general": {"label": "Informations générales"},
+                "section.calculation": {"label": "Synthèse du calcul"},
+                "section.lines": {"label": "Lignes de régularisation"},
+                "section.operations": {"label": "Opérations comptables"},
+                "section.correspondences": {"label": "Correspondances"},
+                "section.logs": {"label": "Journal technique"}
+            }
+        },
+        "list.default": {"name": "Régularisations de mutation", "description": "Liste des dossiers de régularisation comptable des mutations."}
+    }
+}

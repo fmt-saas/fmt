@@ -1,0 +1,116 @@
+{
+    "name": "Ownership Transfer Settlement Line",
+    "description": "Review a calculated economic movement and its retained amount.",
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "id": "section.source",
+                        "label": "Source and property lot",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {"type": "field", "value": "settlement_id", "width": "100%"},
+                                            {"type": "field", "value": "condo_id", "width": "100%", "visible": false},
+                                            {"type": "field", "value": "seller_ownership_id", "width": "50%"},
+                                            {"type": "field", "value": "buyer_ownership_id", "width": "50%"},
+                                            {"type": "field", "value": "property_lot_id", "width": "100%"}
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {"type": "field", "value": "correction_type", "width": "50%"},
+                                            {"type": "field", "value": "source_type", "width": "50%"},
+                                            {"type": "field", "value": "condo_fund_id", "width": "100%"},
+                                            {"type": "field", "value": "fund_request_execution_id", "width": "100%"},
+                                            {"type": "field", "value": "expense_statement_id", "width": "100%"}
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.period",
+                        "label": "Economic period",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {"type": "field", "value": "period_from", "width": "20%"},
+                                            {"type": "field", "value": "period_to", "width": "20%"},
+                                            {"type": "field", "value": "total_days", "width": "20%"},
+                                            {"type": "field", "value": "seller_days", "width": "20%"},
+                                            {"type": "field", "value": "buyer_days", "width": "20%"}
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.amounts",
+                        "label": "Calculated amounts",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {"type": "field", "value": "actual_seller_amount", "width": "50%"},
+                                            {"type": "field", "value": "actual_buyer_amount", "width": "50%"},
+                                            {"type": "field", "value": "theoretical_seller_amount", "width": "50%"},
+                                            {"type": "field", "value": "theoretical_buyer_amount", "width": "50%"}
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {"type": "field", "value": "calculated_amount", "width": "33%"},
+                                            {"type": "field", "value": "override_amount", "width": "33%"},
+                                            {"type": "field", "value": "applied_amount", "width": "33%"},
+                                            {"type": "field", "value": "override_reason", "width": "100%"}
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.decision",
+                        "label": "Decision and traceability",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {"type": "field", "value": "is_included", "width": "50%"},
+                                            {"type": "field", "value": "is_obsolete", "width": "50%"},
+                                            {"type": "field", "value": "exclusion_reason", "width": "100%"}
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {"type": "field", "value": "operation_id", "width": "100%"},
+                                            {"type": "field", "value": "calculation_key", "width": "100%"},
+                                            {"type": "field", "value": "source_fingerprint", "width": "100%"}
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

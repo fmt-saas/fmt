@@ -1,0 +1,64 @@
+{
+    "name": "Ligne de régularisation de mutation",
+    "plural": "Lignes de régularisation de mutation",
+    "description": "Mouvement économique calculé pour réattribuer un montant entre vendeur et acquéreur.",
+    "model": {
+        "settlement_id": {"label": "Régularisation", "description": "Dossier auquel appartient la ligne.", "help": "Renseigné automatiquement lors du calcul."},
+        "condo_id": {"label": "Copropriété", "description": "Copropriété concernée par la ligne.", "help": "Reprise automatiquement depuis le dossier."},
+        "seller_ownership_id": {"label": "Propriété vendeuse", "description": "Propriété vendeuse concernée par le mouvement.", "help": "Reprise automatiquement depuis le dossier."},
+        "buyer_ownership_id": {"label": "Propriété acquéreuse", "description": "Propriété acquéreuse concernée par le mouvement.", "help": "Reprise automatiquement depuis le dossier."},
+        "correction_type": {
+            "label": "Type de correction",
+            "description": "Motif métier de la correction calculée.",
+            "help": "Distingue les fonds de roulement, provisions, appels postérieurs et décomptes.",
+            "selection": {
+                "working_fund_transfer": "Transfert de fonds de roulement",
+                "current_period_provision": "Provision de la période en cours",
+                "post_transfer_call": "Appel postérieur à la mutation",
+                "expense_statement_adjustment": "Correction de décompte"
+            }
+        },
+        "source_type": {
+            "label": "Type de source",
+            "description": "Nature du document ou fonds analysé.",
+            "help": "Détermine la source traçable de la correction.",
+            "selection": {"working_fund": "Fonds de roulement", "fund_request_execution": "Exécution d'appel de fonds", "expense_statement": "Décompte"}
+        },
+        "condo_fund_id": {"label": "Fonds de copropriété", "description": "Fonds de roulement à l'origine de la correction.", "help": "Renseigné pour les transferts de quote-part du fonds de roulement."},
+        "fund_request_execution_id": {"label": "Exécution d'appel", "description": "Exécution comptabilisée à l'origine de la correction.", "help": "Le document comptable d'origine n'est jamais modifié."},
+        "expense_statement_id": {"label": "Décompte", "description": "Décompte comptabilisé à l'origine de la correction.", "help": "Le décompte d'origine reste inchangé."},
+        "property_lot_id": {"label": "Lot", "description": "Lot transféré concerné par le calcul.", "help": "Les arrondis sont répartis selon un ordre stable des lots."},
+        "period_from": {"label": "Début de période", "description": "Premier jour économique couvert par la source.", "help": "Les bornes de période sont inclusives."},
+        "period_to": {"label": "Fin de période", "description": "Dernier jour économique couvert par la source.", "help": "Les bornes de période sont inclusives."},
+        "total_days": {"label": "Nombre total de jours", "description": "Nombre de jours couverts par la source.", "help": "Calcul inclusif des dates de début et de fin."},
+        "seller_days": {"label": "Jours vendeur", "description": "Nombre de jours économiquement attribués au vendeur.", "help": "S'arrête la veille de la mutation."},
+        "buyer_days": {"label": "Jours acquéreur", "description": "Nombre de jours économiquement attribués à l'acquéreur.", "help": "Commence le jour de la mutation."},
+        "actual_seller_amount": {"label": "Vendeur comptabilisé", "description": "Montant réellement comptabilisé au vendeur.", "help": "Valeur constatée dans la source comptable."},
+        "actual_buyer_amount": {"label": "Acquéreur comptabilisé", "description": "Montant réellement comptabilisé à l'acquéreur.", "help": "Valeur constatée dans la source comptable."},
+        "theoretical_seller_amount": {"label": "Vendeur théorique", "description": "Montant qui revient théoriquement au vendeur après mutation.", "help": "Calculé selon le lot, la période et la date de mutation."},
+        "theoretical_buyer_amount": {"label": "Acquéreur théorique", "description": "Montant qui revient théoriquement à l'acquéreur après mutation.", "help": "Calculé selon le lot, la période et la date de mutation."},
+        "calculated_amount": {"label": "Montant calculé", "description": "Correction proposée avant intervention manuelle.", "help": "Positif : vendeur crédité et acquéreur débité."},
+        "override_amount": {"label": "Montant adapté", "description": "Montant manuel remplaçant le montant calculé.", "help": "Toute adaptation doit être justifiée."},
+        "applied_amount": {"label": "Montant retenu", "description": "Montant final arrondi destiné à la comptabilisation.", "help": "Issu du montant calculé ou du montant adapté."},
+        "is_included": {"label": "Incluse", "description": "Indique si la ligne participe à la validation.", "help": "Une exclusion exige une justification."},
+        "is_obsolete": {"label": "Obsolète", "description": "Indique que la source a disparu du dernier calcul.", "help": "Une ligne obsolète ne peut pas être validée si elle reste incluse."},
+        "exclusion_reason": {"label": "Motif d'exclusion", "description": "Justification de l'exclusion de la ligne.", "help": "Obligatoire lorsque la ligne n'est pas incluse."},
+        "override_reason": {"label": "Motif de l'adaptation", "description": "Justification du remplacement manuel du montant.", "help": "Obligatoire lorsqu'un montant adapté est renseigné."},
+        "calculation_key": {"label": "Clé de calcul", "description": "Clé naturelle stable utilisée lors des recalculs.", "help": "Permet de conserver les décisions humaines lors de la fusion."},
+        "source_fingerprint": {"label": "Empreinte de la source", "description": "Empreinte des valeurs sources de la ligne.", "help": "Signale les changements intervenus depuis le calcul précédent."},
+        "operation_id": {"label": "Opération diverse", "description": "Opération comptable générée à partir de la ligne.", "help": "Renseignée lors de la validation du dossier."}
+    },
+    "view": {
+        "form.default": {
+            "name": "Ligne de régularisation",
+            "description": "Détail du calcul et de la décision appliquée à un mouvement.",
+            "layout": {
+                "section.source": {"label": "Source et lot"},
+                "section.period": {"label": "Période économique"},
+                "section.amounts": {"label": "Montants calculés"},
+                "section.decision": {"label": "Décision et traçabilité"}
+            }
+        },
+        "list.default": {"name": "Lignes de régularisation", "description": "Liste des mouvements calculés et des montants retenus."}
+    }
+}

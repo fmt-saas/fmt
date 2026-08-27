@@ -1,0 +1,38 @@
+{
+    "name": "Correspondance de régularisation de mutation",
+    "plural": "Correspondances de régularisation de mutation",
+    "description": "Correspondance présentant au vendeur ou à l'acquéreur le résultat de la régularisation.",
+    "model": {
+        "settlement_id": {"label": "Régularisation", "description": "Dossier présenté dans la correspondance.", "help": "Renseigné automatiquement après validation comptable."},
+        "recipient_role": {
+            "label": "Rôle du destinataire",
+            "description": "Rôle du destinataire dans la mutation.",
+            "help": "Une correspondance est préparée pour chaque partie.",
+            "selection": {"seller": "Vendeur", "buyer": "Acquéreur"}
+        },
+        "condo_id": {"label": "Copropriété", "description": "Copropriété concernée par la correspondance.", "help": "Reprise depuis la régularisation."},
+        "owner_id": {"label": "Propriétaire", "description": "Personne à laquelle la correspondance est adressée.", "help": "Détermine notamment l'adresse e-mail du destinataire."},
+        "ownership_id": {"label": "Propriété", "description": "Propriété vendeuse ou acquéreuse concernée.", "help": "Correspond au rôle sélectionné pour la mutation."},
+        "document_id": {"label": "Document", "description": "Document PDF produit pour la correspondance.", "help": "Utilisé pour les méthodes de communication postales."},
+        "has_document": {"label": "Document généré", "description": "Indique si le document de correspondance a été produit.", "help": "Mis à jour automatiquement lors de la génération du document."},
+        "mails_ids": {"label": "E-mails", "description": "E-mails générés pour cette correspondance.", "help": "Visible lorsque la méthode de communication est l'e-mail."},
+        "sent_date": {"label": "Date d'émission", "description": "Date et heure de la première émission réussie.", "help": "Conservée lors d'une nouvelle tentative d'émission."},
+        "communication_method": {
+            "label": "Méthode de communication",
+            "description": "Canal utilisé pour émettre la correspondance.",
+            "help": "L'émission est reconnue après mise en file de l'e-mail ou inclusion dans un export postal.",
+            "selection": {"email": "E-mail", "postal": "Courrier postal", "postal_registered": "Courrier recommandé", "postal_registered_receipt": "Courrier recommandé avec accusé de réception"}
+        },
+        "is_sent": {"label": "Émise", "description": "Indique si la correspondance a été émise avec succès.", "help": "Les deux correspondances doivent être émises avant la clôture."},
+        "is_acknowledged": {"label": "Réception confirmée", "description": "Indique si la réception a été confirmée.", "help": "Information de suivi qui ne conditionne pas la clôture."},
+        "email_address": {"label": "Adresse e-mail", "description": "Adresse e-mail calculée du propriétaire destinataire.", "help": "Reprise automatiquement depuis la fiche du propriétaire."}
+    },
+    "view": {
+        "form.default": {
+            "name": "Correspondance de régularisation",
+            "description": "Destinataire, canal, document et état d'émission de la correspondance.",
+            "layout": {"section.general": {"label": "Destinataire et émission"}, "section.mails": {"label": "E-mails"}}
+        },
+        "list.default": {"name": "Correspondances de régularisation", "description": "Liste des courriers vendeur et acquéreur et de leur état d'émission."}
+    }
+}

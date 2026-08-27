@@ -1,0 +1,164 @@
+{
+    "name": "Ownership Transfer Settlement",
+    "description": "Review the accounting regularization of an ownership transfer.",
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "id": "section.general",
+                        "label": "General information",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {"type": "field", "value": "name", "width": "100%", "visible": false},
+                                            {"type": "field", "value": "condo_id", "width": "50%"},
+                                            {"type": "field", "value": "ownership_transfer_id", "width": "50%"},
+                                            {"type": "field", "value": "seller_ownership_id", "width": "50%"},
+                                            {"type": "field", "value": "buyer_ownership_id", "width": "50%"}
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {"type": "field", "value": "status", "width": "50%"},
+                                            {"type": "field", "value": "transfer_date", "width": "50%"},
+                                            {"type": "field", "value": "accounting_date", "width": "50%"},
+                                            {"type": "field", "value": "snapshot_at", "width": "50%"}
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.calculation",
+                        "label": "Calculation summary",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {"type": "field", "value": "seller_net_amount", "width": "50%"},
+                                            {"type": "field", "value": "buyer_net_amount", "width": "50%"},
+                                            {"type": "field", "value": "included_total", "width": "50%"},
+                                            {"type": "field", "value": "excluded_total", "width": "50%"},
+                                            {"type": "field", "value": "has_accounted_sources", "width": "50%"}
+                                        ]
+                                    },
+                                    {
+                                        "width": "50%",
+                                        "items": [
+                                            {"type": "field", "value": "calculation_version", "width": "50%"},
+                                            {"type": "field", "value": "recalculated_at", "width": "50%"},
+                                            {"type": "field", "value": "validated_at", "width": "50%"},
+                                            {"type": "field", "value": "closed_at", "width": "50%"},
+                                            {"type": "field", "value": "calculation_hash", "width": "100%"},
+                                            {"type": "field", "value": "alert_summary", "width": "100%"}
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.lines",
+                        "label": "Settlement lines",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "lines_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.default",
+                                                    "header": {"actions": {"ACTION.CREATE": false}}
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.operations",
+                        "label": "Accounting operations",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "operations_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.default",
+                                                    "header": {"actions": {"ACTION.CREATE": false}}
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.correspondences",
+                        "label": "Correspondences",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "correspondences_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "view": "list.default",
+                                                    "header": {"actions": {"ACTION.CREATE": false}}
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.logs",
+                        "label": "Technical log",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {"type": "field", "value": "logs", "width": "100%", "widget": {"height": 300}}
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
