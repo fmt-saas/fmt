@@ -404,9 +404,9 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             $fiscal_period_code = $requestExecution['fiscal_period_id']['code'];
 
             $sequence = Setting::fetch_and_add(
-                    'sale',
+                    'finance',
                     'accounting',
-                    "invoice.sequence.{$fiscal_year_code}.{$fiscal_period_code}",
+                    "operation.sequence.{$fiscal_year_code}.{$fiscal_period_code}.SAL",
                     1,
                     [
                         'condo_id' => $requestExecution['condo_id']
@@ -414,7 +414,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 );
 
             if(!$sequence) {
-                trigger_error("APP::missing mandatory sale.accounting.invoice.sequence.{$fiscal_year_code} for condominium {$requestExecution['condo_id']}.", EQ_REPORT_ERROR);
+                trigger_error("APP::missing mandatory finance.accounting.operation.sequence.{$fiscal_year_code}.{$fiscal_period_code}.SAL for condominium {$requestExecution['condo_id']}.", EQ_REPORT_ERROR);
                 throw new \Exception('missing_mandatory_sequence', EQ_ERROR_INVALID_CONFIG);
             }
 

@@ -198,9 +198,9 @@ class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
                 );
 
             $sequence = Setting::fetch_and_add(
-                    'sale',
+                    'finance',
                     'accounting',
-                    "invoice.sequence.{$invoice['fiscal_year_id']['code']}.{$invoice['fiscal_period_id']['code']}",
+                    "operation.sequence.{$invoice['fiscal_year_id']['code']}.{$invoice['fiscal_period_id']['code']}.SAL",
                     1,
                     [
                         'condo_id'          => $invoice['condo_id']

@@ -14,6 +14,11 @@ class MiscOperationLine extends Model {
         return "Miscellaneous Operation Line";
     }
 
+    // #memo - for backward compatibility
+    public function getTable() {
+        return 'finance_accounting_miscoperationline';
+    }
+
     public static function getDescription() {
         return "A miscellaneous accounting operation can have one or more lines that are used to create related Accounting entry lines.";
     }

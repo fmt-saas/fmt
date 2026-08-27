@@ -1883,9 +1883,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 );
 
             $sequence = Setting::fetch_and_add(
-                    'purchase',
+                    'finance',
                     'accounting',
-                    "invoice.sequence.{$invoice['fiscal_year_id']['code']}.{$invoice['fiscal_period_id']['code']}",
+                    "operation.sequence.{$invoice['fiscal_year_id']['code']}.{$invoice['fiscal_period_id']['code']}.PUR",
                     1,
                     [
                         'condo_id'          => $invoice['condo_id']

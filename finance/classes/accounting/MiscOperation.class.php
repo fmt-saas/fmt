@@ -16,7 +16,13 @@ use finance\bank\BankStatementLine;
 use fmt\setting\Setting;
 use sale\pay\Payment;
 
+// #memo - This class models a generic Accounting Operation. It is a true MiscOperation only if journal is MISC
 class MiscOperation extends Model {
+
+    // #memo - for backward compatibility
+    public function getTable() {
+        return 'finance_accounting_miscoperation';
+    }
 
     public static function getName() {
         return "Miscellaneous Operation";
@@ -982,7 +988,7 @@ class MiscOperation extends Model {
             $sequence = Setting::fetch_and_add(
                     'finance',
                     'accounting',
-                    "misc_operation.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}",
+                    "operation.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}",
                     1,
                     [
                         'condo_id'          => $miscOperation['condo_id']
