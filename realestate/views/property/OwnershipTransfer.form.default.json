@@ -37,8 +37,8 @@
         },
         {
             "id": "action.settle",
-            "label": "Settle",
-            "description": "Validate data and start the transfer process.",
+            "label": "Confirm sale",
+            "description": "Mark the notary deed as signed and the sale as settled.",
             "controller": "core_model_transition",
             "visible": [ ["status", "in", ["confirmed", "financial_statement_sent"]] ],
             "params": {
@@ -54,19 +54,6 @@
             "controller": "realestate_property_OwnershipTransfer_send-correspondence",
             "visible": ["status", "not in", ["pending"]],
             "confirm": true
-        },
-        {
-            "id": "action.perform_transfer",
-            "label": "Perform Transfer",
-            "description": "Generate accounting accounts.",
-            "controller": "core_model_do",
-            "visible": ["status", "in", ["settled"]],
-            "params": {
-                "entity": "realestate\\property\\OwnershipTransfer",
-                "action": "perform_transfer",
-                "ids": []
-            },
-            "confirm": false
         },
         {
             "id": "action.refresh_info",

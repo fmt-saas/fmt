@@ -223,11 +223,6 @@
             "description": "Lignes de crédit bancaire et quote-parts associées aux lots transférés.",
             "help": ""
         },
-        "adjustments_ids": {
-            "label": "Ajustements",
-            "description": "Calculs d'ajustements générés pour équilibrer le transfert.",
-            "help": ""
-        },
         "fund_balances_ids": {
             "label": "Balances des fonds",
             "description": "Lignes reprenant la répartition des soldes de fonds entre les lots.",
@@ -287,7 +282,7 @@
     "view": {
         "form.default": {
             "name": "Transfert de propriété",
-            "description": "Fiche complète du dossier (contacts, pièces, ajustements et processus).",
+            "description": "Fiche complète du dossier juridique (contacts, pièces et processus).",
             "layout": {
                 "section.main": {
                     "label": "Infos"
@@ -387,16 +382,12 @@
                     "description": "Valider les données et démarrer le processus de transfert."
                 },
                 "action.settle": {
-                    "label": "Clôturer",
-                    "description": "Valider les données et démarrer le processus de transfert."
+                    "label": "Confirmer la vente",
+                    "description": "Confirmer la signature de l'acte notarié et la réalisation de la vente."
                 },
                 "action.send": {
                     "label": "Envoyer un e-mail",
                     "description": "Envoyer un e-mail avec les pièces jointes sélectionnées à tous les contacts du dossier."
-                },
-                "action.perform_transfer": {
-                    "label": "Effectuer le transfert",
-                    "description": "Générer les comptes comptables."
                 },
                 "action.refresh_info": {
                     "label": "Actualiser les informations",
