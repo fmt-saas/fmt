@@ -600,6 +600,19 @@ MessageModel::id($model['id'])->update([
         'description'   => "Le solde du compte bancaire n'est pas suffisant pour ce transfert.",
     ], 'fr');
 
+$model = MessageModel::create([
+        'name'          => 'finance.accounting.fund_request.transfer_in_progress',
+        'type'          => 'accounting',
+        'label'         => 'Transfer in progress',
+        'description'   => "Warning, an ongoing ownership transfer may affect this fund request."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Mutation en cours',
+        'description'   => "Attention, une mutation en cours peut impacter cet appel.",
+    ], 'fr');
+
 /**
  * MONITORING
  */

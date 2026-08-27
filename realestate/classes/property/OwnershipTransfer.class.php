@@ -107,8 +107,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             'transfer_date' => [
                 'type'              => 'date',
                 'description'       => "Date at which the ownership transfer took place.",
-                'help'              => "This date must match the notary deed date and is therefore known only at the end of the process.",
-                'default'           => function () { return strtotime('today'); }
+                'help'              => "This date must match the notary deed date and is therefore known only at the end of the process."
             ],
 
             'seller_documents_sent_date' => [
@@ -392,6 +391,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description'       => "Short description about ba&nk loan(s), if any."
             ],
 
+            // #deprecated - move to OwnershipTransferSettlement
             'adjustments_ids' => [
                 'type'              => 'one2many',
                 'description'       => "The ownership transfer the line relates to .",
@@ -535,6 +535,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'transitions' => [
                     'send' => [
                         'description' => 'Update the document to `seller_documents_sent`.',
+                        'onafter' => 'onafterSend',
                         'status' => 'seller_documents_sent',
                     ],
                     'confirm' => [
@@ -757,7 +758,23 @@ class OwnershipTransfer extends \equal\orm\Model {
             'bank_loan_description'                 => $bank_loan_description
         ]);
 
-        $self->do('refresh');
+        $self
+            ->do('refresh')
+            ->do('check-transfer-in-progress');
+    }
+
+    protected static function onafterSend($self) {
+        $self->do('check-transfer-in-progress');
+    }
+
+    protected static function doCheckTransferInProgress($self) {
+        $self->read(['condo_id']);
+
+        foreach($self as $ownershipTransfer) {
+            \eQual::run('do', 'realestate_funding_check-transfer-in-progress', [
+                'condo_id' => $ownershipTransfer['condo_id']
+            ]);
+        }
     }
 
     protected static function doRefresh($self) {
@@ -825,6 +842,11 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description'   => 'Refresh all values related to arrears and shares.',
                 'policies'      => [],
                 'function'      => 'doRefresh'
+            ],
+            'check-transfer-in-progress' => [
+                'description'   => 'Refresh all values related to arrears and shares.',
+                'policies'      => [],
+                'function'      => 'doCheckTransferInProgress'
             ]
         ]);
     }

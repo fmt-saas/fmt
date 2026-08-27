@@ -177,6 +177,10 @@ OwnershipTransferHistoryEntry::create([
     'transfer_status'        => $ownershipTransfer['status']
 ]);
 
+if($ownershipTransfer['status'] === 'open') {
+    OwnershipTransfer::id($ownershipTransfer['id'])->transition('send');
+}
+
 $context->httpResponse()
         ->status(204)
         ->send();

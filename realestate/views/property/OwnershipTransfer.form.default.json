@@ -691,35 +691,6 @@
                         ]
                     },
                     {
-                        "id": "section.transfer_details",
-                        "label": "Transfer",
-                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "=", "settled"]],
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "adjustments_ids",
-                                                "widget": {
-                                                    "header": {
-                                                        "layout": "inline",
-                                                        "actions": {
-                                                            "ACTION.CREATE": false
-                                                        }
-                                                    },
-                                                    "view": "list.transfer"
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
                         "id": "section.contacts",
                         "label": "Contacts",
                         "visible": [["status", "not in", ["pending"]]],
