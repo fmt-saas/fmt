@@ -6,6 +6,8 @@
 */
 namespace realestate\property\transfer;
 
+use documents\export\ExportingTask;
+use documents\export\ExportingTaskLine;
 use finance\accounting\Account;
 use finance\accounting\AccountBalanceChange;
 use finance\accounting\FiscalPeriod;
@@ -18,6 +20,8 @@ use realestate\funding\ExpenseStatement;
 use realestate\funding\ExpenseStatementOwnerLine;
 use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestExecutionLineEntry;
+use realestate\ownership\Ownership;
+use realestate\ownership\OwnershipCommunicationPreference;
 use realestate\property\PropertyLotApportionmentShare;
 
 class OwnershipTransferSettlement extends \equal\orm\Model {
@@ -162,6 +166,20 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'description'    => 'Seller and buyer correspondences generated for the settlement.'
             ],
 
+            'correspondences_dispatch_started_at' => [
+                'type'        => 'datetime',
+                'description' => 'Date and time at which correspondence delivery was scheduled.',
+                'readonly'    => true
+            ],
+
+            'correspondences_exporting_task_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'documents\export\ExportingTask',
+                'description'    => 'Export task containing settlement correspondences to print.',
+                'readonly'       => true,
+                'ondelete'       => 'null'
+            ],
+
             'logs' => [
                 'type'        => 'string',
                 'usage'       => 'text/plain',
@@ -207,6 +225,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'transitions' => [
                     'close' => [
                         'description' => 'Close the validated settlement.',
+                        'policies'    => ['can_close'],
                         'onafter'     => 'onafterClose',
                         'status'      => 'closed'
                     ]
@@ -231,6 +250,16 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'description' => 'Generate one proforma miscellaneous operation per corrected accounting source.',
                 'policies'    => ['can_generate_operations'],
                 'function'    => 'doGenerateOperations'
+            ],
+            'generate_correspondences' => [
+                'description' => 'Generate settlement correspondences for the seller and buyer ownerships.',
+                'policies'    => [],
+                'function'    => 'doGenerateCorrespondences'
+            ],
+            'dispatch_correspondences' => [
+                'description' => 'Generate documents and dispatch settlement correspondences by email or postal export.',
+                'policies'    => ['can_dispatch_correspondences'],
+                'function'    => 'doDispatchCorrespondences'
             ]
         ]);
     }
@@ -248,6 +277,14 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'can_validate' => [
                 'description' => 'Checks that every generated miscellaneous operation can be posted.',
                 'function'    => 'policyCanValidate'
+            ],
+            'can_dispatch_correspondences' => [
+                'description' => 'Checks that seller and buyer correspondences are ready for delivery.',
+                'function'    => 'policyCanDispatchCorrespondences'
+            ],
+            'can_close' => [
+                'description' => 'Checks that all settlement correspondences have been delivered.',
+                'function'    => 'policyCanClose'
             ]
         ]);
     }
@@ -542,6 +579,93 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 if($miscOperation['status'] !== 'proforma') {
                     $result[$id] = ['misc_operations_not_proforma' => 'Every generated miscellaneous operation must be proforma before validation.'];
                     break;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanDispatchCorrespondences($self): array {
+        $result = [];
+
+        $self->read([
+            'status',
+            'correspondences_dispatch_started_at',
+            'correspondences_ids' => ['recipient_role', 'owner_id']
+        ]);
+
+        foreach($self as $id => $settlement) {
+            if($settlement['status'] !== 'validated') {
+                $result[$id] = ['settlement_not_validated' => 'Correspondences can only be dispatched after accounting validation.'];
+                continue;
+            }
+
+            if($settlement['correspondences_dispatch_started_at']) {
+                $result[$id] = ['correspondences_already_dispatched' => 'Correspondence delivery has already been scheduled.'];
+                continue;
+            }
+
+            $roles = [];
+            foreach($settlement['correspondences_ids'] as $correspondence) {
+                if(!$correspondence['owner_id']) {
+                    $result[$id] = ['missing_correspondence_recipient' => 'A correspondence has no recipient.'];
+                    continue 2;
+                }
+                $roles[$correspondence['recipient_role']] = true;
+            }
+
+            if(!isset($roles['seller']) || !isset($roles['buyer'])) {
+                $result[$id] = ['missing_settlement_correspondences' => 'Seller and buyer correspondences are required.'];
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanClose($self): array {
+        $result = [];
+
+        $self->read([
+            'correspondences_dispatch_started_at',
+            'correspondences_exporting_task_id' => ['status', 'is_exported'],
+            'correspondences_ids' => ['recipient_role', 'communication_method', 'is_sent']
+        ]);
+
+        foreach($self as $id => $settlement) {
+            if(!$settlement['correspondences_dispatch_started_at']) {
+                $result[$id] = ['correspondences_not_dispatched' => 'Correspondence delivery must be started before closing the settlement.'];
+                continue;
+            }
+
+            $roles = [];
+            $has_postal_correspondence = false;
+            foreach($settlement['correspondences_ids'] as $correspondence) {
+                $roles[$correspondence['recipient_role']] = true;
+                if($correspondence['communication_method'] === 'email') {
+                    if(!$correspondence['is_sent']) {
+                        $result[$id] = ['correspondence_email_not_sent' => 'At least one correspondence email has not been queued.'];
+                        continue 2;
+                    }
+                }
+                else {
+                    $has_postal_correspondence = true;
+                }
+            }
+
+            if(!isset($roles['seller']) || !isset($roles['buyer'])) {
+                $result[$id] = ['missing_settlement_correspondences' => 'Seller and buyer correspondences are required.'];
+                continue;
+            }
+
+            if($has_postal_correspondence) {
+                $exportingTask = $settlement['correspondences_exporting_task_id'];
+                if(!$exportingTask || $exportingTask['status'] !== 'ready') {
+                    $result[$id] = ['correspondence_export_not_ready' => 'The postal correspondence export is not ready.'];
+                    continue;
+                }
+                if(!$exportingTask['is_exported']) {
+                    $result[$id] = ['correspondence_export_not_downloaded' => 'The postal correspondence export has not been downloaded.'];
                 }
             }
         }
@@ -889,6 +1013,151 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
         }
     }
 
+    /**
+     * Generate settlement correspondences for the seller and buyer communication channels.
+     */
+    protected static function doGenerateCorrespondences($self) {
+        $self->read([
+            'condo_id',
+            'seller_ownership_id',
+            'buyer_ownership_id',
+            'correspondences_dispatch_started_at'
+        ]);
+
+        foreach($self as $id => $settlement) {
+            if($settlement['correspondences_dispatch_started_at']) {
+                throw new \Exception('correspondences_already_dispatched', EQ_ERROR_INVALID_PARAM);
+            }
+
+            OwnershipTransferSettlementCorrespondence::search([
+                ['settlement_id', '=', $id]
+            ])->delete(true);
+
+            $ownerships_by_role = [
+                'seller' => $settlement['seller_ownership_id'],
+                'buyer'  => $settlement['buyer_ownership_id']
+            ];
+
+            $map_ownerships = Ownership::ids(array_values($ownerships_by_role))
+                ->read(['representative_owner_id'])
+                ->get();
+
+            foreach($ownerships_by_role as $recipient_role => $ownership_id) {
+                if(!isset($map_ownerships[$ownership_id]) || !$map_ownerships[$ownership_id]['representative_owner_id']) {
+                    continue;
+                }
+
+                $communication_methods = [
+                    'email'                     => false,
+                    'postal'                    => false,
+                    'postal_registered'         => false,
+                    'postal_registered_receipt' => false
+                ];
+
+                $communicationPreference = OwnershipCommunicationPreference::search([
+                        ['condo_id', '=', $settlement['condo_id']],
+                        ['ownership_id', '=', $ownership_id],
+                        ['communication_reason', '=', 'technical_communication']
+                    ])
+                    ->read([
+                        'has_channel_email',
+                        'has_channel_postal',
+                        'has_channel_postal_registered',
+                        'has_channel_postal_registered_receipt'
+                    ])
+                    ->first();
+
+                if($communicationPreference) {
+                    $communication_methods = [
+                        'email'                     => $communicationPreference['has_channel_email'],
+                        'postal'                    => $communicationPreference['has_channel_postal'],
+                        'postal_registered'         => $communicationPreference['has_channel_postal_registered'],
+                        'postal_registered_receipt' => $communicationPreference['has_channel_postal_registered_receipt']
+                    ];
+                }
+
+                if(!in_array(true, $communication_methods, true)) {
+                    $communication_methods['postal_registered'] = true;
+                }
+
+                foreach($communication_methods as $communication_method => $enabled) {
+                    if(!$enabled) {
+                        continue;
+                    }
+
+                    OwnershipTransferSettlementCorrespondence::create([
+                        'condo_id'             => $settlement['condo_id'],
+                        'settlement_id'        => $id,
+                        'recipient_role'       => $recipient_role,
+                        'ownership_id'         => $ownership_id,
+                        'owner_id'             => $map_ownerships[$ownership_id]['representative_owner_id'],
+                        'communication_method' => $communication_method
+                    ]);
+                }
+            }
+        }
+    }
+
+    protected static function doDispatchCorrespondences($self, $cron) {
+        $self->read([
+            'name',
+            'condo_id',
+            'correspondences_exporting_task_id',
+            'correspondences_ids' => ['communication_method']
+        ]);
+
+        foreach($self as $id => $settlement) {
+            if($settlement['correspondences_exporting_task_id']) {
+                ExportingTask::id($settlement['correspondences_exporting_task_id'])->delete(true);
+            }
+
+            $communication_methods = [];
+            foreach($settlement['correspondences_ids'] as $correspondence) {
+                $communication_methods[$correspondence['communication_method']] = true;
+            }
+
+            if(isset($communication_methods['email'])) {
+                $cron->schedule(
+                    "realestate.ownership-transfer-settlement.send-correspondences.{$id}",
+                    time() + 60,
+                    'realestate_property_transfer_OwnershipTransferSettlement_send-emails',
+                    ['id' => $id]
+                );
+            }
+
+            $postal_methods = array_diff(array_keys($communication_methods), ['email']);
+            $exporting_task_id = null;
+            if(count($postal_methods)) {
+                $exportingTask = ExportingTask::create([
+                        'name'         => "{$settlement['name']} - Export des correspondances",
+                        'condo_id'     => $settlement['condo_id'],
+                        'object_class' => static::class,
+                        'object_id'    => $id
+                    ])
+                    ->first();
+
+                foreach($postal_methods as $communication_method) {
+                    ExportingTaskLine::create([
+                        'exporting_task_id' => $exportingTask['id'],
+                        'name'              => "{$settlement['name']} - {$communication_method}",
+                        'controller'        => 'realestate_property_transfer_OwnershipTransferSettlement_export-correspondences',
+                        'params'            => json_encode([
+                            'id'                   => $id,
+                            'communication_method' => $communication_method
+                        ])
+                    ]);
+                }
+
+                $exporting_task_id = $exportingTask['id'];
+            }
+
+            self::id($id)->update([
+                'correspondences_dispatch_started_at' => time(),
+                'correspondences_exporting_task_id'   => $exporting_task_id
+            ]);
+        }
+    }
+
     protected static function onbeforeValidate($self) {
     }
 
@@ -902,6 +1171,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             foreach($wrappers as $wrapper) {
                 MiscOperation::id($wrapper['misc_operation_id'])->transition('post');
             }
+
+            self::id($id)
+                ->update(['validated_at' => time()])
+                ->do('generate_correspondences');
         }
     }
 
@@ -1119,6 +1392,18 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
 
     protected static function onafterClose($self) {
         foreach($self as $id => $settlement) {
+            $postalCorrespondences = OwnershipTransferSettlementCorrespondence::search([
+                ['settlement_id', '=', $id],
+                ['communication_method', '<>', 'email'],
+                ['is_sent', '=', false]
+            ]);
+
+            if($postalCorrespondences->count()) {
+                $postalCorrespondences
+                    ->update(['sent_date' => time()])
+                    ->update(['is_sent' => true]);
+            }
+
             self::id($id)->write(['closed_at' => time()]);
         }
     }

@@ -3,6 +3,7 @@
     "plural": "Correspondances de régularisation de mutation",
     "description": "Correspondance présentant au vendeur ou à l'acquéreur le résultat de la régularisation.",
     "model": {
+        "name": {"label": "Nom", "description": "Nom technique repris depuis la régularisation.", "help": "Renseigné automatiquement."},
         "settlement_id": {"label": "Régularisation", "description": "Dossier présenté dans la correspondance.", "help": "Renseigné automatiquement après validation comptable."},
         "recipient_role": {
             "label": "Rôle du destinataire",
@@ -23,16 +24,40 @@
             "help": "L'émission est reconnue après mise en file de l'e-mail ou inclusion dans un export postal.",
             "selection": {"email": "E-mail", "postal": "Courrier postal", "postal_registered": "Courrier recommandé", "postal_registered_receipt": "Courrier recommandé avec accusé de réception"}
         },
-        "is_sent": {"label": "Émise", "description": "Indique si la correspondance a été émise avec succès.", "help": "Les deux correspondances doivent être émises avant la clôture."},
+        "is_sent": {"label": "Émise", "description": "Indique si la correspondance a été émise avec succès.", "help": "Toutes les correspondances doivent être émises avant la clôture."},
         "is_acknowledged": {"label": "Réception confirmée", "description": "Indique si la réception a été confirmée.", "help": "Information de suivi qui ne conditionne pas la clôture."},
-        "email_address": {"label": "Adresse e-mail", "description": "Adresse e-mail calculée du propriétaire destinataire.", "help": "Reprise automatiquement depuis la fiche du propriétaire."}
+        "email_address": {"label": "Adresse e-mail", "description": "Adresse e-mail calculée du propriétaire destinataire.", "help": "Reprise automatiquement depuis la fiche du propriétaire."},
+        "download_link": {"label": "Téléchargement", "description": "Lien vers le PDF individualisé généré.", "help": "Disponible dès que le document a été produit."}
     },
     "view": {
         "form.default": {
             "name": "Correspondance de régularisation",
             "description": "Destinataire, canal, document et état d'émission de la correspondance.",
-            "layout": {"section.general": {"label": "Destinataire et émission"}, "section.mails": {"label": "E-mails"}}
+            "layout": {"section.general": {"label": "Destinataire et émission"}, "section.mails": {"label": "E-mails"}},
+            "routes": {
+                "route.preview_pdf": {
+                    "label": "Prévisualiser le courrier",
+                    "description": "Afficher le modèle vendeur ou acquéreur au format PDF."
+                }
+            }
         },
         "list.default": {"name": "Correspondances de régularisation", "description": "Liste des courriers vendeur et acquéreur et de leur état d'émission."}
+    },
+    "error": {
+        "unknown_settlement_correspondence": "La correspondance de régularisation demandée est introuvable.",
+        "invalid_correspondence_recipient_role": "Le rôle du destinataire de la correspondance est invalide.",
+        "unknown_correspondence_recipient": "Le destinataire de la correspondance est introuvable ou incomplet.",
+        "missing_organisation": "Les coordonnées de l'organisation gestionnaire sont manquantes.",
+        "missing_correspondence_labels": "Les libellés du modèle de correspondance sont manquants.",
+        "settlement_correspondence_rendering_failed": "Le courrier n'a pas pu être généré en HTML.",
+        "settlement_correspondence_pdf_rendering_failed": "Le courrier n'a pas pu être généré en PDF.",
+        "unknown_ownership_transfer_document_type": "Le type de document des mutations est introuvable.",
+        "settlement_correspondence_document_creation_failed": "Le document de correspondance n'a pas pu être enregistré.",
+        "invalid_communication_method": "Le canal de communication sélectionné est invalide.",
+        "correspondence_already_sent": "Cette correspondance a déjà été émise.",
+        "missing_correspondence_document": "Le document à joindre à la correspondance est manquant.",
+        "missing_mandatory_email": "Le destinataire ne possède aucune adresse e-mail.",
+        "missing_mandatory_mailbox": "La boîte d'envoi du processus juridique n'est pas configurée.",
+        "email_not_queued": "L'e-mail de correspondance n'a pas pu être mis en file."
     }
 }

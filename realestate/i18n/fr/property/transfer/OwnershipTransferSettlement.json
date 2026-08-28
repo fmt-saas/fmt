@@ -25,7 +25,9 @@
         "alert_summary": {"label": "Synthèse de l'alerte", "description": "Résumé des sources et montants nécessitant une régularisation.", "help": "Mis à jour lors de la préparation et du recalcul."},
         "lines_ids": {"label": "Lignes de régularisation", "description": "Mouvements économiques calculés pour les lots transférés.", "help": "Chaque ligne conserve les montants réels, théoriques et retenus."},
         "misc_operations_ids": {"label": "Opérations diverses", "description": "Opérations diverses générées et comptabilisées pour la régularisation.", "help": "Cette liste est alimentée automatiquement et n'est pas modifiable depuis la régularisation."},
-        "correspondences_ids": {"label": "Correspondances", "description": "Courriers destinés au vendeur et à l'acquéreur.", "help": "La clôture requiert l'émission réussie des deux courriers."},
+        "correspondences_ids": {"label": "Correspondances", "description": "Courriers destinés au vendeur et à l'acquéreur.", "help": "Une ou plusieurs correspondances sont créées pour chaque partie selon les canaux configurés."},
+        "correspondences_dispatch_started_at": {"label": "Émission démarrée le", "description": "Date et heure de planification des e-mails et exports postaux.", "help": "Renseigné automatiquement lors du lancement de l'émission."},
+        "correspondences_exporting_task_id": {"label": "Export postal", "description": "Tâche asynchrone regroupant les courriers à imprimer.", "help": "Lorsque la tâche est prête, téléchargez son archive avant de clôturer la régularisation."},
         "logs": {"label": "Journal technique", "description": "Trace technique des traitements exécutés sur le dossier.", "help": "Réservé au diagnostic et à l'audit."}
     },
     "view": {
@@ -52,6 +54,10 @@
                 "action.validate": {
                     "label": "Valider",
                     "description": "Comptabiliser les opérations diverses générées, puis valider la régularisation."
+                },
+                "action.dispatch_correspondences": {
+                    "label": "Émettre les correspondances",
+                    "description": "Générer les courriers vendeur et acquéreur, mettre les e-mails en file et préparer les exports postaux."
                 },
                 "action.close": {
                     "label": "Clôturer",
@@ -101,7 +107,19 @@
             "incomplete_existing_operation": "Le regroupement existant référence une écriture sans OD traçable.",
             "misc_operation_not_proforma": "L'opération diverse n'a pas pu être préparée en pro forma.",
             "misc_operations_not_proforma": "Toutes les opérations diverses générées doivent être en pro forma pour régénérer les lignes ou valider la régularisation.",
-            "misc_operation_not_posted": "L'opération diverse n'a pas pu être comptabilisée."
+            "misc_operation_not_posted": "L'opération diverse n'a pas pu être comptabilisée.",
+            "settlement_not_validated": "Les correspondances ne peuvent être émises qu'après la validation comptable.",
+            "correspondences_already_dispatched": "L'émission des correspondances a déjà été planifiée.",
+            "missing_correspondence_recipient": "Une correspondance ne possède aucun destinataire.",
+            "missing_settlement_correspondences": "Les correspondances du vendeur et de l'acquéreur sont obligatoires.",
+            "correspondences_not_dispatched": "L'émission des correspondances doit être lancée avant la clôture.",
+            "correspondence_email_not_sent": "Au moins un e-mail de correspondance n'a pas encore été mis en file.",
+            "correspondence_export_not_ready": "L'export des courriers postaux n'est pas encore prêt.",
+            "correspondence_export_not_downloaded": "L'archive des courriers postaux doit être téléchargée avant la clôture.",
+            "unknown_ownership_transfer_settlement": "La régularisation de mutation demandée est introuvable.",
+            "no_settlement_correspondence_document": "Aucun document de correspondance n'est disponible pour cet export.",
+            "settlement_correspondence_pdf_merge_failed": "Les courriers postaux n'ont pas pu être fusionnés.",
+            "settlement_correspondence_export_creation_failed": "Le document d'export des correspondances n'a pas pu être créé."
         }
     }
 }

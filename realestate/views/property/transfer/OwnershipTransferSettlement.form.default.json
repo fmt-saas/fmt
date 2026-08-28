@@ -42,6 +42,22 @@
             "confirm": true
         },
         {
+            "id": "action.dispatch_correspondences",
+            "label": "Dispatch correspondences",
+            "description": "Generate seller and buyer documents, queue emails, and prepare postal exports.",
+            "controller": "core_model_do",
+            "visible": [
+                ["status", "=", "validated"],
+                ["correspondences_dispatch_started_at", "is", null]
+            ],
+            "params": {
+                "entity": "realestate\\property\\transfer\\OwnershipTransferSettlement",
+                "action": "dispatch_correspondences",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
             "id": "action.close",
             "label": "Close",
             "description": "Close the validated settlement.",
@@ -107,6 +123,8 @@
                                         "items": [
                                             {"type": "field", "value": "validated_at", "width": "50%"},
                                             {"type": "field", "value": "closed_at", "width": "50%"},
+                                            {"type": "field", "value": "correspondences_dispatch_started_at", "width": "50%"},
+                                            {"type": "field", "value": "correspondences_exporting_task_id", "width": "50%"},
                                             {"type": "field", "value": "alert_summary", "width": "100%"}
                                         ]
                                     }

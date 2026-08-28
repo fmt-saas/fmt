@@ -1,0 +1,16 @@
+{
+    "title": "Régularisation comptable de votre mutation",
+    "seller.introduction": "Madame, Monsieur, nous vous transmettons la régularisation comptable établie à la suite de la cession de vos lots.",
+    "seller.net_amount": "Montant net porté à votre compte :",
+    "seller.details_introduction": "Le détail provisoire des mouvements pris en compte est repris ci-dessous.",
+    "seller.closing": "Ce modèle de courrier est provisoire et sera complété lorsque le contenu métier définitif aura été validé.",
+    "transfer.reference": "Référence :",
+    "transfer.date": "Date de mutation :",
+    "ownership": "Propriété vendeuse :",
+    "line.source": "Source",
+    "line.property_lot": "Lot",
+    "line.period": "Période",
+    "line.amount": "Montant",
+    "line.none": "Aucun mouvement détaillé."
+}
+

@@ -14,6 +14,14 @@ class OwnershipTransferSettlementCorrespondence extends \documents\correspondenc
 
     public static function getColumns() {
         return [
+            'name' => [
+                'type'        => 'computed',
+                'result_type' => 'string',
+                'relation'    => ['settlement_id' => 'name'],
+                'store'       => true,
+                'readonly'    => true
+            ],
+
             'settlement_id' => [
                 'type'           => 'many2one',
                 'foreign_object' => 'realestate\property\transfer\OwnershipTransferSettlement',
@@ -50,13 +58,36 @@ class OwnershipTransferSettlementCorrespondence extends \documents\correspondenc
                 'foreign_field'  => 'object_id',
                 'domain'         => ['object_class', '=', 'realestate\property\transfer\OwnershipTransferSettlementCorrespondence'],
                 'visible'        => ['communication_method', '=', 'email']
+            ],
+
+            'download_link' => [
+                'type'        => 'computed',
+                'result_type' => 'string',
+                'usage'       => 'uri/url.relative',
+                'description' => 'URL for downloading the generated correspondence.',
+                'function'    => 'calcDownloadLink',
+                'store'       => true,
+                'readonly'    => true
             ]
         ];
     }
 
     public function getUnique() {
         return [
-            ['settlement_id', 'recipient_role']
+            ['settlement_id', 'recipient_role', 'communication_method']
         ];
+    }
+
+    protected static function calcDownloadLink($self) {
+        $result = [];
+
+        $self->read(['document_id' => ['hash']]);
+        foreach($self as $id => $correspondence) {
+            if($correspondence['document_id']) {
+                $result[$id] = '/document/' . $correspondence['document_id']['hash'];
+            }
+        }
+
+        return $result;
     }
 }

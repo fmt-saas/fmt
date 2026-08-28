@@ -2,6 +2,18 @@
     "name": "Ownership Transfer Settlement Correspondence",
     "description": "Review a seller or buyer settlement correspondence.",
     "header": {"actions": false},
+    "routes": [
+        {
+            "id": "route.preview_pdf",
+            "type": "entry",
+            "label": "Preview correspondence",
+            "icon": "preview",
+            "description": "Preview the seller or buyer correspondence as PDF.",
+            "route": "/?get=realestate_property_transfer_OwnershipTransferSettlementCorrespondence_render-pdf&id=object.id",
+            "target": "_blank",
+            "absolute": true
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -31,7 +43,8 @@
                                             {"type": "field", "value": "sent_date", "width": "33%"},
                                             {"type": "field", "value": "is_acknowledged", "width": "33%"},
                                             {"type": "field", "value": "has_document", "width": "50%"},
-                                            {"type": "field", "value": "document_id", "width": "50%"}
+                                            {"type": "field", "value": "document_id", "width": "50%"},
+                                            {"type": "field", "value": "download_link", "width": "50%", "widget": {"link": "icon"}}
                                         ]
                                     }
                                 ]

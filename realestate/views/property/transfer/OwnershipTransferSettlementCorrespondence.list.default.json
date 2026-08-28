@@ -11,7 +11,7 @@
             {"type": "field", "value": "communication_method", "width": "14%"},
             {"type": "field", "value": "is_sent", "width": "10%"},
             {"type": "field", "value": "sent_date", "width": "14%"},
-            {"type": "field", "value": "document_id", "width": "14%", "visible": false}
+            {"type": "field", "value": "download_link", "label": "Document", "width": "10%", "widget": {"link": true}}
         ]
     }
 }

@@ -1,0 +1,16 @@
+{
+    "title": "Régularisation comptable de votre acquisition",
+    "buyer.introduction": "Madame, Monsieur, nous vous transmettons la régularisation comptable établie à la suite de l'acquisition de vos lots.",
+    "buyer.net_amount": "Montant net porté à votre compte :",
+    "buyer.details_introduction": "Le détail provisoire des mouvements pris en compte est repris ci-dessous.",
+    "buyer.closing": "Ce modèle de courrier est provisoire et sera complété lorsque le contenu métier définitif aura été validé.",
+    "transfer.reference": "Référence :",
+    "transfer.date": "Date de mutation :",
+    "ownership": "Propriété acquéreuse :",
+    "line.source": "Source",
+    "line.property_lot": "Lot",
+    "line.period": "Période",
+    "line.amount": "Montant",
+    "line.none": "Aucun mouvement détaillé."
+}
+

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>{{ title }}</title>
+
+    {% include 'header.style.html.twig' %}
+    {% include 'footer.style.html.twig' %}
+
+    <style type="text/css">
+        @page { margin: 1cm; }
+        body {
+            margin: 100px 0 50px;
+            padding: 0;
+            width: 100%;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            color: #222;
+        }
+        p { margin: 0 0 14px; line-height: 1.45; }
+        .summary { margin: 20px 0; padding: 14px; border: 1px solid #bbb; background: #f6f6f6; }
+        .summary-label { font-weight: bold; }
+        .details { width: 100%; border-collapse: collapse; margin-top: 18px; }
+        .details th, .details td { border: 1px solid #bbb; padding: 6px; text-align: left; }
+        .details th { background: #eee; }
+        .amount { text-align: right; white-space: nowrap; }
+        main.debug { outline: solid 1px brown; }
+    </style>
+</head>
+<body>
+    {% include 'header.html.twig' %}
+
+    <p>{{ labels['seller.introduction'] }}</p>
+    <div style="margin-bottom: 14px; line-height: 1.45;">
+        <div>{{ labels['transfer.reference'] }} <strong>{{ settlement.name }}</strong></div>
+        <div>{{ labels['transfer.date'] }} {{ settlement.transfer_date | date(date_format, timezone) }}</div>
+        <div>{{ labels['ownership'] }} {{ ownership.name }}</div>
+    </div>
+
+    <div class="summary">
+        <span class="summary-label">{{ labels['seller.net_amount'] }}</span>
+        {{ net_amount }}
+    </div>
+
+    <p>{{ labels['seller.details_introduction'] }}</p>
+
+    <table class="details">
+        <thead>
+            <tr>
+                <th>{{ labels['line.source'] }}</th>
+                <th>{{ labels['line.property_lot'] }}</th>
+                <th>{{ labels['line.period'] }}</th>
+                <th>{{ labels['line.amount'] }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for line in lines %}
+            <tr>
+                <td>{{ line.source_name }}</td>
+                <td>{{ line.property_lot }}</td>
+                <td>
+                    {% if line.period_from and line.period_to %}
+                        {{ line.period_from | date(date_format, timezone) }} - {{ line.period_to | date(date_format, timezone) }}
+                    {% endif %}
+                </td>
+                <td class="amount">{{ line.applied_amount }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4">{{ labels['line.none'] }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <p>{{ labels['seller.closing'] }}</p>
+
+    {% include 'footer.html.twig' %}
+</body>
+</html>
