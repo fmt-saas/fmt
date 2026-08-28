@@ -438,7 +438,10 @@ foreach($template['parts_ids'] as $part) {
     }
 }
 
-$labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'PaymentReminder.' . $params['view_id']));
+$labels = $getLabels(
+    $lang,
+    sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'PaymentReminder.' . $params['view_id'])
+);
 
 $values = [
     'title'               => $subject,

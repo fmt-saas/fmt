@@ -1,0 +1,17 @@
+{
+    "name": "Ownership transfer settlement operations",
+    "description": "Simplified accounting operations generated for an ownership transfer settlement.",
+    "header": {
+        "advanced_search": false
+    },
+    "layout": {
+        "items": [
+            {"type": "field", "value": "name", "width": "18%"},
+            {"type": "field", "value": "description", "width": "28%"},
+            {"type": "field", "value": "posting_date", "width": "14%"},
+            {"type": "field", "value": "fiscal_period_id", "width": "14%"},
+            {"type": "field", "value": "journal_id", "width": "14%"},
+            {"type": "field", "value": "status", "width": "12%"}
+        ]
+    }
+}

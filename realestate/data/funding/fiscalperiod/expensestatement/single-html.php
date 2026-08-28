@@ -572,7 +572,10 @@ foreach($template['parts_ids'] as $part_id => $part) {
     }
 }
 
-$labels = $getLabels($lang, sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'ExpenseStatement.'.$params['view_id']));
+$labels = $getLabels(
+    $lang,
+    sprintf('%s/packages/realestate/i18n/%s/funding/%s.json', EQ_BASEDIR, $lang, 'ExpenseStatement.'.$params['view_id'])
+);
 
 $values = array_merge($values, [
     'title'               => $subject,

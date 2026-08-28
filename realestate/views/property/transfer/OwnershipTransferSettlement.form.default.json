@@ -156,7 +156,7 @@
                                                 "value": "misc_operations_ids",
                                                 "width": "100%",
                                                 "widget": {
-                                                    "view": "list.default",
+                                                    "view": "list.transfer_settlement",
                                                     "header": {
                                                         "actions": {
                                                             "ACTION.SELECT": false,

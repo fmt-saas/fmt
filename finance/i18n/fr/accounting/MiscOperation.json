@@ -168,6 +168,10 @@
         "list.default": {
             "name": "Opérations comptables",
             "description": "Liste filtrable des opérations avec journal, statut et justification."
+        },
+        "list.transfer_settlement": {
+            "name": "Opérations de régularisation de transfert de propriété",
+            "description": "Liste simplifiée des opérations comptables générées pour la régularisation d'un transfert de propriété."
         }
     },
     "error": {

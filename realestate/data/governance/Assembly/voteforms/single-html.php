@@ -108,7 +108,7 @@ $getOrganisationLogo = function($organisation_id, $object_class='identity\Organi
     return $result;
 };
 
-$getLabels = function ($lang, $view_i18n_file_path) {
+$getLabels = function ($lang, $view_i18n_file_path, $default_labels = []) {
     $header_labels_json = file_get_contents(
         sprintf('%s/packages/realestate/i18n/%s/_parts/header.json', EQ_BASEDIR, $lang)
     );
@@ -245,7 +245,10 @@ $subject = 'Bulletin de vote';
 $introduction = '';
 $conclusion = '';
 
-$labels = $getLabels($params['lang'], sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $params['lang'], 'Assembly.'.$params['view_id']));
+$labels = $getLabels(
+    $params['lang'],
+    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $params['lang'], 'Assembly.'.$params['view_id'])
+);
 
 $values = [
     'title'                     => $subject,
