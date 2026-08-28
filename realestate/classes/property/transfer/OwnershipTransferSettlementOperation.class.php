@@ -83,7 +83,8 @@ class OwnershipTransferSettlementOperation extends \equal\orm\Model {
                 'foreign_object' => 'finance\accounting\MiscOperation',
                 'description'    => 'Miscellaneous operation generated for the correction.',
                 'domain'         => ['condo_id', '=', 'object.condo_id'],
-                'ondelete'       => 'null',
+                'required'       => true,
+                'ondelete'       => 'cascade',
                 'readonly'       => true
             ],
 
@@ -121,7 +122,8 @@ class OwnershipTransferSettlementOperation extends \equal\orm\Model {
 
     public function getUnique() {
         return [
-            ['settlement_id', 'operation_key']
+            ['settlement_id', 'operation_key'],
+            ['settlement_id', 'misc_operation_id']
         ];
     }
 }

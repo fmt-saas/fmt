@@ -128,11 +128,17 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "operations_ids",
+                                                "value": "misc_operations_ids",
                                                 "width": "100%",
                                                 "widget": {
                                                     "view": "list.default",
-                                                    "header": {"actions": {"ACTION.CREATE": false}}
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.SELECT": false,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "actions": false
                                                 }
                                             }
                                         ]

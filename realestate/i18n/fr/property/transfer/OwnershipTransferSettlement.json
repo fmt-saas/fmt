@@ -25,7 +25,7 @@
         "has_accounted_sources": {"label": "Sources comptabilisées", "description": "Indique si des sources comptabilisées ont été trouvées.", "help": "Alimente l'alerte synthétique du dossier."},
         "alert_summary": {"label": "Synthèse de l'alerte", "description": "Résumé des sources et montants nécessitant une régularisation.", "help": "Mis à jour lors de la préparation et du recalcul."},
         "lines_ids": {"label": "Lignes de régularisation", "description": "Mouvements économiques calculés pour les lots transférés.", "help": "Chaque ligne conserve les montants réels, théoriques et retenus."},
-        "operations_ids": {"label": "Opérations diverses", "description": "Opérations comptables générées à la validation.", "help": "Une opération est créée par source ou fonds corrigé."},
+        "misc_operations_ids": {"label": "Opérations diverses", "description": "Opérations diverses générées et comptabilisées pour la régularisation.", "help": "Cette liste est alimentée automatiquement et n'est pas modifiable depuis la régularisation."},
         "correspondences_ids": {"label": "Correspondances", "description": "Courriers destinés au vendeur et à l'acquéreur.", "help": "La clôture requiert l'émission réussie des deux courriers."},
         "logs": {"label": "Journal technique", "description": "Trace technique des traitements exécutés sur le dossier.", "help": "Réservé au diagnostic et à l'audit."}
     },
@@ -90,6 +90,7 @@
             "missing_ownership_accounting_account": "Un compte comptable de copropriétaire requis pour l'OD est introuvable.",
             "existing_operation_mismatch": "Une OD déjà comptabilisée avec la même clé possède une date ou un montant différent.",
             "existing_operation_cancelled": "L'OD portant cette clé technique a été annulée et ne peut pas être recréée automatiquement.",
+            "existing_operation_not_posted": "L'OD portant cette clé technique existe déjà mais n'est pas comptabilisée.",
             "incomplete_existing_operation": "Le regroupement existant référence une écriture sans OD traçable.",
             "misc_operation_not_posted": "L'opération diverse n'a pas pu être comptabilisée."
         }
