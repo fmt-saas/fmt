@@ -5,7 +5,7 @@
         {
             "id": "action.generate_lines",
             "label": "Generate lines",
-            "description": "Generate settlement lines from accounted working fund balances and fund requests.",
+            "description": "Generate settlement lines from accounted working fund balances, fund requests, and periodic expense statements.",
             "controller": "core_model_do",
             "visible": ["status", "=", "draft"],
             "params": {
@@ -14,6 +14,19 @@
                 "ids": []
             },
             "confirm": false
+        },
+        {
+            "id": "action.generate_operations",
+            "label": "Generate accounting operations",
+            "description": "Generate and post one miscellaneous operation per corrected accounting source.",
+            "controller": "core_model_do",
+            "visible": [["status", "=", "draft"], ["lines_ids", "<>", null]],
+            "params": {
+                "entity": "realestate\\property\\transfer\\OwnershipTransferSettlement",
+                "action": "generate_operations",
+                "ids": []
+            },
+            "confirm": true
         }
     ],
     "layout": {
@@ -31,7 +44,7 @@
                                         "items": [
                                             {"type": "field", "value": "name", "width": "100%", "visible": false},
                                             {"type": "field", "value": "condo_id", "width": "50%"},
-                                            {"type": "field", "value": "ownership_transfer_id", "width": "50%"},
+                                            {"type": "field", "value": "ownership_transfer_id", "width": "50%", "visible": false},
                                             {"type": "field", "value": "seller_ownership_id", "width": "50%"},
                                             {"type": "field", "value": "buyer_ownership_id", "width": "50%"}
                                         ]
@@ -39,7 +52,7 @@
                                     {
                                         "width": "50%",
                                         "items": [
-                                            {"type": "field", "value": "status", "width": "50%"},
+                                            {"type": "field", "value": "status", "width": "50%", "visible": false},
                                             {"type": "field", "value": "transfer_date", "width": "50%"},
                                             {"type": "field", "value": "accounting_date", "width": "50%"},
                                             {"type": "field", "value": "snapshot_at", "width": "50%"}
@@ -67,10 +80,8 @@
                                         "width": "50%",
                                         "items": [
                                             {"type": "field", "value": "calculation_version", "width": "50%"},
-                                            {"type": "field", "value": "recalculated_at", "width": "50%"},
                                             {"type": "field", "value": "validated_at", "width": "50%"},
                                             {"type": "field", "value": "closed_at", "width": "50%"},
-                                            {"type": "field", "value": "calculation_hash", "width": "100%"},
                                             {"type": "field", "value": "alert_summary", "width": "100%"}
                                         ]
                                     }

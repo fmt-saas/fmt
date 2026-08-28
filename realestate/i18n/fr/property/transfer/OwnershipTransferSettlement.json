@@ -18,8 +18,6 @@
             "selection": {"draft": "Brouillon", "validated": "Validée", "closed": "Clôturée"}
         },
         "calculation_version": {"label": "Version du calcul", "description": "Version des règles ayant produit les lignes.", "help": "Permet de reproduire et d'auditer le calcul."},
-        "calculation_hash": {"label": "Empreinte du calcul", "description": "Empreinte des entrées et résultats du calcul.", "help": "Permet de détecter un brouillon devenu obsolète."},
-        "recalculated_at": {"label": "Recalculée le", "description": "Date et heure du dernier recalcul du brouillon.", "help": "Renseigné automatiquement."},
         "validated_at": {"label": "Validée le", "description": "Date et heure de la validation comptable.", "help": "Renseigné automatiquement lors de la création des OD."},
         "closed_at": {"label": "Clôturée le", "description": "Date et heure de clôture de la régularisation.", "help": "Renseigné après émission des deux correspondances."},
         "seller_net_amount": {"label": "Net vendeur", "description": "Montant net crédité au vendeur ; une valeur négative est débitée.", "help": "Somme des mouvements retenus pour le vendeur."},
@@ -46,7 +44,11 @@
             "actions": {
                 "action.generate_lines": {
                     "label": "Générer les lignes",
-                    "description": "Générer les régularisations du fonds de roulement et des appels de fonds comptabilisés."
+                    "description": "Générer les régularisations du fonds de roulement, des appels de fonds et des décomptes périodiques comptabilisés."
+                },
+                "action.generate_operations": {
+                    "label": "Générer les OD",
+                    "description": "Générer et comptabiliser une opération diverse par fonds ou document source corrigé."
                 }
             }
         },
@@ -69,7 +71,27 @@
             "missing_working_fund_apportionment": "Le fonds de roulement doit être lié à une clé de répartition.",
             "missing_working_fund_shares": "La clé de répartition du fonds de roulement doit avoir un total de quotes-parts.",
             "missing_property_lot_share": "Chaque lot transféré doit avoir une quote-part dans la clé du fonds de roulement.",
-            "invalid_fund_request_period": "Une exécution comptabilisée d'appel de fonds possède une période économique invalide."
+            "invalid_fund_request_period": "Une exécution comptabilisée d'appel de fonds possède une période économique invalide.",
+            "settlement_closed": "Une régularisation clôturée ne peut plus générer d'opérations comptables.",
+            "missing_settlement_lines": "Les lignes de régularisation doivent être générées avant les OD.",
+            "missing_applied_amounts": "Au moins une ligne doit avoir un montant retenu non nul.",
+            "missing_accounting_date": "La date comptable est obligatoire.",
+            "future_accounting_date": "La date comptable ne peut pas se situer dans le futur.",
+            "missing_accounting_period": "Aucune période comptable ne couvre la date choisie.",
+            "invalid_accounting_period": "La période comptable doit être ouverte ou préclôturée.",
+            "invalid_accounting_fiscal_year": "L'exercice comptable ne permet pas de comptabiliser cette OD.",
+            "missing_misc_journal": "La copropriété doit disposer d'un journal d'opérations diverses.",
+            "missing_primary_bank_account": "La copropriété doit disposer d'un compte bancaire principal pour comptabiliser les mouvements des copropriétaires.",
+            "missing_settlement_line_property_lot": "Une ligne de régularisation n'est liée à aucun lot.",
+            "missing_fund_request_execution_source": "Une ligne d'appel de fonds n'est liée à aucune exécution valide.",
+            "invalid_fund_request_type": "Le type de l'appel de fonds ne permet pas de déterminer le compte de copropriétaire.",
+            "invalid_settlement_line_source_type": "Une ligne de régularisation possède un type de source invalide.",
+            "missing_settlement_line_source": "Une ligne de régularisation n'est liée à aucune source comptabilisée.",
+            "missing_ownership_accounting_account": "Un compte comptable de copropriétaire requis pour l'OD est introuvable.",
+            "existing_operation_mismatch": "Une OD déjà comptabilisée avec la même clé possède une date ou un montant différent.",
+            "existing_operation_cancelled": "L'OD portant cette clé technique a été annulée et ne peut pas être recréée automatiquement.",
+            "incomplete_existing_operation": "Le regroupement existant référence une écriture sans OD traçable.",
+            "misc_operation_not_posted": "L'opération diverse n'a pas pu être comptabilisée."
         }
     }
 }

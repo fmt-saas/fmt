@@ -6,8 +6,16 @@
 */
 namespace realestate\property\transfer;
 
+use finance\accounting\Account;
 use finance\accounting\AccountBalanceChange;
+use finance\accounting\FiscalPeriod;
+use finance\accounting\Journal;
+use finance\accounting\MiscOperation;
+use finance\accounting\MiscOperationLine;
+use finance\bank\CondominiumBankAccount;
 use realestate\finance\accounting\CondoFund;
+use realestate\funding\ExpenseStatement;
+use realestate\funding\ExpenseStatementOwnerLine;
 use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestExecutionLineEntry;
 use realestate\property\OwnershipTransfer;
@@ -92,18 +100,6 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'description' => 'Version of the calculation rules used for the settlement.',
                 'default'     => '1',
                 'required'    => true,
-                'readonly'    => true
-            ],
-
-            'calculation_hash' => [
-                'type'        => 'string',
-                'description' => 'Fingerprint of the complete calculation input and result.',
-                'readonly'    => true
-            ],
-
-            'recalculated_at' => [
-                'type'        => 'datetime',
-                'description' => 'Date and time of the latest draft recalculation.',
                 'readonly'    => true
             ],
 
@@ -197,9 +193,14 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
     public static function getActions() {
         return array_merge(parent::getActions(), [
             'generate_lines' => [
-                'description' => 'Generate settlement lines from the working fund balance and posted fund requests.',
+                'description' => 'Generate settlement lines from working fund balances, posted fund requests, and posted expense statements.',
                 'policies'    => ['can_generate_lines'],
                 'function'    => 'doGenerateLines'
+            ],
+            'generate_operations' => [
+                'description' => 'Generate and post one miscellaneous operation per corrected accounting source.',
+                'policies'    => ['can_generate_operations'],
+                'function'    => 'doGenerateOperations'
             ],
             'link_ownership_transfer' => [
                 'description' => 'Set the settlement link on the related ownership transfer.',
@@ -231,6 +232,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'can_generate_lines' => [
                 'description' => 'Checks that the settlement is a complete draft and that working fund apportionments are configured.',
                 'function'    => 'policyCanGenerateLines'
+            ],
+            'can_generate_operations' => [
+                'description' => 'Checks that settlement lines can be posted on the selected accounting date.',
+                'function'    => 'policyCanGenerateOperations'
             ]
         ]);
     }
@@ -345,6 +350,151 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
         return $result;
     }
 
+    protected static function policyCanGenerateOperations($self): array {
+        $result = [];
+
+        $self->read([
+            'status',
+            'condo_id',
+            'seller_ownership_id',
+            'buyer_ownership_id',
+            'accounting_date',
+            'lines_ids' => [
+                'source_type',
+                'condo_fund_id',
+                'fund_request_execution_id',
+                'expense_statement_id',
+                'property_lot_id',
+                'applied_amount'
+            ]
+        ]);
+
+        foreach($self as $id => $settlement) {
+            if($settlement['status'] === 'closed') {
+                $result[$id] = ['settlement_closed' => 'A closed settlement cannot generate accounting operations.'];
+                continue;
+            }
+
+            if(!count($settlement['lines_ids'])) {
+                $result[$id] = ['missing_settlement_lines' => 'Settlement lines must be generated before accounting operations.'];
+                continue;
+            }
+
+            try {
+                $groups = self::groupSettlementLines($id, $settlement['lines_ids']);
+            }
+            catch(\Exception $e) {
+                $result[$id] = [$e->getMessage() => 'A settlement line has an invalid accounting source.'];
+                continue;
+            }
+
+            if(!count($groups)) {
+                $result[$id] = ['missing_applied_amounts' => 'At least one settlement line must have a non-zero retained amount.'];
+                continue;
+            }
+
+            // A repeated validation can reuse every already-posted operation,
+            // even if the accounting period has since been closed.
+            $groups_to_create = [];
+            foreach($groups as $group) {
+                $existingOperation = OwnershipTransferSettlementOperation::search([
+                        ['settlement_id', '=', $id],
+                        ['operation_key', '=', $group['operation_key']]
+                    ])
+                    ->read(['misc_operation_id' => ['status']])
+                    ->first();
+
+                if(
+                    !$existingOperation
+                    || !$existingOperation['misc_operation_id']
+                    || $existingOperation['misc_operation_id']['status'] !== 'posted'
+                ) {
+                    $groups_to_create[] = $group;
+                }
+            }
+
+            if(!count($groups_to_create)) {
+                continue;
+            }
+
+            if(!$settlement['accounting_date']) {
+                $result[$id] = ['missing_accounting_date' => 'The accounting date is mandatory.'];
+                continue;
+            }
+
+            if((int) $settlement['accounting_date'] >= strtotime('tomorrow midnight')) {
+                $result[$id] = ['future_accounting_date' => 'The accounting date cannot be in the future.'];
+                continue;
+            }
+
+            $fiscalPeriod = FiscalPeriod::search([
+                    ['condo_id', '=', $settlement['condo_id']],
+                    ['date_from', '<=', $settlement['accounting_date']],
+                    ['date_to', '>=', $settlement['accounting_date']]
+                ])
+                ->read(['status', 'fiscal_year_status'])
+                ->first();
+
+            if(!$fiscalPeriod) {
+                $result[$id] = ['missing_accounting_period' => 'No fiscal period covers the accounting date.'];
+                continue;
+            }
+
+            if(!in_array($fiscalPeriod['status'], ['open', 'preclosed'], true)) {
+                $result[$id] = ['invalid_accounting_period' => 'The accounting period must be open or preclosed.'];
+                continue;
+            }
+
+            if(!in_array($fiscalPeriod['fiscal_year_status'], ['preopen', 'open', 'preclosed'], true)) {
+                $result[$id] = ['invalid_accounting_fiscal_year' => 'The fiscal year does not allow accounting operations.'];
+                continue;
+            }
+
+            $journal = Journal::search([
+                    ['condo_id', '=', $settlement['condo_id']],
+                    ['journal_type', '=', 'MISC']
+                ])
+                ->first();
+
+            if(!$journal) {
+                $result[$id] = ['missing_misc_journal' => 'A miscellaneous-operation journal is required.'];
+                continue;
+            }
+
+            $bankAccount = CondominiumBankAccount::search([
+                    ['condo_id', '=', $settlement['condo_id']],
+                    ['is_primary', '=', true]
+                ])
+                ->first();
+
+            if(!$bankAccount) {
+                $result[$id] = ['missing_primary_bank_account' => 'A primary condominium bank account is required to post owner movements.'];
+                continue;
+            }
+
+            foreach($groups_to_create as $group) {
+                try {
+                    self::getOwnershipAccountId(
+                        $settlement['condo_id'],
+                        $settlement['seller_ownership_id'],
+                        $group['operation_assignment']
+                    );
+                    self::getOwnershipAccountId(
+                        $settlement['condo_id'],
+                        $settlement['buyer_ownership_id'],
+                        $group['operation_assignment']
+                    );
+                }
+                catch(\Exception $e) {
+                    $result[$id] = [$e->getMessage() => 'An owner accounting account required by a settlement source is missing.'];
+                    break;
+                }
+            }
+        }
+
+        return $result;
+    }
+
     protected static function doGenerateLines($self) {
         // Read raw values: eQual exposes dates and datetimes as integer timestamps.
         $self->read([
@@ -363,7 +513,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             $snapshot_at = (int) $settlement['snapshot_at'];
             // The buyer owns the lots from the transfer date, so the seller's
             // working fund position is taken at the end of the previous day.
-            $balance_date = $transfer_date - 86400;
+            $balance_date = strtotime('-1 day', $transfer_date);
             // Keep one group per accounting source so rounding remains balanced
             // when the lines are later converted into one operation per source.
             $line_groups = [];
@@ -442,19 +592,16 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 if($period_to < $period_from) {
                     throw new \Exception('invalid_fund_request_period', EQ_ERROR_INVALID_CONFIG);
                 }
-                if($period_to < $transfer_date) {
-                    continue;
-                }
 
                 // Period bounds are inclusive and the transfer day belongs to the buyer.
-                $total_days = (int) ((($period_to - $period_from) / 86400) + 1);
-                $seller_days = 0;
-                $correction_type = 'post_transfer_call';
-                if($period_from < $transfer_date) {
-                    $seller_days = (int) (($transfer_date - $period_from) / 86400);
-                    $correction_type = 'current_period_provision';
-                }
-                $buyer_days = $total_days - $seller_days;
+                [$total_days, $seller_days, $buyer_days] = self::getPeriodDayAllocation(
+                    $period_from,
+                    $period_to,
+                    $transfer_date
+                );
+                $correction_type = $period_from >= $transfer_date
+                    ? 'post_transfer_call'
+                    : 'current_period_provision';
 
                 // Aggregate what was actually charged to seller and buyer for each lot.
                 $fundRequestExecutionLineEntries = FundRequestExecutionLineEntry::search([
@@ -506,7 +653,134 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 }
             }
 
-            // 3. Round each source independently. The last lot absorbs the cent
+            // 3. Recompute each posted periodic statement against the ownership
+            // history resulting from the transfer. The posted source remains intact.
+            $expenseStatements = ExpenseStatement::search([
+                    ['condo_id', '=', $settlement['condo_id']],
+                    ['status', '=', 'posted'],
+                    ['posting_date', '<=', $snapshot_at]
+                ])
+                ->read([
+                    'posting_date',
+                    'fiscal_period_id' => ['date_from', 'date_to'],
+                    'fiscal_year_id'   => ['date_to', 'status']
+                ]);
+
+            foreach($expenseStatements as $expense_statement_id => $expenseStatement) {
+                $fiscal_period = $expenseStatement['fiscal_period_id'];
+                $fiscal_year = $expenseStatement['fiscal_year_id'];
+
+                // The annual closing statement is final and must not be adjusted.
+                if(
+                    $fiscal_year['status'] === 'closed'
+                    && (int) $fiscal_period['date_to'] === (int) $fiscal_year['date_to']
+                ) {
+                    continue;
+                }
+
+                $statementOwnerLines = ExpenseStatementOwnerLine::search([
+                        ['invoice_id', '=', $expense_statement_id],
+                        ['property_lot_id', 'in', $property_lots_ids],
+                        ['ownership_id', 'in', [
+                            $settlement['seller_ownership_id'],
+                            $settlement['buyer_ownership_id']
+                        ]]
+                    ])
+                    ->read(['ownership_id', 'property_lot_id', 'price']);
+
+                // A statement without an owner line for a transferred lot is unrelated.
+                if(!count($statementOwnerLines)) {
+                    continue;
+                }
+
+                $actual_amounts_by_lot = [];
+                foreach($statementOwnerLines as $statementOwnerLine) {
+                    $property_lot_id = $statementOwnerLine['property_lot_id'];
+                    $role = (int) $statementOwnerLine['ownership_id'] === (int) $settlement['seller_ownership_id']
+                        ? 'seller'
+                        : 'buyer';
+                    $actual_amounts_by_lot[$property_lot_id][$role] =
+                        ($actual_amounts_by_lot[$property_lot_id][$role] ?? 0.0)
+                        + (float) $statementOwnerLine['price'];
+                }
+
+                $theoreticalData = ExpenseStatement::simulateOwnershipTransferData(
+                    $expense_statement_id,
+                    $settlement['seller_ownership_id'],
+                    $settlement['buyer_ownership_id'],
+                    $property_lots_ids,
+                    $transfer_date
+                );
+
+                $property_lots_map = array_fill_keys($property_lots_ids, true);
+                $theoretical_amounts_by_lot = [];
+                foreach($theoreticalData['owners'] as $owner) {
+                    if((int) $owner['id'] === (int) $settlement['seller_ownership_id']) {
+                        $role = 'seller';
+                    }
+                    elseif((int) $owner['id'] === (int) $settlement['buyer_ownership_id']) {
+                        $role = 'buyer';
+                    }
+                    else {
+                        continue;
+                    }
+
+                    foreach($owner['lines'] as $ownerLine) {
+                        $property_lot_id = $ownerLine['property_lot_id'];
+                        if(!isset($property_lots_map[$property_lot_id])) {
+                            continue;
+                        }
+
+                        $theoretical_amounts_by_lot[$property_lot_id][$role] =
+                            ($theoretical_amounts_by_lot[$property_lot_id][$role] ?? 0.0)
+                            + (float) ($ownerLine['owner'] ?? 0.0)
+                            + (float) ($ownerLine['tenant'] ?? 0.0);
+                    }
+                }
+
+                [$total_days, $seller_days, $buyer_days] = self::getPeriodDayAllocation(
+                    (int) $fiscal_period['date_from'],
+                    (int) $fiscal_period['date_to'],
+                    $transfer_date
+                );
+
+                $statement_property_lots_ids = array_values(array_unique(array_merge(
+                    array_keys($actual_amounts_by_lot),
+                    array_keys($theoretical_amounts_by_lot)
+                )));
+                sort($statement_property_lots_ids, SORT_NUMERIC);
+
+                $source_lines = [];
+                foreach($statement_property_lots_ids as $property_lot_id) {
+                    $actual_seller_amount = $actual_amounts_by_lot[$property_lot_id]['seller'] ?? 0.0;
+                    $actual_buyer_amount = $actual_amounts_by_lot[$property_lot_id]['buyer'] ?? 0.0;
+                    $theoretical_seller_amount = $theoretical_amounts_by_lot[$property_lot_id]['seller'] ?? 0.0;
+                    $theoretical_buyer_amount = $theoretical_amounts_by_lot[$property_lot_id]['buyer'] ?? 0.0;
+
+                    $source_lines[] = [
+                        'correction_type'           => 'expense_statement_adjustment',
+                        'source_type'               => 'expense_statement',
+                        'expense_statement_id'      => $expense_statement_id,
+                        'property_lot_id'           => $property_lot_id,
+                        'period_from'               => $fiscal_period['date_from'],
+                        'period_to'                 => $fiscal_period['date_to'],
+                        'total_days'                => $total_days,
+                        'seller_days'               => $seller_days,
+                        'buyer_days'                => $buyer_days,
+                        'actual_seller_amount'      => $actual_seller_amount,
+                        'actual_buyer_amount'       => $actual_buyer_amount,
+                        'theoretical_seller_amount' => $theoretical_seller_amount,
+                        'theoretical_buyer_amount'  => $theoretical_buyer_amount,
+                        'calculated_amount'         => $actual_seller_amount - $theoretical_seller_amount
+                    ];
+                }
+
+                if(count($source_lines)) {
+                    $line_groups[] = $source_lines;
+                }
+            }
+
+            // 4. Round each source independently. The last lot absorbs the cent
             // residue so the rounded lines retain the rounded source total.
             $lines = [];
             foreach($line_groups as $source_lines) {
@@ -524,7 +798,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 $lines[] = $last_line;
             }
 
-            // 4. Replace the draft lines only after every source was calculated.
+            // 5. Replace the draft lines only after every source was calculated.
             // Manual changes are intentionally discarded when generation is rerun.
             $total = 0.0;
             $line_count = 0;
@@ -544,14 +818,430 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             // Store the generated totals and a concise calculation summary.
             $source_count = count($line_groups);
             self::id($id)->update([
-                'calculation_hash'      => hash('sha256', json_encode($lines, JSON_PRESERVE_ZERO_FRACTION)),
-                'recalculated_at'       => time(),
                 'seller_net_amount'     => round($total, 2),
                 'buyer_net_amount'      => round($total, 2),
                 'has_accounted_sources' => $source_count > 0,
                 'alert_summary'         => sprintf('%d settlement line(s) generated from %d accounted source(s).', $line_count, $source_count)
             ]);
         }
+    }
+
+    protected static function doGenerateOperations($self) {
+        $self->read([
+            'status',
+            'condo_id',
+            'seller_ownership_id',
+            'buyer_ownership_id',
+            'accounting_date',
+            'validated_at',
+            'logs',
+            'lines_ids' => [
+                'source_type',
+                'condo_fund_id',
+                'fund_request_execution_id',
+                'expense_statement_id',
+                'property_lot_id',
+                'applied_amount'
+            ]
+        ]);
+
+        foreach($self as $id => $settlement) {
+            $groups = self::groupSettlementLines($id, $settlement['lines_ids']);
+            $journal = Journal::search([
+                    ['condo_id', '=', $settlement['condo_id']],
+                    ['journal_type', '=', 'MISC']
+                ])
+                ->first();
+
+            $created_count = 0;
+            $reused_count = 0;
+            $settlement_total = 0.0;
+
+            foreach($groups as $group) {
+                $group_amount = round($group['amount'], 2);
+                $settlement_total += $group_amount;
+                $wrapper = OwnershipTransferSettlementOperation::search([
+                        ['settlement_id', '=', $id],
+                        ['operation_key', '=', $group['operation_key']]
+                    ])
+                    ->read([
+                        'accounting_date',
+                        'amount',
+                        'accounting_entry_id',
+                        'misc_operation_id' => [
+                            'status',
+                            'posting_date',
+                            'accounting_entry_id',
+                            'misc_operation_lines_ids' => [
+                                'ownership_id',
+                                'property_lot_id',
+                                'debit',
+                                'credit'
+                            ]
+                        ]
+                    ])
+                    ->first();
+
+                $source_values = [
+                    'source_type' => $group['source_type'],
+                    $group['source_field'] => $group['source_id']
+                ];
+
+                if($wrapper && $wrapper['misc_operation_id']) {
+                    $miscOperation = $wrapper['misc_operation_id'];
+
+                    if($miscOperation['status'] === 'posted') {
+                        if(
+                            abs((float) $wrapper['amount'] - $group_amount) >= 0.005
+                            || (int) $miscOperation['posting_date'] !== (int) $settlement['accounting_date']
+                            || !self::operationLinesMatch(
+                                $miscOperation['misc_operation_lines_ids'],
+                                $group['lines'],
+                                $settlement['seller_ownership_id'],
+                                $settlement['buyer_ownership_id']
+                            )
+                        ) {
+                            throw new \Exception('existing_operation_mismatch', EQ_ERROR_INVALID_CONFIG);
+                        }
+
+                        OwnershipTransferSettlementOperation::id($wrapper['id'])->update(array_merge(
+                            $source_values,
+                            [
+                                'accounting_entry_id' => $miscOperation['accounting_entry_id'],
+                                'accounting_date'     => $miscOperation['posting_date'],
+                                'amount'              => $group_amount
+                            ]
+                        ));
+
+                        foreach($group['lines'] as $line_id => $line) {
+                            OwnershipTransferSettlementLine::id($line_id)->update(['operation_id' => $wrapper['id']]);
+                        }
+
+                        ++$reused_count;
+                        continue;
+                    }
+
+                    if($miscOperation['status'] === 'cancelled') {
+                        throw new \Exception('existing_operation_cancelled', EQ_ERROR_INVALID_CONFIG);
+                    }
+
+                    if($miscOperation['accounting_entry_id']) {
+                        throw new \Exception('incomplete_existing_operation', EQ_ERROR_INVALID_CONFIG);
+                    }
+
+                    // Recover from an interrupted attempt before any entry was posted.
+                    MiscOperation::id($miscOperation['id'])->delete(true);
+                    OwnershipTransferSettlementOperation::id($wrapper['id'])->update([
+                        'misc_operation_id'   => null,
+                        'accounting_entry_id' => null
+                    ]);
+                }
+                elseif($wrapper && $wrapper['accounting_entry_id']) {
+                    throw new \Exception('incomplete_existing_operation', EQ_ERROR_INVALID_CONFIG);
+                }
+
+                if(!$wrapper) {
+                    $wrapper = OwnershipTransferSettlementOperation::create(array_merge(
+                            [
+                                'settlement_id'  => $id,
+                                'operation_key'  => $group['operation_key'],
+                                'accounting_date'=> $settlement['accounting_date'],
+                                'amount'         => $group_amount
+                            ],
+                            $source_values
+                        ))
+                        ->first();
+                }
+                else {
+                    OwnershipTransferSettlementOperation::id($wrapper['id'])->update(array_merge(
+                        $source_values,
+                        [
+                            'accounting_date' => $settlement['accounting_date'],
+                            'amount'          => $group_amount
+                        ]
+                    ));
+                }
+
+                $description = sprintf(
+                    'Régularisation de mutation #%d - %s',
+                    $id,
+                    $group['operation_key']
+                );
+                $miscOperation = MiscOperation::create([
+                        'condo_id'      => $settlement['condo_id'],
+                        'description'   => $description,
+                        'operation_type'=> 'transfer',
+                        'posting_date'  => $settlement['accounting_date'],
+                        'journal_id'    => $journal['id']
+                    ])
+                    ->first();
+
+                OwnershipTransferSettlementOperation::id($wrapper['id'])->update([
+                    'misc_operation_id' => $miscOperation['id']
+                ]);
+
+                $seller_account_id = self::getOwnershipAccountId(
+                    $settlement['condo_id'],
+                    $settlement['seller_ownership_id'],
+                    $group['operation_assignment']
+                );
+                $buyer_account_id = self::getOwnershipAccountId(
+                    $settlement['condo_id'],
+                    $settlement['buyer_ownership_id'],
+                    $group['operation_assignment']
+                );
+
+                foreach($group['lines'] as $line_id => $line) {
+                    $amount = round(abs((float) $line['applied_amount']), 2);
+                    $is_seller_credit = (float) $line['applied_amount'] > 0.0;
+                    $line_description = sprintf('%s - lot #%d', $description, $line['property_lot_id']);
+
+                    MiscOperationLine::create([
+                        'condo_id'          => $settlement['condo_id'],
+                        'misc_operation_id' => $miscOperation['id'],
+                        'account_id'        => $seller_account_id,
+                        'property_lot_id'   => $line['property_lot_id'],
+                        'description'       => $line_description,
+                        'debit'             => $is_seller_credit ? 0.0 : $amount,
+                        'credit'            => $is_seller_credit ? $amount : 0.0
+                    ]);
+                    MiscOperationLine::create([
+                        'condo_id'          => $settlement['condo_id'],
+                        'misc_operation_id' => $miscOperation['id'],
+                        'account_id'        => $buyer_account_id,
+                        'property_lot_id'   => $line['property_lot_id'],
+                        'description'       => $line_description,
+                        'debit'             => $is_seller_credit ? $amount : 0.0,
+                        'credit'            => $is_seller_credit ? 0.0 : $amount
+                    ]);
+                }
+
+                MiscOperation::id($miscOperation['id'])
+                    ->transition('publish')
+                    ->transition('post');
+
+                $postedOperation = MiscOperation::id($miscOperation['id'])
+                    ->read(['status', 'posting_date', 'accounting_entry_id'])
+                    ->first();
+
+                if($postedOperation['status'] !== 'posted' || !$postedOperation['accounting_entry_id']) {
+                    throw new \Exception('misc_operation_not_posted', EQ_ERROR_INVALID_CONFIG);
+                }
+
+                OwnershipTransferSettlementOperation::id($wrapper['id'])->update([
+                    'accounting_entry_id' => $postedOperation['accounting_entry_id'],
+                    'accounting_date'     => $postedOperation['posting_date'],
+                    'amount'              => $group_amount
+                ]);
+
+                foreach($group['lines'] as $line_id => $line) {
+                    OwnershipTransferSettlementLine::id($line_id)->update(['operation_id' => $wrapper['id']]);
+                }
+
+                ++$created_count;
+            }
+
+            $log = sprintf(
+                '[%s] Accounting operations: %d created, %d reused.',
+                date('c'),
+                $created_count,
+                $reused_count
+            );
+            $logs = trim(implode(PHP_EOL, array_filter([$settlement['logs'], $log])));
+
+            self::id($id)->update([
+                'status'            => 'validated',
+                'validated_at'      => $settlement['validated_at'] ?: time(),
+                'seller_net_amount' => round($settlement_total, 2),
+                'buyer_net_amount'  => round($settlement_total, 2),
+                'logs'              => $logs
+            ]);
+        }
+    }
+
+    /**
+     * Group non-zero settlement lines by their accounted source.
+     */
+    private static function groupSettlementLines(int $settlement_id, $lines): array {
+        $request_execution_ids = [];
+        foreach($lines as $line) {
+            if(
+                $line['source_type'] === 'fund_request_execution'
+                && $line['fund_request_execution_id']
+            ) {
+                $request_execution_ids[] = (int) $line['fund_request_execution_id'];
+            }
+        }
+
+        $request_types = [];
+        if(count($request_execution_ids)) {
+            $requestExecutions = FundRequestExecution::ids(array_values(array_unique($request_execution_ids)))
+                ->read(['fund_request_id' => ['request_type']])
+                ->get(true);
+
+            foreach($requestExecutions as $execution_id => $requestExecution) {
+                $request_types[$execution_id] = $requestExecution['fund_request_id']['request_type'] ?? null;
+            }
+        }
+
+        $groups = [];
+        foreach($lines as $line_id => $line) {
+            if(abs((float) $line['applied_amount']) < 0.005) {
+                continue;
+            }
+            if(!$line['property_lot_id']) {
+                throw new \Exception('missing_settlement_line_property_lot', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            switch($line['source_type']) {
+                case 'working_fund':
+                    $source_id = (int) $line['condo_fund_id'];
+                    $source_field = 'condo_fund_id';
+                    $operation_assignment = 'co_owners_owner_working_fund';
+                    break;
+
+                case 'fund_request_execution':
+                    $source_id = (int) $line['fund_request_execution_id'];
+                    $source_field = 'fund_request_execution_id';
+                    if(!$source_id || !isset($request_types[$source_id])) {
+                        throw new \Exception('missing_fund_request_execution_source', EQ_ERROR_INVALID_CONFIG);
+                    }
+                    $operation_assignment = FundRequestExecution::getDebitOperationAssignment($request_types[$source_id]);
+                    break;
+
+                case 'expense_statement':
+                    $source_id = (int) $line['expense_statement_id'];
+                    $source_field = 'expense_statement_id';
+                    $operation_assignment = 'co_owners_owner_working_fund';
+                    break;
+
+                default:
+                    throw new \Exception('invalid_settlement_line_source_type', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            if(!$source_id) {
+                throw new \Exception('missing_settlement_line_source', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $operation_key = sprintf('settlement:%d:%s:%d', $settlement_id, $line['source_type'], $source_id);
+            if(!isset($groups[$operation_key])) {
+                $groups[$operation_key] = [
+                    'operation_key'        => $operation_key,
+                    'source_type'          => $line['source_type'],
+                    'source_field'         => $source_field,
+                    'source_id'            => $source_id,
+                    'operation_assignment' => $operation_assignment,
+                    'amount'               => 0.0,
+                    'lines'                => []
+                ];
+            }
+
+            $groups[$operation_key]['amount'] += (float) $line['applied_amount'];
+            $groups[$operation_key]['lines'][$line_id] = $line;
+        }
+
+        ksort($groups, SORT_STRING);
+        foreach($groups as &$group) {
+            uksort($group['lines'], static function($first_line_id, $second_line_id) use ($group): int {
+                $first_lot_id = (int) $group['lines'][$first_line_id]['property_lot_id'];
+                $second_lot_id = (int) $group['lines'][$second_line_id]['property_lot_id'];
+
+                return $first_lot_id <=> $second_lot_id ?: (int) $first_line_id <=> (int) $second_line_id;
+            });
+        }
+        unset($group);
+
+        return $groups;
+    }
+
+    private static function getOwnershipAccountId(int $condo_id, int $ownership_id, string $operation_assignment): int {
+        $account = Account::search([
+                ['condo_id', '=', $condo_id],
+                ['ownership_id', '=', $ownership_id],
+                ['operation_assignment', '=', $operation_assignment]
+            ])
+            ->first();
+
+        if(!$account) {
+            throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_CONFIG);
+        }
+
+        return (int) $account['id'];
+    }
+
+    private static function operationLinesMatch(
+        $misc_operation_lines,
+        $settlement_lines,
+        int $seller_ownership_id,
+        int $buyer_ownership_id
+    ): bool {
+        $actual = [];
+        foreach($misc_operation_lines as $line) {
+            $actual[] = sprintf(
+                '%d:%d:%.2f:%.2f',
+                $line['ownership_id'],
+                $line['property_lot_id'],
+                round((float) $line['debit'], 2),
+                round((float) $line['credit'], 2)
+            );
+        }
+
+        $expected = [];
+        foreach($settlement_lines as $line) {
+            $amount = round(abs((float) $line['applied_amount']), 2);
+            $is_seller_credit = (float) $line['applied_amount'] > 0.0;
+            $expected[] = sprintf(
+                '%d:%d:%.2f:%.2f',
+                $seller_ownership_id,
+                $line['property_lot_id'],
+                $is_seller_credit ? 0.0 : $amount,
+                $is_seller_credit ? $amount : 0.0
+            );
+            $expected[] = sprintf(
+                '%d:%d:%.2f:%.2f',
+                $buyer_ownership_id,
+                $line['property_lot_id'],
+                $is_seller_credit ? $amount : 0.0,
+                $is_seller_credit ? 0.0 : $amount
+            );
+        }
+
+        sort($actual, SORT_STRING);
+        sort($expected, SORT_STRING);
+
+        return $actual === $expected;
+    }
+
+    /**
+     * Return inclusive total, seller, and buyer day counts for an economic period.
+     */
+    private static function getPeriodDayAllocation(int $period_from, int $period_to, int $transfer_date): array {
+        if($period_to < $period_from) {
+            throw new \Exception('invalid_period', EQ_ERROR_INVALID_CONFIG);
+        }
+
+        $total_days = self::getInclusiveDayCount($period_from, $period_to);
+        if($period_to < $transfer_date) {
+            return [$total_days, $total_days, 0];
+        }
+        if($period_from >= $transfer_date) {
+            return [$total_days, 0, $total_days];
+        }
+
+        $seller_days = self::getInclusiveDayCount(
+            $period_from,
+            strtotime('-1 day', $transfer_date)
+        );
+
+        return [$total_days, $seller_days, $total_days - $seller_days];
+    }
+
+    private static function getInclusiveDayCount(int $date_from, int $date_to): int {
+        $timezone = new \DateTimeZone(date_default_timezone_get());
+        $from = (new \DateTimeImmutable('@' . $date_from))->setTimezone($timezone)->setTime(0, 0);
+        $to = (new \DateTimeImmutable('@' . $date_to))->setTimezone($timezone)->setTime(0, 0);
+
+        return (int) $from->diff($to)->format('%a') + 1;
     }
 
     protected static function calcName($self) {

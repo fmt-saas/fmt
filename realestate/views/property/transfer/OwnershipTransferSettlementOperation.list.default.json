@@ -8,6 +8,7 @@
             {"type": "field", "value": "condo_fund_id", "width": "14%"},
             {"type": "field", "value": "fund_request_execution_id", "width": "14%"},
             {"type": "field", "value": "expense_statement_id", "width": "14%"},
+            {"type": "field", "value": "misc_operation_id", "width": "16%"},
             {"type": "field", "value": "accounting_entry_id", "width": "16%"},
             {"type": "field", "value": "accounting_date", "width": "10%", "sortable": true},
             {"type": "field", "value": "amount", "width": "10%", "sortable": true}

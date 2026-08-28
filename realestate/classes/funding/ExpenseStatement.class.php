@@ -1426,6 +1426,38 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
     }
 
     /**
+     * Recompute a posted statement with the ownership history resulting from a transfer.
+     *
+     * The posted statement and its owner lines remain untouched. The returned structure
+     * has the same shape as the data used by statement generation.
+     */
+    public static function simulateOwnershipTransferData(
+        $expense_statement_id,
+        $seller_ownership_id,
+        $buyer_ownership_id,
+        array $property_lots_ids,
+        $transfer_date
+    ): array {
+        $expenseStatement = self::id($expense_statement_id)
+            ->read(['status', 'fiscal_period_id'])
+            ->first();
+
+        if(!$expenseStatement || $expenseStatement['status'] !== 'posted') {
+            throw new \Exception('invalid_expense_statement', EQ_ERROR_INVALID_PARAM);
+        }
+
+        return self::computeExpenseStatementData($expenseStatement['fiscal_period_id'], [
+            'clearing_expense_statement_id' => $expense_statement_id,
+            'ownership_transfer'             => [
+                'seller_ownership_id' => $seller_ownership_id,
+                'buyer_ownership_id'  => $buyer_ownership_id,
+                'property_lots_ids'   => $property_lots_ids,
+                'transfer_date'       => $transfer_date
+            ]
+        ]);
+    }
+
+    /**
      * Fetch all required data to generate a 2 levels linearized structures [owners, lines].
      *
      * This result is meant to be used to generate ExpenseStatementOwner and ExpenseStatementOwnerLines before the Statement is invoiced.
@@ -1440,7 +1472,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
      *  - apportionment : for private expense, we usa a fake apportionment ('0'), so that the structure remains the same in all situations.
      *
      */
-    private static function computeExpenseStatementData($fiscal_period_id) {
+    private static function computeExpenseStatementData($fiscal_period_id, array $options = []) {
         $result = [];
 
         $fiscalPeriod = FiscalPeriod::id($fiscal_period_id)
@@ -1452,7 +1484,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         }
 
         // compute number of calendar days within the period
-        $nb_days = round(($fiscalPeriod['date_to'] - $fiscalPeriod['date_from']) / 86400, 0) + 1;
+        $nb_days = self::countInclusiveDays($fiscalPeriod['date_from'], $fiscalPeriod['date_to']);
 
         // #todo - il y a la notion de lots groupés - faire une map, par propriétaire, par lot :
         // on peut le faire par groupe de lots (si un lot est marqué avec primary_lot_id, il peut être ignoré pour les calculs)
@@ -1460,16 +1492,28 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         // #memo - fetch relevant accounting entries that apply to the chosen period
         //    * comptabiliser toutes les entrées comptables des comptes 6 et 7, quel que soit le journal
         //    * marquer les écritures comme "décomptées"
-        $accountingEntryLines = AccountingEntryLine::search([
+        $accounting_entry_lines_domain = [
                 ['fiscal_period_id', '=', $fiscal_period_id],
                 // #memo - reversed entries are ignored since they are symmetrical (both entries are linked through reversed_entry_id field and sum to 0)
                 ['status', '=', 'validated'],
-                ['is_cleared', '=', false],
                 // #memo - deprecated
                 // ['is_visible', '=', true],
                 ['is_carry_forward', '=', false],
                 ['account_class', 'in', [6, 7]]
-            ])
+            ];
+
+        if(isset($options['clearing_expense_statement_id'])) {
+            $accounting_entry_lines_domain[] = [
+                'clearing_expense_statement_id',
+                '=',
+                $options['clearing_expense_statement_id']
+            ];
+        }
+        else {
+            $accounting_entry_lines_domain[] = ['is_cleared', '=', false];
+        }
+
+        $accountingEntryLines = AccountingEntryLine::search($accounting_entry_lines_domain)
             ->read([
                 'accounting_entry_id',
                 'account_id', 'account_code', 'account_operation_assignment', 'debit', 'credit',
@@ -1514,7 +1558,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         foreach($ownerships as $ownership_id => $ownership) {
             $start = max($fiscalPeriod['date_from'], $ownership['date_from'] ?? $fiscalPeriod['date_from']);
             $end   = min($fiscalPeriod['date_to'], $ownership['date_to'] ?? $fiscalPeriod['date_to']);
-            $ownerships[$ownership_id]['nb_days']   = ($start <= $end) ? (($end-$start)/86400 + 1) : 0;
+            $ownerships[$ownership_id]['nb_days']   = ($start <= $end) ? self::countInclusiveDays($start, $end) : 0;
             $ownerships[$ownership_id]['date_from'] = $start;
             $ownerships[$ownership_id]['date_to']   = $end;
 
@@ -1522,11 +1566,19 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $start = max($fiscalPeriod['date_from'], $propertyLotOwnership['date_from'] ?? $fiscalPeriod['date_from']);
                 $end   = min($fiscalPeriod['date_to'], $propertyLotOwnership['date_to'] ?? $fiscalPeriod['date_to']);
                 $ownerships[$ownership_id]['property_lots'][$propertyLotOwnership['property_lot_id']] = [
-                    'nb_days'    => ($start <= $end) ? (($end-$start)/86400 + 1) : 0,
+                    'nb_days'    => ($start <= $end) ? self::countInclusiveDays($start, $end) : 0,
                     'date_from'  => $start,
                     'date_to'    => $end
                 ];
             }
+        }
+
+        if(isset($options['ownership_transfer'])) {
+            self::applyOwnershipTransferToStatementHistory(
+                $ownerships,
+                $fiscalPeriod,
+                $options['ownership_transfer']
+            );
         }
 
         // retrieve applicable reserve funds
@@ -2038,6 +2090,74 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
     }
 
     /**
+     * Apply a transfer to an in-memory ownership history used by statement calculation.
+     */
+    private static function applyOwnershipTransferToStatementHistory(
+        array &$ownerships,
+        array $fiscalPeriod,
+        array $ownership_transfer
+    ): void {
+        $seller_ownership_id = $ownership_transfer['seller_ownership_id'];
+        $buyer_ownership_id = $ownership_transfer['buyer_ownership_id'];
+        $transfer_date = (int) $ownership_transfer['transfer_date'];
+        $seller_date_to = strtotime('-1 day', $transfer_date);
+
+        if(!isset($ownerships[$seller_ownership_id], $ownerships[$buyer_ownership_id])) {
+            throw new \Exception('invalid_transfer_ownership', EQ_ERROR_INVALID_CONFIG);
+        }
+
+        foreach($ownership_transfer['property_lots_ids'] as $property_lot_id) {
+            if(!isset($ownerships[$seller_ownership_id]['property_lots'][$property_lot_id])) {
+                throw new \Exception('missing_seller_property_lot_history', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $seller_lot = &$ownerships[$seller_ownership_id]['property_lots'][$property_lot_id];
+            $seller_lot['date_to'] = min($seller_lot['date_to'], $seller_date_to);
+            $seller_lot['nb_days'] = $seller_lot['date_from'] <= $seller_lot['date_to']
+                ? self::countInclusiveDays($seller_lot['date_from'], $seller_lot['date_to'])
+                : 0;
+            unset($seller_lot);
+
+            $buyer_date_from = max($fiscalPeriod['date_from'], $transfer_date);
+            $buyer_date_to = min(
+                $fiscalPeriod['date_to'],
+                $ownerships[$buyer_ownership_id]['date_to'] ?? $fiscalPeriod['date_to']
+            );
+
+            $ownerships[$buyer_ownership_id]['property_lots'][$property_lot_id] = [
+                'date_from' => $buyer_date_from,
+                'date_to'   => $buyer_date_to,
+                'nb_days'   => $buyer_date_from <= $buyer_date_to
+                    ? self::countInclusiveDays($buyer_date_from, $buyer_date_to)
+                    : 0
+            ];
+        }
+
+        $buyer_date_from = max($fiscalPeriod['date_from'], $transfer_date);
+        $buyer_date_to = min(
+            $fiscalPeriod['date_to'],
+            $ownerships[$buyer_ownership_id]['date_to'] ?? $fiscalPeriod['date_to']
+        );
+        $ownerships[$buyer_ownership_id]['date_from'] = min(
+            $ownerships[$buyer_ownership_id]['date_from'] ?? $buyer_date_from,
+            $buyer_date_from
+        );
+        $ownerships[$buyer_ownership_id]['date_to'] = $buyer_date_to;
+        $ownerships[$buyer_ownership_id]['nb_days'] =
+            $ownerships[$buyer_ownership_id]['date_from'] <= $buyer_date_to
+                ? self::countInclusiveDays($ownerships[$buyer_ownership_id]['date_from'], $buyer_date_to)
+                : 0;
+    }
+
+    private static function countInclusiveDays(int $date_from, int $date_to): int {
+        $timezone = new \DateTimeZone(date_default_timezone_get());
+        $from = (new \DateTimeImmutable('@' . $date_from))->setTimezone($timezone)->setTime(0, 0);
+        $to = (new \DateTimeImmutable('@' . $date_to))->setTimezone($timezone)->setTime(0, 0);
+
+        return (int) $from->diff($to)->format('%a') + 1;
+    }
+
+    /**
      * Generates a structure that holds all information for generating closing accounting entries and expense statement report (addressed to owners).
      *
      */
@@ -2061,7 +2181,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'common_total'      => $statement['common_total'],
                     'private_total'     => $statement['private_total'],
                     'provisions_total'  => $statement['provisions_total'],
-                    'nb_days'           => round(($statement['fiscal_period_id']['date_to'] - $statement['fiscal_period_id']['date_from']) / 86400, 0) + 1,
+                    'nb_days'           => self::countInclusiveDays(
+                        $statement['fiscal_period_id']['date_from'],
+                        $statement['fiscal_period_id']['date_to']
+                    ),
                     'owners'            => []
                 ];
 

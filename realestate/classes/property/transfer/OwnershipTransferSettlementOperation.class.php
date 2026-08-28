@@ -78,6 +78,15 @@ class OwnershipTransferSettlementOperation extends \equal\orm\Model {
                 'readonly'       => true
             ],
 
+            'misc_operation_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'finance\accounting\MiscOperation',
+                'description'    => 'Miscellaneous operation generated for the correction.',
+                'domain'         => ['condo_id', '=', 'object.condo_id'],
+                'ondelete'       => 'null',
+                'readonly'       => true
+            ],
+
             'accounting_entry_id' => [
                 'type'           => 'many2one',
                 'foreign_object' => 'finance\accounting\AccountingEntry',

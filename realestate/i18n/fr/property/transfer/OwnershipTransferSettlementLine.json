@@ -5,8 +5,8 @@
     "model": {
         "settlement_id": {"label": "Régularisation", "description": "Dossier auquel appartient la ligne.", "help": "Renseigné automatiquement lors du calcul."},
         "condo_id": {"label": "Copropriété", "description": "Copropriété concernée par la ligne.", "help": "Reprise automatiquement depuis le dossier."},
-        "seller_ownership_id": {"label": "Propriété vendeuse", "description": "Propriété vendeuse concernée par le mouvement.", "help": "Reprise automatiquement depuis le dossier."},
-        "buyer_ownership_id": {"label": "Propriété acquéreuse", "description": "Propriété acquéreuse concernée par le mouvement.", "help": "Reprise automatiquement depuis le dossier."},
+        "seller_ownership_id": {"label": "Vendeur", "description": "Dossier de propriété vendeuse concernée par le mouvement.", "help": "Reprise automatiquement depuis le dossier."},
+        "buyer_ownership_id": {"label": "Acquéreur", "description": "Dossier de propriété acquéreuse concernée par le mouvement.", "help": "Reprise automatiquement depuis le dossier."},
         "correction_type": {
             "label": "Type de correction",
             "description": "Motif métier de la correction calculée.",

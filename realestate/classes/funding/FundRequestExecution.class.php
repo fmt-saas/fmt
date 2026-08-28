@@ -33,6 +33,17 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         'work_provisions'      => 'co_owners_owner_working_fund',
     ];
 
+    /**
+     * Return the owner account assignment used to debit a fund request.
+     */
+    public static function getDebitOperationAssignment(string $request_type): string {
+        if(!isset(static::MAP_DEBIT_OPERATION_ASSIGNMENTS[$request_type])) {
+            throw new \Exception('invalid_fund_request_type', EQ_ERROR_INVALID_CONFIG);
+        }
+
+        return static::MAP_DEBIT_OPERATION_ASSIGNMENTS[$request_type];
+    }
+
     public static function getName() {
         return 'Fund Request Execution';
     }
@@ -735,7 +746,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 ]);
 
             //create the debit lines
-            $debit_operation_assignment = static::MAP_DEBIT_OPERATION_ASSIGNMENTS[$requestExecution['fund_request_id']['request_type']];
+            $debit_operation_assignment = static::getDebitOperationAssignment($requestExecution['fund_request_id']['request_type']);
             $logs[] = "Retrieved debit operation assignment {$debit_operation_assignment}";
 
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
@@ -792,7 +803,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
         foreach($self as $id => $requestExecution) {
 
-            $debit_operation_assignment = static::MAP_DEBIT_OPERATION_ASSIGNMENTS[$requestExecution['fund_request_id']['request_type']];
+            $debit_operation_assignment = static::getDebitOperationAssignment($requestExecution['fund_request_id']['request_type']);
 
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
 
