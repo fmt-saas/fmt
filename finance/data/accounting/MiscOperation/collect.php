@@ -67,7 +67,7 @@ use equal\orm\DomainCondition;
 /** @var \equal\php\Context $context */
 ['context' => $context] = $providers;
 
-$domain = new Domain();
+$domain = new Domain($params['domain']);
 
 if(!empty($params['condo_id'])) {
     $domain->addCondition(new DomainCondition('condo_id', '=', $params['condo_id']));
