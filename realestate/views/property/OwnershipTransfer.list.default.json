@@ -6,23 +6,28 @@
             {
                 "type": "field",
                 "value": "condo_id",
-                "width": "20%"
+                "width": "15%"
             },
             {
                 "type": "field",
                 "value": "property_lot_id",
-                "width": "15%"
+                "width": "10%"
             },
             {
                 "type": "field",
                 "label": "Current owner",
                 "value": "old_ownership_id",
-                "width": "25%"
+                "width": "20%"
             },
             {
                 "type": "field",
                 "label": "New owner",
                 "value": "new_ownership_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "ownership_transfer_settlement_id",
                 "width": "25%"
             },
             {

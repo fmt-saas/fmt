@@ -38,14 +38,7 @@
         "theoretical_seller_amount": {"label": "Vendeur théorique", "description": "Montant qui revient théoriquement au vendeur après mutation.", "help": "Calculé selon le lot, la période et la date de mutation."},
         "theoretical_buyer_amount": {"label": "Acquéreur théorique", "description": "Montant qui revient théoriquement à l'acquéreur après mutation.", "help": "Calculé selon le lot, la période et la date de mutation."},
         "calculated_amount": {"label": "Montant calculé", "description": "Correction proposée avant intervention manuelle.", "help": "Positif : vendeur crédité et acquéreur débité."},
-        "override_amount": {"label": "Montant adapté", "description": "Montant manuel remplaçant le montant calculé.", "help": "Toute adaptation doit être justifiée."},
-        "applied_amount": {"label": "Montant retenu", "description": "Montant final arrondi destiné à la comptabilisation.", "help": "Issu du montant calculé ou du montant adapté."},
-        "is_included": {"label": "Incluse", "description": "Indique si la ligne participe à la validation.", "help": "Une exclusion exige une justification."},
-        "is_obsolete": {"label": "Obsolète", "description": "Indique que la source a disparu du dernier calcul.", "help": "Une ligne obsolète ne peut pas être validée si elle reste incluse."},
-        "exclusion_reason": {"label": "Motif d'exclusion", "description": "Justification de l'exclusion de la ligne.", "help": "Obligatoire lorsque la ligne n'est pas incluse."},
-        "override_reason": {"label": "Motif de l'adaptation", "description": "Justification du remplacement manuel du montant.", "help": "Obligatoire lorsqu'un montant adapté est renseigné."},
-        "calculation_key": {"label": "Clé de calcul", "description": "Clé naturelle stable utilisée lors des recalculs.", "help": "Permet de conserver les décisions humaines lors de la fusion."},
-        "source_fingerprint": {"label": "Empreinte de la source", "description": "Empreinte des valeurs sources de la ligne.", "help": "Signale les changements intervenus depuis le calcul précédent."},
+        "applied_amount": {"label": "Montant retenu", "description": "Montant final destiné à la comptabilisation.", "help": "Ce montant peut être modifié directement avant validation."},
         "operation_id": {"label": "Opération diverse", "description": "Opération comptable générée à partir de la ligne.", "help": "Renseignée lors de la validation du dossier."}
     },
     "view": {
@@ -56,7 +49,7 @@
                 "section.source": {"label": "Source et lot"},
                 "section.period": {"label": "Période économique"},
                 "section.amounts": {"label": "Montants calculés"},
-                "section.decision": {"label": "Décision et traçabilité"}
+                "section.accounting": {"label": "Comptabilisation"}
             }
         },
         "list.default": {"name": "Lignes de régularisation", "description": "Liste des mouvements calculés et des montants retenus."}

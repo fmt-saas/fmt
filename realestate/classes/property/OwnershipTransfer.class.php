@@ -183,6 +183,15 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['id', '<>', 'object.old_ownership_id']]
             ],
 
+            'ownership_transfer_settlement_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'realestate\property\transfer\OwnershipTransferSettlement',
+                'description'    => 'Accounting settlement linked to the ownership transfer.',
+                'domain'         => ['ownership_transfer_id', '=', 'object.id'],
+                'readonly'       => true,
+                'ondelete'       => 'null'
+            ],
+
             'condo_shares' => [
                 'type'              => 'computed',
                 'result_type'       => 'integer',

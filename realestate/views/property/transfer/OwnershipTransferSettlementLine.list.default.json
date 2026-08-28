@@ -16,9 +16,7 @@
             {"type": "field", "value": "period_from", "width": "10%"},
             {"type": "field", "value": "period_to", "width": "10%"},
             {"type": "field", "value": "calculated_amount", "width": "10%"},
-            {"type": "field", "value": "applied_amount", "width": "10%"},
-            {"type": "field", "value": "is_included", "width": "8%"},
-            {"type": "field", "value": "is_obsolete", "width": "8%"},
+            {"type": "field", "value": "applied_amount", "width": "14%"},
             {"type": "field", "value": "operation_id", "width": "12%", "visible": false}
         ]
     }

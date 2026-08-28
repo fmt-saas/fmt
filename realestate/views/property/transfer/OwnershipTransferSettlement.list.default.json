@@ -9,7 +9,6 @@
             {"type": "field", "value": "buyer_ownership_id", "width": "14%"},
             {"type": "field", "value": "transfer_date", "width": "10%", "sortable": true},
             {"type": "field", "value": "accounting_date", "width": "10%", "sortable": true},
-            {"type": "field", "value": "included_total", "width": "12%", "sortable": true},
             {"type": "field", "value": "status", "width": "10%", "sortable": true}
         ]
     }

@@ -108,6 +108,11 @@
             "description": "Dossier de propriété de l'acquéreur.",
             "help": ""
         },
+        "ownership_transfer_settlement_id": {
+            "label": "Régularisation comptable",
+            "description": "Dossier de régularisation comptable lié à la mutation.",
+            "help": "Le lien est synchronisé automatiquement avec la régularisation de mutation."
+        },
         "condo_shares": {
             "label": "Quotes-parts copropriété",
             "description": "Total des quotes-parts statutaires impliquées.",

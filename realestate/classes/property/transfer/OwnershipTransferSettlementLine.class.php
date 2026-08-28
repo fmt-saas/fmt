@@ -190,59 +190,11 @@ class OwnershipTransferSettlementLine extends \equal\orm\Model {
                 'readonly'    => true
             ],
 
-            'override_amount' => [
-                'type'        => 'float',
-                'usage'       => 'amount/money:4',
-                'description' => 'Manual transfer amount replacing the calculated amount.'
-            ],
-
             'applied_amount' => [
                 'type'        => 'float',
                 'usage'       => 'amount/money:2',
                 'description' => 'Final rounded transfer amount retained for accounting.',
-                'default'     => 0.0,
-                'readonly'    => true
-            ],
-
-            'is_included' => [
-                'type'        => 'boolean',
-                'description' => 'Indicates whether the line is included in settlement validation.',
-                'default'     => true
-            ],
-
-            'is_obsolete' => [
-                'type'        => 'boolean',
-                'description' => 'Source no longer appears in the latest calculation.',
-                'default'     => false,
-                'readonly'    => true
-            ],
-
-            'exclusion_reason' => [
-                'type'        => 'string',
-                'usage'       => 'text/plain',
-                'description' => 'Required justification when the line is excluded.',
-                'visible'     => ['is_included', '=', false]
-            ],
-
-            'override_reason' => [
-                'type'        => 'string',
-                'usage'       => 'text/plain',
-                'description' => 'Justification for manually replacing the calculated amount.'
-            ],
-
-            'calculation_key' => [
-                'type'        => 'string',
-                'usage'       => 'text/plain:160',
-                'description' => 'Stable natural key used to merge draft recalculations.',
-                'required'    => true,
-                'readonly'    => true
-            ],
-
-            'source_fingerprint' => [
-                'type'        => 'string',
-                'description' => 'Fingerprint of the source values used for this line.',
-                'required'    => true,
-                'readonly'    => true
+                'default'     => 0.0
             ],
 
             'operation_id' => [
@@ -254,9 +206,4 @@ class OwnershipTransferSettlementLine extends \equal\orm\Model {
         ];
     }
 
-    public function getUnique() {
-        return [
-            ['settlement_id', 'calculation_key']
-        ];
-    }
 }

@@ -1,6 +1,21 @@
 {
     "name": "Ownership Transfer Settlement",
     "description": "Review the accounting regularization of an ownership transfer.",
+    "actions": [
+        {
+            "id": "action.generate_lines",
+            "label": "Generate lines",
+            "description": "Generate settlement lines from accounted working fund balances and fund requests.",
+            "controller": "core_model_do",
+            "visible": ["status", "=", "draft"],
+            "params": {
+                "entity": "realestate\\property\\transfer\\OwnershipTransferSettlement",
+                "action": "generate_lines",
+                "ids": []
+            },
+            "confirm": false
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -45,8 +60,6 @@
                                         "items": [
                                             {"type": "field", "value": "seller_net_amount", "width": "50%"},
                                             {"type": "field", "value": "buyer_net_amount", "width": "50%"},
-                                            {"type": "field", "value": "included_total", "width": "50%"},
-                                            {"type": "field", "value": "excluded_total", "width": "50%"},
                                             {"type": "field", "value": "has_accounted_sources", "width": "50%"}
                                         ]
                                     },

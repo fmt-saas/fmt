@@ -73,10 +73,8 @@
                                     {
                                         "width": "50%",
                                         "items": [
-                                            {"type": "field", "value": "calculated_amount", "width": "33%"},
-                                            {"type": "field", "value": "override_amount", "width": "33%"},
-                                            {"type": "field", "value": "applied_amount", "width": "33%"},
-                                            {"type": "field", "value": "override_reason", "width": "100%"}
+                                            {"type": "field", "value": "calculated_amount", "width": "50%"},
+                                            {"type": "field", "value": "applied_amount", "width": "50%"}
                                         ]
                                     }
                                 ]
@@ -84,25 +82,15 @@
                         ]
                     },
                     {
-                        "id": "section.decision",
-                        "label": "Decision and traceability",
+                        "id": "section.accounting",
+                        "label": "Accounting",
                         "rows": [
                             {
                                 "columns": [
                                     {
-                                        "width": "50%",
+                                        "width": "100%",
                                         "items": [
-                                            {"type": "field", "value": "is_included", "width": "50%"},
-                                            {"type": "field", "value": "is_obsolete", "width": "50%"},
-                                            {"type": "field", "value": "exclusion_reason", "width": "100%"}
-                                        ]
-                                    },
-                                    {
-                                        "width": "50%",
-                                        "items": [
-                                            {"type": "field", "value": "operation_id", "width": "100%"},
-                                            {"type": "field", "value": "calculation_key", "width": "100%"},
-                                            {"type": "field", "value": "source_fingerprint", "width": "100%"}
+                                            {"type": "field", "value": "operation_id", "width": "100%"}
                                         ]
                                     }
                                 ]

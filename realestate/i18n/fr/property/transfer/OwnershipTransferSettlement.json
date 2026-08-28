@@ -24,8 +24,6 @@
         "closed_at": {"label": "Clôturée le", "description": "Date et heure de clôture de la régularisation.", "help": "Renseigné après émission des deux correspondances."},
         "seller_net_amount": {"label": "Net vendeur", "description": "Montant net crédité au vendeur ; une valeur négative est débitée.", "help": "Somme des mouvements retenus pour le vendeur."},
         "buyer_net_amount": {"label": "Net acquéreur", "description": "Montant net débité à l'acquéreur.", "help": "Une valeur négative est créditée."},
-        "included_total": {"label": "Total inclus", "description": "Total des lignes retenues dans la régularisation.", "help": "Calculé à partir des montants appliqués."},
-        "excluded_total": {"label": "Total exclu", "description": "Total des lignes volontairement exclues.", "help": "Chaque exclusion doit être justifiée."},
         "has_accounted_sources": {"label": "Sources comptabilisées", "description": "Indique si des sources comptabilisées ont été trouvées.", "help": "Alimente l'alerte synthétique du dossier."},
         "alert_summary": {"label": "Synthèse de l'alerte", "description": "Résumé des sources et montants nécessitant une régularisation.", "help": "Mis à jour lors de la préparation et du recalcul."},
         "lines_ids": {"label": "Lignes de régularisation", "description": "Mouvements économiques calculés pour les lots transférés.", "help": "Chaque ligne conserve les montants réels, théoriques et retenus."},
@@ -44,8 +42,34 @@
                 "section.operations": {"label": "Opérations comptables"},
                 "section.correspondences": {"label": "Correspondances"},
                 "section.logs": {"label": "Journal technique"}
+            },
+            "actions": {
+                "action.generate_lines": {
+                    "label": "Générer les lignes",
+                    "description": "Générer les régularisations du fonds de roulement et des appels de fonds comptabilisés."
+                }
             }
         },
         "list.default": {"name": "Régularisations de mutation", "description": "Liste des dossiers de régularisation comptable des mutations."}
+    },
+    "error": {
+        "errors": {
+            "settlement_not_draft": "Les lignes ne peuvent être générées que lorsque la régularisation est en brouillon.",
+            "missing_ownership_transfer": "La mutation est obligatoire.",
+            "missing_property_lots": "La mutation doit contenir au moins un lot.",
+            "missing_condo": "La copropriété est obligatoire.",
+            "missing_seller": "La propriété vendeuse est obligatoire.",
+            "missing_buyer": "La propriété acquéreuse est obligatoire.",
+            "identical_ownerships": "Les propriétés vendeuse et acquéreuse doivent être différentes.",
+            "missing_transfer_date": "La date de mutation est obligatoire.",
+            "missing_snapshot": "La date de photographie des sources comptabilisées est obligatoire.",
+            "snapshot_before_transfer": "La photographie des sources comptabilisées ne peut pas précéder la date de mutation.",
+            "missing_working_fund": "La copropriété doit disposer d'un fonds de roulement.",
+            "missing_working_fund_account": "Le fonds de roulement doit être lié à un compte comptable.",
+            "missing_working_fund_apportionment": "Le fonds de roulement doit être lié à une clé de répartition.",
+            "missing_working_fund_shares": "La clé de répartition du fonds de roulement doit avoir un total de quotes-parts.",
+            "missing_property_lot_share": "Chaque lot transféré doit avoir une quote-part dans la clé du fonds de roulement.",
+            "invalid_fund_request_period": "Une exécution comptabilisée d'appel de fonds possède une période économique invalide."
+        }
     }
 }

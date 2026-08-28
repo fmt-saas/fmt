@@ -635,7 +635,7 @@
                     {
                         "id": "section.information_settlement",
                         "label": "Information (3.94 §3)",
-                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "=", "settled"]],
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "in", ["settled", "closed"]]],
                         "rows": [
                             {
                                 "columns": [
@@ -659,6 +659,19 @@
                                                                     "view_id": "form.transfer_create"
                                                                 }
                                                             ]
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ownership_transfer_settlement_id",
+                                                "width": "100%",
+                                                "visible": ["ownership_transfer_settlement_id", "<>", null],
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
                                                         }
                                                     }
                                                 }
