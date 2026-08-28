@@ -153,6 +153,7 @@
                                                 "width": "100%"
                                             },
                                             {
+                                                "id": "label.information_request_date",
                                                 "type": "field",
                                                 "label": "Date of the information request",
                                                 "value": "request_date",
@@ -170,6 +171,7 @@
                                                 "width": "50%"
                                             },
                                             {
+                                                "id": "label.current_owner",
                                                 "type": "field",
                                                 "label": "Current Owner",
                                                 "value": "old_ownership_id",
@@ -326,30 +328,35 @@
                                         "width": "50%",
                                         "items": [
                                             {
+                                                "id": "label.contact_name",
                                                 "type": "field",
                                                 "label": "Contact Name",
                                                 "value": "request_contact_name",
                                                 "width": "50%"
                                             },
                                             {
+                                                "id": "label.contact_email",
                                                 "type": "field",
                                                 "label": "Email",
                                                 "value": "request_contact_email",
                                                 "width": "50%"
                                             },
                                             {
+                                                "id": "label.contact_street",
                                                 "type": "field",
                                                 "label": "Street",
                                                 "value": "request_contact_address_street",
                                                 "width": "50%"
                                             },
                                             {
+                                                "id": "label.contact_zip",
                                                 "type": "field",
                                                 "label": "Zip",
                                                 "value": "request_contact_address_zip",
                                                 "width": "25%"
                                             },
                                             {
+                                                "id": "label.contact_city",
                                                 "type": "field",
                                                 "label": "City",
                                                 "value": "request_contact_address_city",
@@ -376,6 +383,7 @@
                                                 "width": "100%"
                                             },
                                             {
+                                                "id": "label.funds_balances_list",
                                                 "type": "field",
                                                 "label": "Funds balances",
                                                 "value": "fund_balances_ids",
@@ -403,6 +411,7 @@
                                                 "readonly": true
                                             },
                                             {
+                                                "id": "label.owner_arrears",
                                                 "type": "field",
                                                 "label": "Owner arrears",
                                                 "value": "arrear_lines_1_ids",
@@ -508,12 +517,14 @@
                                         "width": "50%",
                                         "items": [
                                             {
+                                                "id": "label.notary_confirmation_date",
                                                 "type": "field",
                                                 "label": "Date of the notary confirmation",
                                                 "value": "confirmation_date",
                                                 "width": "50%"
                                             },
                                             {
+                                                "id": "with_both_paragraphs",
                                                 "type": "field",
                                                 "label": "Send correspondence with both paragraphs",
                                                 "value": "with_both_paragraphs",
@@ -525,6 +536,7 @@
                                         "width": "50%",
                                         "items": [
                                             {
+                                                "id": "label.contact_notary_office",
                                                 "type": "field",
                                                 "label": "Contact Notary Office",
                                                 "value": "confirmation_notary_office_id",
@@ -563,6 +575,7 @@
                                                 "width": "100%"
                                             },
                                             {
+                                                "id": "label.fund_requests_list",
                                                 "type": "field",
                                                 "label": "Fund requests",
                                                 "value": "fund_requests_ids",
@@ -612,6 +625,7 @@
                                                 "readonly": true
                                             },
                                             {
+                                                "id": "label.owner_arrears",
                                                 "type": "field",
                                                 "label": "Owner arrears",
                                                 "value": "arrear_lines_2_ids",
@@ -661,6 +675,7 @@
                                                 "value": "transfer_date"
                                             },
                                             {
+                                                "id": "label.new_owner",
                                                 "type": "field",
                                                 "label": "New Owner",
                                                 "value": "new_ownership_id",

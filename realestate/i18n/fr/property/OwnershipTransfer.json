@@ -305,8 +305,14 @@
                 "label.information_request": {
                     "label": "Demande d'information"
                 },
+                "label.information_request_date": {
+                    "label": "Date de la demande d'information"
+                },
                 "label.condo_owner": {
                     "label": "Copropriété et propriétaire"
+                },
+                "label.current_owner": {
+                    "label": "Propriétaire actuel"
                 },
                 "label.selected_property_lots": {
                     "label": "Lots sélectionnés"
@@ -329,8 +335,26 @@
                 "label.contact": {
                     "label": "Contact"
                 },
+                "label.contact_name": {
+                    "label": "Nom du contact"
+                },
+                "label.contact_email": {
+                    "label": "E-mail"
+                },
+                "label.contact_street": {
+                    "label": "Rue"
+                },
+                "label.contact_zip": {
+                    "label": "Code postal"
+                },
+                "label.contact_city": {
+                    "label": "Ville"
+                },
                 "label.funds_balances": {
                     "label": "1) Soldes des fonds de copropriété"
+                },
+                "label.funds_balances_list": {
+                    "label": "Soldes des fonds"
                 },
                 "label.seller_arrears": {
                     "label": "2) Arriérés vendeur"
@@ -371,6 +395,9 @@
                 "label.fund_requests": {
                     "label": "2) Appels de fonds"
                 },
+                "label.fund_requests_list": {
+                    "label": "Appels de fonds"
+                },
                 "label.common_acquisitions": {
                     "label": "3) Acquisitions des parties communes"
                 },
@@ -385,6 +412,9 @@
                 },
                 "section.information_settlement": {
                     "label": "3.94 §3"
+                },
+                "label.new_owner": {
+                    "label": "Nouveau propriétaire"
                 }
             },
             "actions": {
