@@ -7,7 +7,7 @@
             "label": "Generate lines",
             "description": "Generate settlement lines from accounted working fund balances, fund requests, and periodic expense statements.",
             "controller": "core_model_do",
-            "visible": ["status", "=", "draft"],
+            "visible": ["status", "=", "pending"],
             "params": {
                 "entity": "realestate\\property\\transfer\\OwnershipTransferSettlement",
                 "action": "generate_lines",
@@ -18,12 +18,38 @@
         {
             "id": "action.generate_operations",
             "label": "Generate accounting operations",
-            "description": "Generate and post one miscellaneous operation per corrected accounting source.",
+            "description": "Generate one proforma miscellaneous operation per corrected accounting source.",
             "controller": "core_model_do",
-            "visible": [["status", "=", "draft"], ["lines_ids", "<>", null]],
+            "visible": [["status", "<>", "closed"], ["lines_ids", "<>", null]],
             "params": {
                 "entity": "realestate\\property\\transfer\\OwnershipTransferSettlement",
                 "action": "generate_operations",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.validate",
+            "label": "Validate",
+            "description": "Post the generated accounting operations and validate the settlement.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "pending"],
+            "params": {
+                "entity": "realestate\\property\\transfer\\OwnershipTransferSettlement",
+                "transition": "validate",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.close",
+            "label": "Close",
+            "description": "Close the validated settlement.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "validated"],
+            "params": {
+                "entity": "realestate\\property\\transfer\\OwnershipTransferSettlement",
+                "transition": "close",
                 "ids": []
             },
             "confirm": true
@@ -79,7 +105,6 @@
                                     {
                                         "width": "50%",
                                         "items": [
-                                            {"type": "field", "value": "calculation_version", "width": "50%"},
                                             {"type": "field", "value": "validated_at", "width": "50%"},
                                             {"type": "field", "value": "closed_at", "width": "50%"},
                                             {"type": "field", "value": "alert_summary", "width": "100%"}

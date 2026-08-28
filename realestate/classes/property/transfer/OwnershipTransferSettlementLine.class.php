@@ -206,4 +206,30 @@ class OwnershipTransferSettlementLine extends \equal\orm\Model {
         ];
     }
 
+    public static function canupdate($self, $values): array {
+        if(!count(array_diff(array_keys($values), ['operation_id']))) {
+            return parent::canupdate($self, $values);
+        }
+
+        $self->read(['settlement_id' => ['misc_operations_ids']]);
+        foreach($self as $line) {
+            if(count($line['settlement_id']['misc_operations_ids'])) {
+                return ['operation_id' => ['operation_already_generated' => 'A settlement line cannot be modified once an accounting operation exists.']];
+            }
+        }
+
+        return parent::canupdate($self, $values);
+    }
+
+    public static function candelete($self) {
+        $self->read(['settlement_id' => ['misc_operations_ids']]);
+        foreach($self as $line) {
+            if(count($line['settlement_id']['misc_operations_ids'])) {
+                return ['operation_id' => ['operation_already_generated' => 'A settlement line cannot be deleted once an accounting operation exists.']];
+            }
+        }
+
+        return parent::candelete($self);
+    }
+
 }

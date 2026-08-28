@@ -16,8 +16,6 @@
         "fund_request_execution_id": {"label": "Exécution d'appel", "description": "Exécution d'appel de fonds corrigée par l'opération.", "help": "Le document source reste inchangé."},
         "expense_statement_id": {"label": "Décompte", "description": "Décompte corrigé par l'opération.", "help": "Le décompte source reste inchangé."},
         "misc_operation_id": {"label": "Opération diverse", "description": "Opération diverse générée pour la correction.", "help": "La clé technique permet de retrouver cette OD lors d'une validation répétée."},
-        "accounting_entry_id": {"label": "Écriture comptable", "description": "Écriture comptable équilibrée créée pour la correction.", "help": "Permet de retrouver les débits et crédits générés."},
-        "accounting_date": {"label": "Date comptable", "description": "Date à laquelle l'opération est comptabilisée.", "help": "Doit appartenir à une période ouverte ou préclôturée."},
         "amount": {"label": "Montant", "description": "Montant net transféré par l'opération.", "help": "Les débits et crédits sont générés à partir du même montant arrondi."},
         "lines_ids": {"label": "Lignes de régularisation", "description": "Lignes détaillées regroupées dans l'opération.", "help": "Conserve le détail par lot et par source."}
     },

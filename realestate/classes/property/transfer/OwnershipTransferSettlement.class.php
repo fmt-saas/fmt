@@ -18,7 +18,6 @@ use realestate\funding\ExpenseStatement;
 use realestate\funding\ExpenseStatementOwnerLine;
 use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestExecutionLineEntry;
-use realestate\property\OwnershipTransfer;
 use realestate\property\PropertyLotApportionmentShare;
 
 class OwnershipTransferSettlement extends \equal\orm\Model {
@@ -93,14 +92,6 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'description' => 'Date used to post the settlement miscellaneous operations.',
                 'required'    => true,
                 'default'     => fn() => time()
-            ],
-
-            'calculation_version' => [
-                'type'        => 'string',
-                'description' => 'Version of the calculation rules used for the settlement.',
-                'default'     => '1',
-                'required'    => true,
-                'readonly'    => true
             ],
 
             'validated_at' => [
@@ -180,9 +171,9 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
 
             'status' => [
                 'type'        => 'string',
-                'selection'   => ['draft', 'validated', 'closed'],
+                'selection'   => ['pending', 'validated', 'closed'],
                 'description' => 'Current lifecycle status of the settlement.',
-                'default'     => 'draft',
+                'default'     => 'pending',
                 'required'    => true,
                 'readonly'    => true
             ]
@@ -195,6 +186,40 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
         ];
     }
 
+    public static function getWorkflow() {
+        return [
+            'pending' => [
+                'description' => 'Pending settlement, waiting for accounting validation.',
+                'icon'        => 'edit',
+                'transitions' => [
+                    'validate' => [
+                        'description' => 'Post the generated accounting operations and validate the settlement.',
+                        'policies'    => ['can_validate'],
+                        'onbefore'    => 'onbeforeValidate',
+                        'onafter'     => 'onafterValidate',
+                        'status'      => 'validated'
+                    ]
+                ]
+            ],
+            'validated' => [
+                'description' => 'Validated settlement, waiting to be closed.',
+                'icon'        => 'done',
+                'transitions' => [
+                    'close' => [
+                        'description' => 'Close the validated settlement.',
+                        'onafter'     => 'onafterClose',
+                        'status'      => 'closed'
+                    ]
+                ]
+            ],
+            'closed' => [
+                'description' => 'Closed settlement, no further action can be taken.',
+                'icon'        => 'lock',
+                'transitions' => []
+            ]
+        ];
+    }
+
     public static function getActions() {
         return array_merge(parent::getActions(), [
             'generate_lines' => [
@@ -203,44 +228,26 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'function'    => 'doGenerateLines'
             ],
             'generate_operations' => [
-                'description' => 'Generate and post one miscellaneous operation per corrected accounting source.',
+                'description' => 'Generate one proforma miscellaneous operation per corrected accounting source.',
                 'policies'    => ['can_generate_operations'],
                 'function'    => 'doGenerateOperations'
-            ],
-            'link_ownership_transfer' => [
-                'description' => 'Set the settlement link on the related ownership transfer.',
-                'policies'    => [],
-                'function'    => 'doLinkOwnershipTransfer'
             ]
         ]);
-    }
-
-    protected static function oncreate($self) {
-        $self->do('link_ownership_transfer');
-    }
-
-    protected static function doLinkOwnershipTransfer($self) {
-        $settlements = $self->read(['ownership_transfer_id'])->get(true);
-
-        foreach($settlements as $id => $settlement) {
-            if(!$settlement['ownership_transfer_id']) {
-                continue;
-            }
-
-            OwnershipTransfer::id($settlement['ownership_transfer_id'])
-                ->write(['ownership_transfer_settlement_id' => $id]);
-        }
     }
 
     public static function getPolicies(): array {
         return array_merge(parent::getPolicies(), [
             'can_generate_lines' => [
-                'description' => 'Checks that the settlement is a complete draft and that working fund apportionments are configured.',
+                'description' => 'Checks that the settlement is complete and pending, and that working fund apportionments are configured.',
                 'function'    => 'policyCanGenerateLines'
             ],
             'can_generate_operations' => [
-                'description' => 'Checks that settlement lines can be posted on the selected accounting date.',
+                'description' => 'Checks that settlement lines can be prepared as proforma operations on the selected accounting date.',
                 'function'    => 'policyCanGenerateOperations'
+            ],
+            'can_validate' => [
+                'description' => 'Checks that every generated miscellaneous operation can be posted.',
+                'function'    => 'policyCanValidate'
             ]
         ]);
     }
@@ -255,12 +262,18 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'seller_ownership_id',
             'buyer_ownership_id',
             'transfer_date',
-            'snapshot_at'
+            'snapshot_at',
+            'misc_operations_ids'
         ]);
 
         foreach($self as $id => $settlement) {
-            if($settlement['status'] !== 'draft') {
-                $result[$id] = ['settlement_not_draft' => 'Settlement lines can only be generated while the settlement is a draft.'];
+            if($settlement['status'] !== 'pending') {
+                $result[$id] = ['settlement_not_pending' => 'Settlement lines can only be generated while the settlement is pending.'];
+                continue;
+            }
+
+            if(count($settlement['misc_operations_ids'])) {
+                $result[$id] = ['settlement_operations_already_generated' => 'Settlement lines cannot be regenerated once an accounting operation exists.'];
                 continue;
             }
 
@@ -366,10 +379,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'accounting_date',
             'lines_ids' => [
                 'source_type',
-                'condo_fund_id',
-                'fund_request_execution_id',
-                'expense_statement_id',
-                'property_lot_id',
+                'condo_fund_id'             => ['name'],
+                'fund_request_execution_id' => ['name'],
+                'expense_statement_id'      => ['name'],
+                'property_lot_id'            => ['name'],
                 'applied_amount'
             ]
         ]);
@@ -398,8 +411,8 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 continue;
             }
 
-            // A repeated validation can reuse every already-posted operation,
-            // even if the accounting period has since been closed.
+            // Repeated generation can reuse operations that are already ready
+            // for validation or posted.
             $groups_to_create = [];
             foreach($groups as $group) {
                 $existingOperation = OwnershipTransferSettlementOperation::search([
@@ -412,7 +425,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 if(
                     !$existingOperation
                     || !$existingOperation['misc_operation_id']
-                    || $existingOperation['misc_operation_id']['status'] !== 'posted'
+                    || !in_array($existingOperation['misc_operation_id']['status'], ['proforma', 'posted'], true)
                 ) {
                     $groups_to_create[] = $group;
                 }
@@ -492,6 +505,36 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 }
                 catch(\Exception $e) {
                     $result[$id] = [$e->getMessage() => 'An owner accounting account required by a settlement source is missing.'];
+                    break;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanValidate($self): array {
+        $result = [];
+
+        foreach($self as $id => $settlement) {
+            $wrappers = OwnershipTransferSettlementOperation::search([
+                    ['settlement_id', '=', $id]
+                ])
+                ->read([
+                    'misc_operation_id' => [
+                        'status'
+                    ]
+                ]);
+
+            foreach($wrappers as $wrapper) {
+                if(!$wrapper['misc_operation_id']) {
+                    $result[$id] = ['incomplete_existing_operation' => 'A generated operation has no traceable miscellaneous operation.'];
+                    break;
+                }
+
+                $miscOperation = $wrapper['misc_operation_id'];
+                if($miscOperation['status'] !== 'proforma') {
+                    $result[$id] = ['misc_operations_not_proforma' => 'Every generated miscellaneous operation must be proforma before validation.'];
                     break;
                 }
             }
@@ -599,7 +642,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 }
 
                 // Period bounds are inclusive and the transfer day belongs to the buyer.
-                [$total_days, $seller_days, $buyer_days] = self::getPeriodDayAllocation(
+                [$total_days, $seller_days, $buyer_days] = self::computePeriodDayAllocation(
                     $period_from,
                     $period_to,
                     $transfer_date
@@ -743,7 +786,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     }
                 }
 
-                [$total_days, $seller_days, $buyer_days] = self::getPeriodDayAllocation(
+                [$total_days, $seller_days, $buyer_days] = self::computePeriodDayAllocation(
                     (int) $fiscal_period['date_from'],
                     (int) $fiscal_period['date_to'],
                     $transfer_date
@@ -803,7 +846,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 $lines[] = $last_line;
             }
 
-            // 5. Replace the draft lines only after every source was calculated.
+            // 5. Replace the pending settlement lines only after every source was calculated.
             // Manual changes are intentionally discarded when generation is rerun.
             $total = 0.0;
             $line_count = 0;
@@ -831,21 +874,37 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
         }
     }
 
+    protected static function onbeforeValidate($self) {
+    }
+
+    protected static function onafterValidate($self) {
+        foreach($self as $id => $settlement) {
+            $wrappers = OwnershipTransferSettlementOperation::search([
+                    ['settlement_id', '=', $id]
+                ])
+                ->read(['misc_operation_id']);
+
+            foreach($wrappers as $wrapper) {
+                MiscOperation::id($wrapper['misc_operation_id'])->transition('post');
+            }
+        }
+    }
+
     protected static function doGenerateOperations($self) {
         $self->read([
             'status',
             'condo_id',
             'seller_ownership_id',
             'buyer_ownership_id',
+            'transfer_date',
             'accounting_date',
-            'validated_at',
             'logs',
             'lines_ids' => [
                 'source_type',
-                'condo_fund_id',
-                'fund_request_execution_id',
-                'expense_statement_id',
-                'property_lot_id',
+                'condo_fund_id'             => ['name'],
+                'fund_request_execution_id' => ['name'],
+                'expense_statement_id'      => ['name'],
+                'property_lot_id'            => ['name'],
                 'applied_amount'
             ]
         ]);
@@ -870,19 +929,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                         ['operation_key', '=', $group['operation_key']]
                     ])
                     ->read([
-                        'accounting_date',
                         'amount',
-                        'accounting_entry_id',
                         'misc_operation_id' => [
                             'status',
-                            'posting_date',
-                            'accounting_entry_id',
-                            'misc_operation_lines_ids' => [
-                                'ownership_id',
-                                'property_lot_id',
-                                'debit',
-                                'credit'
-                            ]
+                            'posting_date'
                         ]
                     ])
                     ->first();
@@ -895,16 +945,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 if($wrapper && $wrapper['misc_operation_id']) {
                     $miscOperation = $wrapper['misc_operation_id'];
 
-                    if($miscOperation['status'] === 'posted') {
+                    if(in_array($miscOperation['status'], ['proforma', 'posted'], true)) {
                         if(
                             abs((float) $wrapper['amount'] - $group_amount) >= 0.005
                             || (int) $miscOperation['posting_date'] !== (int) $settlement['accounting_date']
-                            || !self::operationLinesMatch(
-                                $miscOperation['misc_operation_lines_ids'],
-                                $group['lines'],
-                                $settlement['seller_ownership_id'],
-                                $settlement['buyer_ownership_id']
-                            )
                         ) {
                             throw new \Exception('existing_operation_mismatch', EQ_ERROR_INVALID_CONFIG);
                         }
@@ -912,9 +956,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                         OwnershipTransferSettlementOperation::id($wrapper['id'])->write(array_merge(
                             $source_values,
                             [
-                                'accounting_entry_id' => $miscOperation['accounting_entry_id'],
-                                'accounting_date'     => $miscOperation['posting_date'],
-                                'amount'              => $group_amount
+                                'amount' => $group_amount
                             ]
                         ));
 
@@ -949,9 +991,9 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 );
 
                 $description = sprintf(
-                    'Régularisation de mutation #%d - %s',
-                    $id,
-                    $group['operation_key']
+                    'Régularisation de mutation (%s) - %s',
+                    date('d/m/Y', $settlement['transfer_date']),
+                    $group['source_name']
                 );
                 $miscOperation = MiscOperation::create([
                         'condo_id'      => $settlement['condo_id'],
@@ -967,7 +1009,6 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                             'settlement_id'    => $id,
                             'misc_operation_id'=> $miscOperation['id'],
                             'operation_key'    => $group['operation_key'],
-                            'accounting_date'  => $settlement['accounting_date'],
                             'amount'           => $group_amount
                         ],
                         $source_values
@@ -977,7 +1018,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 foreach($group['lines'] as $line_id => $line) {
                     $amount = round(abs((float) $line['applied_amount']), 2);
                     $is_seller_credit = (float) $line['applied_amount'] > 0.0;
-                    $line_description = sprintf('%s - lot #%d', $description, $line['property_lot_id']);
+                    $line_description = sprintf('%s - lot %s', $description, $line['property_lot_name']);
 
                     MiscOperationLine::create([
                         'condo_id'          => $settlement['condo_id'],
@@ -1000,22 +1041,15 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 }
 
                 MiscOperation::id($miscOperation['id'])
-                    ->transition('publish')
-                    ->transition('post');
+                    ->transition('publish');
 
-                $postedOperation = MiscOperation::id($miscOperation['id'])
+                $proformaOperation = MiscOperation::id($miscOperation['id'])
                     ->read(['status', 'posting_date', 'accounting_entry_id'])
                     ->first();
 
-                if($postedOperation['status'] !== 'posted' || !$postedOperation['accounting_entry_id']) {
-                    throw new \Exception('misc_operation_not_posted', EQ_ERROR_INVALID_CONFIG);
+                if($proformaOperation['status'] !== 'proforma' || $proformaOperation['accounting_entry_id']) {
+                    throw new \Exception('misc_operation_not_proforma', EQ_ERROR_INVALID_CONFIG);
                 }
-
-                OwnershipTransferSettlementOperation::id($wrapper['id'])->write([
-                    'accounting_entry_id' => $postedOperation['accounting_entry_id'],
-                    'accounting_date'     => $postedOperation['posting_date'],
-                    'amount'              => $group_amount
-                ]);
 
                 foreach($group['lines'] as $line_id => $line) {
                     OwnershipTransferSettlementLine::id($line_id)->write(['operation_id' => $wrapper['id']]);
@@ -1033,12 +1067,16 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             $logs = trim(implode(PHP_EOL, array_filter([$settlement['logs'], $log])));
 
             self::id($id)->write([
-                'status'            => 'validated',
-                'validated_at'      => $settlement['validated_at'] ?: time(),
                 'seller_net_amount' => round($settlement_total, 2),
                 'buyer_net_amount'  => round($settlement_total, 2),
                 'logs'              => $logs
             ]);
+        }
+    }
+
+    protected static function onafterClose($self) {
+        foreach($self as $id => $settlement) {
+            self::id($id)->write(['closed_at' => time()]);
         }
     }
 
@@ -1052,7 +1090,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 $line['source_type'] === 'fund_request_execution'
                 && $line['fund_request_execution_id']
             ) {
-                $request_execution_ids[] = (int) $line['fund_request_execution_id'];
+                $request_execution_ids[] = (int) ($line['fund_request_execution_id']['id'] ?? 0);
             }
         }
 
@@ -1075,16 +1113,20 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             if(!$line['property_lot_id']) {
                 throw new \Exception('missing_settlement_line_property_lot', EQ_ERROR_INVALID_CONFIG);
             }
+            $property_lot_id = (int) ($line['property_lot_id']['id'] ?? 0);
+            $property_lot_name = $line['property_lot_id']['name'] ?? '';
 
             switch($line['source_type']) {
                 case 'working_fund':
-                    $source_id = (int) $line['condo_fund_id'];
+                    $source_id = (int) ($line['condo_fund_id']['id'] ?? 0);
+                    $source_name = $line['condo_fund_id']['name'] ?? '';
                     $source_field = 'condo_fund_id';
                     $operation_assignment = 'co_owners_owner_working_fund';
                     break;
 
                 case 'fund_request_execution':
-                    $source_id = (int) $line['fund_request_execution_id'];
+                    $source_id = (int) ($line['fund_request_execution_id']['id'] ?? 0);
+                    $source_name = $line['fund_request_execution_id']['name'] ?? '';
                     $source_field = 'fund_request_execution_id';
                     if(!$source_id || !isset($request_types[$source_id])) {
                         throw new \Exception('missing_fund_request_execution_source', EQ_ERROR_INVALID_CONFIG);
@@ -1093,7 +1135,8 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     break;
 
                 case 'expense_statement':
-                    $source_id = (int) $line['expense_statement_id'];
+                    $source_id = (int) ($line['expense_statement_id']['id'] ?? 0);
+                    $source_name = $line['expense_statement_id']['name'] ?? '';
                     $source_field = 'expense_statement_id';
                     $operation_assignment = 'co_owners_owner_working_fund';
                     break;
@@ -1113,12 +1156,15 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     'source_type'          => $line['source_type'],
                     'source_field'         => $source_field,
                     'source_id'            => $source_id,
+                    'source_name'          => $source_name,
                     'operation_assignment' => $operation_assignment,
                     'amount'               => 0.0,
                     'lines'                => []
                 ];
             }
 
+            $line['property_lot_id'] = $property_lot_id;
+            $line['property_lot_name'] = $property_lot_name;
             $groups[$operation_key]['amount'] += (float) $line['applied_amount'];
             $groups[$operation_key]['lines'][$line_id] = $line;
         }
@@ -1152,58 +1198,15 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
         return (int) $account['id'];
     }
 
-    private static function operationLinesMatch(
-        $misc_operation_lines,
-        $settlement_lines,
-        int $seller_ownership_id,
-        int $buyer_ownership_id
-    ): bool {
-        $actual = [];
-        foreach($misc_operation_lines as $line) {
-            $actual[] = sprintf(
-                '%d:%d:%.2f:%.2f',
-                $line['ownership_id'],
-                $line['property_lot_id'],
-                round((float) $line['debit'], 2),
-                round((float) $line['credit'], 2)
-            );
-        }
-
-        $expected = [];
-        foreach($settlement_lines as $line) {
-            $amount = round(abs((float) $line['applied_amount']), 2);
-            $is_seller_credit = (float) $line['applied_amount'] > 0.0;
-            $expected[] = sprintf(
-                '%d:%d:%.2f:%.2f',
-                $seller_ownership_id,
-                $line['property_lot_id'],
-                $is_seller_credit ? 0.0 : $amount,
-                $is_seller_credit ? $amount : 0.0
-            );
-            $expected[] = sprintf(
-                '%d:%d:%.2f:%.2f',
-                $buyer_ownership_id,
-                $line['property_lot_id'],
-                $is_seller_credit ? $amount : 0.0,
-                $is_seller_credit ? 0.0 : $amount
-            );
-        }
-
-        sort($actual, SORT_STRING);
-        sort($expected, SORT_STRING);
-
-        return $actual === $expected;
-    }
-
     /**
      * Return inclusive total, seller, and buyer day counts for an economic period.
      */
-    private static function getPeriodDayAllocation(int $period_from, int $period_to, int $transfer_date): array {
+    private static function computePeriodDayAllocation(int $period_from, int $period_to, int $transfer_date): array {
         if($period_to < $period_from) {
             throw new \Exception('invalid_period', EQ_ERROR_INVALID_CONFIG);
         }
 
-        $total_days = self::getInclusiveDayCount($period_from, $period_to);
+        $total_days = (int) ((($period_to - $period_from) / 86400) + 1);
         if($period_to < $transfer_date) {
             return [$total_days, $total_days, 0];
         }
@@ -1211,20 +1214,9 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             return [$total_days, 0, $total_days];
         }
 
-        $seller_days = self::getInclusiveDayCount(
-            $period_from,
-            strtotime('-1 day', $transfer_date)
-        );
+        $seller_days = (int) (($transfer_date - $period_from) / 86400);
 
         return [$total_days, $seller_days, $total_days - $seller_days];
-    }
-
-    private static function getInclusiveDayCount(int $date_from, int $date_to): int {
-        $timezone = new \DateTimeZone(date_default_timezone_get());
-        $from = (new \DateTimeImmutable('@' . $date_from))->setTimezone($timezone)->setTime(0, 0);
-        $to = (new \DateTimeImmutable('@' . $date_to))->setTimezone($timezone)->setTime(0, 0);
-
-        return (int) $from->diff($to)->format('%a') + 1;
     }
 
     protected static function calcName($self) {

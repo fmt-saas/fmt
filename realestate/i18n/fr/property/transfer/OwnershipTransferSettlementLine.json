@@ -38,8 +38,8 @@
         "theoretical_seller_amount": {"label": "Vendeur théorique", "description": "Montant qui revient théoriquement au vendeur après mutation.", "help": "Calculé selon le lot, la période et la date de mutation."},
         "theoretical_buyer_amount": {"label": "Acquéreur théorique", "description": "Montant qui revient théoriquement à l'acquéreur après mutation.", "help": "Calculé selon le lot, la période et la date de mutation."},
         "calculated_amount": {"label": "Montant calculé", "description": "Correction proposée avant intervention manuelle.", "help": "Positif : vendeur crédité et acquéreur débité."},
-        "applied_amount": {"label": "Montant retenu", "description": "Montant final destiné à la comptabilisation.", "help": "Ce montant peut être modifié directement avant validation."},
-        "operation_id": {"label": "Opération diverse", "description": "Opération comptable générée à partir de la ligne.", "help": "Renseignée lors de la validation du dossier."}
+        "applied_amount": {"label": "Montant retenu", "description": "Montant final destiné à la comptabilisation.", "help": "Ce montant peut être modifié jusqu'à la génération des opérations diverses."},
+        "operation_id": {"label": "Opération diverse", "description": "Opération comptable générée à partir de la ligne.", "help": "Renseignée lors de la génération des opérations diverses."}
     },
     "view": {
         "form.default": {
@@ -53,5 +53,10 @@
             }
         },
         "list.default": {"name": "Lignes de régularisation", "description": "Liste des mouvements calculés et des montants retenus."}
+    },
+    "error": {
+        "errors": {
+            "operation_already_generated": "La ligne ne peut plus être modifiée ou supprimée dès qu'une opération diverse existe."
+        }
     }
 }

@@ -88,21 +88,6 @@ class OwnershipTransferSettlementOperation extends \equal\orm\Model {
                 'readonly'       => true
             ],
 
-            'accounting_entry_id' => [
-                'type'           => 'many2one',
-                'foreign_object' => 'finance\accounting\AccountingEntry',
-                'description'    => 'Balanced accounting entry created for the correction.',
-                'domain'         => ['condo_id', '=', 'object.condo_id'],
-                'readonly'       => true
-            ],
-
-            'accounting_date' => [
-                'type'        => 'date',
-                'description' => 'Date on which the miscellaneous operation is accounted.',
-                'required'    => true,
-                'readonly'    => true
-            ],
-
             'amount' => [
                 'type'        => 'float',
                 'usage'       => 'amount/money:2',

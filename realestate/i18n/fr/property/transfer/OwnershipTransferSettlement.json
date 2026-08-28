@@ -15,9 +15,8 @@
             "label": "Statut",
             "description": "Étape actuelle de la régularisation.",
             "help": "Le dossier est verrouillé après validation comptable.",
-            "selection": {"draft": "Brouillon", "validated": "Validée", "closed": "Clôturée"}
+            "selection": {"pending": "En attente", "validated": "Validée", "closed": "Clôturée"}
         },
-        "calculation_version": {"label": "Version du calcul", "description": "Version des règles ayant produit les lignes.", "help": "Permet de reproduire et d'auditer le calcul."},
         "validated_at": {"label": "Validée le", "description": "Date et heure de la validation comptable.", "help": "Renseigné automatiquement lors de la création des OD."},
         "closed_at": {"label": "Clôturée le", "description": "Date et heure de clôture de la régularisation.", "help": "Renseigné après émission des deux correspondances."},
         "seller_net_amount": {"label": "Net vendeur", "description": "Montant net crédité au vendeur ; une valeur négative est débitée.", "help": "Somme des mouvements retenus pour le vendeur."},
@@ -48,7 +47,15 @@
                 },
                 "action.generate_operations": {
                     "label": "Générer les OD",
-                    "description": "Générer et comptabiliser une opération diverse par fonds ou document source corrigé."
+                    "description": "Générer une opération diverse pro forma par fonds ou document source corrigé."
+                },
+                "action.validate": {
+                    "label": "Valider",
+                    "description": "Comptabiliser les opérations diverses générées, puis valider la régularisation."
+                },
+                "action.close": {
+                    "label": "Clôturer",
+                    "description": "Clôturer définitivement la régularisation validée."
                 }
             }
         },
@@ -56,7 +63,8 @@
     },
     "error": {
         "errors": {
-            "settlement_not_draft": "Les lignes ne peuvent être générées que lorsque la régularisation est en brouillon.",
+            "settlement_not_pending": "Les lignes ne peuvent être générées que lorsque la régularisation est en attente.",
+            "settlement_operations_already_generated": "Les lignes ne peuvent plus être régénérées dès qu'une opération diverse existe.",
             "missing_ownership_transfer": "La mutation est obligatoire.",
             "missing_property_lots": "La mutation doit contenir au moins un lot.",
             "missing_condo": "La copropriété est obligatoire.",
@@ -88,10 +96,12 @@
             "invalid_settlement_line_source_type": "Une ligne de régularisation possède un type de source invalide.",
             "missing_settlement_line_source": "Une ligne de régularisation n'est liée à aucune source comptabilisée.",
             "missing_ownership_accounting_account": "Un compte comptable de copropriétaire requis pour l'OD est introuvable.",
-            "existing_operation_mismatch": "Une OD déjà comptabilisée avec la même clé possède une date ou un montant différent.",
+            "existing_operation_mismatch": "Une OD existante avec la même clé possède une date ou un montant différent.",
             "existing_operation_cancelled": "L'OD portant cette clé technique a été annulée et ne peut pas être recréée automatiquement.",
-            "existing_operation_not_posted": "L'OD portant cette clé technique existe déjà mais n'est pas comptabilisée.",
+            "existing_operation_not_posted": "L'OD portant cette clé technique existe déjà mais n'est ni en pro forma ni comptabilisée.",
             "incomplete_existing_operation": "Le regroupement existant référence une écriture sans OD traçable.",
+            "misc_operation_not_proforma": "L'opération diverse n'a pas pu être préparée en pro forma.",
+            "misc_operations_not_proforma": "Toutes les opérations diverses générées doivent être en pro forma avant la validation.",
             "misc_operation_not_posted": "L'opération diverse n'a pas pu être comptabilisée."
         }
     }
