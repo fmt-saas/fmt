@@ -263,7 +263,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'buyer_ownership_id',
             'transfer_date',
             'snapshot_at',
-            'misc_operations_ids'
+            'misc_operations_ids' => ['status']
         ]);
 
         foreach($self as $id => $settlement) {
@@ -272,9 +272,11 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 continue;
             }
 
-            if(count($settlement['misc_operations_ids'])) {
-                $result[$id] = ['settlement_operations_already_generated' => 'Settlement lines cannot be regenerated once an accounting operation exists.'];
-                continue;
+            foreach($settlement['misc_operations_ids'] as $miscOperation) {
+                if($miscOperation['status'] !== 'proforma') {
+                    $result[$id] = ['misc_operations_not_proforma' => 'Settlement lines can only be regenerated while every existing miscellaneous operation is proforma.'];
+                    continue 2;
+                }
             }
 
             if(!$settlement['ownership_transfer_id']) {
@@ -419,13 +421,17 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                         ['settlement_id', '=', $id],
                         ['operation_key', '=', $group['operation_key']]
                     ])
-                    ->read(['misc_operation_id' => ['status']])
+                    ->read(['misc_operation_id' => ['status', 'misc_operation_lines_ids']])
                     ->first();
 
                 if(
                     !$existingOperation
                     || !$existingOperation['misc_operation_id']
                     || !in_array($existingOperation['misc_operation_id']['status'], ['proforma', 'posted'], true)
+                    || (
+                        $existingOperation['misc_operation_id']['status'] === 'proforma'
+                        && !count($existingOperation['misc_operation_id']['misc_operation_lines_ids'])
+                    )
                 ) {
                     $groups_to_create[] = $group;
                 }
@@ -551,7 +557,8 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'seller_ownership_id',
             'buyer_ownership_id',
             'transfer_date',
-            'snapshot_at'
+            'snapshot_at',
+            'misc_operations_ids'
         ]);
 
         foreach($self as $id => $settlement) {
@@ -850,6 +857,14 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             // Manual changes are intentionally discarded when generation is rerun.
             $total = 0.0;
             $line_count = 0;
+            // Existing proforma operation lines depend on the settlement lines
+            // and must be cleared before those lines are replaced.
+            if(count($settlement['misc_operations_ids'])) {
+                MiscOperationLine::search([
+                        ['misc_operation_id', 'in', $settlement['misc_operations_ids']]
+                    ])
+                    ->delete(true);
+            }
             OwnershipTransferSettlementLine::search(['settlement_id', '=', $id])->delete(true);
 
             foreach($lines as $line) {
@@ -904,7 +919,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'condo_fund_id'             => ['name'],
                 'fund_request_execution_id' => ['name'],
                 'expense_statement_id'      => ['name'],
-                'property_lot_id'            => ['name'],
+                'property_lot_id'           => ['name'],
                 'applied_amount'
             ]
         ]);
@@ -932,7 +947,8 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                         'amount',
                         'misc_operation_id' => [
                             'status',
-                            'posting_date'
+                            'posting_date',
+                            'misc_operation_lines_ids'
                         ]
                     ])
                     ->first();
@@ -941,14 +957,21 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     'source_type' => $group['source_type'],
                     $group['source_field'] => $group['source_id']
                 ];
+                $is_new_operation = false;
 
                 if($wrapper && $wrapper['misc_operation_id']) {
                     $miscOperation = $wrapper['misc_operation_id'];
 
                     if(in_array($miscOperation['status'], ['proforma', 'posted'], true)) {
                         if(
-                            abs((float) $wrapper['amount'] - $group_amount) >= 0.005
-                            || (int) $miscOperation['posting_date'] !== (int) $settlement['accounting_date']
+                            (int) $miscOperation['posting_date'] !== (int) $settlement['accounting_date']
+                            || (
+                                (
+                                    $miscOperation['status'] === 'posted'
+                                    || count($miscOperation['misc_operation_lines_ids'])
+                                )
+                                && abs((float) $wrapper['amount'] - $group_amount) >= 0.005
+                            )
                         ) {
                             throw new \Exception('existing_operation_mismatch', EQ_ERROR_INVALID_CONFIG);
                         }
@@ -960,22 +983,30 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                             ]
                         ));
 
-                        foreach($group['lines'] as $line_id => $line) {
-                            OwnershipTransferSettlementLine::id($line_id)->write(['operation_id' => $wrapper['id']]);
-                        }
+                        // A proforma operation emptied by line regeneration is
+                        // repopulated below instead of being treated as reusable.
+                        if(
+                            $miscOperation['status'] === 'posted'
+                            || count($miscOperation['misc_operation_lines_ids'])
+                        ) {
+                            foreach($group['lines'] as $line_id => $line) {
+                                OwnershipTransferSettlementLine::id($line_id)->write(['operation_id' => $wrapper['id']]);
+                            }
 
-                        ++$reused_count;
-                        continue;
+                            ++$reused_count;
+                            continue;
+                        }
                     }
 
-                    if($miscOperation['status'] === 'cancelled') {
+                    elseif($miscOperation['status'] === 'cancelled') {
                         throw new \Exception('existing_operation_cancelled', EQ_ERROR_INVALID_CONFIG);
                     }
-
-                    throw new \Exception('existing_operation_not_posted', EQ_ERROR_INVALID_CONFIG);
+                    else {
+                        throw new \Exception('existing_operation_not_posted', EQ_ERROR_INVALID_CONFIG);
+                    }
                 }
 
-                if($wrapper) {
+                if($wrapper && !$wrapper['misc_operation_id']) {
                     throw new \Exception('incomplete_existing_operation', EQ_ERROR_INVALID_CONFIG);
                 }
 
@@ -995,25 +1026,30 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     date('d/m/Y', $settlement['transfer_date']),
                     $group['source_name']
                 );
-                $miscOperation = MiscOperation::create([
-                        'condo_id'      => $settlement['condo_id'],
-                        'description'   => $description,
-                        'operation_type'=> 'transfer',
-                        'posting_date'  => $settlement['accounting_date'],
-                        'journal_id'    => $journal['id']
-                    ])
-                    ->first();
+                if(!$wrapper) {
+                    $miscOperation = MiscOperation::create([
+                            'condo_id'      => $settlement['condo_id'],
+                            'description'   => $description,
+                            'operation_type'=> 'transfer',
+                            'posting_date'  => $settlement['accounting_date'],
+                            'journal_id'    => $journal['id']
+                        ])
+                        ->first();
 
-                $wrapper = OwnershipTransferSettlementOperation::create(array_merge(
-                        [
-                            'settlement_id'    => $id,
-                            'misc_operation_id'=> $miscOperation['id'],
-                            'operation_key'    => $group['operation_key'],
-                            'amount'           => $group_amount
-                        ],
-                        $source_values
-                    ))
-                    ->first();
+                    $wrapper = OwnershipTransferSettlementOperation::create(array_merge(
+                            [
+                                'settlement_id'    => $id,
+                                'misc_operation_id'=> $miscOperation['id'],
+                                'operation_key'    => $group['operation_key'],
+                                'amount'           => $group_amount
+                            ],
+                            $source_values
+                        ))
+                        ->first();
+                    $is_new_operation = true;
+                }
+
+                $misc_operation_id = $miscOperation['id'];
 
                 foreach($group['lines'] as $line_id => $line) {
                     $amount = round(abs((float) $line['applied_amount']), 2);
@@ -1022,7 +1058,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
 
                     MiscOperationLine::create([
                         'condo_id'          => $settlement['condo_id'],
-                        'misc_operation_id' => $miscOperation['id'],
+                        'misc_operation_id' => $misc_operation_id,
                         'account_id'        => $seller_account_id,
                         'property_lot_id'   => $line['property_lot_id'],
                         'description'       => $line_description,
@@ -1031,7 +1067,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     ]);
                     MiscOperationLine::create([
                         'condo_id'          => $settlement['condo_id'],
-                        'misc_operation_id' => $miscOperation['id'],
+                        'misc_operation_id' => $misc_operation_id,
                         'account_id'        => $buyer_account_id,
                         'property_lot_id'   => $line['property_lot_id'],
                         'description'       => $line_description,
@@ -1040,22 +1076,29 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     ]);
                 }
 
-                MiscOperation::id($miscOperation['id'])
-                    ->transition('publish');
+                if($is_new_operation) {
+                    MiscOperation::id($misc_operation_id)
+                        ->transition('publish');
 
-                $proformaOperation = MiscOperation::id($miscOperation['id'])
-                    ->read(['status', 'posting_date', 'accounting_entry_id'])
-                    ->first();
+                    $proformaOperation = MiscOperation::id($misc_operation_id)
+                        ->read(['status', 'posting_date', 'accounting_entry_id'])
+                        ->first();
 
-                if($proformaOperation['status'] !== 'proforma' || $proformaOperation['accounting_entry_id']) {
-                    throw new \Exception('misc_operation_not_proforma', EQ_ERROR_INVALID_CONFIG);
+                    if($proformaOperation['status'] !== 'proforma' || $proformaOperation['accounting_entry_id']) {
+                        throw new \Exception('misc_operation_not_proforma', EQ_ERROR_INVALID_CONFIG);
+                    }
                 }
 
                 foreach($group['lines'] as $line_id => $line) {
                     OwnershipTransferSettlementLine::id($line_id)->write(['operation_id' => $wrapper['id']]);
                 }
 
-                ++$created_count;
+                if($is_new_operation) {
+                    ++$created_count;
+                }
+                else {
+                    ++$reused_count;
+                }
             }
 
             $log = sprintf(

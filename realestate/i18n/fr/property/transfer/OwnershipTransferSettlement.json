@@ -64,7 +64,6 @@
     "error": {
         "errors": {
             "settlement_not_pending": "Les lignes ne peuvent être générées que lorsque la régularisation est en attente.",
-            "settlement_operations_already_generated": "Les lignes ne peuvent plus être régénérées dès qu'une opération diverse existe.",
             "missing_ownership_transfer": "La mutation est obligatoire.",
             "missing_property_lots": "La mutation doit contenir au moins un lot.",
             "missing_condo": "La copropriété est obligatoire.",
@@ -101,7 +100,7 @@
             "existing_operation_not_posted": "L'OD portant cette clé technique existe déjà mais n'est ni en pro forma ni comptabilisée.",
             "incomplete_existing_operation": "Le regroupement existant référence une écriture sans OD traçable.",
             "misc_operation_not_proforma": "L'opération diverse n'a pas pu être préparée en pro forma.",
-            "misc_operations_not_proforma": "Toutes les opérations diverses générées doivent être en pro forma avant la validation.",
+            "misc_operations_not_proforma": "Toutes les opérations diverses générées doivent être en pro forma pour régénérer les lignes ou valider la régularisation.",
             "misc_operation_not_posted": "L'opération diverse n'a pas pu être comptabilisée."
         }
     }
