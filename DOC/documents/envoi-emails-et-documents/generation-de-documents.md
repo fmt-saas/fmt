@@ -1,5 +1,7 @@
 ﻿# Génération de documents et correspondances
 
+> Pour le déroulement concret depuis le choix des destinataires jusqu’à l’envoi par e-mail ou à l’export postal, voir [Fonctionnement des envois de correspondances](fonctionnement-des-envois.md).
+
 ## Objectif général
 
 Le logiciel gère plusieurs types de documents formels liés à la gouvernance et à la gestion financière d’une copropriété. Bien que leur finalité juridique ou fonctionnelle diffère, ces documents reposent sur une logique commune de modélisation, de rendu, de génération, de stockage et de distribution.

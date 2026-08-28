@@ -1,5 +1,7 @@
 ﻿# Exports de correspondances
 
+> Pour replacer l’export postal dans le flux complet de préparation et d’envoi d’une correspondance, voir [Fonctionnement des envois de correspondances](fonctionnement-des-envois.md).
+
 ## Objectif
 
 Les exports de correspondances permettent de regrouper des documents générés afin de préparer une opération de diffusion, d’impression ou d’archivage.

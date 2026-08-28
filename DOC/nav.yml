@@ -48,6 +48,7 @@
     - 'Email Digestor': documents/email-digestor/email-digestor.md
     - 'Envoi Emails & Documents':
         - 'Génération de documents': documents/envoi-emails-et-documents/generation-de-documents.md
+        - 'Fonctionnement des envois': documents/envoi-emails-et-documents/fonctionnement-des-envois.md
         - 'Exports de correspondances': documents/envoi-emails-et-documents/exports-de-correspondances.md
     - 'Signatures électroniques': documents/signatures-electroniques.md
 - 'Suivi & opérations':
