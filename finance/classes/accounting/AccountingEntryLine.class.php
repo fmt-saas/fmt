@@ -685,20 +685,7 @@ class AccountingEntryLine extends Model {
      *
      */
     protected static function onupdateStatus($self) {
-        $self->read(['matching_id']);
-
-        $map_matching_ids = [];
-
-        foreach($self as $accountingEntryLine) {
-            if($accountingEntryLine['matching_id']) {
-                $map_matching_ids[$accountingEntryLine['matching_id']] = true;
-            }
-        }
-
-        if(count($map_matching_ids)) {
-            Matching::ids(array_keys($map_matching_ids))
-                ->do('refresh_matching_level');
-        }
+        // #memo refresh_matching_level is called in AccountingEntry event handlers
     }
 
     protected static function onupdateMatchingId($self) {

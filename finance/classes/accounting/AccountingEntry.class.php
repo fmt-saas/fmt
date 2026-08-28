@@ -551,43 +551,24 @@ class AccountingEntry extends Model {
      * This method triggers the update of the related current balance and the fiscal period (based on the entry date).
      */
     public static function onafterValidate($self) {
-        // append accounting entry to current balance
         $self->read([
                 'condo_id',
-                'entry_date',
-                'journal_id',
-                'sub_journal_id',
-                'fiscal_period_id' => ['id', 'date_from'],
-                'fiscal_year_id'   => ['current_balance_id'],
-                'entry_lines_ids'  => ['account_id', 'debit', 'credit']
+                'entry_lines_ids'  => ['account_id', 'debit', 'credit', 'matching_id']
             ]);
 
+        $map_matching_ids = [];
+
         foreach($self as $id => $accountingEntry) {
-
-            $accountingEntry['entry_lines_ids']->update(['status' => 'validated']);
-
-            // #memo - we cannot update the Balance directly to avoid concurrent changes: always use BalanceUpdateRequest
-            /*
-            BalanceUpdateRequest::create([
-                    'condo_id'              => $accountingEntry['condo_id'],
-                    'balance_id'            => $accountingEntry['fiscal_year_id']['current_balance_id'],
-                    'accounting_entry_id'   => $id
-                ]);
-            */
-
-            // #todo - temporary for testing - to remove once cron handling balanceupdate request will be running
-            /*
-            // #memo - this has been replaced with AccountBalanceChange mechanism
-            foreach($accountingEntry['entry_lines_ids'] ?? [] as $entry_line_id => $entryLine) {
-                CurrentBalance::id($accountingEntry['fiscal_year_id']['current_balance_id'])
-                    ->do('update_account', [
-                        'account_id' => $entryLine['account_id'],
-                        'debit'      => $entryLine['debit'],
-                        'credit'     => $entryLine['credit']
-                    ]);
+            foreach($accountingEntry['entry_lines_ids'] as $line) {
+                if($line['matching_id']) {
+                    $map_matching_ids[$line['matching_id']] = true;
+                }
             }
-            */
+            $accountingEntry['entry_lines_ids']->update(['status' => 'validated']);
         }
+
+        Matching::ids(array_keys($map_matching_ids))
+            ->do('refresh_matching_level');
 
         $self
             // force refresh Entry name
@@ -647,7 +628,9 @@ class AccountingEntry extends Model {
                     'description'               => $line['description'],
                     'sale_invoice_line_id'      => $line['sale_invoice_line_id'],
                     'purchase_invoice_line_id'  => $line['purchase_invoice_line_id'],
-                    'misc_operation_line_id'    => $line['misc_operation_line_id']
+                    'misc_operation_line_id'    => $line['misc_operation_line_id'],
+                    // prevent transient matching of the technical reversal line
+                    'matching_id'               => null
                 ]);
             }
 
