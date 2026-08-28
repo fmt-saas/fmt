@@ -18,6 +18,7 @@ use realestate\finance\accounting\CondoFund;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestLineEntryLot;
 use realestate\ownership\Ownership;
+use realestate\property\transfer\OwnershipTransferSettlement;
 use realestate\sale\pay\Funding;
 
 class OwnershipTransfer extends \equal\orm\Model {
@@ -502,6 +503,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                     'confirmed',                    // request from the notary office of the buyer : §2
                     'financial_statement_sent',     // request from the notary office of the buyer : §2
                     'settled',                      // sale was made, receipt from notary office : §3
+                    'accounting_pending',           // accounting settlement is being processed
                     'closed'                        // cas is closed (§3)
                 ],
                 'default'     => 'pending',
@@ -583,13 +585,21 @@ class OwnershipTransfer extends \equal\orm\Model {
                 ],
             ],
             'settled' => [
-                'description' => 'Ownership transfer is settled, the operations for the transfer accounting are pending.',
+                'description' => 'Ownership transfer is settled, waiting for the accounting settlement to be prepared.',
                 'icon' => 'hourglass_top',
                 'transitions' => [
-                    'close' => [
-                        'description' => 'Close the ownership transfer after settlement completion.',
-                        'status' => 'closed',
+                    'prepare_accounting' => [
+                        'description' => 'Create the accounting settlement and mark the ownership transfer as accounting pending.',
+                        'policies' => ['can_prepare_accounting'],
+                        'onbefore' => 'onbeforePrepareAccounting',
+                        'status' => 'accounting_pending',
                     ],
+                ],
+            ],
+            'accounting_pending' => [
+                'description' => 'Accounting settlement is being processed.',
+                'icon' => 'account_balance',
+                'transitions' => [
                 ],
             ],
             'closed' => [
@@ -778,11 +788,40 @@ class OwnershipTransfer extends \equal\orm\Model {
             ->do('refresh_arrears');
     }
 
+    protected static function onbeforePrepareAccounting($self) {
+        $self->read([
+            'condo_id',
+            'old_ownership_id',
+            'new_ownership_id',
+            'transfer_date',
+            'ownership_transfer_settlement_id'
+        ]);
+
+        foreach($self as $id => $ownershipTransfer) {
+            if($ownershipTransfer['ownership_transfer_settlement_id']) {
+                continue;
+            }
+
+            OwnershipTransferSettlement::create([
+                'ownership_transfer_id' => $id,
+                'condo_id'               => $ownershipTransfer['condo_id'],
+                'seller_ownership_id'    => $ownershipTransfer['old_ownership_id'],
+                'buyer_ownership_id'     => $ownershipTransfer['new_ownership_id'],
+                'transfer_date'          => $ownershipTransfer['transfer_date'],
+                'snapshot_at'            => time()
+            ]);
+        }
+    }
+
     public static function getPolicies(): array {
         return [
             'is_valid' => [
                 'description' => 'Verifies that the mandatory values are present for Condominium validation.',
                 'function'    => 'policyIsValid'
+            ],
+            'can_prepare_accounting' => [
+                'description' => 'Checks that all information required to create the accounting settlement is present.',
+                'function'    => 'policyCanPrepareAccounting'
             ]
         ];
     }
@@ -848,6 +887,51 @@ class OwnershipTransfer extends \equal\orm\Model {
             }
 
         }
+        return $result;
+    }
+
+    protected static function policyCanPrepareAccounting($self): array {
+        $result = [];
+
+        $self->read([
+            'condo_id',
+            'old_ownership_id',
+            'new_ownership_id',
+            'property_lots_ids',
+            'transfer_date'
+        ]);
+
+        foreach($self as $id => $ownershipTransfer) {
+            if(!$ownershipTransfer['condo_id']) {
+                $result[$id] = ['missing_condo_id' => 'The condominium must be provided.'];
+                continue;
+            }
+
+            if(!$ownershipTransfer['old_ownership_id']) {
+                $result[$id] = ['missing_old_ownership_id' => 'The seller ownership must be provided.'];
+                continue;
+            }
+
+            if(!$ownershipTransfer['new_ownership_id']) {
+                $result[$id] = ['missing_new_ownership_id' => 'The buyer ownership must be provided.'];
+                continue;
+            }
+
+            if((int) $ownershipTransfer['old_ownership_id'] === (int) $ownershipTransfer['new_ownership_id']) {
+                $result[$id] = ['identical_ownerships' => 'Seller and buyer ownerships must be different.'];
+                continue;
+            }
+
+            if(!count($ownershipTransfer['property_lots_ids'])) {
+                $result[$id] = ['invalid_property_lots_count' => 'There should be at least one selected property lot.'];
+                continue;
+            }
+
+            if(!$ownershipTransfer['transfer_date']) {
+                $result[$id] = ['missing_transfer_date' => 'The ownership transfer date is mandatory.'];
+            }
+        }
+
         return $result;
     }
 

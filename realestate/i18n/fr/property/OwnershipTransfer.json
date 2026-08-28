@@ -281,7 +281,17 @@
         "status": {
             "label": "Statut",
             "description": "Étape actuelle du processus (brouillon, ouvert, confirmé, etc.).",
-            "help": ""
+            "help": "",
+            "selection": {
+                "pending": "Brouillon",
+                "open": "Ouvert",
+                "seller_documents_sent": "Documents vendeur envoyés",
+                "confirmed": "Confirmé",
+                "financial_statement_sent": "État financier envoyé",
+                "settled": "Vente réalisée",
+                "accounting_pending": "Régularisation comptable en cours",
+                "closed": "Clôturé"
+            }
         }
     },
     "view": {
@@ -390,6 +400,10 @@
                     "label": "Confirmer la vente",
                     "description": "Confirmer la signature de l'acte notarié et la réalisation de la vente."
                 },
+                "action.prepare_accounting": {
+                    "label": "Préparer la comptabilité",
+                    "description": "Créer la régularisation et transmettre la mutation au traitement comptable."
+                },
                 "action.send": {
                     "label": "Envoyer un e-mail",
                     "description": "Envoyer un e-mail avec les pièces jointes sélectionnées à tous les contacts du dossier."
@@ -417,6 +431,16 @@
         "list.default": {
             "name": "Historique des transferts",
             "description": "Vue tabulaire des dossiers avec dates clés, notaires et statuts."
+        }
+    },
+    "error": {
+        "errors": {
+            "missing_condo_id": "La copropriété doit être renseignée.",
+            "missing_old_ownership_id": "La propriété vendeuse doit être renseignée.",
+            "missing_new_ownership_id": "La propriété acquéreuse doit être renseignée.",
+            "identical_ownerships": "Les propriétés vendeuse et acquéreuse doivent être différentes.",
+            "invalid_property_lots_count": "La mutation doit contenir au moins un lot.",
+            "missing_transfer_date": "La date de mutation doit être renseignée."
         }
     }
 }

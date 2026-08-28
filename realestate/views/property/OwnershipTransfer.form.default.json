@@ -45,7 +45,21 @@
                 "entity": "realestate\\property\\OwnershipTransfer",
                 "transition": "settle",
                 "ids": []
-            }
+            },
+            "confirm": true
+        },
+        {
+            "id": "action.prepare_accounting",
+            "label": "Prepare accounting",
+            "description": "Create the accounting settlement and send the ownership transfer to accounting.",
+            "controller": "core_model_transition",
+            "visible": [["status", "=", "settled"]],
+            "params": {
+                "entity": "realestate\\property\\OwnershipTransfer",
+                "transition": "prepare_accounting",
+                "ids": []
+            },
+            "confirm": true
         },
         {
             "id": "action.send",
@@ -60,7 +74,7 @@
             "label": "Refresh info",
             "description": "Refresh arrears of the owner.",
             "controller": "core_model_do",
-            "visible": ["status", "not in", ["settled", "closed"]],
+            "visible": ["status", "not in", ["settled", "accounting_pending", "closed"]],
             "params": {
                 "entity": "realestate\\property\\OwnershipTransfer",
                 "action": "refresh",
@@ -486,7 +500,7 @@
                     {
                         "id": "section.information_statements",
                         "label": "Information (3.94 §2)",
-                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "in", ["confirmed", "financial_statement_sent", "settled"]]],
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "in", ["confirmed", "financial_statement_sent", "settled", "accounting_pending"]]],
                         "rows": [
                             {
                                 "columns": [
@@ -635,7 +649,7 @@
                     {
                         "id": "section.information_settlement",
                         "label": "Information (3.94 §3)",
-                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "in", ["settled", "closed"]]],
+                        "visible": [["condo_id", "<>", null], ["old_ownership_id", "<>", null], ["status", "in", ["settled", "accounting_pending", "closed"]]],
                         "rows": [
                             {
                                 "columns": [
@@ -737,7 +751,7 @@
                                                             "ACTION.CREATE": false,
                                                             "ACTION.CREATE_INLINE": [
                                                                 {
-                                                                    "edit": ["object.status", "not in", ["financial_statement_sent", "settled", "closed"]]
+                                                                    "edit": ["object.status", "not in", ["financial_statement_sent", "settled", "accounting_pending", "closed"]]
                                                                 }
                                                             ]
                                                         }
