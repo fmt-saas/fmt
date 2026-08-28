@@ -209,7 +209,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                     'ownership_id'              => $line['ownership_id'],
                     'suppliership_id'           => $line['suppliership_id'],
                     // prevent transient matching of the technical reversal line
-                    'matching'                  => null
+                    'matching_id'               => null
                 ]);
             }
 
@@ -221,7 +221,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
             self::id($id)
                 ->update([
                     'reversed_entry_id'  => $reversal['id'],
-                    'status'            => 'reversed'
+                    'status'             => 'reversed'
                 ]);
 
             // 5) Link reversal to original

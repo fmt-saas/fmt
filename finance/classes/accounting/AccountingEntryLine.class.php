@@ -543,7 +543,7 @@ class AccountingEntryLine extends Model {
         $self->update(['matching_id' => null]);
     }
 
-    protected static function oncreate($self, $values) {
+    protected static function onaftercreate($self, $values) {
         if(!array_key_exists('matching_id', $values)) {
             $self->read(['state', 'condo_id', 'account_id' => ['id', 'operation_assignment', 'parent_account_id']]);
             foreach($self as $id => $accountingEntryLine) {
