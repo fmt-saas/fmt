@@ -688,7 +688,7 @@ class AccountingEntryLine extends Model {
         $self->read(['matching_id']);
         foreach($self as $accountingEntryLine) {
             if($accountingEntryLine['matching_id']) {
-                Matching::id($accountingEntryLine['matching_id'])->do('refresh_matching_level');
+                // Matching::id($accountingEntryLine['matching_id'])->do('refresh_matching_level');
             }
         }
     }
