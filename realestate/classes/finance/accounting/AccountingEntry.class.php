@@ -6,6 +6,8 @@
 */
 namespace realestate\finance\accounting;
 
+use finance\accounting\Matching;
+
 class AccountingEntry extends \finance\accounting\AccountingEntry {
 
     public static function getName() {
@@ -232,9 +234,15 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 ]);
 
             // 6) Mark all lines as reversed
-            AccountingEntryLine::search(['accounting_entry_id', 'in', [$id, $reversal['id']]])
+            $accounting_entry_lines_ids = AccountingEntryLine::search(['accounting_entry_id', 'in', [$id, $reversal['id']]])->ids();
+            $matchings_ids = self::computeMatchingIds($accounting_entry_lines_ids);
+
+            AccountingEntryLine::ids($accounting_entry_lines_ids)
                 ->update(['status' => 'reversed'])
                 ->do('detach_matching');
+
+            Matching::ids($matchings_ids)
+                ->do('refresh_matching_level');
         }
     }
 

@@ -553,21 +553,17 @@ class AccountingEntry extends Model {
     public static function onafterValidate($self) {
         $self->read([
                 'condo_id',
-                'entry_lines_ids'  => ['account_id', 'debit', 'credit', 'matching_id']
+                'entry_lines_ids'  => ['account_id', 'debit', 'credit']
             ]);
 
-        $map_matching_ids = [];
+        $matchings_ids = [];
 
         foreach($self as $id => $accountingEntry) {
-            foreach($accountingEntry['entry_lines_ids'] as $line) {
-                if($line['matching_id']) {
-                    $map_matching_ids[$line['matching_id']] = true;
-                }
-            }
+            $matchings_ids = array_merge($matchings_ids, self::computeMatchingIds($accountingEntry['entry_lines_ids']->ids()));
             $accountingEntry['entry_lines_ids']->update(['status' => 'validated']);
         }
 
-        Matching::ids(array_keys($map_matching_ids))
+        Matching::ids($matchings_ids)
             ->do('refresh_matching_level');
 
         $self
@@ -600,7 +596,7 @@ class AccountingEntry extends Model {
             ],
         ]);
 
-        foreach ($self as $id => $entry) {
+        foreach($self as $id => $entry) {
 
             // 1) Create reversal entry (B)
             $reversal = self::create([
@@ -618,7 +614,7 @@ class AccountingEntry extends Model {
                 ->first();
 
             // 2) Create reversal lines (swap debit/credit)
-            foreach ($entry['entry_lines_ids'] ?? [] as $line) {
+            foreach($entry['entry_lines_ids'] ?? [] as $line) {
                 AccountingEntryLine::create([
                     'condo_id'                  => $entry['condo_id'],
                     'accounting_entry_id'       => $reversal['id'],
@@ -653,9 +649,15 @@ class AccountingEntry extends Model {
                 ]);
 
             // 6) Mark all lines as reversed
-            AccountingEntryLine::search(['accounting_entry_id', 'in', [$id, $reversal['id']]])
+            $accounting_entry_lines_ids = AccountingEntryLine::search(['accounting_entry_id', 'in', [$id, $reversal['id']]])->ids();
+            $matchings_ids = self::computeMatchingIds($accounting_entry_lines_ids);
+
+            AccountingEntryLine::ids($accounting_entry_lines_ids)
                 ->update(['status' => 'reversed'])
                 ->do('detach_matching');
+
+            Matching::ids($matchings_ids)
+                ->do('refresh_matching_level');
         }
     }
 
@@ -855,6 +857,22 @@ class AccountingEntry extends Model {
             }
         }
         return $result;
+    }
+
+    protected static function computeMatchingIds($accounting_entry_lines_ids) {
+        if(empty($accounting_entry_lines_ids)) {
+            return [];
+        }
+
+        $map_matching_ids = [];
+        $entry_lines = AccountingEntryLine::ids($accounting_entry_lines_ids)->read(['matching_id']);
+        foreach($entry_lines as $line) {
+            if($line['matching_id']) {
+                $map_matching_ids[$line['matching_id']] = true;
+            }
+        }
+
+        return array_keys($map_matching_ids);
     }
 
     private static function computeIsBalanced($entry_lines_ids) {

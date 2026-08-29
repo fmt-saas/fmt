@@ -1578,9 +1578,7 @@ class BankStatementLine extends Model {
                         if($fundingAccountingEntryLine) {
                             AccountingEntryLine::id($creditAccountingEntryLine['id'])
                                 ->do('attempt_match_with_line', [
-                                    'accounting_entry_line_id' => $fundingAccountingEntryLine['id'],
-                                    // #memo - we must do this because we need to force the specific accountingEntryLine while not yet validated
-                                    'ignore_status'            => true
+                                    'accounting_entry_line_id' => $fundingAccountingEntryLine['id']
                                 ]);
                             $logs[] = "Triggered attempt_match_with_line for payment {$payment_id} against funding entry line {$fundingAccountingEntryLine['id']}";
                         }

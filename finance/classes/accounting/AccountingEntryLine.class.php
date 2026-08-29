@@ -413,7 +413,14 @@ class AccountingEntryLine extends Model {
 
         $self->read(['id', 'condo_id', 'status', 'debit', 'credit', 'account_id', 'matching_account_id', 'matching_id' => ['id', 'balance_amount']]);
         foreach($self as $id => $sourceAccountingEntryLine) {
+            /*
+            // #memo Matching only consider validated AEL
             if(!($values['ignore_status'] ?? false) && $sourceAccountingEntryLine['status'] !== 'validated') {
+                continue;
+            }
+            */
+
+            if($sourceAccountingEntryLine['status'] === 'reversed') {
                 continue;
             }
 
@@ -688,6 +695,14 @@ class AccountingEntryLine extends Model {
         // #memo refresh_matching_level is called in AccountingEntry event handlers
     }
 
+    /**
+     * Keep Matching aggregates consistent when an AEL is attached, moved or detached.
+     *
+     * #memo This hook is independent from AccountingEntry status transitions: `matching_id`
+     *      can also be changed by the dedicated matching actions. `onbeforeupdate()` stores the
+     *      previous relation in `old_matching_id`, allowing this method to clean up and refresh
+     *      the former Matching before refreshing the new one and the AEL matching level.
+     */
     protected static function onupdateMatchingId($self) {
         $self->read(['matching_id', 'old_matching_id']);
         foreach($self as $id => $accountingEntryLine) {
