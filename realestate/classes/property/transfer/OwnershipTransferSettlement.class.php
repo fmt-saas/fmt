@@ -1002,7 +1002,8 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 ++$line_count;
             }
 
-            // Store the generated totals and a concise calculation summary.
+            // #important - `write()` is required for these internally generated readonly fields.
+            // `update()` would silently discard them; no lifecycle callback is expected here.
             $source_count = count($line_groups);
             self::id($id)->write([
                 'seller_net_amount'     => round($total, 2),
@@ -1151,7 +1152,9 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 $exporting_task_id = $exportingTask['id'];
             }
 
-            self::id($id)->update([
+            // #important - `write()` is required for these internally managed readonly fields.
+            // `update()` would silently discard them; no lifecycle callback is expected here.
+            self::id($id)->write([
                 'correspondences_dispatch_started_at' => time(),
                 'correspondences_exporting_task_id'   => $exporting_task_id
             ]);
@@ -1172,8 +1175,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 MiscOperation::id($wrapper['misc_operation_id'])->transition('post');
             }
 
+            // #important - `write()` is required for the workflow-managed readonly timestamp.
+            // `update()` would silently discard it; no lifecycle callback is expected here.
             self::id($id)
-                ->update(['validated_at' => time()])
+                ->write(['validated_at' => time()])
                 ->do('generate_correspondences');
         }
     }
@@ -1249,6 +1254,8 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                             throw new \Exception('existing_operation_mismatch', EQ_ERROR_INVALID_CONFIG);
                         }
 
+                        // #important - `write()` is required for these internally generated readonly fields.
+                        // `update()` would silently discard them; no lifecycle callback is expected here.
                         OwnershipTransferSettlementOperation::id($wrapper['id'])->write(array_merge(
                             $source_values,
                             [
@@ -1262,9 +1269,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                             $miscOperation['status'] === 'posted'
                             || count($miscOperation['misc_operation_lines_ids'])
                         ) {
-                            foreach($group['lines'] as $line_id => $line) {
-                                OwnershipTransferSettlementLine::id($line_id)->write(['operation_id' => $wrapper['id']]);
-                            }
+                            // #important - `write()` is required for the internally assigned readonly relation.
+                            // `update()` would silently discard it; assign the whole group in a single write.
+                            OwnershipTransferSettlementLine::ids(array_keys($group['lines']))
+                                ->write(['operation_id' => $wrapper['id']]);
 
                             ++$reused_count;
                             continue;
@@ -1362,9 +1370,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     }
                 }
 
-                foreach($group['lines'] as $line_id => $line) {
-                    OwnershipTransferSettlementLine::id($line_id)->write(['operation_id' => $wrapper['id']]);
-                }
+                // #important - `write()` is required for the internally assigned readonly relation.
+                // `update()` would silently discard it; assign the whole group in a single write.
+                OwnershipTransferSettlementLine::ids(array_keys($group['lines']))
+                    ->write(['operation_id' => $wrapper['id']]);
 
                 if($is_new_operation) {
                     ++$created_count;
@@ -1382,6 +1391,8 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             );
             $logs = trim(implode(PHP_EOL, array_filter([$settlement['logs'], $log])));
 
+            // #important - `write()` is required for these internally generated readonly fields.
+            // `update()` would silently discard them; no lifecycle callback is expected here.
             self::id($id)->write([
                 'seller_net_amount' => round($settlement_total, 2),
                 'buyer_net_amount'  => round($settlement_total, 2),
@@ -1404,6 +1415,8 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     ->update(['is_sent' => true]);
             }
 
+            // #important - `write()` is required for the workflow-managed readonly timestamp.
+            // `update()` would silently discard it; no lifecycle callback is expected here.
             self::id($id)->write(['closed_at' => time()]);
         }
     }
