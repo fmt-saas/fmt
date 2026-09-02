@@ -391,7 +391,7 @@ if(!isset($params['owner_id']) && strlen($owner['ownership_id']['address_recipie
 }
 
 // either theoretical funding, or due_balance funding
-$funding = null;
+$funding = [];
 
 if($fundRequestExecution['with_due_balance']) {
     // generate pseudo instant Funding based on current account statement
@@ -413,7 +413,7 @@ if($fundRequestExecution['with_due_balance']) {
     $funding = [
             'payment_reference'     => $getPaymentReference(substr($reference, 0, 3), substr($reference, 3)),
             'due_date'              => $fundRequestExecution['due_date'],
-            'remaining_amount'      => $closing_balance
+            'remaining_amount'      => $closing_balance,
         ];
 }
 else {
@@ -430,6 +430,8 @@ else {
     }
 }
 
+$funding['bank_account_iban'] = $fundRequest['request_bank_account_id']['bank_account_iban'] ?? $fundRequestExecution['condo_id']['bank_account_iban'];
+$funding['bank_account_bic'] = $fundRequest['request_bank_account_id']['bank_account_bic'] ?? $fundRequestExecution['condo_id']['bank_account_bic'];
 
 // retrieve template (subject & body)
 $subject = 'Appels de fonds';
