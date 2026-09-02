@@ -22,7 +22,9 @@ use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestExecutionLineEntry;
 use realestate\ownership\Ownership;
 use realestate\ownership\OwnershipCommunicationPreference;
+use realestate\property\PropertyLot;
 use realestate\property\PropertyLotApportionmentShare;
+use realestate\property\PropertyLotOwnership;
 
 class OwnershipTransferSettlement extends \equal\orm\Model {
 
@@ -260,6 +262,11 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'description' => 'Generate documents and dispatch settlement correspondences by email or postal export.',
                 'policies'    => ['can_dispatch_correspondences'],
                 'function'    => 'doDispatchCorrespondences'
+            ],
+            'transfer_property_lots' => [
+                'description' => 'Transfer the property lots from the seller ownership to the buyer ownership.',
+                'policies'    => ['can_transfer_property_lots'],
+                'function'    => 'doTransferPropertyLots'
             ]
         ]);
     }
@@ -277,6 +284,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'can_validate' => [
                 'description' => 'Checks that every generated miscellaneous operation can be posted.',
                 'function'    => 'policyCanValidate'
+            ],
+            'can_transfer_property_lots' => [
+                'description' => 'Checks that property lots are only transferred by a validated settlement.',
+                'function'    => 'policyCanTransferPropertyLots'
             ],
             'can_dispatch_correspondences' => [
                 'description' => 'Checks that seller and buyer correspondences are ready for delivery.',
@@ -580,6 +591,20 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     $result[$id] = ['misc_operations_not_proforma' => 'Every generated miscellaneous operation must be proforma before validation.'];
                     break;
                 }
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanTransferPropertyLots($self): array {
+        $result = [];
+
+        $self->read(['status']);
+
+        foreach($self as $id => $settlement) {
+            if($settlement['status'] !== 'validated') {
+                $result[$id] = ['property_lots_transfer_not_allowed' => 'Property lots can only be transferred by a validated settlement.'];
             }
         }
 
@@ -1175,11 +1200,79 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 MiscOperation::id($wrapper['misc_operation_id'])->transition('post');
             }
 
+            self::id($id)->do('transfer_property_lots');
+
             // #important #lifecycle - `write()` is required for the workflow-managed readonly timestamp.
             // `update()` would silently discard it; no lifecycle callback is expected here.
             self::id($id)
                 ->write(['validated_at' => time()])
                 ->do('generate_correspondences');
+        }
+    }
+
+    protected static function doTransferPropertyLots($self) {
+        $self->read([
+            'ownership_transfer_id' => ['property_lots_ids'],
+            'condo_id',
+            'seller_ownership_id',
+            'buyer_ownership_id' => ['id', 'status'],
+            'transfer_date'
+        ]);
+
+        foreach($self as $settlement) {
+            $property_lots_ids = array_values($settlement['ownership_transfer_id']['property_lots_ids']);
+            $buyer_ownership_id = (int) $settlement['buyer_ownership_id']['id'];
+
+            if($settlement['buyer_ownership_id']['status'] !== 'validated') {
+                Ownership::id($buyer_ownership_id)
+                    ->update(['date_from' => $settlement['transfer_date']])
+                    ->transition('validate');
+            }
+
+            PropertyLot::ids($property_lots_ids)
+                ->update(['active_ownership_id' => $buyer_ownership_id]);
+
+            $new_date_from = strtotime(date('Y-m-d', $settlement['transfer_date']));
+            $old_date_to = strtotime('-1 day', $new_date_from);
+
+            foreach($property_lots_ids as $property_lot_id) {
+                PropertyLotOwnership::search([
+                        ['condo_id', '=', $settlement['condo_id']],
+                        ['ownership_id', '=', $settlement['seller_ownership_id']],
+                        ['property_lot_id', '=', $property_lot_id],
+                        ['date_to', '=', null]
+                    ])
+                    ->update(['date_to' => $old_date_to]);
+
+                $buyer_link_exists = PropertyLotOwnership::search([
+                        ['condo_id', '=', $settlement['condo_id']],
+                        ['ownership_id', '=', $buyer_ownership_id],
+                        ['property_lot_id', '=', $property_lot_id],
+                        ['date_to', '=', null]
+                    ])
+                    ->count() > 0;
+
+                if(!$buyer_link_exists) {
+                    PropertyLotOwnership::create([
+                        'condo_id'        => $settlement['condo_id'],
+                        'ownership_id'    => $buyer_ownership_id,
+                        'property_lot_id' => $property_lot_id,
+                        'date_from'       => $new_date_from,
+                        'date_to'         => null
+                    ]);
+                }
+            }
+
+            $seller_has_active_lots = PropertyLot::search([
+                    ['condo_id', '=', $settlement['condo_id']],
+                    ['active_ownership_id', '=', $settlement['seller_ownership_id']]
+                ])
+                ->count() > 0;
+
+            if(!$seller_has_active_lots) {
+                Ownership::id($settlement['seller_ownership_id'])
+                    ->update(['date_to' => $old_date_to]);
+            }
         }
     }
 
