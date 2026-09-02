@@ -466,7 +466,7 @@ if(!isset($params['owner_id']) && strlen($owner['ownership_id']['address_recipie
     $recipient['name'] = $owner['ownership_id']['address_recipient'];
 }
 
-$funding = null;
+$funding = [];
 
 // generate pseudo instant Funding based on current account statement
 $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
@@ -487,7 +487,9 @@ $reference = substr(str_pad((int) $statement['condo_id']['code'], 6, '0', STR_PA
 $funding = [
         'payment_reference'     => $getPaymentReference(substr($reference, 0, 3), substr($reference, 3)),
         'due_date'              => $statement['due_date'],
-        'remaining_amount'      => $closing_balance
+        'remaining_amount'      => $closing_balance,
+        'bank_account_iban'     => $statement['statement_bank_account_id']['bank_account_iban'] ?? $fiscalPeriod['condo_id']['bank_account_iban'],
+        'bank_account_bic'      => $statement['statement_bank_account_id']['bank_account_bic'] ?? $fiscalPeriod['condo_id']['bank_account_bic']
     ];
 
 
@@ -592,8 +594,8 @@ $values = array_merge($values, [
     'funding'             => $funding,
     'payment_qr_code_uri' => $getPaymentQrCodeUri(
             $fiscalPeriod['condo_id']['legal_name'],
-            $statement['statement_bank_account_id']['bank_account_iban'] ?? $fiscalPeriod['condo_id']['bank_account_iban'],
-            $statement['statement_bank_account_id']['bank_account_bic'] ?? $fiscalPeriod['condo_id']['bank_account_bic'],
+            $funding['bank_account_iban'],
+            $funding['bank_account_bic'],
             $funding['payment_reference'] ?? '',
             $funding['remaining_amount'] ?? 0
         ),

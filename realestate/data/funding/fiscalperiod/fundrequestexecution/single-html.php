@@ -591,8 +591,8 @@ $values = [
     'funding'             => $funding,
     'payment_qr_code_uri' => $getPaymentQrCodeUri(
                 $fundRequestExecution['condo_id']['legal_name'],
-                $fundRequest['request_bank_account_id']['bank_account_iban'] ?? $fundRequestExecution['condo_id']['bank_account_iban'],
-                $fundRequest['request_bank_account_id']['bank_account_bic'] ?? $fundRequestExecution['condo_id']['bank_account_bic'],
+                $funding['bank_account_iban'],
+                $funding['bank_account_bic'],
                 $funding['payment_reference'] ?? '',
                 $funding['remaining_amount'] ?? 0
             ),
