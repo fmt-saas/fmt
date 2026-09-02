@@ -1532,7 +1532,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
         if(count($request_execution_ids)) {
             $requestExecutions = FundRequestExecution::ids(array_values(array_unique($request_execution_ids)))
                 ->read(['fund_request_id' => ['request_type']])
-                ->get(true);
+                ->get();
 
             foreach($requestExecutions as $execution_id => $requestExecution) {
                 $request_types[$execution_id] = $requestExecution['fund_request_id']['request_type'] ?? null;
