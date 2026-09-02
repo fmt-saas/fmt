@@ -1039,7 +1039,10 @@ class MiscOperation extends Model {
                     ]
                 );
 
-            if($sequence) {
+            if(!$sequence) {
+                trigger_error("APP::missing mandatory sequence " . "operation.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}", EQ_ERROR_INVALID_CONFIG);
+            }
+            else {
                 $operation_number = Setting::parse_format($format, [
                         'year'      => substr($miscOperation['fiscal_year_id']['code'] ?? '', 0, 2),
                         'period'    => $miscOperation['fiscal_period_id']['code'] ?? 0,
