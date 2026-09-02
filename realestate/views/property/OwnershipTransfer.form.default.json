@@ -45,8 +45,7 @@
                 "entity": "realestate\\property\\OwnershipTransfer",
                 "transition": "settle",
                 "ids": []
-            },
-            "confirm": true
+            }
         },
         {
             "id": "action.prepare_accounting",

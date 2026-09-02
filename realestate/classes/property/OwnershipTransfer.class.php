@@ -807,7 +807,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             }
 
             $ownershipTransferSettlement = OwnershipTransferSettlement::create([
-                'ownership_transfer_id' => $id,
+                'ownership_transfer_id'  => $id,
                 'condo_id'               => $ownershipTransfer['condo_id'],
                 'seller_ownership_id'    => $ownershipTransfer['old_ownership_id'],
                 'buyer_ownership_id'     => $ownershipTransfer['new_ownership_id'],
@@ -817,7 +817,7 @@ class OwnershipTransfer extends \equal\orm\Model {
             ->first();
 
             if($ownershipTransferSettlement) {
-                self::id($id)->update(['ownership_transfer_settlement_id' => $ownershipTransferSettlement['id']]);
+                self::id($id)->write(['ownership_transfer_settlement_id' => $ownershipTransferSettlement['id']]);
             }
         }
     }

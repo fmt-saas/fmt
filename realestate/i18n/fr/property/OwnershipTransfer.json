@@ -288,7 +288,7 @@
                 "seller_documents_sent": "Documents vendeur envoyés",
                 "confirmed": "Confirmé",
                 "financial_statement_sent": "État financier envoyé",
-                "settled": "Vente réalisée",
+                "settled": "Vente confirmée",
                 "accounting_pending": "Régularisation comptable en cours",
                 "closed": "Clôturé"
             }
