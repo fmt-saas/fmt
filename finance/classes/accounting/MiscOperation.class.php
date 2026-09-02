@@ -291,7 +291,7 @@ class MiscOperation extends Model {
                 'transitions' => [
                     'post' => [
                         'description' => 'Create accounting entries and update the document to `posted`.',
-                        'policies'    => ['is_valid', 'can_generate_accounting_entry'],
+                        'policies'    => ['is_valid', 'can_generate_accounting_entry', 'can_generate_opening_balance', 'can_create_fundings'],
                         'onbefore'    => 'onbeforePost',
                         'status'      => 'posted'
                     ],
@@ -391,6 +391,42 @@ class MiscOperation extends Model {
         ];
     }
 
+    private static function computeFundingBankAccount($condo_id) {
+        $bankAccount = CondominiumBankAccount::search([
+                ['condo_id', '=', $condo_id],
+                ['is_primary', '=', true]
+            ])
+            ->first();
+
+        if($bankAccount) {
+            return $bankAccount;
+        }
+
+        $current_bank_account_ids = CondominiumBankAccount::search([
+                ['condo_id', '=', $condo_id],
+                ['bank_account_type', '=', 'bank_current']
+            ])
+            ->ids();
+
+        if(count($current_bank_account_ids) === 1) {
+            return ['id' => reset($current_bank_account_ids)];
+        }
+
+        if(count($current_bank_account_ids) === 0) {
+            $third_party_bank_account_ids = CondominiumBankAccount::search([
+                    ['condo_id', '=', $condo_id],
+                    ['bank_account_type', '=', 'bank_tier']
+                ])
+                ->ids();
+
+            if(count($third_party_bank_account_ids) === 1) {
+                return ['id' => reset($third_party_bank_account_ids)];
+            }
+        }
+
+        return null;
+    }
+
     protected static function policyCanCreateFundings($self): array {
         $result = [];
         $self->read([
@@ -438,15 +474,11 @@ class MiscOperation extends Model {
             }
             */
 
-            $condominiumBankAccount = CondominiumBankAccount::search([
-                    ['condo_id', '=', $miscOperation['condo_id']],
-                    ['is_primary', '=', true]
-                ])
-                ->first();
+            $condominiumBankAccount = self::computeFundingBankAccount($miscOperation['condo_id']);
 
             if(!$condominiumBankAccount) {
                 $result[$id] = [
-                    'missing_bank_account' => 'A primary condominium bank account is required.'
+                    'missing_bank_account' => 'A primary condominium bank account is required; failing that, exactly one current account, or exactly one third-party account when no current account exists.'
                 ];
                 continue;
             }
@@ -1075,11 +1107,7 @@ class MiscOperation extends Model {
         foreach($self as $id => $miscOperation) {
             $operationFunding = null;
 
-            $condominiumBankAccount = CondominiumBankAccount::search([
-                    ['condo_id', '=', $miscOperation['condo_id']],
-                    ['is_primary', '=', true]
-                ])
-                ->first();
+            $condominiumBankAccount = self::computeFundingBankAccount($miscOperation['condo_id']);
 
             if(!$condominiumBankAccount) {
                 throw new \Exception('missing_bank_account', EQ_ERROR_INVALID_CONFIG);

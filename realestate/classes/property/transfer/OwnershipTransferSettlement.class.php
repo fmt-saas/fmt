@@ -1002,7 +1002,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 ++$line_count;
             }
 
-            // #important - `write()` is required for these internally generated readonly fields.
+            // #important #lifecycle - `write()` is required for these internally generated readonly fields.
             // `update()` would silently discard them; no lifecycle callback is expected here.
             $source_count = count($line_groups);
             self::id($id)->write([
@@ -1152,7 +1152,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 $exporting_task_id = $exportingTask['id'];
             }
 
-            // #important - `write()` is required for these internally managed readonly fields.
+            // #important #lifecycle - `write()` is required for these internally managed readonly fields.
             // `update()` would silently discard them; no lifecycle callback is expected here.
             self::id($id)->write([
                 'correspondences_dispatch_started_at' => time(),
@@ -1175,7 +1175,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 MiscOperation::id($wrapper['misc_operation_id'])->transition('post');
             }
 
-            // #important - `write()` is required for the workflow-managed readonly timestamp.
+            // #important #lifecycle - `write()` is required for the workflow-managed readonly timestamp.
             // `update()` would silently discard it; no lifecycle callback is expected here.
             self::id($id)
                 ->write(['validated_at' => time()])
@@ -1269,7 +1269,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                             $miscOperation['status'] === 'posted'
                             || count($miscOperation['misc_operation_lines_ids'])
                         ) {
-                            // #important - `write()` is required for the internally assigned readonly relation.
+                            // #important #lifecycle - `write()` is required for the internally assigned readonly relation.
                             // `update()` would silently discard it; assign the whole group in a single write.
                             OwnershipTransferSettlementLine::ids(array_keys($group['lines']))
                                 ->write(['operation_id' => $wrapper['id']]);
@@ -1370,7 +1370,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     }
                 }
 
-                // #important - `write()` is required for the internally assigned readonly relation.
+                // #important #lifecycle - `write()` is required for the internally assigned readonly relation.
                 // `update()` would silently discard it; assign the whole group in a single write.
                 OwnershipTransferSettlementLine::ids(array_keys($group['lines']))
                     ->write(['operation_id' => $wrapper['id']]);
@@ -1391,7 +1391,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             );
             $logs = trim(implode(PHP_EOL, array_filter([$settlement['logs'], $log])));
 
-            // #important - `write()` is required for these internally generated readonly fields.
+            // #important #lifecycle - `write()` is required for these internally generated readonly fields.
             // `update()` would silently discard them; no lifecycle callback is expected here.
             self::id($id)->write([
                 'seller_net_amount' => round($settlement_total, 2),
@@ -1415,7 +1415,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     ->update(['is_sent' => true]);
             }
 
-            // #important - `write()` is required for the workflow-managed readonly timestamp.
+            // #important #lifecycle - `write()` is required for the workflow-managed readonly timestamp.
             // `update()` would silently discard it; no lifecycle callback is expected here.
             self::id($id)->write(['closed_at' => time()]);
         }
