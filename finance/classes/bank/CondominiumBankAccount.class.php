@@ -368,7 +368,7 @@ class CondominiumBankAccount extends BankAccount {
                     [
                         ['condo_id', '=', $bankAccount['condo_id']],
                         ['status', '<>', 'balanced'],
-                        ['is_sent', '=', 'true'],
+                        ['is_generated', '=', true],
                         ['funding_type', '<>', 'transfer'],
                         ['due_amount', '<', 0.0],
                         ['bank_account_id', '=', $id]
@@ -376,7 +376,7 @@ class CondominiumBankAccount extends BankAccount {
                     [
                         ['condo_id', '=', $bankAccount['condo_id']],
                         ['status', '<>', 'balanced'],
-                        ['is_sent', '=', 'true'],
+                        ['is_generated', '=', true],
                         ['funding_type', '=', 'transfer'],
                         ['bank_account_id', '=', $id]
                     ]
