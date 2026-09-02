@@ -212,6 +212,7 @@ $ownershipTransfer = OwnershipTransfer::id($params['id'])
         'request_contact_email',
         'request_notary_office_id',
         'request_date',
+        'confirmation_date',
         'confirmation_notary_office_id',
         'with_additional_info_1',
         'with_additional_info_2',

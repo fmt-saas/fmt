@@ -159,7 +159,11 @@
 
 
         <p>
-            {{ labels['introduction.request_received'] | format(request_date | date(date_format, timezone)) }}
+            {% if status in ['pending', 'open', 'seller_documents_sent'] or with_both_paragraphs == true %}
+                {{ labels['introduction.request_received'] | format(request_date | date(date_format, timezone)) }}
+            {% else  %}
+                {{ labels['introduction.request_received'] | format(confirmation_date | date(date_format, timezone)) }}
+            {% endif %}
         </p>
 
 

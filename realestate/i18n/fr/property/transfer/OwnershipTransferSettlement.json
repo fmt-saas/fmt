@@ -108,6 +108,7 @@
             "misc_operation_not_proforma": "L'opération diverse n'a pas pu être préparée en pro forma.",
             "misc_operations_not_proforma": "Toutes les opérations diverses générées doivent être en pro forma pour régénérer les lignes ou valider la régularisation.",
             "misc_operation_not_posted": "L'opération diverse n'a pas pu être comptabilisée.",
+            "property_lots_transfer_not_allowed": "Les lots ne peuvent être transférés que lorsque la régularisation est validée.",
             "settlement_not_validated": "Les correspondances ne peuvent être émises qu'après la validation comptable.",
             "correspondences_already_dispatched": "L'émission des correspondances a déjà été planifiée.",
             "missing_correspondence_recipient": "Une correspondance ne possède aucun destinataire.",
