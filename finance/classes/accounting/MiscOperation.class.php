@@ -291,7 +291,7 @@ class MiscOperation extends Model {
                 'transitions' => [
                     'post' => [
                         'description' => 'Create accounting entries and update the document to `posted`.',
-                        'policies'    => ['is_valid', 'can_generate_accounting_entry', 'can_generate_opening_balance', 'can_create_fundings'],
+                        'policies'    => ['is_valid', 'can_generate_accounting_entry', 'can_generate_opening_balance', 'has_bank_account'],
                         'onbefore'    => 'onbeforePost',
                         'status'      => 'posted'
                     ],
@@ -345,6 +345,10 @@ class MiscOperation extends Model {
             'can_create_fundings' => [
                 'description' => 'Verifies that fundings can be generated from the misc operation.',
                 'function'    => 'policyCanCreateFundings'
+            ],
+            'has_bank_account' => [
+                'description' => 'Verifies that fundings can be generated from the misc operation.',
+                'function'    => 'policyHasBankAccount'
             ]
         ];
     }
@@ -530,6 +534,36 @@ class MiscOperation extends Model {
                     break;
                 }
             }
+        }
+        return $result;
+    }
+
+    protected static function policyHasBankAccount($self): array {
+        $result = [];
+        $self->read([
+                'status',
+                'condo_id',
+                'fundings_ids' => ['id'],
+            ]);
+
+        foreach($self as $id => $miscOperation) {
+
+            if(!$miscOperation['condo_id']) {
+                $result[$id] = [
+                    'missing_condominium' => 'The target condominium must be specified.'
+                ];
+                continue;
+            }
+
+            $condominiumBankAccount = self::computeFundingBankAccount($miscOperation['condo_id']);
+
+            if(!$condominiumBankAccount) {
+                $result[$id] = [
+                    'missing_bank_account' => 'A primary condominium bank account is required; failing that, exactly one current account, or exactly one third-party account when no current account exists.'
+                ];
+                continue;
+            }
+
         }
         return $result;
     }
