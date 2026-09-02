@@ -1018,8 +1018,8 @@ class FiscalYear extends Model {
      * Upon creation of a fiscal year (onafterOpen), it is necessary to create sequences for:
      * - sale operations:      finance.accounting.operation.sequence.{fiscal_year_code}.{fiscal_period_code}.SAL                    [condo_id]
      * - purchase operations:  finance.accounting.operation.sequence.{fiscal_year_code}.{fiscal_period_code}.PUR                    [condo_id]
-     * - misc operations:      finance.accounting.operation.sequence.{fiscal_year_code}.{fiscal_period_code}.MSC                    [condo_id]
-     * - accounting entries:   finance.accounting.accounting_entry.sequence.{fiscal_year_code}.{fiscal_period_code}.{journal_code} [condo_id]
+     * - misc/opening operations: finance.accounting.operation.sequence.{fiscal_year_code}.{fiscal_period_code}.{journal_code}      [condo_id]
+     * - accounting entries:   finance.accounting.accounting_entry.sequence.{fiscal_year_code}.{fiscal_period_code}.{journal_code}  [condo_id]
      */
     public static function doGenerateSequences($self) {
         $self->read(['condo_id', 'code', 'fiscal_periods_ids' => ['code']]);
@@ -1027,7 +1027,7 @@ class FiscalYear extends Model {
             $fiscal_year_code = $fiscalYear['code'];
 
             $journals = Journal::search([['journal_type', '<>', 'LEDG'], ['condo_id', '=', $fiscalYear['condo_id']]])
-                ->read(['code', 'sub_journals_ids' => ['code'] ]);
+                ->read(['code', 'journal_type', 'sub_journals_ids' => ['code'] ]);
 
             // init mandatory sequences
             foreach($fiscalYear['fiscal_periods_ids'] as $period_id => $fiscalPeriod) {
@@ -1039,12 +1039,14 @@ class FiscalYear extends Model {
                 // purchase operations
                 Setting::assert_sequence('finance', 'accounting', "operation.sequence.{$fiscal_year_code}.{$fiscal_period_code}.PUR", 1, ['condo_id' => $fiscalYear['condo_id']]);
 
-                // misc operations
-                Setting::assert_sequence('finance', 'accounting', "operation.sequence.{$fiscal_year_code}.{$fiscal_period_code}.MSC", 1, ['condo_id' => $fiscalYear['condo_id']]);
-
                 // create sequences depending on journals
                 foreach($journals as $journal) {
                     $journal_code = $journal['code'];
+
+                    // misc and opening operations
+                    if(in_array($journal['journal_type'], ['MISC', 'OPEN'], true)) {
+                        Setting::assert_sequence('finance', 'accounting', "operation.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}", 1, ['condo_id' => $fiscalYear['condo_id']]);
+                    }
 
                     // accounting entries
                     Setting::assert_sequence('finance', 'accounting', "accounting_entry.sequence.{$fiscal_year_code}.{$fiscal_period_code}.{$journal_code}", 1, ['condo_id' => $fiscalYear['condo_id']]);
