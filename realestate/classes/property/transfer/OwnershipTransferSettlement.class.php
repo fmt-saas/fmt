@@ -1184,6 +1184,18 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     continue;
                 }
 
+                // The calculation keeps full precision until the cent allocation is balanced,
+                // but settlement line amount fields accept at most four decimal places.
+                foreach([
+                    'actual_seller_amount',
+                    'actual_buyer_amount',
+                    'theoretical_seller_amount',
+                    'theoretical_buyer_amount',
+                    'calculated_amount'
+                ] as $amount_field) {
+                    $line[$amount_field] = round((float) $line[$amount_field], 4);
+                }
+
                 $line['settlement_id'] = $id;
                 OwnershipTransferSettlementLine::create($line);
                 $total += $line['applied_amount'];

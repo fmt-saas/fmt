@@ -47,7 +47,7 @@
             "description": "Détail du calcul et de la décision appliquée à un mouvement.",
             "layout": {
                 "section.source": {"label": "Source et lot"},
-                "section.period": {"label": "Période économique"},
+                "section.period": {"label": "Période"},
                 "section.amounts": {"label": "Montants calculés"},
                 "section.accounting": {"label": "Comptabilisation"}
             }

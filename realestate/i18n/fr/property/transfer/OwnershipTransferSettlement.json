@@ -84,7 +84,7 @@
             "missing_working_fund_apportionment": "Le fonds de roulement doit être lié à une clé de répartition.",
             "missing_working_fund_shares": "La clé de répartition du fonds de roulement doit avoir un total de quotes-parts.",
             "missing_property_lot_share": "Chaque lot transféré doit avoir une quote-part dans la clé du fonds de roulement.",
-            "invalid_fund_request_period": "Une exécution comptabilisée d'appel de fonds possède une période économique invalide.",
+            "invalid_fund_request_period": "Une exécution comptabilisée d'appel de fonds possède une période invalide.",
             "missing_settlement_lines": "Les lignes de régularisation doivent être générées avant les OD.",
             "missing_applied_amounts": "Au moins une ligne doit avoir un montant retenu non nul.",
             "missing_accounting_date": "La date comptable est obligatoire.",
