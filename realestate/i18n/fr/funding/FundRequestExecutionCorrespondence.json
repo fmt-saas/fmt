@@ -1,0 +1,98 @@
+{
+    "name": "Courrier d'appel de fonds",
+    "plural": "Courriers d'appel de fonds",
+    "description": "Envoi individuel d'un appel de fonds à un copropriétaire.",
+    "model": {
+        "name": {
+            "label": "Libellé",
+            "description": "Libellé du courrier d'appel de fonds.",
+            "help": ""
+        },
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle le courrier est rattaché.",
+            "help": ""
+        },
+        "owner_id": {
+            "label": "Propriétaire",
+            "description": "Propriétaire destinataire de l'appel de fonds.",
+            "help": ""
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Dossier de propriété concerné par l'appel de fonds.",
+            "help": ""
+        },
+        "document_id": {
+            "label": "Document",
+            "description": "Document PDF de l'appel de fonds, le cas échéant.",
+            "help": ""
+        },
+        "has_document": {
+            "label": "Document généré",
+            "description": "Indique si le document de l'appel de fonds a été généré.",
+            "help": ""
+        },
+        "fund_request_execution_id": {
+            "label": "Exécution de l'appel de fonds",
+            "description": "Exécution de l'appel de fonds à laquelle le courrier se rapporte.",
+            "help": ""
+        },
+        "mails_ids": {
+            "label": "Emails",
+            "description": "Messages email associés au courrier d'appel de fonds.",
+            "help": "Une seule correspondance email est attendue."
+        },
+        "sent_date": {
+            "label": "Date d'envoi",
+            "description": "Date d'envoi initial de l'appel de fonds.",
+            "help": ""
+        },
+        "communication_method": {
+            "label": "Mode de communication",
+            "description": "Canal utilisé pour l'envoi de l'appel de fonds.",
+            "help": "",
+            "selection": {
+                "email": "Email",
+                "postal": "Courrier postal",
+                "postal_registered": "Courrier recommandé",
+                "postal_registered_receipt": "Courrier recommandé avec accusé"
+            }
+        },
+        "is_sent": {
+            "label": "Envoyé",
+            "description": "Indique si l'appel de fonds a été envoyé.",
+            "help": ""
+        },
+        "is_acknowledged": {
+            "label": "Accusé de réception",
+            "description": "Indique si le destinataire a accusé réception.",
+            "help": ""
+        },
+        "email_address": {
+            "label": "Adresse e-mail",
+            "description": "Adresse e-mail du propriétaire.",
+            "help": "Récupérée automatiquement depuis les coordonnées du propriétaire."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Courrier d'appel de fonds",
+            "description": "Détail d'un courrier d'appel de fonds.",
+            "layout": {
+                "route.mails": {
+                    "label": "Email"
+                }
+            }
+        },
+        "list.default": {
+            "name": "Courriers d'appel de fonds",
+            "description": "Suivi des appels de fonds envoyés aux copropriétaires.",
+            "layout": {}
+        }
+    },
+    "error": {
+        "correspondence_already_sent": "Cet appel de fonds a déjà été envoyé.",
+        "email_not_queued": "L'e-mail contenant l'appel de fonds n'a pas pu être mis en file."
+    }
+}

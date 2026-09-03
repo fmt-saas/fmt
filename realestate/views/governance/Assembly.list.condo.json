@@ -3,6 +3,7 @@
     "description": "Overview of scheduled assemblies and their status.",
     "header": {
         "layout": "inline",
+        "selection": false,
         "actions": false
     },
     "order": "assembly_date",

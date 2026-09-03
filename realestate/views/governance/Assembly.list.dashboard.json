@@ -3,13 +3,14 @@
     "description": "Overview of scheduled assemblies and their status.",
     "header": {
         "layout": "inline",
+        "selection": false,
         "actions": false,
         "exports": false,
         "advanced_search": false
     },
     "order": "assembly_date",
     "sort": "desc",
-    "domain": ["status", "not in", ["pending"]],
+    "domain": ["status", "not in", ["pending", "published"]],
     "on_empty": {
         "message": "Aucune assemblée générale planifiée."
     },

@@ -2,6 +2,7 @@
     "name": "Exporting Task",
     "header": {
         "layout": "inline",
+        "selection": false,
         "actions": {
             "ACTION.CREATE" : false,
             "ACTION.EDIT" : false

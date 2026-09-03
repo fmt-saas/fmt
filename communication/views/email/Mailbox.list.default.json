@@ -60,6 +60,16 @@
             },
             {
                 "type": "field",
+                "value": "can_send",
+                "width": "10%"
+            },
+            {
+                "type": "field",
+                "value": "can_receive",
+                "width": "10%"
+            },
+            {
+                "type": "field",
                 "value": "status",
                 "width": "15%"
             }

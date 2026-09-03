@@ -5,7 +5,14 @@
         "selection": {
             "actions": [
                 {"id": "ACTION.EDIT_INLINE", "visible": false},
+                {"id": "ACTION.DELETE", "visible": false},
                 {"id": "ACTION.CLONE", "visible": false},
+                {
+                    "id": "action.remove",
+                    "label": "Remove Assembly",
+                    "icon": "delete",
+                    "controller": "realestate_governance_Assembly_delete"
+                },
                 {
                     "id": "action.duplicate",
                     "label": "Clone Assembly",
