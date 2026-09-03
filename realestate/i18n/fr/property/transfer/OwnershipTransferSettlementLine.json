@@ -13,7 +13,7 @@
             "help": "Distingue les fonds de roulement, provisions, appels postérieurs et décomptes.",
             "selection": {
                 "working_fund_transfer": "Transfert de fonds de roulement",
-                "current_period_provision": "Provision de la période en cours",
+                "current_period_provision": "Provision de la période en cours (protata)",
                 "post_transfer_call": "Appel postérieur à la mutation",
                 "expense_statement_adjustment": "Correction de décompte"
             }

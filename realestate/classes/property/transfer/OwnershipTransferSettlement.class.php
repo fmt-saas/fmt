@@ -308,7 +308,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'function'    => 'policyCanGenerateLines'
             ],
             'can_generate_operations' => [
-                'description' => 'Checks that settlement lines can be prepared as proforma operations on the selected accounting date.',
+                'description' => 'Checks that settlement lines can be prepared as proforma operations on their required posting dates.',
                 'function'    => 'policyCanGenerateOperations'
             ],
             'can_validate' => [
@@ -460,11 +460,13 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'condo_id',
             'seller_ownership_id',
             'buyer_ownership_id',
+            'transfer_date',
             'accounting_date',
             'lines_ids' => [
+                'correction_type',
                 'source_type',
                 'condo_fund_id'             => ['name'],
-                'fund_request_execution_id' => ['name'],
+                'fund_request_execution_id' => ['name', 'posting_date'],
                 'expense_statement_id'      => ['name'],
                 'property_lot_id'            => ['name'],
                 'applied_amount'
@@ -523,36 +525,49 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 continue;
             }
 
-            if(!$settlement['accounting_date']) {
-                $result[$id] = ['missing_accounting_date' => 'The accounting date is mandatory.'];
+            $posting_dates = [];
+            foreach($groups_to_create as $group) {
+                $posting_date = self::resolveOperationPostingDate($settlement, $group);
+                if(!$posting_date) {
+                    $result[$id] = ['missing_accounting_date' => 'A posting date is mandatory for every accounting operation.'];
+                    break;
+                }
+                $posting_dates[$posting_date] = true;
+            }
+            if(isset($result[$id])) {
                 continue;
             }
 
-            if((int) $settlement['accounting_date'] >= strtotime('tomorrow midnight')) {
-                $result[$id] = ['future_accounting_date' => 'The accounting date cannot be in the future.'];
-                continue;
+            foreach(array_keys($posting_dates) as $posting_date) {
+                if($posting_date >= strtotime('tomorrow midnight')) {
+                    $result[$id] = ['future_accounting_date' => 'An accounting operation posting date cannot be in the future.'];
+                    break;
+                }
+
+                $fiscalPeriod = FiscalPeriod::search([
+                        ['condo_id', '=', $settlement['condo_id']],
+                        ['date_from', '<=', $posting_date],
+                        ['date_to', '>=', $posting_date]
+                    ])
+                    ->read(['status', 'fiscal_year_status'])
+                    ->first();
+
+                if(!$fiscalPeriod) {
+                    $result[$id] = ['missing_accounting_period' => 'No fiscal period covers an accounting operation posting date.'];
+                    break;
+                }
+
+                if(!in_array($fiscalPeriod['status'], ['open', 'preclosed'], true)) {
+                    $result[$id] = ['invalid_accounting_period' => 'Every accounting operation period must be open or preclosed.'];
+                    break;
+                }
+
+                if(!in_array($fiscalPeriod['fiscal_year_status'], ['preopen', 'open', 'preclosed'], true)) {
+                    $result[$id] = ['invalid_accounting_fiscal_year' => 'Every accounting operation fiscal year must allow accounting operations.'];
+                    break;
+                }
             }
-
-            $fiscalPeriod = FiscalPeriod::search([
-                    ['condo_id', '=', $settlement['condo_id']],
-                    ['date_from', '<=', $settlement['accounting_date']],
-                    ['date_to', '>=', $settlement['accounting_date']]
-                ])
-                ->read(['status', 'fiscal_year_status'])
-                ->first();
-
-            if(!$fiscalPeriod) {
-                $result[$id] = ['missing_accounting_period' => 'No fiscal period covers the accounting date.'];
-                continue;
-            }
-
-            if(!in_array($fiscalPeriod['status'], ['open', 'preclosed'], true)) {
-                $result[$id] = ['invalid_accounting_period' => 'The accounting period must be open or preclosed.'];
-                continue;
-            }
-
-            if(!in_array($fiscalPeriod['fiscal_year_status'], ['preopen', 'open', 'preclosed'], true)) {
-                $result[$id] = ['invalid_accounting_fiscal_year' => 'The fiscal year does not allow accounting operations.'];
+            if(isset($result[$id])) {
                 continue;
             }
 
@@ -1551,9 +1566,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'accounting_date',
             'logs',
             'lines_ids' => [
+                'correction_type',
                 'source_type',
                 'condo_fund_id'             => ['name'],
-                'fund_request_execution_id' => ['name'],
+                'fund_request_execution_id' => ['name', 'posting_date'],
                 'expense_statement_id'      => ['name'],
                 'property_lot_id'           => ['name'],
                 'applied_amount'
@@ -1575,6 +1591,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             foreach($groups as $group) {
                 $group_amount = round($group['amount'], 2);
                 $settlement_total += $group_amount;
+                $posting_date = self::resolveOperationPostingDate($settlement, $group);
                 $wrapper = OwnershipTransferSettlementOperation::search([
                         ['settlement_id', '=', $id],
                         ['operation_key', '=', $group['operation_key']]
@@ -1600,7 +1617,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
 
                     if(in_array($miscOperation['status'], ['proforma', 'posted'], true)) {
                         if(
-                            (int) $miscOperation['posting_date'] !== (int) $settlement['accounting_date']
+                            (int) $miscOperation['posting_date'] !== $posting_date
                             || (
                                 (
                                     $miscOperation['status'] === 'posted'
@@ -1670,7 +1687,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                             'condo_id'      => $settlement['condo_id'],
                             'description'   => $description,
                             'operation_type'=> 'transfer',
-                            'posting_date'  => $settlement['accounting_date'],
+                            'posting_date'  => $posting_date,
                             'journal_id'    => $journal['id']
                         ])
                         ->first();
@@ -1842,10 +1859,12 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             if(!isset($groups[$operation_key])) {
                 $groups[$operation_key] = [
                     'operation_key'        => $operation_key,
+                    'correction_type'      => $line['correction_type'],
                     'source_type'          => $line['source_type'],
                     'source_field'         => $source_field,
                     'source_id'            => $source_id,
                     'source_name'          => $source_name,
+                    'source_posting_date'  => $line['fund_request_execution_id']['posting_date'] ?? null,
                     'operation_assignment' => $operation_assignment,
                     'amount'               => 0.0,
                     'lines'                => []
@@ -1870,6 +1889,21 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
         unset($group);
 
         return $groups;
+    }
+
+    private static function resolveOperationPostingDate(array $settlement, array $group): int {
+        switch($group['correction_type']) {
+            case 'working_fund_transfer':
+            case 'current_period_provision':
+                return (int) ($settlement['transfer_date'] ?? 0);
+
+            case 'post_transfer_call':
+                return (int) ($group['source_posting_date'] ?? 0);
+
+            case 'expense_statement_adjustment':
+            default:
+                return (int) ($settlement['accounting_date'] ?? 0);
+        }
     }
 
     private static function computeOwnershipAccountId(int $condo_id, int $ownership_id, string $operation_assignment): int {
