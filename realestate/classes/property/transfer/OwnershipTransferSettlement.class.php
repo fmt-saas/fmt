@@ -1689,11 +1689,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 ];
 
                 $description = sprintf(
-                    'Régularisation %s[%s]',
+                    'Transfert %s',
                     isset($correction_labels[$group['correction_type']])
                         ? sprintf(' - %s', $correction_labels[$group['correction_type']])
-                        : '',
-                    $group['source_name']
+                        : ''
                 );
                 if(!$wrapper) {
                     $miscOperation = MiscOperation::create([
@@ -1725,24 +1724,27 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     $is_seller_credit = (float) $line['applied_amount'] > 0.0;
                     $line_description = sprintf('%s - suite mutation lot %s', $description, $line['property_lot_name']);
 
+                    // MiscOperationLine::oncreate() copies the parent operation description.
+                    // Reapply the line-specific description after the creation hook has run.
                     MiscOperationLine::create([
-                        'condo_id'          => $settlement['condo_id'],
-                        'misc_operation_id' => $misc_operation_id,
-                        'account_id'        => $seller_account_id,
-                        'property_lot_id'   => $line['property_lot_id'],
-                        'description'       => $line_description,
-                        'debit'             => $is_seller_credit ? 0.0 : $amount,
-                        'credit'            => $is_seller_credit ? $amount : 0.0
-                    ]);
+                            'condo_id'          => $settlement['condo_id'],
+                            'misc_operation_id' => $misc_operation_id,
+                            'account_id'        => $seller_account_id,
+                            'property_lot_id'   => $line['property_lot_id'],
+
+                            'debit'             => $is_seller_credit ? 0.0 : $amount,
+                            'credit'            => $is_seller_credit ? $amount : 0.0
+                        ])
+                        ->update(['description' => $line_description]);
                     MiscOperationLine::create([
-                        'condo_id'          => $settlement['condo_id'],
-                        'misc_operation_id' => $misc_operation_id,
-                        'account_id'        => $buyer_account_id,
-                        'property_lot_id'   => $line['property_lot_id'],
-                        'description'       => $line_description,
-                        'debit'             => $is_seller_credit ? $amount : 0.0,
-                        'credit'            => $is_seller_credit ? 0.0 : $amount
-                    ]);
+                            'condo_id'          => $settlement['condo_id'],
+                            'misc_operation_id' => $misc_operation_id,
+                            'account_id'        => $buyer_account_id,
+                            'property_lot_id'   => $line['property_lot_id'],
+                            'debit'             => $is_seller_credit ? $amount : 0.0,
+                            'credit'            => $is_seller_credit ? 0.0 : $amount
+                        ])
+                        ->update(['description' => $line_description]);
                 }
 
                 if($is_new_operation) {
