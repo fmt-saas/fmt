@@ -3,6 +3,7 @@
     "description": "Track invitations sent to participants for an assembly.",
     "header": {
         "layout": "inline",
+        "selection": false,
         "actions": false
     },
     "layout": {

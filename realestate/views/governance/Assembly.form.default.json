@@ -1251,6 +1251,7 @@
                                                 "type": "field",
                                                 "value": "assembly_invitation_correspondences_ids",
                                                 "width": "100%",
+                                                "readonly": true,
                                                 "widget": {
                                                     "view": "list.assembly",
                                                     "domain": ["communication_method", "=", "email"]
