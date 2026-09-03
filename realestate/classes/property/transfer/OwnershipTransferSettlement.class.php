@@ -465,7 +465,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'lines_ids' => [
                 'correction_type',
                 'source_type',
-                'condo_fund_id'             => ['name'],
+                'condo_fund_id'             => ['name', 'fund_account_id'],
                 'fund_request_execution_id' => ['name', 'description', 'posting_date'],
                 'expense_statement_id'      => ['name'],
                 'property_lot_id'           => ['name', 'property_lot_ref'],
@@ -604,6 +604,14 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             }
 
             foreach($groups_to_create as $group) {
+                if(
+                    $group['correction_type'] === 'working_fund_transfer'
+                    && !$group['source_account_id']
+                ) {
+                    $result[$id] = ['missing_working_fund_account' => 'The working fund accounting account is missing.'];
+                    break;
+                }
+
                 try {
                     self::computeOwnershipAccountId(
                         $settlement['condo_id'],
@@ -1578,7 +1586,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'lines_ids' => [
                 'correction_type',
                 'source_type',
-                'condo_fund_id'             => ['name'],
+                'condo_fund_id'             => ['name', 'fund_account_id'],
                 'fund_request_execution_id' => ['name', 'description', 'posting_date'],
                 'expense_statement_id'      => ['name'],
                 'property_lot_id'           => ['name', 'property_lot_ref'],
@@ -1736,6 +1744,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                             'credit'            => $is_seller_credit ? $amount : 0.0
                         ])
                         ->update(['description' => $line_description]);
+
                     MiscOperationLine::create([
                             'condo_id'          => $settlement['condo_id'],
                             'misc_operation_id' => $misc_operation_id,
@@ -1745,6 +1754,32 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                             'credit'            => $is_seller_credit ? 0.0 : $amount
                         ])
                         ->update(['description' => $line_description]);
+
+                    if($group['correction_type'] === 'working_fund_transfer') {
+                        // Mirror the transfer on the working fund account so its
+                        // ownership allocation remains visible without changing its balance.
+                        MiscOperationLine::create([
+                                'condo_id'          => $settlement['condo_id'],
+                                'misc_operation_id' => $misc_operation_id,
+                                'account_id'        => $group['source_account_id'],
+                                'ownership_id'      => $settlement['seller_ownership_id'],
+                                'property_lot_id'   => $line['property_lot_id'],
+                                'debit'             => $amount,
+                                'credit'            => 0.0
+                            ])
+                            ->update(['description' => $line_description]);
+
+                        MiscOperationLine::create([
+                                'condo_id'          => $settlement['condo_id'],
+                                'misc_operation_id' => $misc_operation_id,
+                                'account_id'        => $group['source_account_id'],
+                                'ownership_id'      => $settlement['buyer_ownership_id'],
+                                'property_lot_id'   => $line['property_lot_id'],
+                                'debit'             => 0.0,
+                                'credit'            => $amount
+                            ])
+                            ->update(['description' => $line_description]);
+                    }
                 }
 
                 if($is_new_operation) {
@@ -1841,6 +1876,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 case 'working_fund':
                     $source_id = (int) ($line['condo_fund_id']['id'] ?? 0);
                     $source_name = $line['condo_fund_id']['name'] ?? '';
+                    $source_account_id = (int) ($line['condo_fund_id']['fund_account_id'] ?? 0);
                     $source_field = 'condo_fund_id';
                     $operation_assignment = 'co_owners_owner_working_fund';
                     break;
@@ -1848,6 +1884,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 case 'fund_request_execution':
                     $source_id = (int) ($line['fund_request_execution_id']['id'] ?? 0);
                     $source_name = $line['fund_request_execution_id']['name'] ?? '';
+                    $source_account_id = 0;
                     $source_field = 'fund_request_execution_id';
                     if(!$source_id || !isset($request_types[$source_id])) {
                         throw new \Exception('missing_fund_request_execution_source', EQ_ERROR_INVALID_CONFIG);
@@ -1858,6 +1895,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 case 'expense_statement':
                     $source_id = (int) ($line['expense_statement_id']['id'] ?? 0);
                     $source_name = $line['expense_statement_id']['name'] ?? '';
+                    $source_account_id = 0;
                     $source_field = 'expense_statement_id';
                     $operation_assignment = 'co_owners_owner_working_fund';
                     break;
@@ -1878,6 +1916,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     'source_type'          => $line['source_type'],
                     'source_field'         => $source_field,
                     'source_id'            => $source_id,
+                    'source_account_id'    => $source_account_id,
                     'source_name'          => $source_name,
                     'source_description'   => $line['fund_request_execution_id']['description'] ?? '',
                     'source_posting_date'  => $line['fund_request_execution_id']['posting_date'] ?? null,
