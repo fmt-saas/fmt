@@ -468,7 +468,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'condo_fund_id'             => ['name'],
                 'fund_request_execution_id' => ['name', 'posting_date'],
                 'expense_statement_id'      => ['name'],
-                'property_lot_id'            => ['name'],
+                'property_lot_id'           => ['name', 'property_lot_ref'],
                 'applied_amount'
             ]
         ]);
@@ -1682,9 +1682,17 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     $group['operation_assignment']
                 );
 
+                $correction_labels = [
+                    'working_fund_transfer'     => 'Fonds de roulement',
+                    'post_transfer_call'        => 'Appel postérieur',
+                    'current_period_provision'  => 'Provision (prorata)'
+                ];
+
                 $description = sprintf(
-                    'Régularisation de mutation (%s) - %s',
-                    date('d/m/Y', $settlement['transfer_date']),
+                    'Régularisation %s[%s]',
+                    isset($correction_labels[$group['correction_type']])
+                        ? sprintf(' - %s', $correction_labels[$group['correction_type']])
+                        : '',
                     $group['source_name']
                 );
                 if(!$wrapper) {
@@ -1715,7 +1723,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 foreach($group['lines'] as $line_id => $line) {
                     $amount = round(abs((float) $line['applied_amount']), 2);
                     $is_seller_credit = (float) $line['applied_amount'] > 0.0;
-                    $line_description = sprintf('%s - lot %s', $description, $line['property_lot_name']);
+                    $line_description = sprintf('%s - suite mutation lot %s', $description, $line['property_lot_name']);
 
                     MiscOperationLine::create([
                         'condo_id'          => $settlement['condo_id'],
