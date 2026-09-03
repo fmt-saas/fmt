@@ -490,11 +490,11 @@
                 "selection": {
                     "actions": {
                         "action.duplicate": {
-                            "label": "Dupliquer l'assemblée",
+                            "label": "Dupliquer",
                             "description": "Créer une nouvelle assemblée en copiant la sélection."
                         },
                         "action.remove": {
-                            "label": "Supprimer l'assemblée",
+                            "label": "Supprimer",
                             "description": "Supprimer les assemblées de la sélection."
                         }
                     }

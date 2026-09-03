@@ -265,8 +265,12 @@ $supplierBic        = $getValue($getEntity('supplier_bic')) ?? $computeBicFromIb
 $supplierPaymentRef = $getValue($getEntity('supplier_payment_ref'), '');
 $supplierAddress    = $extractAddress($getValue($getEntity('supplier_address')), $localeCountry);
 $currency           = $getValue($getEntity('currency'), 'EUR');
-$customerName       = str_replace("\n", ' ', $getValue($getEntity('customer_name'), ''));
-$customerAddress    = $extractAddress($getValue($getEntity('customer_address')), $localeCountry);
+// $customerName       = str_replace("\n", ' ', $getValue($getEntity('customer_name'), ''));
+$customerName       = str_replace("\n", ' ', $getValue($getEntity('receiver_name'), ''));
+// $customerAddress    = $extractAddress($getValue($getEntity('customer_address')), $localeCountry);
+$customer_address   = $getValue($getEntity('ship_to_address')) ?? $getValue($getEntity('receiver_address')) ?? $getValue($getEntity('customer_address'));
+$customerAddress    = $extractAddress($customer_address, $localeCountry);
+$customerNumber     = $getValue($getEntity('customer_number'));
 
 /**
  * Extract line items
@@ -326,7 +330,7 @@ $paymentMeansCode = null;
 $paymentMethod = null;
 
 $paymentTerms = $getEntity('payment_terms');
-if ($paymentTerms && isset($paymentTerms['properties'])) {
+if($paymentTerms && isset($paymentTerms['properties'])) {
     foreach ($paymentTerms['properties'] as $prop) {
         switch ($prop['type']) {
             case 'payment_means_code':
@@ -344,11 +348,11 @@ if ($paymentTerms && isset($paymentTerms['properties'])) {
  * - 1) si le code est absent mais qu'on a payment_method → on mappe (virement/dom/sepa/carte…)
  * - 2) sinon on tente depuis le texte libre de payment_terms
  */
-if (!$paymentMeansCode && $paymentMethod) {
+if(!$paymentMeansCode && $paymentMethod) {
     $paymentMeansCode = $mapPaymentTextToCode($paymentMethod);
 }
 
-if (!$paymentMeansCode && $paymentTerms) {
+if(!$paymentMeansCode && $paymentTerms) {
     $paymentMeansCode = $mapPaymentTextToCode($getValue($paymentTerms));
 }
 
@@ -370,9 +374,10 @@ $output = [
         'address' => $supplierAddress,
     ],
     'customer' => [
-        'name'    => $customerName,
-        'vat_id'  => $extractVat($getValue($getEntity('receiver_tax_id'))),
-        'address' => $customerAddress,
+        'name'              => $customerName,
+        'vat_id'            => $extractVat($getValue($getEntity('receiver_tax_id'))),
+        'address'           => $customerAddress,
+        'customer_number'   => $customerNumber
     ],
     'lines' => $lines,
     'totals' => [
