@@ -165,7 +165,16 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'rel_local_key'     => 'transfer_id',
                 'description'       => 'Property Lots that are part of the ownership transfer.',
                 'domain'            => [
-                    ['condo_id', '=', 'object.condo_id'], ['active_ownership_id', '=', 'object.old_ownership_id']
+                    [
+                        ['condo_id', '=', 'object.condo_id'],
+                        ['active_ownership_id', '<>', null],
+                        ['active_ownership_id', '=', 'object.old_ownership_id']
+                    ],
+                    [
+                        ['condo_id', '=', 'object.condo_id'],
+                        ['active_ownership_id', '<>', null],
+                        ['active_ownership_id', '=', 'object.new_ownership_id']
+                    ]
                 ]
             ],
 
