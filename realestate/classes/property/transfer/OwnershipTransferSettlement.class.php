@@ -18,6 +18,7 @@ use finance\bank\CondominiumBankAccount;
 use realestate\finance\accounting\CondoFund;
 use realestate\funding\ExpenseStatement;
 use realestate\funding\ExpenseStatementOwnerLine;
+use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestExecutionLineEntry;
 use realestate\ownership\Ownership;
@@ -1571,6 +1572,14 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 Ownership::id($settlement['seller_ownership_id'])
                     ->update(['date_to' => $old_date_to]);
             }
+
+            FundRequest::search([
+                    ['condo_id', '=', $settlement['condo_id']],
+                    ['status', '=', 'active'],
+                    ['date_from', '<=', $new_date_from],
+                    ['date_to', '>=', $new_date_from]
+                ])
+                ->do('generate_executions');
         }
     }
 
