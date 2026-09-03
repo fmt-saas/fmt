@@ -293,6 +293,11 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'policies'    => ['can_transfer_property_lots'],
                 'function'    => 'doTransferPropertyLots'
             ],
+            'refresh_fund_request_executions' => [
+                'description' => 'Refresh executions for active fund requests whose period covers the transfer date.',
+                'policies'    => [],
+                'function'    => 'doRefreshFundRequestExecutions'
+            ],
             'rollback' => [
                 'description' => 'Cancel generated accounting operations and revert property lot assignments.',
                 'help'        => 'Called by the settlement cancellation transition.',
@@ -1483,6 +1488,8 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     ['date_to', '=', $seller_date_to]
                 ])
                 ->update(['date_to' => null]);
+
+            self::id($id)->do('refresh_fund_request_executions');
         }
     }
 
@@ -1518,7 +1525,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'transfer_date'
         ]);
 
-        foreach($self as $settlement) {
+        foreach($self as $id => $settlement) {
             $property_lots_ids = array_values($settlement['ownership_transfer_id']['property_lots_ids']);
             $buyer_ownership_id = (int) $settlement['buyer_ownership_id']['id'];
 
@@ -1573,11 +1580,21 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     ->update(['date_to' => $old_date_to]);
             }
 
+            self::id($id)->do('refresh_fund_request_executions');
+        }
+    }
+
+    protected static function doRefreshFundRequestExecutions($self) {
+        $self->read(['condo_id', 'transfer_date']);
+
+        foreach($self as $settlement) {
+            $transfer_date = strtotime(date('Y-m-d', $settlement['transfer_date']));
+
             FundRequest::search([
                     ['condo_id', '=', $settlement['condo_id']],
                     ['status', '=', 'active'],
-                    ['date_from', '<=', $new_date_from],
-                    ['date_to', '>=', $new_date_from]
+                    ['date_from', '<=', $transfer_date],
+                    ['date_to', '>=', $transfer_date]
                 ])
                 ->do('generate_executions');
         }
