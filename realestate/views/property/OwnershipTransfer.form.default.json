@@ -36,6 +36,18 @@
             }
         },
         {
+            "id": "action.revert_to_open",
+            "label": "Revert to paragraph 1",
+            "description": "Revert the ownership transfer to paragraph 1.",
+            "controller": "core_model_transition",
+            "visible": [["status", "in", ["confirmed", "financial_statement_sent"]]],
+            "params": {
+                "entity": "realestate\\property\\OwnershipTransfer",
+                "transition": "revert_to_open",
+                "ids": []
+            }
+        },
+        {
             "id": "action.settle",
             "label": "Confirm sale",
             "description": "Mark the notary deed as signed and the sale as settled.",
@@ -46,6 +58,31 @@
                 "transition": "settle",
                 "ids": []
             }
+        },
+        {
+            "id": "action.revert_to_confirmed",
+            "label": "Revert to paragraph 2",
+            "description": "Revert the ownership transfer to paragraph 2.",
+            "controller": "core_model_transition",
+            "visible": [["status", "=", "settled"]],
+            "params": {
+                "entity": "realestate\\property\\OwnershipTransfer",
+                "transition": "revert_to_confirmed",
+                "ids": []
+            }
+        },
+        {
+            "id": "action.unlock",
+            "label": "Unlock",
+            "description": "Cancel the accounting settlement and make the ownership transfer editable again.",
+            "controller": "core_model_transition",
+            "visible": [["status", "in", ["accounting_pending", "closed"]]],
+            "params": {
+                "entity": "realestate\\property\\OwnershipTransfer",
+                "transition": "unlock",
+                "ids": []
+            },
+            "confirm": true
         },
         {
             "id": "action.prepare_accounting",

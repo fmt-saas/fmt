@@ -20,7 +20,7 @@
             "label": "Generate accounting operations",
             "description": "Generate one proforma miscellaneous operation per corrected accounting source.",
             "controller": "core_model_do",
-            "visible": [["status", "<>", "closed"], ["lines_ids", "<>", null]],
+            "visible": [["status", "=", "pending"], ["lines_ids", "<>", null]],
             "params": {
                 "entity": "realestate\\property\\transfer\\OwnershipTransferSettlement",
                 "action": "generate_operations",

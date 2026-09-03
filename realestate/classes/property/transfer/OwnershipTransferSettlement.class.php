@@ -22,6 +22,7 @@ use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestExecutionLineEntry;
 use realestate\ownership\Ownership;
 use realestate\ownership\OwnershipCommunicationPreference;
+use realestate\property\OwnershipTransfer;
 use realestate\property\PropertyLot;
 use realestate\property\PropertyLotApportionmentShare;
 use realestate\property\PropertyLotOwnership;
@@ -191,18 +192,17 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
 
             'status' => [
                 'type'        => 'string',
-                'selection'   => ['pending', 'validated', 'closed'],
+                'selection'   => [
+                    'pending',
+                    'validated',
+                    'closed',
+                    'cancelled'
+                ],
                 'description' => 'Current lifecycle status of the settlement.',
                 'default'     => 'pending',
                 'required'    => true,
                 'readonly'    => true
             ]
-        ];
-    }
-
-    public function getUnique() {
-        return [
-            ['ownership_transfer_id']
         ];
     }
 
@@ -212,6 +212,12 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'description' => 'Pending settlement, waiting for accounting validation.',
                 'icon'        => 'edit',
                 'transitions' => [
+                    'cancel' => [
+                        'description' => 'Cancel the settlement and revert its property adjustments.',
+                        'policies'    => ['can_cancel'],
+                        'onbefore'    => 'onbeforeCancel',
+                        'status'      => 'cancelled'
+                    ],
                     'validate' => [
                         'description' => 'Post the generated accounting operations and validate the settlement.',
                         'policies'    => ['can_validate'],
@@ -225,6 +231,12 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'description' => 'Validated settlement, waiting to be closed.',
                 'icon'        => 'done',
                 'transitions' => [
+                    'cancel' => [
+                        'description' => 'Cancel the settlement, its accounting operations, and its property adjustments.',
+                        'policies'    => ['can_cancel'],
+                        'onbefore'    => 'onbeforeCancel',
+                        'status'      => 'cancelled'
+                    ],
                     'close' => [
                         'description' => 'Close the validated settlement.',
                         'policies'    => ['can_close'],
@@ -236,6 +248,18 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'closed' => [
                 'description' => 'Closed settlement, no further action can be taken.',
                 'icon'        => 'lock',
+                'transitions' => [
+                    'cancel' => [
+                        'description' => 'Cancel the settlement, its accounting operations, and its property adjustments.',
+                        'policies'    => ['can_cancel'],
+                        'onbefore'    => 'onbeforeCancel',
+                        'status'      => 'cancelled'
+                    ]
+                ]
+            ],
+            'cancelled' => [
+                'description' => 'Cancelled settlement retained for accounting traceability.',
+                'icon'        => 'cancel',
                 'transitions' => []
             ]
         ];
@@ -267,6 +291,12 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'description' => 'Transfer the property lots from the seller ownership to the buyer ownership.',
                 'policies'    => ['can_transfer_property_lots'],
                 'function'    => 'doTransferPropertyLots'
+            ],
+            'rollback' => [
+                'description' => 'Cancel generated accounting operations and revert property lot assignments.',
+                'help'        => 'Called by the settlement cancellation transition.',
+                'policies'    => ['can_cancel'],
+                'function'    => 'doRollback'
             ]
         ]);
     }
@@ -284,6 +314,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             'can_validate' => [
                 'description' => 'Checks that every generated miscellaneous operation can be posted.',
                 'function'    => 'policyCanValidate'
+            ],
+            'can_cancel' => [
+                'description' => 'Checks that generated operations and property assignments can be safely reverted.',
+                'function'    => 'policyCanCancel'
             ],
             'can_transfer_property_lots' => [
                 'description' => 'Checks that property lots are only transferred by a validated settlement.',
@@ -438,8 +472,8 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
         ]);
 
         foreach($self as $id => $settlement) {
-            if($settlement['status'] === 'closed') {
-                $result[$id] = ['settlement_closed' => 'A closed settlement cannot generate accounting operations.'];
+            if($settlement['status'] !== 'pending') {
+                $result[$id] = ['settlement_not_pending' => 'Accounting operations can only be generated while the settlement is pending.'];
                 continue;
             }
 
@@ -589,6 +623,132 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 $miscOperation = $wrapper['misc_operation_id'];
                 if($miscOperation['status'] !== 'proforma') {
                     $result[$id] = ['misc_operations_not_proforma' => 'Every generated miscellaneous operation must be proforma before validation.'];
+                    break;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanCancel($self): array {
+        $result = [];
+
+        $self->read([
+            'status',
+            'ownership_transfer_id' => ['property_lots_ids'],
+            'condo_id',
+            'seller_ownership_id',
+            'buyer_ownership_id',
+            'transfer_date'
+        ]);
+
+        foreach($self as $id => $settlement) {
+            if(!in_array($settlement['status'], ['pending', 'validated', 'closed'], true)) {
+                $result[$id] = ['settlement_not_cancellable' => 'The settlement cannot be cancelled from its current status.'];
+                continue;
+            }
+
+            $wrappers = OwnershipTransferSettlementOperation::search([
+                    ['settlement_id', '=', $id]
+                ])
+                ->read([
+                    'misc_operation_id' => [
+                        'status',
+                        'fiscal_period_id' => ['status', 'fiscal_year_status'],
+                        'accounting_entry_id' => [
+                            'status',
+                            'reversed_entry_id',
+                            'entry_lines_ids',
+                            'fiscal_year_id' => ['status'],
+                            'fiscal_period_id' => ['status']
+                        ]
+                    ]
+                ]);
+
+            foreach($wrappers as $wrapper) {
+                if(!$wrapper['misc_operation_id']) {
+                    $result[$id] = ['incomplete_existing_operation' => 'A generated operation has no traceable miscellaneous operation.'];
+                    continue 2;
+                }
+
+                $miscOperation = $wrapper['misc_operation_id'];
+                if(in_array($miscOperation['status'], ['pending', 'proforma', 'cancelled'], true)) {
+                    continue;
+                }
+
+                if($miscOperation['status'] !== 'posted') {
+                    $result[$id] = ['invalid_settlement_operation_status' => 'A generated accounting operation has an unsupported status.'];
+                    continue 2;
+                }
+
+                if(
+                    !$miscOperation['fiscal_period_id']
+                    || !in_array($miscOperation['fiscal_period_id']['status'], ['open', 'preclosed'], true)
+                ) {
+                    $result[$id] = ['invalid_accounting_period' => 'The accounting period must be open or preclosed to cancel the settlement.'];
+                    continue 2;
+                }
+
+                if(!in_array($miscOperation['fiscal_period_id']['fiscal_year_status'], ['preopen', 'open', 'preclosed'], true)) {
+                    $result[$id] = ['invalid_accounting_fiscal_year' => 'The fiscal year does not allow cancellation of the settlement operations.'];
+                    continue 2;
+                }
+
+                $accountingEntry = $miscOperation['accounting_entry_id'];
+                if(!$accountingEntry) {
+                    $result[$id] = ['missing_accounting_entry' => 'A posted settlement operation has no accounting entry to cancel.'];
+                    continue 2;
+                }
+
+                if(
+                    $accountingEntry['status'] !== 'validated'
+                    || $accountingEntry['reversed_entry_id']
+                    || !count($accountingEntry['entry_lines_ids'])
+                    || !$accountingEntry['fiscal_year_id']
+                    || $accountingEntry['fiscal_year_id']['status'] === 'closed'
+                    || !$accountingEntry['fiscal_period_id']
+                    || $accountingEntry['fiscal_period_id']['status'] === 'closed'
+                ) {
+                    $result[$id] = ['accounting_entry_not_cancellable' => 'A settlement accounting entry cannot be cancelled.'];
+                    continue 2;
+                }
+            }
+
+            $property_lots_ids = array_values($settlement['ownership_transfer_id']['property_lots_ids']);
+            $propertyLots = PropertyLot::ids($property_lots_ids)->read(['active_ownership_id']);
+            $buyer_date_from = strtotime(date('Y-m-d', $settlement['transfer_date']));
+            $seller_date_to = strtotime('-1 day', $buyer_date_from);
+
+            foreach($propertyLots as $property_lot_id => $propertyLot) {
+                if(!in_array($propertyLot['active_ownership_id'], [$settlement['seller_ownership_id'], $settlement['buyer_ownership_id']], true)) {
+                    $result[$id] = ['property_lot_assignment_changed' => 'A transferred property lot is assigned to an unrelated ownership.'];
+                    break;
+                }
+
+                if($propertyLot['active_ownership_id'] !== $settlement['buyer_ownership_id']) {
+                    continue;
+                }
+
+                $seller_link_exists = PropertyLotOwnership::search([
+                        ['condo_id', '=', $settlement['condo_id']],
+                        ['ownership_id', '=', $settlement['seller_ownership_id']],
+                        ['property_lot_id', '=', $property_lot_id],
+                        ['date_to', '=', $seller_date_to]
+                    ])
+                    ->count() > 0;
+
+                $buyer_link_exists = PropertyLotOwnership::search([
+                        ['condo_id', '=', $settlement['condo_id']],
+                        ['ownership_id', '=', $settlement['buyer_ownership_id']],
+                        ['property_lot_id', '=', $property_lot_id],
+                        ['date_from', '=', $buyer_date_from],
+                        ['date_to', '=', null]
+                    ])
+                    ->count() > 0;
+
+                if(!$seller_link_exists || !$buyer_link_exists) {
+                    $result[$id] = ['property_lot_history_mismatch' => 'A transferred property lot has an inconsistent ownership history.'];
                     break;
                 }
             }
@@ -1189,6 +1349,94 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
     protected static function onbeforeValidate($self) {
     }
 
+    protected static function onbeforeCancel($self) {
+        $self->do('rollback');
+    }
+
+    protected static function doRollback($self) {
+        $self->read([
+            'ownership_transfer_id' => ['property_lots_ids'],
+            'condo_id',
+            'seller_ownership_id',
+            'buyer_ownership_id',
+            'transfer_date'
+        ]);
+
+        foreach($self as $id => $settlement) {
+            $wrappers = OwnershipTransferSettlementOperation::search([
+                    ['settlement_id', '=', $id]
+                ])
+                ->read(['misc_operation_id' => ['status']]);
+
+            foreach($wrappers as $wrapper) {
+                if(!$wrapper['misc_operation_id']) {
+                    continue;
+                }
+
+                $misc_operation_id = $wrapper['misc_operation_id']['id'];
+                $misc_operation_status = $wrapper['misc_operation_id']['status'];
+
+                if($misc_operation_status === 'posted') {
+                    MiscOperation::id($misc_operation_id)->do('cancel');
+                }
+                elseif(in_array($misc_operation_status, ['pending', 'proforma'], true)) {
+                    // Draft operations have no accounting audit trail to retain.
+                    OwnershipTransferSettlementLine::search(['operation_id', '=', $wrapper['id']])
+                        ->write(['operation_id' => null]);
+                    MiscOperation::id($misc_operation_id)->delete(true);
+                }
+            }
+
+            $property_lots_ids = array_values($settlement['ownership_transfer_id']['property_lots_ids']);
+            if(!count($property_lots_ids)) {
+                continue;
+            }
+
+            $buyer_date_from = strtotime(date('Y-m-d', $settlement['transfer_date']));
+            $seller_date_to = strtotime('-1 day', $buyer_date_from);
+            $propertyLots = PropertyLot::ids($property_lots_ids)->read(['active_ownership_id']);
+            $property_lots_to_revert = [];
+
+            foreach($propertyLots as $property_lot_id => $propertyLot) {
+                if($propertyLot['active_ownership_id'] === $settlement['buyer_ownership_id']) {
+                    $property_lots_to_revert[] = $property_lot_id;
+                }
+            }
+
+            if(!count($property_lots_to_revert)) {
+                continue;
+            }
+
+            PropertyLot::ids($property_lots_to_revert)
+                ->update(['active_ownership_id' => $settlement['seller_ownership_id']]);
+
+            foreach($property_lots_to_revert as $property_lot_id) {
+                PropertyLotOwnership::search([
+                        ['condo_id', '=', $settlement['condo_id']],
+                        ['ownership_id', '=', $settlement['seller_ownership_id']],
+                        ['property_lot_id', '=', $property_lot_id],
+                        ['date_to', '=', $seller_date_to]
+                    ])
+                    ->update(['date_to' => null]);
+
+                PropertyLotOwnership::search([
+                        ['condo_id', '=', $settlement['condo_id']],
+                        ['ownership_id', '=', $settlement['buyer_ownership_id']],
+                        ['property_lot_id', '=', $property_lot_id],
+                        ['date_from', '=', $buyer_date_from],
+                        ['date_to', '=', null]
+                    ])
+                    ->delete(true);
+            }
+
+            Ownership::search([
+                    ['id', '=', $settlement['seller_ownership_id']],
+                    ['date_to', '=', $seller_date_to]
+                ])
+                ->update(['date_to' => null]);
+        }
+    }
+
     protected static function onafterValidate($self) {
         foreach($self as $id => $settlement) {
             $wrappers = OwnershipTransferSettlementOperation::search([
@@ -1206,7 +1454,9 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             // `update()` would silently discard it; no lifecycle callback is expected here.
             self::id($id)
                 ->write(['validated_at' => time()])
-                ->do('generate_correspondences');
+                ->do('generate_correspondences')
+                ->do('dispatch_correspondences')
+                ->transition('close');
         }
     }
 
@@ -1495,22 +1745,12 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
     }
 
     protected static function onafterClose($self) {
+        $self->read(['ownership_transfer_id']);
         foreach($self as $id => $settlement) {
-            $postalCorrespondences = OwnershipTransferSettlementCorrespondence::search([
-                ['settlement_id', '=', $id],
-                ['communication_method', '<>', 'email'],
-                ['is_sent', '=', false]
-            ]);
-
-            if($postalCorrespondences->count()) {
-                $postalCorrespondences
-                    ->update(['sent_date' => time()])
-                    ->update(['is_sent' => true]);
-            }
-
             // #important #lifecycle - `write()` is required for the workflow-managed readonly timestamp.
             // `update()` would silently discard it; no lifecycle callback is expected here.
             self::id($id)->write(['closed_at' => time()]);
+            OwnershipTransfer::id($settlement['ownership_transfer_id'])->transition('close');
         }
     }
 

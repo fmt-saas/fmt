@@ -562,6 +562,10 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description' => 'Validated settlement, waiting to be posted to accounting system.',
                 'icon' => 'check',
                 'transitions' => [
+                    'revert_to_open' => [
+                        'description' => 'Revert to paragraph 1 by updating the document to `open`.',
+                        'status' => 'open',
+                    ],
                     'settle' => [
                         'description' => 'Mark the ownership transfer as settled.',
                         'help' => 'The notary deed has been signed and the notary has sent the settlement documents to the accounting department.',
@@ -573,6 +577,10 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description' => 'Documentation sent, waiting for the notary deed to complete accounting settlement.',
                 'icon' => 'hourglass_empty',
                 'transitions' => [
+                    'revert_to_open' => [
+                        'description' => 'Revert to paragraph 1 by updating the document to `open`.',
+                        'status' => 'open',
+                    ],
                     'settle' => [
                         'description' => 'Mark the ownership transfer as settled.',
                         'help' => 'The notary deed has been signed and the notary has sent the settlement documents to the accounting department.',
@@ -588,6 +596,10 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description' => 'Ownership transfer is settled, waiting for the accounting settlement to be prepared.',
                 'icon' => 'hourglass_top',
                 'transitions' => [
+                    'revert_to_confirmed' => [
+                        'description' => 'Revert to paragraph 2 by updating the document to `confirmed`.',
+                        'status' => 'confirmed',
+                    ],
                     'prepare_accounting' => [
                         'description' => 'Create the accounting settlement and mark the ownership transfer as accounting pending.',
                         'policies' => ['can_prepare_accounting'],
@@ -600,6 +612,12 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description' => 'Accounting settlement is being processed.',
                 'icon' => 'account_balance',
                 'transitions' => [
+                    'unlock' => [
+                        'description' => 'Cancel the accounting settlement and make the ownership transfer editable again.',
+                        'policies' => ['can_unlock'],
+                        'onbefore' => 'onbeforeUnlock',
+                        'status' => 'settled',
+                    ],
                     'close' => [
                         'description' => 'Some additional documents are required, step back to `confirmed`.',
                         'status' => 'closed',
@@ -610,6 +628,12 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description' => 'Ownership transfer is closed, no further actions can be taken.',
                 'icon' => 'hub',
                 'transitions' => [
+                    'unlock' => [
+                        'description' => 'Cancel the accounting settlement and make the ownership transfer editable again.',
+                        'policies' => ['can_unlock'],
+                        'onbefore' => 'onbeforeUnlock',
+                        'status' => 'settled',
+                    ],
                 ],
             ],
         ];
@@ -822,6 +846,18 @@ class OwnershipTransfer extends \equal\orm\Model {
         }
     }
 
+    protected static function onbeforeUnlock($self) {
+        $self->read(['ownership_transfer_settlement_id']);
+
+        foreach($self as $id => $ownershipTransfer) {
+            OwnershipTransferSettlement::id($ownershipTransfer['ownership_transfer_settlement_id'])
+                ->transition('cancel');
+
+            // #important #lifecycle - the link targets the active settlement and is readonly.
+            self::id($id)->write(['ownership_transfer_settlement_id' => null]);
+        }
+    }
+
     public static function getPolicies(): array {
         return [
             'is_valid' => [
@@ -831,6 +867,10 @@ class OwnershipTransfer extends \equal\orm\Model {
             'can_prepare_accounting' => [
                 'description' => 'Checks that all information required to create the accounting settlement is present.',
                 'function'    => 'policyCanPrepareAccounting'
+            ],
+            'can_unlock' => [
+                'description' => 'Checks that the ownership transfer has an accounting settlement that can be cancelled.',
+                'function'    => 'policyCanUnlock'
             ]
         ];
     }
@@ -896,6 +936,31 @@ class OwnershipTransfer extends \equal\orm\Model {
             }
 
         }
+        return $result;
+    }
+
+    protected static function policyCanUnlock($self): array {
+        $result = [];
+
+        $self->read([
+            'ownership_transfer_settlement_id' => ['status']
+        ]);
+
+        foreach($self as $id => $ownershipTransfer) {
+            if(!$ownershipTransfer['ownership_transfer_settlement_id']) {
+                $result[$id] = [
+                    'missing_ownership_transfer_settlement' => 'The ownership transfer has no accounting settlement to cancel.'
+                ];
+                continue;
+            }
+
+            if(!in_array($ownershipTransfer['ownership_transfer_settlement_id']['status'], ['pending', 'validated', 'closed'], true)) {
+                $result[$id] = [
+                    'settlement_not_unlockable' => 'The accounting settlement cannot be cancelled from its current status.'
+                ];
+            }
+        }
+
         return $result;
     }
 

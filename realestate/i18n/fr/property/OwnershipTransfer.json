@@ -426,9 +426,21 @@
                     "label": "Confirmer",
                     "description": "Valider les données et démarrer le processus de transfert."
                 },
+                "action.revert_to_open": {
+                    "label": "Revenir au §1",
+                    "description": "Revenir à l'étape ouverte du paragraphe 1."
+                },
                 "action.settle": {
                     "label": "Confirmer la vente",
                     "description": "Confirmer la signature de l'acte notarié et la réalisation de la vente."
+                },
+                "action.revert_to_confirmed": {
+                    "label": "Revenir au §2",
+                    "description": "Revenir à l'étape confirmée du paragraphe 2."
+                },
+                "action.unlock": {
+                    "label": "Déverrouiller",
+                    "description": "Annuler la régularisation comptable, réassigner les lots au vendeur et rendre la mutation modifiable."
                 },
                 "action.prepare_accounting": {
                     "label": "Préparer la comptabilité",
@@ -470,7 +482,9 @@
             "missing_new_ownership_id": "La propriété acquéreuse doit être renseignée.",
             "identical_ownerships": "Les propriétés vendeuse et acquéreuse doivent être différentes.",
             "invalid_property_lots_count": "La mutation doit contenir au moins un lot.",
-            "missing_transfer_date": "La date de mutation doit être renseignée."
+            "missing_transfer_date": "La date de mutation doit être renseignée.",
+            "missing_ownership_transfer_settlement": "La mutation ne possède aucune régularisation comptable à annuler.",
+            "settlement_not_unlockable": "La régularisation comptable ne peut pas être annulée dans son état actuel."
         }
     }
 }
