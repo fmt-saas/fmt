@@ -505,20 +505,30 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                         ['settlement_id', '=', $id],
                         ['operation_key', '=', $group['operation_key']]
                     ])
-                    ->read(['misc_operation_id' => ['status', 'misc_operation_lines_ids']])
+                    ->read([
+                        'amount',
+                        'misc_operation_id' => ['status', 'posting_date']
+                    ])
                     ->first();
 
                 if(
-                    !$existingOperation
-                    || !$existingOperation['misc_operation_id']
-                    || !in_array($existingOperation['misc_operation_id']['status'], ['proforma', 'posted'], true)
-                    || (
-                        $existingOperation['misc_operation_id']['status'] === 'proforma'
-                        && !count($existingOperation['misc_operation_id']['misc_operation_lines_ids'])
-                    )
+                    $existingOperation
+                    && $existingOperation['misc_operation_id']
+                    && $existingOperation['misc_operation_id']['status'] === 'posted'
                 ) {
-                    $groups_to_create[] = $group;
+                    $posting_date = self::resolveOperationPostingDate($settlement, $group);
+                    if(
+                        (int) $existingOperation['misc_operation_id']['posting_date'] !== $posting_date
+                        || abs((float) $existingOperation['amount'] - round($group['amount'], 2)) >= 0.005
+                    ) {
+                        $result[$id] = ['existing_operation_mismatch' => 'A posted operation with the same key has a different date or amount.'];
+                        continue 2;
+                    }
+
+                    continue;
                 }
+
+                $groups_to_create[] = $group;
             }
 
             if(!count($groups_to_create)) {
@@ -1600,8 +1610,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                         'amount',
                         'misc_operation_id' => [
                             'status',
-                            'posting_date',
-                            'misc_operation_lines_ids'
+                            'posting_date'
                         ]
                     ])
                     ->first();
@@ -1615,16 +1624,19 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 if($wrapper && $wrapper['misc_operation_id']) {
                     $miscOperation = $wrapper['misc_operation_id'];
 
-                    if(in_array($miscOperation['status'], ['proforma', 'posted'], true)) {
+                    if($miscOperation['status'] === 'proforma') {
+                        // Proforma operations are drafts: always replace them so
+                        // regenerated dates, amounts and line allocations are applied.
+                        OwnershipTransferSettlementLine::search(['operation_id', '=', $wrapper['id']])
+                            ->write(['operation_id' => null]);
+                        MiscOperation::id($miscOperation['id'])->delete(true);
+                        $wrapper = null;
+                    }
+
+                    elseif($miscOperation['status'] === 'posted') {
                         if(
                             (int) $miscOperation['posting_date'] !== $posting_date
-                            || (
-                                (
-                                    $miscOperation['status'] === 'posted'
-                                    || count($miscOperation['misc_operation_lines_ids'])
-                                )
-                                && abs((float) $wrapper['amount'] - $group_amount) >= 0.005
-                            )
+                            || abs((float) $wrapper['amount'] - $group_amount) >= 0.005
                         ) {
                             throw new \Exception('existing_operation_mismatch', EQ_ERROR_INVALID_CONFIG);
                         }
@@ -1638,20 +1650,13 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                             ]
                         ));
 
-                        // A proforma operation emptied by line regeneration is
-                        // repopulated below instead of being treated as reusable.
-                        if(
-                            $miscOperation['status'] === 'posted'
-                            || count($miscOperation['misc_operation_lines_ids'])
-                        ) {
-                            // #important #lifecycle - `write()` is required for the internally assigned readonly relation.
-                            // `update()` would silently discard it; assign the whole group in a single write.
-                            OwnershipTransferSettlementLine::ids(array_keys($group['lines']))
-                                ->write(['operation_id' => $wrapper['id']]);
+                        // #important #lifecycle - `write()` is required for the internally assigned readonly relation.
+                        // `update()` would silently discard it; assign the whole group in a single write.
+                        OwnershipTransferSettlementLine::ids(array_keys($group['lines']))
+                            ->write(['operation_id' => $wrapper['id']]);
 
-                            ++$reused_count;
-                            continue;
-                        }
+                        ++$reused_count;
+                        continue;
                     }
 
                     elseif($miscOperation['status'] === 'cancelled') {
