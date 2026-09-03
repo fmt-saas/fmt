@@ -115,6 +115,15 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                 'description'       => "Identity main email address."
             ],
 
+            'email_alt' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'email',
+                'relation'          => ['identity_id' => 'email_alt'],
+                'store'             => true,
+                'description'       => "Identity secondary email address."
+            ],
+
             'address_street' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -191,7 +200,7 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
      * #memo - we allow only several identity for a same communication reason for the `email` channel.
      *
      */
-    protected static function canupdate($self) {
+    protected static function canupdate($self, $values) {
         $self->read([
                 'identity_id',
                 'communication_reason',
@@ -202,6 +211,19 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
             ]);
 
         foreach($self as $id => $ownershipCommunicationPreference) {
+            if(!empty($values['has_channel_email'])) {
+                $identity_id = array_key_exists('identity_id', $values)
+                    ? $values['identity_id']
+                    : $ownershipCommunicationPreference['identity_id'];
+                $identity = $identity_id
+                    ? Identity::id($identity_id)->read(['email', 'email_alt'])->first()
+                    : null;
+
+                if(!$identity || (empty($identity['email']) && empty($identity['email_alt']))) {
+                    return ['has_channel_email' => ['email_missing' => 'An email address is required when email is used as communication channel.']];
+                }
+            }
+
             $ownership_id = $ownershipCommunicationPreference['ownership_id']['id'];
             $identity_id = $ownershipCommunicationPreference['identity_id'];
             if($ownershipCommunicationPreference['has_channel_postal']
@@ -252,7 +274,7 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
 
         }
 
-        return parent::canupdate($self);
+        return parent::canupdate($self, $values);
     }
 
     protected static function onafterupdate($self, $dispatch) {

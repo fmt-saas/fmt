@@ -101,5 +101,9 @@
             "description": "Liste des preferences par dossier et type de communication."
         }
     },
-    "error": {}
+    "error": {
+        "has_channel_email": {
+            "email_missing": "Une adresse email est requise lorsque l'email est utilisé comme canal de communication."
+        }
+    }
 }
