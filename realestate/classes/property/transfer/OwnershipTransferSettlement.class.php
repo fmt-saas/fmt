@@ -1581,7 +1581,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'condo_fund_id'             => ['name'],
                 'fund_request_execution_id' => ['name', 'posting_date'],
                 'expense_statement_id'      => ['name'],
-                'property_lot_id'           => ['name'],
+                'property_lot_id'           => ['name', 'property_lot_ref'],
                 'applied_amount'
             ]
         ]);
