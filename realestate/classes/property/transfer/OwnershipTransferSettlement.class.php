@@ -1835,7 +1835,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 throw new \Exception('missing_settlement_line_property_lot', EQ_ERROR_INVALID_CONFIG);
             }
             $property_lot_id = (int) ($line['property_lot_id']['id'] ?? 0);
-            $property_lot_name = $line['property_lot_id']['name'] ?? '';
+            $property_lot_name = $line['property_lot_id']['property_lot_ref'] ?? $line['property_lot_id']['name'] ?? '';
 
             switch($line['source_type']) {
                 case 'working_fund':
