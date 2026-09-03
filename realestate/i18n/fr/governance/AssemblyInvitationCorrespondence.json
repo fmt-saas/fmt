@@ -90,5 +90,8 @@
             "description": "Suivi des convocations envoyées aux participants.",
             "layout": {}
         }
+    },
+    "error": {
+        "email_not_queued": "L'e-mail de convocation n'a pas pu être mis en file."
     }
 }

@@ -60,6 +60,7 @@ $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params
         'condo_id' => ['id', 'name'],
         'name',
         'communication_method',
+        'is_sent',
         'owner_id' => ['firstname', 'lastname', 'lang_id'],
         'ownership_id' => ['id', 'name'],
         'assembly_id' => ['name', 'assembly_date', 'assembly_type', 'is_second_session'],
@@ -175,6 +176,10 @@ $email_id = Mail::queue(
     $assemblyInvitationCorrespondence['id']
 );
 
+if(!$email_id) {
+    throw new Exception('email_not_queued', EQ_ERROR_INVALID_CONFIG);
+}
+
 Email::id($email_id)->update([
     'mailbox_id'                => $managementProcess['mailbox_id'],
     'attachment_documents_ids'  => [ $assemblyInvitationCorrespondence['document_id'] ]
@@ -183,10 +188,8 @@ Email::id($email_id)->update([
 // mark invitation as sent
 AssemblyInvitationCorrespondence::id($assemblyInvitationCorrespondence['id'])
     ->update([
-        'sent_date'    => time()
-    ])
-    ->update([
-        'is_sent'      => true,
+        'sent_date' => time(),
+        'is_sent'   => true
     ]);
 
 $context->httpResponse()

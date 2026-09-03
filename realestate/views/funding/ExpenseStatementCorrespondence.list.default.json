@@ -40,12 +40,14 @@
             {
                 "type": "field",
                 "value": "is_sent",
-                "width": "12%"
+                "width": "12%",
+                "readonly": true
             },
             {
                 "type": "field",
                 "value": "sent_date",
-                "width": "12%"
+                "width": "12%",
+                "readonly": true
             },
             {
                 "type": "field",

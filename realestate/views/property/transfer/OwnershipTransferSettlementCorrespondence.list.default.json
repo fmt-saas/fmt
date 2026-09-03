@@ -9,8 +9,8 @@
             {"type": "field", "value": "ownership_id", "width": "16%"},
             {"type": "field", "value": "owner_id", "width": "16%"},
             {"type": "field", "value": "communication_method", "width": "14%"},
-            {"type": "field", "value": "is_sent", "width": "10%"},
-            {"type": "field", "value": "sent_date", "width": "14%"},
+            {"type": "field", "value": "is_sent", "width": "10%", "readonly": true},
+            {"type": "field", "value": "sent_date", "width": "14%", "readonly": true},
             {"type": "field", "value": "download_link", "label": "Document", "width": "10%", "widget": {"link": true}}
         ]
     }

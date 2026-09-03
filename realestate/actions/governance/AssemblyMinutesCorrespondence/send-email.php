@@ -170,6 +170,10 @@ $email_id = Mail::queue(
     $assemblyMinutesCorrespondence['id']
 );
 
+if(!$email_id) {
+    throw new Exception('email_not_queued', EQ_ERROR_INVALID_CONFIG);
+}
+
 Email::id($email_id)->update([
         'mailbox_id'                => $managementProcess['mailbox_id'],
         'attachment_documents_ids'  => [ $assemblyMinutesCorrespondence['document_id'] ]
@@ -178,10 +182,8 @@ Email::id($email_id)->update([
 // mark invitation as sent
 AssemblyMinutesCorrespondence::id($assemblyMinutesCorrespondence['id'])
     ->update([
-        'sent_date'    => time()
-    ])
-    ->update([
-        'is_sent'      => true,
+        'sent_date' => time(),
+        'is_sent'   => true
     ]);
 
 $context->httpResponse()

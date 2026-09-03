@@ -90,5 +90,9 @@
             "description": "Suivi des décomptes de charges envoyés aux copropriétaires.",
             "layout": {}
         }
+    },
+    "error": {
+        "correspondence_already_sent": "Ce décompte de charges a déjà été envoyé.",
+        "email_not_queued": "L'e-mail contenant le décompte de charges n'a pas pu être mis en file."
     }
 }

@@ -153,8 +153,10 @@ Email::id($email_id)->update([
 ]);
 
 OwnershipTransferSettlementCorrespondence::id($correspondence['id'])
-    ->update(['sent_date' => time()])
-    ->update(['is_sent' => true]);
+    ->update([
+        'sent_date' => time(),
+        'is_sent'   => true
+    ]);
 
 $context->httpResponse()
     ->status(201)

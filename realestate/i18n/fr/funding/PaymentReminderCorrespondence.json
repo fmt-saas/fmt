@@ -90,5 +90,9 @@
             "description": "Suivi des rappels de paiement envoyés aux copropriétaires.",
             "layout": {}
         }
+    },
+    "error": {
+        "correspondence_already_sent": "Ce rappel de paiement a déjà été envoyé.",
+        "email_not_queued": "L'e-mail de rappel de paiement n'a pas pu être mis en file."
     }
 }

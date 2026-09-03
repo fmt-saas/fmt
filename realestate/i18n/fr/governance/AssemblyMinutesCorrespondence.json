@@ -90,5 +90,9 @@
             "description": "Suivi des envois de procès-verbal aux participants.",
             "layout": {}
         }
+    },
+    "error": {
+        "correspondence_already_sent": "Ce courrier de procès-verbal a déjà été envoyé.",
+        "email_not_queued": "L'e-mail contenant le procès-verbal n'a pas pu être mis en file."
     }
 }

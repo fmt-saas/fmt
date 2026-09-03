@@ -51,6 +51,7 @@ $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($pa
         'condo_id' => ['id', 'name'],
         'name',
         'communication_method',
+        'is_sent',
         'owner_id' => ['firstname', 'lastname', 'lang_id'],
         'ownership_id' => ['id', 'name'],
         'fund_request_execution_id' => ['name', 'due_date', 'fund_request_id'],
@@ -64,6 +65,10 @@ if(!$fundRequestExecutionCorrespondence) {
 
 if($fundRequestExecutionCorrespondence['communication_method'] !== 'email') {
     throw new Exception('invalid_communication_method', EQ_ERROR_INVALID_PARAM);
+}
+
+if($fundRequestExecutionCorrespondence['is_sent']) {
+    throw new Exception('correspondence_already_sent', EQ_ERROR_INVALID_PARAM);
 }
 
 if(!$fundRequestExecutionCorrespondence['document_id']) {
@@ -169,14 +174,20 @@ $email_id = Mail::queue(
     $fundRequestExecutionCorrespondence['id']
 );
 
+if(!$email_id) {
+    throw new Exception('email_not_queued', EQ_ERROR_INVALID_CONFIG);
+}
+
 Email::id($email_id)->update([
     'mailbox_id'                => $managementProcess['mailbox_id'],
     'attachment_documents_ids'  => [ $fundRequestExecutionCorrespondence['document_id'] ]
 ]);
 
 FundRequestExecutionCorrespondence::id($fundRequestExecutionCorrespondence['id'])
-    ->update(['sent_date' => time()])
-    ->update(['is_sent' => true]);
+    ->update([
+        'sent_date' => time(),
+        'is_sent'   => true
+    ]);
 
 $context->httpResponse()
         ->status(201)
