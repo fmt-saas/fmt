@@ -13,6 +13,18 @@
                 "id": "object.id"
             },
             "visible": ["admins", "in", "user.groups"]
+        },
+        {
+            "id": "action.resend_invite",
+            "inline": true,
+            "label": "Resend invite",
+            "icon": "send",
+            "description": "Resend invite to this user.",
+            "controller": "identity_User_send-confirmation",
+            "params": {
+                "id": "object.id"
+            },
+            "visible": ["admins", "in", "user.groups"]
         }
     ],
     "layout": {
