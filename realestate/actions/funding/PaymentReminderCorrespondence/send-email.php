@@ -13,6 +13,7 @@ use equal\email\EmailAttachment;
 use identity\Organisation;
 use realestate\funding\PaymentReminderCorrespondence;
 use realestate\management\ManagementProcess;
+use realestate\ownership\OwnershipCommunicationPreference;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send a single email for a given Payment Reminder correspondence.",
@@ -48,11 +49,11 @@ if($organisation) {
 
 $paymentReminderCorrespondence = PaymentReminderCorrespondence::id($params['id'])
     ->read([
-        'condo_id' => ['name'],
+        'condo_id' => ['id', 'name'],
         'name',
         'communication_method',
-        'owner_id' => ['firstname', 'lastname', 'email', 'email_alt', 'lang_id'],
-        'ownership_id' => ['name'],
+        'owner_id' => ['firstname', 'lastname', 'lang_id'],
+        'ownership_id' => ['id', 'name'],
         'payment_reminder_id' => ['name', 'emission_date', 'due_amount'],
         'payment_reminder_owner_id' => ['due_amount'],
         'document_id'
@@ -124,9 +125,17 @@ foreach($template['parts_ids'] as $part) {
     }
 }
 
-$recipient_email = $paymentReminderCorrespondence['owner_id']['email']
-    ?? $paymentReminderCorrespondence['owner_id']['email_alt']
-    ?? null;
+$communicationPreference = OwnershipCommunicationPreference::search([
+        ['condo_id', '=', $paymentReminderCorrespondence['condo_id']['id']],
+        ['ownership_id', '=', $paymentReminderCorrespondence['ownership_id']['id']],
+        ['communication_reason', '=', 'fund_request'],
+        ['has_channel_email', '=', true]
+    ])
+    ->read(['email', 'email_alt'])
+    ->first();
+
+$recipient_email = ($communicationPreference['email'] ?? null)
+    ?: ($communicationPreference['email_alt'] ?? null);
 
 if(!$recipient_email || $recipient_email === '') {
     throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);

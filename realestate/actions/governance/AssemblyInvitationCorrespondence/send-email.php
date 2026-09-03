@@ -13,6 +13,7 @@ use equal\email\Email as EmailMessage;
 use equal\email\EmailAttachment;
 use realestate\governance\AssemblyInvitationCorrespondence;
 use realestate\management\ManagementProcess;
+use realestate\ownership\OwnershipCommunicationPreference;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send a single email for a given Assembly Invitation.",
@@ -56,11 +57,11 @@ if($organisation) {
 
 $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params['id'])
     ->read([
-        'condo_id' => ['name'],
+        'condo_id' => ['id', 'name'],
         'name',
         'communication_method',
-        'owner_id' => ['firstname', 'lastname', 'email', 'email_alt', 'lang_id'],
-        'ownership_id' => ['name'],
+        'owner_id' => ['firstname', 'lastname', 'lang_id'],
+        'ownership_id' => ['id', 'name'],
         'assembly_id' => ['name', 'assembly_date', 'assembly_type', 'is_second_session'],
         'document_id'
     ])
@@ -139,9 +140,17 @@ foreach($template['parts_ids'] as $part_id => $part) {
 }
 
 // retrieve recipient
-$recipient_email = $assemblyInvitationCorrespondence['owner_id']['email']
-    ?? $assemblyInvitationCorrespondence['owner_id']['email_alt']
-    ?? null;
+$communicationPreference = OwnershipCommunicationPreference::search([
+        ['condo_id', '=', $assemblyInvitationCorrespondence['condo_id']['id']],
+        ['ownership_id', '=', $assemblyInvitationCorrespondence['ownership_id']['id']],
+        ['communication_reason', '=', 'general_assembly_call'],
+        ['has_channel_email', '=', true]
+    ])
+    ->read(['email', 'email_alt'])
+    ->first();
+
+$recipient_email = ($communicationPreference['email'] ?? null)
+    ?: ($communicationPreference['email_alt'] ?? null);
 
 if(!$recipient_email || $recipient_email === '') {
     throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
