@@ -389,6 +389,10 @@
                     "label": "Marquer comme envoyé",
                     "description": "Marquer les courriers de convocation comme envoyés. Si certains emails n'ont pas encore été envoyés, cette action échouera."
                 },
+                "action.regenerate_missing_emails": {
+                    "label": "Regénérer les emails manquants",
+                    "description": "Générer les documents manquants et placer en file d'envoi les emails de convocation non envoyés."
+                },
                 "action.open": {
                     "label": "Ouvrir l'assemblée",
                     "description": "Ouvrir l'assemblée (en cours)."

@@ -61,6 +61,7 @@ $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params
         'name',
         'communication_method',
         'is_sent',
+        'sent_date',
         'owner_id' => ['firstname', 'lastname', 'lang_id'],
         'ownership_id' => ['id', 'name'],
         'assembly_id' => ['name', 'assembly_date', 'assembly_type', 'is_second_session'],
@@ -76,7 +77,7 @@ if($assemblyInvitationCorrespondence['communication_method'] !== 'email') {
     throw new Exception("invalid_communication_method", EQ_ERROR_INVALID_PARAM);
 }
 
-if($assemblyInvitationCorrespondence['is_sent']) {
+if($assemblyInvitationCorrespondence['is_sent'] || $assemblyInvitationCorrespondence['sent_date']) {
     throw new Exception("correspondence_already_sent", EQ_ERROR_INVALID_PARAM);
 }
 

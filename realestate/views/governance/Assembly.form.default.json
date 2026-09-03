@@ -89,6 +89,28 @@
             ]
         },
         {
+            "id": "action.regenerate_missing_emails",
+            "label": "Regenerate missing emails",
+            "description": "Generate missing documents and queue unsent invitation emails.",
+            "controller": "realestate_governance_Assembly_send-invitation",
+            "params": {
+                "id": "object.id"
+            },
+            "confirm": true,
+            "visible": [
+                [
+                    "admins",
+                    "in",
+                    "user.groups"
+                ],
+                [
+                    "has_invitations_sent",
+                    "=",
+                    true
+                ]
+            ]
+        },
+        {
             "id": "action.open",
             "label": "Open Assembly",
             "description": "Open the assembly (mark as in progress).",
