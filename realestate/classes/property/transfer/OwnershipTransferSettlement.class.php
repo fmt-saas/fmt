@@ -466,7 +466,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'correction_type',
                 'source_type',
                 'condo_fund_id'             => ['name'],
-                'fund_request_execution_id' => ['name', 'posting_date'],
+                'fund_request_execution_id' => ['name', 'description', 'posting_date'],
                 'expense_statement_id'      => ['name'],
                 'property_lot_id'           => ['name', 'property_lot_ref'],
                 'applied_amount'
@@ -1579,7 +1579,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'correction_type',
                 'source_type',
                 'condo_fund_id'             => ['name'],
-                'fund_request_execution_id' => ['name', 'posting_date'],
+                'fund_request_execution_id' => ['name', 'description', 'posting_date'],
                 'expense_statement_id'      => ['name'],
                 'property_lot_id'           => ['name', 'property_lot_ref'],
                 'applied_amount'
@@ -1684,7 +1684,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
 
                 $correction_labels = [
                     'working_fund_transfer'     => 'Fonds de roulement',
-                    'post_transfer_call'        => 'Appel postérieur',
+                    'post_transfer_call'        => $group['source_description'],
                     'current_period_provision'  => 'Provision (prorata)'
                 ];
 
@@ -1879,6 +1879,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     'source_field'         => $source_field,
                     'source_id'            => $source_id,
                     'source_name'          => $source_name,
+                    'source_description'   => $line['fund_request_execution_id']['description'] ?? '',
                     'source_posting_date'  => $line['fund_request_execution_id']['posting_date'] ?? null,
                     'operation_assignment' => $operation_assignment,
                     'amount'               => 0.0,
