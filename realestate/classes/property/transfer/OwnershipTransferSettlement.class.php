@@ -811,6 +811,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
     protected static function policyCanClose($self): array {
         $result = [];
 
+        /*
         $self->read([
             'correspondences_dispatch_started_at',
             'correspondences_exporting_task_id' => ['status', 'is_exported'],
@@ -828,12 +829,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             foreach($settlement['correspondences_ids'] as $correspondence) {
                 $roles[$correspondence['recipient_role']] = true;
                 if($correspondence['communication_method'] === 'email') {
-                    /*
                     if(!$correspondence['is_sent']) {
                         $result[$id] = ['correspondence_email_not_sent' => 'At least one correspondence email has not been queued.'];
                         continue 2;
                     }
-                    */
                 }
                 else {
                     $has_postal_correspondence = true;
@@ -845,7 +844,6 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 continue;
             }
 
-            /*
             if($has_postal_correspondence) {
                 $exportingTask = $settlement['correspondences_exporting_task_id'];
                 if(!$exportingTask || $exportingTask['status'] !== 'ready') {
@@ -856,8 +854,9 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     $result[$id] = ['correspondence_export_not_downloaded' => 'The postal correspondence export has not been downloaded.'];
                 }
             }
-            */
+
         }
+        */
 
         return $result;
     }
