@@ -1891,7 +1891,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
         return $groups;
     }
 
-    private static function resolveOperationPostingDate(array $settlement, array $group): int {
+    private static function resolveOperationPostingDate($settlement, array $group): int {
         switch($group['correction_type']) {
             case 'working_fund_transfer':
             case 'current_period_provision':
