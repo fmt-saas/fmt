@@ -1501,6 +1501,8 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
 
     protected static function onafterValidate($self) {
         foreach($self as $id => $settlement) {
+            self::id($id)->do('transfer_property_lots');
+
             $wrappers = OwnershipTransferSettlementOperation::search([
                     ['settlement_id', '=', $id]
                 ])
@@ -1509,8 +1511,6 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             foreach($wrappers as $wrapper) {
                 MiscOperation::id($wrapper['misc_operation_id'])->transition('post');
             }
-
-            self::id($id)->do('transfer_property_lots');
 
             // #important #lifecycle - `write()` is required for the workflow-managed readonly timestamp.
             // `update()` would silently discard it; no lifecycle callback is expected here.
