@@ -485,11 +485,6 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 continue;
             }
 
-            if(!count($settlement['lines_ids'])) {
-                $result[$id] = ['missing_settlement_lines' => 'Settlement lines must be generated before accounting operations.'];
-                continue;
-            }
-
             try {
                 $groups = self::groupSettlementLines($id, $settlement['lines_ids']);
             }
@@ -498,7 +493,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 continue;
             }
 
-            if(!count($groups)) {
+            if(count($settlement['lines_ids']) && !count($groups)) {
                 $result[$id] = ['missing_applied_amounts' => 'At least one settlement line must have a non-zero retained amount.'];
                 continue;
             }
@@ -1493,6 +1488,17 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
         }
     }
 
+    protected static function oninstantiate($self) {
+        $self->read(['buyer_ownership_id' => ['status']]);
+        foreach($self as $id => $settlement) {
+            if($settlement['buyer_ownership_id']['status'] !== 'validated') {
+                Ownership::id(['buyer_ownership_id']['id'])
+                    ->update(['date_from' => $settlement['transfer_date']])
+                    ->transition('validate');
+            }
+        }
+    }
+
     protected static function onafterValidate($self) {
         foreach($self as $id => $settlement) {
             $wrappers = OwnershipTransferSettlementOperation::search([
@@ -1622,6 +1628,31 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
 
         foreach($self as $id => $settlement) {
             $groups = self::groupSettlementLines($id, $settlement['lines_ids']);
+
+            $deleted_count = 0;
+            // if there are no lines, remove any previously created Misc Operation
+            if(!count($settlement['lines_ids'])) {
+                $wrappers = OwnershipTransferSettlementOperation::search([
+                        ['settlement_id', '=', $id]
+                    ])
+                    ->read(['misc_operation_id' => ['status']]);
+
+                foreach($wrappers as $wrapper) {
+                    if(
+                        !$wrapper['misc_operation_id']
+                        || !in_array($wrapper['misc_operation_id']['status'], ['pending', 'proforma'], true)
+                    ) {
+                        continue;
+                    }
+
+                    // Draft operations have no accounting audit trail to retain.
+                    OwnershipTransferSettlementLine::search(['operation_id', '=', $wrapper['id']])
+                        ->write(['operation_id' => null]);
+                    MiscOperation::id($wrapper['misc_operation_id']['id'])->delete(true);
+                    ++$deleted_count;
+                }
+            }
+
             $journal = Journal::search([
                     ['condo_id', '=', $settlement['condo_id']],
                     ['journal_type', '=', 'MISC']
@@ -1835,10 +1866,11 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             }
 
             $log = sprintf(
-                '[%s] Accounting operations: %d created, %d reused.',
+                '[%s] Accounting operations: %d created, %d reused, %d draft(s) deleted.',
                 date('c'),
                 $created_count,
-                $reused_count
+                $reused_count,
+                $deleted_count
             );
             $logs = trim(implode(PHP_EOL, array_filter([$settlement['logs'], $log])));
 
