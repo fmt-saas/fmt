@@ -352,7 +352,25 @@ Sinon incohérence possible.
 
 
 
-# 7. Risque d’erreur cumulative
+# 7. Cycle complet recommandé
+
+### Clôture exercice
+
+```
+generate ClosingBalance(Y)
+generate OpeningBalance(Y+1)
+```
+
+### Déclôture
+
+```
+delete OpeningBalance(Y+1)
+delete ClosingBalance(Y)
+```
+
+
+
+# 8. Risque d’erreur cumulative
 
 Une erreur dans `AccountBalanceChange` se propage :
 
@@ -369,16 +387,16 @@ Mais :
 
 
 
-# 8. Rebuild du moteur
+# 9. Rebuild du moteur
 
-## 8.1 Rebuild complet
+## 9.1 Rebuild complet
 
 1. supprimer tous les `AccountBalanceChange`
 2. rejouer toutes les écritures validées
 
 
 
-## 8.2 Rebuild partiel basé sur ClosingBalance (recommandé)
+## 9.2 Rebuild partiel basé sur ClosingBalance (recommandé)
 
 1. trouver le dernier `ClosingBalance`
 2. supprimer les projections postérieures
@@ -389,7 +407,7 @@ Cette stratégie permet un **rebuild rapide même avec un historique important**
 
 
 
-# 9. Vérification d’intégrité
+# 10. Vérification d’intégrité
 
 Deux niveaux de contrôle existent.
 
@@ -417,7 +435,7 @@ avec les projections `AccountBalanceChange`.
 
 
 
-# 10. Invariants du système
+# 11. Invariants du système
 
 Le moteur repose sur les invariants suivants :
 

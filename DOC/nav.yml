@@ -31,6 +31,7 @@
 - 'Budget & appels de fonds':
     - 'Appels de fonds': budget/appels-de-fonds.md
     - 'Suivi des appels': budget/suivi-des-appels.md
+    - 'Réconciliation et lettrage — référence DEV/PO': budget/logique-de-reconciliation-et-lettrage.md
 - 'Documents & automatisation':
     - 'Aperçu': documents/documents.md
     - 'Import de documents': documents/import-de-documents.md
@@ -86,9 +87,12 @@
         - 'Appels de fonds': prise-en-main-et-fonctionnement/comptabilite/appels-de-fonds.md
         - 'Décomptes de charges': prise-en-main-et-fonctionnement/comptabilite/decomptes-de-charges.md
         - 'Relevés bancaires': prise-en-main-et-fonctionnement/comptabilite/releves-bancaires.md
+        - 'Comprendre le rapprochement et le lettrage': prise-en-main-et-fonctionnement/comptabilite/rapprochement-paiements-et-lettrage.md
         - 'États comptables': prise-en-main-et-fonctionnement/comptabilite/etats-comptables.md
     - 'Assemblées':
         - 'Assemblées': prise-en-main-et-fonctionnement/assemblees/assemblees.md
+    - 'Communication':
+        - 'Boîtes mail': prise-en-main-et-fonctionnement/communication/boites-mail.md
 - 'Configuration & technique':
     - 'Modèles de données': modeles-de-donnees.md
     - 'Permissions & Autorisations': permissions-autorisations/permissions-autorisations.md

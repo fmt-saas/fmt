@@ -1,5 +1,9 @@
 # Logique de réconciliation des paiements et du lettrage comptable
 
+> **Public visé : DEV / PO.** Cette page constitue la référence technique et fonctionnelle détaillée du modèle. La présentation destinée aux utilisateurs et aux nouveaux intervenants se trouve dans [Comprendre le rapprochement des paiements et le lettrage](../prise-en-main-et-fonctionnement/comptabilite/rapprochement-paiements-et-lettrage.md).
+
+Les séquences décrites ci-dessous expriment les invariants métier et l’architecture cible. Lorsqu’un exemple conceptuel diffère de la granularité physique des écritures, les contraintes explicites de périmètre du `Matching` et le modèle de données effectif prévalent.
+
 Le modèle repose sur une séparation stricte entre trois niveaux : 
 
 * le suivi métier des montants ouverts, 
@@ -899,6 +903,107 @@ Pour une pièce comptable non bancaire, l’ordre logique est :
 7. Historiser les changements.
 ```
 
+## Architecture d’implémentation pour les DEV/PO
+
+La génération comptable, l’analyse des `Funding`, la création des allocations et la mise à jour des `Matching` forment un même cas d’usage. Elles doivent être orchestrées ensemble, sans être concentrées dans une méthode monolithique.
+
+Une orchestration conceptuelle peut prendre la forme suivante :
+
+```php
+public function doGenerateAccountingArtifacts(): void {
+    $this->doGenerateAccountingEntry();
+    $this->doProcessFundingImpacts();
+    $this->doGenerateFundingAllocations();
+    $this->doUpdateMatchings();
+    $this->doUpdateReconciliationState();
+}
+```
+
+Les noms ci-dessus illustrent les responsabilités ; ils ne constituent pas une API à créer telle quelle. Dans le modèle eQual, les comportements de synchronisation doivent de préférence être portés par des actions ORM nommées, appelées avec `$self->do('action_name')`, et les actions existantes doivent être réutilisées avant d’introduire un nouveau point d’entrée public.
+
+### Responsabilités à isoler
+
+L’orchestrateur doit déléguer à des traitements spécialisés :
+
+1. **Production comptable** : créer ou identifier l’`AccountingEntry` et ses lignes, puis déterminer le compte réel et le compte logique de matching.
+2. **Analyse de la position ouverte** : rechercher les `Funding` compatibles selon le compte collecteur, le tiers, la copropriété, la devise, le sens et les règles métier.
+3. **Décision d’affectation** : appliquer FIFO lorsque requis, calculer chaque montant atomique et traiter les compensations ou résiduels.
+4. **Persistance des allocations** : créer, découper, déplacer ou invalider les `FundingAllocation` / `Payment` avec leur origine.
+5. **Projection comptable** : rattacher chaque `AccountingEntryLine` lettrable au `Matching` compatible avec son périmètre, sans imposer une bijection allocation-ligne.
+6. **Recalcul** : rafraîchir montants restants, états de paiement, solde et niveau du `Matching`.
+7. **Audit** : conserver l’événement déclencheur, les objets sources et les changements avant/après nécessaires à l’explication.
+
+### Frontière transactionnelle
+
+Une opération de posting ou de recalcul doit être cohérente dans son ensemble. La frontière transactionnelle doit empêcher les états intermédiaires tels que :
+
+- une écriture comptable créée sans les `Funding` attendus ;
+- une allocation enregistrée sans origine identifiable ;
+- un `Payment` bancaire dont la `BankStatementLine` n’est plus accessible ;
+- une ligne comptable rattachée à un `Matching` d’un autre périmètre ;
+- un solde de `Funding` recalculé alors que les allocations correspondantes ne sont pas toutes persistées.
+
+En cas d’échec, le cas d’usage doit être repris sans créer de doublons. Si des contraintes comptables interdisent de remplacer des écritures publiées, la reprise passe par les mécanismes autorisés — annulation logique, extourne ou OD corrective — et non par une mutation silencieuse de l’historique.
+
+### Clés d’idempotence et recherche de l’existant
+
+Avant toute création, le traitement recherche les objets déjà dérivés de la même source. Les critères dépendent du type d’objet, mais doivent au minimum exploiter les liens stables disponibles :
+
+```text
+Funding
+    accounting_entry_line_id
+    source_object_class + source_object_id
+    accounting_account_id
+
+FundingAllocation / Payment
+    funding_id
+    origin_object_class + origin_object_id
+    accounting_entry_line_id, si disponible
+    amount et sens de l’affectation
+
+AccountingEntryLine / Matching
+    ligne déjà rattachée ou non
+    copropriété / organisation
+    tiers, owner ou ownership applicable
+    matching_account_id
+    devise
+```
+
+Le montant seul n’est jamais une clé suffisante : deux pièces, deux lignes bancaires ou deux appels distincts peuvent avoir le même montant.
+
+### Invariants de domaine à contrôler
+
+Après chaque traitement, les invariants suivants doivent être vérifiables :
+
+- une allocation cible exactement un `Funding` ;
+- la somme des allocations actives explique le montant payé du `Funding` sans dépasser les règles autorisées ;
+- le montant restant est recalculé depuis les données persistées, pas maintenu par une seconde logique concurrente ;
+- toute allocation conserve une origine métier ou comptable identifiable ;
+- tout `Payment` bancaire est rattaché à sa `BankStatementLine` ;
+- une `AccountingEntryLine` ne rejoint qu’un seul `Matching` à la fois ;
+- les lignes d’un même `Matching` partagent le périmètre comptable requis ;
+- le compte économique réel reste disponible même lorsqu’un compte collecteur est utilisé pour le rapprochement ;
+- aucune réaffectation ne contourne FIFO dans un périmètre où cette règle s’applique ;
+- un recalcul identique ne crée ni second `Funding`, ni seconde allocation, ni second rattachement comptable.
+
+### Critères d’acceptation PO et jeux de tests minimaux
+
+Le comportement doit être validé au minimum sur les scénarios suivants :
+
+| Scénario | Résultat métier attendu | Contrôle comptable attendu |
+| --- | --- | --- |
+| Paiement exact | Le `Funding` est soldé par une allocation. | Les lignes compatibles équilibrent le cycle de matching. |
+| Paiement partiel | Le paiement est entièrement expliqué et le `Funding` conserve un reste. | Le `Matching` peut rester non balancé. |
+| Paiement groupé | Une allocation atomique est conservée par `Funding` ciblé. | La ligne comptable peut rester agrégée dans un même périmètre. |
+| Trop-payé | Les dettes éligibles sont apurées et le surplus devient un crédit traçable. | Le solde comptable reflète la position créditrice. |
+| Paiement anticipé | Le crédit est conservé puis affecté lors de l’arrivée d’un montant compatible. | Les écritures rejoignent le cycle de matching applicable. |
+| Deux `Funding` de sens inverse | La compensation respecte FIFO et laisse seulement le résiduel nécessaire. | Les lignes sont regroupées uniquement si leur périmètre est compatible. |
+| Fonds de réserve et fonds de roulement | Le compte collecteur permet la recherche commune sans perdre l’origine économique. | `account_id` conserve l’imputation réelle et `matching_account_id` le périmètre logique. |
+| Rejeu du traitement | Aucun objet dérivé n’est dupliqué. | Aucun double rattachement au `Matching` n’apparaît. |
+| Annulation ou correction | Les allocations sont invalidées ou réaffectées avec historique ; les échéances ne sont pas supprimées physiquement. | Le lettrage est recalculé, extourné ou corrigé selon le statut comptable. |
+
+Ces scénarios doivent contrôler les montants, mais aussi les identifiants d’origine, le périmètre, l’ordre d’affectation et l’état après un second passage identique.
+
 ## OD et corrections
 
 Une opération diverse qui impacte un compte réconciliable doit être analysée comme toute autre source comptable.
@@ -951,6 +1056,8 @@ Les lignes bancaires peuvent avoir un statut de rapprochement distinct du statut
 | `partial` / `part` | Une partie seulement du montant est expliquée.               |
 | `full`             | L’intégralité du montant bancaire est expliquée.             |
 | `not_applicable`   | La ligne n’est pas soumise à rapprochement.                  |
+
+Ces quatre valeurs correspondent au champ historique `BankStatementLine.reconciliation_status`, actuellement déprécié. Un nouveau traitement ne doit pas en faire sa source de vérité. Il doit s’appuyer sur les `Payment` persistés, le montant restant et les indicateurs calculés, notamment `is_reconciled`. Le workflow `status` (`pending`, `posted`, `cancelled`) reste distinct de ce constat métier.
 
 L’état cible d’une ligne bancaire traitée est :
 

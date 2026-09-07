@@ -8,6 +8,8 @@ Fiche `Copropriété` > `Comptabilité` > `Relevés bancaires`
 
 La vue `Relevés bancaires` permet de traiter les extraits bancaires d'une copropriété, de rapprocher les transactions et d'intégrer les mouvements en comptabilité.
 
+Pour comprendre la différence entre rapprochement bancaire, affectation d’un paiement et lettrage comptable, voir [Comprendre le rapprochement des paiements et le lettrage](rapprochement-paiements-et-lettrage.md).
+
 ## Vue liste
 
 La liste `Relevés bancaires` affiche les extraits importés ou encodés.

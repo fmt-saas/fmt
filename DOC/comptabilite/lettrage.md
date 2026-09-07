@@ -1,5 +1,7 @@
 # Lettrage
 
+> Cette page décrit le lettrage du point de vue comptable. Pour le contrat détaillé DEV/PO et l’articulation avec les `FundingAllocation`, consulter [Logique de réconciliation des paiements et du lettrage comptable](../budget/logique-de-reconciliation-et-lettrage.md).
+
 Pour faciliter la comptabilité et identifier les écritures qui nécessitent d'être balancées (et identifier les éventuelles anomalies), on utilise un système de lettrage.
 Le lettrage consiste à relier une pièce comptable à son ou ses règlements, ou encore une note de crédit avec la facture qu’elle corrige.
 
@@ -23,11 +25,11 @@ Ce processus permet de vérifier que les dettes et créances ont bien été rég
 
 ### Financement (`Funding`)
 
-* **Définition** : un *Funding* est toujours rattaché à une **pièce comptable** (`accounting document`): facture d'achat, appel de fonds, décompte de charge, transfert entre comptes, remboursement à un tier ou opération diverse
+* **Définition** : un *Funding* représente un montant ouvert à suivre. Il possède une origine comptable identifiable, généralement une ligne d’écriture issue d’une pièce, d’une opération diverse, d’un solde d’ouverture ou d’une ligne bancaire.
 
-* **Rôle** : lier une pièce comptable à ses paiements effectifs.
+* **Rôle** : suivre un montant dû, attendu, crédité ou résiduel et expliquer son apurement par des affectations.
 
-Un Funding permettent les suivi des paiements (entrants ou sortants), afin de solder une pièce par exemple avec une OD ou une compensation.
+Les `Funding` permettent le suivi des paiements entrants ou sortants, afin de solder une pièce, par exemple avec une OD ou une compensation.
 
 Les Funding permettent également la génération d'ordre de mouvements bancaires (SEPA).
 
@@ -44,16 +46,18 @@ Un Funding peut inclure des écritures qui ne sont pas des paiements, afin de so
 
 Avec la modélisation adoptée, il est toujours possible d’effectuer un lettrage, quelle que soit la situation :
 
-* Lorsqu’une pièce existe, elle peut être rapprochée de paiements identifiés ou d’écritures arbitraires.
+* Lorsqu’une pièce existe, elle peut être rapprochée de paiements identifiés ou d’autres écritures justifiées par une cause métier ou comptable.
 * Lorsqu’aucune pièce n’existe (par exemple une ligne bancaire isolée), l’écriture correspondante peut être intégrée dans un Matching générique.
 
 Ainsi, toutes les écritures, qu’elles soient ou non rattachées à une pièce, peuvent être équilibrées entre elles via un Matching.
 
 ### Matching & Funding
 
-* un Funding est un cas particulier d'un Matching
-* un Funding est toujours rattaché à une pièce comptable "accounting document"
-* les pièces comptables possibles sont : facture d'achat, appel de fonds, décompte de charge, transfert entre comptes, remboursement à un tier et opération diverse
+* un `Funding` et un `Matching` sont complémentaires : le premier porte le suivi métier, le second le regroupement comptable ;
+* un `Funding` est rattaché à une origine comptable identifiable ;
+* une `FundingAllocation` matérialise la part d’une source d’apurement affectée à un seul `Funding` ;
+* un `Payment` est une `FundingAllocation` issue d’une ligne d’extrait bancaire ;
+* les origines possibles comprennent notamment une facture d’achat, un appel de fonds, un décompte de charges, un transfert, un remboursement, une opération diverse, un solde d’ouverture ou une ligne bancaire.
 
 Les écritures comptables impliquées se font en 1 ou 2 temps, en fonction du type de pièce
 
@@ -124,9 +128,9 @@ On précise le `aounting_account_id` :
 
 L'application FMT utilise des Components Angular spécifiques pour lettrer les écritures (AccountingEntryLine)
 
-#### Controller "matchAccountingEntry" pour lettrage arbitraire d'une écriture comptable
+#### Controller "matchAccountingEntry" pour lettrage explicite d'une écriture comptable
 
-Dans le cas d'un lettrage arbitraire manuel, on attache simplement l'écriture au Matching
+Dans le cas d’un lettrage manuel ou semi-automatique, le rattachement doit rester limité à des lignes comptablement compatibles et être justifié par la pièce, l’imputation ou l’opération à l’origine du rapprochement. Une égalité de montant ne suffit pas à elle seule.
 
 #### Controller "matchBankStatementLine" pour réconciliation manuelle d'une ligne d'extrait bancaire
 
