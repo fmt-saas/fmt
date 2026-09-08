@@ -78,6 +78,7 @@
     - 'Copropriétés':
         - 'Fiche copropriété': prise-en-main-et-fonctionnement/coproprietes/fiche-copropriete.md
         - 'Lots et propriétaires': prise-en-main-et-fonctionnement/coproprietes/lots-et-proprietaires.md
+        - 'Mutations': prise-en-main-et-fonctionnement/coproprietes/mutations.md
         - 'Configuration': prise-en-main-et-fonctionnement/coproprietes/configuration.md
         - 'Documents': prise-en-main-et-fonctionnement/coproprietes/documents.md
     - 'Comptabilité':

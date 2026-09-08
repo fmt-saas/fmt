@@ -1,343 +1,385 @@
-# Gestion des mutations (transferts de propriété)
+# Mutations et régularisation comptable — référence DEV/PO
 
+Cette page décrit le comportement effectivement implémenté pour les mutations (`OwnershipTransfer`) et leur régularisation comptable (`OwnershipTransferSettlement`). Elle s'adresse aux développeurs, Product Owners et analystes fonctionnels.
 
+> Le code est la source de vérité. Les sections « Limites et écarts connus » signalent explicitement les différences entre l'intention métier initiale et le comportement courant.
 
-La **mutation** d’un bien dans une copropriété correspond au **transfert de propriété d’un lot** d’un ancien copropriétaire (vendeur) vers un nouveau (acquéreur). Ce processus implique :
+Pour un parcours orienté écran, consulter le [guide utilisateur des mutations](../prise-en-main-et-fonctionnement/coproprietes/mutations.md).
 
-- Des **obligations légales** de transmission d’informations au notaire
-- Des **ajustements comptables** en termes de fonds et charges
-- Des impacts sur les **droits de propriété** enregistrés dans le système
+## Périmètre fonctionnel
 
-Le système prend en charge ce processus via une entité centrale `OwnershipTransfer`, un **workflow métier** bien défini et des fonctions automatisées (y compris IA et comptabilité).
+Une mutation couvre actuellement :
 
+- une copropriété ;
+- un dossier de propriété vendeur (`old_ownership_id`) ;
+- un dossier de propriété acquéreur (`new_ownership_id`) ;
+- un ou plusieurs lots ;
+- une date de transfert, qui correspond à la date de l'acte ;
+- les échanges documentaires avec le notaire ;
+- une régularisation comptable active liée depuis la mutation.
 
+Le traitement comptable analyse les fonds de roulement, les appels de fonds comptabilisés et les décomptes périodiques comptabilisés. Les pièces sources déjà comptabilisées ne sont pas modifiées : le delta est matérialisé par des opérations diverses (`MiscOperation`).
 
-## Structure du processus
+Les classes principales sont :
 
-Le processus est scindé en deux volets complémentaires :
+| Rôle | Classe |
+| --- | --- |
+| Dossier juridique et documentaire | `realestate\property\OwnershipTransfer` |
+| Dossier de régularisation comptable | `realestate\property\transfer\OwnershipTransferSettlement` |
+| Mouvement calculé par source et par lot | `OwnershipTransferSettlementLine` |
+| Lien idempotent entre une source et une OD | `OwnershipTransferSettlementOperation` |
+| Courrier vendeur ou acquéreur | `OwnershipTransferSettlementCorrespondence` |
 
-| Volet                            | Description                                              |
-| -------------------------------- | -------------------------------------------------------- |
-| **Administratif & documentaire** | Échanges formels avec le notaire via `OwnershipTransfer` |
-| **Comptable & financier**        | Ajustement des fonds de roulement, charges, et écritures |
+## Deux workflows coordonnés
 
-Ces deux volets sont coordonnés mais traités indépendamment, avec un déclenchement possible du volet comptable dès que la date de mutation est confirmée (`transfer_date`).
+### Workflow de la mutation
 
+| Statut technique | Libellé UI | Actions et destination |
+| --- | --- | --- |
+| `pending` | Brouillon | `open` → `open` |
+| `open` | Ouvert | `send` → `seller_documents_sent` ; `confirm` → `confirmed` |
+| `seller_documents_sent` | Documents vendeur envoyés | `confirm` → `confirmed` ; `to_complete` → `open` |
+| `confirmed` | Confirmé | `revert_to_open` → `open` ; `settle` → `settled` |
+| `financial_statement_sent` | État financier envoyé | `revert_to_open` → `open` ; `settle` → `settled` ; `to_complete` → `confirmed` |
+| `settled` | Vente confirmée | `revert_to_confirmed` → `confirmed` ; `prepare_accounting` → `accounting_pending` |
+| `accounting_pending` | Régularisation comptable en cours | `unlock` → `settled` ; `close` → `closed` |
+| `closed` | Clôturé | `unlock` → `settled` |
 
+L'action d'envoi du courrier notarial génère un PDF, l'enregistre comme `Document`, ajoute les pièces sélectionnées, met l'e-mail en file via la boîte du processus `legal`, puis ajoute une ligne à l'historique. Elle ne fait avancer automatiquement le workflow que depuis `open`, vers `seller_documents_sent`.
 
-## Gestion administrative & échanges notariaux
+Le statut `financial_statement_sent` existe dans le modèle et les vues, mais aucune transition du workflow courant ni l'action d'envoi ne positionne ce statut. Il peut donc surtout être rencontré dans des données historiques ou positionnées par un autre mécanisme.
 
-### 1. Trois niveaux d’informations
+### Workflow de la régularisation
 
-| Moment                 | Référence légale         | Contenu transmis                                             |
-| ---------------------- | ------------------------ | ------------------------------------------------------------ |
-| **Avant compromis**    | Art. 3.94 §1 / 577-11 §1 | État des appels de fonds, litiges en cours, documents comptables (3 derniers PV, 2 derniers décomptes…), documents d’identification |
-| **Après compromis**    | Art. 3.94 §2 / 577-11 §2 | Budget, montant des charges, travaux votés en AG, frais d’acquisition des communs, litiges judiciaires, solde du vendeur |
-| **Après acte notarié** | Art. 3.94 §3             | Attestation confirmant la mutation (signature de l’acte), déclencheur de la phase comptable |
+| Statut | Signification | Transitions |
+| --- | --- | --- |
+| `pending` | Calcul et OD en préparation | `validate` → `validated` ; `cancel` → `cancelled` |
+| `validated` | OD comptabilisées | `close` → `closed` ; `cancel` → `cancelled` |
+| `closed` | Régularisation clôturée | `cancel` → `cancelled` |
+| `cancelled` | Régularisation annulée et conservée pour traçabilité | aucune |
 
-Certains champs permettant de compléter la traçabilité des transmissions:
+Dans le flux standard, la transition `validate` exécute successivement le transfert des lots, la comptabilisation des OD, la génération et la planification des correspondances, puis la transition `close`. La régularisation et la mutation arrivent donc normalement à `closed` au cours de la même chaîne de validation.
 
-*  `request_date`, 
-*  `confirmation_date`
-*  `transfer_date`
-*  `seller_documents_sent_date` 
-*  `financial_statement_sent_date`
+## Volet notarial
 
+La fiche mutation structure les informations communiquées au titre des paragraphes 1, 2 et 3 :
 
+- §1 : soldes des fonds, arriérés du vendeur, appels votés, procédures, PV d'assemblée, décomptes et dernier bilan ;
+- §2 : dépenses décidées, appels de fonds, acquisitions de parties communes, dettes de copropriété, situation actualisée du vendeur et emprunts ;
+- §3 : date de l'acte, lots cédés et acquéreur.
 
-### 2. Workflow `OwnershipTransfer`
+À l'ouverture du dossier, les textes descriptifs sont initialisés depuis les modèles documentaires `ownership_transfer_paragraph_1` et `ownership_transfer_paragraph_2`. Les soldes de fonds, appels planifiés et arriérés sont ensuite rafraîchis. La confirmation actualise à nouveau les arriérés.
 
-| État                       | Description                                                  | Transitions possibles                   |
-| -------------------------- | ------------------------------------------------------------ | --------------------------------------- |
-| `draft`                    | Dossier initial encodé (IA ou assistant)                     | → `open`                                |
-| `open`                     | Dossier complet, prêt à être envoyé                          | → `seller_documents_sent`               |
-| `seller_documents_sent`    | Documents envoyés avant compromis                            | → `confirmed` ou `to_complete`          |
-| `confirmed`                | Compromis signé                                              | → `financial_statement_sent`            |
-| `financial_statement_sent` | Documents complémentaires envoyés                            | → `accounting_pending` ou `to_complete` |
-| `accounting_pending`       | Acte signé, en attente de traitement comptable (et de la réception de l'acte notarié) | → `closed`                              |
-| `closed`                   | Mutation définitivement clôturée                             | *(Aucun retour possible)*               |
+### Informations du §1
 
+Le premier volet correspond à la situation communiquée avant le compromis. La fiche permet de préparer :
 
+- les soldes des fonds de la copropriété et leur ventilation sur les lots concernés ;
+- les arriérés du vendeur et les frais de dossier de mutation ;
+- les appels destinés aux fonds et déjà décidés ;
+- les procédures judiciaires en cours ;
+- les procès-verbaux d'assemblée et décomptes périodiques joints ;
+- le dernier bilan approuvé ;
+- les informations complémentaires, notamment la citerne et le dossier d'intervention ultérieure.
 
-![](FMT - DOC OwnershipTransfer workflow.png)
+Les arriérés sont calculés à partir des `Funding` du vendeur. Ils portent sur son dossier de propriété dans la copropriété et ne sont pas limités aux seuls lots vendus. Les soldes de fonds et les appels affichés dans ce volet sont des informations destinées au courrier notarial ; ils sont distincts des lignes du settlement comptable créées après l'acte.
 
+### Informations du §2
 
+Le second volet prépare les informations complémentaires demandées après le compromis :
 
+- dépenses de conservation, entretien, réparation et réfection déjà décidées ;
+- appels de fonds approuvés ou planifiés ;
+- acquisition de parties communes ;
+- dettes certaines de la copropriété liées à des litiges ;
+- situation actualisée des arriérés du vendeur ;
+- emprunts bancaires et tableaux d'amortissement éventuels.
 
+Le champ `with_both_paragraphs` permet au rendu notarial d'inclure les deux ensembles d'informations dans une même correspondance.
 
+Les délais métier généralement associés au dossier sont de 15 jours après `request_date` pour le §1 et de 30 jours après `confirmation_date` pour le §2. Les champs de date permettent cette traçabilité, mais le workflow inspecté n'impose pas ces délais et ne planifie pas de rappel automatique lorsque le §3 tarde à arriver.
 
+### Informations du §3 et dates
 
-## Description des informations par étape
+`transfer_date` est la date économique et juridique déterminante pour le transfert des lots et les calculs comptables. La date de jouissance ou une date de réception d'un immeuble neuf ne joue aucun rôle dans l'algorithme décrit ici.
 
+Les champs de suivi disponibles sont `request_date`, `confirmation_date`, `seller_documents_sent_date`, `financial_statement_sent_date` et `transfer_date`. Le modèle ne calcule pas de délai ni de rappel automatique à partir de ces dates. En particulier, les délais métier de 15 jours pour le §1, de 30 jours pour le §2 ou le rappel après l'acte ne sont pas contrôlés par ce workflow.
 
-### A. seller_documents (Art. 3.94 §1)
+L'exercice et la période comptables sont calculés d'après la première date disponible selon l'étape du dossier, la date de transfert devenant la référence prioritaire lorsqu'elle est renseignée.
 
-Le courrier de réponse doit être envoyé dans les 15 jours suivant la demande de l'étude du notaire (basé sur `request_date`).
+## Création de la régularisation
 
-#### 1 - montants des fonds de roulement et fonds de réserve
+La transition `prepare_accounting`, accessible depuis `settled`, exige :
 
-* Situation instantanée (balance comptable), basée sur la date de la demande du notaire (`request_date`), reprenant **tous les fonds de la copropriété** (roulement, réserves, réserves spéciales) : il peut y avoir plusieurs fonds de réserve avec des clés de répartition différentes, donc plusieurs lignes.
+- une copropriété ;
+- un vendeur et un acquéreur distincts ;
+- au moins un lot ;
+- une date de transfert.
 
+Son hook `onbeforePrepareAccounting()` crée, s'il n'existe pas déjà, un `OwnershipTransferSettlement` avec :
 
-#### 2 - montant des arriérés éventuels dus par le cédant
+- la mutation, la copropriété, le vendeur et l'acquéreur ;
+- la date de transfert ;
+- `snapshot_at = now()` ;
+- `accounting_date = now()` par défaut ;
+- le statut `pending`.
 
-Si le courrier concerne les deux paragraphes, ne rien renseigner ici et ajouter une mention "Voir point 3.94 §2, 5° (ci-dessous)."
+Le lien `ownership_transfer_settlement_id` est écrit sur la mutation, puis celle-ci passe à `accounting_pending`.
 
-* les arriérés du vendeur (montants non payés à la date de la demande - sur base des paiements attendus [Funding]): les arriérés à renseigner concernent tous les biens du copropriétaire au sein de la copropriété, indépendamment de la vente
+Cette étape ne génère ni ligne ni OD. Ces opérations sont déclenchées depuis la fiche de régularisation avec `Générer les lignes`, puis `Générer les OD`.
 
-* une ligne reprenant les frais de dossier - selon "catalogue" des tarifs du syndic (contrat) [[montants forfaitaires pour: frais de rappel, frais de dossier mutation, ...]] (loi : "entièrement à charge vendeur") - cette valeur doit être renseignée explicitement dans le Ownership transfer, après synchro avec la config du Condominium, et mis à jour à chaque courrier, si nécessaire.
+## Convention de signe
 
-#### 3 - la situation des appels de fonds, destinés au fonds de réserve et décidés par l'assemblée générale avant la date certaine du transfert de la propriété;
+Une ligne exprime un transfert économique entre vendeur et acquéreur :
 
-Ce paragraphe doit faire référence aux points suivants du dernier PV d'AG, repris en pièce jointe (@attachments): fonds de réserve, fonds de roulement et budget
+```text
+applied_amount > 0
+    vendeur crédité
+    acquéreur débité
 
-#### 4 - le cas échéant, le relevé des procédures judiciaires en cours relatives à la copropriété;
+applied_amount < 0
+    vendeur débité
+    acquéreur crédité
+```
 
-* Si des procédures judiciaires sont en cours, il faut le préciser ("oui").
-* Un descriptif doit reprendre un texte de description succincte pour chaque procédure, ainsi que les montants en jeux.
+Le calcul de base est :
 
-#### 5 - les procès-verbaux des assemblées générales ordinaires et extraordinaires des trois dernières années, ainsi que les décomptes périodiques des charges des deux dernières années
+```text
+calculated_amount = actual_seller_amount - theoretical_seller_amount
+```
 
-* en pièce jointe (@attachments) : les PV concernés (3 ans)
-* les décomptes périodiques de charges (provisions et régularisations annuelles, consommations et charges privatives) : le but est de donner une vision précise des charges réellement supportées par le lot concerné; uniquement sur les lots faisant l'objet de la vente.
+Exemple : 100 EUR ont été comptabilisés au vendeur, mais 40 EUR seulement lui reviennent après prise en compte de la mutation. Le montant calculé est `100 - 40 = 60 EUR` : le vendeur est crédité de 60 EUR et l'acquéreur est débité de 60 EUR.
 
-#### 6 - une copie du dernier bilan approuvé par l'assemblée générale
+`calculated_amount` conserve le résultat avant arrondi final. `applied_amount`, modifiable tant que la régularisation est `pending`, est le montant à comptabiliser.
 
-* Le dernier bilan annuel, validé en AG, repris en pièce jointe (@attachments)
+## Génération des lignes
 
-#### Compléments d'information
+### Préconditions
 
-* Travaux nécessitant la rédaction d'un dossier d'intervention ultérieure (DIU) : "aucun dossier en possession du Syndic" / "la copropriété dispose d'un dossier de suivi des travaux"
-* Existence d'une cuve à Mazout (oui/non + capacité) : selon la configuration de l'ACP des lots concernés par la vente.
+La génération n'est autorisée que si :
 
+- la régularisation est `pending` ;
+- toute OD déjà liée est encore `proforma` ;
+- le dossier et son snapshot sont complets ;
+- `snapshot_at` n'est pas antérieur à la date de transfert ;
+- la copropriété possède au moins un fonds de roulement ;
+- chaque fonds de roulement possède un compte, une clé de répartition et un total de quotes-parts strictement positif ;
+- chaque lot vendu possède une quote-part pour la clé de chaque fonds de roulement.
 
+### Fonds de roulement
 
+Pour chaque `CondoFund` de type `working_fund` :
 
-### B. financial_statement (Art. 3.94 §2)
+1. la position est prise à `transfer_date - 1 jour`, car le jour de la mutation appartient à l'acquéreur ;
+2. le dernier `AccountBalanceChange` disponible à cette date fournit le solde `credit_balance - debit_balance` ;
+3. ce solde est réparti entre les lots vendus selon `property_lot_shares / total_shares` ;
+4. une ligne `working_fund_transfer` est calculée par lot.
 
-Le courrier de réponse doit être envoyé dans les 30 jours suivant la demande de l'étude du notaire (basé sur `confirmation_date`).
+Le vendeur est considéré comme détenteur réel du montant avant transfert et l'acquéreur comme détenteur théorique après transfert.
 
+Seuls les soldes des fonds de type `working_fund` sont transférés directement. Les soldes des fonds de réserve ne font pas l'objet de cette étape. En revanche, une exécution comptabilisée d'appel de fonds peut être analysée quel que soit le type de l'appel, son affectation comptable étant déterminée par `FundRequestExecution::getDebitOperationAssignment()`.
 
-#### 1 - le montant des dépenses de conservation, d'entretien, de réparation et de réfection décidées par l'assemblée générale ou le syndic avant la date certaine du transfert de la propriété mais dont le paiement est demandé par le syndic postérieurement à cette date;
+### Appels de fonds comptabilisés
 
-* Cette information est reprise dans le dernier PV d’AG, repris en pièce jointe (@attachments)
+Toutes les `FundRequestExecution` de la copropriété qui sont `posted` et dont `posting_date <= snapshot_at` sont examinées. Le traitement retient seulement les entrées relatives aux lots vendus et au vendeur ou à l'acquéreur.
 
+La période économique utilise `date_from` et `date_to`. À défaut, `posting_date` sert de date ponctuelle. Les bornes sont inclusives :
 
-#### 2 - un état des appels de fonds approuvés par l'assemblée générale des copropriétaires avant la date certaine du transfert de propriété et le coût des travaux urgents dont le paiement est demandé par le syndic postérieurement à cette date;
+- période entièrement avant la mutation : 100 % vendeur ;
+- période commençant le jour de la mutation ou après : 100 % acquéreur ;
+- période à cheval : prorata journalier, le jour de mutation étant le premier jour acquéreur.
 
-Liste de **tous les appels de fonds et de provisions** (budget), avec une distinction entre les exécutions planifiées et appelées, regroupés par type de fonds (roulement [`working_fund`], réserve [`reserve_fund`], provisions [`expense_provisions`], travaux exceptionnels [`work_provisions`])
+Le type de correction est `post_transfer_call` si `period_from >= transfer_date`, sinon `current_period_provision`. Une source entièrement antérieure peut donc être classée comme provision de période courante, mais son delta est normalement nul et sa ligne n'est pas persistée.
 
-Cette disposition vise à informer l’acquéreur sur les charges futures connues, qu'elles soient déjà votées (mais non encore exigibles) ou à venir en cas de travaux urgents imposés.
-Lorsqu’un copropriétaire vend seulement une partie de ses lots, les informations fournies doivent être restreintes aux montants relatifs aux lots vendus uniquement, et non à l’ensemble des engagements du copropriétaire vendeur.
+### Décomptes périodiques comptabilisés
 
+Toutes les `ExpenseStatement` `posted` avant le snapshot sont examinées. Sont exclus les décomptes qui cumulent les deux conditions suivantes :
 
-#### 3 - un état des frais liés à l'acquisition de parties communes, décidés par l'assemblée générale avant la date certaine du transfert de la propriété, mais dont le paiement est demandé par le syndic postérieurement à cette date;
+- l'exercice est `closed` ;
+- la période du décompte est la dernière période de l'exercice.
 
-* Ce point est couvert par le dernier PV d'AG, repris en pièce jointe (@attachments)
+Un décompte sans ligne vendeur/acquéreur pour les lots transférés est ignoré. Pour les autres, le code :
 
-#### 4 - un état des dettes certaines dues par l'association des copropriétaires à la suite de litiges nés avant la date certaine du transfert de la propriété, mais dont le paiement est demandé par le syndic postérieurement à cette date.
+1. agrège les montants réellement comptabilisés par lot et par partie ;
+2. appelle `ExpenseStatement::simulateOwnershipTransferData()` pour simuler la ventilation après mutation ;
+3. compare réel et théorique ;
+4. crée des lignes `expense_statement_adjustment` sans modifier le décompte source.
 
-* Ce point est couvert par le dernier PV d'AG, repris en pièce jointe (@attachments)
+### Arrondis et persistance
 
-#### 5 - le montant des arriérés éventuels dus par le cédant;
+Les lignes sont groupées par source comptable. Dans chaque groupe :
 
-Il s'agit d'une version mise à jour de la situation du cédant.
+1. les lots sont triés par identifiant croissant ;
+2. le total brut est arrondi à deux décimales ;
+3. chaque ligne sauf la dernière est arrondie à deux décimales ;
+4. la dernière absorbe le reliquat de centimes ;
+5. les lignes dont `abs(applied_amount) < 0,005` ne sont pas enregistrées.
 
-* les arriérés du vendeur (montants non payés à la date de la demande - sur base des paiements attendus [Funding]): les arriérés à renseigner concernent tous les biens du copropriétaire au sein de la copropriété, indépendamment de la vente
+Les montants réel, théorique et calculé sont enregistrés avec quatre décimales ; le montant retenu l'est avec deux.
 
-* une ligne reprenant les frais de dossier - selon "catalogue" des tarifs du syndic (contrat) [[montants forfaitaires pour: frais de rappel, frais de dossier mutation, ...]] (loi : "entièrement à charge vendeur") - cette valeur doit être renseignée explicitement dans le Ownership transfer, après synchro avec la config du Condominium, et mis à jour à chaque courrier, si nécessaire.
+`has_accounted_sources` est déterminé par la présence de groupes analysés, pas par la présence finale d'un delta non nul. Comme chaque fonds de roulement configuré produit un groupe avant filtrage des montants nuls, cet indicateur peut être vrai alors qu'aucune ligne n'est finalement enregistrée. `alert_summary` est un simple résumé textuel du nombre de lignes et de sources.
 
+### Effet d'une régénération
 
-#### Informations complémentaires
+La régénération n'effectue pas de fusion avec les lignes existantes. Elle supprime d'abord les lignes des OD pro forma, supprime toutes les lignes de régularisation, puis recrée le résultat complet.
 
-* Emprunt(s) bancaire(s) de la copropriété : oui/non "il n’y pas d’emprunt contracté par la copropriété à ce jour", "voir tableau(x) d’amortissement en annexe(s) et solde(s) ci-dessous" (@attachments)
+En conséquence, toute modification manuelle de `applied_amount` est perdue si l'utilisateur relance `Générer les lignes`. Il n'existe actuellement ni justification d'override, ni exclusion, ni marquage d'obsolescence, ni empreinte de calcul.
 
+## Génération des opérations diverses
 
+Seules les lignes dont le montant retenu est non nul sont groupées. Il existe au plus une OD par source grâce à la clé :
 
-### C. Acte notarié (Art. 3.94 §3)
+```text
+settlement:{settlement_id}:{source_type}:{source_id}
+```
 
-Il faut planifier un tâche de rappel au notaire pour si le §3 n'est pas reçu dans les 30 jours suivant la `financial_statement_sent_date`.
+| Source | Regroupement | Date de comptabilisation |
+| --- | --- | --- |
+| Fonds de roulement | régularisation + fonds | date de transfert |
+| Appel couvrant la mutation | régularisation + exécution | date de transfert |
+| Appel postérieur | régularisation + exécution | `posting_date` de l'exécution |
+| Décompte | régularisation + décompte | `accounting_date` de la régularisation |
 
-Les informations reçues sont "découpées" et utilisées pour compléter le dossier:
+Avant création, chaque date doit être aujourd'hui ou antérieure, couverte par une période `open` ou `preclosed`, dans un exercice `preopen`, `open` ou `preclosed`. La copropriété doit également disposer :
 
-* transfer_date (date de signature de l'acte)
+- d'un journal `MISC` ;
+- d'un compte bancaire principal ;
+- des comptes copropriétaire correspondant à l'affectation du fonds ou de l'appel.
 
-* infos nouveaux copropriétaires : réencoder manuellement selon l'acte
+Pour chaque lot, une ligne crédite/débite le compte vendeur et une ligne miroir débite/crédite le compte acquéreur. Pour le fonds de roulement, deux lignes supplémentaires sur le compte du fonds déplacent l'affectation analytique vendeur/acquéreur sans modifier le solde global du fonds.
 
+L'OD est créée puis publiée en `proforma`. Une nouvelle génération remplace une OD encore pro forma. Une OD déjà `posted` est réutilisée uniquement si sa clé, sa date et son montant correspondent ; une divergence bloque le traitement.
 
+## Validation, écritures et Funding
 
+La validation exige que toutes les OD liées soient encore `proforma`. Le code n'impose toutefois pas qu'il existe au moins une ligne ou une OD : une régularisation sans correction peut être validée.
 
+Après la transition vers `validated`, le hook :
 
-## Données de référence & dates clés
+1. transfère les lots au nouvel acquéreur ;
+2. poste chaque OD ;
+3. renseigne `validated_at` ;
+4. génère les correspondances ;
+5. planifie leur émission ;
+6. clôture la régularisation.
 
-### Dates importantes
+Le post d'une `MiscOperation` utilise le workflow générique : génération et validation de l'écriture comptable, création des `Funding`, attribution du numéro d'opération. Pour chaque ligne de compte propriétaire :
 
-| Date                           | Nom courant          | Utilisation concrète                                         | Remarques                                    |
-| ------------------------------ | -------------------- | ------------------------------------------------------------ | -------------------------------------------- |
-| `Date de l'acte`               | **Date de mutation** | Base pour tous les calculs (fonds, charges, droits de propriété) | 🔐 Date *juridique* officielle                |
-| `Date de réception provisoire` | (si bien neuf)       | Mention indicative, rarement utile comptablement             | 🏗️ Bien neuf ou rénové                        |
-| `Date de jouissance`           | (occupant)           | Début d’usage par l’acheteur                                 | ⚠️ Aucun effet comptable sauf contrat spécial |
+```text
+due_amount = debit - credit
+```
 
+Un débit acquéreur produit donc un `Funding` positif ; un crédit vendeur, un `Funding` négatif. Ces objets ont `funding_type = misc_operation` et sont liés à l'OD, pas directement au settlement.
 
+Le comportement générique tente ensuite de compenser automatiquement le nouveau Funding avec les Funding ouverts de signe opposé sur le même compte de contrôle. Il peut créer des `FundingAllocation` et tenter un lettrage des lignes comptables. Aucun `Payment` ni mouvement bancaire n'est créé directement par la régularisation.
 
-### Historique de propriété (`PropertyLotOwnership`)
+## Transfert des lots et historique de propriété
 
-Le système conserve l’historique des droits de propriété par lot :
+Le transfert physique n'a pas lieu lors de `prepare_accounting`, mais après validation de la régularisation :
 
-- `date_from` = début de propriété
-- `date_to` = fin de propriété (souvent implicite)
+- l'acquéreur est validé si nécessaire, avec `date_from = transfer_date` ;
+- `PropertyLot.active_ownership_id` est remplacé par l'acquéreur ;
+- le lien historique ouvert du vendeur reçoit `date_to = transfer_date - 1 jour` ;
+- un lien historique ouvert acquéreur est créé s'il n'en existe pas déjà ;
+- si le vendeur ne conserve aucun lot actif dans la copropriété, son `Ownership.date_to` prend la veille de la mutation ;
+- les exécutions des appels actifs dont la période couvre la date de mutation sont régénérées via `FundRequest::generate_executions()`.
 
-Utilisé pour :
+Cette dernière opération porte sur les appels actifs couvrant la date de mutation. Le code ne parcourt pas explicitement « tous les proformas de l'exercice » ; il délègue la régénération au mécanisme standard du `FundRequest`.
 
-- Génération des décomptes historiques
-- Suivi des dettes
-- Réponses aux notaires
+## Correspondances et clôture
 
+Après validation, les correspondances existantes sont supprimées puis régénérées selon les préférences `technical_communication` du vendeur et de l'acquéreur. Une correspondance est créée pour chaque canal activé : `email`, `postal`, `postal_registered` ou `postal_registered_receipt`. En l'absence de préférence active, le recommandé simple est utilisé. Le destinataire est le représentant du dossier de propriété ; sans représentant, aucune correspondance n'est créée pour ce rôle.
 
+La planification :
 
-## Traitement comptable de la mutation
+- programme l'action d'envoi différé des e-mails environ une minute plus tard ;
+- crée une `ExportingTask` avec une ligne par méthode postale ;
+- renseigne `correspondences_dispatch_started_at`.
 
-La mutation devient **opposable** à la copropriété après réception de l’acte notarié.  Lorsque la date de signature de l'acte est connue, elle est stockée dans `transfer_date` , utilisé la pour réaliser les écritures correspondantes.
+L'e-mail est marqué émis lorsque le message avec PDF est accepté dans la file (`is_sent = true`, `sent_date = now()`). L'export postal fusionne les PDF et crée un document d'export.
 
+Dans le code courant, la policy `can_close` ne contient aucun contrôle actif : le bloc qui attendait les e-mails et le téléchargement postal est commenté. La validation enchaîne donc immédiatement la clôture du settlement et de la mutation après planification, sans attendre l'envoi réel ni le téléchargement de l'export. L'export postal ne met pas non plus `is_sent` à jour.
 
+## Annulation et déverrouillage
 
-Lors de la validation du transfert, les opérations suivantes sont réalisées:
+L'action `Déverrouiller` de la mutation appelle `cancel` sur la régularisation, efface le lien actif, puis remet la mutation à `settled`.
 
+La policy d'annulation vérifie notamment :
 
-### Pour l'ancien propriétaire, faire un remboursement (écriture + funding)
+- que les OD comptabilisées et leurs écritures peuvent être annulées dans des périodes et exercices encore admissibles ;
+- qu'aucune écriture n'est déjà extournée ;
+- que les lots sont encore affectés soit au vendeur, soit à l'acquéreur ;
+- si le lot est chez l'acquéreur, que les deux segments attendus de l'historique existent.
 
-* A. créer un remboursement pour la partie entre le début de l'exercice et la date de mutation uniquement pour les FundRequestExecution `posted` (expense_provisions) dont la date de fin est postérieure à la date de mutation
-* B. S'il y a des exécutions d'appel planifiées pour le fonds de roulement [roulement, réserve et provisions] (FundRequestExecutionLine), il faut les modifier selon la variation de prorata (si tous les lots sont vendus on les supprime - ce sont des équivalents de lignes de factures proforma, donc modifiables)
+Le rollback :
 
-### Pour le nouveau propriétaire, faire une demande de paiement extraordinaire (écriture + funding)
+- annule les OD `posted` ou supprime les brouillons/proformas ;
+- remet les lots encore détenus par l'acquéreur chez le vendeur ;
+- rouvre les segments historiques du vendeur et supprime les segments acquéreur créés à la date de mutation ;
+- rouvre le dossier vendeur si sa date de fin correspond à la veille de la mutation ;
+- régénère les exécutions des appels actifs couvrant la date de mutation.
 
-* A'. créer un appel de fonds extraordinaire pour couvrir la partie non comprise entre la date de mutation et la date suivante de RequestExecution (ou de fin d'exercice s'il n'y a eu qu'une seule exécution)
-  -> envoi d'un courrier au nouveau propriétaire : "en annexe, votre appel de fonds pour la période en cours"
-  -> "appel d'ajustement"
+L'annulation générique d'une OD supprime ses Funding seulement s'ils n'ont pas été envoyés. Les Funding déjà envoyés ne sont pas supprimés par ce mécanisme et doivent être pris en compte lors de l'analyse d'une annulation.
 
-* B'. ajouter des lignes pour toutes les RequestExecution à venir de l'exercice en cours
-  	créer une fund_request_execution_id supplémentaire (exceptionnel), rattaché à la fundRequest initiale: ca permet de maintenir la visibilité et d'utiliser la même logique de suivi pour toutes les situations
+## Modèle de données utile
 
+### `OwnershipTransferSettlement`
 
-Les montants s'équilibrent et n'impactent pas la situation comptable de la copropriété: A = A' et B = B'
+Conserve le contexte figé (`snapshot_at`), la date comptable, les montants nets, la présence de sources, le résumé du calcul, les lignes, les OD, les correspondances, les informations de planification, les timestamps de validation/clôture et les logs techniques.
 
+`seller_net_amount` et `buyer_net_amount` reçoivent actuellement le même total signé. Leur sens est donné par la convention de signe, et non par deux soldes opposés.
 
+### `OwnershipTransferSettlementLine`
 
-### 1. Fonds de roulement (`working_fund`)
+Conserve la source et le lot, la période et les jours par partie, les montants réels et théoriques, le montant calculé, le montant retenu et le lien vers le wrapper d'OD. Seul `applied_amount` est destiné à l'ajustement manuel. Une ligne ne peut plus être modifiée ou supprimée après validation du settlement.
 
-Le fonds de roulement est un "bas de laine", un fonds destiné à assurer la trésorerie du syndic en début de période, alimenté par des appels périodiques. Il est entièrement remboursé au vendeur, et réclamé à l'acheteur.
+### `OwnershipTransferSettlementOperation`
 
-#### Pour le vendeur
+Relie une source, une clé idempotente et une `MiscOperation`. Les contraintes d'unicité portent sur `(settlement_id, operation_key)` et `(settlement_id, misc_operation_id)`.
 
-- **Remboursement** complet des montants payés
-- Écriture comptable via OD (via `MoneyRefund`)
-- Création d’un objet `Funding` spécifique 
+### `OwnershipTransferSettlementCorrespondence`
 
-#### Pour acquéreur
+Étend `DocumentCorrespondence` et ajoute le rôle du destinataire, l'indicateur de document généré, l'accusé de réception, les e-mails liés et le lien de téléchargement. L'unicité est définie par `(settlement_id, recipient_role, communication_method)`.
 
-- Création d’un **appel exceptionnel** couvrant la période entre `transfer_date` et prochaine échéance + OD
-- Intégration dans les futurs appels (`FundRequestExecution`)
+## Idempotence et atomicité observables
 
-#### Ajustements appels planifiés
+- `prepare_accounting` ne recrée pas de settlement tant que la mutation en référence déjà un.
+- La clé d'opération empêche la duplication d'une OD pour une même source.
+- Les créations de Funding compensent les montants déjà générés pour la même OD et le même tiers avant de créer un delta complémentaire.
+- La régénération des correspondances supprime et recrée les lignes tant que l'émission n'a pas commencé.
+- Une fois `correspondences_dispatch_started_at` renseigné, une nouvelle planification est refusée.
 
-- Si la vente concerne 100 % de la quote-part d’un lot : les lignes d’appel futures sont supprimées
-- Sinon : elles sont recalculées selon les nouvelles quotes-parts
+Le code ne déclare pas de transaction explicite englobant toute la préparation ou toute la validation. Les hooks enchaînent plusieurs écritures et actions ; le niveau d'atomicité réel dépend donc du moteur ORM et du contrôleur de transition.
 
+## Limites et écarts connus
 
+Les points suivants ne doivent pas être supposés comme implémentés :
 
-**Principe d’équilibre** : le montant remboursé au vendeur doit être égal à celui réclamé à l’acheteur.
+- il n'existe pas de champ unique en base imposant « un settlement historique par mutation » ; le lien de la mutation désigne seulement le settlement actif ; après annulation, une nouvelle régularisation peut être créée ;
+- les domaines des champs guident la sélection de lots et de dossiers de propriété dans l'UI, mais `can_prepare_accounting` ne revalide pas explicitement que chaque lot est encore détenu par le vendeur ni que les deux dossiers appartiennent à la copropriété ;
+- la préparation ne transfère pas les lots et ne génère pas automatiquement les lignes ;
+- les ajustements manuels ne survivent pas à une régénération des lignes ;
+- il n'existe ni inclusion/exclusion motivée, ni override justifié, ni ligne obsolète, ni hash/version de calcul ;
+- les Funding utilisent le type générique `misc_operation` et peuvent être compensés automatiquement ;
+- aucune liaison directe Funding → settlement/wrapper n'est définie ; la traçabilité passe par l'OD ;
+- la clôture n'attend actuellement pas l'émission effective des correspondances ;
+- le statut `financial_statement_sent` n'est pas atteint par le workflow courant ;
+- la validation n'impose pas explicitement la présence de lignes ou d'OD ;
+- `alert_summary` n'est pas une alerte applicative et aucune alerte dédiée au settlement n'est créée ;
+- aucune prise en charge dédiée des mutations successives sur une même période n'est visible dans ce workflow.
 
+Ces écarts sont importants pour les critères d'acceptation : une évolution future devra décider si elle préserve le comportement courant ou si elle rétablit l'intention métier initiale.
 
+## Points d'entrée techniques
 
-### 2. Fonds de réserve (`reserve_fund`)
-
-Pour les **fonds de réserve**, la loi prévoit qu’ils ne soit pas transféré en cas de vente (au vendeur de négocier pour l’inclure dans le prix de vente mais le syndic n’intervient pas).
-
-(les appels effectués et payés ne sont pas remboursés)
-
-#### Ajustements appels planifiés
-
-- Si la vente concerne 100 % de la quote-part d’un lot : les lignes d’appel futures sont supprimées
-- Sinon : elles sont recalculées selon les nouvelles quotes-parts
-- Il peut arriver que le syndic reçoive tardivement la confirmation du notaire signifiant le transfert de propriété et il doit donc revenir sur des appels qui ont été envoyés au vendeur alors qu’ils auraient dus être envoyés à l’acquéreur. 
-
-
-
-### 3. Charges courantes (`expense_provisions`)
-
-Les provisions pour charges
-
-- Basées sur les dépenses de l’exercice courant
-- Réparties **au prorata temporis** sur base de la `transfer_date`
-
-
-
-#### Ajustements appels planifiés
-
-- Si la vente concerne 100 % de la quote-part d’un lot : les lignes d’appel futures sont supprimées
-- Sinon : elles sont recalculées selon les nouvelles quotes-parts
-- Il peut arriver que le syndic reçoive tardivement la confirmation du notaire signifiant le transfert de propriété et il doit donc revenir sur des appels qui ont été envoyés au vendeur alors qu’ils auraient dus être envoyés à l’acquéreur. 
-
-
-
-## Transfert technique des soldes
-
-### Règle comptable : calcul dynamique
-
-- Basé sur les **affectations** (pas les lots directement)
-- Utilisation de fonctions comme `computeReimbursementsByRequestType`
-- Montants identifiés via les écritures existantes dans les appels déjà exécutés
-
-| Type d’opération      | Compte         | Mouvement |
-| --------------------- | -------------- | --------- |
-| Remboursement vendeur | `working_fund` | Crédit    |
-| Réappel acheteur      | `working_fund` | Débit     |
-
-
-
-## Récapitulatif des rôles et responsabilités
-
-| Étape du workflow          | Acteur principal    | Action                                  |
-| -------------------------- | ------------------- | --------------------------------------- |
-| `draft`                    | Assistant           | Encodage initial (automatisé ou manuel) |
-| `open`                     | Gestionnaire        | Validation et préparation               |
-| `seller_documents_sent`    | Gestionnaire        | Transmission des premiers documents     |
-| `confirmed`                | Notaire / syndic    | Signature du compromis                  |
-| `financial_statement_sent` | Syndic / comptable  | Transmission du solde et pièces finales |
-| `accounting_pending`       | Comptable           | Vérification et attente acte            |
-| `closed`                   | Système / comptable | Écritures validées, mutation bouclée    |
-
-
-## Envoi des documents
-
-Lors d'une demande d'envoi d'un document lié à un dossier de mutation, il faut : 
-
-* générer un Document : le mettre dans le système de gestion, le lier au transfert
-  -> il peut y avoir plusieurs documents: seul le dernier est 
-
-* permettre l'envoi d'un email personnalisé : 
-  * choix document (implicite)
-  * choix du Template
-  * choix des destinataires (a. sur base de l'entité liée; b. sur base arbitraire )
-  * choix pièces jointes additionnelles
-  * générer un Email pour la queue
-
-
-Le passage de certaines étapes ("open" -> "seller_documents_sent" ou "confirmed" -> "financial_statement_sent") se fait via des actions indépendantes du workflow: "envoyer le document"
-
-Il faut pouvoir choisir :
-
-* quelles informations on envoie (§1, §2 ou §1 et §2)
-* à qui on l'envoie (adresses email) -> peut être défini dans les sections de la vue
-* des pièces jointes éventuelles -> peut être défini dans les sections de la vue
-  	on ne va pas copier les pièces jointes dans le folder du dossier de mutation (duplication)
-  	-> uniquement des liens vers des attachments (qui sont des documents n'importe ou dans le EDMS)
-  	-> ces liens peuvent être créés/retrouvés automatiquement
-
-
--> avoir une liste de documents (pièces jointes)
--> avoir une liste des emails (destinataires)
-
-
-Dossier spécifique pour la mutation, reprenant les documents spécifiquement générés (courriers) pour la mutation.
-
+| Besoin | Point d'entrée |
+| --- | --- |
+| Préparer la régularisation | transition `prepare_accounting` sur `OwnershipTransfer` |
+| Calculer/recalculer les lignes | action ORM `generate_lines` sur le settlement |
+| Générer les OD pro forma | action ORM `generate_operations` |
+| Valider et comptabiliser | transition `validate` |
+| Transférer les lots | action interne `transfer_property_lots` |
+| Régénérer les appels actifs | action interne `refresh_fund_request_executions` |
+| Générer les correspondances | action interne `generate_correspondences` |
+| Planifier les envois | action `dispatch_correspondences` |
+| Annuler et restaurer | transition `cancel` / action `rollback` |
