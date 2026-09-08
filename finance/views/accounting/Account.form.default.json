@@ -190,7 +190,11 @@
                                             {
                                                 "type": "field",
                                                 "value": "children_accounts_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "selection": false,
+                                                    "actions": false
+                                                }
                                             }
                                         ]
                                     }
