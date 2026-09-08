@@ -2,6 +2,7 @@
     "name": "Money Refund",
     "description": "A MoneyRefund is a specific type of Miscellaneous Operation designed to generate entries and funding for tracking a refund from an internal bank account.",
     "header": {
+        "selection": false,
         "actions": {
             "ACTION.CREATE" : [ {
                 "view_id": "form.create"
