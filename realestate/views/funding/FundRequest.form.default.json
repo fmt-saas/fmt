@@ -275,7 +275,10 @@
                                                         }
                                                     },
                                                     "actions": false,
-                                                    "domain": ["condo_id", "=", "object.condo_id"]
+                                                    "domain": [
+                                                        ["condo_id", "=", "object.condo_id"],
+                                                        ["status", "in", ["proforma", "posted"]]
+                                                    ]
                                                 }
                                             }
                                         ]
