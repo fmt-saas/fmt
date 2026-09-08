@@ -1,6 +1,28 @@
 {
     "name": "Ownership Transfer",
     "description": "History of Ownership transfers.",
+    "header": {
+        "selection": {
+            "actions": [
+                {
+                    "id": "ACTION.EDIT_INLINE",
+                    "visible": false
+                },
+                {
+                    "id": "ACTION.CLONE",
+                    "visible": false
+                },
+                {
+                    "id": "ACTION.ARCHIVE",
+                    "visible": true
+                },
+                {
+                    "id": "ACTION.DELETE",
+                    "visible": false
+                }
+            ]
+        }
+    },
     "layout": {
         "items": [
             {
