@@ -124,7 +124,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "secondary_lots_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "selection": false
+                                                    }
+                                                }
                                             }
                                         ]
                                     }
@@ -147,6 +152,7 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "header": {
+                                                        "selection": false,
                                                         "actions": {
                                                             "ACTION.SELECT": false,
                                                             "ACTION.CREATE": true
@@ -176,9 +182,10 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "header": {
+                                                        "selection": false,
                                                         "actions": {
-                                                            "ACTION.SELECT": true,
-                                                            "ACTION.CREATE": false
+                                                            "ACTION.SELECT": false,
+                                                            "ACTION.CREATE": true
                                                         }
                                                     }
                                                 }

@@ -2,6 +2,7 @@
     "name": "Property Lot",
     "description": "List of property lots.",
     "header": {
+        "selection": false,
         "actions": {
             "ACTION.CREATE" : [
                 {
