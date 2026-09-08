@@ -10,9 +10,7 @@ use documents\DocumentSubtype;
 use documents\DocumentType;
 use finance\accounting\AccountChart;
 use finance\accounting\FiscalYear;
-use finance\bank\BankStatement;
 use realestate\ownership\Ownership;
-use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Create a ZIP/PDF file that contains accounting documents of a fiscal year for a statutory auditor review.",
@@ -63,10 +61,16 @@ $getDocumentByHash = function($hash) use($auth) {
     return $document_data;
 };
 
-$getBalanceSheetDoc = function($period_id) use($getDocumentByHash) {
+$getBalanceSheetDoc = function($expense_statement_ids, $fiscal_year_id, $condo_id) use($getDocumentByHash) {
+    if(!count($expense_statement_ids)) {
+        return null;
+    }
+
     $balance_sheet = Document::search([
             ['document_type_code', '=', 'balance_sheet'],
-            ['expense_statement_id.fiscal_period_id', '=', $period_id]
+            ['expense_statement_id', 'in', $expense_statement_ids],
+            ['fiscal_year_id', '=', $fiscal_year_id],
+            ['condo_id', '=', $condo_id]
         ])
         ->read(['name', 'extension', 'hash'])
         ->first(true);
@@ -133,10 +137,11 @@ $getAccountingChartDoc = function($condo_id) {
     ];
 };
 
-$getGeneralBalance = function($fiscal_year_id) use($getDocumentByHash) {
+$getGeneralBalance = function($fiscal_year_id, $condo_id) use($getDocumentByHash) {
     $generalBalance = Document::search([
             ['document_type_code', '=', 'general_balance'],
-            ['fiscal_year_id', '=', $fiscal_year_id]
+            ['fiscal_year_id', '=', $fiscal_year_id],
+            ['condo_id', '=', $condo_id]
         ])
         ->read(['name', 'extension', 'hash'])
         ->first(true);
@@ -152,10 +157,11 @@ $getGeneralBalance = function($fiscal_year_id) use($getDocumentByHash) {
     ];
 };
 
-$getLedgerBalance = function($fiscal_year_id) use($getDocumentByHash) {
+$getLedgerBalance = function($fiscal_year_id, $condo_id) use($getDocumentByHash) {
     $generalLedger = Document::search([
             ['document_type_code', '=', 'general_ledger'],
-            ['fiscal_year_id', '=', $fiscal_year_id]
+            ['fiscal_year_id', '=', $fiscal_year_id],
+            ['condo_id', '=', $condo_id]
         ])
         ->read(['name', 'extension', 'hash'])
         ->first(true);
@@ -171,46 +177,53 @@ $getLedgerBalance = function($fiscal_year_id) use($getDocumentByHash) {
     ];
 };
 
-$getSupplierInvoices = function($fiscal_year_id) use($getDocumentByHash) {
-    $purchaseInvoices = PurchaseInvoice::search(['fiscal_year_id', '=', $fiscal_year_id])
-        ->read(['document_id' => ['name', 'extension', 'hash']])
-        ->get();
-
-    return array_map(
-        function($invoice) use($getDocumentByHash) {
-            return [
-                'name'      => $invoice['document_id']['name'],
-                'extension' => $invoice['document_id']['extension'],
-                'data'      => $getDocumentByHash($invoice['document_id']['hash'])
-            ];
-        },
-        $purchaseInvoices
-    );
-};
-
-$getBankStatements = function($fiscal_year_id) use($getDocumentByHash) {
-    $bankStatements = BankStatement::search([
-            ['fiscal_year_id', '=', $fiscal_year_id]
+$getSupplierInvoices = function($fiscal_year_id, $condo_id) use($getDocumentByHash) {
+    $supplierInvoiceDocs = Document::search([
+            ['document_type_code', '=', 'supplier_invoice'],
+            ['fiscal_year_id', '=', $fiscal_year_id],
+            ['condo_id', '=', $condo_id]
         ])
-        ->read(['document_id' => ['name', 'extension', 'hash']])
+        ->read(['name', 'extension', 'hash'])
         ->get();
 
     return array_map(
-        function($bankStatement) use($getDocumentByHash) {
+        function($supplierInvoiceDoc) use($getDocumentByHash) {
             return [
-                'name'      => $bankStatement['document_id']['name'],
-                'extension' => $bankStatement['document_id']['extension'],
-                'data'      => $getDocumentByHash($bankStatement['document_id']['hash'])
+                'name'      => $supplierInvoiceDoc['name'],
+                'extension' => $supplierInvoiceDoc['extension'],
+                'data'      => $getDocumentByHash($supplierInvoiceDoc['hash'])
             ];
         },
-        $bankStatements
+        $supplierInvoiceDocs
     );
 };
 
-$getMiscOperations = function($fiscal_year_id) use($getDocumentByHash) {
+$getBankStatements = function($fiscal_year_id, $condo_id) use($getDocumentByHash) {
+    $bankStatementDocs = Document::search([
+            ['document_type_code', '=', 'bank_statement'],
+            ['fiscal_year_id', '=', $fiscal_year_id],
+            ['condo_id', '=', $condo_id]
+        ])
+        ->read(['name', 'extension', 'hash'])
+        ->get();
+
+    return array_map(
+        function($bankStatementDoc) use($getDocumentByHash) {
+            return [
+                'name'      => $bankStatementDoc['name'],
+                'extension' => $bankStatementDoc['extension'],
+                'data'      => $getDocumentByHash($bankStatementDoc['hash'])
+            ];
+        },
+        $bankStatementDocs
+    );
+};
+
+$getMiscOperations = function($fiscal_year_id, $condo_id) use($getDocumentByHash) {
     $miscOpDocs = Document::search([
             ['document_type_code', '=', 'misc_operation'],
-            ['misc_operation_id.fiscal_year_id', '=', $fiscal_year_id]
+            ['fiscal_year_id', '=', $fiscal_year_id],
+            ['condo_id', '=', $condo_id]
         ])
         ->read(['name', 'extension', 'hash'])
         ->get();
@@ -220,17 +233,18 @@ $getMiscOperations = function($fiscal_year_id) use($getDocumentByHash) {
             return [
                 'name'      => $miscOpDoc['name'],
                 'extension' => $miscOpDoc['extension'],
-                'data'      => $getDocumentByHash($miscOpDoc['document_id']['hash'])
+                'data'      => $getDocumentByHash($miscOpDoc['hash'])
             ];
         },
         $miscOpDocs
     );
 };
 
-$getFundRequests = function($fiscal_year_id) use($getDocumentByHash) {
+$getFundRequests = function($fiscal_year_id, $condo_id) use($getDocumentByHash) {
     $fundRequestDocs = Document::search([
             ['document_type_code', '=', 'fund_request'],
-            ['fund_request_id.fiscal_year_id', '=', $fiscal_year_id]
+            ['fiscal_year_id', '=', $fiscal_year_id],
+            ['condo_id', '=', $condo_id]
         ])
         ->read(['name', 'extension', 'hash'])
         ->get();
@@ -247,10 +261,11 @@ $getFundRequests = function($fiscal_year_id) use($getDocumentByHash) {
     );
 };
 
-$getExpenseStatements = function($fiscal_year_id) use($getDocumentByHash) {
+$getExpenseStatements = function($fiscal_year_id, $condo_id) use($getDocumentByHash) {
     $expenseStatementDocs = Document::search([
             ['document_type_code', '=', 'expense_statement'],
-            ['expense_statement_id.fiscal_year_id', 'in', $fiscal_year_id]
+            ['fiscal_year_id', '=', $fiscal_year_id],
+            ['condo_id', '=', $condo_id]
         ])
         ->read(['name', 'extension', 'hash'])
         ->get();
@@ -438,7 +453,7 @@ $map_documents['01_Etat_de_cloture'][] = $getAccountingChartDoc($fiscalYear['con
 // #todo - handle compte_de_resultats.pdf when the document generation is handled (related to fiscal period or year?)
 // #todo - handle balance_de_cloture.pdf when the document generation is handled (related to fiscal period or year?)
 
-$general_balance = $getGeneralBalance($fiscalYear['id']);
+$general_balance = $getGeneralBalance($fiscalYear['id'], $fiscalYear['condo_id']['id']);
 if($general_balance) {
     $map_documents['02_Livres_comptables'][] = $general_balance;
 }
@@ -446,7 +461,7 @@ else {
     $missing_documents[] = 'Balance générale (general_balance)';
 }
 
-$general_ledger = $getLedgerBalance($fiscalYear['id']);
+$general_ledger = $getLedgerBalance($fiscalYear['id'], $fiscalYear['condo_id']['id']);
 if($general_ledger) {
     $map_documents['02_Livres_comptables'][] = $general_ledger;
 }
@@ -454,12 +469,12 @@ else {
     $missing_documents[] = 'Grand livre (general_ledger)';
 }
 
-$map_documents['03_Pieces_justificatives/facture_achats'] = $getSupplierInvoices($fiscalYear['id']);
-$map_documents['03_Pieces_justificatives/extraits_bancaires'] = $getBankStatements($fiscalYear['id']);
-$map_documents['03_Pieces_justificatives/autres_pieces'] = $getMiscOperations($fiscalYear['id']);
+$map_documents['03_Pieces_justificatives/facture_achats'] = $getSupplierInvoices($fiscalYear['id'], $fiscalYear['condo_id']['id']);
+$map_documents['03_Pieces_justificatives/extraits_bancaires'] = $getBankStatements($fiscalYear['id'], $fiscalYear['condo_id']['id']);
+$map_documents['03_Pieces_justificatives/autres_pieces'] = $getMiscOperations($fiscalYear['id'], $fiscalYear['condo_id']['id']);
 
-$map_documents['04_Coproprietaires/appels_de_fonds'] = $getFundRequests($fiscalYear['id']);
-$map_documents['04_Coproprietaires/decomptes_de_charges'] = $getExpenseStatements($fiscalYear['id']);
+$map_documents['04_Coproprietaires/appels_de_fonds'] = $getFundRequests($fiscalYear['id'], $fiscalYear['condo_id']['id']);
+$map_documents['04_Coproprietaires/decomptes_de_charges'] = $getExpenseStatements($fiscalYear['id'], $fiscalYear['condo_id']['id']);
 $map_documents['04_Coproprietaires/situations_de_compte'] = $getOwnerAccountStatements($fiscalYear['condo_id']['id'], $fiscalYear['date_from'], $fiscalYear['date_to']);
 
 
@@ -468,7 +483,11 @@ $map_documents['04_Coproprietaires/situations_de_compte'] = $getOwnerAccountStat
 */
 
 foreach($fiscalYear['fiscal_periods_ids'] as $id => $period) {
-    $balance_sheet = $getBalanceSheetDoc($id);
+    $balance_sheet = $getBalanceSheetDoc(
+        array_keys($period['expense_statements_ids']),
+        $fiscalYear['id'],
+        $fiscalYear['condo_id']['id']
+    );
     if($balance_sheet) {
         $map_documents['01_Etat_de_cloture'][] = $balance_sheet;
     }
@@ -500,6 +519,7 @@ $document = Document::create([
         'content_type'      => $params['content_type'],
         'data'              => $params['export_type'] === 'consolidated_pdf' ? $createConsolidatedPdf($map_documents) : $createZipArchive($map_documents, $missing_documents),
         'condo_id'          => $fiscalYear['condo_id']['id'],
+        'fiscal_year_id'    => $fiscalYear['id'],
         'document_type'     => ($dt = DocumentType::search(['code', '=', 'auditor_document'])->first()) ? $dt['id'] : null,
         'document_subtype'  => ($dt = DocumentSubtype::search(['code', '=', 'auditor_documents'])->first()) ? $dt['id'] : null
     ])
