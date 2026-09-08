@@ -2,7 +2,6 @@
     "name": "Fund Requests",
     "description": "",
     "header": {
-        "actions": false,
         "selection": false
     },
     "actions": [
