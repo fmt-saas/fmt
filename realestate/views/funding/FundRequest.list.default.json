@@ -1,6 +1,10 @@
 {
     "name": "Fund Requests",
     "description": "",
+    "header": {
+        "actions": false,
+        "selection": false
+    },
     "actions": [
         {
             "id": "action.print_pdf",
