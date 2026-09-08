@@ -1,6 +1,29 @@
 {
     "name": "Condominium",
     "description": "This view is intended for displaying the list of properties.",
+    "header": {
+        "actions": false,
+        "selection": {
+            "actions": [
+                {
+                    "id": "ACTION.EDIT_INLINE",
+                    "visible": false
+                },
+                {
+                    "id": "ACTION.CLONE",
+                    "visible": false
+                },
+                {
+                    "id": "ACTION.ARCHIVE",
+                    "visible": true
+                },
+                {
+                    "id": "ACTION.DELETE",
+                    "visible": false
+                }
+            ]
+        }
+    },
     "layout": {
         "items": [
             {
