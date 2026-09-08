@@ -192,6 +192,14 @@
                 "action.create_account": {
                     "label": "Créer un compte utilisateur",
                     "description": "Créer un compte utilisateur pour le copropriétaire."
+                },
+                "action.disable_user_account": {
+                    "label": "Désactiver le compte utilisateur",
+                    "description": "Désactiver le compte utilisateur associé au copropriétaire."
+                },
+                "action.delete_user_account": {
+                    "label": "Supprimer le compte utilisateur",
+                    "description": "Supprimer définitivement le compte utilisateur associé au copropriétaire."
                 }
             }
         },
@@ -249,6 +257,12 @@
                     "label": "Erreur inattendue"
                 }
             }
+        }
+    },
+    "error": {
+        "errors": {
+            "not_allowed": "Seuls les administrateurs et les opérateurs peuvent gérer les comptes utilisateurs.",
+            "missing_user_account": "Le copropriétaire n'a pas de compte utilisateur associé."
         }
     }
 }

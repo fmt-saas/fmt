@@ -5,6 +5,7 @@
         "groups": ["*"]
     },
     "header": {
+        "selection": false,
         "actions": {
             "ACTION.CREATE": false
         }

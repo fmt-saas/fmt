@@ -7,7 +7,7 @@
 use documents\Document;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Request a document analysis using Mindee.com service, and return the result as a JSON descriptor.',
+    'description'   => 'Request a document analysis using Google Cloud DOC AI service, and return the result as a JSON descriptor.',
     'params'        => [
         'document_id' =>  [
             'description'   => 'Identifier of the document to parse.',
@@ -107,8 +107,13 @@ if(!isset($data['customer']['vat_id']) && isset($info['buyer_vat'])) {
         : 'BE' . $tax_number;
 }
 
-if(!isset($data['customer']['customer_number']) && isset($info['customer_number'])) {
-    $data['customer']['customer_number'] = $info['customer_number'];
+if(!isset($data['customer']['customer_number'])) {
+    if(isset($info['customer_number'])) {
+        $data['customer']['customer_number'] = (string) $info['customer_number'];
+    }
+    else {
+        unset($data['customer']['customer_number']);
+    }
 }
 
 // customer_reference

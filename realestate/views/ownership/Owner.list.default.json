@@ -3,6 +3,7 @@
     "description": "List of owners.",
     "header": {
         "selection": {
+            "default": false,
             "actions" : [
                 {
                     "id": "action.create_account",

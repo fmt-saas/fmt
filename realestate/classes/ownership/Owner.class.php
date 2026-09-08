@@ -6,9 +6,11 @@
 */
 namespace realestate\ownership;
 
+use core\User as CoreUser;
 use hr\role\Role;
 use hr\role\RoleAssignment;
 use identity\Identity;
+use identity\User;
 
 class Owner extends Identity {
 
@@ -169,6 +171,25 @@ class Owner extends Identity {
                 'description'   => 'Refresh roles assignments based on related User account.',
                 'policies'      => [],
                 'function'      => 'doRefreshRoles'
+            ],
+            'disable_user_account' => [
+                'description'   => 'Disable the related User account.',
+                'policies'      => ['can_manage_user_account'],
+                'function'      => 'doDisableUserAccount'
+            ],
+            'delete_user_account' => [
+                'description'   => 'Delete the related User account.',
+                'policies'      => ['can_manage_user_account'],
+                'function'      => 'doDeleteUserAccount'
+            ]
+        ]);
+    }
+
+    public static function getPolicies() {
+        return array_merge(parent::getPolicies(), [
+            'can_manage_user_account' => [
+                'description'   => 'Checks that the current user can manage the related User account.',
+                'function'      => 'policyCanManageUserAccount'
             ]
         ]);
     }
@@ -303,6 +324,81 @@ class Owner extends Identity {
                     ]);
                 }
             }
+        }
+    }
+
+    protected static function policyCanManageUserAccount($self, $user_id, $access): array {
+        $result = [];
+        $is_allowed = $user_id === EQ_ROOT_USER_ID
+            || $access->userHasGroup($user_id, 'admins')
+            || $access->userHasGroup($user_id, 'operators');
+
+        $self->read(['user_id']);
+        foreach($self as $id => $owner) {
+            if(!$is_allowed) {
+                $result[$id]['not_allowed'] = 'Only administrators and operators can manage User accounts.';
+            }
+            if(!$owner['user_id']) {
+                $result[$id]['missing_user_account'] = 'The Owner has no related User account.';
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function doDisableUserAccount($self, $auth) {
+        $self->read(['user_id']);
+
+        $users_ids = [];
+        foreach($self as $owner) {
+            if($owner['user_id']) {
+                $users_ids[] = $owner['user_id'];
+            }
+        }
+
+        if(empty($users_ids)) {
+            return;
+        }
+
+        $current_user_id = $auth->userId();
+        $auth->su();
+        try {
+            CoreUser::ids(array_values(array_unique($users_ids)))->do('suspend');
+        }
+        finally {
+            $auth->su($current_user_id);
+        }
+    }
+
+    protected static function doDeleteUserAccount($self, $auth) {
+        $self->read(['user_id', 'identity_id']);
+
+        $users_ids = [];
+        $identities_ids = [];
+        foreach($self as $owner) {
+            if(!$owner['user_id']) {
+                continue;
+            }
+            $users_ids[] = $owner['user_id'];
+            if($owner['identity_id']) {
+                $identities_ids[] = $owner['identity_id'];
+            }
+        }
+
+        if(empty($users_ids)) {
+            return;
+        }
+
+        $current_user_id = $auth->userId();
+        $auth->su();
+        try {
+            User::ids(array_values(array_unique($users_ids)))->delete(true);
+            if(!empty($identities_ids)) {
+                Identity::ids(array_values(array_unique($identities_ids)))->update(['user_id' => null]);
+            }
+        }
+        finally {
+            $auth->su($current_user_id);
         }
     }
 
