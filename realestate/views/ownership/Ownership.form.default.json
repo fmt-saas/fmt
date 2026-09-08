@@ -183,6 +183,7 @@
                                                 "widget": {
                                                     "header": {
                                                         "pagination": "compact",
+                                                        "selection": false,
                                                         "actions": {
                                                             "ACTION.SELECT": false,
                                                             "ACTION.CREATE": [ {
@@ -242,6 +243,7 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "header": {
+                                                        "selection": false,
                                                         "actions": {
                                                             "ACTION.SELECT": false,
                                                             "ACTION.CREATE": false
@@ -270,6 +272,7 @@
                                                 "width": "100%",
                                                 "widget": {
                                                     "header": {
+                                                        "selection": false,
                                                         "actions": {
                                                             "ACTION.SELECT": false,
                                                             "ACTION.CREATE": false

@@ -11,6 +11,22 @@
             ]
         }
     },
+    "actions": [
+        {
+            "id": "action.remove",
+            "inline": true,
+            "label": "Remove",
+            "icon": "delete",
+            "description": "Remove the communication preference. This action cannot be undone.",
+            "controller": "core_model_do",
+            "confirm": true,
+            "params": {
+                "entity": "realestate\\ownership\\OwnershipCommunicationPreference",
+                "action": "remove",
+                "ids": []
+            }
+        }
+    ],
     "layout": {
         "items": [
             {

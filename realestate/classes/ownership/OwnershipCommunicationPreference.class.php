@@ -184,6 +184,16 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
         ];
     }
 
+    public static function getActions() {
+        return array_merge(parent::getActions(), [
+            'remove' => [
+                'description'   => 'Remove the communication preference.',
+                'policies'      => [],
+                'function'      => 'doRemove'
+            ]
+        ]);
+    }
+
     protected static function onupdateOwnerId($self) {
         $self->read(['state', 'owner_id' => ['identity_id']]);
         foreach($self as $id => $ownershipCommunicationPreference) {
@@ -275,6 +285,10 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
         }
 
         return parent::canupdate($self, $values);
+    }
+
+    protected static function doRemove($self) {
+        $self->delete();
     }
 
     protected static function onafterupdate($self, $dispatch) {

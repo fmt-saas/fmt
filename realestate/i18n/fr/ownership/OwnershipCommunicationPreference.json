@@ -98,7 +98,13 @@
         },
         "list.default": {
             "name": "Preferences de communication",
-            "description": "Liste des preferences par dossier et type de communication."
+            "description": "Liste des preferences par dossier et type de communication.",
+            "actions": {
+                "action.remove": {
+                    "label": "Supprimer",
+                    "description": "Supprimer la preference de communication. Cette action est definitive."
+                }
+            }
         }
     },
     "error": {
