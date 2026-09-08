@@ -2,6 +2,7 @@
     "name": "Supplier",
     "description": "A suppliership describes a relation between a supplier and a condominium.",
     "header": {
+        "selection": false,
         "actions": {
             "ACTION.CREATE": [
                 {

@@ -204,7 +204,13 @@
                                             {
                                                 "type": "field",
                                                 "value": "setting_sequences_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "selection": false,
+                                                        "actions": false
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

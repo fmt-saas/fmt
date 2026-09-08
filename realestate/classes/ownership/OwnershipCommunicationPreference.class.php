@@ -188,8 +188,17 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
         return array_merge(parent::getActions(), [
             'remove' => [
                 'description'   => 'Remove the communication preference.',
-                'policies'      => [],
+                'policies'      => ['can_remove'],
                 'function'      => 'doRemove'
+            ]
+        ]);
+    }
+
+    public static function getPolicies(): array {
+        return array_merge(parent::getPolicies(), [
+            'can_remove' => [
+                'description' => 'Checks that another preference remains for the same communication reason.',
+                'function'    => 'policyCanRemove'
             ]
         ]);
     }
@@ -285,6 +294,28 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
         }
 
         return parent::canupdate($self, $values);
+    }
+
+    protected static function policyCanRemove($self): array {
+        $result = [];
+        $self->read(['ownership_id', 'communication_reason']);
+        $removed_ids = $self->ids();
+
+        foreach($self as $id => $ownershipCommunicationPreference) {
+            $remainingPreferences = self::search([
+                ['ownership_id', '=', $ownershipCommunicationPreference['ownership_id']],
+                ['communication_reason', '=', $ownershipCommunicationPreference['communication_reason']],
+                ['id', 'not in', $removed_ids]
+            ]);
+
+            if($remainingPreferences->count() <= 0) {
+                $result[$id] = [
+                    'last_preference_for_communication_reason' => 'At least one communication preference must remain for each communication reason.'
+                ];
+            }
+        }
+
+        return $result;
     }
 
     protected static function doRemove($self) {
