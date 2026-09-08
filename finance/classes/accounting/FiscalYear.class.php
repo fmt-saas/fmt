@@ -739,11 +739,11 @@ class FiscalYear extends Model {
         $self->read(['name', 'condo_id']);
         foreach($self as $id => $fiscalYear) {
             $exportingTask = ExportingTask::create([
-                'name'          => "{$fiscalYear['name']} - Export des documents comptable",
-                'condo_id'      => $fiscalYear['condo_id'],
-                'object_class'  => static::class,
-                'object_id'     => $id
-            ])
+                    'name'          => "{$fiscalYear['name']} - Export des documents comptable",
+                    'condo_id'      => $fiscalYear['condo_id'],
+                    'object_class'  => static::class,
+                    'object_id'     => $id
+                ])
                 ->first();
 
             ExportingTaskLine::create([
@@ -759,11 +759,11 @@ class FiscalYear extends Model {
         $self->read(['name', 'condo_id']);
         foreach($self as $id => $fiscalYear) {
             $exportingTask = ExportingTask::create([
-                'name'          => "{$fiscalYear['name']} - Export des documents comptable",
-                'condo_id'      => $fiscalYear['condo_id'],
-                'object_class'  => static::class,
-                'object_id'     => $id
-            ])
+                    'name'          => "{$fiscalYear['name']} - Export des documents comptable",
+                    'condo_id'      => $fiscalYear['condo_id'],
+                    'object_class'  => static::class,
+                    'object_id'     => $id
+                ])
                 ->first();
 
             ExportingTaskLine::create([
