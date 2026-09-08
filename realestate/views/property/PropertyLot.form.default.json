@@ -208,7 +208,13 @@
                                             {
                                                 "type": "field",
                                                 "value": "apportionment_shares_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "selection": false,
+                                                        "actions": false
+                                                    }
+                                                }
                                             }
                                         ]
                                     }
