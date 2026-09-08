@@ -1,6 +1,16 @@
 {
     "name": "Expense Statement",
     "description": "An Expense Statement is issued at the end of the fiscal period and allows the co-owners to cover common expenses, as well as to reimburse any private charges they may have.",
+    "header": {
+        "selection": false,
+        "actions": {
+            "ACTION.CREATE": [
+                {
+                    "view_id": "form.create"
+                }
+            ]
+        }
+    },
     "layout": {
         "items": [
             {

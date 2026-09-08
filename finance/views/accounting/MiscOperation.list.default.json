@@ -3,6 +3,7 @@
     "description": "This class represents miscellaneous accounting operation. It provides functionalities for creating misc journal entries that are not classified under standard categories.",
     "controller": "finance_accounting_MiscOperation_collect",
     "header": {
+        "selection": false,
         "actions": {
             "ACTION.CREATE": [
                 {

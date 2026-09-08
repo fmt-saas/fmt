@@ -1,5 +1,9 @@
 {
     "name": "Opening Balance",
+    "header": {
+        "selection": false,
+        "actions": false
+    },
     "operations": {
         "total": {
             "credit": {
