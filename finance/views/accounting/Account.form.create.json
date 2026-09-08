@@ -112,17 +112,20 @@
                                             {
                                                 "type": "field",
                                                 "value": "is_control_account",
-                                                "width": "33%"
+                                                "width": "33%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "is_tier_balance",
-                                                "width": "33%"
+                                                "width": "33%",
+                                                "visible": false
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "is_visible",
-                                                "width": "33%"
+                                                "width": "33%",
+                                                "visible": false
                                             }
                                         ]
                                     }

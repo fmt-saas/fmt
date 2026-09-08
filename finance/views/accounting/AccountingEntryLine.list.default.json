@@ -2,6 +2,7 @@
     "name": "Accounting entry line",
     "header": {
         "layout": "inline",
+        "selection": false,
         "actions": {
             "ACTION.CREATE_INLINE":  [
                 {
@@ -40,6 +41,9 @@
     },
     "limit": 250,
     "layout": {
+        "interactions": {
+            "click": false
+        },
         "items": [
             {
                 "type": "field",

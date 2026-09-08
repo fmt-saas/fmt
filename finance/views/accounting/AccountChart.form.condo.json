@@ -87,7 +87,11 @@
                                                             ],
                                                             "ACTION.SELECT": false
                                                         }
-                                                    }
+                                                    },
+                                                    "domain": [
+                                                        ["ownership_id", "<>", null],
+                                                        ["suppliership_id", "<>", null]
+                                                    ]
                                                 }
                                             }
                                         ]
