@@ -8,7 +8,8 @@
         "actions": {
             "ACTION.CREATE": false
         },
-        "selection": {
+        "selection": false,
+        "selection1": {
             "default" : false,
             "actions" : [
                 {
