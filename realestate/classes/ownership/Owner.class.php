@@ -6,7 +6,6 @@
 */
 namespace realestate\ownership;
 
-use core\User as CoreUser;
 use hr\role\Role;
 use hr\role\RoleAssignment;
 use identity\Identity;
@@ -363,7 +362,7 @@ class Owner extends Identity {
         $current_user_id = $auth->userId();
         $auth->su();
         try {
-            CoreUser::ids(array_values(array_unique($users_ids)))->do('suspend');
+            User::ids(array_values(array_unique($users_ids)))->do('suspend');
         }
         finally {
             $auth->su($current_user_id);
@@ -375,11 +374,13 @@ class Owner extends Identity {
 
         $users_ids = [];
         $identities_ids = [];
-        foreach($self as $owner) {
+        $owners_ids = [];
+        foreach($self as $id => $owner) {
             if(!$owner['user_id']) {
                 continue;
             }
             $users_ids[] = $owner['user_id'];
+            $owners_ids[] = $id;
             if($owner['identity_id']) {
                 $identities_ids[] = $owner['identity_id'];
             }
@@ -393,9 +394,7 @@ class Owner extends Identity {
         $auth->su();
         try {
             User::ids(array_values(array_unique($users_ids)))->delete(true);
-            if(!empty($identities_ids)) {
-                Identity::ids(array_values(array_unique($identities_ids)))->update(['user_id' => null]);
-            }
+            self::ids($owners_ids)->update(['user_id' => null]);
         }
         finally {
             $auth->su($current_user_id);
