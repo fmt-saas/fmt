@@ -38,7 +38,10 @@ use realestate\ownership\Ownership;
 $document_id = null;
 
 $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id'])
-    ->read(['status', 'condo_id', 'document_id', 'ownership_id', 'owner_id', 'expense_statement_id', 'name'])
+    ->read([
+        'status', 'condo_id', 'document_id', 'ownership_id', 'owner_id', 'name',
+        'expense_statement_id' => ['id', 'fiscal_year_id']
+    ])
     ->first();
 
 if(!$expenseStatementCorrespondence) {
@@ -89,7 +92,8 @@ if(!$document_id) {
             'name'                  => "Décompte de charges - {$expenseStatementCorrespondence['name']} - {$ownership['code']}",
             'data'                  => $data,
             'condo_id'              => $expenseStatementCorrespondence['condo_id'],
-            'expense_statement_id'  => $expenseStatementCorrespondence['expense_statement_id'],
+            'expense_statement_id'  => $expenseStatementCorrespondence['expense_statement_id']['id'],
+            'fiscal_year_id'        => $expenseStatementCorrespondence['expense_statement_id']['fiscal_year_id'],
             'document_type_id'      => $documentType['id'] ?? null,
             'document_visibility'   => 'ownership',
         ])

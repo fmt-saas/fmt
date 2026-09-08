@@ -34,7 +34,10 @@ use realestate\funding\FundRequestExecutionCorrespondence;
 $document_id = null;
 
 $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($params['id'])
-    ->read(['condo_id', 'ownership_id', 'owner_id', 'name', 'fund_request_execution_id' => ['id', 'fund_request_id']])
+    ->read([
+        'condo_id', 'ownership_id', 'owner_id', 'name',
+        'fund_request_execution_id' => ['id', 'fund_request_id', 'fiscal_year_id']
+    ])
     ->first();
 
 if(!$fundRequestExecutionCorrespondence) {
@@ -76,6 +79,7 @@ if(!$document_id) {
             'condo_id'                  => $fundRequestExecutionCorrespondence['condo_id'],
             'fund_request_id'           => $fundRequestExecutionCorrespondence['fund_request_execution_id']['fund_request_id'],
             'fund_request_execution_id' => $fundRequestExecutionCorrespondence['fund_request_execution_id']['id'],
+            'fiscal_year_id'            => $fundRequestExecutionCorrespondence['fund_request_execution_id']['fiscal_year_id'],
             'document_type_id'          => $documentType['id'] ?? null,
             'document_visibility'       => 'ownership'
         ])

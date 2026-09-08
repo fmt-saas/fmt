@@ -37,7 +37,7 @@ $context = $providers['context'];
 $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id'])
     ->read([
         'status', 'condo_id', 'ownership_id', 'owner_id', 'name',
-        'expense_statement_id' => ['id', 'fiscal_period_id', 'posting_date', 'is_cutoff_at_document_date']
+        'expense_statement_id' => ['id', 'fiscal_period_id', 'fiscal_year_id', 'posting_date', 'is_cutoff_at_document_date']
     ])
     ->first();
 
@@ -83,6 +83,7 @@ if(!$balanceSheetDocument) {
     $balanceSheetDocument = Document::create([
             'condo_id'              => $expenseStatementCorrespondence['condo_id'],
             'expense_statement_id'  => $expenseStatement['id'],
+            'fiscal_year_id'        => $expenseStatement['fiscal_year_id'],
             'name'                  => 'Bilan du ' . date('d/m/Y', $fiscalPeriod['date_to']),
             'data'                  => $data,
             'is_origin'             => true,
@@ -113,6 +114,7 @@ if(!$expenseSummaryDocument) {
     $expenseSummaryDocument = Document::create([
             'condo_id'              => $expenseStatementCorrespondence['condo_id'],
             'expense_statement_id'  => $expenseStatement['id'],
+            'fiscal_year_id'        => $expenseStatement['fiscal_year_id'],
             'name'                  => 'Dépenses courantes au ' . date('d/m/Y', $fiscalPeriod['date_to']),
             'data'                  => $data,
             'is_origin'             => true,

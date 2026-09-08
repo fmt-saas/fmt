@@ -801,7 +801,7 @@ class BankStatement extends Model {
      * If no document is attached to the bank statement (handled as an accounting document), a Document and a DocumentProcess are created
      */
     protected static function onafterupdate($self, $auth) {
-        $self->read(['state', 'document_id', 'condo_id']);
+        $self->read(['state', 'document_id', 'condo_id', 'fiscal_year_id']);
         $user = User::id($auth->userId())->read(['employee_id'])->first();
 
         foreach($self as $id => $bankStatement) {
@@ -813,6 +813,7 @@ class BankStatement extends Model {
                         'condo_id'          => $bankStatement['condo_id'],
                         'name'              => sprintf("%s %06d", 'extrait bancaire', $id),
                         'bank_statement_id' => $id,
+                        'fiscal_year_id'    => $bankStatement['fiscal_year_id'],
                         'document_type_id'  => $documentType['id'] ?? null,
                         'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
                         'is_origin'         => true,
