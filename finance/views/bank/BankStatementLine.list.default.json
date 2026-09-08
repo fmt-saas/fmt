@@ -81,6 +81,7 @@
                 "value": "accounting_account_id",
                 "width": "25%",
                 "widget": {
+                    "interactions": false,
                     "controller": "finance_accounting_Account_collect"
                 }
             },

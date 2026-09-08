@@ -133,7 +133,15 @@
                                             {
                                                 "type": "field",
                                                 "value": "accounting_account_id",
-                                                "width": "75%"
+                                                "width": "75%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions":{
+                                                            "ACTION.CREATE": false,
+                                                            "ACTION.OPEN": false
+                                                        }
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
