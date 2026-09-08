@@ -7,16 +7,10 @@
 namespace realestate\property;
 
 use communication\template\Template;
-use equal\text\TextTransformer;
-use fmt\setting\Setting;
-use identity\Identity;
-use finance\accounting\Account;
-use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\OpeningBalance;
 use realestate\finance\accounting\CondoFund;
 use realestate\funding\FundRequest;
-use realestate\funding\FundRequestLineEntryLot;
 use realestate\ownership\Ownership;
 use realestate\property\transfer\OwnershipTransferSettlement;
 use realestate\sale\pay\Funding;
