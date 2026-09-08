@@ -230,7 +230,13 @@
                                             {
                                                 "type": "field",
                                                 "value": "setting_values_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "selection": false,
+                                                        "actions": false
+                                                    }
+                                                }
                                             }
                                         ]
                                     }
@@ -250,7 +256,38 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_langs_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": [
+                                                                {
+                                                                    "view_id": "form.create"
+                                                                }
+                                                            ]
+                                                        },
+                                                        "selection": {
+                                                            "actions": [
+                                                                {
+                                                                    "id": "ACTION.EDIT_INLINE",
+                                                                    "visible": true
+                                                                },
+                                                                {
+                                                                    "id": "ACTION.CLONE",
+                                                                    "visible": false
+                                                                },
+                                                                {
+                                                                    "id": "ACTION.ARCHIVE",
+                                                                    "visible": false
+                                                                },
+                                                                {
+                                                                    "id": "ACTION.DELETE",
+                                                                    "visible": true
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }
