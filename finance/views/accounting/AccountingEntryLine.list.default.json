@@ -41,9 +41,6 @@
     },
     "limit": 250,
     "layout": {
-        "interactions": {
-            "click": false
-        },
         "items": [
             {
                 "type": "field",
@@ -62,7 +59,10 @@
                 "type": "field",
                 "label": "Account",
                 "value": "account_id",
-                "width": "25%"
+                "width": "25%",
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",
