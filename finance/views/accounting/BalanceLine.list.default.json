@@ -2,6 +2,7 @@
     "name": "Accounting Balance Lines",
     "controller": "finance_accounting_BalanceLine_collect",
     "header": {
+        "selection": false,
         "actions": {
             "ACTION.CREATE" : false
         },

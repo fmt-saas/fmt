@@ -1,6 +1,7 @@
 {
     "name": "Opening Balance Lines",
     "header": {
+        "selection": false,
         "actions": {
             "ACTION.CREATE": false
         }
