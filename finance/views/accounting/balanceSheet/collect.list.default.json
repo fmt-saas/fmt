@@ -4,6 +4,7 @@
     "header": {
         "#memo": "inline layout disables visible actions of the view",
         "layout": "inline",
+        "selection": false,
         "exports": false,
         "actions": false,
         "advanced_search": {
