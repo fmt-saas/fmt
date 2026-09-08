@@ -221,7 +221,7 @@ class User extends \core\User {
     }
 
     public static function getActions() {
-        return [
+        return array_merge(parent::getActions(), [
             'sync_from_identity' => [
                 'description'   => 'Force sync values from related identity.',
                 'function'      => 'doSyncFromIdentity'
@@ -232,7 +232,7 @@ class User extends \core\User {
                 'policies'      => [],
                 'function'      => 'doSyncUuidLinks'
             ]
-        ];
+        ]);
     }
 
     protected static function calcIsEmployee($self) {

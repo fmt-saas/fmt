@@ -6,7 +6,6 @@
 */
 namespace hr\employee;
 
-use core\User as CoreUser;
 use hr\role\RoleAssignment;
 use identity\Identity;
 use identity\User;
@@ -268,7 +267,7 @@ class Employee extends Identity {
         $current_user_id = $auth->userId();
         $auth->su();
         try {
-            CoreUser::ids(array_values(array_unique($users_ids)))->do('suspend');
+            User::ids(array_values(array_unique($users_ids)))->do('suspend');
         }
         finally {
             $auth->su($current_user_id);
@@ -300,9 +299,6 @@ class Employee extends Identity {
         $auth->su();
         try {
             User::ids(array_values(array_unique($users_ids)))->delete(true);
-            if(!empty($identities_ids)) {
-                Identity::ids(array_values(array_unique($identities_ids)))->update(['user_id' => null]);
-            }
             self::ids($employees_ids)->update(['user_id' => null]);
         }
         finally {
