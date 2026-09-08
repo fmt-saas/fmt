@@ -34,7 +34,10 @@
             {
                 "type": "field",
                 "value": "fiscal_year_id",
-                "width": "7%"
+                "width": "7%",
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",
@@ -49,12 +52,18 @@
             {
                 "type": "field",
                 "value": "journal_id",
-                "width": "7%"
+                "width": "7%",
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",
                 "value": "accounting_entry_id",
-                "width": "7%"
+                "width": "7%",
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",

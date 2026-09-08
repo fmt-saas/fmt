@@ -47,7 +47,10 @@
                 "type": "field",
                 "value": "fiscal_year_id",
                 "width": "16%",
-                "visible": false
+                "visible": false,
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",

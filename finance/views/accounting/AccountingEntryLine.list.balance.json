@@ -53,13 +53,19 @@
                 "label": "Account",
                 "value": "account_id",
                 "width": "25%",
-                "visible": false
+                "visible": false,
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",
                 "label": "Journal",
                 "value": "journal_id",
-                "width": "15%"
+                "width": "15%",
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",

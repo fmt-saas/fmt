@@ -37,7 +37,10 @@
                 "type": "field",
                 "label": "Account",
                 "value": "account_id",
-                "width": "40%"
+                "width": "40%",
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",
@@ -62,7 +65,10 @@
             {
                 "type": "field",
                 "value": "fiscal_year_id",
-                "width": "15%"
+                "width": "15%",
+                "widget": {
+                    "interactions": false
+                }
             }
         ]
     }

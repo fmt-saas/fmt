@@ -33,13 +33,19 @@
                 "type": "field",
                 "value": "fiscal_year_id",
                 "width": "15%",
-                "visible": false
+                "visible": false,
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",
                 "label": "Account",
                 "value": "account_id",
-                "width": "40%"
+                "width": "40%",
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",

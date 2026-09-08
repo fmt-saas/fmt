@@ -25,7 +25,10 @@
                 "label": "Fiscal Year",
                 "value": "fiscal_year_id",
                 "width": "20%",
-                "readonly": true
+                "readonly": true,
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",
@@ -44,7 +47,10 @@
                 "label": "Accounting Entry",
                 "value": "accounting_entry_id",
                 "width": "15%",
-                "readonly": true
+                "readonly": true,
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",

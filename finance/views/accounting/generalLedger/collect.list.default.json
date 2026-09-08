@@ -74,7 +74,10 @@
                 "label": "Account",
                 "value": "account_id",
                 "width": "25%",
-                "visible": false
+                "visible": false,
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",
@@ -95,7 +98,10 @@
                 "label": "Journal",
                 "value": "journal_id",
                 "width": "20%",
-                "visible": false
+                "visible": false,
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",

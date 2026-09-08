@@ -56,7 +56,10 @@
                 "type": "field",
                 "label": "Journal",
                 "value": "journal_id",
-                "width": "35%"
+                "width": "35%",
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",

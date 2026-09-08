@@ -40,7 +40,10 @@
                 "type": "field",
                 "label": "Account",
                 "value": "account_id",
-                "width": "25%"
+                "width": "25%",
+                "widget": {
+                    "interactions": false
+                }
             },
             {
                 "type": "field",

@@ -37,6 +37,7 @@
                 "value": "account_id",
                 "width": "12%",
                 "widget": {
+                    "interactions": false,
                     "order": "code",
                     "header": {
                         "actions": {

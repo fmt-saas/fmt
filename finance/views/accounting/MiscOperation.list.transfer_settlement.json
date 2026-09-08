@@ -9,8 +9,22 @@
             {"type": "field", "value": "name", "width": "18%"},
             {"type": "field", "value": "description", "width": "28%"},
             {"type": "field", "value": "posting_date", "width": "14%"},
-            {"type": "field", "value": "fiscal_period_id", "width": "14%"},
-            {"type": "field", "value": "journal_id", "width": "14%"},
+            {
+                "type": "field",
+                "value": "fiscal_period_id",
+                "width": "14%",
+                "widget": {
+                    "interactions": false
+                }
+            },
+            {
+                "type": "field",
+                "value": "journal_id",
+                "width": "14%",
+                "widget": {
+                    "interactions": false
+                }
+            },
             {"type": "field", "value": "status", "width": "12%"}
         ]
     }
