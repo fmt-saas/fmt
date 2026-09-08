@@ -89,8 +89,8 @@
                                                         }
                                                     },
                                                     "domain": [
-                                                        ["ownership_id", "<>", null],
-                                                        ["suppliership_id", "<>", null]
+                                                        ["ownership_id", "is", null],
+                                                        ["suppliership_id", "is", null]
                                                     ]
                                                 }
                                             }
