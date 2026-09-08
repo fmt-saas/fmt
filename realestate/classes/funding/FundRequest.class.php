@@ -951,6 +951,24 @@ class FundRequest extends \equal\orm\Model {
 
         $self->read(['status', 'has_date_range', 'date_from', 'date_to', 'request_date']);
 
+        if(isset($values['request_executions_ids'])) {
+            $detached_executions_ids = array_values(array_unique(array_map(
+                'abs',
+                array_filter($values['request_executions_ids'], fn($execution_id) => $execution_id < 0)
+            )));
+
+            $detachedExecutions = FundRequestExecution::ids($detached_executions_ids)->read(['status']);
+            foreach($detachedExecutions as $detachedExecution) {
+                if($detachedExecution['status'] !== 'proforma') {
+                    return [
+                        'request_executions_ids' => [
+                            'invalid_execution_status' => 'Only proforma Fund Request Executions can be detached.'
+                        ]
+                    ];
+                }
+            }
+        }
+
         foreach($self as $id => $fundRequest) {
             $state = array_merge($fundRequest->toArray(), $values);
 
