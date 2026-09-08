@@ -101,7 +101,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'domain'            => [
                     ['condo_id', '=', 'object.condo_id'],
                     ['condo_id', '<>', null],
-                    ['bank_account_type', '=', 'bank_current'],
+                    ['bank_account_type', 'in', ['bank_current', 'bank_tier']],
                     ['object_class', '=', 'finance\bank\CondominiumBankAccount']
                 ]
             ],
@@ -556,7 +556,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 trigger_error("APP::PurchaseInvoice [{$id}] cannot be marked as completed: " . $e->getMessage(), EQ_REPORT_WARNING);
 
                 // resulting JSON violates the purchase-invoice JSON Schema in a way that is not covered by ValidationRule (shouldn't occur)
-                $errors = unserialize($e->getMessage());
+                $errors = @unserialize($e->getMessage(), ['allowed_classes' => false]);
+                if(!is_array($errors)) {
+                    $errors = [];
+                }
 
                 // logs specific errors to ease debugging
                 if(isset($errors['invalid_document'])) {
