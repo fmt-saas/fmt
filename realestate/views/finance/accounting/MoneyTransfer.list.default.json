@@ -2,6 +2,7 @@
     "name": "Money Transfers",
     "description": "A MoneyTransfer is a specific type of Miscellaneous Operation designed to generate entries and funding for tracking a transfer between internal bank accounts.",
     "header": {
+        "selection": false,
         "actions": {
             "ACTION.CREATE" : [ {
                 "view_id": "form.create"
