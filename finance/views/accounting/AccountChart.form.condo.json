@@ -80,7 +80,11 @@
                                                     "header": {
                                                         "selection": false,
                                                         "actions": {
-                                                            "ACTION.CREATE": true,
+                                                            "ACTION.CREATE": [
+                                                                {
+                                                                    "view_id": "form.create"
+                                                                }
+                                                            ],
                                                             "ACTION.SELECT": false
                                                         }
                                                     }
