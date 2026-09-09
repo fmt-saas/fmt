@@ -993,7 +993,7 @@
                 "sync_policy_id": 14,
                 "operand": "owner_identity_id",
                 "operator": "<>",
-                "value": null
+                "value": "NULL"
             }
         ]
     }

@@ -753,7 +753,7 @@ class Identity extends Model {
 
     public function getIndexes(): array {
         return [
-            ['type_id']
+            ['type_id'],
             ['identity_id']
         ];
     }

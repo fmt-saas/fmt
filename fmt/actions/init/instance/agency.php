@@ -233,19 +233,18 @@ User::id(2)->update([
     'groups_ids' => $groups_ids
 ]);
 
-$global_instance_name = parse_url($params['global_instance_url'], PHP_URL_HOST);
-
-$global_instance = Instance::create([
-        'server_id'     => 1,
-        'instance_type' => 'global',
-        'name'          => $global_instance_name,
-        'url'           => $params['global_instance_url'],
-        'access_token'  => $params['global_access_token']
-    ])
-    ->do('create_user')
-    ->first();
-
 if($params['sync']) {
+    $global_instance_name = parse_url($params['global_instance_url'], PHP_URL_HOST);
+
+    Instance::create([
+            'server_id'     => 1,
+            'instance_type' => 'global',
+            'name'          => $global_instance_name,
+            'url'           => $params['global_instance_url'],
+            'access_token'  => $params['global_access_token']
+        ])
+        ->do('create_user');
+
     // fetch the sync policies from global and overwrite the existing ones
     eQual::run('do', 'fmt_sync_SyncPolicy_pull-from-global', ['reset' => true, 'level' => $params['level']]);
 
@@ -264,7 +263,7 @@ if($params['create_users']) {
         $map_name_groups_ids[$role['name']] = $id;
     }
 
-    $role_codes = ['director', 'manager', 'accountant', 'condo_manager', 'assistant'];
+    $role_codes = ['director', 'manager', 'accountant', 'condo_manager', 'assistant', 'document_dispatch_officer'];
     $roles = Role::search(['code', 'in', $role_codes])
         ->read(['code'])
         ->get();
