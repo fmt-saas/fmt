@@ -855,6 +855,8 @@ class FiscalYear extends Model {
             OpeningBalance::search(['fiscal_year_id', '=', $nextFiscalYear['id']])->delete(true);
             // remove ClosingBalance
             ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
+
+            self::id($id)->update(['name' => null]);
         }
     }
 

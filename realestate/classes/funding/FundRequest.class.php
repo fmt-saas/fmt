@@ -398,7 +398,7 @@ class FundRequest extends \equal\orm\Model {
                         'missing_date_to' => 'The end date of the time range is mandatory.'
                     ];
                 }
-                if($fundRequest['date_from'] > $fundRequest['date_from']) {
+                if($fundRequest['date_from'] > $fundRequest['date_to']) {
                     $result[$id] = [
                         'invalid_date_interval' => 'The end date cannot be before start date.'
                     ];
@@ -950,6 +950,22 @@ class FundRequest extends \equal\orm\Model {
     public static function canupdate($self, $values) {
 
         $self->read(['status', 'has_date_range', 'date_from', 'date_to', 'request_date']);
+
+        if(array_key_exists('date_range_frequency', $values)) {
+            $self->read(['request_executions_ids' => ['status']]);
+
+            foreach($self as $fundRequest) {
+                foreach($fundRequest['request_executions_ids'] as $requestExecution) {
+                    if($requestExecution['status'] === 'posted') {
+                        return [
+                            'date_range_frequency' => [
+                                'forbidden' => 'Date range frequency can no longer be changed once a Fund Request Execution has been executed.'
+                            ]
+                        ];
+                    }
+                }
+            }
+        }
 
         if(isset($values['request_executions_ids'])) {
             $detached_executions_ids = array_values(array_unique(array_map(

@@ -442,16 +442,9 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     break;
                 }
 
-                $shares_count = count(PropertyLotApportionmentShare::search([
-                        ['apportionment_id', '=', $workingFund['apportionment_id']],
-                        ['property_lot_id', 'in', $property_lots_ids]
-                    ])
-                    ->ids());
+                // #memo - A missing lot entry in a validated apportionment represents zero shares.
+                // Some property lot might not have any share in (apportionment keys are checked before validation)
 
-                if($shares_count !== count($property_lots_ids)) {
-                    $result[$id] = ['missing_property_lot_share' => "Some transferred property lots have no share for working fund {$condo_fund_id}."];
-                    break;
-                }
             }
         }
 

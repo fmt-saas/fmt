@@ -72,6 +72,30 @@ cd /var/www/html
 '
 ```
 
+Set the initial password for the root and administrator accounts created by
+eQual. Pass the password through the container environment so that special
+characters are not interpreted by the shell command:
+
+```bash
+PASSWORD="replace-with-a-strong-password"
+
+docker exec \
+    -e FMT_INITIAL_PASSWORD="$PASSWORD" \
+    "$CONTAINER_NAME" \
+    bash -c '
+set -e
+cd /var/www/html
+./equal.run --do=user_pass-update \
+    --user_id=1 \
+    --password="$FMT_INITIAL_PASSWORD" \
+    --confirm="$FMT_INITIAL_PASSWORD"
+./equal.run --do=user_pass-update \
+    --user_id=2 \
+    --password="$FMT_INITIAL_PASSWORD" \
+    --confirm="$FMT_INITIAL_PASSWORD"
+'
+```
+
 Use a deployment secret store for this password and remove the local shell
 variable after initialization (`unset PASSWORD`).
 
@@ -185,4 +209,3 @@ The instance is ready when both the instance initialization action and the
 application initialization action complete successfully. For more information
 about synchronization behavior, see
 [`DOC/infra/synchronisation.md`](DOC/infra/synchronisation.md).
-
