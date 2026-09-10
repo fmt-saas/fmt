@@ -1640,16 +1640,9 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                         continue;
                     }
 
-                    $refreshed_assembly = Assembly::id($assembly_id)
-                        ->read([
-                            'ownerships_ids' => [
-                                'representative_owner_id' => ['id']
-                            ]
-                        ])
-                        ->first();
+                    $buyer_ownership_id = $settlement['buyer_ownership_id'];
+                    $buyerOwnership = Ownership::id($buyer_ownership_id)->read(['representative_owner_id'])->first();
 
-                    $buyer_ownership_id = (int) $settlement['buyer_ownership_id'];
-                    $buyer_ownership = $refreshed_assembly['ownerships_ids'][$buyer_ownership_id] ?? null;
                     $invitation = AssemblyInvitationCorrespondence::search([
                             ['assembly_id', '=', $assembly_id],
                             ['ownership_id', '=', $buyer_ownership_id],
@@ -1658,7 +1651,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                         ->read(['document_id', 'is_sent', 'owner_id' => ['id', 'email']])
                         ->first();
 
-                    if(!$buyer_ownership) {
+                    if(!$buyerOwnership) {
                         if($invitation && !$invitation['is_sent']) {
                             AssemblyInvitationCorrespondence::id($invitation['id'])->delete(true);
                         }
