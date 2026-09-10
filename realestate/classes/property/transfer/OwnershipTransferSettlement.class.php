@@ -1669,7 +1669,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                             continue;
                         }
 
-                        $representative_owner_id = $buyer_ownership['representative_owner_id']['id'] ?? null;
+                        $representative_owner_id = $buyerOwnership['representative_owner_id'] ?? null;
                         if(!$representative_owner_id) {
                             $log_entries[] = "Assembly {$assembly_id}: buyer ownership {$buyer_ownership_id} has no representative owner; supplementary invitation was not generated.";
                             continue;
