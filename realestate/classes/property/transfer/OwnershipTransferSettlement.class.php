@@ -21,6 +21,8 @@ use realestate\funding\ExpenseStatementOwnerLine;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecution;
 use realestate\funding\FundRequestExecutionLineEntry;
+use realestate\governance\Assembly;
+use realestate\governance\AssemblyInvitationCorrespondence;
 use realestate\ownership\Ownership;
 use realestate\ownership\OwnershipCommunicationPreference;
 use realestate\property\OwnershipTransfer;
@@ -297,6 +299,11 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'description' => 'Refresh executions for active fund requests whose period covers the transfer date.',
                 'policies'    => [],
                 'function'    => 'doRefreshFundRequestExecutions'
+            ],
+            'sync_upcoming_assemblies' => [
+                'description' => 'Refresh ownership snapshots of upcoming assemblies and send any missing supplementary buyer invitation.',
+                'policies'    => [],
+                'function'    => 'doSyncUpcomingAssemblies'
             ],
             'rollback' => [
                 'description' => 'Cancel generated accounting operations and revert property lot assignments.',
@@ -1478,6 +1485,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 ->update(['date_to' => null]);
 
             self::id($id)->do('refresh_fund_request_executions');
+            self::id($id)->do('sync_upcoming_assemblies');
         }
     }
 
@@ -1509,6 +1517,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             // `update()` would silently discard it; no lifecycle callback is expected here.
             self::id($id)
                 ->write(['validated_at' => time()])
+                ->do('sync_upcoming_assemblies')
                 ->do('generate_correspondences')
                 ->do('dispatch_correspondences')
                 ->transition('close');
@@ -1596,6 +1605,139 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     ['date_to', '>=', $transfer_date]
                 ])
                 ->do('generate_executions');
+        }
+    }
+
+    protected static function doSyncUpcomingAssemblies($self) {
+        $self->read([
+            'condo_id',
+            'buyer_ownership_id',
+            'transfer_date',
+            'logs'
+        ]);
+
+        foreach($self as $id => $settlement) {
+            $log_entries = [];
+            $assemblies = Assembly::search([
+                    ['condo_id', '=', $settlement['condo_id']],
+                    ['assembly_date', '>=', $settlement['transfer_date']],
+                    ['status', 'in', ['published', 'sending', 'sent']]
+                ])
+                ->read(['status']);
+
+            foreach($assemblies as $assembly_id => $assembly) {
+                try {
+                    Assembly::id($assembly_id)
+                        ->do('generate_ownerships')
+                        ->update([
+                            'count_shares'             => null,
+                            'count_represented_shares' => null,
+                            'count_owners'             => null,
+                            'count_represented_owners' => null
+                        ]);
+
+                    if(!in_array($assembly['status'], ['sending', 'sent'], true)) {
+                        continue;
+                    }
+
+                    $refreshed_assembly = Assembly::id($assembly_id)
+                        ->read([
+                            'ownerships_ids' => [
+                                'representative_owner_id' => ['id']
+                            ]
+                        ])
+                        ->first();
+
+                    $buyer_ownership_id = (int) $settlement['buyer_ownership_id'];
+                    $buyer_ownership = $refreshed_assembly['ownerships_ids'][$buyer_ownership_id] ?? null;
+                    $invitation = AssemblyInvitationCorrespondence::search([
+                            ['assembly_id', '=', $assembly_id],
+                            ['ownership_id', '=', $buyer_ownership_id],
+                            ['ownership_transfer_settlement_id', '=', $id]
+                        ])
+                        ->read(['document_id', 'is_sent', 'owner_id' => ['id', 'email']])
+                        ->first();
+
+                    if(!$buyer_ownership) {
+                        if($invitation && !$invitation['is_sent']) {
+                            AssemblyInvitationCorrespondence::id($invitation['id'])->delete(true);
+                        }
+                        continue;
+                    }
+
+                    if(!$invitation) {
+                        $existing_invitation = AssemblyInvitationCorrespondence::search([
+                                ['assembly_id', '=', $assembly_id],
+                                ['ownership_id', '=', $buyer_ownership_id]
+                            ])
+                            ->first();
+
+                        if($existing_invitation) {
+                            continue;
+                        }
+
+                        $representative_owner_id = $buyer_ownership['representative_owner_id']['id'] ?? null;
+                        if(!$representative_owner_id) {
+                            $log_entries[] = "Assembly {$assembly_id}: buyer ownership {$buyer_ownership_id} has no representative owner; supplementary invitation was not generated.";
+                            continue;
+                        }
+
+                        $invitation = AssemblyInvitationCorrespondence::create([
+                                'condo_id'                         => $settlement['condo_id'],
+                                'assembly_id'                      => $assembly_id,
+                                'ownership_id'                     => $buyer_ownership_id,
+                                'owner_id'                         => $representative_owner_id,
+                                'communication_method'             => 'email',
+                                'ownership_transfer_settlement_id' => $id
+                            ])
+                            ->read(['document_id', 'is_sent', 'owner_id' => ['id', 'email']])
+                            ->first();
+                    }
+
+                    if(!$invitation['document_id']) {
+                        \eQual::run(
+                            'do',
+                            'realestate_governance_AssemblyInvitationCorrespondence_generate-document',
+                            ['id' => $invitation['id']]
+                        );
+                    }
+
+                    if($invitation['is_sent']) {
+                        continue;
+                    }
+
+                    $representative_owner_id = $invitation['owner_id']['id'];
+                    $representative_email = $invitation['owner_id']['email'] ?? null;
+                    if(!$representative_email) {
+                        $log_entries[] = "Assembly {$assembly_id}: supplementary invitation document was generated, but representative owner {$representative_owner_id} has no email address.";
+                        continue;
+                    }
+
+                    \eQual::run(
+                        'do',
+                        'realestate_governance_AssemblyInvitationCorrespondence_send-email',
+                        ['id' => $invitation['id']]
+                    );
+                }
+                catch(\Exception $e) {
+                    $log_entries[] = "Assembly {$assembly_id}: supplementary invitation synchronization failed ({$e->getMessage()}).";
+                    trigger_error(
+                        "APP::Failed to synchronize Assembly[{$assembly_id}] after OwnershipTransferSettlement[{$id}]: {$e->getMessage()}",
+                        EQ_REPORT_WARNING
+                    );
+                }
+            }
+
+            if(count($log_entries)) {
+                $log = sprintf(
+                    '[%s] Assembly synchronization: %s',
+                    date('c'),
+                    implode(' ', $log_entries)
+                );
+                self::id($id)->write([
+                    'logs' => trim(implode(PHP_EOL, array_filter([$settlement['logs'], $log])))
+                ]);
+            }
         }
     }
 

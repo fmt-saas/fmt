@@ -33,6 +33,14 @@ class AssemblyInvitationCorrespondence extends \documents\correspondence\Documen
                 'required'          => true
             ],
 
+            'ownership_transfer_settlement_id' => [
+                'type'           => 'many2one',
+                'description'    => 'Ownership transfer settlement that required this supplementary invitation, if any.',
+                'foreign_object' => 'realestate\property\transfer\OwnershipTransferSettlement',
+                'readonly'       => true,
+                'ondelete'       => 'null'
+            ],
+
             'document_id' => [
                 'type'              => 'many2one',
                 'description'       => 'The document (PDF) of the invitation, if any.',

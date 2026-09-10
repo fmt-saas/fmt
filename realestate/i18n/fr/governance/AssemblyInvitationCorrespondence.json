@@ -28,6 +28,11 @@
             "description": "Dossier de propriété concerné par la convocation.",
             "help": ""
         },
+        "ownership_transfer_settlement_id": {
+            "label": "Règlement du transfert",
+            "description": "Règlement du transfert de propriété à l'origine de cette convocation complémentaire.",
+            "help": ""
+        },
         "communication_method": {
             "label": "Mode de communication",
             "description": "Canal utilisé pour l'envoi de la convocation.",

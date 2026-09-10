@@ -62,8 +62,9 @@ $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params
         'communication_method',
         'is_sent',
         'sent_date',
-        'owner_id' => ['firstname', 'lastname', 'lang_id'],
+        'owner_id' => ['firstname', 'lastname', 'lang_id', 'email'],
         'ownership_id' => ['id', 'name'],
+        'ownership_transfer_settlement_id',
         'assembly_id' => ['name', 'assembly_date', 'assembly_type', 'is_second_session'],
         'document_id'
     ])
@@ -141,18 +142,25 @@ foreach($template['parts_ids'] as $part_id => $part) {
     }
 }
 
-// retrieve recipient
-$communicationPreference = OwnershipCommunicationPreference::search([
-        ['condo_id', '=', $assemblyInvitationCorrespondence['condo_id']['id']],
-        ['ownership_id', '=', $assemblyInvitationCorrespondence['ownership_id']['id']],
-        ['communication_reason', '=', 'general_assembly_call'],
-        ['has_channel_email', '=', true]
-    ])
-    ->read(['email', 'email_alt'])
-    ->first();
+// Supplementary invitations caused by a transfer are always sent to the
+// representative owner's email, independently from communication preferences.
+$recipient_email = null;
+if($assemblyInvitationCorrespondence['ownership_transfer_settlement_id']) {
+    $recipient_email = $assemblyInvitationCorrespondence['owner_id']['email'] ?? null;
+}
+else {
+    $communicationPreference = OwnershipCommunicationPreference::search([
+            ['condo_id', '=', $assemblyInvitationCorrespondence['condo_id']['id']],
+            ['ownership_id', '=', $assemblyInvitationCorrespondence['ownership_id']['id']],
+            ['communication_reason', '=', 'general_assembly_call'],
+            ['has_channel_email', '=', true]
+        ])
+        ->read(['email', 'email_alt'])
+        ->first();
 
-$recipient_email = ($communicationPreference['email'] ?? null)
-    ?: ($communicationPreference['email_alt'] ?? null);
+    $recipient_email = ($communicationPreference['email'] ?? null)
+        ?: ($communicationPreference['email_alt'] ?? null);
+}
 
 if(!$recipient_email || $recipient_email === '') {
     throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
