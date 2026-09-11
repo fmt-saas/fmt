@@ -35,8 +35,18 @@ if(!$document) {
 
 $output = eQual::run('get', 'documents_document', ['id' => $document['hash']]);
 
+$document_name = trim((string) ($document['name'] ?? ''));
+
+if(pathinfo($document_name, PATHINFO_EXTENSION) === '') {
+    $extension = ltrim(trim((string) ($document['extension'] ?? '')), '.');
+
+    if($extension !== '') {
+        $document_name = rtrim($document_name, '.') . '.' . $extension;
+    }
+}
+
 $context->httpResponse()
-        ->header('Content-Disposition', 'attachment; filename="' . $document['name'] . '.' . $document['extension'] . '"')
+        ->header('Content-Disposition', 'attachment; filename="' . $document_name . '"')
         ->header('Content-Type', $document['content_type'])
         ->body($output, true)
         ->send();

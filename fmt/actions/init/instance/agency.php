@@ -48,7 +48,7 @@ use infra\server\Instance;
         'create_users' => [
             'type'              => 'boolean',
             'description'       => "Create default users.",
-            'default'           => true
+            'default'           => false
         ]
     ],
     'access' => [
@@ -66,64 +66,6 @@ use infra\server\Instance;
  * @var \equal\php\Context  $context
  */
 ['context' => $context] = $providers;
-
-/**
- * Methods
- */
-
-$createUser = function($user) {
-    // #memo if identity_id is not provided, Employee::oncreate creates an Identity (unless `$orm->disableEvents()`)
-
-    $identity = Identity::create([
-            'type_id'           => 1,
-            'type'              => 'IN',
-            'firstname'         => $user['firstname'],
-            'lastname'          => $user['lastname'],
-            'email'             => $user['email'],
-            'has_parent'        => false,
-            'nationality'       => 'BE',
-            'lang_id'           => 2,
-            'address_country'   => 'BE',
-            'has_vat'           => false,
-            'is_active'         => true
-        ])
-        ->read(['name', 'email'])
-        ->first();
-
-    $employee = Employee::create()
-        ->update(['identity_id' => $identity['id']])
-        ->do('sync_from_identity')
-        ->first();
-
-    $user_data = [
-        'login'         => $identity['email'],
-        'language'      => 'fr',
-        'validated'     => true,
-        'instance_id'   => 1,
-        'groups_ids'    => $user['groups_ids'],
-    ];
-
-    if(isset($user['roles_ids'])) {
-        $is_first = true;
-        $role_assignments_ids = [];
-        foreach((array) $user['roles_ids'] as $role_id) {
-            $role_assignment = RoleAssignment::create([
-                    'employee_id'   => $employee['id'],
-                    'role_id'       => $role_id,
-                    'is_primary'    => $is_first
-                ])
-                ->read(['id'])
-                ->first();
-            $is_first = false;
-            $role_assignments_ids[] = $role_assignment['id'];
-        }
-        $user_data['role_assignments_ids'] = $role_assignments_ids;
-    }
-
-    User::create($user_data)
-        ->update(['identity_id' => $identity['id']])
-        ->do('sync_from_identity');
-};
 
 /**
  * Action
@@ -252,76 +194,7 @@ if($params['sync']) {
     eQual::run('do', 'fmt_sync_pull-from-global', ['accept' => true, 'level' => $params['level']]);
 }
 
-if($params['create_users']) {
-    $group_names = ['operators', 'users'];
-    $groups = Group::search(['name', 'in', $group_names])
-        ->read(['name'])
-        ->get();
-
-    $map_name_groups_ids = [];
-    foreach($groups as $id => $role) {
-        $map_name_groups_ids[$role['name']] = $id;
-    }
-
-    $role_codes = ['director', 'manager', 'accountant', 'condo_manager', 'assistant', 'document_dispatch_officer'];
-    $roles = Role::search(['code', 'in', $role_codes])
-        ->read(['code'])
-        ->get();
-
-    $map_codes_roles_ids = [];
-    foreach($roles as $id => $role) {
-        $map_codes_roles_ids[$role['code']] = $id;
-    }
-
-    $users_data = [
-        [
-            'firstname'             => 'First',
-            'lastname'              => 'Operator',
-            'email'                 => "operator@{$instance_name}",
-            'groups_ids'            => [$map_name_groups_ids['operators'], $map_name_groups_ids['users']],
-            'roles_ids'             => [$map_codes_roles_ids['accountant'], $map_codes_roles_ids['condo_manager'], $map_codes_roles_ids['document_dispatch_officer']]
-        ],
-        [
-            'firstname'             => 'First',
-            'lastname'              => 'Director',
-            'email'                 => "director@{$instance_name}",
-            'groups_ids'            => [$map_name_groups_ids['users']],
-            'roles_ids'             => $map_codes_roles_ids['director']
-        ],
-        [
-            'firstname'             => 'First',
-            'lastname'              => 'Manager',
-            'email'                 => "manager@{$instance_name}",
-            'groups_ids'            => [$map_name_groups_ids['users']],
-            'roles_ids'             => $map_codes_roles_ids['manager']
-        ],
-        [
-            'firstname'             => 'First',
-            'lastname'              => 'Accountant',
-            'email'                 => "accountant@{$instance_name}",
-            'groups_ids'            => [$map_name_groups_ids['users']],
-            'roles_ids'             => $map_codes_roles_ids['accountant']
-        ],
-        [
-            'firstname'             => 'First',
-            'lastname'              => 'Condo Manager',
-            'email'                 => "condo-manager@{$instance_name}",
-            'groups_ids'            => [$map_name_groups_ids['users']],
-            'roles_ids'             => $map_codes_roles_ids['condo_manager']
-        ],
-        [
-            'firstname'             => 'First',
-            'lastname'              => 'Assistant',
-            'email'                 => "assistant@{$instance_name}",
-            'groups_ids'            => [$map_name_groups_ids['users']],
-            'roles_ids'             => $map_codes_roles_ids['assistant']
-        ]
-    ];
-
-    foreach($users_data as $user_data) {
-        $createUser($user_data);
-    }
-}
+// #memo - we don't create users at this stage (users are created from Employees and Owners)
 
 $context
     ->httpResponse()

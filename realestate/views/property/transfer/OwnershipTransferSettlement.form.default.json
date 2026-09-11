@@ -215,6 +215,32 @@
                         ]
                     },
                     {
+                        "id": "section.assembly_invitation_correspondences",
+                        "label": "Assembly invitations",
+                        "visible": ["assembly_invitation_correspondences_ids", "<>", null],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "assembly_invitation_correspondences_ids",
+                                                "width": "100%",
+                                                "readonly": true,
+                                                "widget": {
+                                                    "view": "list.default",
+                                                    "header": {"actions": {"ACTION.CREATE": false}}
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "id": "section.logs",
                         "label": "Technical log",
                         "rows": [

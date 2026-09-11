@@ -172,6 +172,14 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                 'description'    => 'Seller and buyer correspondences generated for the settlement.'
             ],
 
+            'assembly_invitation_correspondences_ids' => [
+                'type'           => 'one2many',
+                'foreign_object' => 'realestate\governance\AssemblyInvitationCorrespondence',
+                'foreign_field'  => 'ownership_transfer_settlement_id',
+                'description'    => 'Supplementary assembly invitations generated for the settlement.',
+                'readonly'       => true
+            ],
+
             'correspondences_dispatch_started_at' => [
                 'type'        => 'datetime',
                 'description' => 'Date and time at which correspondence delivery was scheduled.',

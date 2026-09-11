@@ -26,6 +26,7 @@
         "lines_ids": {"label": "Lignes de régularisation", "description": "Mouvements économiques calculés pour les lots transférés.", "help": "Chaque ligne conserve les montants réels, théoriques et retenus."},
         "misc_operations_ids": {"label": "Opérations diverses", "description": "Opérations diverses générées et comptabilisées pour la régularisation.", "help": "Cette liste est alimentée automatiquement et n'est pas modifiable depuis la régularisation."},
         "correspondences_ids": {"label": "Correspondances", "description": "Courriers destinés au vendeur et à l'acquéreur.", "help": "Une ou plusieurs correspondances sont créées pour chaque partie selon les canaux configurés."},
+        "assembly_invitation_correspondences_ids": {"label": "Invitations aux assemblées", "description": "Invitations complémentaires aux assemblées générées à la suite de la mutation.", "help": "Cette liste affiche uniquement les invitations liées à cette régularisation de mutation."},
         "correspondences_dispatch_started_at": {"label": "Émission démarrée le", "description": "Date et heure de planification des e-mails et exports postaux.", "help": "Renseigné automatiquement lors du lancement de l'émission."},
         "correspondences_exporting_task_id": {"label": "Export postal", "description": "Tâche asynchrone regroupant les courriers à imprimer.", "help": "Lorsque la tâche est prête, téléchargez son archive avant de clôturer la régularisation."},
         "logs": {"label": "Journal technique", "description": "Trace technique des traitements exécutés sur le dossier.", "help": "Réservé au diagnostic et à l'audit."}
@@ -40,6 +41,7 @@
                 "section.lines": {"label": "Lignes de régularisation"},
                 "section.operations": {"label": "Opérations comptables"},
                 "section.correspondences": {"label": "Correspondances"},
+                "section.assembly_invitation_correspondences": {"label": "Invitations aux assemblées"},
                 "section.logs": {"label": "Journal technique"}
             },
             "actions": {
