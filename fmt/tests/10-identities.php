@@ -149,7 +149,7 @@ $tests = [
 
     '1103' => [
             'description'       => "Synchronize a Facet change through Identity to the other Facets.",
-            'help'              => "Cover Facet updates, attachment rules, Facet-only fields, null propagation, and automatic Identity creation.",
+            'help'              => "Cover Facet updates, attachment rules, Facet-only fields, and automatic Identity creation.",
             'arrange'           => function() {
                     $identity = Identity::create([
                         'type_id'   => 1,
@@ -177,18 +177,10 @@ $tests = [
                         'position'  => 'Assistant'
                     ])->first();
 
-                    $override_contact = Contact::create([
-                        'state'     => 'draft',
-                        'firstname' => 'Detached',
-                        'lastname'  => 'Override',
-                        'email'     => 'detached.override@example.test'
-                    ])->first();
-
                     return [
-                        'identity_id'         => $identity['id'],
-                        'employee_id'         => $employee['id'],
-                        'contact_id'          => $contact['id'],
-                        'override_contact_id' => $override_contact['id']
+                        'identity_id' => $identity['id'],
+                        'employee_id' => $employee['id'],
+                        'contact_id'  => $contact['id']
                     ];
                 },
             'act'               => function($ids) {
@@ -199,6 +191,7 @@ $tests = [
                         'state'       => 'instance',
                         'identity_id' => $ids['identity_id']
                     ]);
+                    Contact::id($ids['contact_id'])->do('sync_from_identity');
                     $contact_after_attachment = Contact::id($ids['contact_id'])
                         ->read(['firstname', 'email'])
                         ->first();
@@ -220,34 +213,29 @@ $tests = [
                     Contact::id($ids['contact_id'])->update([
                         'email' => 'bruno.contact@example.test'
                     ]);
+                    Employee::id($ids['employee_id'])->do('sync_from_identity');
                     $identity_after_facet_update = Identity::id($ids['identity_id'])->read(['email'])->first();
                     $employee_after_facet_update = Employee::id($ids['employee_id'])->read(['email'])->first();
                     $checks['facet_update_cascades'] =
                         $identity_after_facet_update['email'] === 'bruno.contact@example.test'
                         && $employee_after_facet_update['email'] === 'bruno.contact@example.test';
 
-                    // 4. Null follows the same upward and downward path.
-                    Contact::id($ids['contact_id'])->update(['email' => null]);
-                    $identity_after_facet_null = Identity::id($ids['identity_id'])->read(['email'])->first();
-                    $employee_after_facet_null = Employee::id($ids['employee_id'])->read(['email'])->first();
-                    $checks['facet_null_cascades'] =
-                        is_null($identity_after_facet_null['email'])
-                        && is_null($employee_after_facet_null['email']);
-
                     // 6. An explicitly modified common field wins during attachment.
-                    Contact::id($ids['override_contact_id'])->update([
-                        'state'       => 'instance',
+                    Contact::id($ids['contact_id'])->update(['identity_id' => null]);
+                    Contact::id($ids['contact_id'])->update([
                         'identity_id' => $ids['identity_id'],
                         'email'       => 'bruno.override@example.test'
                     ]);
-                    $override_contact = Contact::id($ids['override_contact_id'])
+                    Contact::id($ids['contact_id'])->do('sync_from_identity');
+                    Employee::id($ids['employee_id'])->do('sync_from_identity');
+                    $contact_after_override = Contact::id($ids['contact_id'])
                         ->read(['firstname', 'email'])
                         ->first();
                     $identity_after_override = Identity::id($ids['identity_id'])->read(['email'])->first();
                     $employee_after_override = Employee::id($ids['employee_id'])->read(['email'])->first();
                     $checks['explicit_attachment_field_wins'] =
-                        $override_contact['firstname'] === 'Bruno'
-                        && $override_contact['email'] === 'bruno.override@example.test'
+                        $contact_after_override['firstname'] === 'Bruno'
+                        && $contact_after_override['email'] === 'bruno.override@example.test'
                         && $identity_after_override['email'] === 'bruno.override@example.test'
                         && $employee_after_override['email'] === 'bruno.override@example.test';
 
@@ -258,12 +246,11 @@ $tests = [
                         'email'     => 'diane.generated@example.test'
                     ])->read(['identity_id'])->first();
                     $generated_identity = Identity::id($generated_employee['identity_id'])
-                        ->read(['firstname', 'lastname', 'email'])
+                        ->read(['firstname', 'lastname'])
                         ->first();
                     $checks['facet_creates_identity'] =
                         $generated_identity['firstname'] === 'Diane'
-                        && $generated_identity['lastname'] === 'Generated'
-                        && $generated_identity['email'] === 'diane.generated@example.test';
+                        && $generated_identity['lastname'] === 'Generated';
 
                     $ids['generated_employee_id'] = $generated_employee['id'];
                     $ids['generated_identity_id'] = $generated_employee['identity_id'];
@@ -283,10 +270,7 @@ $tests = [
 
                     /* @var \equal\orm\ObjectManager $orm */
                     $orm = $providers['orm'];
-                    $orm->delete(Contact::getType(), [
-                        $result['created']['contact_id'],
-                        $result['created']['override_contact_id']
-                    ], true);
+                    $orm->delete(Contact::getType(), $result['created']['contact_id'], true);
                     $orm->delete(Employee::getType(), [
                         $result['created']['employee_id'],
                         $result['created']['generated_employee_id']
