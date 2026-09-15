@@ -14,15 +14,15 @@ Elle couvre le cycle complet : ordre du jour, convocations, procurations, partic
 
 La liste `Assemblées` affiche les assemblées planifiées et leur statut.
 
-Statuts visibles :
-
-* `Brouillon`
-* `Prêt`
-* `Envoi en cours`
-* `Envoyé`
-* `En cours`
-* `Terminée (Tenue)`
-* `Terminée (ajournée)`
+| Statut visible | Signification |
+| --- | --- |
+| `Brouillon` | L'assemblée, son ordre du jour et ses annexes sont encore en préparation. |
+| `Prêt` | L'assemblée est publiée et la liste des propriétés concernées est figée à la date de la séance. |
+| `Envoi en cours` | Les convocations électroniques et postales sont en cours de génération ou de planification. |
+| `Envoyé` | Les convocations ont été préparées et les courriers postaux ont été marqués comme envoyés. |
+| `En cours` | La séance est ouverte ; présences, mandats, représentations, votes et procès-verbal peuvent être traités. |
+| `Terminée (Tenue)` | Le procès-verbal final a été signé et l'assemblée a été clôturée. |
+| `Terminée (ajournée)` | La séance est ajournée. Les informations déjà encodées sont conservées et une seconde session peut être créée. |
 
 ## Fiche Assemblée
 
@@ -77,9 +77,14 @@ La fiche peut proposer :
 3. Préparer les résolutions et les pièces jointes.
 4. Rafraîchir les propriétaires si la liste doit être actualisée.
 5. Publier l'assemblée lorsqu'elle est prête.
-6. Créer les convocations.
+6. Créer les convocations. Le système actualise alors les propriétés concernées et prépare un envoi par propriétaire et canal de communication.
 7. Marquer comme envoyé lorsque les convocations sont envoyées.
-8. Ouvrir l'assemblée le jour de la séance.
-9. Encoder les participants, mandats, présences et votes.
-10. Générer puis approuver le procès-verbal.
-11. Envoyer le PV.
+8. Ouvrir l'assemblée le jour de la séance. Cette action crée la feuille de présence à signer et ajoute le secrétaire initial.
+9. Encoder les participants et les procurations, puis clore les présences.
+10. Valider successivement les mandats, les représentations et le quorum de l'assemblée.
+11. Traiter chaque résolution et enregistrer les votes. Tous les points doivent être fermés ou ajournés avant de poursuivre.
+12. Générer puis approuver le procès-verbal.
+13. Ajouter au minimum les signatures du président et du secrétaire, puis clore la signature du procès-verbal.
+14. Envoyer le PV par les canaux configurés pour chaque propriétaire.
+
+En cas d'ajournement, les participants, procurations, représentations et points déjà traités restent liés à l'assemblée. Lorsqu'une seconde session est planifiée, le système crée une nouvelle assemblée en brouillon et y copie l'ordre du jour ainsi que les paramètres de vote.

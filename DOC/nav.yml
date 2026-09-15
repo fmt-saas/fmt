@@ -11,6 +11,7 @@
     - 'Gestion des consommations (eau/gaz/élec)': copropriete/gestion-des-consommations-eau-gaz-elec.md
     - 'Gouverance':
         - 'Assemblées':
+            - 'Planification & organisation': copropriete/gouvernance/assemblee/planification-et-organisation-des-assemblees.md
             - 'Suivi & Prise de votes': copropriete/gouvernance/assemblee/suivi-et-prise-de-votes.md
 - 'Comptabilité & finances':
     - 'Plan comptable': comptabilite/plan-comptable.md

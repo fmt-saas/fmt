@@ -1,8 +1,20 @@
 # Suivi du déroulé d'une Assemblée et prises de votes
 
+## Sous-workflow d'une assemblée en cours
 
+Le passage au statut `in_progress` crée `register_document_id`, version immuable de la liste de présence à signer, ainsi qu'un `AssemblyAttendee` secrétaire lié à l'identité de l'organisateur. La séance avance ensuite selon les étapes suivantes :
 
-
+| Étape | Objets et liens concernés |
+| --- | --- |
+| `opening` — Ouverture | L'assemblée est liée au registre par `register_document_id`. Les participants sont des `AssemblyAttendee` liés à une `Identity`, éventuellement à un `User`, et à une `DocumentSignature` portant sur le registre. Les propriétaires physiquement présents peuvent immédiatement produire une `AssemblyRepresentation` de type `owner`. |
+| `attendance_closure` — Clôture des présences | Cette valeur existe dans la sélection, mais aucun traitement de la classe ne positionne explicitement l'assemblée à cette étape. L'action `close_attendance` passe directement de `opening` à `mandate_validation`. |
+| `mandate_validation` — Validation des mandats | Les participants sont contrôlés et les `AssemblyMandate` encore en `pending` sont supprimés. Chaque mandat relie l'assemblée, le participant et l'`Ownership`; il peut aussi référencer un document et des `AssemblyVoteIntention`. Les contrôles portent notamment sur le propriétaire, la signature, les limites de procurations et les quotes-parts. |
+| `representation_validation` — Validation des représentations | Les `AssemblyRepresentation` sont entièrement régénérées. Chacune relie l'assemblée, le participant et l'`Ownership`, ainsi que l'`AssemblyMandate` en cas de procuration. Une présence directe de propriétaire prévaut sur une représentation par procuration. |
+| `assembly_validation` — Validation de l'assemblée | Le registre signé est généré dans `signed_register_document_id` et classé dans le dossier documentaire de l'assemblée. Le document original pointe vers cette version signée. Le quorum est calculé depuis les propriétés, représentations, lots principaux et clés de répartition. En cas d'échec, `is_valid` passe à `false` et l'assemblée peut être ajournée. Une seconde session ignore ce contrôle de quorum. |
+| `agenda_processing` — Traitement de l'ordre du jour | Chaque `AssemblyItem` suit son workflow `pending → open → closed/adjourned`. À l'ouverture d'un point, les votes sont synchronisés pour les propriétés représentées concernées. Les `AssemblyMinutesEntry` stockent le texte et la synthèse de vote du procès-verbal. Quand tous les points sont fermés ou ajournés, `is_complete` passe à `true`. |
+| `minutes_confirmation` — Confirmation du PV | Création de `minutes_document_id`, document original et immuable du procès-verbal. Il n'est pas encore classé comme version finale dans l'arborescence documentaire. |
+| `minutes_signing` — Signature du PV | Le président et le secrétaire sont identifiés parmi les participants. Chaque signature produit une `DocumentSignature` portant sur `minutes_document_id`, liée au participant par `minutes_document_signature_id`. La clôture requiert au minimum leurs deux signatures. |
+| `assembly_closing` — Clôture | Création de `signed_minutes_document_id` dans `parent_node_id`. Le document original reçoit un lien `signed_document_id` vers cette version finale, puis l'assemblée passe au statut `held`. |
 
 ## Création automatique des votes à l’ouverture d’une résolution
 

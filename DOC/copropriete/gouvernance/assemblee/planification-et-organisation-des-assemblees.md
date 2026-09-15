@@ -1,10 +1,24 @@
-## Planification des assemblée générale
+## Planification des assemblées générales
 
 Les AG sont tenues sur base des prescriptions légales.
 
 Possibilité de générer automatiquement un brouillon d'AG sur base de la date théorique (à la clôture d'une AG).
 
 Note: lors d'une AG, la date de l'AG suivante peut être annoncée et/ou votée (nécessite un suivi: création tâche à faire).
+
+### Workflow principal
+
+| Statut | Transition / événement | Effets et objets liés |
+| --- | --- | --- |
+| `pending` — Brouillon | Création depuis un `Condominium` et sélection d'un modèle | L'assemblée est liée à la copropriété par `condo_id` et au modèle par `assembly_template_id`. Le modèle génère les `AssemblyItem` et leurs groupes, avec éventuellement un lien vers un `Apportionment`. L'organisateur est calculé depuis le rôle `condo_manager` ou le syndic. Le dossier documentaire parent est le dossier `general_meetings` de la copropriété. Des annexes peuvent déjà être liées à l'assemblée ou à ses points. |
+| `published` — Prêt | `publish` | Création ou rafraîchissement du snapshot des `Ownership` dans `ownerships_ids`. Les propriétés sont déterminées à la date de l'assemblée depuis les `PropertyLotOwnership` actifs portant sur les lots principaux. Les compteurs de propriétaires et de quotes-parts sont invalidés pour être recalculés. |
+| `sending` — Envoi en cours | `send` | Le snapshot des propriétés est recalculé. Les anciennes `AssemblyInvitationCorrespondence` sont remplacées par une correspondance pour chaque combinaison propriété, propriétaire représentant et canal de communication configuré. Les envois électroniques génèrent le document de convocation et l'e-mail planifié. Les envois postaux alimentent une `ExportingTask` et ses `ExportingTaskLine`. |
+| `sent` — Envoyé | `sent` | Les correspondances non électroniques sont marquées comme envoyées avec leur date. Les correspondances, documents, e-mails et tâches d'export restent rattachés à l'assemblée. La transition contrôle que l'archive postale est prête et téléchargée. Le contrôle effectif du statut des e-mails n'est actuellement pas actif. |
+| `in_progress` — En cours | `open` | Création du registre immuable `register_document_id` à signer et d'un `AssemblyAttendee` secrétaire lié à l'identité de l'organisateur. Participants, signatures, mandats, représentations, votes et procès-verbal sont ensuite gérés par le sous-workflow de séance. |
+| `held` — Terminée / tenue | `close`, après signature du PV | La version finale signée du procès-verbal est disponible dans `signed_minutes_document_id`; le document original pointe vers elle via `signed_document_id`. Le registre signé reste disponible dans `signed_register_document_id`. L'envoi du PV crée des `AssemblyMinutesCorrespondence` et, selon le canal, un document et un e-mail ou une tâche d'export postal. |
+| `adjourned` — Terminée / ajournée | `adjourn` | La transition conserve les participants, mandats, représentations, registre et points déjà traités. Si une seconde session est planifiée, une nouvelle `Assembly` en brouillon est reliée à la première; les points, groupes, paramètres de vote et traductions sont copiés. |
+
+Le détail des étapes internes du statut `in_progress` est décrit dans [Suivi du déroulé d'une Assemblée et prises de votes](suivi-et-prise-de-votes.md).
 
 ## Organisation d'une assemblée
 
@@ -85,42 +99,26 @@ fields:
 
 L’objet `Assembly` représente une assemblée convoquée pour une copropriété. Il regroupe l’ensemble des métadonnées nécessaires à la gestion de la convocation, des présences, de l’ordre du jour, des votes et du procès-verbal.
 
-```yaml
-class: Assembly
-fields:
+Ses relations directes structurent les différentes étapes du workflow :
 
-  # Référencement
-  - condo_id: link to Condominium                     # Copropriété concernée
-  - template_id: link to AssemblyTemplate             # Template utilisé à la création (facultatif)
-
-  # Informations générales
-  - name: string                                      # Titre de l'assemblée
-  - assembly_type: enum [statutory, takeover, ordinary, extraordinary, partial] # Type d’AG
-  - assembly_date: datetime                           # Date et heure planifiées (non modifiables après envoi)
-  - assembly_location: string                         # Lieu annoncé à l’avance
-  - call_text: text                                   # Texte de convocation prérempli ou personnalisé
-
-  # Statut de l’AG
-  - status: enum [pending, ready, sent, held, adjourned, closed]  # Workflow d’évolution
-    # Transitions : pending → ready → sent → held → closed | adjourned
-
-  # Composition de l’AG
-  - assembly_items_ids: hasMany AssemblyItem          # Points de l’ordre du jour
-  - assembly_invitations_ids: hasMany AssemblyInvitation # Invitations envoyées
-  - assembly_attendees_ids: hasMany AssemblyAttendee  # Présences / pouvoirs
-  - assembly_votes_ids: hasMany AssemblyVote          # Votes enregistrés
-
-  # Procès-verbal
-  - assembly_minutes_id: link to AssemblyMinutes      # Lien vers le PV généré
-
-  # Gestion des deux séances
-  - session_time_start: time                          # Heure de début de la première séance
-  - session_time_end: time                            # Heure de fin (facultatif)
-  - is_second_session: boolean                        # Cette AG est-elle une deuxième séance ?
-  - has_second_session: boolean                       # Une deuxième séance est-elle prévue ?
-  - related_assembly_id: link to Assembly             # Assemblée liée si c’est une deuxième séance
-  - second_session_assembly_id: link to Assembly      # Assemblée liée si une seconde séance est prévue
-```
+| Objet lié | Cardinalité / champ principal | Rôle |
+| --- | --- | --- |
+| `Condominium` | many-to-one — `condo_id` | Copropriété concernée |
+| `Identity` | many-to-one calculé — `assembly_organizer_identity_id` | Personne physique qui organise l'assemblée pour le syndic |
+| `AssemblyTemplate` | many-to-one — `assembly_template_id` | Modèle utilisé pour construire l'ordre du jour |
+| `AssemblyItem` | one-to-many — `assembly_items_ids` | Groupes, points et résolutions |
+| `Ownership` | many-to-many — `ownerships_ids` | Propriétés concernées, figées à la publication ou à l'envoi |
+| `AssemblyAttendee` | one-to-many — `assembly_attendees_ids` | Participants physiques |
+| `AssemblyMandate` | one-to-many — `assembly_mandates_ids` | Procurations présentées |
+| `AssemblyRepresentation` | one-to-many — `assembly_representations_ids` | Lien effectif entre un participant et une propriété représentée |
+| `AssemblyVote` | one-to-many — `assembly_votes_ids` | Votes exprimés pendant le traitement des points |
+| `AssemblyMinutesEntry` | one-to-many — `assembly_minutes_entries_ids` | Entrées constitutives du procès-verbal |
+| `AssemblyInvitationCorrespondence` | one-to-many — `assembly_invitation_correspondences_ids` | Convocations individualisées |
+| `AssemblyMinutesCorrespondence` | one-to-many — `assembly_minutes_correspondences_ids` | Envois individualisés du procès-verbal |
+| `ExportingTask` | one-to-many et deux many-to-one spécifiques | Archives postales des convocations et du procès-verbal |
+| `Document` | plusieurs many-to-one et one-to-many | Registre, procès-verbal, versions signées et annexes |
+| `Node` | many-to-one calculé — `parent_node_id` | Dossier GED `general_meetings` |
+| `Assembly` | `related_assembly_id` et `second_session_assembly_id` | Relation entre première et seconde session |
 
 #### `AssemblyItem`
 
@@ -214,18 +212,16 @@ La date de la convocation est fixe (doit être de min. 15 jours avant la tenue d
 
 Il faut tenir à disposition l'éventuelle liste des annexes.
 
-### `AssemblyInvitation`
+### Correspondances de convocation
 
-```txt
-class: AssemblyInvitation
-fields:
-  - ownership_id
-  - owner_id
-  - assembly_id
-  - sent_date (datetime)
-  - sent_method (enum: paper, email)
-  - is_acknowledged (boolean)
-```
+La publication fige d'abord les `Ownership` concernées dans `ownerships_ids`. Lors de la création des convocations, ce snapshot est rafraîchi, puis les anciennes `AssemblyInvitationCorrespondence` sont supprimées et régénérées.
+
+Une correspondance relie l'`Assembly`, l'`Ownership`, son `representative_owner_id` et un canal défini dans `OwnershipCommunicationPreference` :
+
+- pour l'e-mail, le système planifie l'envoi, génère un `Document` de convocation et crée l'objet mail lié à la correspondance ;
+- pour le courrier postal, il crée une `ExportingTask`, ses `ExportingTaskLine`, puis la relie à l'assemblée par `invitations_exporting_task_id`.
+
+Après cette génération, `has_invitations_sent` indique que l'envoi a été préparé. Au passage au statut `sent`, les correspondances non électroniques reçoivent `is_sent` et `sent_date` ; les documents, e-mails et tâches d'export restent accessibles depuis l'assemblée.
 
 ## Rôle de l'Assemblée Générale
 
@@ -240,36 +236,17 @@ L’Assemblée Générale (AG) joue un rôle central dans la gestion de la copro
 
 ### Suivi du déroulement d'une Assemblée Générale
 
-Étapes: `opening`, `attendance_encoding`, `attendance_closure`, `proxy_validation`, `representation_validation`, `assembly_validation`, `agenda_processing`.
+Le statut `in_progress` suit les étapes `opening`, `attendance_closure`, `mandate_validation`, `representation_validation`, `assembly_validation`, `agenda_processing`, `minutes_confirmation`, `minutes_signing` et `assembly_closing`.
 
-### Présence `AssemblyAttendee`
+La valeur `attendance_closure` existe dans la sélection, mais le traitement `close_attendance` passe actuellement directement de `opening` à `mandate_validation`. Le détail des objets créés à chaque étape est documenté dans [Suivi du déroulé d'une Assemblée et prises de votes](suivi-et-prise-de-votes.md).
 
-```txt
-class: AssemblyAttendee
-fields:
-  - assembly_id (link to Assembly)
-  - identity_id (link to Identity)
-  - ownerships_ids (many2many, link to represented Ownerships, min 1)
-  - has_mandate (boolean)
-  - assembly_proxies_ids (link to AssemblyProxy)
-  - has_signed (boolean)
-  - shares (decimal, computed)
-```
+### Participants, mandats et représentations
 
-### `AssemblyProxy`
+Un `AssemblyAttendee` représente une personne physique participant à la séance. Il est lié à une `Identity`, éventuellement à un `User`, et à une `DocumentSignature` portant sur le registre de présence.
 
-```txt
-class: AssemblyProxy
-fields:
-  - assembly_id (link to Assembly, required)
-  - ownership_id (link to Ownership, required)
-  - identity_id (link to Identity, required)
-  - proxy_type (enum: written, email, mandate, notarial)
-  - proxy_document_id (link to Document)
-  - shares (decimal, computed or optional)
-  - is_valid (boolean, default: true)
-  - invalidity_reason (string)
-```
+Les procurations sont portées par les `AssemblyMandate`. Chaque mandat relie l'assemblée, le participant mandaté et l'`Ownership` représentée; il peut aussi contenir un document de mandat et des `AssemblyVoteIntention`. Pendant la validation, les mandats encore en brouillon sont supprimés et les autres sont contrôlés selon le propriétaire, la signature, les limites de procurations et les quotes-parts.
+
+Les `AssemblyRepresentation` matérialisent ensuite la représentation effective d'une `Ownership` par un participant. Elles sont régénérées lors de la validation des représentations. La présence directe d'un propriétaire prévaut sur sa représentation par procuration.
 
 ## Validation d'une assemblée
 
@@ -278,55 +255,32 @@ Pour qu'une Assemblée puisse se tenir, il faut atteindre un double quorum:
 * plus de 50% des copropriétaires
 * au moins la moitié des quotités de l'acte de base
 
+Si au moins 75% des quotes-parts sont représentées, le quorum est atteint sans devoir contrôler la proportion de copropriétaires. Une seconde session n'est pas soumise à ce quorum de présence. Voir [Vérification du quorum de présence](suivi-et-prise-de-votes.md#vérification-du-quorum-de-présence-assemblée-générale-acp--belgique).
+
 ## Résolutions et logique des votes
 
 ### `AssemblyVote`
 
-```txt
-class: AssemblyVote
-fields:
-  - assembly_item_id (link to AssemblyItem)
-  - assembly_attendee_id
-  - has_proxy (bool)
-  - ownership_id (link to Ownership)
-  - value (enum: for, against, abstain)
-  - weight (decimal, computed)
-```
+À l'ouverture d'un point soumis au vote, des `AssemblyVote` sont synchronisés pour les `Ownership` représentées et concernées par l'`Apportionment` du point. Chaque vote relie l'assemblée, le point, le participant et la propriété; il peut aussi référencer une `AssemblyItemChoice`. Une `AssemblyVoteIntention` valide peut alimenter automatiquement ce vote.
 
 ## Procès verbal
 
-### `AssemblyMinutes`
-
-```yaml
-class: AssemblyMinutes
-fields:
-  - assembly_id (link to Assembly, unique, required)
-  - heading_text (string, computed or editable)
-  - closing_text (text, nullable)
-  - original_document_id (link to Document)
-  - signed_document_id (link to Document, nullable)
-  - signatures_ids (DocumentSignatures)
-  - minutes_entries_ids (hasMany: AssemblyMinutesEntry)
-  - status (pending, ready, signed)
-```
-
 ### `AssemblyMinutesEntry`
 
-```yaml
-class: AssemblyMinutesEntry
-fields:
-  - assembly_minutes_id (link to AssemblyMinutes, required)
-  - assembly_item_id (link to AssemblyItem, required)
-  - comment_text (text, optional)
-  - has_vote_required (computed)
-  - vote_validated (bool)
-  - vote_details (json array, optional)
-```
+Les `AssemblyMinutesEntry` sont liées directement à l'assemblée et au point traité. Elles stockent le texte et la synthèse du vote destinés au procès-verbal.
+
+Quand tous les points sont fermés ou ajournés, l'assemblée est marquée comme complète. La confirmation crée `minutes_document_id`, version originale et immuable du procès-verbal. Le président et le secrétaire signent ce document au moyen de `DocumentSignature`, chacune étant aussi liée au participant concerné par `minutes_document_signature_id`.
+
+La clôture exige au minimum les signatures du président et du secrétaire. Elle produit `signed_minutes_document_id`, classe ce document final dans le dossier `parent_node_id`, puis relie la version originale à la version signée par `signed_document_id`.
+
+L'envoi du procès-verbal crée une `AssemblyMinutesCorrespondence` pour chaque combinaison `Assembly + Ownership + Owner + canal`. Le canal postal utilise `minutes_exporting_task_id` et des `ExportingTaskLine`; le canal électronique génère un document individuel du procès-verbal et un e-mail attaché à la correspondance. `has_minutes_sent` indique que cet envoi a été planifié ou généré.
 
 ## Assemblée non valide - Seconde AG
 
 - Nouvelle convocation avec délai minimum de 15 jours.
 - Ordre du jour identique.
+- La première assemblée pointe vers la seconde par `second_session_assembly_id`; la seconde pointe vers la première par `related_assembly_id`.
+- Les `AssemblyItem`, leurs groupes, les paramètres de vote et les traductions sont copiés dans la nouvelle assemblée en statut `pending`.
 
 ## Procès-Verbal de Carence
 
