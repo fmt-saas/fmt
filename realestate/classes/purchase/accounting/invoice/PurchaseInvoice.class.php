@@ -519,7 +519,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
         foreach($self as $id => $purchaseInvoice) {
             // retrieve accounting entry and cancel it
-            AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');
+            // #memo - there can be several validated accounting entries in case of several periods affected by date_range
+            // AccountingEntry::id($purchaseInvoice['accounting_entry_id'])->do('cancel');
+            AccountingEntry::search([
+                    ['purchase_invoice_id', '=', $id],
+                    ['status', '=', 'validated']
+                ])
+                ->do('cancel');
 
             // remove related fundings (move payments to BankStatementLine Funding if any)
             $fundings = Funding::search([
@@ -1787,7 +1793,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 // retrieve dates for allocating amounts to accounting entries
                 $allocation_dates = self::computeAllocationDates($date_from, $date_to, $invoice['condo_id']);
 
-                // retrieve the account for deferred expenses
+                // retrieve account for deferred expenses
                 $deferredExpensesAccount = Account::search([
                         ['condo_id', '=', $invoice['condo_id']],
                         ['operation_assignment', '=', 'deferred_expenses']
@@ -1798,7 +1804,18 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     throw new \Exception("missing_mandatory_deferred_expenses_account", EQ_ERROR_INVALID_CONFIG);
                 }
 
-                // create deferred accounting entries and lines for each allocation period
+                // retrieve account for accrued expenses
+                $accruedExpensesAccount = Account::search([
+                        ['condo_id', '=', $invoice['condo_id']],
+                        ['operation_assignment', '=', 'accrued_expenses']
+                    ])
+                    ->first();
+
+                if(!$accruedExpensesAccount) {
+                    throw new \Exception("missing_mandatory_accrued_expenses_account", EQ_ERROR_INVALID_CONFIG);
+                }
+
+                // create accrued/deferred accounting entries and lines for each allocation period
                 foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
                     $total_amount = round($invoiceLine['price'], 2);
                     $remaining_amount = $total_amount;
@@ -1827,29 +1844,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                     'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
                                     'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
                                 ]);
-                            // date is within period impacted by posting_date
-                            if($is_posting_period) {
-                                // adapt remaining amount for following allocation dates, if any
-                                if($n > 1) {
-                                    // compute paid amount pro-rata based on the duration of the date range.
-                                    $intersect_from = max($date_from, $period_date_from);
-                                    $intersect_to = min($date_to, $period_date_to);
-                                    $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
-                                    $ratio = $intersect_days / $total_days;
-                                    $amount = round($total_amount * $ratio, 2);
-                                    // #memo - resulting allocated amount for first period will be the delta with following deferred lines
-                                    $remaining_amount = round($remaining_amount - $amount, 2);
-                                }
-                                // #memo - no creation of accounting entry for allocation date within posting period
-                                continue;
-                            }
                         }
-
-                        // handle expense deferring
-
-                        // 1) create deferred entry lines
-                        $description = $invoice['description'];
-                        $description .= ' (' . date('Y-m-d', $period_date_from) . ' - ' . date('Y-m-d', $period_date_to) . ')';
 
                         if($i == $n-1) {
                             $amount = round($remaining_amount, 2);
@@ -1865,12 +1860,26 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             $remaining_amount = round($remaining_amount - $amount, 2);
                         }
 
-                        // queue the debit line for the deferred expense
+                        // no accrual/deferral entry is required for the posting period
+                        if($is_posting_period) {
+                            continue;
+                        }
+
+                        $adjustmentAccount = ($period_date_from < $invoice['fiscal_period_id']['date_from'])
+                            ? $accruedExpensesAccount
+                            : $deferredExpensesAccount;
+
+                        // handle expense accrual/deferral
+                        $description = $invoice['description'];
+                        $description .= ' (' . date('Y-m-d', $period_date_from) . ' - ' . date('Y-m-d', $period_date_to) . ')';
+
+                        // 1) create accrual/deferral entry lines
+                        // queue the debit line for the adjustment account
                         $add_accounting_entry_line([
                                 'condo_id'                  => $invoice['condo_id'],
                                 'accounting_entry_id'       => $accountingEntry['id'],
                                 'description'               => $description,
-                                'account_id'                => $deferredExpensesAccount['id'],
+                                'account_id'                => $adjustmentAccount['id'],
                                 'purchase_invoice_line_id'  => $invoice_line_id,
                                 'allocation_date_from'      => $allocation_date_from,
                                 'allocation_date_to'        => $allocation_date_to,
@@ -1916,12 +1925,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         $planned_allocation_date_from = max($date_from, $period_date_from);
                         $planned_allocation_date_to = min($date_to, $period_date_to);
 
-                        // create the credit line for the deferred expense
+                        // create the credit line for the adjustment account
                         AccountingEntryLine::create([
                                 'condo_id'                  => $invoice['condo_id'],
                                 'accounting_entry_id'       => $plannedAccountingEntry['id'],
                                 'description'               => $description,
-                                'account_id'                => $deferredExpensesAccount['id'],
+                                'account_id'                => $adjustmentAccount['id'],
                                 'purchase_invoice_line_id'  => $invoice_line_id,
                                 'allocation_date_from'      => $planned_allocation_date_from,
                                 'allocation_date_to'        => $planned_allocation_date_to,

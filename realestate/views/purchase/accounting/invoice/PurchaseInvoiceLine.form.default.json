@@ -31,6 +31,15 @@
                                                 }
                                             },
                                             {
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "50%",
+                                                "widget": {
+                                                    "visible": ["is_private_expense", "=", false]
+                                                }
+                                            },
+
+                                            {
                                                 "type": "field",
                                                 "value": "has_date_range",
                                                 "width": "33%",
