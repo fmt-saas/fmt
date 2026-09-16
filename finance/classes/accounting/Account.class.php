@@ -193,6 +193,7 @@ class Account extends Model {
                 'default'           => '',
                 'selection'         => [
                     '',
+                    'accrued_expenses',                 // used for PurchaseInvoice before a date range
                     'adjustment_account',
                     'bank_current',
                     'bank_savings',
