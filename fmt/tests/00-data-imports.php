@@ -13,9 +13,11 @@ use finance\accounting\OpeningBalance;
 use finance\bank\Bank;
 use finance\bank\BankAccount;
 use finance\bank\SuppliershipBankAccount;
+use hr\employee\Employee;
 use fmt\import\DataImport;
 use hr\role\RoleAssignment;
 use identity\Identity;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use purchase\supplier\Supplier;
 use purchase\supplier\Suppliership;
 use realestate\finance\accounting\CondoFund;
@@ -229,7 +231,42 @@ $tests = [
         ",
         'return'            => ['boolean'],
         'arrange'           => function() {
-            $data = file_get_contents(EQ_BASEDIR . '/packages/fmt/tests/' . 'condominium_import.xlsx');
+            $managerEmployee = Employee::create([
+                    'firstname' => 'Manager',
+                    'lastname'  => 'Condominium Import Test'
+                ])
+                ->read(['id'])
+                ->first();
+
+            $accountantEmployee = Employee::create([
+                    'firstname' => 'Accountant',
+                    'lastname'  => 'Condominium Import Test'
+                ])
+                ->read(['id'])
+                ->first();
+
+            $spreadsheet = IOFactory::load(EQ_BASEDIR . '/packages/fmt/tests/condominium_import.xlsx');
+            $worksheet = $spreadsheet->getSheetByName('Condominium');
+            if(!$worksheet) {
+                throw new Exception('missing_condominium_worksheet', EQ_ERROR_UNKNOWN);
+            }
+
+            $worksheet->setCellValue('L2', $managerEmployee['id']);
+            $worksheet->setCellValue('M2', $accountantEmployee['id']);
+
+            $tmpFile = tempnam(sys_get_temp_dir(), 'condominium_import_test_');
+            if($tmpFile === false) {
+                throw new Exception('unable_to_create_temporary_import_file', EQ_ERROR_UNKNOWN);
+            }
+
+            try {
+                IOFactory::createWriter($spreadsheet, 'Xlsx')->save($tmpFile);
+                $data = file_get_contents($tmpFile);
+            }
+            finally {
+                $spreadsheet->disconnectWorksheets();
+                unlink($tmpFile);
+            }
 
             $document = Document::create([
                     'name' => 'Condominium import test 1'
@@ -255,6 +292,19 @@ $tests = [
         'rollback'          => function() {
             DataImport::search(['name', '=', 'Condominium import test 1'])->delete(true);
             Document::search(['name', '=', 'Condominium import test 1'])->delete(true);
+
+            $employees = Employee::search(['lastname', '=', 'Condominium Import Test'])->read(['identity_id']);
+            $identityIds = [];
+            foreach($employees as $employee) {
+                if($employee['identity_id']) {
+                    $identityIds[] = $employee['identity_id'];
+                }
+            }
+
+            Employee::search(['lastname', '=', 'Condominium Import Test'])->delete(true);
+            foreach($identityIds as $identityId) {
+                Identity::id($identityId)->delete(true);
+            }
         }
     ],
     '0302' => [
