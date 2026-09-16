@@ -1169,7 +1169,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 $date_to = $invoice['fiscal_period_id']['date_to'];
             }
 
-            $period_allocation_dates = self::computeAllocationDates($date_from, $date_to, $invoice['condo_id']);
+            $period_allocation_dates = self::computePeriodAllocationDates($date_from, $date_to, $invoice['condo_id']);
             if(empty($period_allocation_dates)) {
                 $result[$id] = [
                     'invalid_posting_dates' => 'Unable to generate allocation dates.'

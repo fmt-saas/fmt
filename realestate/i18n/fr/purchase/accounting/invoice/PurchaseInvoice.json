@@ -245,8 +245,8 @@
                     "description": "Annuler la facture (irréversible)."
                 },
                 "action.unlock": {
-                    "label": "Débloquer",
-                    "description": "Déboquer la facture (permettre de nouvelles modifications)."
+                    "label": "Déverrouiller",
+                    "description": "Déverrouiller la facture (permettre de nouvelles modifications)."
                 }
             },
             "routes": {
