@@ -661,8 +661,13 @@ class MiscOperation extends Model {
                 OpeningBalance::id($miscOperation['opening_balance_id'])->transition('revert');
             }
 
-            // retrieve accounting entry and cancel it
-            AccountingEntry::id($miscOperation['accounting_entry_id'])->do('cancel');
+            // #memo - there can be several validated accounting entries in case of several periods affected by date_range
+            // AccountingEntry::id($miscOperation['accounting_entry_id'])->do('cancel');
+            AccountingEntry::search([
+                    ['misc_operation_id', '=', $id],
+                    ['status', '=', 'validated']
+                ])
+                ->do('cancel');
 
             // remove related fundings (move payments to BankStatementLine Funding if any)
             $fundings = Funding::search([
@@ -757,10 +762,11 @@ class MiscOperation extends Model {
 
     protected static function doGenerateAccountingEntry($self) {
         $self->read([
-                'condo_id', 'posting_date', 'journal_id', 'fiscal_year_id', 'fiscal_period_id',
-                'description', 'has_opening_journal',
+                'condo_id', 'posting_date', 'journal_id', 'fiscal_year_id',
+                'fiscal_period_id' => ['date_from', 'date_to'],
+                'description', 'has_opening_journal', 'has_date_range', 'date_from', 'date_to',
                 'misc_operation_lines_ids' => [
-                    'account_id', 'debit', 'credit', 'description',
+                    'account_id', 'account_code', 'debit', 'credit', 'description',
                     'ownership_id',
                     'property_lot_id'
                 ]
@@ -768,9 +774,17 @@ class MiscOperation extends Model {
 
         foreach ($self as $id => $miscOperation) {
 
+            // remove existing pending accounting entries, if any (there should be none)
+            AccountingEntry::search([
+                    ['status', '=', 'pending'],
+                    ['misc_operation_id', '=', $id],
+                    ['condo_id', '=', $miscOperation['condo_id']]
+                ])
+                ->delete(true);
+
             // #memo - `has_opening_journal` implies a MiscOp for an initial opening balance
             $fiscal_year_id = $miscOperation['fiscal_year_id'];
-            $fiscal_period_id = $miscOperation['fiscal_period_id'];
+            $fiscal_period_id = $miscOperation['fiscal_period_id']['id'];
 
             // #memo - a Misc Operation can be unlocked and therefore have several accounting entries (@see `accounting_entries_ids`)
             /*
@@ -795,20 +809,329 @@ class MiscOperation extends Model {
                 ])
                 ->first();
 
-            foreach($miscOperation['misc_operation_lines_ids'] as $line_id => $line) {
-                AccountingEntryLine::create([
-                        'account_id'            => $line['account_id'],
-                        'debit'                 => $line['debit'],
-                        'credit'                => $line['credit'],
-                        'accounting_entry_id'   => $accountingEntry['id'],
-                        'misc_operation_line_id'=> $line_id,
-                        'description'           => $line['description']
-                    ]);
-            }
-
             // Store the created accounting entry ID back to the misc operation
             self::id($id)->update(['accounting_entry_id' => $accountingEntry['id']]);
+
+            $has_allocatable_lines = false;
+            foreach($miscOperation['misc_operation_lines_ids'] as $line) {
+                if(in_array(substr($line['account_code'], 0, 1), ['6', '7'], true)) {
+                    $has_allocatable_lines = true;
+                    break;
+                }
+            }
+
+            $must_allocate = (
+                $has_allocatable_lines
+                && $miscOperation['has_date_range']
+                && (
+                    $miscOperation['date_from'] < $miscOperation['fiscal_period_id']['date_from']
+                    || $miscOperation['date_to'] > $miscOperation['fiscal_period_id']['date_to']
+                )
+            );
+
+            if(!$must_allocate) {
+                foreach($miscOperation['misc_operation_lines_ids'] as $line_id => $line) {
+                    $values = [
+                        'condo_id'                  => $miscOperation['condo_id'],
+                        'account_id'                => $line['account_id'],
+                        'debit'                     => $line['debit'],
+                        'credit'                    => $line['credit'],
+                        'accounting_entry_id'       => $accountingEntry['id'],
+                        'misc_operation_line_id'    => $line_id,
+                        'description'               => $line['description']
+                    ];
+
+                    if(
+                        $miscOperation['has_date_range']
+                        && in_array(substr($line['account_code'], 0, 1), ['6', '7'], true)
+                    ) {
+                        $values['allocation_date_from'] = $miscOperation['date_from'];
+                        $values['allocation_date_to'] = $miscOperation['date_to'];
+                    }
+
+                    AccountingEntryLine::create($values);
+                }
+                continue;
+            }
+
+            $allocation_dates = self::computeAllocationDates(
+                $miscOperation['date_from'],
+                $miscOperation['date_to'],
+                $miscOperation['condo_id']
+            );
+
+            if(empty($allocation_dates)) {
+                throw new \Exception('missing_mandatory_fiscal_period', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $total_days = (($miscOperation['date_to'] - $miscOperation['date_from']) / 86400) + 1;
+            $map_planned_accounting_entries = [];
+            $map_accounting_entry_lines = [];
+
+            $add_accounting_entry_line = function($values) use (&$map_accounting_entry_lines) {
+                $group_key = implode(':', [
+                    $values['accounting_entry_id'],
+                    $values['account_id'],
+                    $values['misc_operation_line_id'] ?? 0
+                ]);
+
+                if(!isset($map_accounting_entry_lines[$group_key])) {
+                    $map_accounting_entry_lines[$group_key] = $values;
+                    $map_accounting_entry_lines[$group_key]['debit'] = 0.0;
+                    $map_accounting_entry_lines[$group_key]['credit'] = 0.0;
+                }
+
+                $map_accounting_entry_lines[$group_key]['debit'] = round(
+                    $map_accounting_entry_lines[$group_key]['debit'] + (float) $values['debit'],
+                    4
+                );
+                $map_accounting_entry_lines[$group_key]['credit'] = round(
+                    $map_accounting_entry_lines[$group_key]['credit'] + (float) $values['credit'],
+                    4
+                );
+            };
+
+            // retrieve account for deferred expenses
+            $deferredExpensesAccount = Account::search([
+                    ['condo_id', '=', $miscOperation['condo_id']],
+                    ['operation_assignment', '=', 'deferred_expenses']
+                ])
+                ->first();
+
+            if(!$deferredExpensesAccount) {
+                throw new \Exception("missing_mandatory_deferred_expenses_account", EQ_ERROR_INVALID_CONFIG);
+            }
+
+            // retrieve account for accrued expenses
+            $accruedExpensesAccount = Account::search([
+                    ['condo_id', '=', $miscOperation['condo_id']],
+                    ['operation_assignment', '=', 'accrued_expenses']
+                ])
+                ->first();
+
+            if(!$accruedExpensesAccount) {
+                throw new \Exception("missing_mandatory_accrued_expenses_account", EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $allocation_date_from = $miscOperation['fiscal_period_id']['date_from'];
+            $allocation_date_to = $miscOperation['fiscal_period_id']['date_to'];
+            $intersect_from = max($allocation_date_from, $miscOperation['date_from']);
+            $intersect_to = min($allocation_date_to, $miscOperation['date_to']);
+            if($intersect_from <= $intersect_to) {
+                $allocation_date_from = $intersect_from;
+                $allocation_date_to = $intersect_to;
+            }
+
+            foreach($miscOperation['misc_operation_lines_ids'] as $line_id => $line) {
+                $account_class = substr($line['account_code'], 0, 1);
+
+                if(!in_array($account_class, ['6', '7'], true)) {
+                    $add_accounting_entry_line([
+                        'condo_id'                  => $miscOperation['condo_id'],
+                        'account_id'                => $line['account_id'],
+                        'debit'                     => $line['debit'],
+                        'credit'                    => $line['credit'],
+                        'accounting_entry_id'       => $accountingEntry['id'],
+                        'misc_operation_line_id'    => $line_id,
+                        'description'               => $line['description']
+                    ]);
+                    continue;
+                }
+
+                $total_amount = round($line['debit'] - $line['credit'], 2);
+                $remaining_amount = $total_amount;
+
+                for($i = 0, $n = count($allocation_dates); $i < $n; ++$i) {
+                    $period_date_from = $allocation_dates[$i];
+                    $period_date_to = ($i + 1 < $n) ? ($allocation_dates[$i + 1] - 86400) : $miscOperation['date_to'];
+
+                    $is_posting_period = (
+                        $period_date_from <= $miscOperation['fiscal_period_id']['date_to']
+                        && $period_date_from >= $miscOperation['fiscal_period_id']['date_from']
+                    );
+
+                    if($i === 0) {
+                        $add_accounting_entry_line([
+                            'condo_id'                  => $miscOperation['condo_id'],
+                            'account_id'                => $line['account_id'],
+                            'debit'                     => $line['debit'],
+                            'credit'                    => $line['credit'],
+                            'accounting_entry_id'       => $accountingEntry['id'],
+                            'misc_operation_line_id'    => $line_id,
+                            'description'               => $line['description'],
+                            'allocation_date_from'      => $allocation_date_from,
+                            'allocation_date_to'        => $allocation_date_to
+                        ]);
+                    }
+
+                    if($i === $n - 1) {
+                        $amount = round($remaining_amount, 2);
+                    }
+                    else {
+                        $intersect_from = max($miscOperation['date_from'], $period_date_from);
+                        $intersect_to = min($miscOperation['date_to'], $period_date_to);
+                        $intersect_days = (($intersect_to - $intersect_from) / 86400) + 1;
+                        $amount = round($total_amount * ($intersect_days / $total_days), 2);
+                        $remaining_amount = round($remaining_amount - $amount, 2);
+                    }
+
+                    if($is_posting_period || abs($amount) < 0.01) {
+                        continue;
+                    }
+
+                    if($account_class === '6') {
+                        $operation_assignment = ($period_date_from < $miscOperation['fiscal_period_id']['date_from'])
+                            ? 'accrued_expenses'
+                            : 'deferred_expenses';
+                    }
+                    else {
+                        $operation_assignment = 'deferred_income';
+                    }
+
+                    $adjustmentAccount = ($period_date_from < $miscOperation['fiscal_period_id']['date_from'])
+                        ? $accruedExpensesAccount
+                        : $deferredExpensesAccount;
+
+                    $description = $line['description'];
+                    $description .= ' (' . date('Y-m-d', $period_date_from) . ' - ' . date('Y-m-d', $period_date_to) . ')';
+
+                    // Move the allocated amount out of the posting period.
+                    $add_accounting_entry_line([
+                        'condo_id'                  => $miscOperation['condo_id'],
+                        'account_id'                => $adjustmentAccount['id'],
+                        'accounting_entry_id'       => $accountingEntry['id'],
+                        'misc_operation_line_id'    => $line_id,
+                        'description'               => $description,
+                        'allocation_date_from'      => $allocation_date_from,
+                        'allocation_date_to'        => $allocation_date_to,
+                        'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
+                        'credit'                    => ($amount < 0.0) ? abs($amount) : 0.0
+                    ]);
+                    $add_accounting_entry_line([
+                        'condo_id'                  => $miscOperation['condo_id'],
+                        'account_id'                => $line['account_id'],
+                        'accounting_entry_id'       => $accountingEntry['id'],
+                        'misc_operation_line_id'    => $line_id,
+                        'description'               => $description,
+                        'allocation_date_from'      => $allocation_date_from,
+                        'allocation_date_to'        => $allocation_date_to,
+                        'debit'                     => ($amount < 0.0) ? abs($amount) : 0.0,
+                        'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
+                    ]);
+
+                    $plannedFiscalYear = FiscalYear::search([
+                            ['condo_id', '=', $miscOperation['condo_id']],
+                            ['date_from', '<=', $period_date_from],
+                            ['date_to', '>=', $period_date_from]
+                        ])
+                        ->first();
+
+                    if(!$plannedFiscalYear) {
+                        throw new \Exception('missing_mandatory_matching_fiscal_year', EQ_ERROR_INVALID_CONFIG);
+                    }
+
+                    if(!isset($map_planned_accounting_entries[$period_date_from])) {
+                        $map_planned_accounting_entries[$period_date_from] = AccountingEntry::create([
+                                'condo_id'              => $miscOperation['condo_id'],
+                                'entry_date'            => $period_date_from,
+                                'origin_object_class'   => self::getType(),
+                                'origin_object_id'      => $id,
+                                'misc_operation_id'     => $id,
+                                'description'           => $miscOperation['description'],
+                                'journal_id'            => $miscOperation['journal_id'],
+                                'fiscal_year_id'        => $plannedFiscalYear['id']
+                            ])
+                            ->first();
+                    }
+
+                    $plannedAccountingEntry = $map_planned_accounting_entries[$period_date_from];
+                    $planned_allocation_date_from = max($miscOperation['date_from'], $period_date_from);
+                    $planned_allocation_date_to = min($miscOperation['date_to'], $period_date_to);
+
+                    AccountingEntryLine::create([
+                        'condo_id'                  => $miscOperation['condo_id'],
+                        'account_id'                => $adjustmentAccount['id'],
+                        'accounting_entry_id'       => $plannedAccountingEntry['id'],
+                        'misc_operation_line_id'    => $line_id,
+                        'description'               => $description,
+                        'allocation_date_from'      => $planned_allocation_date_from,
+                        'allocation_date_to'        => $planned_allocation_date_to,
+                        'debit'                     => ($amount < 0.0) ? abs($amount) : 0.0,
+                        'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
+                    ]);
+                    AccountingEntryLine::create([
+                        'condo_id'                  => $miscOperation['condo_id'],
+                        'account_id'                => $line['account_id'],
+                        'accounting_entry_id'       => $plannedAccountingEntry['id'],
+                        'misc_operation_line_id'    => $line_id,
+                        'description'               => $description,
+                        'allocation_date_from'      => $planned_allocation_date_from,
+                        'allocation_date_to'        => $planned_allocation_date_to,
+                        'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
+                        'credit'                    => ($amount < 0.0) ? abs($amount) : 0.0
+                    ]);
+                }
+            }
+
+            foreach($map_accounting_entry_lines as $values) {
+                $net_amount = round($values['debit'] - $values['credit'], 2);
+
+                if(abs($net_amount) < 0.01) {
+                    continue;
+                }
+
+                $values['debit'] = ($net_amount > 0.0) ? $net_amount : 0.0;
+                $values['credit'] = ($net_amount < 0.0) ? abs($net_amount) : 0.0;
+                AccountingEntryLine::create($values);
+            }
+
+            foreach($map_planned_accounting_entries as $plannedAccountingEntry) {
+                AccountingEntry::id($plannedAccountingEntry['id'])->transition('validate');
+            }
         }
+    }
+
+    private static function computeAllocationDates($date_from, $date_to, $condo_id) {
+        $result = [];
+        $fiscalPeriods = FiscalPeriod::search(
+                [
+                    ['condo_id', '=', $condo_id],
+                    ['date_from', '<=', $date_to],
+                    ['date_to', '>=', $date_from]
+                ],
+                ['sort' => ['date_from' => 'asc']]
+            )
+            ->read(['date_from', 'date_to'])
+            ->get();
+
+        if(empty($fiscalPeriods)) {
+            trigger_error('APP::Missing required fiscal periods for allocating a miscellaneous operation.', EQ_REPORT_WARNING);
+            return [];
+        }
+
+        $expected_date = $date_from;
+
+        foreach($fiscalPeriods as $fiscalPeriod) {
+            if($fiscalPeriod['date_to'] < $expected_date) {
+                continue;
+            }
+
+            if($fiscalPeriod['date_from'] > $expected_date) {
+                trigger_error('APP::Missing required period for allocating a miscellaneous operation.', EQ_REPORT_WARNING);
+                return [];
+            }
+
+            $result[] = $fiscalPeriod['date_from'];
+
+            if($fiscalPeriod['date_to'] >= $date_to) {
+                return $result;
+            }
+
+            $expected_date = $fiscalPeriod['date_to'] + 86400;
+        }
+
+        trigger_error('APP::Missing required period for allocating a miscellaneous operation.', EQ_REPORT_WARNING);
+        return [];
     }
 
     private static function computeFiscalYearId($condo_id, $posting_date) {
@@ -1116,21 +1439,12 @@ class MiscOperation extends Model {
     }
 
     protected static function doValidateAccountingEntry($self) {
-        $self->read(['has_opening_journal', 'accounting_entry_id' => ['status']]);
-
         foreach($self as $id => $miscOperation) {
-
-            /*
-            // @see comment above : no distinction
-            // ignore MiscOperation that relate to an opening balance
-            if($miscOperation['has_opening_journal']) {
-                continue;
-            }
-            */
-
-            if($miscOperation['accounting_entry_id']['status'] == 'pending') {
-                AccountingEntry::id($miscOperation['accounting_entry_id']['id'])->transition('validate');
-            }
+            AccountingEntry::search([
+                    ['misc_operation_id', '=', $id],
+                    ['status', '=', 'pending']
+                ])
+                ->transition('validate');
         }
     }
 

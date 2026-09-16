@@ -982,7 +982,7 @@
                 "description": "Accrued income",
                 "account_chart_id": 1,
                 "parent_account_id": 85,
-                "operation_assignment": "",
+                "operation_assignment": "accrued_income",
                 "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null
