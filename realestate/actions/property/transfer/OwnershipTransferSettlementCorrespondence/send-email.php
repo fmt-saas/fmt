@@ -138,6 +138,8 @@ if(!$managementProcess || !$managementProcess['mailbox_id']) {
     throw new Exception('missing_mandatory_mailbox', EQ_ERROR_INVALID_CONFIG);
 }
 
+/*
+// #todo - reactivate when Templates will be validated
 $email_id = Mail::queue(
     $message,
     'realestate\property\transfer\OwnershipTransferSettlementCorrespondence',
@@ -157,6 +159,7 @@ OwnershipTransferSettlementCorrespondence::id($correspondence['id'])
         'sent_date' => time(),
         'is_sent'   => true
     ]);
+*/
 
 $context->httpResponse()
     ->status(201)
