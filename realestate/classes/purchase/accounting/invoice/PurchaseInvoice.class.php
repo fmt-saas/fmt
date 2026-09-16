@@ -1728,7 +1728,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     }
 
                     $description = $invoiceLine['description'];
-                    $description .= ' (' . date('Y-m-d', $allocation_date_from) . ' - ' . date('Y-m-d', $allocation_date_to) . ')';
+                    // $description .= ' (' . date('Y-m-d', $allocation_date_from) . ' - ' . date('Y-m-d', $allocation_date_to) . ')';
 
                     // create the debit line on the expense account
                     AccountingEntryLine::create([
