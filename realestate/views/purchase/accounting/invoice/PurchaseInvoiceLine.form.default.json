@@ -32,6 +32,30 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "has_date_range",
+                                                "width": "33%",
+                                                "visible": ["is_private_expense", "=", false]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_from",
+                                                "width": "33%",
+                                                "visible": [
+                                                    ["is_private_expense", "=", false],
+                                                    ["has_date_range", "=", true]
+                                                ]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "date_to",
+                                                "width": "33",
+                                                "visible": [
+                                                    ["is_private_expense", "=", false],
+                                                    ["has_date_range", "=", true]
+                                                ]
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "description",
                                                 "width": "100%"
                                             },
