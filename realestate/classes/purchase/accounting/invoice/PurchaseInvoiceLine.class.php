@@ -398,7 +398,10 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 if($accountingEntryLine) {
                     // special case: if the corresponding period has not yet been closed (i.e. no expense statement has been issued yet, i.e. related accounting entry not yet "cleared"), then modification of the account is allowed
                     if(!$accountingEntryLine['is_cleared']) {
-                        $self_allowed_fields = array_merge($allowed_fields, ['apportionment_id', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id']);
+                        // append fields that solely impact the expense statement
+                        $self_allowed_fields = array_merge($allowed_fields, [
+                            'apportionment_id', 'vat_rate', 'owner_share', 'tenant_share', 'ownership_id', 'property_lot_id'
+                        ]);
                     }
 
                     // no change allowed, on any field

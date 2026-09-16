@@ -1130,16 +1130,23 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 ];
                 continue;
             }
-            // for each date, which should correspond to a fiscal period, check the status of the corresponding fiscal year
+            // for each date, which should correspond to a fiscal period, check the status of the period and corresponding fiscal year
             foreach($allocation_dates as $date) {
                 $fiscalPeriod = FiscalPeriod::search([['date_from', '=', $date], ['condo_id', '=', $invoice['condo_id']]])
-                    ->read(['fiscal_year_id' => ['id', 'status']])
+                    ->read(['status', 'fiscal_year_id' => ['id', 'status']])
                     ->first();
                 if(!$fiscalPeriod) {
                     $result[$id] = [
                         'invalid_allocation_fiscal_period' => 'Fiscal period targeted by the posting date(s) is missing.'
                     ];
                     trigger_error("APP::Attempting to assign (partly or full) a purchase invoice with no matching fiscal period for date " . date('Y-m-d', $date) . ".", EQ_REPORT_WARNING);
+                    break;
+                }
+                if($fiscalPeriod['status'] === 'closed') {
+                    $result[$id] = [
+                        'invalid_allocation_fiscal_period' => 'At least one fiscal period targeted by the invoice allocation is closed.'
+                    ];
+                    trigger_error("APP::Attempting to assign (partly or full) a purchase invoice on closed fiscal period for date " . date('Y-m-d', $date) . ".", EQ_REPORT_WARNING);
                     break;
                 }
                 if(!$fiscalPeriod['fiscal_year_id'] || !in_array($fiscalPeriod['fiscal_year_id']['status'], ['preopen', 'open', 'preclosed'], true)) {
