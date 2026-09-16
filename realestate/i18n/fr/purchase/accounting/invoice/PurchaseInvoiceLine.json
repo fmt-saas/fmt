@@ -28,6 +28,21 @@
             "description": "Facture associée.",
             "help": "Doit être une facture d'achat existante."
         },
+        "has_date_range": {
+            "label": "Imputation sur intervalle",
+            "description": "Indique que la prestation de cette ligne couvre une période.",
+            "help": "Affiche les dates de début et de fin de la période d'imputation."
+        },
+        "date_from": {
+            "label": "Date de début",
+            "description": "Première date de la période couverte par la ligne.",
+            "help": "Utilisée pour répartir la charge sur la période concernée."
+        },
+        "date_to": {
+            "label": "Date de fin",
+            "description": "Dernière date de la période couverte par la ligne.",
+            "help": "Utilisée pour répartir la charge sur la période concernée."
+        },
         "expense_account_id": {
             "label": "Compte de charge",
             "description": "Compte comptable imputé pour la ligne.",
