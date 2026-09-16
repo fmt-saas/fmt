@@ -93,7 +93,15 @@ foreach($employees as $employee_id => $employee) {
 
         Employee::id($employee_id)->update(['user_id' => $new_user_id]);
 
-        eQual::run('do', 'identity_User_send-confirmation', ['id' => $new_user_id]);
+        try {
+            eQual::run('do', 'identity_User_send-confirmation', ['id' => $new_user_id]);
+        }
+        catch(Throwable $throwable) {
+            trigger_error(
+                "APP::Unable to send confirmation email for user [{$new_user_id}]: {$throwable->getMessage()}.",
+                EQ_REPORT_WARNING
+            );
+        }
     }
     // force refreshing role assignments
     RoleAssignment::ids($employee['role_assignments_ids'])->read(['user_id']);
