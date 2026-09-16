@@ -854,13 +854,13 @@ class MiscOperation extends Model {
                 continue;
             }
 
-            $allocation_dates = self::computeAllocationDates(
+            $period_allocation_dates = self::computePeriodAllocationDates(
                 $miscOperation['date_from'],
                 $miscOperation['date_to'],
                 $miscOperation['condo_id']
             );
 
-            if(empty($allocation_dates)) {
+            if(empty($period_allocation_dates)) {
                 throw new \Exception('missing_mandatory_fiscal_period', EQ_ERROR_INVALID_CONFIG);
             }
 
@@ -941,14 +941,17 @@ class MiscOperation extends Model {
                 $total_amount = round($line['debit'] - $line['credit'], 2);
                 $remaining_amount = $total_amount;
 
-                for($i = 0, $n = count($allocation_dates); $i < $n; ++$i) {
-                    $period_date_from = $allocation_dates[$i];
-                    $period_date_to = ($i + 1 < $n) ? ($allocation_dates[$i + 1] - 86400) : $miscOperation['date_to'];
+                for($i = 0, $n = count($period_allocation_dates); $i < $n; ++$i) {
+                    $period_date_from = $period_allocation_dates[$i];
+                    $period_date_to = ($i + 1 < $n) ? ($period_allocation_dates[$i + 1] - 86400) : $miscOperation['date_to'];
 
                     $is_posting_period = (
                         $period_date_from <= $miscOperation['fiscal_period_id']['date_to']
                         && $period_date_from >= $miscOperation['fiscal_period_id']['date_from']
                     );
+
+                    $description = $line['description'];
+                    $description .= ' (' . date('Y-m-d', $allocation_date_from) . ' - ' . date('Y-m-d', $allocation_date_to) . ')';
 
                     if($i === 0) {
                         $add_accounting_entry_line([
@@ -958,7 +961,7 @@ class MiscOperation extends Model {
                             'credit'                    => $line['credit'],
                             'accounting_entry_id'       => $accountingEntry['id'],
                             'misc_operation_line_id'    => $line_id,
-                            'description'               => $line['description'],
+                            'description'               => $description,
                             'allocation_date_from'      => $allocation_date_from,
                             'allocation_date_to'        => $allocation_date_to
                         ]);
@@ -991,9 +994,6 @@ class MiscOperation extends Model {
                     $adjustmentAccount = ($period_date_from < $miscOperation['fiscal_period_id']['date_from'])
                         ? $accruedExpensesAccount
                         : $deferredExpensesAccount;
-
-                    $description = $line['description'];
-                    $description .= ' (' . date('Y-m-d', $period_date_from) . ' - ' . date('Y-m-d', $period_date_to) . ')';
 
                     // Move the allocated amount out of the posting period.
                     $add_accounting_entry_line([
@@ -1048,6 +1048,9 @@ class MiscOperation extends Model {
                     $planned_allocation_date_from = max($miscOperation['date_from'], $period_date_from);
                     $planned_allocation_date_to = min($miscOperation['date_to'], $period_date_to);
 
+                    $description = $line['description'];
+                    $description .= ' (' . date('Y-m-d', $planned_allocation_date_from) . ' - ' . date('Y-m-d', $planned_allocation_date_to) . ')';
+
                     AccountingEntryLine::create([
                         'condo_id'                  => $miscOperation['condo_id'],
                         'account_id'                => $adjustmentAccount['id'],
@@ -1091,7 +1094,7 @@ class MiscOperation extends Model {
         }
     }
 
-    private static function computeAllocationDates($date_from, $date_to, $condo_id) {
+    private static function computePeriodAllocationDates($date_from, $date_to, $condo_id) {
         $result = [];
         $fiscalPeriods = FiscalPeriod::search(
                 [
