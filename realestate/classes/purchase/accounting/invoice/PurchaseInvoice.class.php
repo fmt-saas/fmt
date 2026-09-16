@@ -1933,6 +1933,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         $planned_allocation_date_from = max($date_from, $period_date_from);
                         $planned_allocation_date_to = min($date_to, $period_date_to);
 
+                        $description = $invoiceLine['description'];
+                        $description .= ' (' . date('Y-m-d', $planned_allocation_date_from) . ' - ' . date('Y-m-d', $planned_allocation_date_to) . ')';
+
                         // create the credit line for the adjustment account
                         AccountingEntryLine::create([
                                 'condo_id'                  => $invoice['condo_id'],
