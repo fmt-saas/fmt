@@ -307,7 +307,26 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'type'              => 'boolean',
                 'description'       => 'Service delivered over a period of time.',
                 'help'              => '',
-                'default'           => true
+                'default'           => true,
+                'onupdate'          => 'onupdateHasDateRange'
+            ],
+
+            'date_from' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => 'First date of the date range.',
+                'default'           => function () { return time(); },
+                'visible'           => ['has_date_range', '=', true],
+                'onupdate'          => 'onupdateDateFrom'
+            ],
+
+            'date_to' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => 'Last date of the date range.',
+                'default'           => function () { return time(); },
+                'visible'           => ['has_date_range', '=', true],
+                'onupdate'          => 'onupdateDateTo'
             ],
 
             // #memo - some actions of this entity rely on status from DocumentProcessing
@@ -1284,6 +1303,27 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         }
     }
 
+    protected static function onupdateHasDateRange($self, $values) {
+        $self->read(['invoice_lines_ids']);
+        foreach($self as $id => $purchaseInvoice) {
+            PurchaseInvoiceLine::ids($purchaseInvoice['invoice_lines_ids'])->update(['has_date_range' => $values['has_date_range']]);
+        }
+    }
+
+    protected static function onupdateDateFrom($self, $values) {
+        $self->read(['invoice_lines_ids']);
+        foreach($self as $id => $purchaseInvoice) {
+            PurchaseInvoiceLine::ids($purchaseInvoice['invoice_lines_ids'])->update(['date_from' => $values['date_from']]);
+        }
+    }
+
+    protected static function onupdateDateTo($self, $values) {
+        $self->read(['invoice_lines_ids']);
+        foreach($self as $id => $purchaseInvoice) {
+            PurchaseInvoiceLine::ids($purchaseInvoice['invoice_lines_ids'])->update(['date_to' => $values['date_to']]);
+        }
+    }
+
     /**
      * Cascade change to related DocumentProcess & Document
      */
@@ -1458,6 +1498,18 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 $date_to = $invoice['fiscal_period_id']['date_to'];
             }
 
+            $allocation_date_from = $invoice['fiscal_period_id']['date_from'];
+            $allocation_date_to = $invoice['fiscal_period_id']['date_to'];
+
+            if($invoice['has_date_range']) {
+                $intersect_from = max($allocation_date_from, $invoice['date_from']);
+                $intersect_to = min($allocation_date_to, $invoice['date_to']);
+                if($intersect_from <= $intersect_to) {
+                    $allocation_date_from = $intersect_from;
+                    $allocation_date_to = $intersect_to;
+                }
+            }
+
             // retrieve journal dedicated to purchases
             $journal = Journal::search([['condo_id', '=', $invoice['condo_id']], ['journal_type', '=', 'PURC']])->first();
             if(!$journal) {
@@ -1539,6 +1591,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             'description'           => $fundUsageLine['description'] ?? $invoice['description'],
                             'account_id'            => $fundUsageLine['fund_account_id'],
                             'fund_usage_line_id'    => $usage_line_id,
+                            'allocation_date_from'  => $allocation_date_from,
+                            'allocation_date_to'    => $allocation_date_to,
                             'debit'                 => ($fundUsageLine['amount'] > 0.0) ? abs($fundUsageLine['amount']) : 0.0,
                             'credit'                => ($fundUsageLine['amount'] > 0.0) ? 0.0 : abs($fundUsageLine['amount'])
                         ]);
@@ -1550,6 +1604,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             'description'           => $fundUsageLine['description'] ?? $invoice['description'],
                             'account_id'            => $fundUsageLine['expense_account_id'],
                             'fund_usage_line_id'    => $usage_line_id,
+                            'allocation_date_from'  => $allocation_date_from,
+                            'allocation_date_to'    => $allocation_date_to,
                             'debit'                 => ($fundUsageLine['amount'] > 0.0) ? 0.0 : abs($fundUsageLine['amount']),
                             'credit'                => ($fundUsageLine['amount'] > 0.0) ? abs($fundUsageLine['amount']) : 0.0
                         ]);
@@ -1650,6 +1706,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             'description'               => $invoice['description'],
                             'account_id'                => $invoiceLine['expense_account_id'],
                             'purchase_invoice_line_id'  => $invoice_line_id,
+                            'allocation_date_from'      => $allocation_date_from,
+                            'allocation_date_to'        => $allocation_date_to,
                             'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
                             'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
                         ]);
@@ -1668,6 +1726,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             'description'               => $invoiceLine['description'],
                             'account_id'                => $invoiceLine['expense_account_id'],
                             'purchase_invoice_line_id'  => $invoice_line_id,
+                            'allocation_date_from'      => $allocation_date_from,
+                            'allocation_date_to'        => $allocation_date_to,
                             'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
                             'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
                         ]);
@@ -1741,6 +1801,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                     'description'               => $invoiceLine['description'],
                                     'account_id'                => $invoiceLine['expense_account_id'],
                                     'purchase_invoice_line_id'  => $invoice_line_id,
+                                    'allocation_date_from'      => $allocation_date_from,
+                                    'allocation_date_to'        => $allocation_date_to,
                                     'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
                                     'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
                                 ]);
@@ -1789,6 +1851,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 'description'               => $description,
                                 'account_id'                => $deferredExpensesAccount['id'],
                                 'purchase_invoice_line_id'  => $invoice_line_id,
+                                'allocation_date_from'      => $allocation_date_from,
+                                'allocation_date_to'        => $allocation_date_to,
                                 'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
                                 'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
                             ]);
@@ -1800,6 +1864,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 'description'               => $description,
                                 'account_id'                => $invoiceLine['expense_account_id'],
                                 'purchase_invoice_line_id'  => $invoice_line_id,
+                                'allocation_date_from'      => $allocation_date_from,
+                                'allocation_date_to'        => $allocation_date_to,
                                 'debit'                     => ($amount > 0.0) ? 0.0 : abs($amount),
                                 'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
                             ]);
@@ -1826,6 +1892,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         }
 
                         $plannedAccountingEntry = $map_planned_accounting_entries[$period_date_from];
+                        $planned_allocation_date_from = max($date_from, $period_date_from);
+                        $planned_allocation_date_to = min($date_to, $period_date_to);
 
                         // create the credit line for the deferred expense
                         AccountingEntryLine::create([
@@ -1834,6 +1902,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 'description'               => $description,
                                 'account_id'                => $deferredExpensesAccount['id'],
                                 'purchase_invoice_line_id'  => $invoice_line_id,
+                                'allocation_date_from'      => $planned_allocation_date_from,
+                                'allocation_date_to'        => $planned_allocation_date_to,
                                 'debit'                     => ($amount > 0.0) ? 0.0 : abs($amount),
                                 'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
                             ]);
@@ -1845,6 +1915,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 'description'               => $description,
                                 'account_id'                => $invoiceLine['expense_account_id'],
                                 'purchase_invoice_line_id'  => $invoice_line_id,
+                                'allocation_date_from'      => $planned_allocation_date_from,
+                                'allocation_date_to'        => $planned_allocation_date_to,
                                 'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
                                 'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
                             ]);

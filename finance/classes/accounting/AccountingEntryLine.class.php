@@ -93,6 +93,20 @@ class AccountingEntryLine extends Model {
                 'readonly'          => true
             ],
 
+            'allocation_date_from' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => 'First date of the allocation period.',
+                'default'           => 'defaultAllocationDateFrom'
+            ],
+
+            'allocation_date_to' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => 'Last date of the allocation period.',
+                'default'           => 'defaultAllocationDateTo'
+            ],
+
             'entry_number' => [
                 'type'              => 'computed',
                 'result_type'       => 'string',
@@ -649,6 +663,32 @@ class AccountingEntryLine extends Model {
             $accountingEntry = AccountingEntry::id($values['accounting_entry_id'])->read(['condo_id'])->first();
             if($accountingEntry) {
                 $result = $accountingEntry['condo_id'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function defaultAllocationDateFrom($values) {
+        $result = null;
+        if(isset($values['accounting_entry_id'])) {
+            $accountingEntry = AccountingEntry::id($values['accounting_entry_id'])
+                ->read(['fiscal_period_id' => ['date_from']])
+                ->first();
+            if(isset($accountingEntry['fiscal_period_id']['date_from'])) {
+                $result = $accountingEntry['fiscal_period_id']['date_from'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function defaultAllocationDateTo($values) {
+        $result = null;
+        if(isset($values['accounting_entry_id'])) {
+            $accountingEntry = AccountingEntry::id($values['accounting_entry_id'])
+                ->read(['fiscal_period_id' => ['date_to']])
+                ->first();
+            if(isset($accountingEntry['fiscal_period_id']['date_to'])) {
+                $result = $accountingEntry['fiscal_period_id']['date_to'];
             }
         }
         return $result;

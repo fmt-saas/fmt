@@ -54,6 +54,29 @@ class MiscOperationLine extends Model {
                 'dependents'        => ['journal_id']
             ],
 
+            'has_date_range' => [
+                'type'              => 'boolean',
+                'description'       => 'Apply expense/income on a date range.',
+                'help'              => '',
+                'default'           => 'defaultHasDateRange'
+            ],
+
+            'date_from' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => 'First date of the date range.',
+                'default'           => 'defaultDateFrom',
+                'visible'           => ['has_date_range', '=', true]
+            ],
+
+            'date_to' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => 'Last date of the date range.',
+                'default'           => 'defaultDateTo',
+                'visible'           => ['has_date_range', '=', true]
+            ],
+
             'account_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\Account',
@@ -226,6 +249,39 @@ class MiscOperationLine extends Model {
             ]
 
         ];
+    }
+
+    protected static function defaultHasDateRange($values) {
+        $result = false;
+        if(isset($values['misc_operation_id'])) {
+            $miscOperation = MiscOperation::id($values['misc_operation_id'])->read(['has_date_range'])->first();
+            if(isset($miscOperation['has_date_range'])) {
+                $result = $miscOperation['has_date_range'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function defaultDateFrom($values) {
+        $result = null;
+        if(isset($values['misc_operation_id'])) {
+            $miscOperation = MiscOperation::id($values['misc_operation_id'])->read(['date_from'])->first();
+            if(isset($miscOperation['date_from'])) {
+                $result = $miscOperation['date_from'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function defaultDateTo($values) {
+        $result = null;
+        if(isset($values['misc_operation_id'])) {
+            $miscOperation = MiscOperation::id($values['misc_operation_id'])->read(['date_to'])->first();
+            if(isset($miscOperation['date_to'])) {
+                $result = $miscOperation['date_to'];
+            }
+        }
+        return $result;
     }
 
     // Add MiscOperation description

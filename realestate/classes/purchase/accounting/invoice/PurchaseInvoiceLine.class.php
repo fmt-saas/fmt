@@ -33,6 +33,28 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
                 'ondelete'          => 'cascade'
             ],
 
+            'has_date_range' => [
+                'type'              => 'boolean',
+                'description'       => 'Service delivered over a period of time.',
+                'default'           => 'defaultHasDateRange'
+            ],
+
+            'date_from' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => 'First date of the date range.',
+                'default'           => 'defaultDateFrom',
+                'visible'           => ['has_date_range', '=', true]
+            ],
+
+            'date_to' => [
+                'type'              => 'date',
+                'usage'             => 'date/plain',
+                'description'       => 'Last date of the date range.',
+                'default'           => 'defaultDateTo',
+                'visible'           => ['has_date_range', '=', true]
+            ],
+
             'is_private_expense' => [
                 'type'              => 'boolean',
                 'description'       => 'Enable to apply charge to a single owner.',
@@ -158,6 +180,39 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             $invoice = PurchaseInvoice::id($values['invoice_id'])->read(['has_instant_reinvoice'])->first();
             if(isset($invoice['has_instant_reinvoice'])) {
                 $result = $invoice['has_instant_reinvoice'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function defaultHasDateRange($values) {
+        $result = false;
+        if(isset($values['invoice_id'])) {
+            $invoice = PurchaseInvoice::id($values['invoice_id'])->read(['has_date_range'])->first();
+            if(isset($invoice['has_date_range'])) {
+                $result = $invoice['has_date_range'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function defaultDateFrom($values) {
+        $result = null;
+        if(isset($values['invoice_id'])) {
+            $invoice = PurchaseInvoice::id($values['invoice_id'])->read(['date_from'])->first();
+            if(isset($invoice['date_from'])) {
+                $result = $invoice['date_from'];
+            }
+        }
+        return $result;
+    }
+
+    protected static function defaultDateTo($values) {
+        $result = null;
+        if(isset($values['invoice_id'])) {
+            $invoice = PurchaseInvoice::id($values['invoice_id'])->read(['date_to'])->first();
+            if(isset($invoice['date_to'])) {
+                $result = $invoice['date_to'];
             }
         }
         return $result;

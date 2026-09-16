@@ -99,7 +99,8 @@ class MiscOperation extends Model {
                 'type'              => 'boolean',
                 'description'       => 'Apply expense/income on a date range.',
                 'help'              => '',
-                'default'           => false
+                'default'           => false,
+                'onupdate'          => 'onupdateHasDateRange'
             ],
 
             'date_from' => [
@@ -107,7 +108,8 @@ class MiscOperation extends Model {
                 'usage'             => 'date/plain',
                 'description'       => 'First date of the date range.',
                 'default'           => function () { return time(); },
-                'visible'           => ['has_date_range', '=', true]
+                'visible'           => ['has_date_range', '=', true],
+                'onupdate'          => 'onupdateDateFrom'
             ],
 
             'date_to' => [
@@ -115,7 +117,8 @@ class MiscOperation extends Model {
                 'usage'             => 'date/plain',
                 'description'       => 'Last date of the date range.',
                 'default'           => function () { return time(); },
-                'visible'           => ['has_date_range', '=', true]
+                'visible'           => ['has_date_range', '=', true],
+                'onupdate'          => 'onupdateDateTo'
             ],
 
             'fiscal_year_id' => [
@@ -871,6 +874,27 @@ class MiscOperation extends Model {
                     MiscOperationLine::id($misc_operation_line_id)->update(['description' => $miscOperation['description']], $lang);
                 }
             }
+        }
+    }
+
+    protected static function onupdateHasDateRange($self, $values) {
+        $self->read(['misc_operation_lines_ids']);
+        foreach($self as $id => $miscOperation) {
+            MiscOperationLine::ids($miscOperation['misc_operation_lines_ids'])->update(['has_date_range' => $values['has_date_range']]);
+        }
+    }
+
+    protected static function onupdateDateFrom($self, $values) {
+        $self->read(['misc_operation_lines_ids']);
+        foreach($self as $id => $miscOperation) {
+            MiscOperationLine::ids($miscOperation['misc_operation_lines_ids'])->update(['date_from' => $values['date_from']]);
+        }
+    }
+
+    protected static function onupdateDateTo($self, $values) {
+        $self->read(['misc_operation_lines_ids']);
+        foreach($self as $id => $miscOperation) {
+            MiscOperationLine::ids($miscOperation['misc_operation_lines_ids'])->update(['date_to' => $values['date_to']]);
         }
     }
 
