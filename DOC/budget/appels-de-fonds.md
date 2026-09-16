@@ -267,6 +267,230 @@ flowchart TD
 
 
 
+##### Chaîne technique de répartition et d'exécution
+
+La chaîne de calcul complète est la suivante :
+
+```text
+FundRequest
+└── FundRequestLine : montant théorique et clé de répartition
+    └── FundRequestLineEntryLot : montant alloué au lot
+        └── découpe entre les dates d'exécution
+            └── attribution au propriétaire du lot
+                └── FundRequestExecutionLineEntry : montant réel par lot et propriétaire
+                    └── FundRequestExecutionLine : total par propriétaire
+                        └── FundRequestExecution : total de la période
+                            └── AccountingEntry et AccountingEntryLine
+```
+
+Les principales sources de vérité sont :
+
+| Niveau | Objet et champ | Signification |
+| --- | --- | --- |
+| Théorique | `FundRequestLine.request_amount` | Montant demandé pour une ligne et une clé |
+| Répartition | `FundRequestLineEntryLot.allocated_amount` | Montant alloué à un lot |
+| Exécution détaillée | `FundRequestExecutionLineEntry.called_amount` | Montant effectivement appelé pour un lot et un propriétaire |
+| Exécution propriétaire | `FundRequestExecutionLine.called_amount` | Total appelé au propriétaire |
+| Exécution globale | `FundRequestExecution.called_amount` | Total appelé pour la période |
+| Comptabilité | `AccountingEntryLine` | Montants effectivement comptabilisés |
+
+###### Répartition initiale entre les lots
+
+Pour chaque `FundRequestLine`, l'action `generate_allocation` applique la clé de répartition :
+
+```text
+montant du lot =
+montant théorique de la ligne × quotes-parts du lot / total des quotes-parts
+```
+
+Chaque montant est arrondi à deux décimales. Si la somme des montants arrondis diffère du montant théorique, le delta est distribué centime par centime, en commençant par les lots qui ont le plus de quotes-parts. Pour chaque ligne :
+
+```text
+round(FundRequestLine.request_amount, 2)
+=
+Σ FundRequestLineEntryLot.allocated_amount
+```
+
+Le `FundRequestLineEntry` regroupe alors les lots selon leur propriétaire à la date de l'appel. Cette association intermédiaire ne fige pas le destinataire final : les historiques de propriété sont relus lors de chaque génération des exécutions.
+
+###### Construction du calendrier
+
+Sans intervalle de dates, une seule exécution est prévue à `request_date`.
+
+Avec un intervalle, les dates partent de `date_from` et avancent de `date_range_frequency` mois tant que la date courante est strictement antérieure à `date_to` :
+
+```php
+while($current_date < $fundRequest['date_to'])
+```
+
+Exemple pour la période du 01/04/2025 au 31/03/2026, avec une fréquence de trois mois :
+
+```text
+01/04/2025
+01/07/2025
+01/10/2025
+01/01/2026
+```
+
+`date_to` est donc la fin de la couverture, pas nécessairement une date d'exécution. La période de la dernière exécution se termine à cette date.
+
+###### Prise en compte des exécutions déjà comptabilisées
+
+Lors d'une régénération, `generate_executions` :
+
+1. supprime toutes les exécutions au statut `proforma` de l'appel ;
+2. conserve les exécutions au statut `posted` ;
+3. retire leurs `FundRequestExecutionLineEntry.called_amount` du montant encore disponible pour chaque lot ;
+4. redistribue le solde entre les dates d'exécution manquantes.
+
+Pour chaque lot :
+
+```text
+reste à exécuter =
+montant alloué au lot
+− Σ montants du lot dans les exécutions posted
+```
+
+Puis, après la régénération :
+
+```text
+reste à exécuter
+= Σ montants du lot dans les nouvelles exécutions proforma
+```
+
+Les exécutions comptabilisées ne sont ni supprimées ni recalculées. Seules les périodes restantes sont reconstruites.
+
+###### Découpe du solde entre les périodes
+
+Le solde de chaque lot est divisé par le nombre de dates encore disponibles :
+
+```php
+$base_amount = round($allocated_amount / $num_intervals, 2);
+```
+
+Les périodes intermédiaires reçoivent le montant arrondi et la dernière reçoit le reliquat. Ainsi, `100,00 EUR` sur trois périodes devient `33,33 + 33,33 + 33,34`.
+
+Pour chaque lot, après génération :
+
+```text
+montant alloué
+=
+exécutions posted non annulées
++ nouvelles exécutions proforma
+```
+
+Une régénération peut déplacer un centime d'une période à une autre, mais elle doit conserver le total du lot.
+
+###### Attribution aux propriétaires
+
+Pour chaque couple « lot + période », deux modes existent.
+
+Sans prorata propriétaire, le système recherche l'unique `Ownership` actif à la date d'exécution. La génération échoue si aucun propriétaire n'est actif ou si plusieurs propriétaires sont actifs simultanément pour le lot.
+
+Avec le prorata propriétaire (`has_ownership_proration`), le montant de la période est réparti selon le nombre de jours de possession de chaque propriétaire. Les périodes de possession et la période d'exécution sont toutes deux inclusives. Les premiers montants sont arrondis au centime et le dernier propriétaire reçoit le reliquat :
+
+```text
+montant du lot pour la période
+=
+Σ montants attribués aux propriétaires du lot
+```
+
+La somme des jours couverts par les historiques de propriété doit être exactement égale au nombre de jours de la période. Un trou ou un chevauchement empêche la génération.
+
+###### Création et agrégation des exécutions
+
+Pour chaque date restante, le système crée :
+
+- une `FundRequestExecution` ;
+- une `FundRequestExecutionLine` par propriétaire ;
+- une `FundRequestExecutionLineEntry` par propriétaire et par lot.
+
+Les agrégations attendues sont :
+
+```text
+FundRequestExecutionLine.called_amount
+=
+Σ FundRequestExecutionLineEntry.called_amount du propriétaire
+```
+
+et :
+
+```text
+FundRequestExecution.called_amount
+=
+Σ FundRequestExecutionLine.called_amount
+```
+
+Les montants d'exécution sont agrégés par lot sur l'ensemble du `FundRequest`. Une `FundRequestExecutionLineEntry` conserve les références au lot, au propriétaire, à l'exécution et à sa ligne, mais pas de `request_line_id`.
+
+Il n'existe donc pas toujours de relation permettant d'affirmer qu'une `FundRequestLine` est égale à la somme de lignes d'exécution qui lui seraient propres lorsqu'un appel contient plusieurs lignes théoriques. La conservation exacte est garantie au niveau global de l'appel et au niveau des lots.
+
+###### Comptabilisation
+
+Le passage d'une exécution de `proforma` à `posted` lui attribue un numéro, génère ses `Funding` et crée une écriture dans le journal des ventes :
+
+- le compte configuré sur l'appel est crédité du total de l'exécution ;
+- le compte de chaque propriétaire est débité du montant de sa `FundRequestExecutionLine`.
+
+```text
+crédit global de l'exécution
+=
+Σ débits des propriétaires
+```
+
+L'écriture est validée automatiquement et doit être équilibrée. Pour les décomptes de charges, les provisions sont reprises depuis les `FundRequestExecutionLineEntry.called_amount`, donc depuis la ventilation effectivement exécutée et non depuis le montant théorique. Le fonctionnement détaillé est décrit dans [Décompte copropriétaires](../comptabilite/pieces-comptables/decompte-coproprietaires.md).
+
+###### Annulation et prochaine régénération
+
+L'annulation d'une exécution `posted` :
+
+1. crée l'extourne de son écriture comptable ;
+2. supprime les `Funding` associés selon leur procédure métier, en conservant et en réaffectant les paiements qui doivent l'être ;
+3. passe l'exécution au statut `cancelled` et retire son lien vers l'écriture d'origine.
+
+Cette annulation ne relance pas automatiquement `generate_executions`. Lors de la prochaine génération, l'exécution annulée n'est plus considérée comme `posted` : sa date redevient disponible, son montant retourne dans le solde à répartir et toutes les exécutions encore `proforma` sont reconstruites.
+
+Le remplacement ne reprend donc pas nécessairement exactement le même montant à la même date. Le solde global est redistribué entre toutes les dates encore manquantes.
+
+###### Invariants principaux
+
+Après une génération complète et en dehors d'un état transitoire d'annulation non encore régénéré, les invariants attendus sont :
+
+```text
+I1. Pour chaque FundRequestLine :
+    round(montant théorique, 2) = somme des allocations par lot
+
+I2. Pour le FundRequest :
+    round(request_amount, 2) = round(allocated_amount, 2)
+
+I3. Pour chaque lot :
+    allocation du lot =
+    exécutions posted valides + exécutions proforma restantes
+
+I4. Pour chaque lot et période :
+    montant de la période = somme des montants attribués aux propriétaires
+
+I5. Pour chaque propriétaire et exécution :
+    FundRequestExecutionLine.called_amount =
+    somme des FundRequestExecutionLineEntry.called_amount
+
+I6. Pour chaque exécution :
+    FundRequestExecution.called_amount =
+    somme des FundRequestExecutionLine.called_amount
+
+I7. Pour l'écriture comptable :
+    crédit global = somme des débits propriétaires
+
+I8. Pour une annulation :
+    écriture originale + extourne = 0
+
+I9. Pour le décompte de charges :
+    provisions du décompte =
+    exécutions comptables valides comprises dans la période
+```
+
+
+
 ##### Actions disponibles (`FundRequestExecution`)
 
 - Générer les **exécutions planifiées** à partir des prévisionnels

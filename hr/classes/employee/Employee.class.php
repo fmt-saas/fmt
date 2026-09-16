@@ -160,25 +160,22 @@ class Employee extends Identity {
         ]);
     }
 
-    protected static function oncreate($self, $orm, $values) {
-        $self->read(['state', 'firstname', 'lastname', 'type_id', 'identity_id']);
+    protected static function onafterinstantiate($self, $orm, $values) {
+        $self->read(['firstname', 'lastname', 'type_id', 'identity_id']);
         foreach($self as $id => $employee) {
-            if($employee['identity_id']) {
-                continue;
+            $data = [];
+            if(!$employee['identity_id']) {
+                $identity = Identity::create([
+                        'employee_id'   => $id,
+                        'type_id'       => $employee['type_id'],
+                        'firstname'     => $employee['firstname'],
+                        'lastname'      => $employee['lastname']
+                    ])
+                    ->first();
+                $data['identity_id'] = $identity['id'];
             }
-            $identity = Identity::create([
-                    'employee_id'   => $id,
-                    'type_id'       => $employee['type_id'],
-                    'firstname'     => $employee['firstname'],
-                    'lastname'      => $employee['lastname']
-                ])
-                ->first();
-            $state = isset($values['state']) ? $values['state'] : $employee['state'];
-            self::id($id)->update([
-                    'state'       => $state,
-                    'code'        => sprintf("%03d", $id),
-                    'identity_id' => $identity['id']
-                ]);
+            $data['code'] = sprintf("%03d", $id);
+            self::id($id)->update($data);
         }
     }
 

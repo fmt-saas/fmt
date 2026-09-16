@@ -89,128 +89,226 @@ Copropriétaire : Mme Dupont
 - L’utilisation des fonds de réserve
 - La durée de possession dans la période (prorata temporis)
 
-### Sources des données
+## Chaîne technique de génération
 
-1. **Écritures comptables validées** dans la période (factures fournisseurs, charges reportées, appels aux fonds de réserve…).
-2. **Configuration des lots** et des **clés de répartition**.
-3. **Historique des propriétaires** et des dates de détention.
+La génération d'un `ExpenseStatement` proforma suit cette séquence :
 
+1. sélectionner les lignes comptables à décompter ;
+2. reconstituer l'historique des `Ownership` et des lots pendant la période ;
+3. classifier les lignes en provisions, charges privatives, utilisations de fonds et charges communes ;
+4. répartir les montants par `Ownership` et par lot ;
+5. créer les `ExpenseStatementOwner` et leurs `ExpenseStatementOwnerLine` ;
+6. vérifier l'équilibre de la répartition ;
+7. générer l'écriture comptable du décompte ;
+8. valider cette écriture et apurer les lignes sources ;
+9. créer et, si possible, compenser un `Funding` par `Ownership` ;
+10. clôturer la période et générer les correspondances individualisées.
 
+### 1. Périmètre comptable sélectionné
 
-Un mécanisme permet d'être certain de ne jamais comptabiliser des écritures deux fois:
+Le calcul part des `AccountingEntryLine`, et non directement des factures ou des appels de fonds. Une ligne source doit :
 
-* lorsqu'une écriture est prise en compte dans un décompte, un lien est établi (`clearing_expense_statement`) vers le décompte correspondant 
+- appartenir à la `FiscalPeriod` choisie ;
+- avoir le statut `validated` ;
+- appartenir à une `AccountingEntry` elle-même validée ;
+- utiliser un compte de classe 6 ou 7 ;
+- ne pas être un report à nouveau (`is_carry_forward = false`) ;
+- ne pas avoir déjà été apurée par un autre décompte (`is_cleared = false`) ;
+- appartenir à une écriture dont la date est comprise dans la période ;
+- ne pas provenir d'un autre `ExpenseStatement`.
 
-* lors que le décompte est facturé, les écritures sont marquées comme décomptée (`is_cleared`)
+Lorsqu'une ligne est retenue par un décompte proforma, `clearing_expense_statement_id` établit temporairement le lien avec celui-ci. Au posting, `is_cleared` passe à `true`, ce qui empêche toute reprise dans un décompte ultérieur.
 
+Les charges reportées sur un compte 490 ne sont donc pas sélectionnées directement. Lorsqu'elles sont réaffectées au débit d'un compte de charges de classe 6 au début de la période suivante, cette nouvelle ligne peut entrer dans le périmètre de cette période.
 
+### 2. Historique des propriétaires et des lots
 
-### Logique d'établissement du décompte
+Le système calcule l'intersection de chaque `Ownership` avec la période comptable :
 
-* Récupération des écritures comptables validées sur la période (factures, frais, utilisations de fonds, etc.).
+```text
+jours applicables = nombre de jours inclus entre
+    max(début de période, début de possession)
+    et
+    min(fin de période, fin de possession)
+```
 
-* Traitement des lignes de dépenses :
-  
-  * Charges communes (comptes 61x) réparties selon les clés définies
-  * Frais privatifs affectés à des copropriétaires spécifiques
-  * Utilisations de fonds de réserve traitées (selon la clé d'appel initiale)
+Ce calcul est ensuite effectué séparément pour chaque couple `Ownership × PropertyLot`. Pour un lot donné, le contrat implicite est que l'historique des propriétaires couvre la période sans trou ni chevauchement.
 
-* Proratisation des charges selon le nombre de jours de détention des lots par chaque propriétaire.
+### 3. Classification et répartition des lignes
 
-* A la date du premier jour de la période suivante : réaffectation des charges à reporter (comptes 490) vers les comptes de charges correspondants, au débit.
+| Type | Source du montant | Règle de répartition |
+| --- | --- | --- |
+| Provisions | Exécutions réelles des appels de fonds | Attribution directe à l'`Ownership` et au lot de l'exécution |
+| Charge privative | Ligne de facture, ligne bancaire ou opération diverse | Attribution directe à l'`Ownership` et au lot renseignés |
+| Utilisation d'un fonds | Ligne comptable et configuration du `CondoFund` | Clé de répartition et prorata temporel, 100 % propriétaire |
+| Charge commune | Ligne comptable et clé de la ligne source | Clé de répartition, prorata temporel et partage propriétaire/locataire |
 
-On génère un tableau (JSON) à 3 niveaux, reprenant le détail du décompte de clôture théorique (au moment où il est généré).
+#### Provisions
 
-On utilise à la fois ce JSON :
+Pour une écriture liée à un `FundRequestExecution`, le montant théorique de la `FundRequestLine` n'est pas utilisé. Le calcul descend jusqu'à la ventilation effectivement exécutée :
 
-* pour déterminer les écritures à réaliser pour clôturer la période
-* pour générer le document de décompte
+```text
+FundRequestExecution
+└── FundRequestExecutionLine
+    └── FundRequestExecutionLineEntry
+        ├── Ownership
+        ├── PropertyLot
+        └── called_amount
+```
 
-Les infos sont déterminées sur base : 
+Le montant intégré au décompte est :
 
-1) des écritures comptables (qui ne peuvent plus être modifiées une fois validées)
-2) des InvoiceLines (qui ne peuvent plus être modifiées une fois la facture émise)
-3) des clés de répartition (note: on empêche la modification des clés de répartition; si nécessaire, il est possible de les désactiver et de créer de nouvelles clés)
-4) des Ownerships (qui peuvent également être modifiés: les ownerships ne peuvent pas être modifiés ni supprimés; ils peuvent être révoqués [date de fin] en cas de transfert. En cas de modification des lots attachés, un nouveau Ownership est créé)
+```text
+provision du décompte = -called_amount
+```
 
-Il faut pouvoir générer un décompte :
+Le signe négatif matérialise une provision déjà appelée, qui diminue le solde final du copropriétaire.
 
-* soit de manière individuelle: pour l'envoyer à chaque copropriétaire (dans le sens Ownership) 
-* soit de manière groupée: pour l'exporter en une fois (un seul fichier : pour le commissaire aux comptes) - car il s'agit d'un document assimilé à une facture de vente
+#### Charges privatives
 
-La génération est fixée aux informations liées à la période et il est possible de générer le JSON à l'identique à tout moment, éventuellement pour un propriétaire en particulier (indépendamment du fait que les écritures aient été passées ou non).
+La charge est déjà liée à un `Ownership` et à un lot ; aucune clé de répartition n'est appliquée. Si `owner_share` est exprimé en pourcentage :
 
-Un `ExpenseStatement` est l'équivalent d'une facture (fonctionnement similaire à FundRequest)
+```text
+montant propriétaire = round(montant × owner_share / 100, 2)
+montant locataire     = montant - montant propriétaire
+```
 
-Cas  particulier : dans le cas ou un exercice est clôturé, puis réouvert, et modifié 
+Le reliquat d'arrondi éventuel est attribué au propriétaire afin de garantir que les deux parts recomposent exactement le montant de la ligne.
 
-* on extourne le décompte
-* on le recrée (éventuellement en différé)
+#### Utilisations de fonds
 
-#### Structure de données
+Les utilisations du fonds de réserve, du fonds spécial ou du fonds de roulement sont présentées comme des charges communes, mais sont intégralement supportées par le propriétaire :
 
-On utilise un objet appelé `ExpenseStatement`, qui joue le rôle d’une facture de vente à destination des copropriétaires.
+```text
+montant brut =
+    montant comptable
+    × quotes-parts du lot / total de la clé
+    × jours de possession / jours de la période
 
-Les lignes associées (`ExpenseStatementOwnerLine`) sont proches des lignes d’une facture classique (`InvoiceLine`), mais sont enrichies avec des champs spécifiques :
-Elles permettent de faire le lien avec les écritures comptables générées,
-Et d'assurer une traçabilité fine des montants imputés à chaque propriétaire ou lot.
+propriétaire = round(montant brut, 2)
+locataire    = 0
+delta        = montant brut - propriétaire
+```
 
-Ce modèle permet de gérer des cas comme :
+La clé provient de la configuration du `CondoFund`. Elle peut être différente de la clé qui répartit la charge financée.
 
-* Une annulation (dé-clôture) du décompte, sans supprimer les écritures d’origine.
-* La possibilité de réimprimer ou reconstituer une version annulée plus tard, tout en tenant compte d’éventuelles nouvelles écritures ou corrections.
+#### Charges communes
 
-L’état généré contient :
+La formule générale est :
 
-- Un total global des charges constatées
+```text
+montant brut du lot =
+    montant comptable
+    × quotes-parts du lot / total de la clé
+    × jours de possession / jours de la période
 
-- Un total réparti
+montant arrondi du lot = round(montant brut du lot, 2)
 
-- Un éventuel écart (arrondis) placé sur un compte dédié (`rounding_adjustment`)
+propriétaire = round(montant arrondi du lot × owner_share / 100, 2)
+locataire    = montant arrondi du lot - propriétaire
 
-- Pour chaque propriétaire :
-  
-  - La liste des lots concernés
-  
-  - Les charges ventilées par type (commune, privative, fonds)
-  
-  - Pour chaque charge : compte, clé de répartition, montant, TVA, ventilation propriétaire/locataire
+delta = montant brut du lot - propriétaire - locataire
+```
 
-### Types de dépenses gérées
+Le delta cumule la différence entre les montants comptables bruts et les montants effectivement attribués au centime.
 
-#### 1. **Charges communes (61xx)**
+### 4. Matérialisation du décompte
 
-Réparties selon les clés de répartition définies en AG.
+Après le calcul :
 
-- Le montant est ventilé selon les **quotes-parts des lots** et le **temps de possession** sur la période.
-- Chaque ligne indique :
-  - Le compte de charge
-  - La clé de répartition utilisée
-  - Le montant pour le propriétaire et éventuellement pour le locataire
+- un `ExpenseStatementOwner` est créé pour chaque `Ownership` concerné ;
+- ses détails deviennent des `ExpenseStatementOwnerLine` ;
+- tous les montants persistés sont normalisés à deux décimales ;
+- le prix de chaque ligne respecte `price = owner_amount + tenant_amount`.
 
-#### 2. **Charges reportées (490)**
+Les lignes sont proches d'`InvoiceLine`, mais conservent les informations spécifiques nécessaires à la traçabilité : lot, compte, clé de répartition, type de charge, période de détention, TVA, parts propriétaire/locataire et delta assigné.
 
-Même logique que les charges communes, mais le montant concerne une période future. Elles sont traitées comme une charge au moment du décompte.
+Le résultat est utilisé pour générer l'écriture comptable et les documents. Une fois le décompte posté, les `ExpenseStatementOwner` et `ExpenseStatementOwnerLine` persistés deviennent la source stable des réimpressions, même si la période est rouverte et que les données d'origine évoluent ensuite.
 
-#### 3. **Frais privatifs (643xxx)**
+Le calcul s'appuie sur les écritures comptables validées, leurs lignes métier sources, les clés de répartition et l'historique des `Ownership`. Les pièces émises et les écritures validées ne sont plus modifiables ; une clé devenue obsolète est désactivée puis remplacée ; une mutation clôture l'ancien `Ownership` et en crée un nouveau. Ces règles préservent la traçabilité des données utilisées.
 
-Imputés directement à un ou plusieurs copropriétaires.
+Le décompte peut être produit individuellement pour chaque `Ownership` ou regroupé dans un export unique, notamment pour le commissaire aux comptes.
 
-- Pas de répartition : c’est une imputation directe.
-- La ventilation propriétaire/locataire peut être précisée.
+### 5. Invariant d'équilibre de la répartition
 
-#### 4. **Utilisations de fonds de réserve (6816xxx)**
+Le contrôle principal est :
 
-Montant retiré d’un fonds de réserve existant.
+```text
+Σ montant de tous les ExpenseStatementOwner
+    = common_total
+    + private_total
+    + provisions_total
+    - assigned_delta
+```
 
-- Toujours imputé aux propriétaires uniquement (jamais aux locataires).
-- La répartition doit suivre la même clé que celle utilisée pour alimenter le fonds.
+avec :
 
-### Proratisation dans le temps
+```text
+montant d'un ExpenseStatementOwner
+    = Σ price de ses ExpenseStatementOwnerLine
+```
 
-Pour chaque propriétaire, on calcule le nombre de **jours de possession** sur la période, à partir des dates d’acquisition et de cession des lots. Ce nombre est utilisé pour répartir les charges au "prorata temporis", si plusieurs propriétaires se sont succédé dans la période.
+### 6. Écriture comptable générée
 
-### Structure inermédiaire pour ventilation
+L'écriture du décompte contient trois composantes :
+
+```text
+1. Extourne des lignes comptables décomptées
+   débit généré  = crédit de la ligne source
+   crédit généré = débit de la ligne source
+
+2. Imputation aux comptes des copropriétaires
+   montant = somme des ExpenseStatementOwnerLine du propriétaire
+
+3. Écart d'arrondi éventuel
+   compte operation_assignment = rounding_adjustment
+```
+
+Les mouvements sont agrégés et compensés par compte avant la création des lignes finales. L'écriture doit respecter `Σ débits = Σ crédits`. `assigned_delta` fait le pont entre le total comptable brut et la somme des montants arrondis attribués aux propriétaires ; un compte avec `operation_assignment = rounding_adjustment` est donc obligatoire lorsqu'il n'est pas nul.
+
+Après la création de l'écriture, celle-ci est validée et les lignes sources liées au décompte sont marquées comme apurées.
+
+### 7. Génération et compensation des Funding
+
+Un `Funding` de type `expense_statement` est créé pour chaque `Ownership` :
+
+```text
+Funding.due_amount = Σ ExpenseStatementOwnerLine.price
+```
+
+Le système recherche ensuite, pour le même compte de contrôle, les `Funding` en attente de signe opposé. Ils sont compensés automatiquement du plus ancien au plus récent par des `FundingAllocation` liées.
+
+```text
+Décompte à payer           +100,00
+Crédit copropriétaire       -30,00
+                           -------
+Reste effectivement dû      70,00
+```
+
+### 8. Posting, clôture et correspondances
+
+Le passage de `proforma` à `posted` régénère le détail, génère et valide l'écriture, attribue le numéro de facture, apure les lignes sources, crée les `Funding`, puis clôture la période. Si la période est la dernière de l'exercice, le `FiscalYear` est également clôturé.
+
+Une `ExpenseStatementCorrespondence` est ensuite créée par `Ownership` et par canal de communication applicable. La génération du document correspondant est planifiée séparément.
+
+En cas de déverrouillage, l'écriture du décompte est extournée, les lignes sources sont désapurées et les `Funding` associés sont supprimés avant le retour au statut `proforma`. Une nouvelle génération peut alors tenir compte des corrections ou nouvelles écritures.
+
+### 9. Invariants fonctionnels
+
+1. Une ligne comptable source ne peut être incluse que dans un seul décompte.
+2. Les lignes sources doivent être validées et rattachées à la bonne période.
+3. L'historique des propriétaires doit couvrir correctement chaque lot.
+4. Une clé de répartition doit contenir tous les lots concernés et avoir un total de quotes-parts cohérent.
+5. Une charge privative doit avoir un `Ownership` et un lot explicites.
+6. Une provision repose sur les `FundRequestExecutionLineEntry`, jamais sur le montant théorique de la `FundRequestLine`.
+7. La somme des entrées d'exécution doit correspondre au montant comptabilisé par l'exécution.
+8. `price = owner_amount + tenant_amount`.
+9. La somme des propriétaires doit respecter la formule d'équilibre incluant `assigned_delta`.
+10. Le montant du `Funding` doit être identique au total du propriétaire dans le décompte.
+11. L'écriture comptable finale doit être équilibrée.
+12. Un compte `rounding_adjustment` doit exister lorsqu'un delta d'arrondi est présent.
+
+### Structure intermédiaire pour ventilation
 
 Une structure en arborescence est générée pour chaque propriétaire, sur base de ses lots et des charges comptabilisées, et des dates de la période concernée, et est utilisée pour la génération des documents de "décompte propriétaires".
 

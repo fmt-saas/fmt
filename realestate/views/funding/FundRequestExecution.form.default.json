@@ -98,7 +98,8 @@
                                             {
                                                 "type": "field",
                                                 "value": "price",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
