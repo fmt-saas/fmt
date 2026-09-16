@@ -23,6 +23,16 @@
             "description": "Date comptable déterminant la période comptable.",
             "help": ""
         },
+        "allocation_date_from": {
+            "label": "Date d'affectation du",
+            "description": "Première date de la période d'affectation.",
+            "help": ""
+        },
+        "allocation_date_to": {
+            "label": "Date d'affectation au",
+            "description": "Dernière date de la période d'affectation.",
+            "help": ""
+        },
         "entry_number": {
             "label": "Numéro d'écriture",
             "description": "Identifiant unique de la pièce.",

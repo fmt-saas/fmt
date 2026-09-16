@@ -613,12 +613,33 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function policyCanMarkValidated($self) {
         $result = [];
-        $self->read(['document_process_status', 'document_process_id']);
+        $self->read([
+                'document_process_status',
+                'document_process_id',
+                'has_fund_usage',
+                'date_from',
+                'date_to',
+                'fiscal_period_id' => ['date_from', 'date_to']
+            ]);
 
         foreach($self as $id => $purchaseInvoice) {
             if($purchaseInvoice['document_process_status'] !== 'completed') {
                 $result[$id] = [
                         'wrong_document_status_completed' => 'Only `completed` documents can be marked as valid.'
+                    ];
+                continue;
+            }
+
+            if(
+                $purchaseInvoice['has_fund_usage']
+                && (
+                    !$purchaseInvoice['fiscal_period_id']
+                    || $purchaseInvoice['date_from'] < $purchaseInvoice['fiscal_period_id']['date_from']
+                    || $purchaseInvoice['date_to'] > $purchaseInvoice['fiscal_period_id']['date_to']
+                )
+            ) {
+                $result[$id] = [
+                        'fund_usage_date_range_outside_fiscal_period' => 'An invoice using reserve funds must have its date range entirely within its fiscal period.'
                     ];
                 continue;
             }

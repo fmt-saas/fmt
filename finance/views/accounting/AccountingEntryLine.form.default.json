@@ -68,6 +68,16 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "allocation_date_from",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "allocation_date_to",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "description",
                                                 "width": "100%"
                                             },

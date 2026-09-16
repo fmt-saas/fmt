@@ -1483,9 +1483,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             throw new \Exception('unknown_period', EQ_ERROR_INVALID_PARAM);
         }
 
-        // compute number of calendar days within the period
-        $nb_days = self::countInclusiveDays($fiscalPeriod['date_from'], $fiscalPeriod['date_to']);
-
         // #todo - il y a la notion de lots groupés - faire une map, par propriétaire, par lot :
         // on peut le faire par groupe de lots (si un lot est marqué avec primary_lot_id, il peut être ignoré pour les calculs)
 
@@ -1517,6 +1514,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ->read([
                 'accounting_entry_id',
                 'account_id', 'account_code', 'account_operation_assignment', 'debit', 'credit',
+                'allocation_date_from', 'allocation_date_to',
                 'ownership_id',
                 'sale_invoice_line_id',
                 // #memo - we need this to retrieve details for private expenses
@@ -1558,7 +1556,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         foreach($ownerships as $ownership_id => $ownership) {
             $start = max($fiscalPeriod['date_from'], $ownership['date_from'] ?? $fiscalPeriod['date_from']);
             $end   = min($fiscalPeriod['date_to'], $ownership['date_to'] ?? $fiscalPeriod['date_to']);
-            $ownerships[$ownership_id]['nb_days']   = ($start <= $end) ? self::countInclusiveDays($start, $end) : 0;
+            $ownerships[$ownership_id]['nb_days']   = ($start <= $end) ? self::computeInclusiveDaysCount($start, $end) : 0;
             $ownerships[$ownership_id]['date_from'] = $start;
             $ownerships[$ownership_id]['date_to']   = $end;
 
@@ -1566,7 +1564,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $start = max($fiscalPeriod['date_from'], $propertyLotOwnership['date_from'] ?? $fiscalPeriod['date_from']);
                 $end   = min($fiscalPeriod['date_to'], $propertyLotOwnership['date_to'] ?? $fiscalPeriod['date_to']);
                 $ownerships[$ownership_id]['property_lots'][$propertyLotOwnership['property_lot_id']] = [
-                    'nb_days'    => ($start <= $end) ? self::countInclusiveDays($start, $end) : 0,
+                    'nb_days'    => ($start <= $end) ? self::computeInclusiveDaysCount($start, $end) : 0,
                     'date_from'  => $start,
                     'date_to'    => $end
                 ];
@@ -1667,6 +1665,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             if($accountingEntry['entry_date'] < $fiscalPeriod['date_from'] || $accountingEntry['entry_date'] > $fiscalPeriod['date_to']) {
                 continue;
             }
+
+            $allocation_date_from = max($fiscalPeriod['date_from'], $accountingEntryLine['allocation_date_from'] ?? $fiscalPeriod['date_from']);
+            $allocation_date_to = min($fiscalPeriod['date_to'], $accountingEntryLine['allocation_date_to'] ?? $fiscalPeriod['date_to']);
+            $allocation_nb_days = ($allocation_date_from <= $allocation_date_to) ? self::computeInclusiveDaysCount($allocation_date_from, $allocation_date_to) : 0;
 
             $map_accounting_entry_lines_ids[$accountingEntryLine['id']] = true;
 
@@ -1859,14 +1861,17 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 foreach($ownerships as $ownership_id => $ownership) {
                     foreach($ownership['property_lots'] as $property_lot_id => $propertyLotOwnership) {
 
-                        if($propertyLotOwnership['date_to'] && $propertyLotOwnership['date_to'] < $fiscalPeriod['date_from']) {
-                            continue;
-                        }
                         if(!isset($apportionment[$property_lot_id])) {
                             continue;
                         }
 
-                        $prorata = $propertyLotOwnership['nb_days'] / $nb_days;
+                        $start = max($allocation_date_from, $propertyLotOwnership['date_from']);
+                        $end = min($allocation_date_to, $propertyLotOwnership['date_to'] ?? time());
+                        if($start > $end) {
+                            continue;
+                        }
+
+                        $prorata = self::computeInclusiveDaysCount($start, $end) / $allocation_nb_days;
                         $shares = $apportionment[$property_lot_id];
                         $total_shares = $apportionments[$apportionment_id]['total_shares'];
 
@@ -1962,14 +1967,17 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 foreach($ownerships as $ownership_id => $ownership) {
                     foreach($ownership['property_lots'] as $property_lot_id => $propertyLotOwnership) {
 
-                        if($propertyLotOwnership['date_to'] && $propertyLotOwnership['date_to'] < $fiscalPeriod['date_from']) {
-                            continue;
-                        }
                         if(!isset($apportionment[$property_lot_id])) {
                             continue;
                         }
 
-                        $prorata = $propertyLotOwnership['nb_days'] / $nb_days;
+                        $start = max($allocation_date_from, $propertyLotOwnership['date_from']);
+                        $end = min($allocation_date_to, $propertyLotOwnership['date_to'] ?? time());
+                        if($start > $end) {
+                            continue;
+                        }
+
+                        $prorata = self::computeInclusiveDaysCount($start, $end) / $allocation_nb_days;
                         $shares = $apportionment[$property_lot_id];
                         $total_shares = $apportionments[$sourceLine['apportionment_id']]['total_shares'];
 
@@ -2114,7 +2122,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             $seller_lot = &$ownerships[$seller_ownership_id]['property_lots'][$property_lot_id];
             $seller_lot['date_to'] = min($seller_lot['date_to'], $seller_date_to);
             $seller_lot['nb_days'] = $seller_lot['date_from'] <= $seller_lot['date_to']
-                ? self::countInclusiveDays($seller_lot['date_from'], $seller_lot['date_to'])
+                ? self::computeInclusiveDaysCount($seller_lot['date_from'], $seller_lot['date_to'])
                 : 0;
             unset($seller_lot);
 
@@ -2128,7 +2136,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'date_from' => $buyer_date_from,
                 'date_to'   => $buyer_date_to,
                 'nb_days'   => $buyer_date_from <= $buyer_date_to
-                    ? self::countInclusiveDays($buyer_date_from, $buyer_date_to)
+                    ? self::computeInclusiveDaysCount($buyer_date_from, $buyer_date_to)
                     : 0
             ];
         }
@@ -2145,16 +2153,15 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         $ownerships[$buyer_ownership_id]['date_to'] = $buyer_date_to;
         $ownerships[$buyer_ownership_id]['nb_days'] =
             $ownerships[$buyer_ownership_id]['date_from'] <= $buyer_date_to
-                ? self::countInclusiveDays($ownerships[$buyer_ownership_id]['date_from'], $buyer_date_to)
+                ? self::computeInclusiveDaysCount($ownerships[$buyer_ownership_id]['date_from'], $buyer_date_to)
                 : 0;
     }
 
-    private static function countInclusiveDays(int $date_from, int $date_to): int {
-        $timezone = new \DateTimeZone(date_default_timezone_get());
-        $from = (new \DateTimeImmutable('@' . $date_from))->setTimezone($timezone)->setTime(0, 0);
-        $to = (new \DateTimeImmutable('@' . $date_to))->setTimezone($timezone)->setTime(0, 0);
+    private static function computeInclusiveDaysCount(int $date_from, int $date_to): int {
+        $from = strtotime('today', $date_from);
+        $to = strtotime('today', $date_to);
 
-        return (int) $from->diff($to)->format('%a') + 1;
+        return intdiv(abs($to - $from), 86400) + 1;
     }
 
     /**
@@ -2181,7 +2188,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'common_total'      => $statement['common_total'],
                     'private_total'     => $statement['private_total'],
                     'provisions_total'  => $statement['provisions_total'],
-                    'nb_days'           => self::countInclusiveDays(
+                    'nb_days'           => self::computeInclusiveDaysCount(
                         $statement['fiscal_period_id']['date_from'],
                         $statement['fiscal_period_id']['date_to']
                     ),

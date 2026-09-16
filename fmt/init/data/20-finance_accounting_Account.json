@@ -814,7 +814,7 @@
                 "description": "Invoices to be received",
                 "account_chart_id": 1,
                 "parent_account_id": 70,
-                "operation_assignment": "",
+                "operation_assignment": "accrued_expenses",
                 "is_apportionable": false,
                 "tenant_share": null,
                 "owner_share": null

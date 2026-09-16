@@ -278,6 +278,7 @@
     "error": {
         "errors": {
             "cannot_remove_non_proforma": "Seules les factures en brouillon peuvent être supprimées.",
+            "fund_usage_date_range_outside_fiscal_period": "La plage de dates d'une facture utilisant des fonds de réserve doit être entièrement comprise dans sa période comptable.",
             "missing_suppliership_accounting_account": "Compte comptable fournisseur introuvable pour la copropriété ou le propriétaire concerné."
         }
     }
