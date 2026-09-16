@@ -315,7 +315,7 @@ Les **libellés** des lignes tiennent compte des **périodes couvertes** par la 
 
 
 
-L'écriture d'imputation est toujours faite sur la période correspondant à la date d'émission de la facture, telle que renseignée par le fournisseur.
+L'écriture principale est datée avec la `posting_date` et rattachée à la période comptable sélectionnée (`fiscal_period_id`). Cette période d'enregistrement peut être différente de la période économique couverte par la prestation.
 
 ### Encodage de la facture
 
@@ -337,53 +337,64 @@ Lorsque les lignes de la facture **ne sont pas des frais privatifs**, chaque lig
 
 ### Répartition sur plusieurs périodes
 
-Lors de son enregistrement, si une facture d'achat couvre plusieurs périodes ou exercices (ex. assurance annuelle, contrats de maintenance…), pour respecter le principe de rattachement des charges, on répartit la charge dans le temps (même si la facture est payée en une seule fois).
+Lorsqu'une facture couvre plusieurs périodes ou exercices (assurance annuelle, contrat de maintenance, etc.), les charges communes sont rattachées aux périodes réellement couvertes, même si la dette fournisseur est comptabilisée intégralement dans une seule période.
 
-Pour gérer cette situation, on utilise des "écritures planifiées" pour anticiper les écritures sur les périodes ultérieures.
+#### Activation de l'intervalle
 
+L'intervalle formé par `date_from` et `date_to` n'est pris en compte que si `has_date_range = true`.
 
+- Si `has_date_range = false`, aucune ventilation inter-périodes n'est effectuée. La charge est enregistrée dans la période comptable sélectionnée.
+- Si `has_date_range = true`, mais que l'intervalle reste entièrement compris dans la période sélectionnée, la charge est enregistrée normalement. Les dates sont néanmoins conservées sur les lignes dans `allocation_date_from` et `allocation_date_to`.
+- Si `has_date_range = true` et que l'intervalle déborde avant ou après la période sélectionnée, la charge est ventilée entre toutes les périodes comptables couvertes.
 
-Un date_range est toujours renseigné et utilisé (la seule exception est une date seule [date_from = date_to]). Si le marqueur `has_date_range` est activé, il prime pour la répartition des charges; dans les autre cas, c'est la période de la fiscal_period qui est utilisée.
+La période comptable sélectionnée reste la période d'enregistrement de la facture. L'intervalle représente la période économique de la prestation et peut donc être distinct.
 
+#### Calcul du prorata
 
+La ventilation est calculée séparément pour chaque ligne de charge commune :
 
-Exemple d’une facture de **2 000 €** pour une assurance couvrant du **01/01/2025 au 31/12/2025** :
+```text
+montant de la période = montant total de la ligne
+                       × nombre de jours couverts dans la période
+                       ÷ nombre total de jours de l'intervalle
+```
 
-| Date       | Pièce              | Compte                  | Libellé                           | Débit | Crédit |
-| ---------- | ------------------ | ----------------------- | --------------------------------- | ----- | ------ |
-| 01/01/2025 | ACH 0041-2025-0001 | 614 - Assurance         | Prime du 01/01/2025 au 31/03/2025 |       | 500    |
-| 01/01/2025 | ACH 0041-2025-0001 | 614 - Assurance         | Prime du 01/04/2025 au 30/06/2025 |       | 500    |
-| 01/01/2025 | ACH 0041-2025-0001 | 614 - Assurance         | Prime du 01/04/2025 au 30/06/2025 |       | 500    |
-| 01/01/2025 | ACH 0041-2025-0001 | 49 - Charges à reporter | Prime du 01/07/2025 au 30/09/2025 | 500   |        |
-| 01/01/2025 | ACH 0041-2025-0001 | 49 - Charges à reporter | Prime du 01/10/2025 au 31/12/2025 | 500   |        |
-| 01/01/2025 | ACH 0041-2025-0001 | 49 - Charges à reporter | Prime du 01/10/2025 au 31/12/2025 | 500   |        |
+Les deux bornes sont incluses. Une période du 1er au 31 compte donc 31 jours. Chaque quote-part est arrondie au centime ; la dernière période reçoit le solde restant afin que la somme corresponde exactement au montant initial.
 
-**écriture planifiées:**
+Toutes les périodes comptables couvrant l'intervalle doivent exister sans interruption. Pour une facture d'achat, elles doivent être ouvertes et appartenir à des exercices dans un état autorisant l'écriture.
 
-| Date       | Pièce              | Compte                  | Libellé                           | Débit | Crédit |
-| ---------- | ------------------ | ----------------------- | --------------------------------- | ----- | ------ |
-| 01/04/2025 | ACH 0041-2025-0001 | 49 - Charges à reporter | Prime du 01/04/2025 au 30/06/2025 |       | 500    |
-| 01/04/2025 | ACH 0041-2025-0001 | 614 - Assurance         | Prime du 01/04/2025 au 30/06/2025 | 500   |        |
+#### Écritures de transfert et de réimputation
 
-| Date       | Pièce              | Compte                  | Libellé                           | Débit | Crédit |
-| ---------- | ------------------ | ----------------------- | --------------------------------- | ----- | ------ |
-| 01/07/2025 | ACH 0041-2025-0001 | 49 - Charges à reporter | Prime du 01/07/2025 au 30/09/2025 |       | 500    |
-| 01/07/2025 | ACH 0041-2025-0001 | 614 - Assurance         | Prime du 01/07/2025 au 30/09/2025 | 500   |        |
+L'écriture principale conserve le montant total dû au fournisseur. Le compte de charge est initialement débité de la totalité de la ligne, puis les quotes-parts qui n'appartiennent pas à la période sélectionnée en sont retirées :
 
-| Date       | Pièce              | Compte                  | Libellé                           | Débit | Crédit |
-| ---------- | ------------------ | ----------------------- | --------------------------------- | ----- | ------ |
-| 01/10/2025 | ACH 0041-2025-0001 | 49 - Charges à reporter | Prime du 01/10/2025 au 31/12/2025 |       | 500    |
-| 01/10/2025 | ACH 0041-2025-0001 | 614 - Assurance         | Prime du 01/10/2025 au 31/12/2025 | 500   |        |
+| Position de la période couverte | Compte transitoire | Traitement |
+| ------------------------------- | ------------------ | ---------- |
+| Avant la période sélectionnée | Factures à recevoir (`accrued_expenses`) | La quote-part est retirée de la période sélectionnée et replacée dans la période antérieure. |
+| Dans la période sélectionnée | Aucun | La quote-part reste directement dans le compte de charge. |
+| Après la période sélectionnée | Charges à reporter (`deferred_expenses`) | La quote-part est retirée de la période sélectionnée et reportée dans la période future. |
 
-Note : en cas d'intersection partielle entre l'intervalle de dates choisi et les dates des périodes concernés, les montants assignés à chaque période sont proratisés sur base du nombre de jours concernés au sein de chaque période d'exercice.
+Pour une charge positive située hors de la période sélectionnée, l'écriture principale débite le compte transitoire et crédite le compte de charge. Une écriture symétrique est ensuite créée au premier jour de la période concernée : débit du compte de charge et crédit du compte transitoire. Les écritures complémentaires sont regroupées par période, puis validées automatiquement.
 
-#### Écritures prévisionnelles / écritures planifiées
+Les comptes configurés avec les affectations `accrued_expenses` et `deferred_expenses` sont obligatoires dès qu'une ventilation inter-périodes est nécessaire. L'implémentation recherche actuellement les deux comptes, même lorsque l'intervalle ne déborde que d'un seul côté.
 
-Les écritures planifiées sont similaires à des écritures comptables mais restent hors comptabilité (elles ne sont pas directement visibles, ni reprises dans la balance).
-Au moment de la création de la facture on génère les écritures planifiées (liées à la fois à une facture, à une copropriété et à une date).
+#### Exemple couvrant une période antérieure et une période future
 
-* Les écriture planifiées ('planned') sont des éléments "système" : elles font partie de la logique système et ne peuvent pas être validées ou supprimées manuellement
-* En cas d'annulation d'une pièce comptable, elles doivent être supprimées (en les détachant du invoice_id et en les supprimant)
+Une facture de **1 200 €**, comptabilisée sur février 2026, couvre la période du **15 janvier au 15 mars 2026**, soit 60 jours :
+
+| Période | Jours couverts | Quote-part |
+| ------- | -------------- | ---------- |
+| Janvier | 17 jours | 340 € |
+| Février | 28 jours | 560 € |
+| Mars | 15 jours | 300 € |
+
+Dans l'écriture principale de février, la dette fournisseur reste de 1 200 €. Sur le compte de charge, le débit brut de 1 200 € est diminué de 340 € pour janvier et de 300 € pour mars : la charge nette de février est donc de 560 €.
+
+- Les 340 € de janvier sont transférés vers le compte « factures à recevoir », puis réimputés en charge par une écriture datée du 1er janvier.
+- Les 300 € de mars sont transférés vers le compte « charges à reporter », puis réimputés en charge par une écriture datée du 1er mars.
+
+Les descriptions et les champs `allocation_date_from` et `allocation_date_to` conservent, sur chaque écriture complémentaire, les bornes exactes de la tranche concernée.
+
+Lorsqu'une facture utilise un fonds de réserve, son intervalle doit rester entièrement compris dans la période comptable sélectionnée. L'utilisation du fonds elle-même est enregistrée à une date unique et n'est pas ventilée.
 
 ### Utilisation de fonds de réserve
 

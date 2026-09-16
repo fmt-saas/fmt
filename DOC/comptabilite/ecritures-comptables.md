@@ -174,6 +174,25 @@ Il est possible de créer manuellement et à tout moment, des écritures comptab
 
 Lorsqu'on utilise un compte de charge, la clé de répartition est automatiquement complétée (mais peut être modifiée manuellement), et les infos de période doivent toujours être précisées.
 
+### Ventilation temporelle des lignes d'OD
+
+Une opération diverse peut utiliser un intervalle d'imputation distinct de sa période comptable. Cet intervalle n'est actif que lorsque `has_date_range = true`.
+
+La ventilation automatique est déclenchée lorsque l'OD contient au moins une ligne de classe 6 ou 7 et que `date_from` ou `date_to` déborde de la période comptable sélectionnée. Les lignes appartenant aux autres classes restent intégralement enregistrées dans l'écriture principale.
+
+Pour chaque ligne ventilable :
+
+- le montant est réparti entre les périodes couvertes au prorata du nombre de jours, bornes incluses ;
+- la dernière période reçoit le solde après arrondi au centime ;
+- la quote-part de la période sélectionnée reste sur le compte d'origine ;
+- une quote-part antérieure transite par le compte `accrued_expenses` ;
+- une quote-part ultérieure transite par le compte `deferred_expenses` ;
+- une écriture symétrique est créée au premier jour de chaque période extérieure, puis validée automatiquement.
+
+Les périodes couvrant l'intervalle doivent former une suite continue. Les comptes `accrued_expenses` et `deferred_expenses` doivent tous deux être configurés dès qu'une ventilation est nécessaire.
+
+Pour le détail du calcul, des mouvements débit/crédit et un exemple chiffré, voir la section [« Répartition sur plusieurs périodes »](pieces-comptables/facture-achat.md#répartition-sur-plusieurs-périodes) de la documentation des factures d'achat.
+
 
 
 
