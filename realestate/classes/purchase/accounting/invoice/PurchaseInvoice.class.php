@@ -1169,15 +1169,15 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 $date_to = $invoice['fiscal_period_id']['date_to'];
             }
 
-            $allocation_dates = self::computeAllocationDates($date_from, $date_to, $invoice['condo_id']);
-            if(empty($allocation_dates)) {
+            $period_allocation_dates = self::computeAllocationDates($date_from, $date_to, $invoice['condo_id']);
+            if(empty($period_allocation_dates)) {
                 $result[$id] = [
                     'invalid_posting_dates' => 'Unable to generate allocation dates.'
                 ];
                 continue;
             }
             // for each date, which should correspond to a fiscal period, check the status of the period and corresponding fiscal year
-            foreach($allocation_dates as $date) {
+            foreach($period_allocation_dates as $date) {
                 $fiscalPeriod = FiscalPeriod::search([['date_from', '=', $date], ['condo_id', '=', $invoice['condo_id']]])
                     ->read(['status', 'fiscal_year_id' => ['id', 'status']])
                     ->first();
@@ -1207,7 +1207,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         return $result;
     }
 
-    private static function computeAllocationDates($date_from, $date_to, $condo_id) {
+    private static function computePeriodAllocationDates($date_from, $date_to, $condo_id) {
         $result = [];
         $fiscalPeriods = FiscalPeriod::search(
                 [
@@ -1726,11 +1726,15 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     if($invoiceLine['is_private_expense']) {
                         continue;
                     }
-                    // create the debit line on the expense account (use of reserve fund)
+
+                    $description = $invoiceLine['description'];
+                    $description .= ' (' . date('Y-m-d', $allocation_date_from) . ' - ' . date('Y-m-d', $allocation_date_to) . ')';
+
+                    // create the debit line on the expense account
                     AccountingEntryLine::create([
                             'condo_id'                  => $invoice['condo_id'],
                             'accounting_entry_id'       => $accountingEntry['id'],
-                            'description'               => $invoice['description'],
+                            'description'               => $description,
                             'account_id'                => $invoiceLine['expense_account_id'],
                             'purchase_invoice_line_id'  => $invoice_line_id,
                             'allocation_date_from'      => $allocation_date_from,
@@ -1746,11 +1750,15 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     if($invoiceLine['is_private_expense']) {
                         continue;
                     }
+
+                    $description = $invoiceLine['description'];
+                    $description .= ' (' . date('Y-m-d', $allocation_date_from) . ' - ' . date('Y-m-d', $allocation_date_to) . ')';
+
                     // create the debit line for the whole common expense
                     AccountingEntryLine::create([
                             'condo_id'                  => $invoice['condo_id'],
                             'accounting_entry_id'       => $accountingEntry['id'],
-                            'description'               => $invoiceLine['description'],
+                            'description'               => $description,
                             'account_id'                => $invoiceLine['expense_account_id'],
                             'purchase_invoice_line_id'  => $invoice_line_id,
                             'allocation_date_from'      => $allocation_date_from,
@@ -1791,7 +1799,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 };
 
                 // retrieve dates for allocating amounts to accounting entries
-                $allocation_dates = self::computeAllocationDates($date_from, $date_to, $invoice['condo_id']);
+                $period_allocation_dates = self::computePeriodAllocationDates($date_from, $date_to, $invoice['condo_id']);
 
                 // retrieve account for deferred expenses
                 $deferredExpensesAccount = Account::search([
@@ -1820,15 +1828,18 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     $total_amount = round($invoiceLine['price'], 2);
                     $remaining_amount = $total_amount;
 
-                    for($i = 0, $n = count($allocation_dates); $i < $n; ++$i) {
+                    for($i = 0, $n = count($period_allocation_dates); $i < $n; ++$i) {
 
-                        $period_date_from = $allocation_dates[$i];
-                        $period_date_to = ($i+1 < $n) ? ($allocation_dates[$i+1] - 86400) : $date_to;
+                        $period_date_from = $period_allocation_dates[$i];
+                        $period_date_to = ($i+1 < $n) ? ($period_allocation_dates[$i+1] - 86400) : $date_to;
 
                         $is_posting_period = (
                             $period_date_from <= $invoice['fiscal_period_id']['date_to']
                             && $period_date_from >= $invoice['fiscal_period_id']['date_from']
                         );
+
+                        $description = $invoiceLine['description'];
+                        $description .= ' (' . date('Y-m-d', $allocation_date_from) . ' - ' . date('Y-m-d', $allocation_date_to) . ')';
 
                         // first date of the allocation range
                         if($i == 0) {
@@ -1836,7 +1847,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             $add_accounting_entry_line([
                                     'condo_id'                  => $invoice['condo_id'],
                                     'accounting_entry_id'       => $accountingEntry['id'],
-                                    'description'               => $invoiceLine['description'],
+                                    'description'               => $description,
                                     'account_id'                => $invoiceLine['expense_account_id'],
                                     'purchase_invoice_line_id'  => $invoice_line_id,
                                     'allocation_date_from'      => $allocation_date_from,
@@ -1865,13 +1876,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             continue;
                         }
 
+                        // handle expense accrual/deferral
                         $adjustmentAccount = ($period_date_from < $invoice['fiscal_period_id']['date_from'])
                             ? $accruedExpensesAccount
                             : $deferredExpensesAccount;
-
-                        // handle expense accrual/deferral
-                        $description = $invoice['description'];
-                        $description .= ' (' . date('Y-m-d', $period_date_from) . ' - ' . date('Y-m-d', $period_date_to) . ')';
 
                         // 1) create accrual/deferral entry lines
                         // queue the debit line for the adjustment account
