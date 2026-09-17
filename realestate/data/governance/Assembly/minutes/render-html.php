@@ -216,6 +216,7 @@ $assembly = Assembly::id($params['id'])
         'condo_id' => [
             'name', 'address_street', 'address_city', 'address_zip', 'address_city',
             'registration_number',
+            'lang_id' => ['code'],
             'managing_agent_id' => [
                 'name', 'address_street', 'address_dispatch', 'address_zip',
                 'address_city', 'address_country', 'has_vat', 'vat_number',
@@ -298,7 +299,8 @@ $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']]
     ])
     ->get();
 
-$lang = $params['lang'];
+$owner_lang = $params['lang'];
+$condo_lang = $assembly['condo_id']['lang_id']['code'] ?? $params['lang'];
 
 
 // retrieve template (subject & body)
@@ -308,29 +310,65 @@ $conclusion = '';
 $late_arrival_notice = '';
 $early_departure_notice = '';
 
-$template = Template::search([
+$ownerTemplate = Template::search([
         ['code', '=', 'general_meetings_minutes'],
         ['type', '=', 'document']
     ])
-    ->read( ['id','parts_ids' => ['name', 'value']])
+    ->read(['id', 'parts_ids' => ['name', 'value']], $owner_lang)
     ->first(true);
 
-// #todo #translation
+$condoTemplate = Template::id($ownerTemplate['id'])
+    ->read(['id', 'parts_ids' => ['name', 'value']], $condo_lang)
+    ->first(true);
+
+$map_condo_template_parts = [];
+foreach($condoTemplate['parts_ids'] as $part) {
+    $map_condo_template_parts[$part['name']] = $part['value'];
+}
+
 $map_types = [
-    'statutory' => 'Assemblée Générale Statutaire',
-    'takeover' => 'Assemblée Générale de Reprise de gestion',
-    'extraordinary' => 'Assemblée Générale Extraordinaire',
-    'constitutive' => 'Assemblée Générale Constitutive'
+    'statutory' => [
+        'fr' => 'Assemblée Générale Statutaire',
+        'nl' => 'Statutaire Algemene Vergadering',
+        'en' => 'Statutory General Meeting'
+    ],
+    'takeover' => [
+        'fr' => 'Assemblée Générale de Reprise de gestion',
+        'nl' => 'Algemene Vergadering voor de overname van het beheer',
+        'en' => 'General Meeting for the Takeover of Management'
+    ],
+    'extraordinary' => [
+        'fr' => 'Assemblée Générale Extraordinaire',
+        'nl' => 'Buitengewone Algemene Vergadering',
+        'en' => 'Extraordinary General Meeting'
+    ],
+    'constitutive' => [
+        'fr' => 'Assemblée Générale Constitutive',
+        'nl' => 'Constituerende Algemene Vergadering',
+        'en' => 'Constitutive General Meeting'
+    ]
 ];
 
-foreach($template['parts_ids'] as $part_id => $part) {
+foreach($ownerTemplate['parts_ids'] as $part) {
+    $part_value = $part['value'];
+    $part_lang = $owner_lang;
+    if(is_null($part_value)) {
+        $part_value = $map_condo_template_parts[$part['name']] ?? '';
+        $part_lang = $condo_lang;
+    }
+
+    $type_label = $map_types[$assembly['assembly_type']][$part_lang]
+        ?? $map_types[$assembly['assembly_type']][$condo_lang]
+        ?? $map_types[$assembly['assembly_type']]['fr']
+        ?? '';
+
     if($part['name'] == 'subject') {
-        $subject = strip_tags($part['value']);
+        $subject = strip_tags($part_value);
 
         $map_values = [
             'condo'             => $assembly['condo_id']['name'],
             'assembly'          => $assembly['name'],
-            'type'              => $map_types[$assembly['assembly_type']],
+            'type'              => $type_label,
             'date'              => $getFormattedDate($assembly['assembly_date'])
         ];
 
@@ -343,7 +381,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $subject = strip_tags($subject);
     }
     elseif($part['name'] == 'introduction') {
-        $introduction = $part['value'];
+        $introduction = $part_value;
 
         $map_values = [
             // 'firstname'                 => $owner['identity_id']['firstname'],
@@ -353,7 +391,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'date'                      => $getFormattedDate($assembly['assembly_date']),
             'location'                  => $assembly['assembly_location'],
             'condo_city'                => $assembly['condo_id']['address_city'],
-            'type'                      => $map_types[$assembly['assembly_type']],
+            'type'                      => $type_label,
             'time_start'                => $getFormattedTime($assembly['session_time_start'], $assembly['assembly_date']),
             'time_end'                  => $getFormattedTime($assembly['session_time_end'], $assembly['assembly_date']),
             'count_owners'              => $assembly['count_owners'],
@@ -369,7 +407,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
         }, $introduction);
     }
     elseif($part['name'] == 'conclusion') {
-        $conclusion = $part['value'];
+        $conclusion = $part_value;
 
         $map_values = [
             'condo'             => $assembly['condo_id']['name'],
@@ -377,7 +415,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'date'              => $getFormattedDate($assembly['assembly_date']),
             'location'          => $assembly['assembly_location'],
             'condo_city'        => $assembly['condo_id']['address_city'],
-            'type'              => $map_types[$assembly['assembly_type']],
+            'type'              => $type_label,
             'time_end'          => $getFormattedTime($assembly['session_time_end'], $assembly['assembly_date'])
         ];
 
@@ -389,7 +427,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
     }
     elseif($part['name'] == 'late_arrival_notice') {
 
-        $late_arrival_notice = $part['value'];
+        $late_arrival_notice = $part_value;
 
         $late_arrival_ownerships = [];
         foreach($assembly['assembly_attendees_ids'] as $attendee) {
@@ -411,7 +449,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
         }, $late_arrival_notice);
     }
     elseif($part['name'] == 'early_departure_notice') {
-        $early_departure_notice = $part['value'];
+        $early_departure_notice = $part_value;
 
         $early_departure_ownerships = [];
         foreach($assembly['assembly_attendees_ids'] as $attendee) {
@@ -435,8 +473,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
 }
 
 $labels = $getLabels(
-    $lang,
-    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $lang, 'Assembly.'.$params['view_id'])
+    $owner_lang,
+    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $owner_lang, 'Assembly.'.$params['view_id'])
 );
 
 $values = [

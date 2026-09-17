@@ -152,6 +152,7 @@ $assembly = Assembly::id($params['id'])
         'condo_id' => [
             'name', 'address', 'address_street', 'address_zip', 'address_city',
             'registration_number',
+            'lang_id' => ['code'],
             'managing_agent_id' => [
                 'name', 'address_street', 'address_dispatch', 'address_zip',
                 'address_city', 'address_country', 'has_vat', 'vat_number',
@@ -186,12 +187,21 @@ if(!in_array($params['ownership_id'], $assembly['ownerships_ids'])) {
 }
 
 $ownership = Ownership::id($params['ownership_id'])
-    ->read(['representative_owner_id' => ['name', 'address']])
+    ->read([
+        'representative_owner_id' => [
+            'name',
+            'address',
+            'identity_id' => ['lang_id' => ['code']]
+        ]
+    ])
     ->first(true);
 
 if(!$ownership) {
     throw new Exception('unknown_ownership', EQ_ERROR_UNKNOWN_OBJECT);
 }
+
+$owner_lang = $ownership['representative_owner_id']['identity_id']['lang_id']['code'] ?? $params['lang'];
+$condo_lang = $assembly['condo_id']['lang_id']['code'] ?? $params['lang'];
 
 // retrieve owners, lots and shares
 $property_lots = [];
@@ -216,19 +226,33 @@ $owner_undersign = '';
 $owner_representation = '';
 $notice = '';
 
-$template = Template::search([
+$ownerTemplate = Template::search([
         ['code', '=', 'mandate_form'],
         ['type', '=', 'document']
     ])
-    ->read(['id','parts_ids' => ['name', 'value']])
+    ->read(['id', 'parts_ids' => ['name', 'value']], $owner_lang)
     ->first(true); // owner_undersign ["representative_owner", "representative_owner_address", "condo"], owner_representation ["assembly_date", "assembly_location"], notice
 
-foreach($template['parts_ids'] as $part_id => $part) {
+$condoTemplate = Template::id($ownerTemplate['id'])
+    ->read(['id', 'parts_ids' => ['name', 'value']], $condo_lang)
+    ->first(true);
+
+$map_condo_template_parts = [];
+foreach($condoTemplate['parts_ids'] as $part) {
+    $map_condo_template_parts[$part['name']] = $part['value'];
+}
+
+foreach($ownerTemplate['parts_ids'] as $part) {
+    $part_value = $part['value'];
+    if(is_null($part_value)) {
+        $part_value = $map_condo_template_parts[$part['name']] ?? '';
+    }
+
     if($part['name'] == 'subject') {
-        $subject = strip_tags($part['value']);
+        $subject = strip_tags($part_value);
     }
     elseif($part['name'] == 'owner_undersign') {
-        $owner_undersign = $part['value'];
+        $owner_undersign = $part_value;
 
         $map_values = [
             'representative_owner'          => $ownership['representative_owner_id']['name'],
@@ -243,7 +267,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
         }, $owner_undersign);
     }
     elseif($part['name'] == 'owner_representation') {
-        $owner_representation = $part['value'];
+        $owner_representation = $part_value;
 
         $map_values = [
             'assembly_date'     => $getFormattedDate($assembly['assembly_date']),
@@ -257,13 +281,13 @@ foreach($template['parts_ids'] as $part_id => $part) {
         }, $owner_representation);
     }
     elseif($part['name'] == 'notice') {
-        $notice = $part['value'];
+        $notice = $part_value;
     }
 }
 
 $labels = $getLabels(
-    $params['lang'],
-    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $params['lang'], 'AssemblyMandate.'.$params['view_id'])
+    $owner_lang,
+    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $owner_lang, 'AssemblyMandate.'.$params['view_id'])
 );
 
 $values = [

@@ -189,6 +189,7 @@ $assembly = Assembly::id($params['id'])
         'condo_id' => [
             'name', 'address', 'address_street', 'address_zip', 'address_city',
             'registration_number',
+            'lang_id' => ['code'],
             'managing_agent_id' => [
                 'identity_id'
             ]
@@ -223,7 +224,8 @@ $map_assembly_items = AssemblyItem::search(['assembly_id', '=', $assembly['id']]
     ->get();
 
 
-$lang = $params['lang'];
+$owner_lang = $params['lang'];
+$condo_lang = $assembly['condo_id']['lang_id']['code'] ?? $params['lang'];
 
 // retrieve template (subject & body)
 $subject = '';
@@ -231,30 +233,66 @@ $introduction = '';
 $conclusion = '';
 $legal_notes = '';
 
-$template = Template::search([
+$ownerTemplate = Template::search([
         ['code', '=', 'general_meetings_agenda'],
         ['type', '=', 'document']
     ])
-    ->read( ['id','parts_ids' => ['name', 'value']])
+    ->read(['id', 'parts_ids' => ['name', 'value']], $owner_lang)
     ->first(true);
 
-foreach($template['parts_ids'] as $part_id => $part) {
+$condoTemplate = Template::id($ownerTemplate['id'])
+    ->read(['id', 'parts_ids' => ['name', 'value']], $condo_lang)
+    ->first(true);
+
+$map_condo_template_parts = [];
+foreach($condoTemplate['parts_ids'] as $part) {
+    $map_condo_template_parts[$part['name']] = $part['value'];
+}
+
+$map_types = [
+    'statutory' => [
+        'fr' => 'Assemblée Générale Statutaire',
+        'nl' => 'Statutaire Algemene Vergadering',
+        'en' => 'Statutory General Meeting'
+    ],
+    'takeover' => [
+        'fr' => 'Assemblée Générale de Reprise de gestion',
+        'nl' => 'Algemene Vergadering voor de overname van het beheer',
+        'en' => 'General Meeting for the Takeover of Management'
+    ],
+    'extraordinary' => [
+        'fr' => 'Assemblée Générale Extraordinaire',
+        'nl' => 'Buitengewone Algemene Vergadering',
+        'en' => 'Extraordinary General Meeting'
+    ],
+    'constitutive' => [
+        'fr' => 'Assemblée Générale Constitutive',
+        'nl' => 'Constituerende Algemene Vergadering',
+        'en' => 'Constitutive General Meeting'
+    ]
+];
+
+foreach($ownerTemplate['parts_ids'] as $part) {
+    $part_value = $part['value'];
+    $part_lang = $owner_lang;
+    if(is_null($part_value)) {
+        $part_value = $map_condo_template_parts[$part['name']] ?? '';
+        $part_lang = $condo_lang;
+    }
+
+    $type_label = $map_types[$assembly['assembly_type']][$part_lang]
+        ?? $map_types[$assembly['assembly_type']][$condo_lang]
+        ?? $map_types[$assembly['assembly_type']]['fr']
+        ?? '';
+
     if($part['name'] == 'subject') {
 
-        $subject = strip_tags($part['value']);
-
-        // #todo #translation
-        $map_types = [
-            'statutory' => 'Assemblée Générale Statutaire',
-            'takeover' => 'Assemblée Générale de Reprise de gestion',
-            'extraordinary' => 'Assemblée Générale Extraordinaire',
-            'constitutive' => 'Assemblée Générale Constitutive'
-        ];
+        $subject = strip_tags($part_value);
 
         $map_values = [
             'condo'             => $assembly['condo_id']['name'],
             'assembly'          => $assembly['name'],
-            'type'              => $map_types[$assembly['assembly_type']],
+            'type'              => $type_label,
             'date'              => $getFormattedDate($assembly['assembly_date'])
         ];
 
@@ -267,15 +305,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $subject = strip_tags($subject);
     }
     elseif($part['name'] == 'introduction') {
-        $introduction = $part['value'];
-
-        // #todo #translation
-        $map_types = [
-            'statutory' => 'Assemblée Générale Statutaire',
-            'takeover' => 'Assemblée Générale de Reprise de gestion',
-            'extraordinary' => 'Assemblée Générale Extraordinaire',
-            'constitutive' => 'Assemblée Générale Constitutive'
-        ];
+        $introduction = $part_value;
 
         $map_values = [
             // 'firstname'         => $owner['identity_id']['firstname'],
@@ -284,7 +314,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'assembly'          => $assembly['name'],
             'date'              => $getFormattedDate($assembly['assembly_date']),
             'location'          => $assembly['assembly_location'],
-            'type'              => $map_types[$assembly['assembly_type']],
+            'type'              => $type_label,
             'time_start'        => $getFormattedTime($assembly['session_time_start'], $assembly['assembly_date'])
         ];
 
@@ -295,16 +325,16 @@ foreach($template['parts_ids'] as $part_id => $part) {
         }, $introduction);
     }
     elseif($part['name'] == 'conclusion') {
-        $conclusion = $part['value'];
+        $conclusion = $part_value;
     }
     elseif($part['name'] == 'legal_notes') {
-        $legal_notes = $part['value'];
+        $legal_notes = $part_value;
     }
 }
 
 $labels = $getLabels(
-    $lang,
-    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $lang, 'AssemblyAgenda.'.$params['view_id'])
+    $owner_lang,
+    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $owner_lang, 'AssemblyAgenda.'.$params['view_id'])
 );
 
 $values = [
