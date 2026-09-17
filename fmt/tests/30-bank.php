@@ -6,11 +6,150 @@
 */
 
 use documents\Document;
+use documents\DocumentType;
 use documents\processing\DocumentProcess;
+use finance\bank\BankStatement;
 use finance\bank\BankStatementImport;
+use finance\bank\CondominiumBankAccount;
 use realestate\property\Condominium;
 
 $providers = eQual::inject(['context', 'orm', 'auth', 'access']);
+
+$prepareBankStatementImport = function ($import_name, $ibans) use ($providers) {
+    $condo = Condominium::search(['name', '=', 'ACP HAUTE 115-117'])
+        ->read(['id'])
+        ->first(true);
+
+    if(!$condo) {
+        throw new \Exception('Missing test condominium ACP HAUTE 115-117.');
+    }
+
+    /* @var \equal\orm\ObjectManager $orm */
+    $orm = $providers['orm'];
+    $bank_account_fixtures = [];
+
+    foreach($ibans as $iban) {
+        $bankAccount = CondominiumBankAccount::search([
+                ['condo_id', '=', $condo['id']],
+                ['bank_account_iban', '=', $iban],
+                ['is_active', '=', true]
+            ])
+            ->read(['id'])
+            ->first();
+
+        if($bankAccount) {
+            $bank_account_fixtures[] = [
+                'id'      => $bankAccount['id'],
+                'created' => false
+            ];
+            continue;
+        }
+
+        $bank_account_fixtures[] = [
+            'id' => $orm->create(CondominiumBankAccount::getType(), [
+                'condo_id'          => $condo['id'],
+                'object_class'      => CondominiumBankAccount::getType(),
+                'description'       => "Bank account fixture for {$import_name}",
+                'bank_account_type' => 'bank_current',
+                'bank_account_iban' => $iban,
+                'is_active'         => true
+            ]),
+            'created' => true
+        ];
+    }
+
+    $bankStatementImport = BankStatementImport::create(['name' => $import_name])
+        ->read(['id'])
+        ->first();
+
+    return [
+        'condo_id'                   => $condo['id'],
+        'bank_account_fixtures'      => $bank_account_fixtures,
+        'bank_statement_import_id'   => $bankStatementImport['id'],
+        'expected_process_names'     => [],
+        'document_processes'         => [],
+        'document_processes_ids'     => []
+    ];
+};
+
+$runBankStatementImport = function ($data, $fixture_file) {
+    $binary = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.$fixture_file);
+
+    BankStatementImport::id($data['bank_statement_import_id'])->update(['data' => $binary]);
+
+    $bankStatementImport = BankStatementImport::id($data['bank_statement_import_id'])
+        ->read(['summary', 'logs'])
+        ->first(true);
+    $data = array_merge(['bank_statement_import' => $bankStatementImport], $data);
+
+    foreach($data['expected_process_names'] as $process_name) {
+        $documentProcess = DocumentProcess::search(['name', '=', $process_name])
+            ->read([
+                'id',
+                'name',
+                'status',
+                'condo_id' => ['id'],
+                'document_id' => ['id', 'name'],
+                'document_bank_statement_id'
+            ])
+            ->first(true);
+
+        if($documentProcess) {
+            $data['document_processes'][] = $documentProcess;
+            $data['document_processes_ids'][] = $documentProcess['id'];
+        }
+    }
+
+    return $data;
+};
+
+$cleanupBankStatementImport = function ($data) use ($providers) {
+    if(!is_array($data)) {
+        return;
+    }
+
+    /* @var \equal\orm\ObjectManager $orm */
+    $orm = $providers['orm'];
+    $document_processes_ids = $data['document_processes_ids'] ?? [];
+
+    foreach($data['expected_process_names'] ?? [] as $process_name) {
+        $documentProcess = DocumentProcess::search(['name', '=', $process_name])
+            ->read(['id'])
+            ->first(true);
+
+        if($documentProcess) {
+            $document_processes_ids[] = $documentProcess['id'];
+        }
+    }
+
+    foreach(array_unique($document_processes_ids) as $document_process_id) {
+        $documentProcess = DocumentProcess::id($document_process_id)
+            ->read(['document_id', 'document_bank_statement_id'])
+            ->first();
+
+        if(!$documentProcess) {
+            continue;
+        }
+
+        if($documentProcess['document_bank_statement_id']) {
+            $orm->delete(BankStatement::getType(), $documentProcess['document_bank_statement_id'], true);
+        }
+        if($documentProcess['document_id']) {
+            $orm->delete(Document::getType(), $documentProcess['document_id'], true);
+        }
+        $orm->delete(DocumentProcess::getType(), $document_process_id, true);
+    }
+
+    if(!empty($data['bank_statement_import_id'])) {
+        $orm->delete(BankStatementImport::getType(), $data['bank_statement_import_id'], true);
+    }
+
+    foreach($data['bank_account_fixtures'] ?? [] as $bank_account_fixture) {
+        if($bank_account_fixture['created']) {
+            $orm->delete(CondominiumBankAccount::getType(), $bank_account_fixture['id'], true);
+        }
+    }
+};
 
 $tests = [
 
@@ -102,277 +241,168 @@ $tests = [
     '3004' => [
         'description' => "Test document processing of CODA document.",
         'help'        => "Create BankStatementImport with coda txt to test the creation of the DocumentProcess.",
-        'arrange'     => function () use ($providers) {
-            $bankStatementImport = BankStatementImport::create([
-                    'name' => 'test_doc_processing_coda_document.cod'
-                ])
-                ->read(['id'])
-                ->first();
+        'arrange'     => function () use ($prepareBankStatementImport) {
+            $data = $prepareBankStatementImport(
+                'test_3004_doc_processing_coda_document.cod',
+                ['BE88191156749841']
+            );
+            $data['expected_process_names'] = ['test_3004_doc_processing_coda_document(1).xlsx'];
 
-            return $bankStatementImport;
+            return $data;
         },
-        'act'         => function ($bankStatementImport) use ($providers) {
-            $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_coda.txt');
-
-            BankStatementImport::id($bankStatementImport['id'])->update(['data' => $data]);
-
-            return $bankStatementImport;
+        'act'         => function ($data) use ($runBankStatementImport) {
+            return $runBankStatementImport($data, 'bank_coda.txt');
         },
-        'assert'      => function ($bankStatementImport) use ($providers) {
-            $bankStatementDocument = Document::search(['name', '=', 'test_doc_processing_coda_document.cod'])
-                ->read(['name'])
-                ->first();
-
-            $xlsxDocuments = Document::search(['origin_document_id', '=', $bankStatementDocument['id']])
-                ->read(['document_process_id'])
-                ->get();
-
-            $document_processes_ids = [];
-            foreach($xlsxDocuments as $xlsxDocument) {
-                $document_processes_ids[] = $xlsxDocument['document_process_id'];
+        'assert'      => function ($data) use ($providers) {
+            if(count($data['document_processes']) !== 1) {
+                return false;
             }
 
-            $documentProcesses = DocumentProcess::ids($document_processes_ids)
-                ->read(['name', 'status', 'document_origin_code', 'document_origin'])
-                ->get(true);
+            $documentProcess = $data['document_processes'][0];
 
-            return $bankStatementDocument['name'] === 'test_doc_processing_coda_document.cod'
-                && count($xlsxDocuments) === 1
-                && count($documentProcesses) === 1 && $documentProcesses[0]['status'] === 'created';
+            return strpos($data['bank_statement_import']['summary'], 'Statements imported: 1') !== false
+                && $documentProcess['name'] === 'test_3004_doc_processing_coda_document(1).xlsx'
+                && $documentProcess['status'] === 'assigned'
+                && $documentProcess['document_id']
+                && $documentProcess['document_id']['name'] === 'test_3004_doc_processing_coda_document(1).xlsx';
         },
-        'rollback'    => function () use ($providers) {
-            $bankStatementDocument = Document::search(['name', '=', 'test_doc_processing_coda_document.cod'])
-                ->read(['id'])
-                ->first();
-
-            $accountsBankStatementXlsxDocuments = Document::search(['origin_document_id', '=', $bankStatementDocument['id']])
-                ->read(['document_process_id'])
-                ->get();
-
-            /* @var \equal\orm\ObjectManager $orm */
-            $orm = $providers['orm'];
-
-            $orm->delete(Document::getType(), $bankStatementDocument['id'], true);
-
-            foreach($accountsBankStatementXlsxDocuments as $id => $accountsBankStatementXlsxDocument) {
-                $orm->delete(Document::getType(), $id, true);
-                $orm->delete(DocumentProcess::getType(), $accountsBankStatementXlsxDocument['document_process_id'], true);
-            }
+        'rollback'    => function ($data) use ($cleanupBankStatementImport) {
+            $cleanupBankStatementImport($data);
         }
     ],
 
     '3005' => [
-        'description' => "Test document assignment during a processing of CODA document.",
-        'help'        => "Create BankStatementImport with coda txt and assign a condo id to the document process to test assignment.",
-        'arrange'     => function () use ($providers) {
-            $condo = Condominium::create(['name' => 'Test condo'])
-                ->first(true);
+        'description' => "Test automatic document assignment during CODA processing.",
+        'help'        => "Create a BankStatementImport with a known bank account and verify automatic condominium assignment.",
+        'arrange'     => function () use ($prepareBankStatementImport) {
+            $data = $prepareBankStatementImport(
+                'test_3005_doc_auto_assignment_coda_document.cod',
+                ['BE88191156749841']
+            );
+            $data['expected_process_names'] = ['test_3005_doc_auto_assignment_coda_document(1).xlsx'];
 
-            $bankStatementImport = BankStatementImport::create([
-                    'name' => 'test_doc_assignment_processing_coda_document.cod'
-                ])
-                ->read(['id'])
-                ->first();
-
-            $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_coda.txt');
-
-            BankStatementImport::id($bankStatementImport['id'])->update(['data' => $data]);
-
-            $bankStatementDocument = Document::search(['name', '=', 'test_doc_assignment_processing_coda_document.cod'])
-                ->read(['name'])
-                ->first();
-
-            $xlsxDocument = Document::search(['origin_document_id', '=', $bankStatementDocument['id']])
-                ->read(['document_process_id'])
-                ->first();
-
-            $documentProcess = DocumentProcess::id($xlsxDocument['document_process_id'])
-                ->read(['id'])
-                ->first();
-
-            return compact('condo', 'documentProcess');
+            return $data;
         },
-        'act'         => function ($data) use ($providers) {
-            ['condo' => $condo, 'documentProcess' => $documentProcess] = $data;
-
-            // Update condo_id to trigger assign transition in onafterupdate
-            DocumentProcess::id($documentProcess['id'])->update(['condo_id' => $condo['id']]);
-
-            return $documentProcess['id'];
+        'act'         => function ($data) use ($runBankStatementImport) {
+            return $runBankStatementImport($data, 'bank_coda.txt');
         },
-        'assert'      => function ($document_process_id) use ($providers) {
-            $documentProcess = DocumentProcess::id($document_process_id)
-                ->read(['status'])
-                ->first();
-
-            return $documentProcess['status'] === 'assigned';
-        },
-        'rollback'    => function () use ($providers) {
-            $condo = Condominium::search(['name', '=', 'Test condo'])
-                ->read(['id'])
-                ->first();
-
-            $bankStatementDocument = Document::search(['name', '=', 'test_doc_assignment_processing_coda_document.cod'])
-                 ->read(['id'])
-                 ->first();
-
-            $accountsBankStatementXlsxDocuments = Document::search(['origin_document_id', '=', $bankStatementDocument['id']])
-                  ->read(['document_process_id'])
-                  ->get();
-
-            /* @var \equal\orm\ObjectManager $orm */
-            $orm = $providers['orm'];
-
-            $orm->delete(Condominium::getType(), $condo['id'], true);
-
-            $orm->delete(Document::getType(), $bankStatementDocument['id'], true);
-
-            foreach($accountsBankStatementXlsxDocuments as $id => $accountsBankStatementXlsxDocument) {
-                $orm->delete(Document::getType(), $id, true);
-                $orm->delete(DocumentProcess::getType(), $accountsBankStatementXlsxDocument['document_process_id'], true);
+        'assert'      => function ($data) use ($providers) {
+            if(count($data['document_processes']) !== 1) {
+                return false;
             }
+
+            $documentProcess = $data['document_processes'][0];
+
+            return strpos($data['bank_statement_import']['summary'], 'Statements imported: 1') !== false
+                && $documentProcess['status'] === 'assigned'
+                && $documentProcess['condo_id']
+                && $documentProcess['condo_id']['id'] === $data['condo_id'];
+        },
+        'rollback'    => function ($data) use ($cleanupBankStatementImport) {
+            $cleanupBankStatementImport($data);
         }
     ],
 
     '3006' => [
-        'description' => "Test document assignment during a processing of CODA document.",
-        'help'        => "Create BankStatementImport with coda txt and use assign transition to test assignment.",
+        'description' => "Test explicit document assignment transition.",
+        'help'        => "Create a DocumentProcess, set its condominium without events and use the assign transition.",
         'arrange'     => function () use ($providers) {
-            $condo = Condominium::create(['name' => 'Test condo'])
+            $condo = Condominium::search(['name', '=', 'ACP HAUTE 115-117'])
+                ->read(['id'])
                 ->first(true);
 
-            $bankStatementImport = BankStatementImport::create([
-                    'name' => 'test_doc_assignment_processing_coda_document.cod'
+            $documentType = DocumentType::search(['code', '=', 'bank_statement'])
+                ->read(['id'])
+                ->first();
+
+            $documentProcess = DocumentProcess::create([
+                    'name'             => 'test_3006_explicit_document_assignment.xlsx',
+                    'document_type_id' => $documentType['id']
                 ])
                 ->read(['id'])
                 ->first();
 
-            $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_coda.txt');
-
-            BankStatementImport::id($bankStatementImport['id'])->update(['data' => $data]);
-
-            $bankStatementDocument = Document::search(['name', '=', 'test_doc_assignment_processing_coda_document.cod'])
-                ->read(['name'])
-                ->first();
-
-            $xlsxDocument = Document::search(['origin_document_id', '=', $bankStatementDocument['id']])
-                ->read(['document_process_id'])
-                ->first();
-
-            $documentProcess = DocumentProcess::id($xlsxDocument['document_process_id'])
-                ->read(['id'])
-                ->first();
-
-            return compact('condo', 'documentProcess');
+            return [
+                'condo_id'           => $condo['id'],
+                'document_process_id' => $documentProcess['id']
+            ];
         },
         'act'         => function ($data) use ($providers) {
-            ['condo' => $condo, 'documentProcess' => $documentProcess] = $data;
-
             /* @var \equal\orm\ObjectManager $orm */
             $orm = $providers['orm'];
 
             // Update condo_id without triggering assign
             $events = $orm->disableEvents();
-            $orm->update(DocumentProcess::getType(), $documentProcess['id'], ['condo_id' => $condo['id']]);
-            $orm->enableEvents($events);
+            try {
+                $orm->update(
+                    DocumentProcess::getType(),
+                    $data['document_process_id'],
+                    ['condo_id' => $data['condo_id']]
+                );
+            }
+            finally {
+                $orm->enableEvents($events);
+            }
 
-            DocumentProcess::id($documentProcess['id'])->transition('assign');
+            DocumentProcess::id($data['document_process_id'])->transition('assign');
 
-            return $documentProcess['id'];
+            return $data;
         },
-        'assert'      => function ($document_process_id) use ($providers) {
-            $documentProcess = DocumentProcess::id($document_process_id)
-                ->read(['status'])
+        'assert'      => function ($data) use ($providers) {
+            $documentProcess = DocumentProcess::id($data['document_process_id'])
+                ->read(['status', 'condo_id'])
                 ->first();
 
-            return $documentProcess['status'] === 'assigned';
+            return $documentProcess['status'] === 'assigned'
+                && $documentProcess['condo_id'] === $data['condo_id'];
         },
-        'rollback'    => function () use ($providers) {
-            $condo = Condominium::search(['name', '=', 'Test condo'])
-                ->read(['id'])
-                ->first();
-
-            $bankStatementDocument = Document::search(['name', '=', 'test_doc_assignment_processing_coda_document.cod'])
-                ->read(['id'])
-                ->first();
-
-            $accountsBankStatementXlsxDocuments = Document::search(['origin_document_id', '=', $bankStatementDocument['id']])
-                ->read(['document_process_id'])
-                ->get();
-
+        'rollback'    => function ($data) use ($providers) {
+            if(!is_array($data) || empty($data['document_process_id'])) {
+                return;
+            }
             /* @var \equal\orm\ObjectManager $orm */
             $orm = $providers['orm'];
-
-            $orm->delete(Condominium::getType(), $condo['id'], true);
-
-            $orm->delete(Document::getType(), $bankStatementDocument['id'], true);
-
-            foreach($accountsBankStatementXlsxDocuments as $id => $accountsBankStatementXlsxDocument) {
-                $orm->delete(Document::getType(), $id, true);
-                $orm->delete(DocumentProcess::getType(), $accountsBankStatementXlsxDocument['document_process_id'], true);
-            }
+            $orm->delete(DocumentProcess::getType(), $data['document_process_id'], true);
         }
     ],
 
     '3007' => [
         'description' => "Test document processing of CODA documents.",
         'help'        => "Create BankStatementImport with coda txt to test the creation of two DocumentProcess.",
-        'arrange'     => function () use ($providers) {
-            $bankStatementImport = BankStatementImport::create([
-                    'name' => 'test_doc_processing_coda_document.cod'
-                ])
-                ->read(['id'])
-                ->first();
+        'arrange'     => function () use ($prepareBankStatementImport) {
+            $data = $prepareBankStatementImport(
+                'test_3007_doc_processing_coda_documents.cod',
+                ['BE88191156749841', 'BE53123456789012']
+            );
+            $data['expected_process_names'] = [
+                'test_3007_doc_processing_coda_documents(1).xlsx',
+                'test_3007_doc_processing_coda_documents(2).xlsx'
+            ];
 
-            return $bankStatementImport;
+            return $data;
         },
-        'act'         => function ($bankStatementImport) use ($providers) {
-            $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_coda_multi_accounts.txt');
-
-            BankStatementImport::id($bankStatementImport['id'])->update(['data' => $data]);
-
-            return $bankStatementImport;
+        'act'         => function ($data) use ($runBankStatementImport) {
+            return $runBankStatementImport($data, 'bank_coda_multi_accounts.txt');
         },
-        'assert'      => function ($bankStatementImport) use ($providers) {
-            $bankStatementDocument = Document::search(['name', '=', 'test_doc_processing_coda_document.cod'])
-                ->read(['name'])
-                ->first();
-
-            $xlsxDocuments = Document::search(['origin_document_id', '=', $bankStatementDocument['id']])
-                ->read(['document_process_id'])
-                ->get();
-
-            $document_processes_ids = [];
-            foreach($xlsxDocuments as $xlsxDocument) {
-                $document_processes_ids[] = $xlsxDocument['document_process_id'];
+        'assert'      => function ($data) use ($providers) {
+            if(count($data['document_processes']) !== 2) {
+                return false;
             }
 
-            $documentProcesses = DocumentProcess::ids($document_processes_ids)
-                ->read(['name', 'status', 'document_origin_code', 'document_origin'])
-                ->get(true);
-
-            return $bankStatementDocument['name'] === 'test_doc_processing_coda_document.cod'
-                && count($xlsxDocuments) === 2
-                && count($documentProcesses) === 2 && $documentProcesses[0]['status'] === 'created' && $documentProcesses[1]['status'] === 'created';
-        },
-        'rollback'    => function () use ($providers) {
-            $bankStatementDocument = Document::search(['name', '=', 'test_doc_processing_coda_document.cod'])
-                ->read(['id'])
-                ->first();
-
-            $accountsBankStatementXlsxDocuments = Document::search(['origin_document_id', '=', $bankStatementDocument['id']])
-                ->read(['document_process_id'])
-                ->get();
-
-            /* @var \equal\orm\ObjectManager $orm */
-            $orm = $providers['orm'];
-
-            $orm->delete(Document::getType(), $bankStatementDocument['id'], true);
-
-            foreach($accountsBankStatementXlsxDocuments as $id => $accountsBankStatementXlsxDocument) {
-                $orm->delete(Document::getType(), $id, true);
-                $orm->delete(DocumentProcess::getType(), $accountsBankStatementXlsxDocument['document_process_id'], true);
+            foreach($data['document_processes'] as $documentProcess) {
+                if(
+                    $documentProcess['status'] !== 'assigned'
+                    || !$documentProcess['document_id']
+                    || $documentProcess['document_id']['name'] !== $documentProcess['name']
+                ) {
+                    return false;
+                }
             }
+
+            return strpos($data['bank_statement_import']['summary'], 'Statements imported: 2') !== false;
+        },
+        'rollback'    => function ($data) use ($cleanupBankStatementImport) {
+            $cleanupBankStatementImport($data);
         }
     ]
 

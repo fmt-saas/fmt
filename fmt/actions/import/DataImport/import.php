@@ -634,6 +634,34 @@ try {
                     'representative_owner_id' => $representative_owner_id
                 ]);
             }
+
+            // create ownership bank accounts from owners' primary IBANs
+            $owners = Owner::search(['ownership_id', '=', $ownership_id])
+                ->read(['bank_account_iban']);
+
+            foreach($owners as $owner) {
+                if(!$owner['bank_account_iban']) {
+                    continue;
+                }
+
+                $iban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', $owner['bank_account_iban']));
+
+                $bankAccount = OwnershipBankAccount::search([
+                        ['condo_id', '=', $condo_id],
+                        ['ownership_id', '=', $ownership_id],
+                        ['bank_account_iban', '=', $iban],
+                        ['object_class', '=', 'finance\bank\OwnershipBankAccount']
+                    ])
+                    ->first();
+
+                if(!$bankAccount) {
+                    OwnershipBankAccount::create([
+                        'condo_id'          => $condo_id,
+                        'ownership_id'      => $ownership_id,
+                        'bank_account_iban' => $iban
+                    ]);
+                }
+            }
         }
 
         $result['logs'][] = "---";
@@ -1511,7 +1539,8 @@ try {
             $bankAccount = OwnershipBankAccount::search([
                     ['condo_id', '=', $condominium['id']],
                     ['ownership_id', '=', $owner['ownership_id']],
-                    ['bank_account_iban', '=', $iban]
+                    ['bank_account_iban', '=', $iban],
+                    ['object_class', '=', 'finance\bank\OwnershipBankAccount']
                 ])
                 ->first();
 
@@ -1525,7 +1554,10 @@ try {
         }
 
         // validate bank accounts & assign accounting accounts
-        CondominiumBankAccount::search(['condo_id', '=', $condominium['id']])
+        CondominiumBankAccount::search([
+                ['condo_id', '=', $condominium['id']],
+                ['object_class', '=', 'finance\bank\CondominiumBankAccount']
+            ])
             ->transition('validate');
 
         $result['logs'][] = "INFO- created & validated reserve fund";
