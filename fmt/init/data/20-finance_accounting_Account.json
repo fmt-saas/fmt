@@ -4066,7 +4066,7 @@
                 "description": "Bank charges",
                 "account_chart_id": 1,
                 "parent_account_id": 344,
-                "operation_assignment": "",
+                "operation_assignment": "bank_fees",
                 "is_apportionable": true,
                 "tenant_share": 0,
                 "owner_share": 100

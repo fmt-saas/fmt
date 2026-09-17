@@ -197,6 +197,7 @@ class Account extends Model {
                     'accrued_income',
                     'adjustment_account',
                     'bank_current',
+                    'bank_fees',
                     'bank_savings',
                     'bank_tier',
                     'bank_transfer',

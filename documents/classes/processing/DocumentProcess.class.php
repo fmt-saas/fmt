@@ -10,6 +10,7 @@ use documents\Document;
 use documents\recording\RecordingRule;
 use documents\recording\RecordingRuleLine;
 use equal\text\TextTransformer;
+use finance\accounting\Account;
 use finance\bank\Bank;
 use finance\bank\BankStatement;
 use finance\bank\BankStatementLine;
@@ -1791,6 +1792,39 @@ class DocumentProcess extends Model {
                 elseif($documentProcess['document_type_code'] === 'bank_statement') {
                     $bankAccount = CondominiumBankAccount::search([['condo_id', '=', $documentProcess['condo_id']], ['bank_account_iban', '=', $data['account_iban']]])->first();
 
+                    $map_bank_fee_transaction_types = [
+                        'transfer_fee',
+                        'cheque_fee',
+                        'card_fee',
+                        'direct_debit_fee',
+                        'bill_fee',
+                        'cash_fee',
+                        'securities_management_fee',
+                        'securities_fee',
+                        'loan_fee',
+                        'misc_fee',
+                        'closing_fee',
+                        'account_closure',
+                        'electronic_fee',
+                        'insurance_fee',
+                        'postage_fee',
+                        'safe_deposit_fee',
+                        'research_fee',
+                        'bank_commission',
+                        'tax_fee',
+                        'database_access_fee',
+                        'guarantee_fee',
+                        'printing_fee',
+                        'documentary_credit_fee',
+                        'fee_correction_debit'
+                    ];
+
+                    $bankFeeAccount = Account::search([
+                            ['condo_id', '=', $documentProcess['condo_id']],
+                            ['code', '=', '6500000']
+                        ])
+                        ->first();
+
                     // create the BankStatement
                     // #memo - by convention new statements have their status set to 'pending'
                     $bankStatement = BankStatement::create([
@@ -1815,6 +1849,9 @@ class DocumentProcess extends Model {
 
                     // create statement lines
                     foreach($data['transactions'] as $txn) {
+
+                        $amount = round(floatval($txn['amount']), 2);
+                        $transaction_type = $txn['transaction_type'] ?? null;
 
                         $communication = '';
                         $communication_type = 'free';
@@ -1905,21 +1942,25 @@ class DocumentProcess extends Model {
                             }
                         }
 
-                        BankStatementLine::create([
+                        $bankStatementLine = BankStatementLine::create([
                                 'condo_id'                => $documentProcess['condo_id'],
                                 'bank_statement_id'       => $bankStatement['id'],
                                 'sequence_number'         => $txn['sequence_number'],
                                 'date'                    => strtotime($txn['value_date']),
-                                'amount'                  => round(floatval($txn['amount']), 2),
+                                'amount'                  => $amount,
                                 'account_holder'          => $txn['counterparty_name'] ?? null,
                                 'communication'           => $communication,
                                 'communication_type'      => $communication_type,
-                                'transaction_type'        => $txn['transaction_type'] ?? null,
+                                'transaction_type'        => $transaction_type,
                                 'status'                  => 'pending'
                             ])
                             ->update([
                                 'account_iban'            => $counterpart_iban
                             ]);
+
+                        if($amount < 0 && in_array($transaction_type, $map_bank_fee_transaction_types, true)) {
+                            $bankStatementLine->update(['accounting_account_id' => $bankFeeAccount['id'] ?? null]);
+                        }
                     }
 
                     $logs[] = "Drafted bank statement {$bankStatement['id']}";
