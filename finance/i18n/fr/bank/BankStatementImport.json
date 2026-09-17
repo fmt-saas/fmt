@@ -12,6 +12,11 @@
             "label": "Contenu",
             "description": "Flux binaire du fichier déposé, utilisé pour créer les documents et lancer l'extraction.",
             "help": "Le contenu est purgé une fois le document créé afin d'éviter un double stockage."
+        },
+        "logs": {
+            "label": "Journal",
+            "description": "Détail des fichiers et relevés traités, ignorés ou en erreur lors de l'import.",
+            "help": "Consultez ce journal pour vérifier le résultat de chaque étape de l'import."
         }
     },
     "view": {
@@ -21,7 +26,13 @@
         },
         "form.default": {
             "name": "Import traité",
-            "description": "Écran de confirmation indiquant que le document a bien été transmis au processus d'extraction."
+            "description": "Écran de confirmation indiquant que le document a bien été transmis au processus d'extraction.",
+            "routes": {
+                "route.documents_process": {
+                    "label": "Traitements documentaires",
+                    "description": ""
+                }
+            }
         },
         "list.default": {
             "name": "Historique des imports",

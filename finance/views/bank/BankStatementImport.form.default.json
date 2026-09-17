@@ -1,6 +1,9 @@
 {
     "name": "Bank Statement Import",
     "description": "Bank Statement import.",
+    "header": {
+        "actions": false
+    },
     "on_error": {
         "missing": {
             "context": {
@@ -9,6 +12,18 @@
             }
         }
     },
+    "routes": [
+        {
+            "id": "route.documents_process",
+            "label": "Documents Processing",
+            "description": "",
+            "icon": "pending_actions",
+            "context": {
+                "entity": "documents\\processing\\DocumentProcess",
+                "view": "list.default"
+            }
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -21,9 +36,12 @@
                                         "width": "100%",
                                         "items": [
                                             {
-                                                "type": "label",
-                                                "value": "Document imported",
-                                                "width": "100%"
+                                                "type": "field",
+                                                "value": "logs",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "height": 700
+                                                }
                                             }
                                         ]
                                     }

@@ -46,6 +46,12 @@ class BankStatementImport extends Model {
                 'description'       => 'Raw binary data of the uploaded document',
                 'help'              => 'This field is meant to be used for the subsequent document creation, and is emptied once the document creation is confirmed.',
                 'onupdate'          => 'onupdateData'
+            ],
+
+            'logs' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain',
+                'description'       => 'Logs of the bank statement import processing.'
             ]
 
         ];
@@ -105,7 +111,7 @@ class BankStatementImport extends Model {
      * This method is used to create the document based on received data, and start the processing.
      */
     protected static function onupdateData($self, $auth) {
-        $self->read(['name', 'data']);
+        $self->read(['name', 'data', 'logs']);
 
         $documentType = DocumentType::search(['code', '=', 'bank_statement'])->first();
         $user = User::id($auth->userId())->read(['employee_id'])->first();
@@ -116,17 +122,35 @@ class BankStatementImport extends Model {
 
         // in case binary is an archive, all files contained inside are returned
         foreach($self as $id => $bankStatementImport) {
-            $files = self::extractFilesFromBinary(
-                $bankStatementImport['data'],
-                $bankStatementImport['name']
-            );
+            $logs = [];
+            if(isset($bankStatementImport['logs']) && strlen($bankStatementImport['logs']) > 0) {
+                $logs = explode("\n", $bankStatementImport['logs']);
+            }
+
+            $logs[] = "INFO - Start bank statement import {$id} for {$bankStatementImport['name']}";
+
+            try {
+                $files = self::extractFilesFromBinary(
+                    $bankStatementImport['data'],
+                    $bankStatementImport['name']
+                );
+            }
+            catch(\Exception $e) {
+                $logs[] = "ERR  - Unable to read {$bankStatementImport['name']}: {$e->getMessage()}";
+                self::id($id)->write(['logs' => implode("\n", $logs)]);
+                throw $e;
+            }
+
+            $logs[] = 'INFO - Found ' . count($files) . ' file(s) to process';
 
             foreach($files as $file) {
+                $logs[] = "INFO - Start processing file {$file['name']}";
+
                 try {
                     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
                     if(!in_array($ext, static::ALLOWED_EXTENSIONS)) {
-                        // #todo - dispatch error
+                        $logs[] = "WARN - Skipped file {$file['name']}: unsupported extension '{$ext}'";
                         continue;
                     }
 
@@ -136,21 +160,28 @@ class BankStatementImport extends Model {
                             'data' => $file['data']
                         ])
                         ->first();
+                    $logs[] = "INFO - Created temporary document {$document['id']} for {$file['name']}";
+
                     // extract data independently from the document content-type
                     try {
                         $data = \eQual::run('get', 'documents_processing_BankStatement_extract', ['document_id' => $document['id']]);
                     }
                     finally {
                         Document::id($document['id'])->delete(true);
+                        $logs[] = "INFO - Deleted temporary document {$document['id']}";
                     }
 
                     if(!is_array($data)) {
-                        // #todo - dispatch error
+                        $logs[] = "WARN - Skipped file {$file['name']}: extraction returned no statement list";
                         continue;
                     }
+
+                    $logs[] = 'INFO - Extracted ' . count($data) . " statement(s) from {$file['name']}";
                     $file_name = pathinfo($file['name'], PATHINFO_FILENAME);
 
                     foreach($data as $i => $statement) {
+                        $statement_number = $statement['statement_number'] ?? 'unknown';
+                        $logs[] = "INFO - Processing statement {$statement_number} from {$file['name']}";
 
                         // ignore statement if relating to an irrelevant IBAN
                         $iban = strtoupper(preg_replace('/\s+/', '', $statement['account_iban'] ?? ''));
@@ -162,7 +193,7 @@ class BankStatementImport extends Model {
                             ->first();
 
                         if(!$bankAccount || !$bankAccount['condo_id'] || !$bankAccount['condo_id']['is_active']) {
-                            // #todo journaliser l'extrait ignoré
+                            $logs[] = "WARN - Skipped statement {$statement_number}: no active condominium bank account for IBAN {$iban}";
                             continue;
                         }
 
@@ -178,32 +209,42 @@ class BankStatementImport extends Model {
                             ->first();
 
                         if($existingBankStatement) {
-                            // #todo journaliser l'extrait ignoré
+                            $logs[] = "WARN - Skipped statement {$statement_number}: already imported as bank statement {$existingBankStatement['id']}";
                             continue;
                         }
 
                         $binary = self::computeXlsxBinaryFromStatement($statement);
                         // this will trigger the creation of the Document and the Document Processing, which should not interrupt the import even if it fails
                         try {
-                            DocumentProcess::create([
+                            $documentProcess = DocumentProcess::create([
                                     'name'                  => $file_name . '(' . ($i+1) . ').' . 'xlsx',
                                     'document_type_id'      => $documentType['id'],
                                     'assigned_employee_id'  => $user['employee_id']
                                 ])
-                                ->update(['data' => $binary]);
+                                ->first();
+                            $logs[] = "INFO - Created document process {$documentProcess['id']} for statement {$statement_number}";
+
+                            DocumentProcess::id($documentProcess['id'])->update(['data' => $binary]);
+                            $logs[] = "INFO - Submitted statement {$statement_number} to document process {$documentProcess['id']}";
                         }
                         catch(\Exception $e) {
-                            // ignore (outputs are in logs)
+                            $logs[] = "ERR  - Unable to process statement {$statement_number}: {$e->getMessage()}";
                         }
                     }
+
+                    $logs[] = "INFO - Finished processing file {$file['name']}";
                 }
                 catch(\Exception $e) {
-                    // #todo - dispatch error to let user know that a file was not imported
+                    $logs[] = "ERR  - Error while processing file {$file['name']}: {$e->getMessage()}";
                     // keep on processing other files
                 }
             }
-            // remove current object (pointless after successful import)
-            self::id($id)->delete(true);
+
+            $logs[] = "INFO - Finished bank statement import {$id}";
+            self::id($id)->write([
+                'data' => null,
+                'logs' => implode("\n", $logs)
+            ]);
         }
     }
 
