@@ -65,7 +65,7 @@ $context->httpResponse()
  * [
  *   {
  *     "account_iban": "BE71 0961 2345 6789",                // IBAN of the account
- *     "statement_number": "0000123456",                     // Unique statement identifier
+ *     "statement_number": "012",                            // Unique statement identifier
  *     "opening_balance": 1000.00,                           // Balance at the beginning of the statement period
  *     "opening_date": "2024-05-01",                         // Date when the statement period starts
  *     "closing_balance": 1200.00,                           // Balance at the end of the statement period

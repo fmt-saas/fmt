@@ -1029,7 +1029,7 @@ class BankStatement extends Model {
 
     public function getUnique() {
         return [
-            ['bank_account_iban', 'opening_date', 'opening_balance', 'closing_date', 'closing_balance']
+            ['bank_account_iban', 'statement_number', 'opening_date', 'opening_balance', 'closing_date', 'closing_balance']
         ];
     }
 }

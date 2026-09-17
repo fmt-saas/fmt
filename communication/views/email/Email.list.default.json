@@ -6,7 +6,8 @@
     "header": {
         "actions": {
             "ACTION.CREATE": false
-        }
+        },
+        "selection": false
     },
     "layout": {
         "items": [

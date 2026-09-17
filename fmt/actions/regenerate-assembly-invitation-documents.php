@@ -13,6 +13,8 @@ use realestate\governance\AssemblyInvitationCorrespondence;
 
 [$params, $providers] = eQual::announce([
     'description' => 'Regenerate the existing invitation correspondence documents and printable exports of an assembly while preserving their relations.',
+    'deprecated'  => true,
+    'help'        => 'This script is not meant to be used on a regular basis. It was created to fix a specific case that should no longer occur.',
     'params'      => [
         'id' => [
             'type'           => 'many2one',

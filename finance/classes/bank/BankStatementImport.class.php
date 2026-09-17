@@ -132,39 +132,65 @@ class BankStatementImport extends Model {
 
                     // create a temporary import Document holding all statements
                     $document = Document::create([
-                            'name'      => $file['name'],
-                            'data'      => $file['data'],
-                            'is_origin' => true
+                            'name' => $file['name'],
+                            'data' => $file['data']
                         ])
                         ->first();
                     // extract data independently from the document content-type
-                    $data = \eQual::run('get', 'documents_processing_BankStatement_extract', ['document_id' => $document['id']]);
+                    try {
+                        $data = \eQual::run('get', 'documents_processing_BankStatement_extract', ['document_id' => $document['id']]);
+                    }
+                    finally {
+                        Document::id($document['id'])->delete(true);
+                    }
 
                     if(!is_array($data)) {
-                        // remove original document
-                        Document::id($document['id'])->delete(true);
                         // #todo - dispatch error
                         continue;
                     }
                     $file_name = pathinfo($file['name'], PATHINFO_FILENAME);
 
                     foreach($data as $i => $statement) {
+
+                        // ignore statement if relating to an irrelevant IBAN
+                        $iban = strtoupper(preg_replace('/\s+/', '', $statement['account_iban'] ?? ''));
+                        $bankAccount = CondominiumBankAccount::search([
+                                ['bank_account_iban', '=', $iban],
+                                ['is_active', '=', true]
+                            ])
+                            ->read(['condo_id' => ['is_active']])
+                            ->first();
+
+                        if(!$bankAccount || !$bankAccount['condo_id'] || !$bankAccount['condo_id']['is_active']) {
+                            // #todo journaliser l'extrait ignoré
+                            continue;
+                        }
+
+                        // ignore statement if already imported
+                        $existingBankStatement = BankStatement::search([
+                                ['bank_account_iban', '=', $iban],
+                                ['statement_number', '=', $statement['statement_number']],
+                                ['opening_date', '=', strtotime($statement['opening_date'])],
+                                ['opening_balance', '=', round($statement['opening_balance'], 2)],
+                                ['closing_date', '=', strtotime($statement['closing_date'])],
+                                ['closing_balance', '=', round($statement['closing_balance'], 2)]
+                            ])
+                            ->first();
+
+                        if($existingBankStatement) {
+                            // #todo journaliser l'extrait ignoré
+                            continue;
+                        }
+
                         $binary = self::computeXlsxBinaryFromStatement($statement);
                         // this will trigger the creation of the Document and the Document Processing, which should not interrupt the import even if it fails
                         try {
-                            $documentProcess = DocumentProcess::create([
+                            DocumentProcess::create([
                                     'name'                  => $file_name . '(' . ($i+1) . ').' . 'xlsx',
                                     'document_type_id'      => $documentType['id'],
                                     'assigned_employee_id'  => $user['employee_id']
                                 ])
-                                ->update(['data' => $binary])
-                                ->read(['document_id'])
-                                ->first();
-
-                            if($documentProcess && $documentProcess['document_id']) {
-                                // attach original document to the one being processed
-                                Document::id($documentProcess['document_id'])->update(['origin_document_id' => $document['id']]);
-                            }
+                                ->update(['data' => $binary]);
                         }
                         catch(\Exception $e) {
                             // ignore (outputs are in logs)

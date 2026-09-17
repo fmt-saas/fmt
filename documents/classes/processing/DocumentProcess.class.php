@@ -280,7 +280,7 @@ class DocumentProcess extends Model {
                     ],
                     'complete' => [
                         'description' => 'Update the document to `completed`.',
-                        'policies'    => ['is_complete', 'is_unique', 'can_complete'],
+                        'policies'    => ['is_complete', 'can_complete'],
                         'onafter'     => 'onafterCompleteFromAssigned',
                         'status'      => 'completed'
                     ],
@@ -376,10 +376,6 @@ class DocumentProcess extends Model {
             'is_complete' => [
                 'description' => 'Verifies that all requested information are present.',
                 'function'    => 'policyIsComplete'
-            ],
-            'is_unique' => [
-                'description' => 'Verifies that the document has not been already imported (unless cancelled).',
-                'function'    => 'policyIsUnique'
             ],
             'is_valid' => [
                 'description' => 'Verifies that the document is valid, according to rules linked to document type.',
@@ -702,33 +698,12 @@ class DocumentProcess extends Model {
 
     protected static function policyCanPerformIdentification($self): array {
         $result = [];
-        $self->read(['status', 'document_type_id', 'report_html']);
+        $self->read(['status']);
         foreach($self as $id => $documentProcess) {
             // #memo - we must allow assigning document_type_id manually
             if($documentProcess['status'] != 'created') {
                 $result[$id] = [
                     'invalid_status' => 'Document type has already been identified.'
-                ];
-                continue;
-            }
-
-            // #memo - it is the invoice (and not the DocumentProcess) that is responsible for ensuring that all required information is complete
-            // #todo - this should be called through a ValidationRule
-            try {
-                // #memo - `assert-valid` controller is called at `MarkValidated` step
-                \eQual::run('do', 'documents_processing_DocumentProcess_assert-unique', ['id' => $id]);
-            }
-            catch(\Exception $e) {
-                trigger_error("APP::DocumentProcess [{$id}] relates to a document that has already been imported: " . $e->getMessage(), EQ_REPORT_WARNING);
-                $report_html = $documentProcess['report_html'];
-                if(strlen($report_html) > 0) {
-                    $report_html .= "<br />";
-                }
-                $report_html .= "<b>Interruption</b><br />Process interrupted: duplicate document already imported.";
-                self::id($id)->update(['report_html' => $report_html]);
-
-                $result[$id] = [
-                    'duplicate_document' => 'Document has already been imported.'
                 ];
                 continue;
             }
@@ -830,98 +805,6 @@ class DocumentProcess extends Model {
                 }
             }
             */
-
-        }
-        return $result;
-    }
-
-    protected static function policyIsUnique($self, $dispatch): array {
-        $result = [];
-        $self->read(['condo_id', 'report_html', 'document_id' => ['id', 'hash']]);
-        foreach($self as $id => $documentProcess) {
-
-            if(!$documentProcess['condo_id']) {
-                continue;
-            }
-
-            $has_duplicate = false;
-
-            $dispatch->cancel('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $id);
-
-            $existingDocument = Document::search([
-                    ['id', '<>', $documentProcess['document_id']['id']],
-                    ['condo_id', '=', $documentProcess['condo_id']],
-                    ['hash', '=', $documentProcess['document_id']['hash']]
-                ])
-                ->read(['document_process_id' => ['status']])
-                ->first();
-
-
-            if($existingDocument){
-                if(isset($existingDocument['document_process_id']['status']) && !in_array($existingDocument['document_process_id']['status'], ['cancelled', 'removed'])) {
-                    $has_duplicate = true;
-                }
-            }
-
-            // #memo - checks for specific document types are performed at marking complete and marking valid steps
-/*
-            // #todo - handle other document types (apart from purchaseInvoice & BankStatement)
-
-            // duplicate invoice amongst purchase invoice of the Condominium
-            if($documentProcess['document_type_code'] === 'supplier_invoice') {
-                // check if there is a non-cancelled DocumentProcess concerning an invoice with the same characteristics
-                $documentProcess = self::id($id)->read(['document_invoice_id'])->first();
-                $purchaseInvoice = PurchaseInvoice::id($documentProcess['document_invoice_id'])->read(['id', 'suppliership_id', 'supplier_invoice_number'])->first();
-                $has_duplicate = false;
-                $duplicateInvoices = PurchaseInvoice::search([
-                        ['id','<>', $purchaseInvoice['id']],
-                        ['suppliership_id', '=', $purchaseInvoice['suppliership_id']],
-                        ['supplier_invoice_number', '=', $purchaseInvoice['supplier_invoice_number']]
-                    ])
-                    ->read(['document_process_id' => ['status']]);
-
-                foreach($duplicateInvoices as $duplicateInvoice) {
-                    if(isset($duplicateInvoice['document_process_id']['status']) && !in_array($duplicateInvoice['document_process_id']['status'], ['proforma', 'cancelled'])) {
-                        $has_duplicate = true;
-                        break;
-                    }
-                }
-            }
-            // search for duplicate bank statement amongst statements of the Condominium
-            elseif($documentProcess['document_type_code'] === 'bank_statement') {
-                $documentProcess = self::id($id)->read(['document_bank_statement_id'])->first();
-                $bankStatement = BankStatement::id($documentProcess['document_bank_statement_id'])->read(['id', 'opening_date', 'closing_date', 'opening_balance', 'closing_balance'])->first();
-                $duplicateStatements = BankStatement::search([
-                        ['id','<>', $bankStatement['id']],
-                        ['opening_date', '=', $bankStatement['opening_date']],
-                        ['closing_date', '=', $bankStatement['closing_date']],
-                        ['opening_balance', '=', $bankStatement['opening_balance']],
-                        ['closing_balance', '=', $bankStatement['closing_balance']]
-                    ])
-                    ->read(['document_process_id' => ['status']]);
-
-                foreach($duplicateStatements as $duplicateStatement) {
-                    if(isset($duplicateStatement['document_process_id']['status']) && $duplicateStatement['document_process_id']['status'] !== 'cancelled') {
-                        $has_duplicate = true;
-                        break;
-                    }
-                }
-            }
-*/
-            if($has_duplicate) {
-                $dispatch->dispatch('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $id, 'important');
-                $report_html = $documentProcess['report_html'];
-                if(strlen($report_html) > 0) {
-                    $report_html .= "<br />";
-                }
-                $report_html .= "<b>Interruption</b><br />Process interrupted: duplicate document already imported.";
-                self::id($id)->update(['report_html' => $report_html]);
-
-                $result[$id] = [
-                    'duplicate_document' => 'This document has already been imported'
-                ];
-                continue;
-            }
 
         }
         return $result;
