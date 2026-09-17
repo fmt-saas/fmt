@@ -246,6 +246,10 @@
                 "action.reconcile": {
                     "label": "Rapprocher",
                     "description": "Ouvrir l'outil de rapprochement pour la ligne."
+                },
+                "action.add_ownership_bank_account": {
+                    "label": "Ajouter le compte bancaire de l'ownership",
+                    "description": "Ajouter l'IBAN de contrepartie aux comptes bancaires de l'ownership ciblé."
                 }
             }
         },
@@ -293,6 +297,9 @@
             "missing_mandatory_journal": "Aucun journal bancaire configuré pour cette copropriété.",
             "missing_bank_account_condominium": "Aucune copropriété trouvée pour l'IBAN du relevé.",
             "mismatch_bank_account_with_condominium": "L'IBAN du relevé ne correspond à aucun compte bancaire de la copropriété.",
+            "not_owner_line": "Seules les lignes liées à un ownership peuvent ajouter un compte bancaire.",
+            "missing_ownership": "Aucun ownership cible n'est défini sur la ligne de relevé.",
+            "missing_counterparty_iban": "Aucun IBAN de contrepartie n'est défini sur la ligne de relevé.",
             "provided_funding_not_found": "Le funding fourni est introuvable.",
             "already_imported": "Fichier déjà importé."
         }

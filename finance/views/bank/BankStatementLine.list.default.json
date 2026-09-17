@@ -37,6 +37,21 @@
                     "bank_statement_line_id": "object.id"
                 }
             }
+        },
+        {
+            "id": "action.add_ownership_bank_account",
+            "inline": true,
+            "label": "Add ownership bank account",
+            "icon": "add_card",
+            "description": "Add the counterparty IBAN to the targeted ownership bank accounts.",
+            "controller": "core_model_do",
+            "visible": [["status", "=", "pending"], ["is_owner", "=", true]],
+            "params": {
+                "entity": "finance\\bank\\BankStatementLine",
+                "action": "add_ownership_bank_account",
+                "ids": []
+            },
+            "confirm": true
         }
     ],
     "operations": {
@@ -52,6 +67,12 @@
             {
                 "type": "field",
                 "value": "condo_id",
+                "width": "10%",
+                "visible": false
+            },
+            {
+                "type": "field",
+                "value": "is_owner",
                 "width": "10%",
                 "visible": false
             },
@@ -74,6 +95,18 @@
                 "widget": {
                     "usage": "date/short"
                 }
+            },
+            {
+                "type": "field",
+                "value": "account_iban",
+                "width": "15%",
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "account_holder",
+                "width": "15%",
+                "readonly": true
             },
             {
                 "type": "field",

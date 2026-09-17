@@ -344,7 +344,7 @@ class BankStatementLine extends Model {
                 'function'          => 'calcOwnershipId',
                 'store'             => true,
                 'instant'           => true,
-                'description'       => "The ownership that the funding refers to.",
+                'description'       => "The ownership that the statement line refers to.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'ondelete'          => 'cascade',
                 'domain'            => [['condo_id', '=', 'object.condo_id']],
@@ -358,7 +358,7 @@ class BankStatementLine extends Model {
                 'store'             => true,
                 'instant'           => true,
                 'foreign_object'    => 'purchase\supplier\Suppliership',
-                'description'       => 'The supplier the funding relates to.',
+                'description'       => 'The supplier the statement line relates to.',
                 'domain'            => [['condo_id', '=', 'object.condo_id']],
                 'visible'           => [['is_supplier', '=', true]]
             ],
@@ -446,6 +446,11 @@ class BankStatementLine extends Model {
                 'description'   => 'Force a refresh of parent bank statement status.',
                 'function'      => 'doRefreshBankStatementStatus'
             ],
+            'add_ownership_bank_account' => [
+                'description'   => 'Add the counterparty IBAN to the targeted ownership bank accounts if it is not already present.',
+                'policies'      => ['can_add_ownership_bank_account'],
+                'function'      => 'doAddOwnershipBankAccount'
+            ],
             'cancel' => [
                 'description'   => 'Cancel the bank statement line. No further change will be possible.',
                 'help'          => 'Void the accounting entry, remove linked payments and set status to `cancelled`.',
@@ -472,6 +477,10 @@ class BankStatementLine extends Model {
                 'description' => 'Verifies that the bank statement line is fully reconciled.',
                 'help'        => 'Action `post` attempts auto-reconcile upon onbeforePost. So reconciliation state cannot be tested before accounting entry generation.',
                 'function'    => 'policyCanGenerateAccountingEntry'
+            ],
+            'can_add_ownership_bank_account' => [
+                'description' => 'Verifies that the counterparty IBAN can be added to the targeted ownership bank accounts.',
+                'function'    => 'policyCanAddOwnershipBankAccount'
             ],
             'can_cancel' => [
                 'description' => 'Verifies that the bank statement line can be cancelled.',
@@ -502,6 +511,35 @@ class BankStatementLine extends Model {
             }
         }
         return $result;
+    }
+
+    protected static function doAddOwnershipBankAccount($self) {
+        $self->read(['condo_id', 'ownership_id', 'account_iban']);
+        foreach($self as $bankStatementLine) {
+            $iban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', (string) $bankStatementLine['account_iban']));
+            $ownershipBankAccounts = OwnershipBankAccount::search([
+                    ['condo_id', '=', $bankStatementLine['condo_id']],
+                    ['ownership_id', '=', $bankStatementLine['ownership_id']]
+                ])
+                ->read(['bank_account_iban']);
+
+            $ibanExists = false;
+            foreach($ownershipBankAccounts as $ownershipBankAccount) {
+                $existingIban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', (string) $ownershipBankAccount['bank_account_iban']));
+                if($existingIban === $iban) {
+                    $ibanExists = true;
+                    break;
+                }
+            }
+
+            if(!$ibanExists) {
+                OwnershipBankAccount::create([
+                    'condo_id'         => $bankStatementLine['condo_id'],
+                    'ownership_id'     => $bankStatementLine['ownership_id'],
+                    'bank_account_iban' => $iban
+                ]);
+            }
+        }
     }
 
 
@@ -1323,6 +1361,43 @@ class BankStatementLine extends Model {
                 continue;
             }
         }
+        return $result;
+    }
+
+    protected static function policyCanAddOwnershipBankAccount($self): array {
+        $result = [];
+
+        $self->read(['status', 'is_owner', 'ownership_id', 'account_iban']);
+        foreach($self as $id => $bankStatementLine) {
+            if($bankStatementLine['status'] !== 'pending') {
+                $result[$id] = [
+                    'invalid_status' => 'Only pending bank statement lines can add an ownership bank account.'
+                ];
+                continue;
+            }
+
+            if(!$bankStatementLine['is_owner']) {
+                $result[$id] = [
+                    'not_owner_line' => 'Only owner bank statement lines can add an ownership bank account.'
+                ];
+                continue;
+            }
+
+            if(!$bankStatementLine['ownership_id']) {
+                $result[$id] = [
+                    'missing_ownership' => 'The bank statement line has no targeted ownership.'
+                ];
+                continue;
+            }
+
+            if(!preg_replace('/[^A-Z0-9]/i', '', (string) $bankStatementLine['account_iban'])) {
+                $result[$id] = [
+                    'missing_counterparty_iban' => 'The bank statement line has no counterparty IBAN.'
+                ];
+                continue;
+            }
+        }
+
         return $result;
     }
 

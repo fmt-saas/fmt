@@ -12,6 +12,7 @@ use finance\accounting\FiscalYear;
 use finance\bank\Bank;
 use finance\bank\BankAccount;
 use finance\bank\CondominiumBankAccount;
+use finance\bank\OwnershipBankAccount;
 use fmt\import\DataImport;
 use fmt\setting\Setting;
 use hr\employee\Employee;
@@ -1495,6 +1496,33 @@ try {
                 'fund_type'             => 'reserve_fund'
             ])
             ->transition('validate');
+
+        // create ownership bank accounts from owners' primary IBANs
+        $owners = Owner::search(['condo_id', '=', $condominium['id']])
+            ->read(['ownership_id', 'bank_account_iban']);
+
+        foreach($owners as $owner) {
+            if(!$owner['ownership_id'] || !$owner['bank_account_iban']) {
+                continue;
+            }
+
+            $iban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', $owner['bank_account_iban']));
+
+            $bankAccount = OwnershipBankAccount::search([
+                    ['condo_id', '=', $condominium['id']],
+                    ['ownership_id', '=', $owner['ownership_id']],
+                    ['bank_account_iban', '=', $iban]
+                ])
+                ->first();
+
+            if(!$bankAccount) {
+                OwnershipBankAccount::create([
+                    'condo_id'          => $condominium['id'],
+                    'ownership_id'      => $owner['ownership_id'],
+                    'bank_account_iban' => $iban
+                ]);
+            }
+        }
 
         // validate bank accounts & assign accounting accounts
         CondominiumBankAccount::search(['condo_id', '=', $condominium['id']])
