@@ -1,0 +1,12 @@
+{
+    "payment.communication": "Communication",
+    "fundings.title": "Details of overdue amounts",
+    "fundings.table.th.nature": "Type",
+    "fundings.table.th.label": "Description",
+    "fundings.table.th.deadline": "Due date",
+    "fundings.table.th.days_overdue": "Days overdue",
+    "fundings.table.th.reminder_level": "Reminder level",
+    "fundings.table.th.due_amount": "Amount",
+    "fundings.table.th.remaining_amount": "Outstanding balance",
+    "fundings.table.footer.th.total": "Total"
+}

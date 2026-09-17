@@ -1,0 +1,24 @@
+{
+    "lots_recap.table.th.references": "References",
+    "lots_recap.table.th.nature": "Type",
+    "lots_recap.table.th.quotas": "Shares",
+    "lots_recap.table.th.days": "Days",
+
+    "funding.payment_amount": "Amount:",
+    "funding.communication": "Communication:",
+
+    "operations.table.th.nature": "Type of transaction",
+    "operations.table.th.apportionment_key": "Apportionment key",
+    "operations.table.th.amounts": "Amounts",
+    "operations.table.th.quotas": "Shares",
+    "operations.table.th.quote_share": "Share",
+    "operations.table.footer.th.total": "Total",
+
+    "payments-planning.summary.title_period": "Details of the fund call for the period from %s to %s:",
+    "payments-planning.summary.title_single": "Details of the fund call dated %s:",
+    "payments-planning.table.title": "Payment schedule:",
+    "payments-planning.table.th.date": "Date",
+    "payments-planning.table.th.deadline": "Due date",
+    "payments-planning.table.th.call": "Call amount",
+    "payments-planning.table.th.amount": "Share"
+}

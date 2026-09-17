@@ -1,0 +1,16 @@
+{
+    "owner_undersign.give_mandate_to": "Hereby grants power of attorney to:",
+    "owner_undersign.linving_in": "Residing at:",
+
+    "representation.without_voting_instructions": "Without voting instructions.",
+    "representation.with_voting_instructions": "With the voting instructions set out below.",
+
+    "mandate_goal": "Drawn up to serve as a power of attorney.",
+
+    "signature.done_at": "Done at",
+    "signature.done_on": "on",
+    "signature.signature": "Principal's signature:",
+
+    "voting_instructions.table.th.order": "Resolution number (see agenda)",
+    "voting_instructions.table.th.choice": "Choice (for / against)"
+}

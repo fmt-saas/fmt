@@ -1,0 +1,14 @@
+{
+    "operations.table.th.nature": "Type of transaction",
+    "operations.table.th.apportionment_key": "Apportionment key",
+    "operations.table.th.amounts": "Amounts",
+    "operations.table.th.quotas": "Shares",
+    "operations.table.th.quote_share": "Share",
+    "operations.table.footer.th.total": "Total fund call",
+
+    "payments-planning.title": "Expected payment schedule:",
+    "payments-planning.table.th.date": "Date",
+    "payments-planning.table.th.deadline": "Due date",
+    "payments-planning.table.th.appeal": "Fund call",
+    "payments-planning.table.th.amount": "Amount"
+}

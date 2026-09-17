@@ -1,0 +1,16 @@
+{
+    "assembly_type.statutory": "Statutory General Meeting",
+    "assembly_type.takeover": "Management Takeover General Meeting",
+    "assembly_type.extraordinary": "Extraordinary General Meeting",
+    "assembly_type.constitutive": "Constitutive General Meeting",
+
+    "assembly_details.assembly": "Meeting",
+    "assembly_details.date": "Date",
+    "assembly_details.owner": "Owner",
+
+    "vote_form.table.th.order": "No.",
+    "vote_form.table.th.item": "Item",
+    "vote_form.table.td.checkbox.for": "For",
+    "vote_form.table.td.checkbox.against": "Against",
+    "vote_form.table.td.checkbox.abstain": "Abstention"
+}

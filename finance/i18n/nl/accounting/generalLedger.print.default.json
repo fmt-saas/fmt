@@ -1,0 +1,12 @@
+{
+    "accounting.table.th.entry_date": "Datum",
+    "accounting.table.th.entry_journal": "DAGB.",
+    "accounting.table.th.entry_number": "Boeking",
+    "accounting.table.th.entry_reference": "REF.",
+    "accounting.table.th.description": "Beschrijving",
+    "accounting.table.th.debit": "Debet",
+    "accounting.table.th.credit": "Credit",
+    "accounting.table.th.balance": "Saldo",
+    "accounting.table.account_footer.td.total": "Totaal rekening",
+    "accounting.table.footer.td.total": "ALGEMEEN TOTAAL"
+}

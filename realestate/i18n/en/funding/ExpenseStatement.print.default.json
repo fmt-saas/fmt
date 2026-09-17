@@ -1,0 +1,37 @@
+{
+    "lots_recap.table.th.references": "References",
+    "lots_recap.table.th.nature": "Type",
+    "lots_recap.table.th.quotas": "Shares",
+    "lots_recap.table.th.days": "Days",
+
+    "funding.payment_amount": "Amount:",
+    "funding.communication": "Communication",
+
+    "global_summary.lots_recap.h2": "Unit summary (overall)",
+    "global_summary.table.th.common_expenses": "Common expenses",
+    "global_summary.table.th.private_expenses": "Private expenses",
+    "global_summary.table.th.provisions": "Provisions",
+    "global_summary.table.th.quotas": "Shares",
+    "global_summary.table.th.condo": "Condo",
+    "global_summary.table.th.lot": "Unit",
+    "global_summary.table.th.vat": "VAT",
+    "global_summary.table.th.owner": "Owner",
+    "global_summary.table.th.tenant": "Tenant",
+    "global_summary.table.footer.td.total": "Total",
+    "global_summary.table.footer.td.grand_totals": "Grand totals",
+    "global_summary.table.td.provisions_called": "Provisions called",
+
+    "detailed_statements.lots_recap.h2": "Unit summary (detailed)",
+    "detailed_statements.table.th.common_expenses": "Common expenses",
+    "detailed_statements.table.th.private_expenses": "Private expenses",
+    "detailed_statements.table.th.provisions": "Provisions",
+    "detailed_statements.table.th.quotas": "Shares",
+    "detailed_statements.table.th.condo": "Condo",
+    "detailed_statements.table.th.lot": "Unit",
+    "detailed_statements.table.th.vat": "VAT",
+    "detailed_statements.table.th.owner": "Owner",
+    "detailed_statements.table.th.tenant": "Tenant",
+    "detailed_statements.table.footer.td.total": "Total",
+    "detailed_statements.table.footer.td.grand_totals": "Grand totals",
+    "detailed_statements.table.td.provisions_called": "Provisions called"
+}

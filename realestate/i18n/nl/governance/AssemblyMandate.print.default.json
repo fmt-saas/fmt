@@ -1,0 +1,16 @@
+{
+    "owner_undersign.give_mandate_to": "Geeft volmacht aan:",
+    "owner_undersign.linving_in": "Wonende te:",
+
+    "representation.without_voting_instructions": "Zonder steminstructies.",
+    "representation.with_voting_instructions": "Met de hieronder vermelde steminstructies.",
+
+    "mandate_goal": "Opgemaakt om als volmacht te dienen.",
+
+    "signature.done_at": "Gedaan te",
+    "signature.done_on": "op",
+    "signature.signature": "Handtekening van de volmachtgever:",
+
+    "voting_instructions.table.th.order": "Nummer van het besluit (zie agenda)",
+    "voting_instructions.table.th.choice": "Keuze (voor / tegen)"
+}

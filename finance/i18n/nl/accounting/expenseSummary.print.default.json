@@ -1,0 +1,10 @@
+{
+    "summary.table.th.provider": "Leverancier",
+    "summary.table.th.journal": "DAGB.",
+    "summary.table.th.ref": "Referentie",
+    "summary.table.th.date": "Datum",
+    "summary.table.th.description": "Beschrijving",
+    "summary.table.th.tenant": "Huurder",
+    "summary.table.th.amount": "Bedrag",
+    "summary.table.footer.td.total": "Totaal"
+}

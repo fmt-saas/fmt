@@ -1,0 +1,14 @@
+{
+    "operations.table.th.nature": "Aard van de verrichtingen",
+    "operations.table.th.apportionment_key": "Verdeelsleutel",
+    "operations.table.th.amounts": "Bedragen",
+    "operations.table.th.quotas": "Quotiteiten",
+    "operations.table.th.quote_share": "Aandeel",
+    "operations.table.footer.th.total": "Totaal van de fondsenoproep",
+
+    "payments-planning.title": "Planning van de verwachte betalingen:",
+    "payments-planning.table.th.date": "Datum",
+    "payments-planning.table.th.deadline": "Vervaldatum",
+    "payments-planning.table.th.appeal": "Fondsenoproep",
+    "payments-planning.table.th.amount": "Bedrag"
+}

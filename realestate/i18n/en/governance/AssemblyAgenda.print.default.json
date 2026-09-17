@@ -1,0 +1,6 @@
+{
+    "majority.unanimity": "Unanimity (100% of shares)",
+    "majority.absolute": "Absolute majority (> 50% of shares)",
+    "majority.2_3": "Two-thirds majority",
+    "majority.4_5": "Four-fifths majority"
+}

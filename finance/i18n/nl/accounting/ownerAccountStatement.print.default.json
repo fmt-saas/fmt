@@ -1,0 +1,9 @@
+{
+    "account_statement.table.th.date": "Datum",
+    "account_statement.table.th.description": "Beschrijving",
+    "account_statement.table.th.debit": "Debet",
+    "account_statement.table.th.credit": "Credit",
+    "account_statement.table.th.balance": "Saldo",
+    "account_statement.table.td.previous_balance": "Vorig saldo",
+    "account_statement.table.footer.td.total": "Totaal"
+}

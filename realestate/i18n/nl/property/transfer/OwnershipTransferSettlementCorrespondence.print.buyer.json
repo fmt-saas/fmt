@@ -1,0 +1,15 @@
+{
+    "title": "Boekhoudkundige afrekening van uw aankoop",
+    "buyer.introduction": "Geachte mevrouw, geachte heer, hierbij bezorgen wij u de boekhoudkundige afrekening die werd opgesteld na de aankoop van uw kavels.",
+    "buyer.net_amount": "Nettobedrag geboekt op uw rekening:",
+    "buyer.details_introduction": "De voorlopige details van de in aanmerking genomen verrichtingen vindt u hieronder.",
+    "buyer.closing": "Dit briefsjabloon is voorlopig en wordt aangevuld zodra de definitieve zakelijke inhoud is goedgekeurd.",
+    "transfer.reference": "Referentie:",
+    "transfer.date": "Overdrachtsdatum:",
+    "ownership": "Eigendom van de koper:",
+    "line.source": "Bron",
+    "line.property_lot": "Kavel",
+    "line.period": "Periode",
+    "line.amount": "Bedrag",
+    "line.none": "Geen gedetailleerde verrichtingen."
+}

@@ -191,9 +191,9 @@ if(!$owner) {
     throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
 }
 
-$lang = $owner['identity_id']['lang_id']['code'] ?? $params['lang'];
+$owner_lang = $owner['identity_id']['lang_id']['code'] ?? $params['lang'];
 
-$recipient = $getRecipient($owner['identity_id']['id'], $lang);
+$recipient = $getRecipient($owner['identity_id']['id'], $owner_lang);
 
 $assembly = Assembly::id($assemblyInvitationCorrespondence['assembly_id'])
     ->read([
@@ -218,6 +218,7 @@ $assembly = Assembly::id($assemblyInvitationCorrespondence['assembly_id'])
         'condo_id' => [
             'name', 'address', 'address_street', 'address_zip', 'address_city',
             'registration_number',
+            'lang_id' => ['code'],
             'managing_agent_id' => [
                 'identity_id'
             ]
@@ -228,6 +229,8 @@ $assembly = Assembly::id($assemblyInvitationCorrespondence['assembly_id'])
 if(!$assembly) {
     throw new Exception('unknown_assembly', EQ_ERROR_UNKNOWN_OBJECT);
 }
+
+$condo_lang = $assembly['condo_id']['lang_id']['code'] ?? $params['lang'];
 
 $organisation = Organisation::id(1)
     ->read([
@@ -252,30 +255,66 @@ if($assembly['is_second_session']) {
     $template_code = 'general_meetings_invitation_second_session_correspondence';
 }
 
-$template = Template::search([
+$ownerTemplate = Template::search([
         ['code', '=', $template_code],
         ['type', '=', 'document']
     ])
-    ->read( ['id','parts_ids' => ['name', 'value']])
+    ->read(['id', 'parts_ids' => ['name', 'value']], $owner_lang)
     ->first(true);
 
-foreach($template['parts_ids'] as $part_id => $part) {
+$condoTemplate = Template::id($ownerTemplate['id'])
+    ->read(['id', 'parts_ids' => ['name', 'value']], $condo_lang)
+    ->first(true);
+
+$map_condo_template_parts = [];
+foreach($condoTemplate['parts_ids'] as $part) {
+    $map_condo_template_parts[$part['name']] = $part['value'];
+}
+
+$map_types = [
+    'statutory' => [
+        'fr' => 'Assemblée Générale Statutaire',
+        'nl' => 'Statutaire Algemene Vergadering',
+        'en' => 'Statutory General Meeting'
+    ],
+    'takeover' => [
+        'fr' => 'Assemblée Générale de Reprise de gestion',
+        'nl' => 'Algemene Vergadering voor de overname van het beheer',
+        'en' => 'General Meeting for the Takeover of Management'
+    ],
+    'extraordinary' => [
+        'fr' => 'Assemblée Générale Extraordinaire',
+        'nl' => 'Buitengewone Algemene Vergadering',
+        'en' => 'Extraordinary General Meeting'
+    ],
+    'constitutive' => [
+        'fr' => 'Assemblée Générale Constitutive',
+        'nl' => 'Constituerende Algemene Vergadering',
+        'en' => 'Constitutive General Meeting'
+    ]
+];
+
+foreach($ownerTemplate['parts_ids'] as $part) {
+    $part_value = $part['value'];
+    $part_lang = $owner_lang;
+    if(is_null($part_value)) {
+        $part_value = $map_condo_template_parts[$part['name']] ?? '';
+        $part_lang = $condo_lang;
+    }
+
+    $type_label = $map_types[$assembly['assembly_type']][$part_lang]
+        ?? $map_types[$assembly['assembly_type']][$condo_lang]
+        ?? $map_types[$assembly['assembly_type']]['fr']
+        ?? '';
+
     if($part['name'] == 'subject') {
 
-        $subject = strip_tags($part['value']);
-
-        // #todo #translation
-        $map_types = [
-            'statutory' => 'Assemblée Générale Statutaire',
-            'takeover' => 'Assemblée Générale de Reprise de gestion',
-            'extraordinary' => 'Assemblée Générale Extraordinaire',
-            'constitutive' => 'Assemblée Générale Constitutive'
-        ];
+        $subject = strip_tags($part_value);
 
         $map_values = [
             'condo'             => $assembly['condo_id']['name'],
             'assembly'          => $assembly['name'],
-            'type'              => $map_types[$assembly['assembly_type']],
+            'type'              => $type_label,
             'date'              => $getFormattedDate($assembly['assembly_date'])
         ];
 
@@ -288,15 +327,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $subject = strip_tags($subject);
     }
     elseif($part['name'] == 'introduction') {
-        $introduction = $part['value'];
-
-        // #todo #translation
-        $map_types = [
-            'statutory' => 'Assemblée Générale Statutaire',
-            'takeover' => 'Assemblée Générale de Reprise de gestion',
-            'extraordinary' => 'Assemblée Générale Extraordinaire',
-            'constitutive' => 'Assemblée Générale Constitutive'
-        ];
+        $introduction = $part_value;
 
         $map_values = [
             'firstname'         => $owner['firstname'],
@@ -305,7 +336,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'assembly'          => $assembly['name'],
             'date'              => $getFormattedDate($assembly['assembly_date']),
             'location'          => $assembly['assembly_location'],
-            'type'              => $map_types[$assembly['assembly_type']],
+            'type'              => $type_label,
             'time_start'        => $getFormattedTime($assembly['session_time_start'], $assembly['assembly_date'])
         ];
 
@@ -318,8 +349,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
 }
 
 $labels = $getLabels(
-    $lang,
-    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $lang, 'AssemblyInvitationCorrespondence.' . $params['view_id'])
+    $owner_lang,
+    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $owner_lang, 'AssemblyInvitationCorrespondence.' . $params['view_id'])
 );
 
 $values = [

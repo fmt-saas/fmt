@@ -1,0 +1,9 @@
+{
+    "header.registration_number": "Company number",
+    "header.vat_number": "VAT",
+    "header.number": "No.",
+    "header.date": "Date",
+    "header.email": "Email",
+    "header.status": "Status",
+    "header.communication": "Communication"
+}

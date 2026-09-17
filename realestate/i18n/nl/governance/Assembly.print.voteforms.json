@@ -1,0 +1,16 @@
+{
+    "assembly_type.statutory": "Statutaire Algemene Vergadering",
+    "assembly_type.takeover": "Algemene Vergadering voor Beheersovername",
+    "assembly_type.extraordinary": "Buitengewone Algemene Vergadering",
+    "assembly_type.constitutive": "Oprichtende Algemene Vergadering",
+
+    "assembly_details.assembly": "Vergadering",
+    "assembly_details.date": "Datum",
+    "assembly_details.owner": "Eigenaar",
+
+    "vote_form.table.th.order": "Nr.",
+    "vote_form.table.th.item": "Punt",
+    "vote_form.table.td.checkbox.for": "Voor",
+    "vote_form.table.td.checkbox.against": "Tegen",
+    "vote_form.table.td.checkbox.abstain": "Onthouding"
+}

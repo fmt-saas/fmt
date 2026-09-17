@@ -1,0 +1,12 @@
+{
+    "attendance.table.th.owner": "Co-owner",
+    "attendance.table.th.lots": "Units",
+    "attendance.table.th.statutory_quotas": "Statutory shares",
+    "attendance.table.th.presence_representation": "Attendance / Representation",
+    "attendance.table.th.signature": "Signature",
+
+    "digital_signature.signed_by": "Digitally signed by",
+    "digital_signature.signature": "Signature:",
+    "digital_signature.timestamp": "Timestamp:",
+    "digital_signature.algorithm": "Algorithm:"
+}

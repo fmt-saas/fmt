@@ -1,0 +1,26 @@
+{
+    "majority.unanimity": "Eenparigheid (100% van de quotiteiten)",
+    "majority.absolute": "Volstrekte meerderheid (> 50% van de quotiteiten)",
+    "majority.2_3": "Meerderheid van twee derde",
+    "majority.4_5": "Meerderheid van vier vijfde",
+
+    "result.adjourned": "Uitgesteld",
+    "result.vote.approved": "Goedgekeurd",
+    "result.vote.rejected": "Verworpen",
+    "result.done": "Voorgesteld en besproken",
+
+    "vote.for": "Voor:",
+    "vote.against": "Tegen:",
+
+    "vote.list.against": "Tegen:",
+    "vote.list.abstain": "Onthouding:",
+
+    "attendance.table.th.attendee": "Deelnemer",
+    "attendance.table.th.role": "Rol",
+    "attendance.table.th.signature": "Handtekening",
+
+    "digital_signature.signed_by": "Digitaal ondertekend door",
+    "digital_signature.signature": "Handtekening:",
+    "digital_signature.timestamp": "Tijdstempel:",
+    "digital_signature.algorithm": "Algoritme:"
+}

@@ -1,0 +1,12 @@
+{
+    "attendance.table.th.owner": "Mede-eigenaar",
+    "attendance.table.th.lots": "Kavels",
+    "attendance.table.th.statutory_quotas": "Statutaire quotiteiten",
+    "attendance.table.th.presence_representation": "Aanwezigheid / Vertegenwoordiging",
+    "attendance.table.th.signature": "Handtekening",
+
+    "digital_signature.signed_by": "Digitaal ondertekend door",
+    "digital_signature.signature": "Handtekening:",
+    "digital_signature.timestamp": "Tijdstempel:",
+    "digital_signature.algorithm": "Algoritme:"
+}

@@ -1,0 +1,37 @@
+{
+    "lots_recap.table.th.references": "Referenties",
+    "lots_recap.table.th.nature": "Aard",
+    "lots_recap.table.th.quotas": "Quotiteiten",
+    "lots_recap.table.th.days": "Dagen",
+
+    "funding.payment_amount": "Bedrag:",
+    "funding.communication": "Mededeling",
+
+    "global_summary.lots_recap.h2": "Overzicht van de kavels (algemeen)",
+    "global_summary.table.th.common_expenses": "Gemeenschappelijke kosten",
+    "global_summary.table.th.private_expenses": "Privatieve kosten",
+    "global_summary.table.th.provisions": "Voorschotten",
+    "global_summary.table.th.quotas": "Quotiteiten",
+    "global_summary.table.th.condo": "VME",
+    "global_summary.table.th.lot": "Kavel",
+    "global_summary.table.th.vat": "BTW",
+    "global_summary.table.th.owner": "Eig.",
+    "global_summary.table.th.tenant": "Huur.",
+    "global_summary.table.footer.td.total": "Totaal",
+    "global_summary.table.footer.td.grand_totals": "Algemene totalen",
+    "global_summary.table.td.provisions_called": "Opgevraagde voorschotten",
+
+    "detailed_statements.lots_recap.h2": "Overzicht van de kavels (gedetailleerd)",
+    "detailed_statements.table.th.common_expenses": "Gemeenschappelijke kosten",
+    "detailed_statements.table.th.private_expenses": "Privatieve kosten",
+    "detailed_statements.table.th.provisions": "Voorschotten",
+    "detailed_statements.table.th.quotas": "Quotiteiten",
+    "detailed_statements.table.th.condo": "VME",
+    "detailed_statements.table.th.lot": "Kavel",
+    "detailed_statements.table.th.vat": "BTW",
+    "detailed_statements.table.th.owner": "Eig.",
+    "detailed_statements.table.th.tenant": "Huur.",
+    "detailed_statements.table.footer.td.total": "Totaal",
+    "detailed_statements.table.footer.td.grand_totals": "Algemene totalen",
+    "detailed_statements.table.td.provisions_called": "Opgevraagde voorschotten"
+}

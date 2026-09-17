@@ -1,0 +1,9 @@
+{
+    "header.registration_number": "KBO",
+    "header.vat_number": "BTW",
+    "header.number": "Nr.",
+    "header.date": "Datum",
+    "header.email": "E-mail",
+    "header.status": "Status",
+    "header.communication": "Mededeling"
+}

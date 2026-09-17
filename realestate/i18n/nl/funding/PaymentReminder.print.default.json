@@ -1,0 +1,12 @@
+{
+    "payment.communication": "Mededeling",
+    "fundings.title": "Details van de vervallen bedragen",
+    "fundings.table.th.nature": "Type",
+    "fundings.table.th.label": "Beschrijving",
+    "fundings.table.th.deadline": "Vervaldatum",
+    "fundings.table.th.days_overdue": "Dagen achterstallig",
+    "fundings.table.th.reminder_level": "Herinneringsniveau",
+    "fundings.table.th.due_amount": "Bedrag",
+    "fundings.table.th.remaining_amount": "Openstaand saldo",
+    "fundings.table.footer.th.total": "Totaal"
+}

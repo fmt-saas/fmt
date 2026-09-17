@@ -1,0 +1,6 @@
+{
+    "balance_sheet.table.th.assets": "ACTIVA",
+    "balance_sheet.table.th.liabilities": "PASSIVA",
+    "balance_sheet.table.footer.td.total_assets": "Totaal activa",
+    "balance_sheet.table.footer.td.total_liabilities": "Totaal passiva"
+}

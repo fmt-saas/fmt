@@ -1,0 +1,15 @@
+{
+    "title": "Accounting settlement of your acquisition",
+    "buyer.introduction": "Dear Sir or Madam, please find enclosed the accounting settlement prepared following the acquisition of your units.",
+    "buyer.net_amount": "Net amount posted to your account:",
+    "buyer.details_introduction": "The provisional details of the transactions taken into account are shown below.",
+    "buyer.closing": "This letter template is provisional and will be completed once the final business content has been approved.",
+    "transfer.reference": "Reference:",
+    "transfer.date": "Transfer date:",
+    "ownership": "Buyer's property:",
+    "line.source": "Source",
+    "line.property_lot": "Unit",
+    "line.period": "Period",
+    "line.amount": "Amount",
+    "line.none": "No detailed transactions."
+}

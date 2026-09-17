@@ -1,0 +1,24 @@
+{
+    "lots_recap.table.th.references": "Referenties",
+    "lots_recap.table.th.nature": "Aard",
+    "lots_recap.table.th.quotas": "Quotiteiten",
+    "lots_recap.table.th.days": "Dagen",
+
+    "funding.payment_amount": "Bedrag:",
+    "funding.communication": "Mededeling:",
+
+    "operations.table.th.nature": "Aard van de verrichtingen",
+    "operations.table.th.apportionment_key": "Verdeelsleutel",
+    "operations.table.th.amounts": "Bedragen",
+    "operations.table.th.quotas": "Quotiteiten",
+    "operations.table.th.quote_share": "Aandeel",
+    "operations.table.footer.th.total": "Totaal",
+
+    "payments-planning.summary.title_period": "Details van de fondsenoproep voor de periode van %s tot %s:",
+    "payments-planning.summary.title_single": "Details van de fondsenoproep van %s:",
+    "payments-planning.table.title": "Betalingsplanning:",
+    "payments-planning.table.th.date": "Datum",
+    "payments-planning.table.th.deadline": "Vervaldatum",
+    "payments-planning.table.th.call": "Oproepbedrag",
+    "payments-planning.table.th.amount": "Aandeel"
+}
