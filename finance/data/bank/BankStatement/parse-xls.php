@@ -157,7 +157,7 @@ il faudrait préciser le type de fochier XLS : ISABEL est un des choix
  *       "value_date": "2024-05-05",
  *       "amount": -150.00,
  *       "currency": "EUR",
- *       "transaction_type": "sepa_direct_debit",
+ *       "transaction_type": "transfer",
  *       "sequence_number": 123,
  *       "received_at": "2024-05-05T10:45:00Z",
  *       "mandate_id": "MANDATE-2023-XYZ",
@@ -277,25 +277,39 @@ $adapters = [
             return null;
         }
 
-        $account_number = strtoupper(trim($account_number));
+        static $iban_lengths = [
+            'AD' => 24, 'AE' => 23, 'AL' => 28, 'AT' => 20, 'AZ' => 28,
+            'BA' => 20, 'BE' => 16, 'BG' => 22, 'BH' => 22, 'BI' => 27,
+            'BR' => 29, 'BY' => 28, 'CH' => 21, 'CR' => 22, 'CY' => 28,
+            'CZ' => 24, 'DE' => 22, 'DJ' => 27, 'DK' => 18, 'DO' => 28,
+            'EE' => 20, 'EG' => 29, 'ES' => 24, 'FI' => 18, 'FK' => 18,
+            'FO' => 18, 'FR' => 27, 'GB' => 22, 'GE' => 22, 'GI' => 23,
+            'GL' => 18, 'GR' => 27, 'GT' => 28, 'HN' => 28, 'HR' => 21,
+            'HU' => 28, 'IE' => 22, 'IL' => 23, 'IQ' => 23, 'IS' => 26,
+            'IT' => 27, 'JO' => 30, 'KW' => 30, 'KZ' => 20, 'LB' => 28,
+            'LC' => 32, 'LI' => 21, 'LT' => 20, 'LU' => 20, 'LV' => 21,
+            'LY' => 25, 'MC' => 27, 'MD' => 24, 'ME' => 22, 'MK' => 19,
+            'MN' => 20, 'MR' => 27, 'MT' => 31, 'MU' => 30, 'NI' => 28,
+            'NL' => 18, 'NO' => 15, 'OM' => 23, 'PK' => 24, 'PL' => 28,
+            'PS' => 29, 'PT' => 25, 'QA' => 29, 'RO' => 24, 'RS' => 22,
+            'RU' => 33, 'SA' => 24, 'SC' => 31, 'SD' => 18, 'SE' => 24,
+            'SI' => 19, 'SK' => 24, 'SM' => 27, 'SO' => 23, 'ST' => 25,
+            'SV' => 28, 'TL' => 23, 'TN' => 24, 'TR' => 26, 'UA' => 29,
+            'VA' => 22, 'VG' => 24, 'XK' => 20, 'YE' => 30
+        ];
 
-        if(preg_match('/^([A-Z]{2}[0-9]{2}[A-Z0-9]{10,30})/', $account_number, $matches)) {
-            $account_number = $matches[1];
-        }
+        $account_number = strtoupper(preg_replace('/[^A-Z0-9]/i', '', trim((string) $account_number)));
 
-        if(preg_match('/^([A-Z]{2}[0-9]{2}[A-Z0-9]{10,30})([A-Z]{3})$/', $account_number, $matches)) {
-            $account_number = $matches[1];
-        }
-
-        $prefix = substr($account_number, 0, 2);
-        if(!preg_match('/^[A-Z]{2}$/', $prefix)) {
+        if(!preg_match('/^([A-Z]{2})[0-9]{2}/', $account_number, $matches)) {
             return null;
         }
 
-        $remainder = substr($account_number, 2);
-        $remainder = preg_replace('/[^A-Z0-9]/i', '', $remainder);
+        $iban_length = $iban_lengths[$matches[1]] ?? null;
+        if($iban_length === null || strlen($account_number) < $iban_length) {
+            return null;
+        }
 
-        return $prefix . $remainder;
+        return substr($account_number, 0, $iban_length);
     },
     'bic_normalize' => function($bic) {
         // BIC8 as of ISO 9362
@@ -313,48 +327,242 @@ $adapters = [
         /*
         #memo - this list is incomplete and is only meant for XLS/CODA format extraction (from ISABEL XLSX)
         */
-        static $coda_transaction_codes = [
-            // incoming transfers
-            '01'   => 'credit',
-            '0101' => 'credit_out',
-            '0150' => 'credit_in',
-            '0250' => 'credit_in',    // instant
-            // payments
+        static $map_transaction_codes = [
+
+            // --------------------------------------------------
+            // 01 — SEPA credit transfers
+            // Symbiose: credit / credit_out / credit_in
+            // --------------------------------------------------
+            '01'   => 'transfer',
+
+            '0101' => 'transfer_out',
+            '0102' => 'transfer_out',
+            '0103' => 'transfer_out',
+            '0105' => 'transfer_out',
+            '0107' => 'transfer_out',
+            '0113' => 'transfer_out',
+            '0117' => 'transfer_out',
+            '0137' => 'transfer_fee',
+
+            '0150' => 'transfer_in',
+            '0151' => 'transfer_in',
+            '0152' => 'transfer_in',
+            '0154' => 'rejected_transfer',
+            '0164' => 'transfer_in',
+            '0166' => 'transfer_in',
+            '0187' => 'transfer_fee_reimbursement',
+
+            // --------------------------------------------------
+            // 02 — Instant SEPA credit transfers
+            // Same business semantics as family 01.
+            // --------------------------------------------------
+            '02'   => 'transfer',
+
+            '0201' => 'credit_out',
+            '0203' => 'credit_out',
+            '0205' => 'credit_out',
+            '0213' => 'credit_out',
+            '0237' => 'transfer_fee',
+
+            '0250' => 'transfer_in',
+            '0251' => 'transfer_in',
+            '0252' => 'transfer_in',
+            '0264' => 'transfer_in',
+            '0266' => 'transfer_in',
+            '0287' => 'transfer_fee_reimbursement',
+
+            // --------------------------------------------------
+            // 03 — Cheques
+            // No generic Symbiose normalization defined yet.
+            // --------------------------------------------------
+            '03'   => 'cheque',
+
+            '0301' => 'cheque_payment',
+            '0305' => 'voucher_payment',
+            '0311' => 'store_cheque',
+            '0315' => 'bank_cheque_issue',
+            '0317' => 'certified_cheque',
+            '0337' => 'cheque_fee',
+            '0338' => 'cheque_unpaid',
+
+            '0352' => 'cheque_credit_pending',
+            '0358' => 'cheque_credit',
+            '0362' => 'cheque_reversal',
+            '0363' => 'cheque_second_credit',
+            '0387' => 'cheque_fee_reimbursement',
+
+            // --------------------------------------------------
+            // 04 — Cards
+            // --------------------------------------------------
+            '04'   => 'card',
+
+            '0402' => 'card_payment_eu',
+            '0403' => 'credit_card_settlement',
+            '0404' => 'atm_withdrawal',
+            '0406' => 'fuel_card_payment',
+            '0408' => 'card_payment_foreign',
+            '0437' => 'card_fee',
+
+            '0450' => 'card_payment_received',
+            '0453' => 'atm_deposit',
+            '0487' => 'card_fee_reimbursement',
+
+            // --------------------------------------------------
+            // 05 — Direct debits
+            // Symbiose: debit / debit_out / debit_in
+            // --------------------------------------------------
             '05'   => 'debit',
+
             '0501' => 'debit_out',
+            '0503' => 'direct_debit_unpaid',
             '0505' => 'debit_in',
-            // account closure
+            '0537' => 'direct_debit_fee',
+
+            '0550' => 'direct_debit_credit',
+            '0552' => 'direct_debit_credit_pending',
+            '0554' => 'direct_debit_refund_credit',
+            '0558' => 'direct_debit_reversal',
+            '0587' => 'fee_reimbursement',
+
+            // --------------------------------------------------
+            // 07 — Bills of exchange
+            // --------------------------------------------------
+            '07'   => 'bill_of_exchange',
+
+            '0701' => 'bill_payment',
+            '0707' => 'bill_unpaid',
+            '0737' => 'bill_fee',
+
+            '0750' => 'bill_credit_after_collection',
+            '0752' => 'bill_credit_pending',
+            '0754' => 'bill_discount',
+            '0787' => 'bill_fee_reimbursement',
+
+            // --------------------------------------------------
+            // 09 — Cash operations
+            // --------------------------------------------------
+            '09'   => 'cash',
+
+            '0901' => 'cash_withdrawal',
+            '0913' => 'branch_cash_withdrawal',
+            '0937' => 'cash_fee',
+
+            '0950' => 'cash_deposit',
+            '0952' => 'night_safe_deposit',
+            '0958' => 'branch_cash_deposit',
+            '0987' => 'cash_fee_reimbursement',
+
+            // --------------------------------------------------
+            // 11 — Securities
+            // --------------------------------------------------
+            '11'   => 'securities',
+
+            '1101' => 'securities_purchase',
+            '1103' => 'securities_subscription',
+            '1117' => 'securities_management_fee',
+            '1137' => 'securities_fee',
+
+            '1150' => 'securities_sale',
+            '1152' => 'coupon_payment',
+            '1168' => 'missing_coupon_compensation',
+            '1187' => 'securities_fee_reimbursement',
+
+            // --------------------------------------------------
+            // 13 — Loans
+            // --------------------------------------------------
+            '13'   => 'loan',
+
+            '1301' => 'loan_repayment_short_term',
+            '1302' => 'loan_repayment_long_term',
+            '1311' => 'mortgage_repayment',
+            '1337' => 'loan_fee',
+
+            '1350' => 'loan_payment_received',
+            '1360' => 'mortgage_payment_received',
+            '1362' => 'term_loan',
+            '1387' => 'loan_fee_reimbursement',
+
+            // --------------------------------------------------
+            // 30 — Miscellaneous
+            // --------------------------------------------------
+            '30'   => 'misc',
+
+            '3001' => 'fx_purchase_spot',
+            '3003' => 'fx_purchase_forward',
+            '3005' => 'term_deposit_payment',
+            '3037' => 'misc_fee',
+
+            '3050' => 'fx_sale_spot',
+            '3052' => 'fx_sale_forward',
+            '3054' => 'term_deposit_credit',
+            '3087' => 'misc_fee_reimbursement',
+
+            // --------------------------------------------------
+            // 35 — Account closing / periodic settlement
+            // Already aligned with existing Symbiose codes.
+            // --------------------------------------------------
+            '35'   => 'account_closure',
+
             '3501' => 'account_closure',
             '3537' => 'closing_fee',
             '3550' => 'account_closure_credit',
-            // fees
+            '3587' => 'closing_fee_reimbursement',
+
+            // --------------------------------------------------
+            // 41 — International credit transfers
+            // Same business semantics as SEPA transfers.
+            // --------------------------------------------------
+            '41'   => 'credit',
+
+            '4101' => 'credit_out',
+            '4103' => 'credit_out',
+            '4113' => 'credit_out',
+            '4137' => 'transfer_fee',
+
+            '4150' => 'credit_in',
+            '4164' => 'credit_in',
+            '4166' => 'credit_in',
+            '4187' => 'fee_reimbursement',
+
+            // --------------------------------------------------
+            // 80 — Fees
+            // --------------------------------------------------
+            '80'   => 'bank_fee',
+
             '8002' => 'electronic_fee',
+            '8007' => 'insurance_fee',
+            '8009' => 'postage_fee',
+            '8013' => 'safe_deposit_fee',
+            '8023' => 'research_fee',
+            '8033' => 'bank_commission',
             '8035' => 'tax_fee',
             '8037' => 'database_access_fee',
             '8039' => 'guarantee_fee',
             '8041' => 'research_fee',
             '8043' => 'printing_fee',
             '8045' => 'documentary_credit_fee',
-            '8087' => 'fee_reimbursement'
+            '8049' => 'fee_correction_debit',
+
+            // Already present in the XLS normalizer.
+            '8087' => 'fee_reimbursement',
+
+            '8099' => 'fee_correction_credit',
         ];
 
-        $haystack = str_replace(' ', '', $transaction_type);
+        // ISABEL prefixes the label with a CODA family and, optionally, an operation code.
+        if(preg_match('/^\s*(\d{2})(?:\s*(\d{2}))?(?=\s|$)/u', (string) $transaction_type, $matches)) {
+            if(isset($matches[2])) {
+                $code = $matches[1] . $matches[2];
+                if(isset($map_transaction_codes[$code])) {
+                    return $map_transaction_codes[$code];
+                }
+            }
 
-        // CODA format
-        if(preg_match('/\b(\d{2})(\d{2})\b/', $haystack, $matches)) {
-            $code = $matches[1] . $matches[2];
-            if(isset($coda_transaction_codes[$code])) {
-                return $coda_transaction_codes[$code];
+            if(isset($map_transaction_codes[$matches[1]])) {
+                return $map_transaction_codes[$matches[1]];
             }
         }
-        elseif(preg_match('/\b(\d{2})\b/', $haystack, $matches)) {
-            if(isset($coda_transaction_codes[$matches[1]])) {
-                return $coda_transaction_codes[$matches[1]];
-            }
-        }
-        else {
-            // other format
-        }
+
         return $result;
     },
     'string_trim' => function($str) {

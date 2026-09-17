@@ -80,7 +80,7 @@ $context->httpResponse()
  *         "value_date": "2024-05-05",                       // Date the transaction becomes effective
  *         "amount": -150.00,                                // Transaction amount (negative = debit, positive = credit)
  *         "currency": "EUR",                                // Currency of the transaction
- *         "transaction_type": "sepa_direct_debit",          // Transaction type (e.g. SEPA direct debit, transfer)
+ *         "transaction_type": "transfer",                   // Transaction type (e.g. SEPA direct debit, transfer)
  *         "sequence_number": 123,                           // Internal transaction sequence number
  *         "received_at": "2024-05-05T10:45:00Z",            // Timestamp when the transaction was received (UTC)
  *         "mandate_id": "MANDATE-2023-XYZ",                 // Mandate identifier for SEPA direct debit

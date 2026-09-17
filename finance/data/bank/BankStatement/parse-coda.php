@@ -121,7 +121,7 @@ list($params, $providers) = eQual::announce([
  *       "value_date": "2024-05-05",
  *       "amount": -150.00,
  *       "currency": "EUR",
- *       "transaction_type": "sepa_direct_debit",
+ *       "transaction_type": "transfer",
  *       "sequence_number": 123,
  *       "received_at": "2024-05-05T10:45:00Z",
  *       "mandate_id": "MANDATE-2023-XYZ",
@@ -137,6 +137,27 @@ list($params, $providers) = eQual::announce([
  *     }
  *   ]
  * }
+ *
+ * CODA transaction types families
+ *
+ * | Code | CODA family                                           |
+ * | ---: | ----------------------------------------------------- |
+ * | `01` | Domestic/local transfers — SEPA Credit Transfers      |
+ * | `02` | Instant SEPA Credit Transfers                         |
+ * | `03` | Cheques                                               |
+ * | `04` | Cards                                                 |
+ * | `05` | Direct Debits                                         |
+ * | `07` | Domestic bills of exchange                            |
+ * | `09` | Counter operations                                    |
+ * | `11` | Securities / coupons                                  |
+ * | `13` | Credits / loans                                       |
+ * | `30` | Miscellaneous operations                              |
+ * | `35` | Closing — periodic settlement of interest, fees, etc. |
+ * | `41` | International / non-SEPA transfers                    |
+ * | `43` | Foreign cheques                                       |
+ * | `47` | Foreign bills of exchange                             |
+ * | `80` | Fees and commissions charged separately               |
+ *
  */
 
 ['context' => $context, 'auth' => $auth] = $providers;
@@ -177,50 +198,53 @@ $getTransactionType = function($family, $operation) {
     /*
      * #memo - this list is incomplete, but there is a fallback on family (first 2 digits)
      */
-    static $coda_transaction_codes = [
+    static $map_transaction_codes = [
 
         // --------------------------------------------------
-        // 01 — SEPA transfers
+        // 01 — SEPA credit transfers
+        // Symbiose: credit / credit_out / credit_in
         // --------------------------------------------------
-        '01'   => 'credit_transfer',
+        '01'   => 'transfer',
 
-        '0101' => 'credit_transfer_out',
-        '0102' => 'credit_transfer_out_bank',
-        '0103' => 'standing_order_out',
-        '0105' => 'salary_payment',
-        '0107' => 'bulk_transfer_out',
-        '0113' => 'internal_transfer_out',
-        '0117' => 'financial_centralisation_out',
+        '0101' => 'transfer_out',
+        '0102' => 'transfer_out',
+        '0103' => 'transfer_out',
+        '0105' => 'transfer_out',
+        '0107' => 'transfer_out',
+        '0113' => 'transfer_out',
+        '0117' => 'transfer_out',
         '0137' => 'transfer_fee',
 
-        '0150' => 'credit_transfer_in',
-        '0151' => 'credit_transfer_in_bank',
-        '0152' => 'third_party_payment',
+        '0150' => 'transfer_in',
+        '0151' => 'transfer_in',
+        '0152' => 'transfer_in',
         '0154' => 'rejected_transfer',
-        '0164' => 'internal_transfer_in',
-        '0166' => 'financial_centralisation_in',
-        '0187' => 'fee_reimbursement',
+        '0164' => 'transfer_in',
+        '0166' => 'transfer_in',
+        '0187' => 'transfer_fee_reimbursement',
 
         // --------------------------------------------------
-        // 02 — Instant SEPA transfers
+        // 02 — Instant SEPA credit transfers
+        // Same business semantics as family 01.
         // --------------------------------------------------
-        '02'   => 'instant_credit_transfer',
+        '02'   => 'transfer',
 
-        '0201' => 'instant_transfer_out',
-        '0203' => 'instant_standing_order_out',
-        '0205' => 'instant_salary_payment',
-        '0213' => 'instant_internal_transfer_out',
-        '0237' => 'instant_transfer_fee',
+        '0201' => 'credit_out',
+        '0203' => 'credit_out',
+        '0205' => 'credit_out',
+        '0213' => 'credit_out',
+        '0237' => 'transfer_fee',
 
-        '0250' => 'instant_transfer_in',
-        '0251' => 'instant_transfer_in_bank',
-        '0252' => 'instant_third_party_payment',
-        '0264' => 'instant_internal_transfer_in',
-        '0266' => 'instant_financial_centralisation_in',
-        '0287' => 'instant_fee_reimbursement',
+        '0250' => 'transfer_in',
+        '0251' => 'transfer_in',
+        '0252' => 'transfer_in',
+        '0264' => 'transfer_in',
+        '0266' => 'transfer_in',
+        '0287' => 'transfer_fee_reimbursement',
 
         // --------------------------------------------------
         // 03 — Cheques
+        // No generic Symbiose normalization defined yet.
         // --------------------------------------------------
         '03'   => 'cheque',
 
@@ -255,20 +279,21 @@ $getTransactionType = function($family, $operation) {
         '0487' => 'card_fee_reimbursement',
 
         // --------------------------------------------------
-        // 05 — Direct debit
+        // 05 — Direct debits
+        // Symbiose: debit / debit_out / debit_in
         // --------------------------------------------------
-        '05'   => 'direct_debit',
+        '05'   => 'debit',
 
-        '0501' => 'direct_debit_payment',
+        '0501' => 'debit_out',
         '0503' => 'direct_debit_unpaid',
-        '0505' => 'direct_debit_refund',
+        '0505' => 'debit_in',
         '0537' => 'direct_debit_fee',
 
         '0550' => 'direct_debit_credit',
         '0552' => 'direct_debit_credit_pending',
         '0554' => 'direct_debit_refund_credit',
         '0558' => 'direct_debit_reversal',
-        '0587' => 'direct_debit_fee_reimbursement',
+        '0587' => 'fee_reimbursement',
 
         // --------------------------------------------------
         // 07 — Bills of exchange
@@ -345,6 +370,7 @@ $getTransactionType = function($family, $operation) {
 
         // --------------------------------------------------
         // 35 — Account closing / periodic settlement
+        // Already aligned with existing Symbiose codes.
         // --------------------------------------------------
         '35'   => 'account_closure',
 
@@ -354,19 +380,20 @@ $getTransactionType = function($family, $operation) {
         '3587' => 'closing_fee_reimbursement',
 
         // --------------------------------------------------
-        // 41 — International transfers
+        // 41 — International credit transfers
+        // Same business semantics as SEPA transfers.
         // --------------------------------------------------
-        '41'   => 'international_transfer',
+        '41'   => 'credit',
 
-        '4101' => 'international_transfer_out',
-        '4103' => 'international_standing_order',
-        '4113' => 'international_internal_transfer',
-        '4137' => 'international_transfer_fee',
+        '4101' => 'credit_out',
+        '4103' => 'credit_out',
+        '4113' => 'credit_out',
+        '4137' => 'transfer_fee',
 
-        '4150' => 'international_transfer_in',
-        '4164' => 'international_internal_transfer_in',
-        '4166' => 'international_centralisation',
-        '4187' => 'international_fee_reimbursement',
+        '4150' => 'credit_in',
+        '4164' => 'credit_in',
+        '4166' => 'credit_in',
+        '4187' => 'fee_reimbursement',
 
         // --------------------------------------------------
         // 80 — Fees
@@ -387,17 +414,20 @@ $getTransactionType = function($family, $operation) {
         '8045' => 'documentary_credit_fee',
         '8049' => 'fee_correction_debit',
 
+        // Already present in the XLS normalizer.
+        '8087' => 'fee_reimbursement',
+
         '8099' => 'fee_correction_credit',
     ];
 
     // CODA format
     $code = $family . $operation;
-    if(isset($coda_transaction_codes[$code])) {
-        return $coda_transaction_codes[$code];
+    if(isset($map_transaction_codes[$code])) {
+        return $map_transaction_codes[$code];
     }
     $code = $family;
-    if(isset($coda_transaction_codes[$code])) {
-        return $coda_transaction_codes[$code];
+    if(isset($map_transaction_codes[$code])) {
+        return $map_transaction_codes[$code];
     }
     else {
         // other format

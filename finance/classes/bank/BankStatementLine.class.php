@@ -152,7 +152,7 @@ class BankStatementLine extends Model {
             'transaction_type' => [
                 'type'              => 'string',
                 'description'       => 'Type of transaction of the line.',
-                'default'           => 'sepa_direct_debit'
+                'default'           => 'transfer'
             ],
 
             'remaining_amount' => [

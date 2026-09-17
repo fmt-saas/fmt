@@ -37,7 +37,7 @@ $output = [
             "value_date"             => null,               // Date the transaction becomes effective
             "amount"                 => 0.0,                // Transaction amount (negative = debit, positive = credit)
             "currency"               => "EUR",              // Currency of the transaction
-            "transaction_type"       => "sepa_direct_debit",// Transaction type (e.g. SEPA direct debit, transfer)
+            "transaction_type"       => "transfer",         // Transaction type (e.g. SEPA direct debit, transfer)
             "sequence_number"        => 1,                  // Internal transaction sequence number
             "received_at"            => 0,                  // Timestamp when the transaction was received (UTC)
             "mandate_id"             => "",                 // Mandate identifier for SEPA direct debit
