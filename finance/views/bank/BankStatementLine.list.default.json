@@ -98,9 +98,13 @@
             },
             {
                 "type": "field",
-                "value": "account_iban",
-                "width": "15%",
-                "readonly": true
+                "label": "Account",
+                "value": "accounting_account_id",
+                "width": "25%",
+                "widget": {
+                    "interactions": false,
+                    "controller": "finance_accounting_Account_collect"
+                }
             },
             {
                 "type": "field",
@@ -110,13 +114,9 @@
             },
             {
                 "type": "field",
-                "label": "Account",
-                "value": "accounting_account_id",
-                "width": "25%",
-                "widget": {
-                    "interactions": false,
-                    "controller": "finance_accounting_Account_collect"
-                }
+                "value": "account_iban",
+                "width": "15%",
+                "readonly": true
             },
             {
                 "type": "field",
