@@ -48,6 +48,12 @@ class BankStatementImport extends Model {
                 'onupdate'          => 'onupdateData'
             ],
 
+            'summary' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain',
+                'description'       => 'Summary of the bank statement import processing.'
+            ],
+
             'logs' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain',
@@ -107,6 +113,18 @@ class BankStatementImport extends Model {
     }
 
     /**
+     * Format the main import counters for display in the result form.
+     */
+    private static function computeSummary(array $summary): string {
+        return implode("\n", [
+            "Files in import: {$summary['files']}",
+            "Statements imported: {$summary['imported']}",
+            "Statements skipped (already imported): {$summary['already_imported']}",
+            "Statements skipped (unknown accounts): {$summary['unknown_accounts']}"
+        ]);
+    }
+
+    /**
      * Handle data update (i.e. file upload).
      * This method is used to create the document based on received data, and start the processing.
      */
@@ -122,6 +140,13 @@ class BankStatementImport extends Model {
 
         // in case binary is an archive, all files contained inside are returned
         foreach($self as $id => $bankStatementImport) {
+            $summary = [
+                'files'             => 0,
+                'imported'          => 0,
+                'already_imported'  => 0,
+                'unknown_accounts'  => 0
+            ];
+
             $logs = [];
             if(isset($bankStatementImport['logs']) && strlen($bankStatementImport['logs']) > 0) {
                 $logs = explode("\n", $bankStatementImport['logs']);
@@ -137,10 +162,14 @@ class BankStatementImport extends Model {
             }
             catch(\Exception $e) {
                 $logs[] = "ERR  - Unable to read {$bankStatementImport['name']}: {$e->getMessage()}";
-                self::id($id)->write(['logs' => implode("\n", $logs)]);
+                self::id($id)->write([
+                    'summary' => self::computeSummary($summary),
+                    'logs'    => implode("\n", $logs)
+                ]);
                 throw $e;
             }
 
+            $summary['files'] = count($files);
             $logs[] = 'INFO - Found ' . count($files) . ' file(s) to process';
 
             foreach($files as $file) {
@@ -193,6 +222,7 @@ class BankStatementImport extends Model {
                             ->first();
 
                         if(!$bankAccount || !$bankAccount['condo_id'] || !$bankAccount['condo_id']['is_active']) {
+                            ++$summary['unknown_accounts'];
                             $logs[] = "WARN - Skipped statement {$statement_number}: no active condominium bank account for IBAN {$iban}";
                             continue;
                         }
@@ -209,6 +239,7 @@ class BankStatementImport extends Model {
                             ->first();
 
                         if($existingBankStatement) {
+                            ++$summary['already_imported'];
                             $logs[] = "WARN - Skipped statement {$statement_number}: already imported as bank statement {$existingBankStatement['id']}";
                             continue;
                         }
@@ -225,6 +256,7 @@ class BankStatementImport extends Model {
                             $logs[] = "INFO - Created document process {$documentProcess['id']} for statement {$statement_number}";
 
                             DocumentProcess::id($documentProcess['id'])->update(['data' => $binary]);
+                            ++$summary['imported'];
                             $logs[] = "INFO - Submitted statement {$statement_number} to document process {$documentProcess['id']}";
                         }
                         catch(\Exception $e) {
@@ -242,8 +274,9 @@ class BankStatementImport extends Model {
 
             $logs[] = "INFO - Finished bank statement import {$id}";
             self::id($id)->write([
-                'data' => null,
-                'logs' => implode("\n", $logs)
+                'data'    => null,
+                'summary' => self::computeSummary($summary),
+                'logs'    => implode("\n", $logs)
             ]);
         }
     }

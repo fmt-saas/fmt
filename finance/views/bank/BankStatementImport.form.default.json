@@ -29,6 +29,31 @@
             {
                 "sections": [
                     {
+                        "id":"section.summary",
+                        "label": "Summary",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "summary",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "height": 200
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id":"section.log",
+                        "label": "Journal",
                         "rows": [
                             {
                                 "columns": [

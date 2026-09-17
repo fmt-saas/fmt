@@ -13,6 +13,11 @@
             "description": "Flux binaire du fichier déposé, utilisé pour créer les documents et lancer l'extraction.",
             "help": "Le contenu est purgé une fois le document créé afin d'éviter un double stockage."
         },
+        "summary": {
+            "label": "Résumé",
+            "description": "Synthèse des principaux résultats de l'import.",
+            "help": "Présente le nombre de fichiers détectés et le résultat du traitement des relevés."
+        },
         "logs": {
             "label": "Journal",
             "description": "Détail des fichiers et relevés traités, ignorés ou en erreur lors de l'import.",
