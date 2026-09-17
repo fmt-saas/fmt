@@ -37,18 +37,21 @@
                 "type": "field",
                 "value": "condo_id",
                 "width": "10%",
-                "visible": false
+                "visible": false,
+                "readonly": true
             },
             {
                 "type": "field",
                 "value": "bank_statement_id",
                 "width": "10%",
-                "visible": false
+                "visible": false,
+                "readonly": true
             },
             {
                 "type": "field",
                 "value": "sequence_number",
-                "width": "10%"
+                "width": "10%",
+                "readonly": true
             },
             {
                 "type": "field",
@@ -66,12 +69,14 @@
             {
                 "type": "field",
                 "value": "account_holder",
-                "width": "15%"
+                "width": "15%",
+                "readonly": true
             },
             {
                 "type": "field",
                 "value": "account_iban",
-                "width": "15%"
+                "width": "15%",
+                "readonly": true
             },
             {
                 "type": "field",
@@ -81,7 +86,8 @@
             {
                 "type": "field",
                 "value": "status",
-                "width": "10%"
+                "width": "10%",
+                "readonly": true
             }
         ]
     }

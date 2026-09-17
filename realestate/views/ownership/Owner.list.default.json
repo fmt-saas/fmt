@@ -2,6 +2,7 @@
     "name": "Owners",
     "description": "List of owners.",
     "header": {
+        "actions": false,
         "selection": {
             "default": false,
             "actions" : [
@@ -32,6 +33,11 @@
             {
                 "type": "field",
                 "value": "name",
+                "width": "20%"
+            },
+            {
+                "type": "field",
+                "value": "email",
                 "width": "20%"
             },
             {

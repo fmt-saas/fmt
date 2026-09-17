@@ -52,7 +52,7 @@
                 "value": "date",
                 "width": "10%",
                 "widget": {
-                    "readonly": false
+                    "usage": "date/short"
                 }
             },
             {

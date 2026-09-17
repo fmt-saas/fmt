@@ -56,6 +56,7 @@
                                                 "value": "identity_id",
                                                 "width": "50%",
                                                 "widget": {
+                                                    "readonly": true,
                                                     "heading": true
                                                 }
                                             },
@@ -63,6 +64,7 @@
                                                 "type": "field",
                                                 "value": "user_id",
                                                 "width": "50%",
+                                                "readonly": true,
                                                 "visible": ["user_id", "<>", null]
                                             },
                                             {
@@ -99,12 +101,14 @@
                                             {
                                                 "type": "field",
                                                 "value": "ownership_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "readonly": true
                                             }
                                         ]
                                     }

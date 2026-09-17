@@ -68,19 +68,22 @@
                 "type": "field",
                 "value": "condo_id",
                 "width": "10%",
-                "visible": false
+                "visible": false,
+                "readonly": true
             },
             {
                 "type": "field",
                 "value": "is_owner",
                 "width": "10%",
-                "visible": false
+                "visible": false,
+                "readonly": true
             },
             {
                 "type": "field",
                 "value": "bank_statement_id",
                 "width": "10%",
-                "visible": false
+                "visible": false,
+                "readonly": true
             },
             {
                 "type": "field",
@@ -122,7 +125,8 @@
                 "type": "field",
                 "value": "accounting_account_code",
                 "width": "10%",
-                "visible": false
+                "visible": false,
+                "readonly": true
             },
             {
                 "type": "field",
@@ -132,7 +136,8 @@
             {
                 "type": "field",
                 "value": "status",
-                "width": "10%"
+                "width": "10%",
+                "readonly": true
             },
             {
                 "type": "field",
