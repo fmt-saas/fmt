@@ -36,7 +36,7 @@ use realestate\governance\AssemblyInvitationCorrespondence;
 ['context' => $context] = $providers;
 
 $assembly = Assembly::id($params['id'])
-    ->read(['invitations_exporting_task_id'])
+    ->read(['invitations_exporting_task_id', 'ownerships_ids'])
     ->first();
 
 if(!$assembly) {
@@ -69,7 +69,14 @@ if(!count($correspondences)) {
 
 // A document can be shared by several correspondences when they target the same owner and ownership.
 $documents_to_regenerate = [];
+$ignored_historical_correspondence_ids = [];
+$assembly_ownerships_map = array_fill_keys($assembly['ownerships_ids'], true);
 foreach($correspondences as $correspondence_id => $correspondence) {
+    if(!isset($assembly_ownerships_map[$correspondence['ownership_id']])) {
+        $ignored_historical_correspondence_ids[] = $correspondence_id;
+        continue;
+    }
+
     $document_id = $correspondence['document_id'];
     if(isset($documents_to_regenerate[$document_id])) {
         continue;
@@ -240,6 +247,7 @@ $context->httpResponse()
     ->body([
         'assembly_id'                    => $assembly['id'],
         'correspondences_count'          => count($correspondences),
+        'ignored_historical_correspondence_ids' => $ignored_historical_correspondence_ids,
         'regenerated_document_ids'       => $regenerated_document_ids,
         'regenerated_export_document_ids' => $regenerated_export_document_ids
     ])
