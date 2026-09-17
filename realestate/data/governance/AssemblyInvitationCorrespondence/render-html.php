@@ -60,6 +60,8 @@ use Twig\Extension\ExtensionInterface;
 /** @var \equal\php\Context $context */
 $context = $providers['context'];
 
+$timezone_name = Setting::get_value('core', 'locale', 'time.zone', constant('L10N_TIMEZONE'));
+
 $getFormattedDate = function($timestamp) {
     if(empty($timestamp) || !is_numeric($timestamp)) {
         return '';
@@ -75,15 +77,33 @@ $getFormattedDate = function($timestamp) {
     }
 };
 
-$getFormattedTime = function($timestamp, $adapt=false) {
-    if($adapt) {
-        $tz = new \DateTimeZone(constant('L10N_TIMEZONE'));
-        $tz_offset = $tz->getOffset(new \DateTime('@' . time()));
-        $local_time = $timestamp + $tz_offset;
-        $local_today = strtotime('today', $local_time);
-        $timestamp = $local_time - $local_today;
+$getFormattedTime = function($time_offset, $date_timestamp) use ($timezone_name) {
+    if(!is_numeric($time_offset) || !is_numeric($date_timestamp)) {
+        return '';
     }
-    return sprintf('%02d:%02d', $timestamp / 3600, ($timestamp % 3600) / 60);
+
+    $time_offset = (int) $time_offset;
+    if($time_offset < 0 || $time_offset >= 86400) {
+        return '';
+    }
+
+    try {
+        // A date is stored as UTC midnight, while a time is an offset from midnight in the configured timezone.
+        $date = gmdate('Y-m-d', (int) $date_timestamp);
+        $hours = intdiv($time_offset, 3600);
+        $minutes = intdiv($time_offset % 3600, 60);
+        $seconds = $time_offset % 60;
+
+        $date_time = new DateTimeImmutable(
+            sprintf('%s %02d:%02d:%02d', $date, $hours, $minutes, $seconds),
+            new DateTimeZone($timezone_name)
+        );
+
+        return $date_time->format('H:i');
+    }
+    catch(\Throwable $e) {
+        return '';
+    }
 };
 
 $getOrganisationLogo = function($organisation_id, $object_class='identity\Organisation') {
@@ -286,7 +306,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'date'              => $getFormattedDate($assembly['assembly_date']),
             'location'          => $assembly['assembly_location'],
             'type'              => $map_types[$assembly['assembly_type']],
-            'time_start'        => $getFormattedTime($assembly['session_time_start'], true)
+            'time_start'        => $getFormattedTime($assembly['session_time_start'], $assembly['assembly_date'])
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -316,7 +336,7 @@ $values = [
     'recipient'                 => $recipient,
 
     // 'today_date'                => time(),
-    'timezone'                  => constant('L10N_TIMEZONE'),
+    'timezone'                  => $timezone_name,
     'locale'                    => constant('L10N_LOCALE'),
     'date_format'               => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),
 
