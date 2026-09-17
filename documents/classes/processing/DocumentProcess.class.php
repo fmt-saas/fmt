@@ -1914,6 +1914,7 @@ class DocumentProcess extends Model {
                                 'account_holder'          => $txn['counterparty_name'] ?? null,
                                 'communication'           => $communication,
                                 'communication_type'      => $communication_type,
+                                'transaction_type'        => $txn['transaction_type'] ?? null,
                                 'status'                  => 'pending'
                             ])
                             ->update([
