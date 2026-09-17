@@ -177,7 +177,7 @@ foreach($documents_to_regenerate as $document_id => $document_info) {
 
     // The correspondence download URL contains the document hash and must be rebuilt.
     AssemblyInvitationCorrespondence::search(['document_id', '=', $document_id])
-        ->update(['download_link' => null])
+        ->write(['download_link' => null])
         ->read(['download_link']);
 }
 
