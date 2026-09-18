@@ -1792,6 +1792,22 @@ class DocumentProcess extends Model {
                 elseif($documentProcess['document_type_code'] === 'bank_statement') {
                     $bankAccount = CondominiumBankAccount::search([['condo_id', '=', $documentProcess['condo_id']], ['bank_account_iban', '=', $data['account_iban']]])->first();
 
+                    /*
+                    // theoretical strict list of bank fees
+                    [
+                        'transfer_fee',
+                        'cheque_fee',
+                        'card_fee',
+                        'direct_debit_fee',
+                        'bill_fee',
+                        'cash_fee',
+                        'securities_fee',
+                        'loan_fee',
+                        'misc_fee',
+                        'account_settlement_fee',
+                        'bank_fee',
+                    ]
+                    */
                     $map_bank_fee_transaction_types = [
                         'transfer_fee',
                         'transfer_fee_reimbursement',
