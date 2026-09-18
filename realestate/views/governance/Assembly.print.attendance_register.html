@@ -80,19 +80,7 @@
 </head>
 
 <body>
-    <!--
-    <header class="{{ debug ? 'debug':'' }}">
-        <div class="condominium-info {{ debug ? 'debug' : '' }}">
-            <div style="padding-left: 10px; text-transform: uppercase;">
-                <div style="font-weight: bold;">{{ condominium.name }}</div>
-                <div>{{ condominium.address_street }}</div>
-                <div>{{ condominium.address_zip }} {{ condominium.address_city }}</div>
-            </div>
-        </div>
-
-    </header>
-    -->
-
+    {% include 'footer.html.twig' %}
     {% include 'header.html.twig' %}
 
     <div class="introduction" style="height: auto; max-height: 100px; overflow: hidden; text-overflow: ellipsis;">
@@ -196,7 +184,7 @@
     {% endif %}
 
 
-    {% include 'footer.html.twig' %}
+  </main>
 </body>
 
 </html>
