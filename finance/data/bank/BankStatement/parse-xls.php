@@ -173,6 +173,27 @@ il faudrait préciser le type de fochier XLS : ISABEL est un des choix
  *     }
  *   ]
  * }
+ *
+ * CODA transaction types families
+ *
+ * | Code | CODA family                                           |
+ * | ---: | ----------------------------------------------------- |
+ * | `01` | Domestic/local transfers — SEPA Credit Transfers      |
+ * | `02` | Instant SEPA Credit Transfers                         |
+ * | `03` | Cheques                                               |
+ * | `04` | Cards                                                 |
+ * | `05` | Direct Debits                                         |
+ * | `07` | Domestic bills of exchange                            |
+ * | `09` | Counter operations                                    |
+ * | `11` | Securities / coupons                                  |
+ * | `13` | Credits / loans                                       |
+ * | `30` | Miscellaneous operations                              |
+ * | `35` | Closing — periodic settlement of interest, fees, etc. |
+ * | `41` | International / non-SEPA transfers                    |
+ * | `43` | Foreign cheques                                       |
+ * | `47` | Foreign bills of exchange                             |
+ * | `80` | Fees and commissions charged separately               |
+ *
  */
 
 ['context' => $context, 'auth' => $auth] = $providers;
@@ -320,7 +341,7 @@ $adapters = [
     },
     // converts transaction type to a standardized code (string)
     'transaction_type_normalize' => function($transaction_type) {
-        $result = $transaction_type;
+        $result = 'transfer';
         // CODA syntax is : %02{family} %02{operation} %03{section}
         // CAMT.053 uses domain, family, subfamily
 
@@ -328,10 +349,8 @@ $adapters = [
         #memo - this list is incomplete and is only meant for XLS/CODA format extraction (from ISABEL XLSX)
         */
         static $map_transaction_codes = [
-
             // --------------------------------------------------
             // 01 — SEPA credit transfers
-            // Symbiose: credit / credit_out / credit_in
             // --------------------------------------------------
             '01'   => 'transfer',
 
@@ -342,15 +361,18 @@ $adapters = [
             '0107' => 'transfer_out',
             '0113' => 'transfer_out',
             '0117' => 'transfer_out',
+
             '0137' => 'transfer_fee',
 
             '0150' => 'transfer_in',
             '0151' => 'transfer_in',
             '0152' => 'transfer_in',
-            '0154' => 'rejected_transfer',
+            '0154' => 'transfer_rejected',
             '0164' => 'transfer_in',
             '0166' => 'transfer_in',
+
             '0187' => 'transfer_fee_reimbursement',
+
 
             // --------------------------------------------------
             // 02 — Instant SEPA credit transfers
@@ -358,10 +380,11 @@ $adapters = [
             // --------------------------------------------------
             '02'   => 'transfer',
 
-            '0201' => 'credit_out',
-            '0203' => 'credit_out',
-            '0205' => 'credit_out',
-            '0213' => 'credit_out',
+            '0201' => 'transfer_out',
+            '0203' => 'transfer_out',
+            '0205' => 'transfer_out',
+            '0213' => 'transfer_out',
+
             '0237' => 'transfer_fee',
 
             '0250' => 'transfer_in',
@@ -369,11 +392,12 @@ $adapters = [
             '0252' => 'transfer_in',
             '0264' => 'transfer_in',
             '0266' => 'transfer_in',
+
             '0287' => 'transfer_fee_reimbursement',
+
 
             // --------------------------------------------------
             // 03 — Cheques
-            // No generic Symbiose normalization defined yet.
             // --------------------------------------------------
             '03'   => 'cheque',
 
@@ -382,47 +406,55 @@ $adapters = [
             '0311' => 'store_cheque',
             '0315' => 'bank_cheque_issue',
             '0317' => 'certified_cheque',
-            '0337' => 'cheque_fee',
-            '0338' => 'cheque_unpaid',
 
-            '0352' => 'cheque_credit_pending',
+            '0337' => 'cheque_fee',
+            '0338' => 'cheque_rejected',
+
+            '0352' => 'cheque_credit_provisional',
             '0358' => 'cheque_credit',
             '0362' => 'cheque_reversal',
-            '0363' => 'cheque_second_credit',
+            '0363' => 'cheque_credit',
+
             '0387' => 'cheque_fee_reimbursement',
+
 
             // --------------------------------------------------
             // 04 — Cards
             // --------------------------------------------------
             '04'   => 'card',
 
-            '0402' => 'card_payment_eu',
-            '0403' => 'credit_card_settlement',
-            '0404' => 'atm_withdrawal',
-            '0406' => 'fuel_card_payment',
-            '0408' => 'card_payment_foreign',
+            '0402' => 'card_payment',
+            '0403' => 'card_payment',
+            '0404' => 'card_withdrawal',
+            '0406' => 'card_payment',
+            '0408' => 'card_payment',
+
             '0437' => 'card_fee',
 
             '0450' => 'card_payment_received',
-            '0453' => 'atm_deposit',
+            '0453' => 'card_deposit',
+
             '0487' => 'card_fee_reimbursement',
+
 
             // --------------------------------------------------
             // 05 — Direct debits
-            // Symbiose: debit / debit_out / debit_in
             // --------------------------------------------------
-            '05'   => 'debit',
+            '05'   => 'direct_debit',
 
-            '0501' => 'debit_out',
-            '0503' => 'direct_debit_unpaid',
-            '0505' => 'debit_in',
+            '0501' => 'direct_debit_out',
+            '0503' => 'direct_debit_rejected',
+            '0505' => 'direct_debit_refund',
+
             '0537' => 'direct_debit_fee',
 
-            '0550' => 'direct_debit_credit',
-            '0552' => 'direct_debit_credit_pending',
-            '0554' => 'direct_debit_refund_credit',
+            '0550' => 'direct_debit_in',
+            '0552' => 'direct_debit_credit_provisional',
+            '0554' => 'direct_debit_refund',
             '0558' => 'direct_debit_reversal',
-            '0587' => 'fee_reimbursement',
+
+            '0587' => 'direct_debit_fee_reimbursement',
+
 
             // --------------------------------------------------
             // 07 — Bills of exchange
@@ -430,13 +462,16 @@ $adapters = [
             '07'   => 'bill_of_exchange',
 
             '0701' => 'bill_payment',
-            '0707' => 'bill_unpaid',
+            '0707' => 'bill_rejected',
+
             '0737' => 'bill_fee',
 
-            '0750' => 'bill_credit_after_collection',
-            '0752' => 'bill_credit_pending',
+            '0750' => 'bill_credit',
+            '0752' => 'bill_credit_provisional',
             '0754' => 'bill_discount',
+
             '0787' => 'bill_fee_reimbursement',
+
 
             // --------------------------------------------------
             // 09 — Cash operations
@@ -444,13 +479,16 @@ $adapters = [
             '09'   => 'cash',
 
             '0901' => 'cash_withdrawal',
-            '0913' => 'branch_cash_withdrawal',
+            '0913' => 'cash_withdrawal',
+
             '0937' => 'cash_fee',
 
             '0950' => 'cash_deposit',
-            '0952' => 'night_safe_deposit',
-            '0958' => 'branch_cash_deposit',
+            '0952' => 'cash_deposit',
+            '0958' => 'cash_deposit',
+
             '0987' => 'cash_fee_reimbursement',
+
 
             // --------------------------------------------------
             // 11 — Securities
@@ -458,95 +496,111 @@ $adapters = [
             '11'   => 'securities',
 
             '1101' => 'securities_purchase',
-            '1103' => 'securities_subscription',
-            '1117' => 'securities_management_fee',
+            '1103' => 'securities_purchase',
+            '1117' => 'securities_fee',
             '1137' => 'securities_fee',
 
             '1150' => 'securities_sale',
-            '1152' => 'coupon_payment',
-            '1168' => 'missing_coupon_compensation',
+            '1152' => 'securities_income',
+            '1168' => 'securities_income',
+
             '1187' => 'securities_fee_reimbursement',
 
+
             // --------------------------------------------------
-            // 13 — Loans
+            // 13 — Loans / financing
             // --------------------------------------------------
             '13'   => 'loan',
 
-            '1301' => 'loan_repayment_short_term',
-            '1302' => 'loan_repayment_long_term',
-            '1311' => 'mortgage_repayment',
+            '1301' => 'loan_repayment',
+            '1302' => 'loan_repayment',
+            '1311' => 'loan_repayment',
+
             '1337' => 'loan_fee',
 
-            '1350' => 'loan_payment_received',
-            '1360' => 'mortgage_payment_received',
-            '1362' => 'term_loan',
+            '1350' => 'loan_disbursement',
+            '1360' => 'loan_disbursement',
+            '1362' => 'loan_disbursement',
+
             '1387' => 'loan_fee_reimbursement',
 
+
             // --------------------------------------------------
-            // 30 — Miscellaneous
+            // 30 — Miscellaneous financial operations
             // --------------------------------------------------
             '30'   => 'misc',
 
-            '3001' => 'fx_purchase_spot',
-            '3003' => 'fx_purchase_forward',
-            '3005' => 'term_deposit_payment',
+            '3001' => 'fx_purchase',
+            '3003' => 'fx_purchase',
+            '3005' => 'term_deposit',
+
             '3037' => 'misc_fee',
 
-            '3050' => 'fx_sale_spot',
-            '3052' => 'fx_sale_forward',
-            '3054' => 'term_deposit_credit',
+            '3050' => 'fx_sale',
+            '3052' => 'fx_sale',
+            '3054' => 'term_deposit',
+
             '3087' => 'misc_fee_reimbursement',
 
-            // --------------------------------------------------
-            // 35 — Account closing / periodic settlement
-            // Already aligned with existing Symbiose codes.
-            // --------------------------------------------------
-            '35'   => 'account_closure',
-
-            '3501' => 'account_closure',
-            '3537' => 'closing_fee',
-            '3550' => 'account_closure_credit',
-            '3587' => 'closing_fee_reimbursement',
 
             // --------------------------------------------------
-            // 41 — International credit transfers
-            // Same business semantics as SEPA transfers.
+            // 35 — Periodic account settlement
             // --------------------------------------------------
-            '41'   => 'credit',
+            '35'   => 'account_settlement',
 
-            '4101' => 'credit_out',
-            '4103' => 'credit_out',
-            '4113' => 'credit_out',
+            '3501' => 'account_settlement_out',
+            '3537' => 'account_settlement_fee',
+            '3550' => 'account_settlement_in',
+            '3587' => 'account_settlement_fee_reimbursement',
+
+
+            // --------------------------------------------------
+            // 41 — International / non-SEPA credit transfers
+            // Same business semantics as families 01 and 02.
+            // --------------------------------------------------
+            '41'   => 'transfer',
+
+            '4101' => 'transfer_out',
+            '4103' => 'transfer_out',
+            '4113' => 'transfer_out',
+
             '4137' => 'transfer_fee',
 
-            '4150' => 'credit_in',
-            '4164' => 'credit_in',
-            '4166' => 'credit_in',
-            '4187' => 'fee_reimbursement',
+            '4150' => 'transfer_in',
+            '4164' => 'transfer_in',
+            '4166' => 'transfer_in',
+
+            '4187' => 'transfer_fee_reimbursement',
+
 
             // --------------------------------------------------
-            // 80 — Fees
+            // 80 — Standalone bank fees
+            //
+            // We deliberately normalize detailed CODA fee types
+            // as bank_fee: the original CODA code remains available
+            // when the detailed nature of the fee is needed.
             // --------------------------------------------------
             '80'   => 'bank_fee',
 
-            '8002' => 'electronic_fee',
-            '8007' => 'insurance_fee',
-            '8009' => 'postage_fee',
-            '8013' => 'safe_deposit_fee',
-            '8023' => 'research_fee',
-            '8033' => 'bank_commission',
-            '8035' => 'tax_fee',
-            '8037' => 'database_access_fee',
-            '8039' => 'guarantee_fee',
-            '8041' => 'research_fee',
-            '8043' => 'printing_fee',
-            '8045' => 'documentary_credit_fee',
-            '8049' => 'fee_correction_debit',
+            '8002' => 'bank_fee',
+            '8007' => 'bank_fee',
+            '8009' => 'bank_fee',
+            '8013' => 'bank_fee',
+            '8023' => 'bank_fee',
+            '8033' => 'bank_fee',
+            '8035' => 'bank_fee',
+            '8037' => 'bank_fee',
+            '8039' => 'bank_fee',
+            '8041' => 'bank_fee',
+            '8043' => 'bank_fee',
+            '8045' => 'bank_fee',
 
-            // Already present in the XLS normalizer.
-            '8087' => 'fee_reimbursement',
+            '8049' => 'bank_fee_correction',
 
-            '8099' => 'fee_correction_credit',
+            // Keep if observed in actual bank/XLS imports.
+            '8087' => 'bank_fee_reimbursement',
+
+            '8099' => 'bank_fee_correction',
         ];
 
         // ISABEL prefixes the label with a CODA family and, optionally, an operation code.

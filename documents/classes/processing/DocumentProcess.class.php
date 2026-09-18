@@ -1794,29 +1794,39 @@ class DocumentProcess extends Model {
 
                     $map_bank_fee_transaction_types = [
                         'transfer_fee',
+                        'transfer_fee_reimbursement',
+
                         'cheque_fee',
+                        'cheque_fee_reimbursement',
+
                         'card_fee',
+                        'card_fee_reimbursement',
+
                         'direct_debit_fee',
+                        'direct_debit_fee_reimbursement',
+
                         'bill_fee',
+                        'bill_fee_reimbursement',
+
                         'cash_fee',
-                        'securities_management_fee',
+                        'cash_fee_reimbursement',
+
                         'securities_fee',
+                        'securities_fee_reimbursement',
+
                         'loan_fee',
+                        'loan_fee_reimbursement',
+
                         'misc_fee',
-                        'closing_fee',
-                        'account_closure',
-                        'electronic_fee',
-                        'insurance_fee',
-                        'postage_fee',
-                        'safe_deposit_fee',
-                        'research_fee',
-                        'bank_commission',
-                        'tax_fee',
-                        'database_access_fee',
-                        'guarantee_fee',
-                        'printing_fee',
-                        'documentary_credit_fee',
-                        'fee_correction_debit'
+                        'misc_fee_reimbursement',
+
+                        'account_settlement',
+                        'account_settlement_fee',
+                        'account_settlement_fee_reimbursement',
+
+                        'bank_fee',
+                        'bank_fee_reimbursement',
+                        'bank_fee_correction'
                     ];
 
                     $bankFeeAccount = Account::search([
