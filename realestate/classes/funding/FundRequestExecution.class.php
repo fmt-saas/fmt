@@ -269,7 +269,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'function'    => 'policyCanPost'
             ],
             'can_generate_accounting_entry' => [
-                'description' => 'Verifies that an FundRequest execution invoice is still a draft (proforma).',
+                'description' => 'Verifies that the existing accounting entry, if any, is not validated.',
                 'help'        => 'This policy is duplicated to overwrite parent.',
                 'function'    => 'policyCanGenerateAccountingEntry'
             ],
@@ -329,15 +329,18 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
     }
 
     /**
-     * For FundRequestExecution invoices, accounting entry is generated upon funds being called, i.e. when invoice is validated and assigned to a number (there is no draft accounting entry).
+     * Allow a draft accounting entry to be regenerated, while preserving a validated accounting entry.
      */
     protected static function policyCanGenerateAccountingEntry($self): array {
         $result = [];
-        $self->read(['status', 'accounting_entry_id']);
+        $self->read(['accounting_entry_id' => ['status']]);
         foreach($self as $id => $requestExecution) {
-            if($requestExecution['accounting_entry_id']) {
+            if(
+                $requestExecution['accounting_entry_id']
+                && $requestExecution['accounting_entry_id']['status'] === 'validated'
+            ) {
                 $result[$id] = [
-                    'invalid_status' => 'Request Execution already has an accounting entry.'
+                    'invalid_status' => 'Request Execution already has a validated accounting entry.'
                 ];
                 continue;
             }
