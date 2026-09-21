@@ -688,13 +688,84 @@ class MiscOperation extends Model {
                 ])
                 ->read(['is_sent']);
 
+            $funding_ids = [];
+            $map_funding_ids = [];
+            $map_funding_allocation_ids = [];
+
             foreach($fundings as $funding_id => $funding) {
                 if(!$funding['is_sent']) {
-                    Funding::id($funding_id)->do('remove');
+                    $funding_ids[] = $funding_id;
+                    $map_funding_ids[$funding_id] = true;
                 }
             }
+
+            if(count($funding_ids) > 0) {
+                $fundingAllocations = FundingAllocation::search([
+                        ['funding_id', 'in', $funding_ids],
+                        ['payment_origin', '=', 'funding_allocation']
+                    ])
+                    ->read(['linked_payment_id']);
+
+                $direct_funding_allocation_ids = [];
+                foreach($fundingAllocations as $funding_allocation_id => $fundingAllocation) {
+                    $direct_funding_allocation_ids[] = $funding_allocation_id;
+                    $map_funding_allocation_ids[$funding_allocation_id] = true;
+
+                    if($fundingAllocation['linked_payment_id']) {
+                        $map_funding_allocation_ids[$fundingAllocation['linked_payment_id']] = true;
+                    }
+                }
+
+                if(count($direct_funding_allocation_ids) > 0) {
+                    $linked_funding_allocation_ids = FundingAllocation::search([
+                            ['linked_payment_id', 'in', $direct_funding_allocation_ids],
+                            ['payment_origin', '=', 'funding_allocation']
+                        ])
+                        ->ids();
+
+                    foreach($linked_funding_allocation_ids as $funding_allocation_id) {
+                        $map_funding_allocation_ids[$funding_allocation_id] = true;
+                    }
+                }
+            }
+
+            if(count($map_funding_allocation_ids) > 0) {
+                $fundingAllocations = FundingAllocation::ids(array_keys($map_funding_allocation_ids))
+                    ->read(['funding_id', 'payment_origin']);
+
+                $map_funding_allocation_ids = [];
+                foreach($fundingAllocations as $funding_allocation_id => $fundingAllocation) {
+                    if($fundingAllocation['payment_origin'] !== 'funding_allocation') {
+                        continue;
+                    }
+
+                    $map_funding_allocation_ids[$funding_allocation_id] = true;
+                    if($fundingAllocation['funding_id']) {
+                        $map_funding_ids[$fundingAllocation['funding_id']] = true;
+                    }
+                }
+
+                if(count($map_funding_allocation_ids) > 0) {
+                    FundingAllocation::ids(array_keys($map_funding_allocation_ids))->delete(true);
+                }
+            }
+
+            if(count($funding_ids) > 0) {
+                Funding::ids($funding_ids)->do('remove');
+
+                foreach($funding_ids as $funding_id) {
+                    unset($map_funding_ids[$funding_id]);
+                }
+            }
+
+            if(count($map_funding_ids) > 0) {
+                Funding::ids(array_keys($map_funding_ids))->do('refresh_status');
+            }
         }
-        $self->update(['status' => 'proforma']);
+        $self->update([
+                'status'              => 'proforma',
+                'accounting_entry_id' => null
+            ]);
     }
 
     private static function computeIsBalanced($misc_operation_lines_ids) {

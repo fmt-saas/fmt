@@ -9,6 +9,7 @@ use documents\Document;
 use documents\DocumentType;
 use documents\navigation\Node;
 use realestate\funding\FundRequestExecutionCorrespondence;
+use realestate\ownership\Ownership;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Create a document for a given Fund Request Execution correspondence.",
@@ -60,6 +61,11 @@ if($siblingFundRequestExecutionCorrespondence) {
 
 if(!$document_id) {
 
+    // retrieve ownership code to avoid duplicate document name
+    $ownership = Ownership::id($fundRequestExecutionCorrespondence['ownership_id'])
+        ->read(['code'])
+        ->first();
+
     $data = eQual::run('get', 'realestate_funding_FundRequestExecutionCorrespondence_render-pdf', ['id' => $fundRequestExecutionCorrespondence['id']]);
 
     $documentType = DocumentType::search(['code', '=', 'fund_request'])
@@ -74,7 +80,7 @@ if(!$document_id) {
         ->first();
 
     $document = Document::create([
-            'name'                      => 'Appel de fonds - ' . $fundRequestExecutionCorrespondence['name'],
+            'name'                      => "Appel de fonds - {$fundRequestExecutionCorrespondence['name']} - {$ownership['code']}",
             'data'                      => $data,
             'condo_id'                  => $fundRequestExecutionCorrespondence['condo_id'],
             'fund_request_id'           => $fundRequestExecutionCorrespondence['fund_request_execution_id']['fund_request_id'],

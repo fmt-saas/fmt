@@ -1316,6 +1316,25 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             catch(\Exception $e) {
                 trigger_error('APP::Unable to reset computed fields for posted purchase invoice ' . $id . ': ' . $e->getMessage(), EQ_REPORT_WARNING);
             }
+
+            // update document name
+            try {
+                $postedInvoice = self::id($id)
+                    ->read(['name', 'document_id', 'emission_date', 'suppliership_id' => ['code']])
+                    ->first();
+
+                if($postedInvoice['document_id']) {
+                    Document::id($postedInvoice['document_id'])
+                        ->update([
+                            'name' => $postedInvoice['name']
+                                . ' - ' . $postedInvoice['suppliership_id']['code']
+                                . ' - ' . date('Y-m-d', $postedInvoice['emission_date'])
+                        ]);
+                }
+            }
+            catch(\Exception $e) {
+                trigger_error('APP::Unable to update document name for posted purchase invoice ' . $id . ': ' . $e->getMessage(), EQ_REPORT_WARNING);
+            }
         }
     }
 
