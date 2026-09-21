@@ -88,7 +88,10 @@ class MiscOperationLine extends Model {
                     ['condo_id', '<>', null],
                     ['is_control_account', '=', false]
                 ],
-                'dependents'        => ['account_code', 'is_expense', 'is_income', 'is_owner', 'is_supplier']
+                'dependents'        => [
+                    'account_code', 'is_expense', 'is_income', 'is_owner', 'is_supplier',
+                    'ownership_id', 'suppliership_id'
+                ]
             ],
 
             'account_code' => [
