@@ -1637,7 +1637,7 @@ class MiscOperation extends Model {
                         abs($funding['remaining_amount'])
                     );
 
-                    $signed_delta = $sign * $delta;
+                    $signed_delta = round($sign * $delta, 2);
 
                     $fundingAllocationA = FundingAllocation::create([
                             'condo_id'                  => $miscOperation['condo_id'],

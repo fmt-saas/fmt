@@ -904,7 +904,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                             abs($funding['remaining_amount'])
                         );
 
-                        $signed_delta = $sign * $delta;
+                        $signed_delta = round($sign * $delta, 2);
 
                         $fundingAllocationA = FundingAllocation::create([
                                 'condo_id'                  => $requestExecution['condo_id'],
