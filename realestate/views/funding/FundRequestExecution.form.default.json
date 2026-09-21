@@ -22,11 +22,11 @@
             "id": "action.cancel_execution",
             "label": "Cancel execution",
             "description": "Cancel the fund request execution, cancel the related Accounting entry, and remove the generated Fundings.",
-            "controller": "core_model_transition",
+            "controller": "core_model_do",
             "visible": ["status", "=", "posted"],
             "params": {
                 "entity": "realestate\\funding\\FundRequestExecution",
-                "transition": "cancel",
+                "action": "cancel",
                 "ids": []
             },
             "confirm": true

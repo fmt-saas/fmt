@@ -210,11 +210,16 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'transitions' => [
                     'cancel' => [
                         'description' => 'Update the fund request execution to `cancelled`.',
-                        'policies'    => ['can_cancel'],
+                        'policies'    => [],
                         'onafter'     => 'onafterCancelled',
                         'status'      => 'cancelled'
                     ]
                 ]
+            ],
+            'cancelled' => [
+                'description' => 'The expense statement is cancelled. There are no transitions available.',
+                'icon' => 'cancel',
+                'transitions' => []
             ]
         ];
     }
@@ -237,11 +242,17 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'policies'      => [],
                 'function'      => 'doCreateFundings'
             ],
-            'cancel_execution' => [
+            'cancel' => [
                 'description'   => 'Void the execution, and cancel subsequent accounting entry.',
                 'help'          => 'This is called after a transition to `cancel`.',
-                'policies'      => [/*'can_cancel'*/],
-                'function'      => 'doCancelExecution'
+                'policies'      => ['can_cancel'],
+                'function'      => 'doCancel'
+            ],
+            'unlock' => [
+                'description'   => 'Unlock the sale invoice, to allow re-posting after modifications.',
+                'help'          => 'Self voiding accounting entries will be left as `reversed`, and invoice will be set back to `proforma`.',
+                'policies'      => ['can_unlock'],
+                'function'      => 'doUnlock'
             ],
             'assign_invoice_number' => [
                 'help'          => 'For FundRequestExecution, invoice number is assigned during `perform_execution`.',
@@ -445,7 +456,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
     }
 
     public static function onafterCancelled($self) {
-        $self->do('cancel_execution');
+        // $self->do('cancel_execution');
     }
 
     protected static function calcDescription($self) {
@@ -664,32 +675,108 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
     }
 
-    public static function doCancelExecution($self) {
-        $self->read([
-                'condo_id', 'fund_request_id', 'accounting_entry_id',
-                'execution_lines_ids' => ['ownership_id']
-            ]);
+    protected static function doUnlock($self) {
+        $self->read(['status', 'accounting_entry_id']);
 
         foreach($self as $id => $fundRequestExecution) {
-            // retrieve accounting entry and cancel it
-            AccountingEntry::id($fundRequestExecution['accounting_entry_id'])->do('cancel');
-
-            foreach($fundRequestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
-                // remove related fundings (move payments to BankStatementLine Funding if any)
-                Funding::search([
-                        ['condo_id', '=', $fundRequestExecution['condo_id']],
-                        ['ownership_id', '=', $executionLine['ownership_id']],
-                        ['funding_type', '=', 'fund_request'],
-                        ['fund_request_id', '=', $fundRequestExecution['fund_request_id']]
-                    ])
-                    ->do('remove');
+            if($fundRequestExecution['status'] !== 'posted') {
+                continue;
             }
+
+            if($fundRequestExecution['accounting_entry_id']) {
+                AccountingEntry::id($fundRequestExecution['accounting_entry_id'])->do('cancel');
+            }
+
+            $funding_ids = Funding::search([
+                    ['fund_request_execution_id', '=', $id],
+                    ['funding_type', '=', 'fund_request']
+                ])
+                ->ids();
+
+            $map_funding_ids = [];
+            $map_funding_allocation_ids = [];
+
+            foreach($funding_ids as $funding_id) {
+                $map_funding_ids[$funding_id] = true;
+            }
+
+            if(count($funding_ids) > 0) {
+                $fundingAllocations = FundingAllocation::search([
+                        ['funding_id', 'in', $funding_ids],
+                        ['payment_origin', '=', 'funding_allocation']
+                    ])
+                    ->read(['linked_payment_id']);
+
+                $direct_funding_allocation_ids = [];
+                foreach($fundingAllocations as $funding_allocation_id => $fundingAllocation) {
+                    $direct_funding_allocation_ids[] = $funding_allocation_id;
+                    $map_funding_allocation_ids[$funding_allocation_id] = true;
+
+                    if($fundingAllocation['linked_payment_id']) {
+                        $map_funding_allocation_ids[$fundingAllocation['linked_payment_id']] = true;
+                    }
+                }
+
+                if(count($direct_funding_allocation_ids) > 0) {
+                    $linked_funding_allocation_ids = FundingAllocation::search([
+                            ['linked_payment_id', 'in', $direct_funding_allocation_ids],
+                            ['payment_origin', '=', 'funding_allocation']
+                        ])
+                        ->ids();
+
+                    foreach($linked_funding_allocation_ids as $funding_allocation_id) {
+                        $map_funding_allocation_ids[$funding_allocation_id] = true;
+                    }
+                }
+            }
+
+            if(count($map_funding_allocation_ids) > 0) {
+                $fundingAllocations = FundingAllocation::ids(array_keys($map_funding_allocation_ids))
+                    ->read(['funding_id', 'payment_origin']);
+
+                $map_funding_allocation_ids = [];
+                foreach($fundingAllocations as $funding_allocation_id => $fundingAllocation) {
+                    if($fundingAllocation['payment_origin'] !== 'funding_allocation') {
+                        continue;
+                    }
+
+                    $map_funding_allocation_ids[$funding_allocation_id] = true;
+                    if($fundingAllocation['funding_id']) {
+                        $map_funding_ids[$fundingAllocation['funding_id']] = true;
+                    }
+                }
+
+                if(count($map_funding_allocation_ids) > 0) {
+                    FundingAllocation::ids(array_keys($map_funding_allocation_ids))->delete(true);
+                }
+            }
+
+            if(count($funding_ids) > 0) {
+                Funding::ids($funding_ids)->do('remove');
+
+                foreach($funding_ids as $funding_id) {
+                    unset($map_funding_ids[$funding_id]);
+                }
+            }
+
+            if(count($map_funding_ids) > 0) {
+                Funding::ids(array_keys($map_funding_ids))->do('refresh_status');
+            }
+
+            self::id($id)->update([
+                'status'              => 'proforma',
+                'accounting_entry_id' => null
+            ]);
         }
+    }
+
+    protected static function doCancel($self) {
+        $self->do('unlock');
 
         $self->update([
-            'status'                => 'cancelled',
-            'accounting_entry_id'   => null
-        ]);
+                'status'                => 'cancelled',
+                'accounting_entry_id'   => null
+            ]);
     }
 
     /**

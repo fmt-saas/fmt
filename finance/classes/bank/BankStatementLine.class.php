@@ -11,6 +11,7 @@ use finance\accounting\Account;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
 use realestate\sale\pay\Funding;
+use realestate\sale\pay\FundingAllocation;
 use realestate\sale\pay\Payment;
 use finance\bank\BankStatement;
 use finance\bank\CondominiumBankAccount;
@@ -873,9 +874,6 @@ class BankStatementLine extends Model {
         }
     }
 
-    /**
-     * #memo - There are no FundingAllocation on BankStatementLine (only real Payments are relevant)
-     */
     protected static function doUnlock($self, $orm) {
         $self->read([
             'status',
@@ -903,12 +901,70 @@ class BankStatementLine extends Model {
 
             $payment_ids = [];
             $map_funding_ids = [];
+            $map_funding_allocation_ids = [];
 
             foreach($bankStatementLine['payments_ids'] as $payment_id => $payment) {
                 $payment_ids[] = $payment_id;
 
                 if(isset($payment['funding_id'])) {
                     $map_funding_ids[$payment['funding_id']] = true;
+                }
+            }
+
+            $statement_line_funding_ids = Funding::search([
+                    ['bank_statement_line_id', '=', $id],
+                    ['funding_type', '=', 'statement_line']
+                ])
+                ->ids();
+
+            if(count($statement_line_funding_ids) > 0) {
+                foreach($statement_line_funding_ids as $funding_id) {
+                    $map_funding_ids[$funding_id] = true;
+                }
+
+                $fundingAllocations = FundingAllocation::search([
+                        ['funding_id', 'in', $statement_line_funding_ids],
+                        ['payment_origin', '=', 'funding_allocation']
+                    ])
+                    ->read(['linked_payment_id']);
+
+                $direct_funding_allocation_ids = [];
+                foreach($fundingAllocations as $funding_allocation_id => $fundingAllocation) {
+                    $direct_funding_allocation_ids[] = $funding_allocation_id;
+                    $map_funding_allocation_ids[$funding_allocation_id] = true;
+
+                    if($fundingAllocation['linked_payment_id']) {
+                        $map_funding_allocation_ids[$fundingAllocation['linked_payment_id']] = true;
+                    }
+                }
+
+                if(count($direct_funding_allocation_ids) > 0) {
+                    $linkedFundingAllocationIds = FundingAllocation::search([
+                            ['linked_payment_id', 'in', $direct_funding_allocation_ids],
+                            ['payment_origin', '=', 'funding_allocation']
+                        ])
+                        ->ids();
+
+                    foreach($linkedFundingAllocationIds as $funding_allocation_id) {
+                        $map_funding_allocation_ids[$funding_allocation_id] = true;
+                    }
+                }
+            }
+
+            if(count($map_funding_allocation_ids) > 0) {
+                $fundingAllocations = FundingAllocation::ids(array_keys($map_funding_allocation_ids))
+                    ->read(['funding_id', 'payment_origin']);
+
+                $map_funding_allocation_ids = [];
+                foreach($fundingAllocations as $funding_allocation_id => $fundingAllocation) {
+                    if($fundingAllocation['payment_origin'] !== 'funding_allocation') {
+                        continue;
+                    }
+
+                    $map_funding_allocation_ids[$funding_allocation_id] = true;
+                    if($fundingAllocation['funding_id']) {
+                        $map_funding_ids[$fundingAllocation['funding_id']] = true;
+                    }
                 }
             }
 
@@ -920,9 +976,23 @@ class BankStatementLine extends Model {
                 ])
                 ->do('refresh_bank_statement_status');
 
+            if(count($map_funding_allocation_ids) > 0) {
+                FundingAllocation::ids(array_keys($map_funding_allocation_ids))->delete(true);
+                $logs[] = 'INFO - Deleted ' . count($map_funding_allocation_ids) . ' linked funding allocation(s)';
+            }
+
             if(count($payment_ids) > 0) {
                 Payment::ids($payment_ids)->delete(true);
                 $logs[] = 'INFO - Deleted ' . count($payment_ids) . ' linked payment(s)';
+            }
+
+            if(count($statement_line_funding_ids) > 0) {
+                Funding::ids($statement_line_funding_ids)->do('remove');
+                $logs[] = 'INFO - Deleted ' . count($statement_line_funding_ids) . ' statement-line funding(s)';
+
+                foreach($statement_line_funding_ids as $funding_id) {
+                    unset($map_funding_ids[$funding_id]);
+                }
             }
 
             if(count($map_funding_ids) > 0) {
