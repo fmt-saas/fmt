@@ -36,6 +36,10 @@ class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
         ];
     }
 
+    public static function getModelScope(): ?string {
+        return null;
+    }
+
     public static function getActions() {
         return array_merge(parent::getActions(), [
             'cancel' => [

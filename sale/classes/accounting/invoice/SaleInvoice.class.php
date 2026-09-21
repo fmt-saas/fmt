@@ -172,6 +172,10 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
         ];
     }
 
+    public static function getModelScope(): ?string {
+        return null;
+    }
+
     public static function calcPriceBilled($self) {
         $result = [];
         $self->read(['invoice_type', 'price']);

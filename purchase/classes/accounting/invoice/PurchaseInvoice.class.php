@@ -176,6 +176,10 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
         ];
     }
 
+    public static function getModelScope(): ?string {
+        return null;
+    }
+
     protected static function onupdateDescription($self, $lang) {
         $self->read(['description', 'invoice_lines_ids' => ['description']]);
         foreach($self as $id => $purchaseInvoice) {
