@@ -618,8 +618,8 @@ $tests = [
                     }
                     else {
                         $map_condos_objects_ids = [
-                            'condo_1' => $orm->create($class, ['condo_id' => $condo_1['id'], 'state' => 'draft']),
-                            'condo_2' => $orm->create($class, ['condo_id' => $condo_2['id'], 'state' => 'draft'])
+                            'condo_1' => $orm->create($class, ['condo_id' => $condo_1['id'], 'state' => 'draft'], null, false),
+                            'condo_2' => $orm->create($class, ['condo_id' => $condo_2['id'], 'state' => 'draft'], null, false)
                         ];
 
                         if($map_condos_objects_ids['condo_1'] <= 0 || $map_condos_objects_ids['condo_2'] <= 0) {
