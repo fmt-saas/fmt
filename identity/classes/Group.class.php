@@ -1,10 +1,11 @@
 <?php
 /*
     This file is part of the eQual framework <http://www.github.com/equalframework/equal>
-    Some Rights Reserved, eQual framework, 2010-2024
+    Some Rights Reserved, eQual framework, 2010-2026
     Original author(s): Cédric FRANCOYS
     Licensed under GNU GPL 3 license <http://www.gnu.org/licenses/>
 */
+
 namespace identity;
 
 class Group extends  \core\Group {
@@ -35,4 +36,7 @@ class Group extends  \core\Group {
         ];
     }
 
+    public static function getModelScope(): ?string {
+        return null;
+    }
 }

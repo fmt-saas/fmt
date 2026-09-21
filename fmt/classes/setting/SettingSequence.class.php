@@ -51,6 +51,10 @@ class SettingSequence extends \core\setting\SettingSequence {
         ];
     }
 
+    public static function getModelScope(): ?string {
+        return null;
+    }
+
     public function getUnique() {
         return [
             ['setting_id', 'user_id', 'organisation_id', 'condo_id', 'ownership_id']

@@ -214,6 +214,10 @@ class User extends \core\User {
         ];
     }
 
+    public static function getModelScope(): ?string {
+        return null;
+    }
+
     public function getUnique(): array {
         return [
             ['login', 'instance_uuid']
