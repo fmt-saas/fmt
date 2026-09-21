@@ -57,6 +57,10 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
  * Methods
  */
 
+
+/**
+ * Using this controller is mandatory since it adds an overlay with meta info of the document.
+ */
 $getDocumentByHash = function($hash) use($auth) {
     $user_id = $auth->userId();
     $auth->su();
@@ -153,7 +157,7 @@ $getAccountingChartDoc = function($condo_id) {
         . '.csv';
 
     $fp = fopen($tmp_file, 'w');
-    fputcsv($fp, $header, ',', '"', '');
+    fputcsv($fp, $header, ';', '"', '');
     foreach($accountingChart['accounts_ids'] as $fields) {
         $line_data = [
             'code'              => $fields['code'],
@@ -164,7 +168,7 @@ $getAccountingChartDoc = function($condo_id) {
             'account_nature'    => $fields['account_nature']
         ];
 
-        fputcsv($fp, $line_data, ',', '"', '');
+        fputcsv($fp, $line_data, ';', '"', '');
     }
     fclose($fp);
 
