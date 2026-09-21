@@ -78,7 +78,8 @@ class Document extends Model {
 
             'name' => [
                 'type'              => 'string',
-                'required'          => true
+                'required'          => true,
+                'onupdate'          => 'onupdateName'
             ],
 
             'data' => [
@@ -544,6 +545,11 @@ class Document extends Model {
                 'description'   => 'Attempt to identity document type and subtype.',
                 'policies'      => ['can_start_processing'],
                 'function'      => 'doStartProcessing'
+            ],
+            'sync_node_name' => [
+                'description'   => 'Synchronize the associated node name with the document name.',
+                'policies'      => [],
+                'function'      => 'doSyncNodeName'
             ]
         ];
     }
@@ -580,6 +586,18 @@ class Document extends Model {
         }
     }
 
+    protected static function doSyncNodeName($self) {
+        $self->read(['name']);
+
+        foreach($self as $id => $document) {
+            $node = Node::search(['document_id', '=', $id])->first();
+            if(!$node) {
+                continue;
+            }
+            Node::id($node['id'])->update(['name' => $document['name']]);
+        }
+    }
+
 
     protected static function calcNodeId($self) {
         $result = [];
@@ -612,6 +630,10 @@ class Document extends Model {
             }
         }
         return $result;
+    }
+
+    protected static function onupdateName($self) {
+        $self->do('sync_node_name');
     }
 
     protected static function onupdateDocumentTypeId($self) {
