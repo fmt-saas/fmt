@@ -743,7 +743,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     ->do('generate_expense_statement_correspondences');
             }
             catch(\Exception $e) {
-                trigger_error("APP::Error while generating expense statement data: {$e->getMessage()}", EQ_REPORT_ERROR);
+                trigger_error("APP::Error while generating expense statement correspondences: {$e->getMessage()}", EQ_REPORT_ERROR);
                 // #memo -do not relay exception here (non critical)
                 // throw $e;
             }
@@ -1141,11 +1141,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $credit = round($amounts['credit'], 2);
 
                 if($debit > $credit) {
-                    $debit  = $debit - $credit;
+                    $debit  = round($debit - $credit, 2);
                     $credit = 0.0;
                 }
                 elseif($credit > $debit) {
-                    $credit = $credit - $debit;
+                    $credit = round($credit - $debit, 2);
                     $debit  = 0.0;
                 }
                 else {
