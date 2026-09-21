@@ -499,6 +499,7 @@ class MiscOperation extends Model {
                         ['condo_id', '=', $miscOperation['condo_id']],
                         ['misc_operation_line_id', '=', $misc_operation_line_id]
                     ])
+                    ->read(['matching_account_id'])
                     ->first();
 
                 if(!$accountingEntryLine) {
@@ -526,6 +527,16 @@ class MiscOperation extends Model {
                     if(!$fundingOwnershipAccount) {
                         $result[$id] = [
                             'missing_ownership_accounting_account' => 'Ownership accounting account is missing for one or more owner funding lines.'
+                        ];
+                        break;
+                    }
+
+                    if(
+                        !$accountingEntryLine['matching_account_id']
+                        || (int) $fundingOwnershipAccount['id'] !== (int) $accountingEntryLine['matching_account_id']
+                    ) {
+                        $result[$id] = [
+                            'funding_account_mismatch' => 'Funding account does not match the accounting entry line matching account.'
                         ];
                         break;
                     }
@@ -1500,6 +1511,7 @@ class MiscOperation extends Model {
                         ['condo_id', '=', $miscOperation['condo_id']],
                         ['misc_operation_line_id', '=', $misc_operation_line_id]
                     ])
+                    ->read(['matching_account_id'])
                     ->first();
 
                 if(!$accountingEntryLine) {
@@ -1557,6 +1569,13 @@ class MiscOperation extends Model {
                     }
 
                     $funding_account_id = $fundingOwnershipAccount['id'];
+
+                    if(
+                        !$accountingEntryLine['matching_account_id']
+                        || (int) $funding_account_id !== (int) $accountingEntryLine['matching_account_id']
+                    ) {
+                        throw new \Exception('funding_account_mismatch', EQ_ERROR_INVALID_CONFIG);
+                    }
 
                     $operationFunding = Funding::create([
                             'condo_id'                  => $miscOperation['condo_id'],
