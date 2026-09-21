@@ -803,6 +803,13 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
         foreach($self as $id => $requestExecution) {
 
+            // remove any fundings created by a previous execution attempt
+            Funding::search([
+                    ['fund_request_execution_id', '=', $id],
+                    ['condo_id', '=', $requestExecution['condo_id']]
+                ])
+                ->do('remove');
+
             $debit_operation_assignment = static::getDebitOperationAssignment($requestExecution['fund_request_id']['request_type']);
 
             foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
