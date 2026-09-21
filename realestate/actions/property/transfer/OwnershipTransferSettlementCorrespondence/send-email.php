@@ -139,7 +139,8 @@ if(!$managementProcess || !$managementProcess['mailbox_id']) {
 }
 
 /*
-// #todo - reactivate when Templates will be validated
+// #todo #restore - 2026-09-18 - reactivate when Templates will be validated
+
 $email_id = Mail::queue(
     $message,
     'realestate\property\transfer\OwnershipTransferSettlementCorrespondence',

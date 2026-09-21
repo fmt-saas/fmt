@@ -153,7 +153,8 @@
             "icon": "file_export",
             "description": "Export accounting documents related to the fiscal year as a consolidated PDF.",
             "controller": "core_model_do",
-            "visible": ["status", "=", "closed"],
+            "visible": false,
+            "visible1": ["status", "=", "closed"],
             "params": {
                 "entity": "finance\\accounting\\FiscalYear",
                 "action": "export_documents_as_consolidated_pdf",

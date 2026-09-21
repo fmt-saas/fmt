@@ -408,6 +408,32 @@ MessageModel::id($model['id'])->update([
         'description'   => "La date limite de la tâche de facture d'achat est dépassée.",
     ], 'fr');
 
+$model = MessageModel::create([
+        'name'          => 'realestate.funding.expense_statement.sending_disabled',
+        'type'          => 'accounting',
+        'label'         => 'Expense statement correspondence sending disabled',
+        'description'   => "Sending and export of the expense statement correspondences were not scheduled at the user's request."
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => 'Envoi des correspondances du décompte désactivé',
+        'description'   => "L'envoi et l'export des correspondances du décompte de charges n'ont pas été planifiés à la demande de l'utilisateur.",
+    ], 'fr');
+
+$model = MessageModel::create([
+        'name'          => 'finance.accounting.fiscal_year.export_task_created',
+        'type'          => 'accounting',
+        'label'         => 'Fiscal year export scheduled',
+        'description'   => 'An export task was created for this fiscal year.'
+    ], 'en')
+    ->first();
+
+MessageModel::id($model['id'])->update([
+        'label'         => "Export de l'exercice comptable planifié",
+        'description'   => "Une tâche d'export a été créée pour cet exercice comptable.",
+    ], 'fr');
+
 /**
  * OWNERSHIPS
  */

@@ -838,7 +838,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
     }
 
 
-    protected static function doSendExpenseStatements($self, $cron, $values) {
+    protected static function doSendExpenseStatements($self, $cron, $values, $dispatch) {
         $self->read([
             'name',
             'is_sending_disabled',
@@ -918,6 +918,22 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 }
             }
             self::id($id)->update(['is_sending_disabled' => $is_sending_disabled]);
+
+            if($is_sending_disabled) {
+                $dispatch->dispatch(
+                    'realestate.funding.expense_statement.sending_disabled',
+                    static::class,
+                    $id,
+                    'notice'
+                );
+            }
+            else {
+                $dispatch->cancel(
+                    'realestate.funding.expense_statement.sending_disabled',
+                    static::class,
+                    $id
+                );
+            }
         }
 
     }

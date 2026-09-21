@@ -10,7 +10,14 @@ use documents\DocumentSubtype;
 use documents\DocumentType;
 use finance\accounting\AccountChart;
 use finance\accounting\FiscalYear;
+use finance\accounting\MiscOperation;
+use finance\bank\BankStatement;
+use realestate\funding\ExpenseStatement;
+use realestate\funding\ExpenseStatementCorrespondence;
+use realestate\funding\FundRequestExecution;
+use realestate\funding\FundRequestExecutionCorrespondence;
 use realestate\ownership\Ownership;
+use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Create a ZIP/PDF file that contains accounting documents of a fiscal year for a statutory auditor review.",
@@ -61,7 +68,39 @@ $getDocumentByHash = function($hash) use($auth) {
     return $document_data;
 };
 
-$getBalanceSheetDoc = function($expense_statement_ids, $fiscal_year_id, $condo_id) use($getDocumentByHash) {
+$getDocumentIds = function($objects) {
+    $document_ids = [];
+    foreach($objects as $object) {
+        if(!empty($object['document_id'])) {
+            $document_ids[] = $object['document_id'];
+        }
+    }
+
+    return array_values(array_unique($document_ids));
+};
+
+$getDocumentsByIds = function($document_ids) use($getDocumentByHash) {
+    if(!count($document_ids)) {
+        return [];
+    }
+
+    $documents = Document::ids($document_ids)
+        ->read(['name', 'extension', 'hash'])
+        ->get();
+
+    return array_map(
+        function($document) use($getDocumentByHash) {
+            return [
+                'name'      => $document['name'],
+                'extension' => $document['extension'],
+                'data'      => $getDocumentByHash($document['hash'])
+            ];
+        },
+        $documents
+    );
+};
+
+$getBalanceSheetDoc = function($expense_statement_ids, $condo_id) use($getDocumentByHash) {
     if(!count($expense_statement_ids)) {
         return null;
     }
@@ -69,7 +108,6 @@ $getBalanceSheetDoc = function($expense_statement_ids, $fiscal_year_id, $condo_i
     $balance_sheet = Document::search([
             ['document_type_code', '=', 'balance_sheet'],
             ['expense_statement_id', 'in', $expense_statement_ids],
-            ['fiscal_year_id', '=', $fiscal_year_id],
             ['condo_id', '=', $condo_id]
         ])
         ->read(['name', 'extension', 'hash'])
@@ -177,109 +215,84 @@ $getLedgerBalance = function($fiscal_year_id, $condo_id) use($getDocumentByHash)
     ];
 };
 
-$getSupplierInvoices = function($fiscal_year_id, $condo_id) use($getDocumentByHash) {
-    $supplierInvoiceDocs = Document::search([
-            ['document_type_code', '=', 'supplier_invoice'],
+$getSupplierInvoices = function($fiscal_year_id, $condo_id) use($getDocumentIds, $getDocumentsByIds) {
+    $purchaseInvoices = PurchaseInvoice::search([
             ['fiscal_year_id', '=', $fiscal_year_id],
-            ['condo_id', '=', $condo_id]
+            ['condo_id', '=', $condo_id],
+            ['document_id', '<>', null]
         ])
-        ->read(['name', 'extension', 'hash'])
+        ->read(['document_id'])
         ->get();
 
-    return array_map(
-        function($supplierInvoiceDoc) use($getDocumentByHash) {
-            return [
-                'name'      => $supplierInvoiceDoc['name'],
-                'extension' => $supplierInvoiceDoc['extension'],
-                'data'      => $getDocumentByHash($supplierInvoiceDoc['hash'])
-            ];
-        },
-        $supplierInvoiceDocs
-    );
+    return $getDocumentsByIds($getDocumentIds($purchaseInvoices));
 };
 
-$getBankStatements = function($fiscal_year_id, $condo_id) use($getDocumentByHash) {
-    $bankStatementDocs = Document::search([
-            ['document_type_code', '=', 'bank_statement'],
+$getBankStatements = function($fiscal_year_id, $condo_id) use($getDocumentIds, $getDocumentsByIds) {
+    $bankStatements = BankStatement::search([
             ['fiscal_year_id', '=', $fiscal_year_id],
-            ['condo_id', '=', $condo_id]
+            ['condo_id', '=', $condo_id],
+            ['document_id', '<>', null]
         ])
-        ->read(['name', 'extension', 'hash'])
+        ->read(['document_id'])
         ->get();
 
-    return array_map(
-        function($bankStatementDoc) use($getDocumentByHash) {
-            return [
-                'name'      => $bankStatementDoc['name'],
-                'extension' => $bankStatementDoc['extension'],
-                'data'      => $getDocumentByHash($bankStatementDoc['hash'])
-            ];
-        },
-        $bankStatementDocs
-    );
+    return $getDocumentsByIds($getDocumentIds($bankStatements));
 };
 
-$getMiscOperations = function($fiscal_year_id, $condo_id) use($getDocumentByHash) {
-    $miscOpDocs = Document::search([
-            ['document_type_code', '=', 'misc_operation'],
+$getMiscOperations = function($fiscal_year_id, $condo_id) use($getDocumentIds, $getDocumentsByIds) {
+    $miscOperations = MiscOperation::search([
             ['fiscal_year_id', '=', $fiscal_year_id],
-            ['condo_id', '=', $condo_id]
+            ['condo_id', '=', $condo_id],
+            ['document_id', '<>', null]
         ])
-        ->read(['name', 'extension', 'hash'])
+        ->read(['document_id'])
         ->get();
 
-    return array_map(
-        function($miscOpDoc) use($getDocumentByHash) {
-            return [
-                'name'      => $miscOpDoc['name'],
-                'extension' => $miscOpDoc['extension'],
-                'data'      => $getDocumentByHash($miscOpDoc['hash'])
-            ];
-        },
-        $miscOpDocs
-    );
+    return $getDocumentsByIds($getDocumentIds($miscOperations));
 };
 
-$getFundRequests = function($fiscal_year_id, $condo_id) use($getDocumentByHash) {
-    $fundRequestDocs = Document::search([
-            ['document_type_code', '=', 'fund_request'],
+$getFundRequests = function($fiscal_year_id, $condo_id) use($getDocumentIds, $getDocumentsByIds) {
+    $fund_request_execution_ids = FundRequestExecution::search([
             ['fiscal_year_id', '=', $fiscal_year_id],
             ['condo_id', '=', $condo_id]
         ])
-        ->read(['name', 'extension', 'hash'])
+        ->ids();
+
+    if(!count($fund_request_execution_ids)) {
+        return [];
+    }
+
+    $correspondences = FundRequestExecutionCorrespondence::search([
+            ['fund_request_execution_id', 'in', $fund_request_execution_ids],
+            ['condo_id', '=', $condo_id],
+            ['document_id', '<>', null]
+        ])
+        ->read(['document_id'])
         ->get();
 
-    return array_map(
-        function($fundRequestDoc) use($getDocumentByHash) {
-            return [
-                'name'      => $fundRequestDoc['name'],
-                'extension' => $fundRequestDoc['extension'],
-                'data'      => $getDocumentByHash($fundRequestDoc['hash'])
-            ];
-        },
-        $fundRequestDocs
-    );
+    return $getDocumentsByIds($getDocumentIds($correspondences));
 };
 
-$getExpenseStatements = function($fiscal_year_id, $condo_id) use($getDocumentByHash) {
-    $expenseStatementDocs = Document::search([
-            ['document_type_code', '=', 'expense_statement'],
+$getExpenseStatements = function($fiscal_year_id, $condo_id) use($getDocumentIds, $getDocumentsByIds) {
+    $expense_statement_ids = ExpenseStatement::search([
             ['fiscal_year_id', '=', $fiscal_year_id],
             ['condo_id', '=', $condo_id]
         ])
-        ->read(['name', 'extension', 'hash'])
+        ->ids();
+
+    if(!count($expense_statement_ids)) {
+        return [];
+    }
+
+    $correspondences = ExpenseStatementCorrespondence::search([
+            ['expense_statement_id', 'in', $expense_statement_ids],
+            ['condo_id', '=', $condo_id],
+            ['document_id', '<>', null]
+        ])
+        ->read(['document_id'])
         ->get();
 
-    return array_map(
-        function($expenseStatementDoc) use($getDocumentByHash) {
-            return [
-                'name'      => $expenseStatementDoc['name'],
-                'extension' => $expenseStatementDoc['extension'],
-                'data'      => $getDocumentByHash($expenseStatementDoc['hash'])
-            ];
-        },
-        $expenseStatementDocs
-    );
+    return $getDocumentsByIds($getDocumentIds($correspondences));
 };
 
 $getOwnerAccountStatements = function($condo_id, $date_from, $date_to) {
@@ -485,7 +498,6 @@ $map_documents['04_Coproprietaires/situations_de_compte'] = $getOwnerAccountStat
 foreach($fiscalYear['fiscal_periods_ids'] as $id => $period) {
     $balance_sheet = $getBalanceSheetDoc(
         array_keys($period['expense_statements_ids']),
-        $fiscalYear['id'],
         $fiscalYear['condo_id']['id']
     );
     if($balance_sheet) {
