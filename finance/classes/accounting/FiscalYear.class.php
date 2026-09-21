@@ -733,7 +733,7 @@ class FiscalYear extends Model {
         }
     }
 
-    protected static function doExportDocuments($self) {
+    protected static function doExportDocuments($self, $dispatch) {
         $self->read(['name', 'condo_id']);
         foreach($self as $id => $fiscalYear) {
             $exportingTask = ExportingTask::create([
@@ -750,6 +750,13 @@ class FiscalYear extends Model {
                 'controller'        => 'finance_accounting_FiscalYear_export',
                 'params'            => json_encode(['id' => $id])
             ]);
+
+            $dispatch->dispatch(
+                'finance.accounting.fiscal_year.export_task_created',
+                static::class,
+                $id,
+                'notice'
+            );
         }
     }
 
