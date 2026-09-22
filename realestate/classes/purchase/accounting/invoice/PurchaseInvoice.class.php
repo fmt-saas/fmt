@@ -538,12 +538,16 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             $funding_ids = [];
             $map_funding_ids = [];
             $map_funding_allocation_ids = [];
+            $has_sent_funding = false;
 
             foreach($fundings as $funding_id => $funding) {
-                if(!$funding['is_sent']) {
-                    $funding_ids[] = $funding_id;
-                    $map_funding_ids[$funding_id] = true;
+                if($funding['is_sent']) {
+                    $has_sent_funding = true;
+                    continue;
                 }
+
+                $funding_ids[] = $funding_id;
+                $map_funding_ids[$funding_id] = true;
             }
 
             if(count($funding_ids) > 0) {
@@ -607,6 +611,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             if(count($map_funding_ids) > 0) {
                 Funding::ids(array_keys($map_funding_ids))->do('refresh_status');
+            }
+
+            if($has_sent_funding) {
+                self::id($id)->update(['has_payment_on_hold' => true]);
             }
 
             if($purchaseInvoice['document_process_id']) {

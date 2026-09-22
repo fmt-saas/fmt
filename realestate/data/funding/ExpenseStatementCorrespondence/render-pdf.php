@@ -6,7 +6,6 @@
 */
 
 use documents\Document;
-use documents\DocumentType;
 use finance\accounting\FiscalPeriod;
 use realestate\funding\ExpenseStatementCorrespondence;
 
@@ -37,7 +36,7 @@ $context = $providers['context'];
 $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id'])
     ->read([
         'status', 'condo_id', 'ownership_id', 'owner_id', 'name',
-        'expense_statement_id' => ['id', 'fiscal_period_id', 'fiscal_year_id', 'posting_date', 'is_cutoff_at_document_date']
+        'expense_statement_id' => ['id', 'fiscal_period_id', 'posting_date', 'is_cutoff_at_document_date']
     ])
     ->first();
 
@@ -56,74 +55,35 @@ if(!$fiscalPeriod) {
 }
 
 /*
-    Generate or retrieve statement annexes
-
-    If these documents do not exist yet, create them
+    Retrieve the static statement annexes generated when the expense statement was posted:
         - balanceSheet ("bilan")
         - ExpenseSummary ("dépenses courantes")
-
 */
 
-// generate balance sheet for expense statement, if not generated yet
 $balanceSheetDocument = Document::search([
         ['condo_id', '=', $expenseStatementCorrespondence['condo_id']],
         ['expense_statement_id', '=', $expenseStatement['id']],
-        ['document_type_code', '=', 'balance_sheet']
+        ['document_type_code', '=', 'balance_sheet'],
+        ['name', '=', 'Bilan du ' . date('d/m/Y', $fiscalPeriod['date_to'])]
     ])
     ->read(['data'])
     ->first();
 
 if(!$balanceSheetDocument) {
-    $data = eQual::run('get', 'finance_accounting_balanceSheet_render-pdf', ['params' => [
-            'date_from' => date('c', $fiscalPeriod['date_from']),
-            'date_to'   => date('c', $fiscalPeriod['date_to']),
-            'condo_id'  => $expenseStatementCorrespondence['condo_id']
-        ]]);
-
-    $balanceSheetDocument = Document::create([
-            'condo_id'              => $expenseStatementCorrespondence['condo_id'],
-            'expense_statement_id'  => $expenseStatement['id'],
-            'fiscal_year_id'        => $expenseStatement['fiscal_year_id'],
-            'name'                  => 'Bilan du ' . date('d/m/Y', $fiscalPeriod['date_to']),
-            'data'                  => $data,
-            'is_origin'             => true,
-            'is_source'             => true,
-            'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'balance_sheet'])->first()) ? $dt['id'] : null,
-            'document_visibility'   => 'condo'
-        ])
-        ->read(['data'])
-        ->first();
+    throw new Exception('missing_balance_sheet_document', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-// generate expense summary for expense statement, if not generated yet
 $expenseSummaryDocument = Document::search([
         ['condo_id', '=', $expenseStatementCorrespondence['condo_id']],
         ['expense_statement_id', '=', $expenseStatement['id']],
-        ['document_type_code', '=', 'expense_summary']
+        ['document_type_code', '=', 'expense_summary'],
+        ['name', '=', 'Dépenses courantes au ' . date('d/m/Y', $fiscalPeriod['date_to'])]
     ])
     ->read(['data'])
     ->first();
 
 if(!$expenseSummaryDocument) {
-    $data = eQual::run('get', 'finance_accounting_expenseSummary_render-pdf', [ 'params' => [
-            'date_from' => date('c', $fiscalPeriod['date_from']),
-            'date_to'   => date('c', $fiscalPeriod['date_to']),
-            'condo_id'  => $expenseStatementCorrespondence['condo_id']
-        ]]);
-
-    $expenseSummaryDocument = Document::create([
-            'condo_id'              => $expenseStatementCorrespondence['condo_id'],
-            'expense_statement_id'  => $expenseStatement['id'],
-            'fiscal_year_id'        => $expenseStatement['fiscal_year_id'],
-            'name'                  => 'Dépenses courantes au ' . date('d/m/Y', $fiscalPeriod['date_to']),
-            'data'                  => $data,
-            'is_origin'             => true,
-            'is_source'             => true,
-            'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'expense_summary'])->first()) ? $dt['id'] : null,
-            'document_visibility'   => 'condo'
-        ])
-        ->read(['data'])
-        ->first();
+    throw new Exception('missing_expense_summary_document', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
 $temp_files = [];
