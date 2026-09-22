@@ -810,15 +810,16 @@ class BankStatement extends Model {
                 $data = \eQual::run('get', 'documents_processing_BankStatement_empty');
 
                 $document = Document::create([
-                        'condo_id'          => $bankStatement['condo_id'],
-                        'name'              => sprintf("%s %06d", 'extrait bancaire', $id),
-                        'bank_statement_id' => $id,
-                        'fiscal_year_id'    => $bankStatement['fiscal_year_id'],
-                        'document_type_id'  => $documentType['id'] ?? null,
-                        'document_json'     => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
-                        'is_origin'         => true,
-                        'is_source'         => false
+                        'condo_id'              => $bankStatement['condo_id'],
+                        'name'                  => sprintf("%s %06d", 'extrait bancaire', $id),
+                        'bank_statement_id'     => $id,
+                        'fiscal_year_id'        => $bankStatement['fiscal_year_id'],
+                        'document_json'         => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
+                        'is_origin'             => true,
+                        'is_source'             => false,
+                        'document_visibility'   => 'agency'
                     ])
+                    ->update(['document_type_id'  => $documentType['id'] ?? null])
                     ->first();
 
                 $documentProcess = DocumentProcess::create([
