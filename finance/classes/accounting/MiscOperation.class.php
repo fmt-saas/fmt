@@ -762,10 +762,9 @@ class MiscOperation extends Model {
                 Funding::ids(array_keys($map_funding_ids))->do('refresh_status');
             }
         }
-        $self->update([
-                'status'              => 'proforma',
-                'accounting_entry_id' => null
-            ]);
+        $self
+            ->update(['status' => 'proforma'])
+            ->update(['accounting_entry_id' => null]);
     }
 
     private static function computeIsBalanced($misc_operation_lines_ids) {
