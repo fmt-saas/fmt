@@ -402,8 +402,14 @@ class Document extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',
                 'description'       => 'Fiscal year to which the document relates, if any.',
-                'readonly'          => true,
-                'visible'           => ['document_type_code', '=', 'general_balance']
+                'readonly'          => true
+            ],
+
+            'fiscal_period_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'finance\accounting\FiscalPeriod',
+                'description'       => "Fiscal period the document relates to, if any.",
+                'readonly'          => true
             ],
 
             'ownership_transfer_id' => [

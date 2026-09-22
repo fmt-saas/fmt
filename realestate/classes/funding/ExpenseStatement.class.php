@@ -7,6 +7,7 @@
 namespace realestate\funding;
 
 use documents\Document;
+use documents\DocumentType;
 use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
 use finance\accounting\Account;
@@ -275,8 +276,18 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ],
             'generate_expense_statement_correspondences' => [
                 'description'   => 'Generate correspondences for each Ownership.',
-                'policies'      => ['can_generate_statement'],
+                'policies'      => ['can_generate_expense_statement_correspondences'],
                 'function'      => 'doGenerateExpenseStatementCorrespondences'
+            ],
+            'generate_expense_statement_documents' => [
+                'description'   => 'Generate the static financial documents related to the expense statement.',
+                'policies'      => [],
+                'function'      => 'doGenerateExpenseStatementDocuments'
+            ],
+            'schedule_expense_statement_documents_generation' => [
+                'description'   => 'Schedule generation of the expense statement documents and correspondences.',
+                'policies'      => [],
+                'function'      => 'doScheduleExpenseStatementDocumentsGeneration'
             ],
             'create_fundings' => [
                 'description'   => 'Generate fundings for each involved ownership.',
@@ -814,11 +825,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             try {
                 $self
-                    // generate correspondences for each ownership
-                    ->do('generate_expense_statement_correspondences');
+                    // schedule static documents and correspondences generation
+                    ->do('schedule_expense_statement_documents_generation');
             }
             catch(\Exception $e) {
-                trigger_error("APP::Error while generating expense statement correspondences: {$e->getMessage()}", EQ_REPORT_ERROR);
+                trigger_error("APP::Error while scheduling expense statement documents generation: {$e->getMessage()}", EQ_REPORT_ERROR);
                 // #memo -do not relay exception here (non critical)
                 // throw $e;
             }
@@ -830,13 +841,152 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
     }
 
     /**
+     * Schedule the asynchronous generation of static documents and correspondences.
+     */
+    protected static function doScheduleExpenseStatementDocumentsGeneration($self, $cron) {
+        foreach($self->ids() as $id) {
+            $task_name = "realestate_funding_ExpenseStatement_generate-documents.{$id}";
+
+            // Ensure there can only be one pending orchestration task per expense statement.
+            $cron->cancel($task_name);
+            $cron->schedule(
+                $task_name,
+                time() + 1,
+                'realestate_funding_ExpenseStatement_generate-documents',
+                ['id' => $id]
+            );
+        }
+    }
+
+    /**
+     * Generate the static balance sheet and expense summary for the statement period.
+     *
+     * For the last period of a multi-period fiscal year, also generate annual versions.
+     */
+    protected static function doGenerateExpenseStatementDocuments($self) {
+        $documentDefinitions = [
+            'balance_sheet' => [
+                'controller'    => 'finance_accounting_balanceSheet_render-pdf',
+                'period_prefix' => 'Bilan du ',
+                'annual_prefix' => 'Bilan du '
+            ],
+            'expense_summary' => [
+                'controller'    => 'finance_accounting_expenseSummary_render-pdf',
+                'period_prefix' => 'Dépenses courantes au ',
+                'annual_prefix' => 'Dépenses courantes du '
+            ]
+        ];
+
+        foreach($documentDefinitions as $documentTypeCode => &$documentDefinition) {
+            $documentType = DocumentType::search(['code', '=', $documentTypeCode])
+                ->read(['id'])
+                ->first();
+
+            if(!$documentType) {
+                throw new \Exception('missing_document_type', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            $documentDefinition['document_type_id'] = $documentType['id'];
+        }
+        unset($documentDefinition);
+
+        $self->read([
+            'condo_id',
+            'fiscal_period_id' => ['date_from', 'date_to'],
+            'fiscal_year_id' => [
+                'date_from',
+                'date_to',
+                'fiscal_periods_ids' => ['id']
+            ]
+        ]);
+
+        foreach($self as $id => $expenseStatement) {
+            $fiscalPeriod = $expenseStatement['fiscal_period_id'];
+            $fiscalYear = $expenseStatement['fiscal_year_id'];
+
+            $dateRanges = [[
+                'date_from' => $fiscalPeriod['date_from'],
+                'date_to'   => $fiscalPeriod['date_to'],
+                'is_annual' => false
+            ]];
+
+            if(
+                $fiscalPeriod['date_to'] === $fiscalYear['date_to']
+                && count($fiscalYear['fiscal_periods_ids']) > 1
+            ) {
+                $dateRanges[] = [
+                    'date_from' => $fiscalYear['date_from'],
+                    'date_to'   => $fiscalYear['date_to'],
+                    'is_annual' => true
+                ];
+            }
+
+            foreach($dateRanges as $dateRange) {
+                foreach($documentDefinitions as $documentTypeCode => $documentDefinition) {
+                    if($dateRange['is_annual']) {
+                        $name = $documentDefinition['annual_prefix']
+                            . date('d/m/Y', $dateRange['date_from'])
+                            . ' au '
+                            . date('d/m/Y', $dateRange['date_to']);
+                    }
+                    else {
+                        $name = $documentDefinition['period_prefix'] . date('d/m/Y', $dateRange['date_to']);
+                    }
+
+                    $document = Document::search([
+                            ['expense_statement_id', '=', $id],
+                            ['document_type_code', '=', $documentTypeCode],
+                            ['name', '=', $name]
+                        ])
+                        ->read(['id'])
+                        ->first();
+
+                    if($document) {
+                        continue;
+                    }
+
+                    $data = \eQual::run('get', $documentDefinition['controller'], ['params' => [
+                        'condo_id'       => $expenseStatement['condo_id'],
+                        'fiscal_year_id' => $fiscalYear['id'],
+                        'date_from'      => date('c', $dateRange['date_from']),
+                        'date_to'        => date('c', $dateRange['date_to'])
+                    ]]);
+
+                    Document::create([
+                        'condo_id'             => $expenseStatement['condo_id'],
+                        'expense_statement_id' => $id,
+                        'fiscal_year_id'       => $fiscalYear['id'],
+                        'fiscal_period_id'     => $fiscalPeriod['id'],
+                        'name'                 => $name,
+                        'data'                 => $data,
+                        'is_origin'            => true,
+                        'is_source'            => true,
+                        'document_type_id'     => $documentDefinition['document_type_id'],
+                        'document_visibility'  => 'condo'
+                    ]);
+                }
+            }
+        }
+    }
+
+    /**
      * Generate expense statement correspondences for each ownership.
      */
-    protected static function doGenerateExpenseStatementCorrespondences($self, $cron) {
+    protected static function doGenerateExpenseStatementCorrespondences($self) {
         $self->read(['condo_id', 'statement_owners_ids' => ['ownership_id']]);
         foreach($self as $id => $expenseStatement) {
-            // remove any previously created correspondence
-            ExpenseStatementCorrespondence::search(['expense_statement_id', '=', $id])->delete(true);
+            $existingCorrespondences = ExpenseStatementCorrespondence::search(['expense_statement_id', '=', $id])
+                ->read(['ownership_id', 'owner_id', 'communication_method']);
+
+            $mapExistingCorrespondences = [];
+            foreach($existingCorrespondences as $existingCorrespondence) {
+                $key = implode(':', [
+                    $existingCorrespondence['ownership_id'],
+                    $existingCorrespondence['owner_id'],
+                    $existingCorrespondence['communication_method']
+                ]);
+                $mapExistingCorrespondences[$key] = true;
+            }
 
             $ownerships_ids = array_column($expenseStatement['statement_owners_ids']->get(true), 'ownership_id');
             $ownerships = Ownership::ids($ownerships_ids)->read(['representative_owner_id']);
@@ -882,31 +1032,30 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     $communication_methods['postal_registered'] = true;
                 }
 
-                $now = time();
-
                 foreach($communication_methods as $communication_method => $communication_method_flag) {
                     if(!$communication_method_flag) {
                         continue;
                     }
 
-                    $expenseStatementCorrespondence = ExpenseStatementCorrespondence::create([
+                    $key = implode(':', [
+                        $ownership_id,
+                        $ownership['representative_owner_id'],
+                        $communication_method
+                    ]);
+
+                    if(isset($mapExistingCorrespondences[$key])) {
+                        continue;
+                    }
+
+                    ExpenseStatementCorrespondence::create([
                         'condo_id'                  => $expenseStatement['condo_id'],
                         'expense_statement_id'      => $id,
                         'ownership_id'              => $ownership_id,
                         'owner_id'                  => $ownership['representative_owner_id'],
                         'communication_method'      => $communication_method
-                    ])
-                    ->first();
+                    ]);
 
-                    // schedule generation of the correspondence document
-                    $cron->schedule(
-                        "realestate_funding_ExpenseStatementCorrespondence_generate-document.{$expenseStatementCorrespondence['id']}",
-                        ++$now,
-                        'realestate_funding_ExpenseStatementCorrespondence_generate-document',
-                        [
-                            'id'  => $expenseStatementCorrespondence['id']
-                        ]
-                    );
+                    $mapExistingCorrespondences[$key] = true;
                 }
             }
         }

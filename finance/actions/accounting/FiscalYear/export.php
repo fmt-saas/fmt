@@ -428,7 +428,7 @@ $fiscalYear = FiscalYear::id($params['id'])
         'status',
         'date_from',
         'date_to',
-        'condo_id' => ['name'],
+        'condo_id' => ['id', 'name'],
         'fiscal_periods_ids' => [
             '@sort' => ['date_from' => 'asc'],
             'date_from',
