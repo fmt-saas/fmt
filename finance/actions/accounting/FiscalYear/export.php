@@ -104,6 +104,30 @@ $getDocumentsByIds = function($document_ids) use($getDocumentByHash) {
     );
 };
 
+$getExpenseSummaryDoc = function($expense_statement_ids, $condo_id) use($getDocumentByHash) {
+    if(!count($expense_statement_ids)) {
+        return null;
+    }
+
+    $expenseSummary = Document::search([
+            ['document_type_code', '=', 'expense_summary'],
+            ['expense_statement_id', 'in', $expense_statement_ids],
+            ['condo_id', '=', $condo_id]
+        ])
+        ->read(['name', 'extension', 'hash'])
+        ->first();
+
+    if(!$expenseSummary) {
+        return null;
+    }
+
+    return [
+        'name'      => $expenseSummary['name'],
+        'extension' => $expenseSummary['extension'],
+        'data'      => $getDocumentByHash($expenseSummary['hash'])
+    ];
+};
+
 $getBalanceSheetDoc = function($expense_statement_ids, $condo_id) use($getDocumentByHash) {
     if(!count($expense_statement_ids)) {
         return null;
@@ -510,6 +534,17 @@ foreach($fiscalYear['fiscal_periods_ids'] as $id => $period) {
     else {
         $period_date = date('Y-m-d', $period['date_from']);
         $missing_documents[] = "Bilan de clôture (balance_sheet) - période du $period_date";
+    }
+
+    $expense_summary = $getExpenseSummaryDoc(
+        array_keys($period['expense_statements_ids']),
+        $fiscalYear['condo_id']['id']
+    );
+    if($expense_summary) {
+        $map_documents['01_Etat_de_cloture'][] = $expense_summary;
+    }
+    else {
+        $missing_documents[] = 'Dépenses courantes (expense_summary) - période du $period_date';
     }
 }
 
