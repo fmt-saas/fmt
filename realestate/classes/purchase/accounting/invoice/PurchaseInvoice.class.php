@@ -2560,11 +2560,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         'name'                  => sprintf("%s %06d", 'facture d\'achat', $id),
                         'purchase_invoice_id'   => $id,
                         'fiscal_year_id'        => $purchaseInvoice['fiscal_year_id'],
-                        'document_type_id'      => $documentType['id'],
                         'document_json'         => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
                         'is_origin'             => true,
-                        'is_source'             => false
+                        'is_source'             => false,
+                        'document_visibility'   => 'agency'
                     ])
+                    ->update(['document_type_id' => $documentType['id']])
                     ->first();
 
                 $documentProcess = DocumentProcess::create([

@@ -952,17 +952,19 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     ]]);
 
                     Document::create([
-                        'condo_id'             => $expenseStatement['condo_id'],
-                        'expense_statement_id' => $id,
-                        'fiscal_year_id'       => $fiscalYear['id'],
-                        'fiscal_period_id'     => $fiscalPeriod['id'],
-                        'name'                 => $name,
-                        'data'                 => $data,
-                        'is_origin'            => true,
-                        'is_source'            => true,
-                        'document_type_id'     => $documentDefinition['document_type_id'],
-                        'document_visibility'  => 'condo'
-                    ]);
+                            'condo_id'             => $expenseStatement['condo_id'],
+                            'expense_statement_id' => $id,
+                            'fiscal_year_id'       => $fiscalYear['id'],
+                            'fiscal_period_id'     => $fiscalPeriod['id'],
+                            'name'                 => $name,
+                            'data'                 => $data,
+                            'is_origin'            => true,
+                            'is_source'            => true,
+                            'document_visibility'  => 'condo'
+                        ])
+                        ->update([
+                            'document_type_id'     => $documentDefinition['document_type_id']
+                        ]);
                 }
             }
         }
