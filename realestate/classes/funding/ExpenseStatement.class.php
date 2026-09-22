@@ -492,10 +492,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             }
         }
 
-        $self->update([
-                'status'              => 'proforma',
-                'accounting_entry_id' => null
-            ]);
+        $self
+            ->update(['status' => 'proforma'])
+            ->update(['accounting_entry_id' => null]);
     }
 
     private static function normalizeMoneyAmount($amount): float {
@@ -2447,7 +2446,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
     protected static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['status', 'name', 'payment_status', 'is_sending_disabled', 'statements_exporting_task_id'];
+        $allowed_fields = ['status', 'name', 'payment_status', 'is_sending_disabled', 'statements_exporting_task_id', 'accounting_entry_id'];
 
         foreach($self as $id => $invoice) {
             if($invoice['status'] === 'posted') {
