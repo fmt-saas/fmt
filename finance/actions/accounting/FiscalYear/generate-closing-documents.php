@@ -56,14 +56,14 @@ $general_balance_doc = eQual::run(
 );
 
 Document::create([
-    'name'                  => "Balance Générale Des Comptes - {$fiscalYear['name']}",
-    'condo_id'              => $fiscalYear['condo_id'],
-    'fiscal_year_id'        => $fiscalYear['id'],
-    'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'general_balance'])->first()) ? $dt['id'] : null,
-    'document_visibility'   => 'agency',
-    'is_origin'             => true,
-    'data'                  => $general_balance_doc
-]);
+        'name'                  => "Balance Générale Des Comptes - {$fiscalYear['name']}",
+        'condo_id'              => $fiscalYear['condo_id'],
+        'fiscal_year_id'        => $fiscalYear['id'],
+        'document_visibility'   => 'agency',
+        'is_origin'             => true,
+        'data'                  => $general_balance_doc
+    ])
+    ->update(['document_type_id' => ($dt = DocumentType::search(['code', '=', 'general_balance'])->first()) ? $dt['id'] : null]);
 
 $general_ledger_doc = eQual::run(
     'get',
@@ -77,14 +77,14 @@ $general_ledger_doc = eQual::run(
 );
 
 Document::create([
-    'name'                  => "Grand Livre - {$fiscalYear['name']}",
-    'condo_id'              => $fiscalYear['condo_id'],
-    'fiscal_year_id'        => $fiscalYear['id'],
-    'document_type_id'      => ($dt = DocumentType::search(['code', '=', 'general_ledger'])->first()) ? $dt['id'] : null,
-    'document_visibility'   => 'agency',
-    'is_origin'             => true,
-    'data'                  => $general_ledger_doc
-]);
+        'name'                  => "Grand Livre - {$fiscalYear['name']}",
+        'condo_id'              => $fiscalYear['condo_id'],
+        'fiscal_year_id'        => $fiscalYear['id'],
+        'document_visibility'   => 'agency',
+        'is_origin'             => true,
+        'data'                  => $general_ledger_doc
+    ])
+    ->update(['document_type_id' => ($dt = DocumentType::search(['code', '=', 'general_ledger'])->first()) ? $dt['id'] : null]);
 
 $context->httpResponse()
         ->status(201)
