@@ -413,6 +413,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'clearing_expense_statement_id' => null
                 ]);
 
+            // remove annex documents, if any
+            Document::search([
+                    ['condo_id', '=', $expenseStatement['condo_id']],
+                    ['expense_statement_id', '=', $id]
+                ])
+                ->delete(true);
+
             // remove related fundings (move payments to BankStatementLine Funding if any)
             $funding_ids = Funding::search([
                     ['condo_id', '=', $expenseStatement['condo_id']],
