@@ -10,6 +10,10 @@ use finance\accounting\Matching;
 
 class AccountingEntry extends \finance\accounting\AccountingEntry {
 
+    public static function getModelScope(): ?string {
+        return null;
+    }
+
     public static function getName() {
         return "Journal accounting entry";
     }

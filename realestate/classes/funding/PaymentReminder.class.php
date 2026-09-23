@@ -19,6 +19,10 @@ use sale\price\Price;
 
 class PaymentReminder extends \sale\pay\PaymentReminder {
 
+    public static function getModelScope(): ?string {
+        return null;
+    }
+
     public static function getDescription(): string {
         return "A funding reminder streamlines the process of alerting customers when a funding due date has passed and the corresponding payment remains outstanding.";
     }
