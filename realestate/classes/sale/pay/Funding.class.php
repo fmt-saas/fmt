@@ -23,6 +23,10 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 class Funding extends \sale\pay\Funding {
 
+    public static function getModelScope(): ?string {
+        return null;
+    }
+
     public static function getDescription() {
         return 'Funding for tracking fund requests and expense statements (funds to be received).';
     }

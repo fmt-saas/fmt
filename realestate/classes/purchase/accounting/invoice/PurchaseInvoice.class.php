@@ -31,6 +31,10 @@ use sale\pay\Payment;
 
 class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
+    public static function getModelScope(): ?string {
+        return null;
+    }
+
     public static function getLink() {
         return "/app/#/condo/:condo_id/accounting/purchase-invoice/object.id";
     }

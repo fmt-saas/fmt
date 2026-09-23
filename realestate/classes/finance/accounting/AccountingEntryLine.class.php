@@ -10,6 +10,10 @@ use realestate\sale\pay\Funding;
 
 class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
 
+    public static function getModelScope(): ?string {
+        return null;
+    }
+
     public static function getName() {
         return "Accounting entry line";
     }
