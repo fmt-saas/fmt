@@ -11,9 +11,12 @@ use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
 use equal\orm\Model;
 use fmt\setting\Setting;
+use fmt\setting\SettingSequence;
 use realestate\property\Condominium;
 
 class FiscalYear extends Model {
+
+    private static $previous_fiscal_year_codes = [];
 
     public static function getName() {
         return "Fiscal Year";
@@ -120,16 +123,14 @@ class FiscalYear extends Model {
                 'type'              => 'date',
                 'usage'             => 'date/plain',
                 'description'       => 'First day of the fiscal year (included).',
-                'dependents'        => ['name', 'code', 'previous_fiscal_year_id'],
-                'onupdate'          => 'onupdateDateFrom'
+                'dependents'        => ['name', 'code', 'previous_fiscal_year_id']
             ],
 
             'date_to' => [
                 'type'              => 'date',
                 'usage'             => 'date/plain',
                 'description'       => 'Last day of the fiscal year (included).',
-                'dependents'        => ['name', 'code', 'previous_fiscal_year_id'],
-                'onupdate'          => 'onupdateDateTo'
+                'dependents'        => ['name', 'code', 'previous_fiscal_year_id']
             ],
 
             'previous_fiscal_year_id' => [
@@ -235,7 +236,7 @@ class FiscalYear extends Model {
     public static function getActions() {
         return [
             'generate_periods' => [
-                'description'   => 'Generate the periods according to the fiscal year definition (only for draft fiscal year).',
+                'description'   => 'Generate the periods according to the fiscal year definition.',
                 'policies'      => [],
                 'function'      => 'doGeneratePeriods'
             ],
@@ -987,15 +988,48 @@ class FiscalYear extends Model {
     }
 
     /**
-     * Upon creation of a fiscal year (onafterOpen), it is necessary to create sequences for:
+     * Generate the mandatory sequences for a fiscal year:
      * - sale operations:      finance.accounting.operation.sequence.{fiscal_year_code}.{fiscal_period_code}.SAL                    [condo_id]
      * - purchase operations:  finance.accounting.operation.sequence.{fiscal_year_code}.{fiscal_period_code}.PUR                    [condo_id]
      * - misc/opening operations: finance.accounting.operation.sequence.{fiscal_year_code}.{fiscal_period_code}.{journal_code}      [condo_id]
      * - accounting entries:   finance.accounting.accounting_entry.sequence.{fiscal_year_code}.{fiscal_period_code}.{journal_code}  [condo_id]
      */
-    public static function doGenerateSequences($self) {
+    public static function doGenerateSequences($self, $values, $orm) {
+        $previous_fiscal_year_codes = $values['previous_fiscal_year_codes'] ?? [];
+
         $self->read(['condo_id', 'code', 'fiscal_periods_ids' => ['code']]);
         foreach($self as $id => $fiscalYear) {
+            $previous_fiscal_year_code = $previous_fiscal_year_codes[$id] ?? null;
+
+            if($previous_fiscal_year_code) {
+                $settings_ids = [];
+                foreach(['operation.sequence', 'accounting_entry.sequence'] as $sequence_prefix) {
+                    $settings_ids = array_merge(
+                        $settings_ids,
+                        $orm->search(Setting::getType(), [
+                            ['package', '=', 'finance'],
+                            ['section', '=', 'accounting'],
+                            ['code', 'like', "{$sequence_prefix}.{$previous_fiscal_year_code}.%"]
+                        ])
+                    );
+                }
+
+                $settings_ids = array_values(array_unique($settings_ids));
+                if(count($settings_ids)) {
+                    $setting_sequences_ids = $orm->search(SettingSequence::getType(), [
+                        ['setting_id', 'in', $settings_ids],
+                        ['user_id', 'is', null],
+                        ['organisation_id', 'is', null],
+                        ['condo_id', '=', $fiscalYear['condo_id']],
+                        ['ownership_id', 'is', null]
+                    ]);
+
+                    if(count($setting_sequences_ids)) {
+                        $orm->delete(SettingSequence::getType(), $setting_sequences_ids, true);
+                    }
+                }
+            }
+
             $fiscal_year_code = $fiscalYear['code'];
 
             $journals = Journal::search([['journal_type', '<>', 'LEDG'], ['condo_id', '=', $fiscalYear['condo_id']]])
@@ -1381,12 +1415,52 @@ class FiscalYear extends Model {
         return [];
     }
 
-    protected static function onupdateDateFrom($self) {
-        $self->do('generate_periods');
+    protected static function onbeforeupdate($self, $values) {
+        if(!array_key_exists('date_from', $values) && !array_key_exists('date_to', $values)) {
+            return;
+        }
+
+        $self->read(['status', 'code']);
+        foreach($self as $id => $fiscalYear) {
+            if($fiscalYear['status'] !== 'draft') {
+                self::$previous_fiscal_year_codes[$id] = $fiscalYear['code'];
+            }
+        }
     }
 
-    protected static function onupdateDateTo($self) {
-        $self->do('generate_periods');
+    protected static function onafterupdate($self, $values) {
+        if(!array_key_exists('date_from', $values) && !array_key_exists('date_to', $values)) {
+            return;
+        }
+
+        try {
+            $self->do('generate_periods');
+
+            $self->read(['status']);
+            $fiscal_years_ids = [];
+            $previous_fiscal_year_codes = [];
+            foreach($self as $id => $fiscalYear) {
+                if($fiscalYear['status'] === 'draft') {
+                    continue;
+                }
+
+                $fiscal_years_ids[] = $id;
+                if(isset(self::$previous_fiscal_year_codes[$id])) {
+                    $previous_fiscal_year_codes[$id] = self::$previous_fiscal_year_codes[$id];
+                }
+            }
+
+            if(count($fiscal_years_ids)) {
+                self::ids($fiscal_years_ids)->do('generate_sequences', [
+                    'previous_fiscal_year_codes' => $previous_fiscal_year_codes
+                ]);
+            }
+        }
+        finally {
+            foreach($self->ids() as $id) {
+                unset(self::$previous_fiscal_year_codes[$id]);
+            }
+        }
     }
 
     public static function candelete($self) {
@@ -1400,32 +1474,29 @@ class FiscalYear extends Model {
     }
 
     public static function canupdate($self, $values) {
-        $self->read(['status', 'date_to']);
+        $self->read(['status']);
         foreach($self as $id => $fiscalYear) {
             $allowed_fields = ['name'];
-            if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
-                if(in_array($fiscalYear['status'], ['closed', 'archived'])) {
+            $updated_fields = array_diff(array_keys($values), $allowed_fields);
+            if(count($updated_fields) > 0) {
+                $date_fields = array_intersect($updated_fields, ['date_from', 'date_to']);
+                $other_fields = array_diff($updated_fields, ['date_from', 'date_to']);
+
+                if(count($other_fields) && in_array($fiscalYear['status'], ['closed', 'archived'])) {
                     return ['status' => ['not_allowed_closed' => 'Closed fiscal year cannot be modified.']];
                 }
                 if($fiscalYear['status'] <> 'draft') {
-                    // if modifying the end date AND there are no accounting entries for this fiscal year beyond that date: allow
-                    if(isset($values['date_to'])) {
+                    if(count($date_fields)) {
                         $accounting_entries_ids = AccountingEntry::search([
-                                ['fiscal_year_id', '=', $id],
-                                ['entry_date', '>', $values['date_to']],
-                                ['status', '=', 'validated']
+                                ['fiscal_year_id', '=', $id]
                             ])
                             ->ids();
                         if(count($accounting_entries_ids) > 0) {
-                            return ['status' => ['not_allowed_entries' => 'There are accounting entries for the Fiscal year after given end date.']];
+                            return ['status' => ['not_allowed_entries' => 'Fiscal year dates cannot be modified when accounting entries exist.']];
                         }
                     }
-                    // otherwise always refuse
-                    elseif(isset($values['fiscal_periods_ids']) ||
-                        isset($values['date_from']) ||
-                        isset($values['condo_id']) ||
-                        isset($values['organisation_id'])
-                    ) {
+
+                    if(count(array_intersect($other_fields, ['fiscal_periods_ids', 'condo_id', 'organisation_id']))) {
                         return ['status' => ['not_allowed' => 'Fiscal year configuration cannot be modified once published.']];
                     }
                 }
