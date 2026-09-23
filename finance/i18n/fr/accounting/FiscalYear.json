@@ -125,5 +125,10 @@
             "name": "Exercices d'une copropriété",
             "description": "Vue filtrée pour une copropriété (non présentée mais utile)."
         }
+    },
+    "error": {
+        "status": {
+            "not_allowed_entries": "Les dates de l'exercice comptable ne peuvent pas être modifiées lorsque des écritures comptables lui sont associées."
+        }
     }
 }
