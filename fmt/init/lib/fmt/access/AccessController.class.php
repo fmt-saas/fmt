@@ -340,9 +340,12 @@ class AccessController extends \equal\access\AccessController {
                 if(count($parent_classes)) {
                     $classes = [];
                     $table_name = $orm->getObjectTableName($object_class);
-                    foreach($parent_classes as $class) {
-                        if($orm->getObjectTableName($class) == $table_name) {
-                            $classes[$class] = true;
+                    if(is_string($table_name)) {
+                        foreach($parent_classes as $class) {
+                            $parent_table_name = $orm->getObjectTableName($class);
+                            if(is_string($parent_table_name) && $parent_table_name === $table_name) {
+                                $classes[$class] = true;
+                            }
                         }
                     }
                 }
