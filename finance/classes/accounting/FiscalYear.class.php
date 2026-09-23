@@ -6,6 +6,7 @@
 */
 namespace finance\accounting;
 
+use documents\Document;
 use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
 use equal\orm\Model;
@@ -862,6 +863,12 @@ class FiscalYear extends Model {
             OpeningBalance::search(['fiscal_year_id', '=', $nextFiscalYear['id']])->delete(true);
             // remove ClosingBalance
             ClosingBalance::search(['fiscal_year_id', '=', $id])->delete(true);
+            // remove closing documents
+            Document::search([
+                    ['fiscal_year_id', '=', $id],
+                    ['document_type_code', 'in', ['general_ledger', 'general_balance']]
+                ])
+                ->delete(true);
 
             self::id($id)->update(['name' => null]);
         }
