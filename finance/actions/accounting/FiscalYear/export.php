@@ -204,7 +204,7 @@ $getGeneralBalance = function($fiscal_year_id, $condo_id) use($getDocumentByHash
             ['condo_id', '=', $condo_id]
         ])
         ->read(['name', 'extension', 'hash'])
-        ->first(true);
+        ->first();
 
     if(!$generalBalance) {
         return null;
@@ -224,7 +224,7 @@ $getLedgerBalance = function($fiscal_year_id, $condo_id) use($getDocumentByHash)
             ['condo_id', '=', $condo_id]
         ])
         ->read(['name', 'extension', 'hash'])
-        ->first(true);
+        ->first();
 
     if(!$generalLedger) {
         return null;
