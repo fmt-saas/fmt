@@ -61,7 +61,7 @@ CondominiumBankAccount::create([
         'owner_identity_id' => $identity['id'],
         'description'       => "Compte épargne",
         'bank_account_type' => 'bank_savings',
-        'bank_account_iban' => "BE04456595434922"
+        'bank_account_iban' => "BE53456595434922"
     ]);
 
 
@@ -113,7 +113,7 @@ CondominiumBankAccount::create([
         'owner_identity_id' => $identity['id'],
         'description'       => "Compte épargne",
         'bank_account_type' => 'bank_savings',
-        'bank_account_iban' => "BE05373234451279"
+        'bank_account_iban' => "BE15373234451279"
     ]);
 
 
