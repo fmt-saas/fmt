@@ -62,7 +62,7 @@ if(!$documentAccessHelper->userCanReadObjects($orm, $access, Document::getType()
 
 $document = Document::id($document_id)
     ->read([
-        'id', 'name', 'data', 'content_type',
+        'id', 'name', 'data', 'content_type', 'extension',
         'purchase_invoice_id', 'expense_statement_id', 'fund_request_execution_id', 'bank_statement_id'
     ])
     ->first();
@@ -72,7 +72,16 @@ if(!$document) {
 }
 
 $content_type = $document['content_type'];
-$filename = $document['name'];
+$filename = trim((string) ($document['name'] ?? ''));
+
+if(pathinfo($filename, PATHINFO_EXTENSION) === '') {
+    $extension = ltrim(trim((string) ($document['extension'] ?? '')), '.');
+
+    if($extension !== '') {
+        $filename = rtrim($filename, '.') . '.' . $extension;
+    }
+}
+
 $output = $document['data'];
 
 // for accounting documents, relay to `add-overlay` to force output with additional information

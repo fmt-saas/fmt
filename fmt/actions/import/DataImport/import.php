@@ -898,6 +898,8 @@ try {
                     $date_of_birth = strtotime($external_representative['date_of_birth']);
                 }
 
+                $is_individual = $external_representative['type'] === 'IN';
+
                 $identity = Identity::create([
                         'type_id'                   => $type['id'],
                         'bank_account_iban'         => $external_representative['iban_1'],
@@ -905,8 +907,9 @@ try {
                         'vat_number'                => $external_representative['vat_number'] ?? null,
                         'registration_number'       => $external_representative['registration_number'],
                         'citizen_identification'    => $external_representative['citizen_identification'],
-                        'firstname'                 => $external_representative['firstname'],
-                        'lastname'                  => $external_representative['lastname'],
+                        'legal_name'                => $is_individual ? null : $external_representative['lastname'],
+                        'firstname'                 => $is_individual ? $external_representative['firstname'] : null,
+                        'lastname'                  => $is_individual ? $external_representative['lastname'] : null,
                         'gender'                    => ['Madame' => 'F', 'Monsieur' => 'M'][$external_representative['title']],
                         'title'                     => ['Madame' => 'Mrs', 'Monsieur' => 'Mr'][$external_representative['title']],
                         'date_of_birth'             => $date_of_birth,
@@ -1020,6 +1023,8 @@ try {
                     $date_of_birth = strtotime($owner['date_of_birth']);
                 }
 
+                $is_individual = $owner['type'] === 'IN';
+
                 $identity = Identity::create([
                         'type_id'                   => $type['id'],
                         'bank_account_iban'         => $owner['iban_1'],
@@ -1027,8 +1032,9 @@ try {
                         'vat_number'                => $owner['vat_number'] ?? null,
                         'registration_number'       => $owner['registration_number'],
                         'citizen_identification'    => $owner['citizen_identification'],
-                        'firstname'                 => $owner['firstname'],
-                        'lastname'                  => $owner['lastname'],
+                        'legal_name'                => $is_individual ? null : $owner['lastname'],
+                        'firstname'                 => $is_individual ? $owner['firstname'] : null,
+                        'lastname'                  => $is_individual ? $owner['lastname'] : null,
                         'gender'                    => ['Madame' => 'F', 'Monsieur' => 'M'][$owner['title'] ?? ''] ?? null,
                         'title'                     => ['Madame' => 'Mrs', 'Monsieur' => 'Mr'][$owner['title'] ?? ''] ?? null,
                         'date_of_birth'             => $date_of_birth,
