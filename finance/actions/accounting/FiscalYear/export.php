@@ -133,7 +133,7 @@ $getBalanceSheetDoc = function($period_id, $condo_id) use($getDocumentByHash) {
             ['condo_id', '=', $condo_id]
         ])
         ->read(['name', 'extension', 'hash'])
-        ->first(true);
+        ->first();
 
     if(!$balanceSheet) {
         return null;
