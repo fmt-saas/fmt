@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
+use equal\orm\usages\UsageUri;
 use fmt\import\DataImport;
 use hr\employee\Employee;
 use identity\Identity;
@@ -55,6 +56,18 @@ if(!$dataImport) {
 
 // fetch parsed JSON
 $data = eQual::run('get', 'fmt_import_DataImport_parse', ['id' => $params['id']]);
+
+$iban_constraints = (new UsageUri('uri/urn.iban'))->getConstraints();
+$is_valid_iban = static function(string $iban) use($iban_constraints): bool {
+    foreach($iban_constraints as $constraint) {
+        $validation_function = $constraint['function'] ?? null;
+        if(is_callable($validation_function) && !$validation_function($iban)) {
+            return false;
+        }
+    }
+
+    return true;
+};
 
 
 if($dataImport['import_type'] == 'condominium_import') {
@@ -216,12 +229,23 @@ if($dataImport['import_type'] == 'condominium_import') {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing `iban` in Bank_accounts sheet at row " . ($index + 2);
         }
+        elseif(!$is_valid_iban($bank_account['iban'])) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid `iban` ({$bank_account['iban']}) in Bank_accounts sheet at row " . ($index + 2);
+        }
     }
 
     foreach($data['Owners'] as $index => $owner) {
         if(!isset($owner['code'])) {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing `code` in Owner sheet at row " . ($index + 2);
+        }
+
+        foreach(['iban_1', 'iban_2', 'iban_3'] as $iban_field) {
+            if(isset($owner[$iban_field]) && !$is_valid_iban($owner[$iban_field])) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - invalid `$iban_field` ({$owner[$iban_field]}) in Owner sheet at row " . ($index + 2);
+            }
         }
 
         // #todo - perform checks based on target schema constraints and fields types
@@ -299,6 +323,13 @@ if($dataImport['import_type'] == 'condominium_import') {
     }
 
     foreach($data['External_representatives'] ?? [] as $index => $external_representative) {
+        foreach(['iban_1', 'iban_2', 'iban_3'] as $iban_field) {
+            if(isset($external_representative[$iban_field]) && !$is_valid_iban($external_representative[$iban_field])) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - invalid `$iban_field` ({$external_representative[$iban_field]}) in External_representatives sheet at row " . ($index + 2);
+            }
+        }
+
         $representative_type_code = strtoupper(trim((string) ($external_representative['type'] ?? '')));
         $representative_firstname = trim($external_representative['firstname'] ?? '');
         // allow letters (Unicode), space, apostrophe, hyphen for individuals
@@ -788,6 +819,13 @@ elseif($dataImport['import_type'] == 'ownership_import') {
             }
         }
 
+        foreach(['iban_1', 'iban_2', 'iban_3'] as $iban_field) {
+            if(isset($ownership_row[$iban_field]) && !$is_valid_iban($ownership_row[$iban_field])) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - invalid `$iban_field` ({$ownership_row[$iban_field]}) in ownership import sheet at row " . $row_index;
+            }
+        }
+
         if(!empty($ownership_row['date_of_birth']) && strtotime($ownership_row['date_of_birth']) === false) {
             ++$result['errors'];
             $result['logs'][] = "ERR - invalid `date_of_birth` ({$ownership_row['date_of_birth']}) in ownership import sheet at row " . $row_index;
@@ -900,6 +938,13 @@ elseif($dataImport['import_type'] == 'ownership_import') {
         if(!$supplier['country']) {
             ++$result['errors'];
             $result['logs'][] = "ERR - missing mandatory `country` in suppliers sheet at row " . ($index + 2);
+        }
+
+        foreach(['iban_1', 'iban_2', 'iban_3'] as $iban_field) {
+            if(isset($supplier[$iban_field]) && !$is_valid_iban($supplier[$iban_field])) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - invalid `$iban_field` ({$supplier[$iban_field]}) in suppliers sheet at row " . ($index + 2);
+            }
         }
 
         // attempt to find existing identity by registration number
