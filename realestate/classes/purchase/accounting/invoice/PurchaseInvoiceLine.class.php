@@ -13,7 +13,7 @@ use realestate\property\PropertyLotOwnership;
 
 class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLine {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'purchase_accounting_invoice_invoiceline';
     }
 

@@ -20,7 +20,7 @@ use sale\pay\Payment;
 class MiscOperation extends Model {
 
     // #memo - for backward compatibility
-    public function getTable() {
+    public static function getModelTable() {
         return 'finance_accounting_miscoperation';
     }
 

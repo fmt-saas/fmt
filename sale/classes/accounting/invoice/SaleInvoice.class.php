@@ -19,7 +19,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
         return 'Sale invoice';
     }
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'sale_accounting_invoice_invoice';
     }
 

@@ -10,7 +10,7 @@ use core\Group;
 
 class Role extends Group {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'hr_role_role';
     }
 

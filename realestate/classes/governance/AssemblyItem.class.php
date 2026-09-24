@@ -14,7 +14,7 @@ use realestate\property\PropertyLotOwnership;
 
 class AssemblyItem extends AssemblyItemTemplate {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'realestate_governance_assembly_item';
     }
 

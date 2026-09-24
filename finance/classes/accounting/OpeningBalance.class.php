@@ -8,7 +8,7 @@ namespace finance\accounting;
 
 class OpeningBalance extends Balance {
 
-    public function getTable() {
+    public static function getModelTable() {
         return "finance_accounting_openingbalance";
     }
 

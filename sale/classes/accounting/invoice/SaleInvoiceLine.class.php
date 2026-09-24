@@ -13,7 +13,7 @@ use sale\price\PriceList;
 
 class SaleInvoiceLine extends \finance\accounting\invoice\InvoiceLine {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'sale_accounting_invoice_invoiceline';
     }
 

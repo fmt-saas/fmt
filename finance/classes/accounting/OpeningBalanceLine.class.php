@@ -8,7 +8,7 @@ namespace finance\accounting;
 
 class OpeningBalanceLine extends BalanceLine {
 
-    public function getTable() {
+    public static function getModelTable() {
         return "finance_accounting_openingbalanceline";
     }
 

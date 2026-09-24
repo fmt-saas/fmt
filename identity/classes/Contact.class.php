@@ -8,7 +8,7 @@ namespace identity;
 
 class Contact extends Identity {
 
-    public function getTable() {
+    public static function getModelTable() {
         // force table name to use distinct tables and ID columns
         return 'identity_contact';
     }

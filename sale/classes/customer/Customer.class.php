@@ -10,7 +10,7 @@ use identity\Identity;
 
 class Customer extends \identity\Identity {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'sale_customer_customer';
     }
 

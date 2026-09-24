@@ -17,7 +17,7 @@ use realestate\sale\pay\Funding;
 
 class OwnershipTransfer extends \equal\orm\Model {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'realestate_property_ownershiptransfer';
     }
 

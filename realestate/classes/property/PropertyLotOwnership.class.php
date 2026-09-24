@@ -8,7 +8,7 @@ namespace realestate\property;
 
 class PropertyLotOwnership extends \equal\orm\Model {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'realestate_ownership_ownership_rel_property_lot';
     }
 
