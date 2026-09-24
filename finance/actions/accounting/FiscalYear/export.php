@@ -104,14 +104,11 @@ $getDocumentsByIds = function($document_ids) use($getDocumentByHash) {
     );
 };
 
-$getExpenseSummaryDoc = function($expense_statement_ids, $condo_id) use($getDocumentByHash) {
-    if(!count($expense_statement_ids)) {
-        return null;
-    }
+$getExpenseSummaryDoc = function($period_id, $condo_id) use($getDocumentByHash) {
 
     $expenseSummary = Document::search([
             ['document_type_code', '=', 'expense_summary'],
-            ['expense_statement_id', 'in', $expense_statement_ids],
+            ['fiscal_period_id', '=', $period_id],
             ['condo_id', '=', $condo_id]
         ])
         ->read(['name', 'extension', 'hash'])
@@ -128,27 +125,24 @@ $getExpenseSummaryDoc = function($expense_statement_ids, $condo_id) use($getDocu
     ];
 };
 
-$getBalanceSheetDoc = function($expense_statement_ids, $condo_id) use($getDocumentByHash) {
-    if(!count($expense_statement_ids)) {
-        return null;
-    }
+$getBalanceSheetDoc = function($period_id, $condo_id) use($getDocumentByHash) {
 
-    $balance_sheet = Document::search([
+    $balanceSheet = Document::search([
             ['document_type_code', '=', 'balance_sheet'],
-            ['expense_statement_id', 'in', $expense_statement_ids],
+            ['fiscal_period_id', '=', $period_id],
             ['condo_id', '=', $condo_id]
         ])
         ->read(['name', 'extension', 'hash'])
         ->first(true);
 
-    if(!$balance_sheet) {
+    if(!$balanceSheet) {
         return null;
     }
 
     return [
-        'name'      => $balance_sheet['name'],
-        'extension' => $balance_sheet['extension'],
-        'data'      => $getDocumentByHash($balance_sheet['hash'])
+        'name'      => $balanceSheet['name'],
+        'extension' => $balanceSheet['extension'],
+        'data'      => $getDocumentByHash($balanceSheet['hash'])
     ];
 };
 
@@ -455,10 +449,7 @@ $fiscalYear = FiscalYear::id($params['id'])
         'condo_id' => ['id', 'name'],
         'fiscal_periods_ids' => [
             '@sort' => ['date_from' => 'asc'],
-            'date_from',
-            'expense_statements_ids' => [
-                '@domain' => ['status', '=', 'posted']
-            ]
+            'date_from'
         ]
     ])
     ->first(true);
@@ -523,9 +514,9 @@ $map_documents['04_Coproprietaires/situations_de_compte'] = $getOwnerAccountStat
     Fiscal periods
 */
 
-foreach($fiscalYear['fiscal_periods_ids'] as $id => $period) {
+foreach($fiscalYear['fiscal_periods_ids'] as $period_id => $period) {
     $balance_sheet = $getBalanceSheetDoc(
-        array_keys($period['expense_statements_ids']),
+        $period_id,
         $fiscalYear['condo_id']['id']
     );
     if($balance_sheet) {
@@ -537,7 +528,7 @@ foreach($fiscalYear['fiscal_periods_ids'] as $id => $period) {
     }
 
     $expense_summary = $getExpenseSummaryDoc(
-        array_keys($period['expense_statements_ids']),
+        $period_id,
         $fiscalYear['condo_id']['id']
     );
     if($expense_summary) {
