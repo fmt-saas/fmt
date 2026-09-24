@@ -226,20 +226,26 @@ if($dataImport['import_type'] == 'condominium_import') {
 
         // #todo - perform checks based on target schema constraints and fields types
 
-        // allow letters (Unicode), space, apostrophe, hyphen
+        $owner_type_code = strtoupper(trim((string) ($owner['type'] ?? '')));
         $owner_firstname = trim($owner['firstname'] ?? '');
-        if($owner_firstname !== '' && !preg_match('/^[\p{L}\'\- ]+$/u', $owner_firstname)) {
+        // allow letters (Unicode), space, apostrophe, hyphen for individuals
+        if($owner_type_code === 'IN' && $owner_firstname !== '' && !preg_match('/^[\p{L}\'\- ]+$/u', $owner_firstname)) {
             ++$result['errors'];
             $result['logs'][] = "ERR - invalid chars for `firstname` ({$owner['firstname']}) in Owner sheet at row " . ($index + 2);
         }
 
-        if($owner_firstname !== '' && strlen($owner_firstname) < 2) {
+        if($owner_type_code === 'IN' && $owner_firstname !== '' && strlen($owner_firstname) < 2) {
             ++$result['errors'];
             $result['logs'][] = "ERR - invalid length (<2) for `firstname` ({$owner['firstname']}) in Owner sheet at row " . ($index + 2);
         }
 
-        // allow letters (Unicode), space, apostrophe, hyphen
-        if(!preg_match('/^[\p{L}\'\- ]+$/u', $owner['lastname'])) {
+        $owner_lastname = trim($owner['lastname'] ?? '');
+        if($owner_lastname === '') {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing `lastname` in Owner sheet at row " . ($index + 2);
+        }
+        // allow letters (Unicode), space, apostrophe, hyphen for individuals
+        elseif($owner_type_code === 'IN' && !preg_match('/^[\p{L}\'\- ]+$/u', $owner_lastname)) {
             ++$result['errors'];
             $result['logs'][] = "ERR - invalid chars for `lastname` ({$owner['lastname']}) in Owner sheet at row " . ($index + 2);
         }
@@ -290,6 +296,32 @@ if($dataImport['import_type'] == 'condominium_import') {
             $result['logs'][] = "ERR - invalid `mobile_2` ({$owner['mobile_2']}) in Owner sheet at row " . ($index + 2);
         }
 
+    }
+
+    foreach($data['External_representatives'] ?? [] as $index => $external_representative) {
+        $representative_type_code = strtoupper(trim((string) ($external_representative['type'] ?? '')));
+        $representative_firstname = trim($external_representative['firstname'] ?? '');
+        // allow letters (Unicode), space, apostrophe, hyphen for individuals
+        if($representative_type_code === 'IN' && $representative_firstname !== '' && !preg_match('/^[\p{L}\'\- ]+$/u', $representative_firstname)) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid chars for `firstname` ({$external_representative['firstname']}) in External_representatives sheet at row " . ($index + 2);
+        }
+
+        if($representative_type_code === 'IN' && $representative_firstname !== '' && strlen($representative_firstname) < 2) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid length (<2) for `firstname` ({$external_representative['firstname']}) in External_representatives sheet at row " . ($index + 2);
+        }
+
+        $representative_lastname = trim($external_representative['lastname'] ?? '');
+        if($representative_lastname === '') {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing `lastname` in External_representatives sheet at row " . ($index + 2);
+        }
+        // allow letters (Unicode), space, apostrophe, hyphen for individuals
+        elseif($representative_type_code === 'IN' && !preg_match('/^[\p{L}\'\- ]+$/u', $representative_lastname)) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - invalid chars for `lastname` ({$external_representative['lastname']}) in External_representatives sheet at row " . ($index + 2);
+        }
     }
 
     $ownerships_shares = [];
@@ -660,12 +692,12 @@ elseif($dataImport['import_type'] == 'ownership_import') {
         }
 
         $owner_firstname = trim($ownership_row['firstname'] ?? '');
-        if($owner_firstname !== '' && !preg_match('/^[\p{L}\'\- ]+$/u', $owner_firstname)) {
+        if($type_code === 'IN' && $owner_firstname !== '' && !preg_match('/^[\p{L}\'\- ]+$/u', $owner_firstname)) {
             ++$result['errors'];
             $result['logs'][] = "ERR - invalid chars for `firstname` ({$ownership_row['firstname']}) in ownership import sheet at row " . $row_index;
         }
 
-        if($owner_firstname !== '' && strlen($owner_firstname) < 2) {
+        if($type_code === 'IN' && $owner_firstname !== '' && strlen($owner_firstname) < 2) {
             ++$result['errors'];
             $result['logs'][] = "ERR - invalid length (<2) for `firstname` ({$ownership_row['firstname']}) in ownership import sheet at row " . $row_index;
         }
