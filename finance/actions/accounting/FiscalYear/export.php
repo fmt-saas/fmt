@@ -544,7 +544,8 @@ foreach($fiscalYear['fiscal_periods_ids'] as $id => $period) {
         $map_documents['01_Etat_de_cloture'][] = $expense_summary;
     }
     else {
-        $missing_documents[] = 'Dépenses courantes (expense_summary) - période du $period_date';
+        $period_date = date('Y-m-d', $period['date_from']);
+        $missing_documents[] = "Dépenses courantes (expense_summary) - période du $period_date";
     }
 }
 
