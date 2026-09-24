@@ -260,6 +260,7 @@ class Invoice extends Model {
 
             'status' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:32',
                 'description'       => 'Current status of the invoice.',
                 'selection'         => [
                     'proforma',             // draft invoice (no number yet)
