@@ -413,8 +413,14 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'clearing_expense_statement_id' => null
                 ]);
 
-            // remove annex documents, if any
+            // remove annex documents and correspondences, if any
             Document::search([
+                    ['condo_id', '=', $expenseStatement['condo_id']],
+                    ['expense_statement_id', '=', $id]
+                ])
+                ->delete(true);
+
+            ExpenseStatementCorrespondence::search([
                     ['condo_id', '=', $expenseStatement['condo_id']],
                     ['expense_statement_id', '=', $id]
                 ])
@@ -789,6 +795,15 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
     protected static function onafterInvoice($self) {
         $self->update(['name' => null]);
+        try {
+            // schedule static documents and correspondences generation
+            $self->do('schedule_expense_statement_documents_generation');
+        }
+        catch(\Exception $e) {
+            trigger_error("APP::Error while scheduling expense statement documents generation: {$e->getMessage()}", EQ_REPORT_ERROR);
+            // #memo -do not relay exception here (non critical)
+            // throw $e;
+        }
     }
 
     protected static function onbeforeInvoice($self) {
@@ -828,18 +843,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 trigger_error("APP::Error while processing expense statement posting: {$e->getMessage()}", EQ_REPORT_ERROR);
                 throw $e;
             }
-
-            try {
-                $self
-                    // schedule static documents and correspondences generation
-                    ->do('schedule_expense_statement_documents_generation');
-            }
-            catch(\Exception $e) {
-                trigger_error("APP::Error while scheduling expense statement documents generation: {$e->getMessage()}", EQ_REPORT_ERROR);
-                // #memo -do not relay exception here (non critical)
-                // throw $e;
-            }
-
         }
         catch(\Exception $e) {
             throw new \Exception('unexpected_error_at_invoicing', EQ_ERROR_UNKNOWN, $e);
@@ -884,9 +887,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         ];
 
         foreach($documentDefinitions as $documentTypeCode => &$documentDefinition) {
-            $documentType = DocumentType::search(['code', '=', $documentTypeCode])
-                ->read(['id'])
-                ->first();
+            $documentType = DocumentType::search(['code', '=', $documentTypeCode])->first();
 
             if(!$documentType) {
                 throw new \Exception('missing_document_type', EQ_ERROR_INVALID_CONFIG);
@@ -944,7 +945,6 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                             ['document_type_code', '=', $documentTypeCode],
                             ['name', '=', $name]
                         ])
-                        ->read(['id'])
                         ->first();
 
                     if($document) {

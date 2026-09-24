@@ -1243,6 +1243,16 @@ class Document extends Model {
         return parent::cancreate($self, $values);
     }
 
+    protected static function onbeforedelete($self) {
+        $self->read(['node_id']);
+        foreach($self as $document) {
+            if(!$document['node_id']) {
+                continue;
+            }
+            Node::id($document['node_id'])->delete();
+        }
+    }
+
     protected static function candelete($self) {
         $result = [];
         $self->read([

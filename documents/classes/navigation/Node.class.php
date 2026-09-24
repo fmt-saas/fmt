@@ -374,22 +374,23 @@ class Node extends Model {
         foreach($self as $id => $node) {
             $description = '';
 
-            if($node['document_id']) {
-
-                if(isset($map_document_types_labels[$node['document_id']['document_type']])) {
-                    $description .= $map_document_types_labels[$node['document_id']['document_type']];
-                }
-
-                if($node['document_id']['ownership_id']) {
-                    $description .= ' - ' . $node['document_id']['ownership_id']['name'];
-                }
-
-                if($node['document_id']['suppliership_id']) {
-                    $description .= ' - ' . $node['document_id']['suppliership_id']['name'];
-                }
-
-                self::id($id)->update(['name' => self::computeName($id), 'description' => $description]);
+            if(!$node['document_id']) {
+                continue;
             }
+
+            if(isset($map_document_types_labels[$node['document_id']['document_type']])) {
+                $description .= $map_document_types_labels[$node['document_id']['document_type']];
+            }
+
+            if($node['document_id']['ownership_id']) {
+                $description .= ' - ' . $node['document_id']['ownership_id']['name'];
+            }
+
+            if($node['document_id']['suppliership_id']) {
+                $description .= ' - ' . $node['document_id']['suppliership_id']['name'];
+            }
+
+            self::id($id)->update(['name' => self::computeName($id), 'description' => $description]);
         }
     }
 
