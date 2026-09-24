@@ -452,7 +452,7 @@ $fiscalYear = FiscalYear::id($params['id'])
             'date_from'
         ]
     ])
-    ->first(true);
+    ->first();
 
 if(!$fiscalYear) {
     throw new Exception("unknown_fiscal_year", EQ_ERROR_UNKNOWN_OBJECT);
