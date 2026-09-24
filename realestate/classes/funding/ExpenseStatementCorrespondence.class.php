@@ -8,6 +8,11 @@ namespace realestate\funding;
 
 class ExpenseStatementCorrespondence extends \documents\correspondence\DocumentCorrespondence {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'realestate_funding_expensestatementcorrespondence';
     }

@@ -8,6 +8,11 @@ namespace finance\accounting;
 
 class AccountTemplate extends Account {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'finance_accounting_account_template';
     }

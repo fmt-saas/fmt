@@ -10,6 +10,11 @@ use identity\Identity;
 
 class Supplier extends Identity {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'purchase_supplier_supplier';
     }

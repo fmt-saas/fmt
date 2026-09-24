@@ -14,6 +14,11 @@ use realestate\property\PropertyLotOwnership;
 
 class AssemblyItem extends AssemblyItemTemplate {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'realestate_governance_assembly_item';
     }

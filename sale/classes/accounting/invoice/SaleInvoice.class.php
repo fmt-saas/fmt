@@ -15,12 +15,17 @@ use sale\receivable\Receivable;
 
 class SaleInvoice extends \finance\accounting\invoice\Invoice {
 
-    public static function getName() {
-        return 'Sale invoice';
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
     }
 
     public static function getModelTable() {
         return 'sale_accounting_invoice_invoice';
+    }
+
+    public static function getName() {
+        return 'Sale invoice';
     }
 
     public static function getDescription() {

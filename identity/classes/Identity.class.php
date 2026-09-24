@@ -26,6 +26,18 @@ use realestate\property\Tenant;
  */
 class Identity extends Model {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
+    /**
+     * This is the default table name and is therefore not necessary but left as memo.
+     */
+    public static function getModelTable() {
+        return 'identity_identity';
+    }
+
     public static function getName() {
         return "Identity";
     }
@@ -36,13 +48,6 @@ class Identity extends Model {
 
     public static function constants() {
         return ['AUTH_SECRET_KEY', 'FMT_INSTANCE_TYPE'];
-    }
-
-    /**
-     * This is the default table name and is therefore not necessary but left as memo.
-     */
-    public static function getModelTable() {
-        return 'identity_identity';
     }
 
     public static function getColumns() {

@@ -14,6 +14,11 @@ use finance\bank\BankStatementLine;
 
 class FundingAllocation extends Model {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     // #todo - sale\pay\Payment and FundingAllocation should have a common interface
     public static function getModelTable() {
         return "sale_pay_payment";

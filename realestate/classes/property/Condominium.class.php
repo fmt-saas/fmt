@@ -20,6 +20,11 @@ use sale\price\PriceList;
 
 class Condominium extends Identity {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'realestate_property_condominium';
     }

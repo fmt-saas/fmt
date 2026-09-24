@@ -8,6 +8,11 @@ namespace realestate\property\transfer;
 
 class OwnershipTransferSettlementCorrespondence extends \documents\correspondence\DocumentCorrespondence {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'realestate_property_transfer_settlement_correspondence';
     }

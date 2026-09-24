@@ -32,6 +32,11 @@ use realestate\property\PropertyLotOwnership;
 
 class OwnershipTransferSettlement extends \equal\orm\Model {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'realestate_property_transfer_settlement';
     }

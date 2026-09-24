@@ -10,6 +10,11 @@ use core\Group;
 
 class Role extends Group {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'hr_role_role';
     }

@@ -19,6 +19,11 @@ use sale\pay\Payment;
 // #memo - This class models a generic Accounting Operation. It is a true MiscOperation only if journal is MISC
 class MiscOperation extends Model {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     // #memo - for backward compatibility
     public static function getModelTable() {
         return 'finance_accounting_miscoperation';
