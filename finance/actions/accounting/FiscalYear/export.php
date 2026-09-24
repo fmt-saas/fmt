@@ -179,7 +179,7 @@ $getAccountingChartDoc = function($condo_id) {
     foreach($accountingChart['accounts_ids'] as $fields) {
         $line_data = [
             'code'              => $fields['code'],
-            'parent'            => $fields['parent_account_id']['code'],
+            'parent'            => $fields['parent_account_id']['code'] ?? null,
             'description'       => $fields['description'],
             'account_class'     => $fields['account_class'],
             'account_type'      => $fields['account_type'],
@@ -397,10 +397,10 @@ $createZipArchive = function($map_documents, $missing_documents) {
     }
 
     $map_documents_quantities = [
-        "01_Etat_de_cloture:"       => 0,
-        "02_Livres_comptables:"     => 0,
-        "03_Pieces_justificatives:" => 0,
-        "04_Coproprietaires:"       => 0
+        "01_Etat_de_cloture"       => 0,
+        "02_Livres_comptables"     => 0,
+        "03_Pieces_justificatives" => 0,
+        "04_Coproprietaires"       => 0
     ];
     foreach($map_documents as $dir_name => $documents) {
         $cat = explode('/', $dir_name)[0];
@@ -559,7 +559,7 @@ $year = $year_from;
 
 $document = Document::create([
         'name'              => "{$condo_name}_EXERCICE_$year".($params['export_type'] === 'consolidated_pdf' ? '_PDF' : ''),
-        'content_type'      => $params['content_type'],
+        'content_type'      => $params['export_type'] === 'consolidated_pdf' ? 'application/pdf' : 'application/zip',
         'data'              => $params['export_type'] === 'consolidated_pdf' ? $createConsolidatedPdf($map_documents) : $createZipArchive($map_documents, $missing_documents),
         'condo_id'          => $fiscalYear['condo_id']['id'],
         'fiscal_year_id'    => $fiscalYear['id'],
