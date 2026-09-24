@@ -63,12 +63,11 @@ foreach($expenseStatementCorrespondences as $id => $expenseStatementCorresponden
     }
 
     $task_name = "realestate_funding_ExpenseStatementCorrespondence_generate-document.{$id}";
-    $moment += 60;
     // Replace a pending task with the same purpose when the orchestration is retried.
     $cron->cancel($task_name);
     $cron->schedule(
         $task_name,
-        $moment,
+        ++$moment,
         'realestate_funding_ExpenseStatementCorrespondence_generate-document',
         ['id' => $id]
     );
