@@ -111,7 +111,7 @@ $getExpenseSummaryDoc = function($period_id, $condo_id) use($getDocumentByHash) 
             ['fiscal_period_id', '=', $period_id],
             ['condo_id', '=', $condo_id]
         ])
-        ->read(['name', 'extension', 'hash'])
+        ->read(['name', 'extension', 'data'])
         ->first();
 
     if(!$expenseSummary) {
@@ -121,7 +121,7 @@ $getExpenseSummaryDoc = function($period_id, $condo_id) use($getDocumentByHash) 
     return [
         'name'      => $expenseSummary['name'],
         'extension' => $expenseSummary['extension'],
-        'data'      => $getDocumentByHash($expenseSummary['hash'])
+        'data'      => $expenseSummary['data']
     ];
 };
 
@@ -132,7 +132,7 @@ $getBalanceSheetDoc = function($period_id, $condo_id) use($getDocumentByHash) {
             ['fiscal_period_id', '=', $period_id],
             ['condo_id', '=', $condo_id]
         ])
-        ->read(['name', 'extension', 'hash'])
+        ->read(['name', 'extension', 'data'])
         ->first();
 
     if(!$balanceSheet) {
@@ -142,7 +142,7 @@ $getBalanceSheetDoc = function($period_id, $condo_id) use($getDocumentByHash) {
     return [
         'name'      => $balanceSheet['name'],
         'extension' => $balanceSheet['extension'],
-        'data'      => $getDocumentByHash($balanceSheet['hash'])
+        'data'      => $balanceSheet['data']
     ];
 };
 

@@ -183,7 +183,7 @@ $resize = function($pdf_content, $scale, $width, $height) use($params) {
     $paper_size = strtolower($params['page_size']);
 
     $gs_cmd = sprintf(
-        'gs -o %s -dSAFER -sDEVICE=pdfwrite -sPAPERSIZE=%s -dFIXEDMEDIA -dPDFFitPage -c "<</BeginPage {%s %s translate %s %s scale}>> setpagedevice" -f %s',
+        'gs -o %s -dSAFER -sDEVICE=pdfwrite -sPAPERSIZE=%s -dFIXEDMEDIA -dPDFFitPage -c "<</BeginPage {%s %s translate %s %s scale}>> setpagedevice" -f %s 2>&1',
         escapeshellarg($output_file),
         escapeshellarg($paper_size),
         $offset_x,
@@ -289,7 +289,7 @@ $addOverlay = function($pdf_content, $overlay_text, $font_size, $pos_x, $pos_y) 
     file_put_contents($ps_file, $ps_content);
 
     $gs_cmd = sprintf(
-        'gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=%s %s %s',
+        'gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile=%s %s %s 2>&1',
         escapeshellarg($output_file),
         escapeshellarg($ps_file),
         escapeshellarg($pdf_file)
