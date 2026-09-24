@@ -12,7 +12,7 @@ use infra\metering\MetricDefinition;
 
 class Email extends Model {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'core_mail';
     }
 

@@ -10,7 +10,7 @@ use identity\Identity;
 
 class Supplier extends Identity {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'purchase_supplier_supplier';
     }
 

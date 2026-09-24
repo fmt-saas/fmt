@@ -41,7 +41,7 @@ class Identity extends Model {
     /**
      * This is the default table name and is therefore not necessary but left as memo.
      */
-    public function getTable() {
+    public static function getModelTable() {
         return 'identity_identity';
     }
 

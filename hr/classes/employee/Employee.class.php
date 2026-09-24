@@ -13,7 +13,7 @@ use identity\User;
 
 class Employee extends Identity {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'hr_employee_employee';
     }
 

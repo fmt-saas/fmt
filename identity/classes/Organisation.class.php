@@ -15,7 +15,7 @@ class Organisation extends Identity {
         return 'Organisation';
     }
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'identity_organisation';
     }
 

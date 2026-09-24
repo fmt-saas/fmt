@@ -18,7 +18,7 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
         return 'Purchase invoice';
     }
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'purchase_accounting_invoice_invoice';
     }
 

@@ -13,7 +13,7 @@ use identity\User;
 
 class Owner extends Identity {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'realestate_ownership_owner';
     }
 

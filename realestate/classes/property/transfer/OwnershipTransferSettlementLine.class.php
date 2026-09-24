@@ -8,7 +8,7 @@ namespace realestate\property\transfer;
 
 class OwnershipTransferSettlementLine extends \equal\orm\Model {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'realestate_property_transfer_settlement_line';
     }
 

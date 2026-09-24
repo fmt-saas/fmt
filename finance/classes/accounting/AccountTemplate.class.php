@@ -8,7 +8,7 @@ namespace finance\accounting;
 
 class AccountTemplate extends Account {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'finance_accounting_account_template';
     }
 

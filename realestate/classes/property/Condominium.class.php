@@ -20,7 +20,7 @@ use sale\price\PriceList;
 
 class Condominium extends Identity {
 
-    public function getTable() {
+    public static function getModelTable() {
         return 'realestate_property_condominium';
     }
 
