@@ -8,6 +8,11 @@ namespace identity;
 
 class Contact extends Identity {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         // force table name to use distinct tables and ID columns
         return 'identity_contact';

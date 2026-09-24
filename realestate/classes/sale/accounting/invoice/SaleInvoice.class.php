@@ -12,12 +12,17 @@ use finance\accounting\Journal;
 
 class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
 
-    public static function getName() {
-        return 'Sale invoice';
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
     }
 
     public static function getModelTable() {
         return 'sale_accounting_invoice_invoice';
+    }
+
+    public static function getName() {
+        return 'Sale invoice';
     }
 
     public static function getDescription() {

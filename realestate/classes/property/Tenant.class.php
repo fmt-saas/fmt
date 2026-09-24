@@ -10,6 +10,11 @@ use identity\Identity;
 
 class Tenant extends Identity {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         // force table name to use distinct tables and ID columns
         return 'realestate_property_tenant';

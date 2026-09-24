@@ -13,6 +13,11 @@ use identity\User;
 
 class Employee extends Identity {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'hr_employee_employee';
     }

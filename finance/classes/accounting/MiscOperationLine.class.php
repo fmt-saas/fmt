@@ -10,6 +10,11 @@ use realestate\property\PropertyLotOwnership;
 
 class MiscOperationLine extends Model {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getName() {
         return "Miscellaneous Operation Line";
     }

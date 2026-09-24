@@ -10,6 +10,11 @@ use identity\Identity;
 
 class Customer extends \identity\Identity {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'sale_customer_customer';
     }

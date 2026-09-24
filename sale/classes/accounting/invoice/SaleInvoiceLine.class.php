@@ -13,6 +13,11 @@ use sale\price\PriceList;
 
 class SaleInvoiceLine extends \finance\accounting\invoice\InvoiceLine {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'sale_accounting_invoice_invoiceline';
     }

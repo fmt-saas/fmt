@@ -11,12 +11,17 @@ use realestate\management\ManagingAgent;
 
 class Organisation extends Identity {
 
-    public static function getName() {
-        return 'Organisation';
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
     }
 
     public static function getModelTable() {
         return 'identity_organisation';
+    }
+
+    public static function getName() {
+        return 'Organisation';
     }
 
     public static function getDescription() {

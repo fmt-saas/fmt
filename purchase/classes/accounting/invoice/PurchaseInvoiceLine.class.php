@@ -11,6 +11,11 @@ use finance\accounting\AccountingEntryLine;
 
 class PurchaseInvoiceLine extends \finance\accounting\invoice\InvoiceLine {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'purchase_accounting_invoice_invoiceline';
     }

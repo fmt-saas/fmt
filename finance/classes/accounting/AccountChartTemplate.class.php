@@ -8,6 +8,11 @@ namespace finance\accounting;
 
 class AccountChartTemplate extends AccountChart {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'finance_accounting_account_chart_template';
     }

@@ -14,12 +14,17 @@ use sale\pay\Funding;
 
 class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
 
-    public static function getName() {
-        return 'Purchase invoice';
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
     }
 
     public static function getModelTable() {
         return 'purchase_accounting_invoice_invoice';
+    }
+
+    public static function getName() {
+        return 'Purchase invoice';
     }
 
     public static function getDescription() {

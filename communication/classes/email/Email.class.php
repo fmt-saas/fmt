@@ -12,6 +12,11 @@ use infra\metering\MetricDefinition;
 
 class Email extends Model {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'core_mail';
     }

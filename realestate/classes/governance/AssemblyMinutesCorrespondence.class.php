@@ -8,6 +8,11 @@ namespace realestate\governance;
 
 class AssemblyMinutesCorrespondence extends \documents\correspondence\DocumentCorrespondence {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'realestate_governance_assemblyminutescorrespondence';
     }

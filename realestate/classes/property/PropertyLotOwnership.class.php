@@ -8,6 +8,11 @@ namespace realestate\property;
 
 class PropertyLotOwnership extends \equal\orm\Model {
 
+    /** @deprecated */
+    public function getTable() {
+        return self::getModelTable();
+    }
+
     public static function getModelTable() {
         return 'realestate_ownership_ownership_rel_property_lot';
     }
