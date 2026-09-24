@@ -155,7 +155,9 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
             ['condo_id', 'suppliership_id', 'entry_date'],
             // `ownership_index`
             ['condo_id', 'ownership_id', 'entry_date'],
-            ['clearing_expense_statement_id']
+            ['clearing_expense_statement_id'],
+            // expense statement index
+            ['fiscal_period_id', 'status', 'is_carry_forward', 'account_class', 'is_cleared', 'clearing_expense_statement_id']
         ]);
     }
 

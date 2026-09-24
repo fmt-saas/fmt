@@ -1734,7 +1734,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         // #todo - il y a la notion de lots groupés - faire une map, par propriétaire, par lot :
         // on peut le faire par groupe de lots (si un lot est marqué avec primary_lot_id, il peut être ignoré pour les calculs)
 
-        // #memo - fetch relevant accounting entries that apply to the chosen period
+        // #memo - fetch relevant accounting entries that apply to the chosen period (linked to related condominium)
         //    * comptabiliser toutes les entrées comptables des comptes 6 et 7, quel que soit le journal
         //    * marquer les écritures comme "décomptées"
         $accounting_entry_lines_domain = [

@@ -307,6 +307,7 @@ class AccountingEntryLine extends Model {
             // #memo - this field is only changed by parent Accounting Entry and should remain synced
             'status' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:32',
                 'selection'         => [
                     'pending',
                     'validated',
