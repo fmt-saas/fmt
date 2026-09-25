@@ -191,7 +191,10 @@
                                             {
                                                 "type": "field",
                                                 "value": "misc_operation_lines_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "limit": 100
+                                                }
                                             }
                                         ]
                                     }

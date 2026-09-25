@@ -208,7 +208,7 @@ class FundingAllocation extends Model {
                 Funding::id($fundingAllocation['funding_id'])->update(['paid_amount' => null, 'remaining_amount' => null, 'is_paid' => null]);
             }
             if($fundingAllocation['bank_statement_line_id']) {
-                BankStatement::id($fundingAllocation['bank_statement_line_id'])->update(['remaining_amount' => null]);
+                BankStatementLine::id($fundingAllocation['bank_statement_line_id'])->update(['remaining_amount' => null]);
             }
         }
     }

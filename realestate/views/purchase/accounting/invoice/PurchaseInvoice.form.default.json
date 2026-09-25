@@ -245,13 +245,29 @@
                                                 "label": "Condominium",
                                                 "value": "condo_id",
                                                 "width": "33%",
-                                                "visible": true
+                                                "visible": true,
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "readonly": true
+                                                }
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Condominium Bank Account",
                                                 "value": "condo_bank_account_id",
-                                                "width": "33%"
+                                                "width": "33%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "readonly": true
+                                                }
                                             },
                                             {
                                                 "type": "field",
@@ -266,13 +282,29 @@
                                                 "type": "field",
                                                 "label": "Supplier",
                                                 "value": "suppliership_id",
-                                                "width": "33%"
+                                                "width": "33%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "readonly": true
+                                                }
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Supplier Bank Account",
                                                 "value": "suppliership_bank_account_id",
-                                                "width": "33%"
+                                                "width": "33%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
+                                                    "readonly": true
+                                                }
                                             },
                                             {
                                                 "id": "item.invoice_type",

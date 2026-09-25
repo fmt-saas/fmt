@@ -6,7 +6,6 @@
 */
 namespace realestate\finance\accounting;
 
-use realestate\sale\pay\Funding;
 
 class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
 

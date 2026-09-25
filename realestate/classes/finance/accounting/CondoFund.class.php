@@ -9,7 +9,6 @@ namespace realestate\finance\accounting;
 
 use core\Lang;
 use finance\accounting\Account;
-use realestate\property\Apportionment;
 
 class CondoFund extends \equal\orm\Model {
 

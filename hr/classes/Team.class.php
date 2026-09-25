@@ -80,7 +80,7 @@ class Team extends \equal\orm\Model {
     protected static function onupdateEmployeesIds($self) {
         $self->read(['condo_id', 'role_id', 'employees_ids']);
         foreach($self as $id => $team) {
-            if(!$team['employees_ids'] || empty($employee['employees_ids'])) {
+            if(!$team['employees_ids'] || empty($team['employees_ids'])) {
                 continue;
             }
             Employee::ids($team['employees_ids'])->do('sync_from_teams');

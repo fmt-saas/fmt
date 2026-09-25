@@ -262,7 +262,7 @@ class Payment extends Model {
                 Funding::id($payment['funding_id'])->update(['paid_amount' => null, 'remaining_amount' => null, 'is_paid' => null]);
             }
             if($payment['bank_statement_line_id']) {
-                BankStatement::id($payment['bank_statement_line_id'])->update(['remaining_amount' => null]);
+                BankStatementLine::id($payment['bank_statement_line_id'])->update(['remaining_amount' => null]);
             }
         }
     }
