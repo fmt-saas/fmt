@@ -9,6 +9,10 @@ namespace identity;
 
 class Group extends  \core\Group {
 
+    public static function getModelScope(): ?string {
+        return null;
+    }
+
     public static function getColumns() {
         return [
 
