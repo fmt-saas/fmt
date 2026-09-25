@@ -31,6 +31,10 @@ use sale\pay\Payment;
 #memo - Expense statements are handled as sales invoices
 class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
+    public static function getModelScope(): ?string {
+        return self::class;
+    }
+
     public static function getName() {
         return 'Expense Statement';
     }

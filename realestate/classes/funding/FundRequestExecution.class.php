@@ -33,6 +33,10 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
         'work_provisions'      => 'co_owners_owner_working_fund',
     ];
 
+    public static function getModelScope(): ?string {
+        return self::class;
+    }
+
     /**
      * Return the owner account assignment used to debit a fund request.
      */

@@ -63,6 +63,7 @@ class DocumentCorrespondence extends \equal\orm\Model {
 
             'communication_method' => [
                 'type'              => 'string',
+                'usage'             => 'text/plain:35',
                 'selection'         => [
                     'email',
                     'postal',
