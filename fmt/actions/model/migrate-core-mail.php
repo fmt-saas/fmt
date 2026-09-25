@@ -36,17 +36,9 @@ if(!$db) {
     throw new Exception('missing_database', EQ_ERROR_INVALID_CONFIG);
 }
 
-$table = 'core_email_email';
+$table = 'core_mail';
 $reported_rows = 85;
 $tables = array_fill_keys($db->getTables(), true);
-$source_table = 'core_mail';
-if(isset($tables[$source_table]) && isset($tables[$table])) {
-    throw new Exception('ambiguous_tables:' . $source_table . ',' . $table, EQ_ERROR_INVALID_CONFIG);
-}
-if(isset($tables[$source_table])) {
-    $db->sendQuery('ALTER TABLE core_mail RENAME TO core_email_email');
-    $tables = array_fill_keys($db->getTables(), true);
-}
 if(!isset($tables[$table])) {
     throw new Exception('missing_table:' . $table, EQ_ERROR_INVALID_CONFIG);
 }
