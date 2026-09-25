@@ -271,9 +271,13 @@
             "name": "Suivis de paiement",
             "description": "Liste des suivis de paiement avec copropriété, tiers, échéance, montant et statut.",
             "header": {
-                "header.selection.actions.export": {
-                    "label": "Exporter en SEPA",
-                    "description": "Générer un fichier SEPA XML pour les suivis sélectionnés."
+                "selection": {
+                    "actions": {
+                        "header.selection.actions.export": {
+                            "label": "Exporter en SEPA",
+                            "description": "Générer un fichier SEPA XML pour les suivis sélectionnés."
+                        }
+                    }
                 }
             },
             "actions": {
