@@ -248,25 +248,53 @@
                                                 "type": "field",
                                                 "label": "Document",
                                                 "value": "document_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Condominium",
                                                 "value": "condo_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Supplier",
                                                 "value": "supplier_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Assigned Employee",
                                                 "value": "assigned_employee_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
@@ -286,13 +314,27 @@
                                                 "type": "field",
                                                 "label": "Doc Type",
                                                 "value": "document_type_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
                                                 "label": "Doc Sub Type",
                                                 "value": "document_subtype_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
@@ -307,6 +349,11 @@
                                                 "value": "document_invoice_id",
                                                 "width": "50%",
                                                 "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
                                                     "readonly": true,
                                                     "description": "Creation must be made using `draft target` action."
                                                 }
@@ -317,6 +364,11 @@
                                                 "value": "document_bank_statement_id",
                                                 "width": "50%",
                                                 "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    },
                                                     "readonly": true
                                                 }
                                             },
