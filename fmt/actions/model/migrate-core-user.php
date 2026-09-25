@@ -62,7 +62,7 @@ $classify = static function(array $row): string {
             return 'core\\User';
         }
         if((int) ($row['identity_id'] ?? 0) <= 0) {
-            throw new Exception('unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
+            throw new Exception('core_user_unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
         }
         return 'identity\\User';
 };

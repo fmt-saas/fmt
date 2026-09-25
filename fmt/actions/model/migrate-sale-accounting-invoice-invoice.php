@@ -66,7 +66,7 @@ $classify = static function(array $row): string {
         ];
         $invoice_type = $row['invoice_type'] ?? null;
         if(!isset($models[$invoice_type])) {
-            throw new Exception('unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
+            throw new Exception('sale_accounting_invoice_invoice_unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
         }
         return $models[$invoice_type];
 };

@@ -72,7 +72,7 @@ $classify = static function(array $row): string {
         if(($row['direction'] ?? null) === 'outgoing') {
             return 'fmt\\core\\Mail';
         }
-        throw new Exception('unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
+        throw new Exception('core_mail_unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
 };
 
 $model_ids = [];

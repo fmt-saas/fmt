@@ -67,7 +67,7 @@ $classify = static function(array $row): string {
                 ? 'realestate\\sale\\pay\\Payment'
                 : 'sale\\pay\\Payment';
         }
-        throw new Exception('unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
+        throw new Exception('sale_pay_paymnent_unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
 };
 
 $model_ids = [];

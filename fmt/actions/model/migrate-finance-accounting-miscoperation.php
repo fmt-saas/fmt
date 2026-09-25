@@ -65,7 +65,7 @@ $classify = static function(array $row): string {
         ];
         $operation_type = $row['operation_type'] ?? null;
         if(!isset($models[$operation_type])) {
-            throw new Exception('unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
+            throw new Exception('finance_accouting_miscoperation_unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
         }
         return $models[$operation_type];
 };

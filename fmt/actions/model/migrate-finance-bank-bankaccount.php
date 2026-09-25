@@ -66,7 +66,7 @@ $classify = static function(array $row): string {
 
     $object_class = $row['object_class'] ?? null;
     if(!isset($models[$object_class])) {
-        throw new Exception('unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
+        throw new Exception('finance_bank_bankaccount_unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
     }
     return $models[$object_class];
 };

@@ -74,7 +74,7 @@ while($invoice = $db->fetchArray($invoice_result)) {
 $classify = static function(array $row) use($invoice_types): string {
     $invoice_id = (int) ($row['invoice_id'] ?? 0);
         if(!array_key_exists($invoice_id, $invoice_types)) {
-            throw new Exception('missing_parent_invoice:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
+            return 'sale\\accounting\\invoice\\SaleInvoiceLine';
         }
         $models = [
             'expense_statement' => 'realestate\\funding\\ExpenseStatementOwnerLine',
@@ -84,7 +84,7 @@ $classify = static function(array $row) use($invoice_types): string {
         ];
         $invoice_type = $invoice_types[$invoice_id];
         if(!isset($models[$invoice_type])) {
-            throw new Exception('unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
+            throw new Exception('sale_accounting_invoice_invoicelineunclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
         }
         return $models[$invoice_type];
 };

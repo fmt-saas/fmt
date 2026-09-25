@@ -65,10 +65,10 @@ $classify = static function(array $row): string {
             'realestate\\property\\NotaryOffice'     => 'realestate\\property\\NotaryOffice',
         ];
         $object_class = $row['object_class'] ?? null;
-        if(!isset($models[$object_class])) {
-            throw new Exception('unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
+        if(!empty($object_class) && !isset($models[$object_class])) {
+            throw new Exception('purchase_supplier_supplier_unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
         }
-        return $models[$object_class];
+        return $models[$object_class] ?? 'finance\\bank\\Bank';
 };
 
 $model_ids = [];

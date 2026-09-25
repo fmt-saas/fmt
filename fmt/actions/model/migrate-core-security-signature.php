@@ -59,7 +59,7 @@ if(count($missing_columns)) {
 
 $classify = static function(array $row): string {
     if((int) ($row['document_id'] ?? 0) <= 0) {
-        throw new Exception('unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
+        throw new Exception('core_security_signature_unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
     }
     return 'documents\\DocumentSignature';
 };

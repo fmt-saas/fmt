@@ -66,7 +66,7 @@ $classify = static function(array $row): string {
         ];
         $section = $row['attachment_section'] ?? null;
         if(!isset($models[$section])) {
-            throw new Exception('unclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
+            throw new Exception('realestate_property_ownershiptransferattachmentunclassifiable_row:' . (int) $row['id'], EQ_ERROR_INVALID_CONFIG);
         }
         return $models[$section];
 };
