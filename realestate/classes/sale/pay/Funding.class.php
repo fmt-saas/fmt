@@ -9,7 +9,6 @@ namespace realestate\sale\pay;
 
 use documents\Document;
 use fmt\setting\Setting;
-use equal\data\DataFormatter;
 use finance\accounting\MiscOperation;
 use hr\role\RoleAssignment;
 use realestate\finance\accounting\MoneyRefund;

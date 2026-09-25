@@ -16,7 +16,11 @@ class Supplier extends Identity {
     }
 
     public static function getModelTable() {
-        return 'purchase_supplier_supplier';
+        return self::getSlug();
+    }
+
+    public static function getModelScope(): ?string {
+        return null;
     }
 
     public static function getName() {

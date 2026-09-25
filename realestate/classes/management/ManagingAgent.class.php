@@ -14,6 +14,10 @@ class ManagingAgent extends \purchase\supplier\Supplier {
 
     // #memo ManagingAgent uses the same DB table as Supplier
 
+    public static function getModelScope(): ?string {
+        return self::class;
+    }
+
     public static function constants() {
         return ['FMT_INSTANCE_TYPE'];
     }

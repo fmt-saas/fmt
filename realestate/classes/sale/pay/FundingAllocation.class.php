@@ -24,6 +24,10 @@ class FundingAllocation extends Model {
         return "sale_pay_payment";
     }
 
+    public static function getModelScope(): ?string {
+        return self::class;
+    }
+
     public static function getDescription() {
         return 'A payment is an amount of money that was paid by a customer for a product or service.'
             .' It can origin form the cashdesk or a bank transfer. If it is from a bank transfer it is linked to a bank statement line.';

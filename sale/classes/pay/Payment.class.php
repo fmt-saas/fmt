@@ -8,14 +8,13 @@
 namespace sale\pay;
 
 use equal\orm\Model;
-use finance\accounting\Account;
-use finance\accounting\AccountingEntry;
-use finance\accounting\AccountingEntryLine;
-use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
-use finance\bank\BankStatement;
 use finance\bank\BankStatementLine;
 class Payment extends Model {
+
+    public static function getModelScope(): ?string {
+        return null;
+    }
 
     public static function getDescription() {
         return 'A payment is an amount of money that was paid by a customer for a product or service.'

@@ -12,6 +12,10 @@ class NotaryOffice extends \purchase\supplier\Supplier {
 
     // #memo - NotaryOffice uses the same DB table as Supplier
 
+    public static function getModelScope(): ?string {
+        return self::class;
+    }
+
     public static function getName() {
         return 'Notary Office';
     }
