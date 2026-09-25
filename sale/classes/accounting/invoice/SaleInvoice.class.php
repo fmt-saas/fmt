@@ -24,6 +24,10 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
         return 'sale_accounting_invoice_invoice';
     }
 
+    public static function getModelScope(): ?string {
+        return null;
+    }
+
     public static function getName() {
         return 'Sale invoice';
     }
