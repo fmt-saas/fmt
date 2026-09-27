@@ -42,7 +42,7 @@ $user = User::id($auth->userId())
         ]
     ])
     ->adapt('json')
-    ->first(true);
+    ->first();
 
 if(!$user) {
     throw new Exception('unknown_user', EQ_ERROR_UNKNOWN_OBJECT);
@@ -111,7 +111,8 @@ foreach($owners as $owner) {
         $property_lots[] = [
             'id'   => $property_lot['id'],
             'name' => $property_lot['name'] ?? '',
-            'type' => $property_lot['property_lot_nature'] ?? ''
+            'type' => $property_lot['property_lot_nature'] ?? '',
+            'shares' => $property_lot['statutory_shares'] ?? ''
         ];
     }
 
@@ -129,7 +130,6 @@ foreach($owners as $owner) {
             'status'        => $ownership['status'] ?? '',
             'date_from'     => $ownership['date_from'] ?? null,
             'date_to'       => $ownership['date_to'] ?? null,
-            'shares_total'  => (float) ($ownership['shares_total'] ?? 0),
             'property_lots' => $property_lots
         ]
     ];
