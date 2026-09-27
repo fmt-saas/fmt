@@ -768,6 +768,125 @@ $tests = [
             $cleanup_conversations();
         }
     ],
+    '0205' => [
+        'description' => 'Let the LLM explain that required information is unavailable after a tool failure.',
+        'arrange' => function() use($create_conversation_fixture) {
+            return $create_conversation_fixture(
+                'automation-agent-tool-failure',
+                'Quel est le solde de mon compte ?'
+            );
+        },
+        'act' => function($conversation_id) {
+            $provider = new class implements LlmProviderInterface {
+                public array $inputs = [];
+
+                public function name(): string {
+                    return 'fake';
+                }
+
+                public function generate(array $messages, ?array $continuation_metadata, string $instructions, array $tools = []): array {
+                    $this->inputs[] = [
+                        'messages' => $messages,
+                        'metadata' => $continuation_metadata
+                    ];
+
+                    if(count($this->inputs) === 1) {
+                        return [
+                            'text'       => '',
+                            'tool_calls' => [[
+                                'call_id'   => 'call_userinfo_failure',
+                                'name'      => 'get_userinfo',
+                                'arguments' => []
+                            ]],
+                            'metadata'   => [
+                                'provider'    => 'fake',
+                                'response_id' => 'resp_tool_failure_1'
+                            ]
+                        ];
+                    }
+
+                    return [
+                        'text'       => "Je ne parviens pas à identifier votre dossier, une information indispensable pour déterminer votre solde.",
+                        'tool_calls' => [],
+                        'metadata'   => [
+                            'provider'             => 'fake',
+                            'response_id'          => 'resp_tool_failure_2',
+                            'previous_response_id' => $continuation_metadata['response_id'] ?? null
+                        ]
+                    ];
+                }
+            };
+
+            $tools = [[
+                'name' => 'get_userinfo',
+                'ux'   => [
+                    'code'    => 'identify_owner_context',
+                    'running' => "J'identifie votre dossier",
+                    'done'    => 'Dossier identifié'
+                ]
+            ]];
+            $tool_executor = function() {
+                throw new Exception('missing_user_identity', EQ_ERROR_INVALID_CONFIG);
+            };
+
+            $orchestrator = new AgentOrchestrator($provider, 'Test instructions.', $tools, $tool_executor);
+            $first_result = $orchestrator->run($conversation_id);
+            $failed_step = MessageStep::search(
+                    [
+                        ['message_id', '=', $first_result['message_id']],
+                        ['type', '=', 'tool']
+                    ],
+                    [
+                        'sort'  => ['sequence' => 'desc'],
+                        'limit' => 1
+                    ]
+                )
+                ->read(['status', 'data'])
+                ->first();
+            $pending_status = eQual::run('get', 'automation_agent_status', [
+                'conversation_id' => $conversation_id
+            ]);
+
+            $second_result = $orchestrator->run($conversation_id);
+            $completed_status = eQual::run('get', 'automation_agent_status', [
+                'conversation_id' => $conversation_id
+            ]);
+
+            return [
+                'conversation_id' => $conversation_id,
+                'provider_inputs' => $provider->inputs,
+                'first_result'    => $first_result,
+                'failed_step'     => $failed_step,
+                'pending_status'  => $pending_status,
+                'second_result'   => $second_result,
+                'completed_status'=> $completed_status
+            ];
+        },
+        'assert' => function($result) {
+            $failed_data = json_decode($result['failed_step']['data'] ?? '', true);
+            $failed_status_step = $result['pending_status']['agent_message']['steps'][1] ?? [];
+            $second_input = $result['provider_inputs'][1]['messages'][0] ?? [];
+            $final_message = $result['completed_status']['agent_message'] ?? [];
+
+            return ($result['first_result']['message_status'] ?? null) === 'pending'
+                && ($result['first_result']['awaiting_llm_continuation'] ?? null) === true
+                && ($result['first_result']['tool_steps'][0]['status'] ?? null) === 'failed'
+                && ($result['failed_step']['status'] ?? null) === 'failed'
+                && ($failed_data['result']['success'] ?? null) === false
+                && ($failed_data['result']['error']['code'] ?? null) === 'required_information_unavailable'
+                && ($failed_status_step['status'] ?? null) === 'failed'
+                && ($failed_status_step['label'] ?? null) === "La vérification n'a pas pu aboutir"
+                && ($second_input['role'] ?? null) === 'tool'
+                && ($second_input['call_id'] ?? null) === 'call_userinfo_failure'
+                && ($second_input['content']['error']['code'] ?? null) === 'required_information_unavailable'
+                && ($result['second_result']['message_status'] ?? null) === 'completed'
+                && ($final_message['status'] ?? null) === 'completed'
+                && ($final_message['content'] ?? null) === "Je ne parviens pas à identifier votre dossier, une information indispensable pour déterminer votre solde.";
+        },
+        'rollback' => function($result) use($cleanup_conversations) {
+            $cleanup_conversations();
+        }
+    ],
     '0301' => [
         'description' => 'Create a conversation through start and read its complete initial status.',
         'act' => function() use(&$fixture_conversation_ids) {

@@ -119,7 +119,7 @@ try {
 
     $orchestrator = new AgentOrchestrator(
         $provider,
-        "You are a helpful agent. Answer clearly and concisely in the user's language. Use the available tools whenever authenticated account data is required.",
+        "You are a helpful agent. Answer clearly and concisely in the user's language. Use the available tools whenever authenticated account data is required. If a tool reports that required information is unavailable, do not guess: clearly explain that you cannot determine the indispensable information needed for a reliable answer.",
         $tools
     );
 

@@ -233,6 +233,11 @@ Each running/completed/failed transition is persisted immediately. The eQual
 HTTP entry point disables PHP sessions, so an authenticated `status` request can
 run in parallel while `continue` is waiting for the provider or a tool.
 
+A failed tool step does not fail the agent message. Its result is returned to
+the LLM as `required_information_unavailable`, and the following round must
+explain to the user that the indispensable information could not be determined
+without inventing an answer.
+
 ## Complete two-round example
 
 The following exchange represents `LLM -> tool -> LLM -> final answer`.

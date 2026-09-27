@@ -192,7 +192,28 @@ class AgentOrchestrator {
                     ->first();
 
                 $active_step_id = $tool_step['id'];
-                $execution = call_user_func($this->tool_executor, $tool_call['name'], $tool_call['arguments']);
+                $tool_status = 'completed';
+                try {
+                    $execution = call_user_func($this->tool_executor, $tool_call['name'], $tool_call['arguments']);
+                }
+                catch(\Throwable $tool_error) {
+                    $tool_status = 'failed';
+                    $execution = [
+                        'ux'     => $tool_ux,
+                        'result' => [
+                            'success' => false,
+                            'error'   => [
+                                'code'    => 'required_information_unavailable',
+                                'message' => 'The tool could not determine information required for a reliable answer. Explain this limitation clearly to the user and do not invent the missing information.'
+                            ]
+                        ]
+                    ];
+
+                    trigger_error(
+                        'APP::Agent tool failed [' . $tool_call['name'] . ']: ' . $tool_error->getMessage(),
+                        EQ_REPORT_WARNING
+                    );
+                }
 
                 $tool_step_data = [
                     'call_id'   => $tool_call['call_id'],
@@ -203,7 +224,7 @@ class AgentOrchestrator {
                 ];
 
                 MessageStep::id($active_step_id)->update([
-                    'status' => 'completed',
+                    'status' => $tool_status,
                     'data'   => json_encode(
                         $tool_step_data,
                         JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
@@ -212,7 +233,7 @@ class AgentOrchestrator {
 
                 $tool_steps[] = [
                     'step_id' => $active_step_id,
-                    'status'  => 'completed',
+                    'status'  => $tool_status,
                     'name'    => $tool_call['name'],
                     'call_id' => $tool_call['call_id'],
                     'ux'      => $execution['ux'] ?? $tool_ux
@@ -298,7 +319,7 @@ class AgentOrchestrator {
                     [
                         ['message_id', '=', $message_id],
                         ['type', '=', 'tool'],
-                        ['status', '=', 'completed'],
+                        ['status', 'in', ['completed', 'failed']],
                         ['sequence', '>', $current_llm_step['sequence']]
                     ],
                     ['sort' => ['sequence' => 'asc']]
