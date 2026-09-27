@@ -6,7 +6,6 @@
 */
 
 require_once EQ_BASEDIR . '/packages/automation/services/agent/LlmProviderInterface.php';
-require_once EQ_BASEDIR . '/packages/automation/services/agent/LlmProviderException.php';
 require_once EQ_BASEDIR . '/packages/automation/services/agent/AgentOrchestrator.php';
 require_once EQ_BASEDIR . '/packages/automation/services/agent/provider/OpenAIProvider.php';
 
@@ -95,6 +94,16 @@ $recover_failed_message = static function(int $conversation_id, int $message_id)
     }
 };
 
+$is_provider_error = static function(Throwable $throwable): bool {
+    $message = $throwable->getMessage();
+    $data = @unserialize($message, ['allowed_classes' => false]);
+
+    return (is_array($data)
+            && is_string($data['error'] ?? null)
+            && strpos($data['error'], 'openai_') === 0)
+        || strpos($message, 'openai_') === 0;
+};
+
 try {
     $provider = new OpenAIProvider(
         (string) \config\constant('OPENAI_API_KEY', ''),
@@ -116,17 +125,18 @@ try {
 
     $result = $orchestrator->run((int) $conversation['id']);
 }
-catch(\automation\agent\LlmProviderException $exception) {
-    $recover_failed_message((int) $conversation['id'], (int) $agent_message['id']);
-    trigger_error('APP::Agent provider failed: ' . $exception->getMessage(), EQ_REPORT_WARNING);
-    throw new Exception('provider_error', EQ_ERROR_UNKNOWN);
-}
 catch(Throwable $throwable) {
     if(in_array($throwable->getMessage(), ['conversation_already_running', 'no_pending_agent_message'], true)) {
         throw $throwable;
     }
 
     $recover_failed_message((int) $conversation['id'], (int) $agent_message['id']);
+
+    if($is_provider_error($throwable)) {
+        trigger_error('APP::Agent provider failed: ' . $throwable->getMessage(), EQ_REPORT_WARNING);
+        throw new Exception('provider_error', EQ_ERROR_UNKNOWN);
+    }
+
     trigger_error('APP::Agent orchestration failed: ' . $throwable->getMessage(), EQ_REPORT_WARNING);
     throw new Exception('agent_failed', EQ_ERROR_UNKNOWN);
 }

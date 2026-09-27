@@ -19,6 +19,7 @@ interface LlmProviderInterface {
      * @param array       $tools                  Provider-independent tool definitions.
      *
      * @return array{text: string, tool_calls: array, metadata: array}
+     * @throws \Exception When the provider cannot generate a valid response.
      */
     public function generate(
         array $messages,

@@ -7,8 +7,8 @@
 
 namespace automation\agent\provider;
 
-use automation\agent\LlmProviderException;
 use automation\agent\LlmProviderInterface;
+use Exception;
 
 class OpenAIProvider implements LlmProviderInterface {
 
@@ -26,7 +26,7 @@ class OpenAIProvider implements LlmProviderInterface {
         $model = trim($model);
 
         if($api_key === '' || $model === '' || $timeout <= 0) {
-            throw new LlmProviderException('openai_missing_configuration', EQ_ERROR_INVALID_CONFIG);
+            throw new Exception('openai_missing_configuration', EQ_ERROR_INVALID_CONFIG);
         }
 
         $this->api_key = $api_key;
@@ -67,7 +67,7 @@ class OpenAIProvider implements LlmProviderInterface {
             $body = json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         }
         catch(\JsonException $exception) {
-            throw new LlmProviderException('openai_invalid_response', EQ_ERROR_UNKNOWN);
+            throw new Exception('openai_invalid_response', EQ_ERROR_UNKNOWN);
         }
 
         $response = $this->send($body);
@@ -75,13 +75,13 @@ class OpenAIProvider implements LlmProviderInterface {
         $status = (int) ($response['status'] ?? 0);
 
         if($status < 200 || $status >= 300) {
-            throw new LlmProviderException(
-                'openai_http_error',
-                EQ_ERROR_UNKNOWN,
-                [
+            throw new Exception(
+                serialize([
+                    'error'       => 'openai_http_error',
                     'http_status' => $status ?: null,
                     'request_id'  => $request_id
-                ]
+                ]),
+                EQ_ERROR_UNKNOWN
             );
         }
 
@@ -89,10 +89,13 @@ class OpenAIProvider implements LlmProviderInterface {
             $data = json_decode((string) ($response['body'] ?? ''), true, 512, JSON_THROW_ON_ERROR);
         }
         catch(\JsonException $exception) {
-            throw new LlmProviderException(
-                'openai_invalid_response',
-                EQ_ERROR_UNKNOWN,
-                ['http_status' => $status, 'request_id' => $request_id]
+            throw new Exception(
+                serialize([
+                    'error'       => 'openai_invalid_response',
+                    'http_status' => $status,
+                    'request_id'  => $request_id
+                ]),
+                EQ_ERROR_UNKNOWN
             );
         }
 
@@ -101,10 +104,13 @@ class OpenAIProvider implements LlmProviderInterface {
             || !is_string($data['id'])
             || trim($data['id']) === ''
             || ($data['status'] ?? null) !== 'completed') {
-            throw new LlmProviderException(
-                'openai_invalid_response',
-                EQ_ERROR_UNKNOWN,
-                ['http_status' => $status, 'request_id' => $request_id]
+            throw new Exception(
+                serialize([
+                    'error'       => 'openai_invalid_response',
+                    'http_status' => $status,
+                    'request_id'  => $request_id
+                ]),
+                EQ_ERROR_UNKNOWN
             );
         }
 
@@ -125,10 +131,13 @@ class OpenAIProvider implements LlmProviderInterface {
                     || !is_string($name)
                     || trim($name) === ''
                     || !is_string($encoded_arguments)) {
-                    throw new LlmProviderException(
-                        'openai_invalid_response',
-                        EQ_ERROR_UNKNOWN,
-                        ['http_status' => $status, 'request_id' => $request_id]
+                    throw new Exception(
+                        serialize([
+                            'error'       => 'openai_invalid_response',
+                            'http_status' => $status,
+                            'request_id'  => $request_id
+                        ]),
+                        EQ_ERROR_UNKNOWN
                     );
                 }
 
@@ -136,18 +145,24 @@ class OpenAIProvider implements LlmProviderInterface {
                     $arguments = json_decode($encoded_arguments, true, 512, JSON_THROW_ON_ERROR);
                 }
                 catch(\JsonException $exception) {
-                    throw new LlmProviderException(
-                        'openai_invalid_response',
-                        EQ_ERROR_UNKNOWN,
-                        ['http_status' => $status, 'request_id' => $request_id]
+                    throw new Exception(
+                        serialize([
+                            'error'       => 'openai_invalid_response',
+                            'http_status' => $status,
+                            'request_id'  => $request_id
+                        ]),
+                        EQ_ERROR_UNKNOWN
                     );
                 }
 
                 if(!is_array($arguments)) {
-                    throw new LlmProviderException(
-                        'openai_invalid_response',
-                        EQ_ERROR_UNKNOWN,
-                        ['http_status' => $status, 'request_id' => $request_id]
+                    throw new Exception(
+                        serialize([
+                            'error'       => 'openai_invalid_response',
+                            'http_status' => $status,
+                            'request_id'  => $request_id
+                        ]),
+                        EQ_ERROR_UNKNOWN
                     );
                 }
 
@@ -176,10 +191,13 @@ class OpenAIProvider implements LlmProviderInterface {
         }
 
         if(!count($text_parts) && !count($tool_calls)) {
-            throw new LlmProviderException(
-                'openai_empty_response',
-                EQ_ERROR_UNKNOWN,
-                ['http_status' => $status, 'request_id' => $request_id]
+            throw new Exception(
+                serialize([
+                    'error'       => 'openai_empty_response',
+                    'http_status' => $status,
+                    'request_id'  => $request_id
+                ]),
+                EQ_ERROR_UNKNOWN
             );
         }
 
@@ -214,12 +232,12 @@ class OpenAIProvider implements LlmProviderInterface {
                 || !is_string($tool['description'] ?? null)
                 || trim($tool['description']) === ''
                 || !is_array($tool['parameters'] ?? null)) {
-                throw new LlmProviderException('openai_invalid_response', EQ_ERROR_UNKNOWN);
+                throw new Exception('openai_invalid_response', EQ_ERROR_UNKNOWN);
             }
 
             $parameters = $tool['parameters'];
             if(($parameters['type'] ?? null) !== 'object') {
-                throw new LlmProviderException('openai_invalid_response', EQ_ERROR_UNKNOWN);
+                throw new Exception('openai_invalid_response', EQ_ERROR_UNKNOWN);
             }
 
             if(empty($parameters['properties'])) {
@@ -250,14 +268,14 @@ class OpenAIProvider implements LlmProviderInterface {
 
         foreach($messages as $message) {
             if(!is_array($message)) {
-                throw new LlmProviderException('openai_invalid_response', EQ_ERROR_UNKNOWN);
+                throw new Exception('openai_invalid_response', EQ_ERROR_UNKNOWN);
             }
 
             $role = $message['role'] ?? null;
             if($role === 'tool') {
                 $call_id = trim((string) ($message['call_id'] ?? ''));
                 if($call_id === '' || !array_key_exists('content', $message)) {
-                    throw new LlmProviderException('openai_invalid_response', EQ_ERROR_UNKNOWN);
+                    throw new Exception('openai_invalid_response', EQ_ERROR_UNKNOWN);
                 }
 
                 $content = $message['content'];
@@ -269,7 +287,7 @@ class OpenAIProvider implements LlmProviderInterface {
                         );
                     }
                     catch(\JsonException $exception) {
-                        throw new LlmProviderException('openai_invalid_response', EQ_ERROR_UNKNOWN);
+                        throw new Exception('openai_invalid_response', EQ_ERROR_UNKNOWN);
                     }
                 }
 
@@ -288,12 +306,12 @@ class OpenAIProvider implements LlmProviderInterface {
                 $provider_role = 'assistant';
             }
             else {
-                throw new LlmProviderException('openai_invalid_response', EQ_ERROR_UNKNOWN);
+                throw new Exception('openai_invalid_response', EQ_ERROR_UNKNOWN);
             }
 
             $content = trim((string) ($message['content'] ?? ''));
             if($content === '') {
-                throw new LlmProviderException('openai_invalid_response', EQ_ERROR_UNKNOWN);
+                throw new Exception('openai_invalid_response', EQ_ERROR_UNKNOWN);
             }
 
             $result[] = [
@@ -303,7 +321,7 @@ class OpenAIProvider implements LlmProviderInterface {
         }
 
         if(!count($result)) {
-            throw new LlmProviderException('openai_invalid_response', EQ_ERROR_UNKNOWN);
+            throw new Exception('openai_invalid_response', EQ_ERROR_UNKNOWN);
         }
 
         return $result;
@@ -316,7 +334,7 @@ class OpenAIProvider implements LlmProviderInterface {
 
         $response_id = $metadata['response_id'] ?? null;
         if(!is_string($response_id) || trim($response_id) === '') {
-            throw new LlmProviderException('openai_invalid_response', EQ_ERROR_UNKNOWN);
+            throw new Exception('openai_invalid_response', EQ_ERROR_UNKNOWN);
         }
 
         return trim($response_id);
@@ -328,6 +346,11 @@ class OpenAIProvider implements LlmProviderInterface {
             'Content-Type: application/json',
             'Accept: application/json'
         ];
+
+        trigger_error(
+            'APP::OpenAI request [POST ' . self::ENDPOINT . ']: ' . $body,
+            EQ_REPORT_DEBUG
+        );
 
         if($this->transport !== null) {
             $response = call_user_func(
@@ -344,16 +367,22 @@ class OpenAIProvider implements LlmProviderInterface {
             $response = $this->sendWithCurl($headers, $body);
         }
 
+        trigger_error(
+            'APP::OpenAI response [POST ' . self::ENDPOINT . ']: '
+            . json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE),
+            EQ_REPORT_DEBUG
+        );
+
         if(!is_array($response)) {
-            throw new LlmProviderException('openai_transport_error', EQ_ERROR_UNKNOWN);
+            throw new Exception('openai_transport_error', EQ_ERROR_UNKNOWN);
         }
 
         if(($response['error'] ?? null) === 'timeout') {
-            throw new LlmProviderException('openai_timeout', EQ_ERROR_UNKNOWN);
+            throw new Exception('openai_timeout', EQ_ERROR_UNKNOWN);
         }
 
         if(!empty($response['error'])) {
-            throw new LlmProviderException('openai_transport_error', EQ_ERROR_UNKNOWN);
+            throw new Exception('openai_transport_error', EQ_ERROR_UNKNOWN);
         }
 
         return $response;
@@ -361,13 +390,13 @@ class OpenAIProvider implements LlmProviderInterface {
 
     private function sendWithCurl(array $headers, string $body): array {
         if(!function_exists('curl_init')) {
-            throw new LlmProviderException('openai_transport_error', EQ_ERROR_UNKNOWN);
+            throw new Exception('openai_transport_error', EQ_ERROR_UNKNOWN);
         }
 
         $response_headers = [];
         $handle = curl_init(self::ENDPOINT);
         if($handle === false) {
-            throw new LlmProviderException('openai_transport_error', EQ_ERROR_UNKNOWN);
+            throw new Exception('openai_transport_error', EQ_ERROR_UNKNOWN);
         }
 
         curl_setopt_array($handle, [

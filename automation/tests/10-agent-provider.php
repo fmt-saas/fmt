@@ -6,13 +6,11 @@
 */
 
 require_once EQ_BASEDIR . '/packages/automation/services/agent/LlmProviderInterface.php';
-require_once EQ_BASEDIR . '/packages/automation/services/agent/LlmProviderException.php';
 require_once EQ_BASEDIR . '/packages/automation/services/agent/AgentOrchestrator.php';
 require_once EQ_BASEDIR . '/packages/automation/services/agent/provider/OpenAIProvider.php';
 
 use automation\agent\AgentOrchestrator;
 use automation\agent\Conversation;
-use automation\agent\LlmProviderException;
 use automation\agent\LlmProviderInterface;
 use automation\agent\Message;
 use automation\agent\MessageStep;
@@ -205,10 +203,11 @@ $tests = [
                     );
                     $result[$expected_error] = null;
                 }
-                catch(LlmProviderException $exception) {
+                catch(Throwable $throwable) {
                     $result[$expected_error] = [
-                        'key'      => $exception->getMessage(),
-                        'metadata' => $exception->metadata()
+                        'code'    => $throwable->getCode(),
+                        'message' => $throwable->getMessage(),
+                        'data'    => @unserialize($throwable->getMessage(), ['allowed_classes' => false])
                     ];
                 }
             }
@@ -217,13 +216,19 @@ $tests = [
         },
         'assert' => function($result) {
             foreach($result as $expected_error => $error) {
-                if(!is_array($error) || $error['key'] !== $expected_error) {
+                $error_key = is_array($error['data'] ?? null)
+                    ? ($error['data']['error'] ?? null)
+                    : ($error['message'] ?? null);
+
+                if(!is_array($error)
+                    || $error['code'] !== EQ_ERROR_UNKNOWN
+                    || $error_key !== $expected_error) {
                     return false;
                 }
             }
 
-            return $result['openai_http_error']['metadata']['http_status'] === 429
-                && $result['openai_http_error']['metadata']['request_id'] === 'request_error';
+            return $result['openai_http_error']['data']['http_status'] === 429
+                && $result['openai_http_error']['data']['request_id'] === 'request_error';
         }
     ],
     '0104' => [
@@ -535,10 +540,12 @@ $tests = [
                 }
 
                 public function generate(array $messages, ?array $continuation_metadata, string $instructions, array $tools = []): array {
-                    throw new LlmProviderException(
-                        'openai_timeout',
-                        EQ_ERROR_UNKNOWN,
-                        ['request_id' => 'request_timeout']
+                    throw new Exception(
+                        serialize([
+                            'error'      => 'fake_timeout',
+                            'request_id' => 'request_timeout'
+                        ]),
+                        EQ_ERROR_UNKNOWN
                     );
                 }
             };
@@ -546,7 +553,7 @@ $tests = [
             try {
                 (new AgentOrchestrator($provider, 'Test instructions.'))->run($conversation_id);
             }
-            catch(LlmProviderException $exception) {
+            catch(Throwable $throwable) {
                 $agent_message = Message::search([
                         ['conversation_id', '=', $conversation_id],
                         ['role', '=', 'agent']
@@ -562,7 +569,7 @@ $tests = [
 
                 return [
                     'conversation_id' => $conversation_id,
-                    'error'           => $exception->getMessage(),
+                    'error'           => @unserialize($throwable->getMessage(), ['allowed_classes' => false]),
                     'conversation'    => $conversation,
                     'agent_message'   => $agent_message,
                     'step'            => $step
@@ -574,11 +581,11 @@ $tests = [
         'assert' => function($result) {
             $data = json_decode($result['step']['data'] ?? '', true);
 
-            return ($result['error'] ?? null) === 'openai_timeout'
+            return ($result['error']['error'] ?? null) === 'fake_timeout'
                 && ($result['conversation']['status'] ?? null) === 'pending'
                 && ($result['agent_message']['status'] ?? null) === 'failed'
                 && ($result['step']['status'] ?? null) === 'failed'
-                && ($data['error']['key'] ?? null) === 'openai_timeout'
+                && ($data['error']['key'] ?? null) === 'fake_timeout'
                 && ($data['error']['request_id'] ?? null) === 'request_timeout';
         },
         'rollback' => function($result) use($cleanup_conversations) {

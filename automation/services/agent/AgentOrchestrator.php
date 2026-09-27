@@ -408,19 +408,12 @@ class AgentOrchestrator {
 
     private function recoverRound(int $conversation_id, int $message_id, ?int $step_id, \Throwable $throwable): void {
         if($step_id !== null) {
-            $error_key = $throwable instanceof LlmProviderException
-                ? $throwable->getMessage()
-                : 'agent_orchestration_error';
-            $provider_metadata = $throwable instanceof LlmProviderException
-                ? $throwable->metadata()
-                : [];
-
-            $failure_data = [
+            $failure_data = $this->decodeProviderError($throwable) ?? [
                 'provider' => $this->provider->name(),
                 'error'    => [
-                    'key'         => $error_key,
-                    'http_status' => $provider_metadata['http_status'] ?? null,
-                    'request_id'  => $provider_metadata['request_id'] ?? null
+                    'key'         => 'agent_orchestration_error',
+                    'http_status' => null,
+                    'request_id'  => null
                 ]
             ];
 
@@ -448,5 +441,36 @@ class AgentOrchestrator {
         catch(\Throwable $recovery_error) {
             trigger_error('APP::Unable to restore the conversation pending status.', EQ_REPORT_WARNING);
         }
+    }
+
+    private function decodeProviderError(\Throwable $throwable): ?array {
+        $message = $throwable->getMessage();
+        $data = @unserialize($message, ['allowed_classes' => false]);
+
+        if(is_array($data)
+            && is_string($data['error'] ?? null)
+            && strpos($data['error'], $this->provider->name() . '_') === 0) {
+            return [
+                'provider' => $this->provider->name(),
+                'error'    => [
+                    'key'         => $data['error'],
+                    'http_status' => $data['http_status'] ?? null,
+                    'request_id'  => $data['request_id'] ?? null
+                ]
+            ];
+        }
+
+        if(strpos($message, $this->provider->name() . '_') !== 0) {
+            return null;
+        }
+
+        return [
+            'provider' => $this->provider->name(),
+            'error'    => [
+                'key'         => $message,
+                'http_status' => null,
+                'request_id'  => null
+            ]
+        ];
     }
 }
