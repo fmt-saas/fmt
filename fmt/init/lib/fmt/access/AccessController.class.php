@@ -194,6 +194,11 @@ class AccessController extends \equal\access\AccessController {
 
         $is_owner_user = ($user_id != EQ_ROOT_USER_ID && $this->isOwnerUser($user_id));
 
+        // #temp #todo MVP prototype
+        if($is_owner_user && strpos($object_class, 'automation\\') === 0) {
+            return true;
+        }
+
         if($is_owner_user && ($operation & ~EQ_R_READ) !== 0) {
             return false;
         }
