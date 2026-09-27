@@ -251,14 +251,15 @@ class AgentOrchestrator {
     }
 
     private function claimConversation(int $conversation_id): void {
-        ['orm' => $orm] = \eQual::inject(['orm']);
+        ['orm' => $orm, 'adapt' => $dap] = \eQual::inject(['orm', 'adapt']);
         $db = $orm->getDB();
+        $adapter = $dap->get('sql');
         $db->setRecords(
             Conversation::getModelTable(),
             [$conversation_id],
             [
                 'status'   => 'running',
-                'modified' => time()
+                'modified' => $adapter->adaptOut(time(), 'datetime')
             ],
             [[['status', '=', 'pending']]]
         );
