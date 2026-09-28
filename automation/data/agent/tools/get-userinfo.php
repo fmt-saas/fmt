@@ -81,6 +81,7 @@ $owners = Owner::search([
             'property_lots_ids' => [
                 'id',
                 'name',
+                'code',
                 'property_lot_nature',
                 'statutory_shares'
             ]
@@ -111,6 +112,7 @@ foreach($owners as $owner) {
         $property_lots[] = [
             'id'   => $property_lot['id'],
             'name' => $property_lot['name'] ?? '',
+            'code' => $property_lot['code'] ?? '',
             'type' => $property_lot['property_lot_nature'] ?? '',
             'shares' => $property_lot['statutory_shares'] ?? ''
         ];
