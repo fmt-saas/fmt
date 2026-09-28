@@ -5,8 +5,8 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 
-require_once EQ_BASEDIR . '/packages/automation/services/agent/LlmProviderInterface.php';
 require_once EQ_BASEDIR . '/packages/automation/services/agent/AgentOrchestrator.php';
+require_once EQ_BASEDIR . '/packages/automation/services/agent/provider/LlmProviderInterface.php';
 require_once EQ_BASEDIR . '/packages/automation/services/agent/provider/OpenAIProvider.php';
 
 use automation\agent\AgentOrchestrator;
