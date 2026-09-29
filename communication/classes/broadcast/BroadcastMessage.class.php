@@ -178,6 +178,11 @@ class BroadcastMessage extends Model {
 
     public static function getActions(): array {
         return array_merge(parent::getActions(), [
+            'revert_select_recipients' => [
+                'description'   => 'Return to the recipient selection step without changing the broadcast status.',
+                'policies'      => [],
+                'function'      => 'doRevertSelectRecipients'
+            ],
             'refresh_recipients' => [
                 'description'   => 'Rebuild the recipient identities from the selected owners and ownership communication preferences.',
                 'policies'      => [],
@@ -447,6 +452,10 @@ class BroadcastMessage extends Model {
 
     protected static function onupdateOwnersIds($self, $values) {
         $self->do('refresh_recipients');
+    }
+
+    protected static function doRevertSelectRecipients($self) {
+        $self->update(['step' => 'recipients_selection']);
     }
 
     protected static function doRefreshRecipients($self) {

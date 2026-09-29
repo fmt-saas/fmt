@@ -13,6 +13,23 @@
             ]
         },
         {
+            "id": "action.revertselect_recipients",
+            "label": "Back to recipients",
+            "description": "Return to the recipient selection step.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "communication\\broadcast\\BroadcastMessage",
+                "action": "revert_select_recipients",
+                "ids": []
+            },
+            "visible": [
+                [
+                    ["step", "=", "content_edition"],
+                    ["status", "=", "draft"]
+                ]
+            ]
+        },
+        {
             "id": "action.validate_content",
             "label": "Validate content",
             "description": "Send multiple emails from broadcast.",

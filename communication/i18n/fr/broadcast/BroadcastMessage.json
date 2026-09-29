@@ -98,6 +98,10 @@
                 "action.validate_recipients": {
                     "label": "Valider destinataires"
                 },
+                "action.revertselect_recipients": {
+                    "label": "Retour aux destinataires",
+                    "description": "Revenir à l'étape de sélection des destinataires."
+                },
                 "action.validate_content": {
                     "label": "Valider contenu"
                 },
