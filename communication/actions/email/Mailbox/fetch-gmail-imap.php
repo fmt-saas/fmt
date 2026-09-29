@@ -52,7 +52,7 @@ $allowed_mime_types = [
 
 // check consistency
 $mailbox = Mailbox::id($params['id'])
-    ->read(['status', 'auth_type', 'access_token_expiry', 'refresh_token_expiry'])
+    ->read(['status', 'auth_type', 'access_token_expiry'])
     ->first();
 
 if(!$mailbox) {
@@ -68,10 +68,6 @@ if($mailbox['auth_type'] !== 'oauth') {
 }
 
 try {
-    if($mailbox['refresh_token_expiry'] < time()) {
-        throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
-    }
-
     if($mailbox['access_token_expiry'] < time()) {
         eQual::run('do', 'communication_email_Mailbox_refresh-token-gmail', ['id' => $params['id']]);
     }

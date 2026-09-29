@@ -35,7 +35,6 @@ use infra\server\Instance;
     'providers'     => ['context', 'auth', 'orm'],
     'constants'     => [
         'BACKEND_URL',
-        'AUTH_ACCESS_TOKEN_VALIDITY',
         'AUTH_TOKEN_HTTPS',
         'FMT_INSTANCE_TYPE',
         'GOOGLE_OAUTH_CLIENT_ID',

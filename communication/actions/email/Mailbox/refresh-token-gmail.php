@@ -42,7 +42,7 @@ if(!isset($params['id'])) {
 }
 
 $mailbox = Mailbox::id($params['id'])
-    ->read(['status', 'auth_type', 'refresh_token', 'refresh_token_expiry'])
+    ->read(['status', 'auth_type', 'refresh_token'])
     ->first();
 
 if(!$mailbox) {
@@ -58,8 +58,8 @@ if($mailbox['auth_type'] !== 'oauth') {
     throw new Exception("non_oauth_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
-if($mailbox['refresh_token_expiry'] < time()) {
-    throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
+if(empty($mailbox['refresh_token'])) {
+    throw new Exception("missing_refresh_token", EQ_ERROR_INVALID_PARAM);
 }
 
 
@@ -89,10 +89,21 @@ if(empty($data['access_token']) || empty($data['expires_in'])) {
     throw new Exception("invalid_oauth_response", EQ_ERROR_INVALID_PARAM);
 }
 
-Mailbox::id($mailbox['id'])->update([
-        'access_token'          => $data['access_token'],
-        'access_token_expiry'   => time() + $data['expires_in'],
-    ]);
+$updates = [
+    'access_token'        => $data['access_token'],
+    'access_token_expiry' => time() + $data['expires_in']
+];
+
+/* Google does not normally rotate refresh tokens during this exchange. */
+if(!empty($data['refresh_token'])) {
+    $updates['refresh_token'] = $data['refresh_token'];
+
+    if(!empty($data['refresh_token_expires_in'])) {
+        $updates['refresh_token_expiry'] = time() + $data['refresh_token_expires_in'];
+    }
+}
+
+Mailbox::id($mailbox['id'])->update($updates);
 
 
 $context->httpResponse()

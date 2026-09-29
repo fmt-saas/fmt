@@ -67,6 +67,24 @@ elseif($mailbox['auth_type'] === 'oauth') {
     switch($mailbox['auth_provider']) {
         case 'google':
             $controller = 'communication_email_Mailbox_send-gmail';
+
+            /*
+             * Keep the refresh token active for send-only mailboxes even when
+             * their outgoing queue is empty.
+             */
+            if($mailbox['access_token_expiry'] < time()) {
+                try {
+                    eQual::run(
+                        'do',
+                        'communication_email_Mailbox_refresh-token-gmail',
+                        ['id' => $mailbox['id']]
+                    );
+                }
+                catch(Exception $e) {
+                    Mailbox::id($mailbox['id'])->update(['status' => 'pending']);
+                    throw $e;
+                }
+            }
             break;
 
         case 'microsoft':

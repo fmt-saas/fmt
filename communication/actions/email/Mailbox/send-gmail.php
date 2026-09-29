@@ -107,7 +107,6 @@ $mailbox = Mailbox::id($params['id'])
         'auth_provider',
         'access_token',
         'access_token_expiry',
-        'refresh_token_expiry',
         'can_send',
         'email'
     ])
@@ -131,10 +130,6 @@ if($mailbox['auth_type'] !== 'oauth') {
 
 if($mailbox['auth_provider'] !== 'google') {
     throw new Exception('non_google_mailbox', EQ_ERROR_INVALID_PARAM);
-}
-
-if($mailbox['refresh_token_expiry'] < time()) {
-    throw new Exception('expired_refresh_token', EQ_ERROR_INVALID_PARAM);
 }
 
 try {

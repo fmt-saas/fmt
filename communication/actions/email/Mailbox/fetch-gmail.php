@@ -252,7 +252,7 @@ $gmail_page_size = 50;
 
 // check consistency
 $mailbox = Mailbox::id($params['id'])
-    ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'created', 'date_last_sync'])
+    ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'created', 'date_last_sync'])
     ->first();
 
 if(!$mailbox) {
@@ -268,16 +268,11 @@ if($mailbox['auth_type'] !== 'oauth') {
 }
 
 try {
-    if($mailbox['refresh_token_expiry'] < time()) {
-        // #todo - dispatch an alert to notify user to re-connect
-        throw new Exception("expired_oauth_refresh_token", EQ_ERROR_INVALID_PARAM);
-    }
-
     if($mailbox['access_token_expiry'] < time()) {
         eQual::run('do', 'communication_email_Mailbox_refresh-token-gmail', ['id' => $params['id']]);
 
         $mailbox = Mailbox::id($params['id'])
-            ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'created', 'date_last_sync'])
+            ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'created', 'date_last_sync'])
             ->first();
     }
 }
