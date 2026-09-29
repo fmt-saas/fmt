@@ -344,6 +344,7 @@ $fiscal_period_fields = [
 $expense_statement_fields = [
         'condo_id' => ['name', 'code', 'total_shares'],
         'name',
+        'posting_date',
         'due_date',
         'fiscal_period_id',
         'invoice_number',
@@ -500,6 +501,7 @@ $communication = '';
 
 $template = Template::search([
         ['code', '=', 'expense_statement_correspondence'],
+        ['category', '=', 'general'],
         ['type', '=', 'document']
     ])
     ->read(['id','parts_ids' => ['name', 'value']])
@@ -526,14 +528,21 @@ foreach($template['parts_ids'] as $part_id => $part) {
             return $map_values[$key] ?? '';
         }, $subject);
     }
-    elseif($part['name'] === 'introduction') {
+    elseif(
+        $part['name'] === (
+            $statement['is_cutoff_at_document_date']
+                ? 'introduction_document_date'
+                : 'introduction_period_end'
+        )
+    ) {
         $introduction = $part['value'];
 
         $map_values = [
             'condo'             => $statement['condo_id']['name'],
             'period'            => $getFormattedDate($fiscalPeriod['date_from']) . ' - ' . $getFormattedDate($fiscalPeriod['date_to']),
             'period_from'       => $getFormattedDate($fiscalPeriod['date_from']),
-            'period_to'         => $getFormattedDate($fiscalPeriod['date_to'])
+            'period_to'         => $getFormattedDate($fiscalPeriod['date_to']),
+            'document_date'     => $getFormattedDate($statement['posting_date'])
         ];
 
         // Replace {var} items with corresponding values, set in $map_values

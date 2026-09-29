@@ -141,5 +141,14 @@
             "name": "Envois groupés",
             "description": "Envois groupés de courriel et de leur statut d'envoi."
         }
+    },
+    "error": {
+        "unknown_broadcast": "L'envoi groupé demandé est introuvable.",
+        "invalid_status": "Le statut de l'envoi groupé ne permet pas son traitement.",
+        "missing_mandatory_mailbox": "La boîte d'envoi du processus de communication n'est pas configurée.",
+        "invalid_sending_mailbox": "La boîte du processus de communication n'est pas validée ou n'est pas configurée pour l'envoi.",
+        "invalid_recipient_email": "Un destinataire ne possède pas d'adresse e-mail valide.",
+        "email_not_queued": "Un e-mail de l'envoi groupé n'a pas pu être mis en file.",
+        "broadcast_processing_failed": "Une erreur inattendue est survenue pendant le traitement de l'envoi groupé."
     }
 }

@@ -294,8 +294,7 @@
                                                         "actions": {
                                                             "ACTION.CREATE": false
                                                         }
-                                                    },
-                                                    "limit": 5
+                                                    }
                                                 }
                                             }
                                         ]

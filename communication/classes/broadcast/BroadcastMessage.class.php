@@ -277,6 +277,11 @@ class BroadcastMessage extends Model {
                         'description'   => 'End the processing of the broadcast.',
                         'status'        => 'processed',
                         'onafter'       => 'onafterProcessing'
+                    ],
+                    'fail_processing' => [
+                        'description'   => 'Return the broadcast to the ready status after a processing failure.',
+                        'status'        => 'ready',
+                        'onafter'       => 'onafterProcessing'
                     ]
                 ]
             ],
@@ -296,21 +301,17 @@ class BroadcastMessage extends Model {
     protected static function onbeforeSchedule($self) {
         foreach($self as $id => $broadcast) {
             Task::create([
-                'name'          => "Handle broadcast {$id}",
-                'is_recurring'  => false,
-                'controller'    => 'communication_broadcast_BroadcastMessage_process',
-                'params'        => json_encode(['id' => $id])
+                'name'              => "Handle broadcast {$id}",
+                'is_recurring'      => false,
+                'after_execution'   => 'delete',
+                'controller'        => 'communication_broadcast_BroadcastMessage_process',
+                'params'            => json_encode(['id' => $id])
             ]);
         }
     }
 
     protected static function onafterProcessing($self) {
         foreach($self as $id => $broadcast) {
-            Task::search([
-                    ['controller', '=', 'communication_broadcast_BroadcastMessage_process'],
-                    ['params', '=', json_encode(['id' => $id])]
-                ])
-                ->delete();
         }
     }
 
