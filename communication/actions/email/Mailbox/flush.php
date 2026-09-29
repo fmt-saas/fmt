@@ -41,6 +41,7 @@ $mailbox = Mailbox::id($params['id'])
         'can_send',
         'auth_type',
         'auth_provider',
+        'access_token_expiry',
         'smtp_server'
     ])
     ->first();
@@ -70,6 +71,25 @@ elseif($mailbox['auth_type'] === 'oauth') {
 
         case 'microsoft':
             $controller = 'communication_email_Mailbox_send-outlook';
+
+            /*
+             * Keep send-only mailboxes alive even when their outgoing queue is
+             * empty. Receiving mailboxes already exercise this refresh path
+             * while fetching messages.
+             */
+            if($mailbox['access_token_expiry'] < time()) {
+                try {
+                    eQual::run(
+                        'do',
+                        'communication_email_Mailbox_refresh-token-outlook',
+                        ['id' => $mailbox['id']]
+                    );
+                }
+                catch(Exception $e) {
+                    Mailbox::id($mailbox['id'])->update(['status' => 'pending']);
+                    throw $e;
+                }
+            }
             break;
 
         default:

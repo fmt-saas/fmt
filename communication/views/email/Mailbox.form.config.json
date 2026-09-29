@@ -130,7 +130,7 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "access0_token",
+                                                "value": "access_token",
                                                 "width": "100%",
                                                 "readonly": true
                                             },

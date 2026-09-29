@@ -27,7 +27,6 @@ use infra\server\Instance;
     ],
     'constants'     => [
         'BACKEND_URL',
-        'AUTH_ACCESS_TOKEN_VALIDITY',
         'AUTH_TOKEN_HTTPS',
         'FMT_INSTANCE_TYPE',
         'MS_OUTLOOK_CLIENT_ID',
@@ -139,8 +138,7 @@ $data = array_merge($data, [
     'provider'              => 'microsoft',
     'access_token_expiry'   => time() + $data['expires_in'],
     // #memo - $data['refresh_token_expires_in'] presence is not guaranteed
-    // Microsoft exposes refresh token validity differently; fallback 90 days
-    'refresh_token_expiry' => time() + (constant('AUTH_ACCESS_TOKEN_VALIDITY') * 5)
+    'refresh_token_expiry'  => time() + ($data['refresh_token_expires_in'] ?? (90 * 86400))
 ]);
 
 $validationRequest = new HttpRequest('POST https://' . $domain . '/?do=communication_email_Mailbox_validate');

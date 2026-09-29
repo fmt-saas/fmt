@@ -51,7 +51,7 @@ if (!isset($params['id'])) {
 }
 
 $mailbox = Mailbox::id($params['id'])
-    ->read(['status', 'auth_type', 'refresh_token', 'refresh_token_expiry'])
+    ->read(['status', 'auth_type', 'refresh_token'])
     ->first();
 
 if (!$mailbox) {
@@ -66,8 +66,8 @@ if ($mailbox['auth_type'] !== 'oauth') {
     throw new Exception("non_oauth_mailbox", EQ_ERROR_INVALID_PARAM);
 }
 
-if ($mailbox['refresh_token_expiry'] < time()) {
-    throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
+if(empty($mailbox['refresh_token'])) {
+    throw new Exception("missing_refresh_token", EQ_ERROR_INVALID_PARAM);
 }
 
 
@@ -108,6 +108,11 @@ if ($status < 200 || $status >= 300) {
     throw new Exception("refresh_token_failed", EQ_ERROR_INVALID_PARAM);
 }
 
+if(empty($data['access_token']) || empty($data['expires_in'])) {
+    trigger_error("APP::Outlook OAuth refresh returned an incomplete response: " . json_encode($data), EQ_REPORT_ERROR);
+    throw new Exception("invalid_oauth_response", EQ_ERROR_INVALID_PARAM);
+}
+
 
 /* ---------------------------------------------------------
     UPDATE TOKENS IN DATABASE
@@ -118,13 +123,13 @@ $updates = [
     'access_token_expiry' => time() + $data['expires_in'],
 ];
 
-/**
- * Microsoft returns a new refresh_token *only sometimes*.
- * When it does, we MUST update it.
+/*
+ * Microsoft normally rotates the refresh token on each successful use.
+ * Keep the current token only if the response does not include a replacement.
  */
-if(isset($data['refresh_token'])) {
+if(!empty($data['refresh_token'])) {
     $updates['refresh_token'] = $data['refresh_token'];
-    $updates['refresh_token_expiry'] = time() + (3600 * 24 * 90); // ~90 days
+    $updates['refresh_token_expiry'] = time() + ($data['refresh_token_expires_in'] ?? (90 * 86400));
 }
 
 Mailbox::id($mailbox['id'])->update($updates);

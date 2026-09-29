@@ -51,7 +51,7 @@ $graph_page_size = 50;
 
 
 $mailbox = Mailbox::id($params['id'])
-    ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'refresh_token_expiry', 'email', 'created', 'date_last_sync'])
+    ->read(['status', 'auth_type', 'access_token', 'access_token_expiry', 'email', 'created', 'date_last_sync'])
     ->first();
 
 if(!$mailbox) {
@@ -64,10 +64,6 @@ if($mailbox['status'] !== 'validated') {
 
 if($mailbox['auth_type'] !== 'oauth') {
     throw new Exception("non_oauth_mailbox", EQ_ERROR_INVALID_PARAM);
-}
-
-if($mailbox['refresh_token_expiry'] < time()) {
-    throw new Exception("expired_refresh_token", EQ_ERROR_INVALID_PARAM);
 }
 
 /* Refresh token if needed */
