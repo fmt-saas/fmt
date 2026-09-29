@@ -322,6 +322,31 @@ if(!isset($params['expense_statement_id']) && !isset($params['fiscal_period_id']
     throw new Exception('missing_mandatory_fiscal_period_or_statement', EQ_ERROR_MISSING_PARAM);
 }
 
+// retrieve Owner : required for Correspondence but optional for preview (fallback to first owner of given ownership)
+if(isset($params['owner_id'])) {
+    $ownerCollection = Owner::id($params['owner_id']);
+}
+elseif($params['ownership_id']) {
+    $ownerCollection = Owner::search(['ownership_id', '=', $params['ownership_id']]);
+}
+else {
+    throw new Exception('missing_ownership', EQ_ERROR_INVALID_PARAM);
+}
+
+$recipientOwner = $ownerCollection->read([
+        'ownership_id' => ['code', 'address_recipient'],
+        'identity_id' => [
+            'lang_id' => ['code']
+        ]
+    ])
+    ->first();
+
+if(!$recipientOwner) {
+    throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
+}
+
+$lang = $recipientOwner['identity_id']['lang_id']['code'] ?? 'fr';
+
 $fiscal_period_fields = [
         'date_from',
         'date_to',
@@ -362,7 +387,7 @@ $expense_statement_fields = [
 
 if(isset($params['expense_statement_id'])) {
     $statement = ExpenseStatement::id($params['expense_statement_id'])
-        ->read($expense_statement_fields)
+        ->read($expense_statement_fields, $lang)
         ->first();
 
     if(!$statement) {
@@ -391,7 +416,7 @@ else {
             ['status', '<>', 'cancelled'],
             ['invoice_type', '=', 'expense_statement']
         ])
-        ->read($expense_statement_fields)
+        ->read($expense_statement_fields, $lang)
         ->first();
     if(!$statement) {
         throw new Exception('no_matching_statement', EQ_ERROR_UNKNOWN_OBJECT);
@@ -436,35 +461,10 @@ if(!count($values['owners'])) {
     throw new Exception('no_matching_owner', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-// retrieve Owner : required for Correspondence but optional for preview (fallback to first owner of given ownership)
-if(isset($params['owner_id'])) {
-    $ownerCollection = Owner::id($params['owner_id']);
-}
-elseif($params['ownership_id']) {
-    $ownerCollection = Owner::search(['ownership_id', '=', $params['ownership_id']]);
-}
-else {
-    throw new Exception('missing_ownership', EQ_ERROR_INVALID_PARAM);
-}
+$recipient = $getRecipient($recipientOwner['identity_id']['id'], $lang);
 
-$owner = $ownerCollection->read([
-        'ownership_id' => ['code', 'address_recipient'],
-        'identity_id' => [
-            'lang_id' => ['code']
-        ]
-    ])
-    ->first();
-
-if(!$owner) {
-    throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
-}
-
-$lang = $owner['identity_id']['lang_id']['code'] ?? 'fr';
-
-$recipient = $getRecipient($owner['identity_id']['id'], $lang);
-
-if(!isset($params['owner_id']) && strlen($owner['ownership_id']['address_recipient'] ?? '') > 0) {
-    $recipient['name'] = $owner['ownership_id']['address_recipient'];
+if(!isset($params['owner_id']) && strlen($recipientOwner['ownership_id']['address_recipient'] ?? '') > 0) {
+    $recipient['name'] = $recipientOwner['ownership_id']['address_recipient'];
 }
 
 $funding = [];
@@ -483,7 +483,7 @@ if(count($data)) {
 }
 
 $reference = substr(str_pad((int) $statement['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
-             substr(str_pad((int) $owner['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+             substr(str_pad((int) $recipientOwner['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
 
 $funding = [
         'payment_reference'     => $getPaymentReference(substr($reference, 0, 3), substr($reference, 3)),

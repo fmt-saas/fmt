@@ -138,7 +138,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
      * example : https://test1.fmtsolutions.be/?get=model_read&ids[]=159&entity=realestate\funding\ExpenseStatementOwner&fields={schema}
      *
      */
-    protected static function calcSchema($self) {
+    protected static function calcSchema($self, $lang) {
         $result = [];
 
         /*
@@ -213,7 +213,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
             $accounts_ids       = array_map(fn($a) => $a['account_id'], $invoice_lines);
             $property_lots_ids  = array_map(fn($a) => $a['property_lot_id'], $invoice_lines);
 
-            $accounts = Account::ids($accounts_ids)->read(['name', 'code'])->get();
+            $accounts = Account::ids($accounts_ids)->read(['name', 'code'], $lang)->get();
             $property_lots = PropertyLot::ids($property_lots_ids)->read(['name', 'code', 'property_lot_ref', 'property_lot_nature', 'statutory_shares', 'is_primary', 'primary_lot_id'])->get();
             $apportionments = Apportionment::ids($apportionments_ids)->read(['name', 'code', 'total_shares'])->get();
 
