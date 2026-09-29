@@ -49,7 +49,7 @@ if($broadcast['status'] !== 'draft') {
     throw new Exception("invalid_status", EQ_ERROR_INVALID_PARAM);
 }
 
-if($broadcast['identities_ids']->count() <= 0) {
+if(count($broadcast['identities_ids']) <= 0) {
     throw new Exception("invalid_identities", EQ_ERROR_INVALID_PARAM);
 }
 
