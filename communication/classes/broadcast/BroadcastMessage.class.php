@@ -488,7 +488,7 @@ class BroadcastMessage extends Model {
 
             $identities_ids = array_map(
                 fn($identity_id) => $identity_id * -1,
-                $broadcast['identities_ids']->ids()
+                $broadcast['identities_ids']
             );
             $identities_ids = array_merge($identities_ids, array_keys($target_identities_ids));
 
