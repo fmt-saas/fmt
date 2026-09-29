@@ -311,7 +311,7 @@ class FiscalYear extends Model {
                 ],
             ],
             'open' => [
-                'description' => 'Draft fiscal year, still waiting to be completed for validation.',
+                'description' => 'Currently open fiscal year, keeping on receiving new accounting entries.',
                 'icon' => 'pending',
                 'transitions' => [
                     'preclose' => [
@@ -336,7 +336,7 @@ class FiscalYear extends Model {
                 ],
             ],
             'preclosed' => [
-                'description' => 'Draft fiscal year, still waiting to be completed for validation.',
+                'description' => 'Preclosed fiscal year, still waiting to be completed for validation.',
                 'icon' => 'lock_open',
                 'transitions' => [
                     'close' => [
