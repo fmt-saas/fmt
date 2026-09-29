@@ -840,6 +840,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     ->do('validate_accounting_entries')
                     // generate payment request for each ownership
                     ->do('create_fundings')
+                    // generate correspondence records before asynchronous document generation and sending
+                    ->do('generate_expense_statement_correspondences')
                     // mark related fiscal period as closed (and fiscal year if last period)
                     ->do('close_fiscal_period');
             }
@@ -1111,8 +1113,10 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             if(!$is_sending_disabled) {
                 if(isset($map_communication_methods['email'])) {
                     // schedule queuing of expense statement emails
+                    $task_name = "realestate.expensestatement.send-statements.{$id}";
+                    $cron->cancel($task_name);
                     $cron->schedule(
-                        "realestate.expensestatement.send-statements.{$id}",
+                        $task_name,
                         time() + (5 * 60),
                         'realestate_funding_ExpenseStatement_send-statements-emails',
                         [

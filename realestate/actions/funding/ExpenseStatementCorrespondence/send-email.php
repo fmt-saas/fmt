@@ -211,7 +211,7 @@ if(!$managementProcess || !$managementProcess['mailbox_id']) {
 // queue message
 $email_id = Mail::queue(
     $message,
-    'realestate\governance\ExpenseStatementCorrespondence',
+    'realestate\funding\ExpenseStatementCorrespondence',
     $expenseStatementCorrespondence['id']
 );
 

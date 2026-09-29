@@ -56,6 +56,17 @@ $values = [
     'perform_sending' => $params['perform_sending']
 ];
 
+/*
+ * The `validate` transition:
+ * - generates the statement lines and accounting entries;
+ * - assigns the invoice number;
+ * - clears source accounting lines;
+ * - validates accounting entries;
+ * - creates fundings;
+ * - creates correspondences;
+ * - closes the fiscal period and moves the expense statement to `posted`;
+ * - resets its computed name and schedules asynchronous document generation.
+ */
 $expenseStatements
     ->transition('validate')
     ->do('send_expense_statements', $values);
