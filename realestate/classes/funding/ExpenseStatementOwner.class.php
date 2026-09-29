@@ -98,6 +98,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                 'result_type'       => 'string',
                 'usage'             => 'application/json',
                 'function'          => 'calcSchema',
+                'multilang'         => true,
                 'store'             => false,
                 'help'              => 'This field is not intended to be stored and can safely be computed at any time since its relies on immutable data.'
             ]
@@ -187,7 +188,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                 $map_accounts = Account::search([
                         ['condo_id', '=', $statementOwner['condo_id']]
                     ])
-                    ->read(['code', 'name', 'parent_account_id', 'is_control_account'])
+                    ->read(['code', 'name', 'parent_account_id', 'is_control_account'], $lang)
                     ->get();
 
                 foreach($map_accounts as $account_id => $account) {
