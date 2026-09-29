@@ -251,8 +251,7 @@
                                                         "actions": {
                                                             "ACTION.CREATE": false
                                                         }
-                                                    },
-                                                    "readonly": true
+                                                    }
                                                 }
                                             },
                                             {
@@ -265,8 +264,7 @@
                                                         "actions": {
                                                             "ACTION.CREATE": false
                                                         }
-                                                    },
-                                                    "readonly": true
+                                                    }
                                                 }
                                             },
                                             {
@@ -288,8 +286,7 @@
                                                         "actions": {
                                                             "ACTION.CREATE": false
                                                         }
-                                                    },
-                                                    "readonly": true
+                                                    }
                                                 }
                                             },
                                             {
@@ -302,8 +299,7 @@
                                                         "actions": {
                                                             "ACTION.CREATE": false
                                                         }
-                                                    },
-                                                    "readonly": true
+                                                    }
                                                 }
                                             },
                                             {
@@ -481,6 +477,7 @@
                     {
                         "id": "section.email",
                         "label": "E-mail",
+                        "description": "Information of the retrieved email message the invoice originates from.",
                         "visible": [
                             ["email_subject", "<>", ""],
                             ["email_subject", "is not", null]

@@ -12,6 +12,7 @@ use finance\accounting\AccountChart;
 use finance\accounting\FiscalYear;
 use finance\accounting\MiscOperation;
 use finance\bank\BankStatement;
+use finance\bank\BankStatementLine;
 use realestate\funding\ExpenseStatement;
 use realestate\funding\ExpenseStatementCorrespondence;
 use realestate\funding\FundRequestExecution;
@@ -250,11 +251,25 @@ $getSupplierInvoices = function($fiscal_year_id, $condo_id) use($getDocumentIds,
 };
 
 $getBankStatements = function($fiscal_year_id, $condo_id) use($getDocumentIds, $getDocumentsByIds) {
-    $bankStatements = BankStatement::search([
+    $bankStatementLines = BankStatementLine::search([
             ['fiscal_year_id', '=', $fiscal_year_id],
-            ['condo_id', '=', $condo_id],
-            ['document_id', '<>', null]
+            ['condo_id', '=', $condo_id]
         ])
+        ->read(['bank_statement_id'])
+        ->get();
+
+    $bank_statement_ids = [];
+    foreach($bankStatementLines as $bankStatementLine) {
+        if(!empty($bankStatementLine['bank_statement_id'])) {
+            $bank_statement_ids[] = $bankStatementLine['bank_statement_id'];
+        }
+    }
+
+    if(!count($bank_statement_ids)) {
+        return [];
+    }
+
+    $bankStatements = BankStatement::ids(array_values(array_unique($bank_statement_ids)))
         ->read(['document_id'])
         ->get();
 

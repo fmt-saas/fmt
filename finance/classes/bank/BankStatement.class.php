@@ -11,9 +11,7 @@ use documents\Document;
 use documents\DocumentType;
 use documents\processing\DocumentProcess;
 use equal\orm\Model;
-use finance\accounting\FiscalYear;
 use identity\User;
-use realestate\property\Condominium;
 
 class BankStatement extends Model {
 
@@ -95,16 +93,13 @@ class BankStatement extends Model {
             'opening_date' => [
                 'type'              => 'date',
                 'description'       => 'First date the statement refers to.',
-                'help'              => 'This date is used to associate the statement with specific fiscal year and fiscal period.',
-                'required'          => true,
-                'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
+                'required'          => true
             ],
 
             'closing_date' => [
                 'type'              => 'date',
                 'description'       => 'Last date the statement refers to.',
-                'required'          => true,
-                'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
+                'required'          => true
             ],
 
             'opening_balance' => [
@@ -174,30 +169,6 @@ class BankStatement extends Model {
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Document the statement originates from.',
                 'help'              => 'This document is always present. For imported statements (is_source=true), it is the uploaded document (possibly split for holding a single statement). For manual encoding, it is automatically generated based on the Bank Statement schema.'
-            ],
-
-            'fiscal_year_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'foreign_object'    => 'finance\accounting\FiscalYear',
-                'description'       => "Fiscal year the statement relates to.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
-                'help'              => "Fiscal Year is automatically assigned based on opening_date.",
-                'function'          => 'calcFiscalYearId',
-                'store'             => true,
-                'instant'           => true
-            ],
-
-            'fiscal_period_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'foreign_object'    => 'finance\accounting\FiscalPeriod',
-                'description'       => "Period of the fiscal year the statement relates to.",
-                'help'              => "Period is automatically assigned based on opening_date.",
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['fiscal_year_id', '=', 'object.fiscal_year_id']],
-                'function'          => 'calcFiscalPeriodId',
-                'store'             => true,
-                'instant'           => true
             ],
 
             'is_reconciled' => [
@@ -501,18 +472,6 @@ class BankStatement extends Model {
         return $result;
     }
 
-    protected static function calcFiscalYearId($self) {
-        $result = [];
-        $self->read(['condo_id', 'opening_date']);
-        foreach($self as $id => $bankStatement) {
-            $fiscalYear = FiscalYear::search([ ['condo_id', '=', $bankStatement['condo_id']], ['date_from', '<=', $bankStatement['opening_date']], ['date_to', '>=', $bankStatement['opening_date']] ])->first();
-            if($fiscalYear) {
-                $result[$id] = $fiscalYear['id'];
-            }
-        }
-        return $result;
-    }
-
     protected static function doRefreshStatus($self) {
         $self->read(['statement_lines_ids' => ['status']]);
         foreach($self as $id => $bankStatement) {
@@ -538,20 +497,6 @@ class BankStatement extends Model {
             }
         }
         return parent::candelete($self);
-    }
-
-    protected static function calcFiscalPeriodId($self) {
-        $result = [];
-        $self->read(['opening_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
-        foreach($self as $id => $bankStatement) {
-            foreach($bankStatement['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
-                if($bankStatement['opening_date'] >= $period['date_from'] && $bankStatement['opening_date'] <= $period['date_to']) {
-                    $result[$id] = $period_id;
-                    break;
-                }
-            }
-        }
-        return $result;
     }
 
     protected static function onrevertAlert($self) {
@@ -801,7 +746,7 @@ class BankStatement extends Model {
      * If no document is attached to the bank statement (handled as an accounting document), a Document and a DocumentProcess are created
      */
     protected static function onafterupdate($self, $auth) {
-        $self->read(['state', 'document_id', 'condo_id', 'fiscal_year_id']);
+        $self->read(['state', 'document_id', 'condo_id']);
         $user = User::id($auth->userId())->read(['employee_id'])->first();
 
         foreach($self as $id => $bankStatement) {
@@ -813,7 +758,6 @@ class BankStatement extends Model {
                         'condo_id'              => $bankStatement['condo_id'],
                         'name'                  => sprintf("%s %06d", 'extrait bancaire', $id),
                         'bank_statement_id'     => $id,
-                        'fiscal_year_id'        => $bankStatement['fiscal_year_id'],
                         'document_json'         => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT),
                         'is_origin'             => true,
                         'is_source'             => false,
