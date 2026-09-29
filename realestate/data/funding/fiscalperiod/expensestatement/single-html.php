@@ -13,6 +13,7 @@ use Twig\Environment as TwigEnvironment;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
 use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
+use finance\accounting\Account;
 use finance\accounting\FiscalPeriod;
 use identity\Identity;
 use identity\Organisation;
@@ -104,7 +105,25 @@ $formatMoney = function ($value, $currency=true) {
     return number_format((float) $value, 2, ",", ".");
 };
 
-$buildOwnerExpenses = function (array $owner): array {
+$buildOwnerExpenses = function (array $owner, string $lang): array {
+
+    $map_account_ids = [];
+    foreach($owner['property_lots'] as $lot) {
+        foreach($lot['expenses'] as $expense) {
+            foreach($expense['apportionments'] as $apportionment) {
+                foreach($apportionment['accounts'] as $account) {
+                    $map_account_ids[$account['id']] = $account['id'];
+                }
+            }
+        }
+    }
+
+    $translated_accounts = [];
+    if(count($map_account_ids)) {
+        $translated_accounts = Account::ids(array_values($map_account_ids))
+            ->read(['name'], $lang)
+            ->get();
+    }
 
     $expenses = [];
     $is_first_lot = true;
@@ -155,7 +174,7 @@ $buildOwnerExpenses = function (array $owner): array {
                         $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]
                             = [
                                 'id'            => $account['id'],
-                                'name'          => $account['name'],
+                                'name'          => $translated_accounts[$account['id']]['name'] ?? $account['name'],
                                 'code'          => $account['code'],
                                 'total_amount'  => $account['total_amount'],
                                 'owner'         => $account['owner'],
@@ -449,7 +468,7 @@ $values = [
 // #memo - here, statement_owners_ids contains schema for a single ownership (@see above)
 foreach($statement['statement_owners_ids'] as $statement_owner_id => $statementOwner) {
     $owner = $statementOwner['schema'];
-    $owner['expenses'] = $buildOwnerExpenses($owner);
+    $owner['expenses'] = $buildOwnerExpenses($owner, $lang);
     $owner['options']['show_lots_details'] =
         (bool) Setting::get_value('realestate', 'features', 'expense_statement.show_lots_details', false, ['condo_id' => $statement['condo_id']['id'], 'ownership_id' => $statementOwner['ownership_id']])
         || (bool) Setting::get_value('realestate', 'features', 'expense_statement.show_lots_details', false, ['condo_id' => $statement['condo_id']['id'], 'ownership_id' => null])

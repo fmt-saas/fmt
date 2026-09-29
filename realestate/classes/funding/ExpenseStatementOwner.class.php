@@ -98,7 +98,6 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                 'result_type'       => 'string',
                 'usage'             => 'application/json',
                 'function'          => 'calcSchema',
-                // 'multilang'         => true,
                 'store'             => false,
                 'help'              => 'This field is not intended to be stored and can safely be computed at any time since its relies on immutable data.'
             ]
@@ -139,7 +138,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
      * example : https://test1.fmtsolutions.be/?get=model_read&ids[]=159&entity=realestate\funding\ExpenseStatementOwner&fields={schema}
      *
      */
-    protected static function calcSchema($self, $lang) {
+    protected static function calcSchema($self) {
         $result = [];
 
         /*
@@ -188,7 +187,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                 $map_accounts = Account::search([
                         ['condo_id', '=', $statementOwner['condo_id']]
                     ])
-                    ->read(['code', 'name', 'parent_account_id', 'is_control_account'], $lang)
+                    ->read(['code', 'name', 'parent_account_id', 'is_control_account'])
                     ->get();
 
                 foreach($map_accounts as $account_id => $account) {
@@ -214,7 +213,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
             $accounts_ids       = array_map(fn($a) => $a['account_id'], $invoice_lines);
             $property_lots_ids  = array_map(fn($a) => $a['property_lot_id'], $invoice_lines);
 
-            $accounts = Account::ids($accounts_ids)->read(['name', 'code'], $lang)->get();
+            $accounts = Account::ids($accounts_ids)->read(['name', 'code'])->get();
             $property_lots = PropertyLot::ids($property_lots_ids)->read(['name', 'code', 'property_lot_ref', 'property_lot_nature', 'statutory_shares', 'is_primary', 'primary_lot_id'])->get();
             $apportionments = Apportionment::ids($apportionments_ids)->read(['name', 'code', 'total_shares'])->get();
 
