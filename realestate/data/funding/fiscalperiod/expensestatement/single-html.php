@@ -504,7 +504,7 @@ $template = Template::search([
         ['category', '=', 'general'],
         ['type', '=', 'document']
     ])
-    ->read(['id','parts_ids' => ['name', 'value']])
+    ->read(['id','parts_ids' => ['name', 'value']], $lang)
     ->first(true);
 
 if(!$template) {
