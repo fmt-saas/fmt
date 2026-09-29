@@ -453,13 +453,15 @@ class BroadcastMessage extends Model {
         $self->read([
             'ignore_communication_preferences',
             'ownerships_ids' => [
+                'has_external_representative',
+                'representative_identity_id' => ['email'],
                 'ownership_communication_preferences_ids' => [
                     '@domain' => ['communication_reason', '=', 'technical_communication'],
                     'is_owner',
-                    'identity_id'
+                    'identity_id' => ['email']
                 ]
             ],
-            'owners_ids' => ['identity_id'],
+            'owners_ids' => ['identity_id' => ['email']],
             'identities_ids'
         ]);
 
@@ -467,21 +469,36 @@ class BroadcastMessage extends Model {
             $target_identities_ids = [];
 
             foreach($broadcast['owners_ids'] as $owner) {
-                if($owner['identity_id']) {
-                    $target_identities_ids[$owner['identity_id']] = true;
+                $identity = $owner['identity_id'] ?? null;
+                if($identity && !empty($identity['email'])) {
+                    $target_identities_ids[$identity['id']] = true;
+                }
+            }
+
+            foreach($broadcast['ownerships_ids'] as $ownership) {
+                if(!$ownership['has_external_representative']) {
+                    continue;
+                }
+
+                $representativeIdentity = $ownership['representative_identity_id'] ?? null;
+                if($representativeIdentity && !empty($representativeIdentity['email'])) {
+                    $target_identities_ids[$representativeIdentity['id']] = true;
                 }
             }
 
             if(!$broadcast['ignore_communication_preferences']) {
                 foreach($broadcast['ownerships_ids'] as $ownership) {
                     $technicalComPreferences = $ownership['ownership_communication_preferences_ids'];
-                    if($technicalComPreferences->count() <= 0) {
-                        continue;
-                    }
+                    foreach($technicalComPreferences as $technicalComPref) {
+                        if($technicalComPref['is_owner']) {
+                            continue;
+                        }
 
-                    $technicalComPref = $technicalComPreferences->first();
-                    if(!$technicalComPref['is_owner'] && $technicalComPref['identity_id']) {
-                        $target_identities_ids[$technicalComPref['identity_id']] = true;
+                        // External representatives have no owner_id: resolve them through identity_id.
+                        $identity = $technicalComPref['identity_id'] ?? null;
+                        if($identity && !empty($identity['email'])) {
+                            $target_identities_ids[$identity['id']] = true;
+                        }
                     }
                 }
             }

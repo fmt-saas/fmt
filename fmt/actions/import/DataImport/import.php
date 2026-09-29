@@ -685,9 +685,6 @@ try {
         $map_apportionments = [];
 
         $condominium = null;
-        $map_ownership_representative_identity = [];
-        $map_ownership_representative_owner_id = [];
-
         $roles = Role::search()->read(['id', 'code']);
         foreach($roles as $role_id => $role) {
             $map_roles_ids[$role['code']] = $role['id'];
@@ -1184,8 +1181,6 @@ try {
                 $representative_identity_id = $map_owners_identity[$ownership['representative_owner_code']] ?? null;
 
                 if($representative_identity_id) {
-                    $map_ownership_representative_identity[$ownership_id] = $representative_identity_id;
-                    $map_ownership_representative_owner_id[$ownership_id] = $owner_id;
                     Ownership::id($ownership_id)
                         ->update([
                             'has_representative'        => true,
@@ -1203,7 +1198,6 @@ try {
                     continue;
                 }
 
-                $map_ownership_representative_identity[$ownership_id] = $identity_id;
                 Ownership::id($ownership_id)->update([
                         'has_external_representative'   => true,
                         'representative_identity_id'    => $identity_id
@@ -1316,9 +1310,18 @@ try {
 
             $preferences = ['general_assembly_call', 'general_assembly_minutes', 'expense_statement', 'fund_request', 'technical_communication'];
 
-            $representative_identity_id = $map_ownership_representative_identity[$ownership_id] ?? null;
-            $representative_owner_id = $map_ownership_representative_owner_id[$ownership_id] ?? null;
+            $ownership = Ownership::id($ownership_id)
+                ->read([
+                    'has_external_representative',
+                    'representative_identity_id',
+                    'representative_owner_id' => ['identity_id']
+                ])
+                ->first();
 
+            $representative_owner_id = $ownership['representative_owner_id']['id'] ?? null;
+            $representative_owner_identity_id = $ownership['representative_owner_id']['identity_id'] ?? null;
+
+            // pass-1 : representative owner
             foreach($preferences as $preference) {
                 if(!$communication_preferences[$preference]) {
                     continue;
@@ -1327,7 +1330,8 @@ try {
                 $values = [
                     'condo_id'                              => $condominium['id'],
                     'ownership_id'                          => $ownership_id,
-                    'identity_id'                           => $representative_identity_id,
+                    'is_owner'                              => true,
+                    'identity_id'                           => $representative_owner_identity_id,
                     'owner_id'                              => $representative_owner_id,
                     'communication_reason'                  => strtolower($preference),
                     'has_channel_email'                     => false,
@@ -1358,6 +1362,25 @@ try {
                 }
 
                 OwnershipCommunicationPreference::create($values);
+            }
+
+            // pass-2 : external representative, if any
+            $external_representative_identity_id = $ownership['representative_identity_id'] ?? null;
+            if(($ownership['has_external_representative'] ?? false) && $external_representative_identity_id) {
+                foreach($preferences as $preference) {
+                    OwnershipCommunicationPreference::create([
+                        'condo_id'                              => $condominium['id'],
+                        'ownership_id'                          => $ownership_id,
+                        'is_owner'                              => false,
+                        'identity_id'                           => $external_representative_identity_id,
+                        'owner_id'                              => null,
+                        'communication_reason'                  => strtolower($preference),
+                        'has_channel_email'                     => true,
+                        'has_channel_postal'                    => false,
+                        'has_channel_postal_registered'         => false,
+                        'has_channel_postal_registered_receipt' => false
+                    ]);
+                }
             }
 
             if($communication_preferences['ownership_title']) {
