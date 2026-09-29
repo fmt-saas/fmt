@@ -8,7 +8,7 @@
 use infra\quota\Quota;
 
 [$params, $providers] = eQual::announce([
-    'description'   => "Refreshes values of all quotas.",
+    'description'   => "Refreshes values of all quotas and check thresholds of active ones.",
     'params'        => [
     ],
     'response'      => [
@@ -24,8 +24,11 @@ use infra\quota\Quota;
  */
 ['context' => $context] = $providers;
 
+// #memo - refresh values even if the quota isn't active
+Quota::search()
+    ->do('refresh-value');
+
 Quota::search(['is_active', '=', true])
-    ->do('refresh-value')
     ->do('check-thresholds');
 
 $context
