@@ -275,7 +275,8 @@ class FiscalYear extends Model {
                 'icon' => 'draw',
                 'transitions' => [
                     'preopen' => [
-                        'description' => 'Update the fiscal year status to `preopen`.',
+                        'description' => 'Prepare the fiscal year for opening.',
+                        'help' => 'The fiscal year must be a consistent draft and must not precede an already open fiscal year. Missing periods are generated, period codes and names are refreshed, mandatory sequences are generated, and a following draft fiscal year is created when needed.',
                         'policies' => [
                             'can_preopen'
                         ],
@@ -284,8 +285,8 @@ class FiscalYear extends Model {
                         'status' => 'preopen'
                     ],
                     'open' => [
-                        'description' => 'Update the fiscal year status to `open`.',
-                        'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        'description' => 'Open the fiscal year for accounting entries.',
+                        'help' => 'The fiscal year must be pre-opened and consistent, and a following fiscal year must be ready for pre-opening. Opening also pre-opens the following fiscal year and makes this one the current fiscal year.',
                         'onafter' => 'onafterOpen',
                         'policies' => [
                             'can_open'
@@ -299,8 +300,8 @@ class FiscalYear extends Model {
                 'icon' => 'drive_file_rename_outline',
                 'transitions' => [
                     'open' => [
-                        'description' => 'Mark a fiscal year as open and maintain consistency with previous and next years.',
-                        'help' => 'A fiscal year can be opened before the previous one is definitely closed (previous has to be preclosed).',
+                        'description' => 'Open the fiscal year for accounting entries.',
+                        'help' => 'The fiscal year must be pre-opened and consistent, and a following fiscal year must be ready for pre-opening. Opening also pre-opens the following fiscal year and makes this one the current fiscal year.',
                         'onafter' => 'onafterOpen',
                         'policies' => [
                             'can_open',
@@ -314,8 +315,8 @@ class FiscalYear extends Model {
                 'icon' => 'pending',
                 'transitions' => [
                     'preclose' => [
-                        'description' => 'Delete the proforma and set receivables statuses back to pending.',
-                        'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        'description' => 'Pre-close the fiscal year and generate a provisional closing balance.',
+                        'help' => 'This transition is normally triggered when the last fiscal period is pre-closed. The previous fiscal year, if any, must be closed, and all periods must be pre-closed or closed.',
                         'onafter' => 'onafterPreclose',
                         'policies' => [
                             'can_preclose',
@@ -323,8 +324,8 @@ class FiscalYear extends Model {
                         'status' => 'preclosed',
                     ],
                     'close' => [
-                        'description' => 'Handle actions related to fiscal year closing.',
-                        'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        'description' => 'Close the fiscal year and generate its final closing balance.',
+                        'help' => "This transition is normally triggered when the last period's expense statement is posted. A following fiscal year must be pre-opened or open; its opening balance is generated and it is opened automatically when needed.",
                         'onbefore' => 'onbeforeClose',
                         'onafter' => 'onafterClose',
                         'policies' => [
@@ -339,8 +340,8 @@ class FiscalYear extends Model {
                 'icon' => 'lock_open',
                 'transitions' => [
                     'close' => [
-                        'description' => 'Handle actions related to fiscal year closing.',
-                        'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        'description' => 'Close the fiscal year and generate its final closing balance.',
+                        'help' => "This transition is normally triggered when the last period's expense statement is posted. A following fiscal year must be pre-opened or open; its opening balance is generated and it is opened automatically when needed.",
                         'onbefore' => 'onbeforeClose',
                         'onafter' => 'onafterClose',
                         'policies' => [
@@ -355,8 +356,8 @@ class FiscalYear extends Model {
                 'icon' => 'lock',
                 'transitions' => [
                     'repreclose' => [
-                        'description' => 'Handle actions related to fiscal year closing.',
-                        'help' => 'A fiscal year can be opened before the previous one is definitely closed.',
+                        'description' => 'Return the fiscal year to pre-closed status and reverse its closing effects.',
+                        'help' => 'Only the latest closed fiscal year can be reopened. A following fiscal year must exist and the previous one, if any, must be closed. The last period is returned to pre-closed, its posted expense statement is unlocked, and the closing and following opening balances are removed.',
                         'policies' => [
                             'can_repreclose',
                         ],

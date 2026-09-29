@@ -274,6 +274,7 @@
                                                             "ACTION.CREATE": false
                                                         }
                                                     },
+                                                    "view": "list.condo",
                                                     "actions": false,
                                                     "domain": [
                                                         ["condo_id", "=", "object.condo_id"],
