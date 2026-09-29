@@ -13,6 +13,8 @@
             "controller": "realestate_funding_fiscalyear_fundrequests_print-pdf"
         }
     ],
+    "sort": "desc",
+    "order": "request_date",
     "layout": {
         "items": [
             {
