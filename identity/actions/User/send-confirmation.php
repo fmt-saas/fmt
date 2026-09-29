@@ -119,7 +119,7 @@ try {
                 return $name ?: ($params['username'] ?: $params['login']);
             },
             'confirm_url'  => function ($params, $attributes) {
-                $code = base64_encode($params['login'].':' . $params['password']);
+                $code = rtrim(strtr(base64_encode($params['login'].':'.$params['password']), '+/', '-_'), '=');
                 $url = rtrim(constant('BACKEND_URL'), '/') . '/?do=user_confirm&code=' . rawurlencode($code);
                 $label = htmlspecialchars($attributes['title'], ENT_QUOTES, 'UTF-8');
                 $href = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
