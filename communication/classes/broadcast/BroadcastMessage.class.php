@@ -190,7 +190,7 @@ class BroadcastMessage extends Model {
         $result = [];
         $self->read(['subject', 'body', 'identities_ids' => ['email']]);
         foreach($self as $id => $broadcast) {
-            if(empty($broadcast['identities_ids'])) {
+            if($broadcast['identities_ids']->count() <= 0) {
                 $result[$id] = [
                     'identities_ids' => 'Recipients are needed.'
                 ];
@@ -348,14 +348,14 @@ class BroadcastMessage extends Model {
             }
 
             $data = [];
-            if(!empty($broadcast['ownerships_ids'])) {
-                $data['ownerships_ids'] = array_map(fn($ownership_id) => -$ownership_id, $broadcast['ownerships_ids']);
+            if($broadcast['ownerships_ids']->count() > 0) {
+                $data['ownerships_ids'] = array_map(fn($ownership_id) => -$ownership_id, $broadcast['ownerships_ids']->ids());
             }
-            if(!empty($broadcast['owners_ids'])) {
-                $data['owners_ids'] = array_map(fn($owner_id) => -$owner_id, $broadcast['owners_ids']);
+            if($broadcast['owners_ids']->count() > 0) {
+                $data['owners_ids'] = array_map(fn($owner_id) => -$owner_id, $broadcast['owners_ids']->ids());
             }
-            if(!empty($broadcast['identities_ids'])) {
-                $data['identities_ids'] = array_map(fn($owner_id) => -$owner_id, $broadcast['identities_ids']);
+            if($broadcast['identities_ids']->count() > 0) {
+                $data['identities_ids'] = array_map(fn($identity_id) => -$identity_id, $broadcast['identities_ids']->ids());
             }
 
             if(!empty($data)) {
@@ -374,21 +374,19 @@ class BroadcastMessage extends Model {
 
             if($broadcast['ignore_communication_preferences']) {
                 $added_ownerships = Ownership::ids($added_ownerships_ids)
-                    ->read(['owners_ids'])
-                    ->get();
+                    ->read(['owners_ids']);
 
                 foreach($added_ownerships as $ownership) {
-                    foreach($ownership['owners_ids'] as $owner_id) {
+                    foreach($ownership['owners_ids']->ids() as $owner_id) {
                         $owners_ids[$owner_id] = $owner_id;
                     }
                 }
 
-                $removed_ownerships = Ownership::ids($removed_ownerships_ids)
-                    ->read(['owners_ids'])
-                    ->get();
+                $removedOwnerships = Ownership::ids($removed_ownerships_ids)
+                    ->read(['owners_ids']);
 
-                foreach($removed_ownerships as $ownership) {
-                    foreach($ownership['owners_ids'] as $owner_id) {
+                foreach($removedOwnerships as $ownership) {
+                    foreach($ownership['owners_ids']->ids() as $owner_id) {
                         $owners_ids[$owner_id] = $owner_id * -1;
                     }
                 }
@@ -401,38 +399,40 @@ class BroadcastMessage extends Model {
                             'is_owner',
                             'owner_id'
                         ]
-                    ])
-                    ->get();
+                    ]);
 
                 foreach($added_ownerships as $ownership) {
-                    if(!empty($ownership['ownership_communication_preferences_ids'])) {
-                        $technical_com_pref = reset($ownership['ownership_communication_preferences_ids']);
+                    $technicalComPreferences = $ownership['ownership_communication_preferences_ids'];
+                    if($technicalComPreferences->count() <= 0) {
+                        continue;
+                    }
 
-                        if($technical_com_pref['is_owner'] && $technical_com_pref['owner_id']) {
-                            $owner_id = $technical_com_pref['owner_id'];
-                            $owners_ids[$owner_id] = $owner_id;
-                        }
+                    $technicalComPref = $technicalComPreferences->first();
+                    if($technicalComPref['is_owner'] && $technicalComPref['owner_id']) {
+                        $owner_id = $technicalComPref['owner_id'];
+                        $owners_ids[$owner_id] = $owner_id;
                     }
                 }
 
-                $removed_ownerships = Ownership::ids($removed_ownerships_ids)
+                $removedOwnerships = Ownership::ids($removed_ownerships_ids)
                     ->read([
                         'ownership_communication_preferences_ids' => [
                             '@domain' => ['communication_reason', '=', 'technical_communication'],
                             'is_owner',
                             'owner_id'
                         ]
-                    ])
-                    ->get();
+                    ]);
 
-                foreach($removed_ownerships as $ownership) {
-                    if(!empty($ownership['ownership_communication_preferences_ids'])) {
-                        $technical_com_pref = reset($ownership['ownership_communication_preferences_ids']);
+                foreach($removedOwnerships as $ownership) {
+                    $technicalComPreferences = $ownership['ownership_communication_preferences_ids'];
+                    if($technicalComPreferences->count() <= 0) {
+                        continue;
+                    }
 
-                        if($technical_com_pref['is_owner'] && $technical_com_pref['owner_id']) {
-                            $owner_id = $technical_com_pref['owner_id'];
-                            $owners_ids[$owner_id] = $owner_id * -1;
-                        }
+                    $technicalComPref = $technicalComPreferences->first();
+                    if($technicalComPref['is_owner'] && $technicalComPref['owner_id']) {
+                        $owner_id = $technicalComPref['owner_id'];
+                        $owners_ids[$owner_id] = $owner_id * -1;
                     }
                 }
             }
@@ -474,20 +474,21 @@ class BroadcastMessage extends Model {
 
             if(!$broadcast['ignore_communication_preferences']) {
                 foreach($broadcast['ownerships_ids'] as $ownership) {
-                    if(empty($ownership['ownership_communication_preferences_ids'])) {
+                    $technicalComPreferences = $ownership['ownership_communication_preferences_ids'];
+                    if($technicalComPreferences->count() <= 0) {
                         continue;
                     }
 
-                    $technical_com_pref = reset($ownership['ownership_communication_preferences_ids']);
-                    if(!$technical_com_pref['is_owner'] && $technical_com_pref['identity_id']) {
-                        $target_identities_ids[$technical_com_pref['identity_id']] = true;
+                    $technicalComPref = $technicalComPreferences->first();
+                    if(!$technicalComPref['is_owner'] && $technicalComPref['identity_id']) {
+                        $target_identities_ids[$technicalComPref['identity_id']] = true;
                     }
                 }
             }
 
             $identities_ids = array_map(
                 fn($identity_id) => $identity_id * -1,
-                $broadcast['identities_ids']
+                $broadcast['identities_ids']->ids()
             );
             $identities_ids = array_merge($identities_ids, array_keys($target_identities_ids));
 

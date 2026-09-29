@@ -90,7 +90,7 @@ foreach($broadcast['identities_ids'] as $identity) {
 
     Email::id($email_id)->update([
         'mailbox_id'                => $managementProcess['mailbox_id'],
-        'attachment_documents_ids'  => $broadcast['documents_ids']
+        'attachment_documents_ids'  => $broadcast['documents_ids']->ids()
     ]);
 }
 
