@@ -26,6 +26,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The condominium the payment relates to.",
                 'foreign_object'    => 'realestate\property\Condominium',
+                'required'          => true,
                 'readonly'          => true
             ],
 
