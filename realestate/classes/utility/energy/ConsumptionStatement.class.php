@@ -115,13 +115,11 @@ class ConsumptionStatement extends \equal\orm\Model {
             ],
 
             'statement_total' => [
-                'type'              => 'computed',
-                'result_type'       => 'float',
+                'type'              => 'float',
                 'usage'             => 'amount/money:2',
-                'function'          => 'calcStatementTotal',
-                'store'             => false,
-                'description'       => 'Total amount assigned from common expenses.',
-                'help'              => 'This is used in order to make sure all the lines have been correctly entered.'
+                'description'       => 'Total amount shown on the consumption statement.',
+                'help'              => 'Enter the statement total manually. It is used to verify the totals of the lines and allocations.',
+                'required'          => true
             ],
 
             'status' => [
@@ -147,6 +145,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'transitions' => [
                     'mark_ready' => [
                         'description' => 'Mark the consumption statement as ready for import.',
+                        'policies'    => ['is_balanced'],
                         'status'      => 'ready'
                     ],
                     'cancel' => [
@@ -202,6 +201,10 @@ class ConsumptionStatement extends \equal\orm\Model {
             'can_generate_statement_lines' => [
                 'description' => 'Verifies that the allocation of a fund request can still be updated.',
                 'function'    => 'policyCanGenerateStatementLine'
+            ],
+            'is_balanced' => [
+                'description' => 'Verifies that the statement total matches the totals of the lines and allocations.',
+                'function'    => 'policyIsBalanced'
             ]
 
         ]);
@@ -221,15 +224,33 @@ class ConsumptionStatement extends \equal\orm\Model {
         return $result;
     }
 
-    protected static function calcStatementTotal($self) {
+    protected static function policyIsBalanced($self): array {
         $result = [];
-        $self->read(['consumption_statement_lines_ids' => ['amount']]);
+        $self->read([
+            'statement_total',
+            'consumption_statement_lines_ids' => ['amount'],
+            'consumption_statement_allocations_ids' => ['amount']
+        ]);
+
         foreach($self as $id => $consumptionStatement) {
-            $result[$id] = 0.0;
+            $statement_total = round((float) $consumptionStatement['statement_total'], 2);
+            $lines_total = 0.0;
             foreach($consumptionStatement['consumption_statement_lines_ids'] as $consumptionStatementLine) {
-                $result[$id] += $consumptionStatementLine['amount'];
+                $lines_total += (float) $consumptionStatementLine['amount'];
+            }
+            if(round($lines_total, 2) != $statement_total) {
+                $result[$id]['lines_total_mismatch'] = 'The total of the statement lines must match the statement total.';
+            }
+
+            $allocations_total = 0.0;
+            foreach($consumptionStatement['consumption_statement_allocations_ids'] as $consumptionStatementAllocation) {
+                $allocations_total += (float) $consumptionStatementAllocation['amount'];
+            }
+            if(round($allocations_total, 2) != $statement_total) {
+                $result[$id]['allocations_total_mismatch'] = 'The total of the statement allocations must match the statement total.';
             }
         }
+
         return $result;
     }
 

@@ -3,6 +3,11 @@
     "plural": "Consumption statements",
     "description": "Statement grouping energy consumption data for import.",
     "model": {
+        "statement_total": {
+            "label": "Statement total",
+            "description": "Total amount shown on the consumption statement.",
+            "help": "Enter this amount manually. The statement can be marked ready only when the line and allocation totals match it."
+        },
         "status": {
             "label": "Status",
             "description": "Current status of the consumption statement.",
@@ -35,6 +40,12 @@
                     "description": "Cancel the consumption statement."
                 }
             }
+        }
+    },
+    "error": {
+        "errors": {
+            "lines_total_mismatch": "The total of the statement lines must match the statement total.",
+            "allocations_total_mismatch": "The total of the statement allocations must match the statement total."
         }
     }
 }

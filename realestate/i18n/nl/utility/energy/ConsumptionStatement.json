@@ -3,6 +3,11 @@
     "plural": "Verbruiksafrekeningen",
     "description": "Afrekening die energieverbruiksgegevens groepeert voor import.",
     "model": {
+        "statement_total": {
+            "label": "Totaal van de afrekening",
+            "description": "Totaalbedrag dat op de verbruiksafrekening staat.",
+            "help": "Voer dit bedrag handmatig in. De afrekening kan alleen als klaar worden gemarkeerd wanneer de totalen van de regels en toewijzingen hiermee overeenkomen."
+        },
         "status": {
             "label": "Status",
             "description": "Huidige status van de verbruiksafrekening.",
@@ -35,6 +40,12 @@
                     "description": "De verbruiksafrekening annuleren."
                 }
             }
+        }
+    },
+    "error": {
+        "errors": {
+            "lines_total_mismatch": "Het totaal van de afrekeningsregels moet overeenkomen met het totaal van de afrekening.",
+            "allocations_total_mismatch": "Het totaal van de toewijzingen moet overeenkomen met het totaal van de afrekening."
         }
     }
 }

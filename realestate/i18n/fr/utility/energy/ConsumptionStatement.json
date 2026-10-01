@@ -3,6 +3,11 @@
     "plural": "Relevés de consommation",
     "description": "",
     "model": {
+        "statement_total": {
+            "label": "Total du relevé",
+            "description": "Montant total indiqué sur le relevé de consommation.",
+            "help": "Saisissez ce montant manuellement. Le relevé ne peut être marqué comme prêt que si les totaux des lignes et des allocations lui correspondent."
+        },
         "consumption_file_id": {
             "label": "Dossier de consommation",
             "description": "Dossier de consommation auquel le relevé est rattaché.",
@@ -40,6 +45,12 @@
                     "description": "Annuler le relevé de consommation."
                 }
             }
+        }
+    },
+    "error": {
+        "errors": {
+            "lines_total_mismatch": "Le total des lignes doit correspondre au total du relevé.",
+            "allocations_total_mismatch": "Le total des allocations doit correspondre au total du relevé."
         }
     }
 }
