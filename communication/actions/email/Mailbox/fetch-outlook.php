@@ -120,68 +120,137 @@ do {
         $message_id = $msg['id'];
         $internet_id = $msg['internetMessageId'] ?? ('graph-' . $message_id);
 
-        // Skip already imported
-        if(Email::search(['message_id', '=', $internet_id])->first()) {
+        $email = Email::search(['message_id', '=', $internet_id])
+            ->read(['status'])
+            ->first();
+
+        // Resume interrupted imports, but skip messages that were fully processed.
+        if($email && $email['status'] === 'processed') {
             continue;
         }
 
         $message_date = strtotime($msg['receivedDateTime'] ?? '');
 
-        // create email record
-        $email = Email::create([
-                'mailbox_id' => $mailbox['id'],
-                'message_id' => $internet_id,
-                'subject'    => substr($msg['subject'] ?: '(no subject)', 0, 255),
-                'from'       => $msg['from']['emailAddress']['address'] ?? '',
-                'to'         => $msg['toRecipients'][0]['emailAddress']['address'] ?? '',
-                'direction'  => 'incoming',
-                'date'       => $message_date,
-                'body'       => $msg['body']['content'] ?? ''
+        if(!$email) {
+            $email = Email::create([
+                'mailbox_id'              => $mailbox['id'],
+                'message_id'              => $internet_id,
+                'subject'                 => substr($msg['subject'] ?: '(no subject)', 0, 255),
+                'from'                    => $msg['from']['emailAddress']['address'] ?? '',
+                'to'                      => $msg['toRecipients'][0]['emailAddress']['address'] ?? '',
+                'direction'               => 'incoming',
+                'date'                    => $message_date,
+                'body'                    => $msg['body']['content'] ?? '',
+                'attachment_import_status' => 'pending'
             ])
-            ->read(['thread_hash'])
-            ->first();
+                ->read(['thread_hash'])
+                ->first();
+        }
+
+        /*
+         * Index documents that might have been created by an interrupted import.
+         * This prevents duplicates when the message is resumed.
+         */
+        $existing_documents_by_signature = [];
+        $existing_documents = Document::search(['email_id', '=', $email['id']])
+            ->read(['name', 'hash_sha256', 'document_process_id']);
+
+        foreach($existing_documents as $document_id => $document) {
+            $signature = $document['name'] . "\0" . $document['hash_sha256'];
+            $existing_documents_by_signature[$signature][] = [
+                'id'                  => $document_id,
+                'document_process_id' => $document['document_process_id']
+            ];
+        }
 
         // handle attachments
         $encoded_message_id = rawurlencode($message_id);
-        $attUrl = "https://graph.microsoft.com/v1.0/me/messages/{$encoded_message_id}/attachments";
-
-        $attReq = new HttpRequest("GET $attUrl");
-        $attRes = $attReq
-            ->header("Authorization", "Bearer " . $mailbox['access_token'])
-            ->send();
-
-        $attData = $attRes->body();
-        $attStatus = $attRes->getStatusCode();
-
-        if($attStatus < 200 || $attStatus > 299) {
-            trigger_error("APP::Graph API attachments error: " . json_encode($attData), EQ_REPORT_ERROR);
-            throw new Exception("graph_api_attachments_error", EQ_ERROR_INVALID_PARAM);
-        }
-
-        $attachments = $attData['value'] ?? [];
+        $attachments_url = "https://graph.microsoft.com/v1.0/me/messages/{$encoded_message_id}/attachments";
+        $attachment_count = 0;
+        $has_unsupported_attachment = false;
 
         // #todo - en cas d'absence de document, reponse automatique pour dire donnant le cadre dans lequel ce mail sera traite (pas lu, uniq. piece jointe) -> si info importante : envoyer sur autre adresse
 
-        foreach($attachments as $att) {
+        do {
+            $attReq = new HttpRequest("GET $attachments_url");
+            $attRes = $attReq
+                ->header("Authorization", "Bearer " . $mailbox['access_token'])
+                ->send();
 
-            if(!isset($att['contentBytes'])) {
-                continue;
+            $attData = $attRes->body();
+            $attStatus = $attRes->getStatusCode();
+
+            if($attStatus < 200 || $attStatus > 299) {
+                trigger_error("APP::Graph API attachments error: " . json_encode($attData), EQ_REPORT_ERROR);
+                throw new Exception("graph_api_attachments_error", EQ_ERROR_INVALID_PARAM);
             }
 
-            // limit to "doc" attachments : pdf, doc(x), xls(x)
-            $mime = $att['contentType'] ?? null;
+            $attachments = $attData['value'] ?? [];
 
-            if(!in_array($mime, $allowed_mime_types, true)) {
-                continue;
+            foreach($attachments as $att) {
+                // Inline resources (for example signature images) are not user attachments.
+                if(($att['isInline'] ?? false) === true) {
+                    continue;
+                }
+
+                ++$attachment_count;
+
+                $attachment_type = $att['@odata.type'] ?? null;
+                $mime = strtolower(trim(explode(';', $att['contentType'] ?? '')[0]));
+
+                if(
+                    ($attachment_type && $attachment_type !== '#microsoft.graph.fileAttachment')
+                    || !isset($att['contentBytes'])
+                    || !in_array($mime, $allowed_mime_types, true)
+                ) {
+                    $has_unsupported_attachment = true;
+                    continue;
+                }
+
+                $attachment_data = base64_decode($att['contentBytes'], true);
+
+                if($attachment_data === false || $attachment_data === '') {
+                    $has_unsupported_attachment = true;
+                    continue;
+                }
+
+                $attachment_name = trim($att['name'] ?? '') ?: 'attachment';
+                $signature = $attachment_name . "\0" . hash('sha256', $attachment_data);
+
+                if(!empty($existing_documents_by_signature[$signature])) {
+                    $existing_document = array_shift($existing_documents_by_signature[$signature]);
+
+                    if(!$existing_document['document_process_id']) {
+                        Document::id($existing_document['id'])->do('start_processing');
+                    }
+
+                    continue;
+                }
+
+                Document::create([
+                        'name'     => $attachment_name,
+                        'data'     => $attachment_data,
+                        'email_id' => $email['id']
+                    ])
+                    ->do('start_processing');
             }
 
-            Document::create([
-                    'name'     => $att['name'],
-                    'data'     => base64_decode($att['contentBytes']),
-                    'email_id' => $email['id']
-                ])
-                ->do('start_processing');
+            $attachments_url = $attData['@odata.nextLink'] ?? null;
         }
+        while($attachments_url);
+
+        $attachment_import_status = 'complete';
+        if($attachment_count === 0) {
+            $attachment_import_status = 'missing';
+        }
+        elseif($has_unsupported_attachment) {
+            $attachment_import_status = 'unsupported';
+        }
+
+        Email::id($email['id'])->update([
+            'attachment_import_status' => $attachment_import_status,
+            'status'                   => 'processed'
+        ]);
 
         ++$imported_messages_count;
         if($message_date !== false) {

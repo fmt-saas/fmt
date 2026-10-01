@@ -115,45 +115,105 @@ try {
     foreach($messages_buffer as $message) {
         $message_id = $message->getMessageId();
 
-        $email = Email::search(['message_id', '=', $message_id])->first();
+        $email = Email::search(['message_id', '=', $message_id])
+            ->read(['status'])
+            ->first();
 
-        if($email) {
+        // Resume interrupted imports, but skip messages that were fully processed.
+        if($email && $email['status'] === 'processed') {
             continue;
         }
 
         $message_date = strtotime($message->getDate());
 
-        $email = Email::create([
-                'mailbox_id'    => $mailbox['id'],
-                'message_id'    => $message_id,
-                'subject'       => substr($message->getSubject() ?: '(no subject)', 0, 255),
-                'from'          => $message->getFrom()[0]->mail ?? '',
-                'to'            => $message->getTo()[0]->mail ?? '',
-                'direction'     => 'incoming',
-                'date'          => $message_date,
-                'body'          => $message->getHTMLBody() ?? ($message->getTextBody() ?? ''),
-            ])
-            ->read(['thread_hash'])
-            ->first();
+        if(!$email) {
+            $email = Email::create([
+                    'mailbox_id'              => $mailbox['id'],
+                    'message_id'              => $message_id,
+                    'subject'                 => substr($message->getSubject() ?: '(no subject)', 0, 255),
+                    'from'                    => $message->getFrom()[0]->mail ?? '',
+                    'to'                      => $message->getTo()[0]->mail ?? '',
+                    'direction'               => 'incoming',
+                    'date'                    => $message_date,
+                    'body'                    => $message->getHTMLBody() ?? ($message->getTextBody() ?? ''),
+                    'attachment_import_status' => 'pending'
+                ])
+                ->read(['thread_hash'])
+                ->first();
+        }
+
+        $existing_documents_by_signature = [];
+        $existing_documents = Document::search(['email_id', '=', $email['id']])
+            ->read(['name', 'hash_sha256', 'document_process_id']);
+
+        foreach($existing_documents as $document_id => $document) {
+            $signature = $document['name'] . "\0" . $document['hash_sha256'];
+            $existing_documents_by_signature[$signature][] = [
+                'id'                  => $document_id,
+                'document_process_id' => $document['document_process_id']
+            ];
+        }
 
         // handle attachments
+        $attachment_count = 0;
+        $has_unsupported_attachment = false;
 
         // #todo - en cas d'absence de document, réponse automatique pour dire donnant le cadre dans lequel ce mail sera traité (pas lu, uniq. pièce jointe) -> si info importante : envoyer sur autre adresse
 
         foreach($message->getAttachments() as $attachment) {
-            // limit to "doc" attachments : pdf, doc(x), xls(x)
-            if(!in_array($attachment->mime, $allowed_mime_types)) {
+            $disposition = strtolower(trim((string) $attachment->getDisposition()));
+            if(str_starts_with($disposition, 'inline')) {
+                continue;
+            }
+
+            ++$attachment_count;
+
+            $mime = strtolower(trim(explode(';', $attachment->getContentType() ?? '')[0]));
+            if(!in_array($mime, $allowed_mime_types, true)) {
+                $has_unsupported_attachment = true;
+                continue;
+            }
+
+            $attachment_data = $attachment->getContent();
+            if($attachment_data === null || $attachment_data === '') {
+                $has_unsupported_attachment = true;
+                continue;
+            }
+
+            $attachment_name = trim($attachment->getName() ?? '') ?: 'attachment';
+            $signature = $attachment_name . "\0" . hash('sha256', $attachment_data);
+
+            if(!empty($existing_documents_by_signature[$signature])) {
+                $existing_document = array_shift($existing_documents_by_signature[$signature]);
+
+                if(!$existing_document['document_process_id']) {
+                    Document::id($existing_document['id'])->do('start_processing');
+                }
+
                 continue;
             }
 
             Document::create([
-                    'name'      => $attachment->getName(),
-                    'data'      => $attachment->getContent(),
+                    'name'      => $attachment_name,
+                    'data'      => $attachment_data,
                     'email_id'  => $email['id']
                 ])
                 // create related DocumentProcess object
                 ->do('start_processing');
         }
+
+        $attachment_import_status = 'complete';
+        if($attachment_count === 0) {
+            $attachment_import_status = 'missing';
+        }
+        elseif($has_unsupported_attachment) {
+            $attachment_import_status = 'unsupported';
+        }
+
+        Email::id($email['id'])->update([
+            'attachment_import_status' => $attachment_import_status,
+            'status'                   => 'processed'
+        ]);
 
         ++$imported_messages_count;
         if($message_date !== false) {

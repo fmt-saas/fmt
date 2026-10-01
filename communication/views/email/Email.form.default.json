@@ -151,6 +151,13 @@
                                         "items": [
                                             {
                                                 "type": "field",
+                                                "value": "attachment_import_status",
+                                                "width": "100%",
+                                                "readonly": true,
+                                                "visible": ["direction", "=", "incoming"]
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "attachment_documents_ids",
                                                 "width": "100%",
                                                 "visible": ["direction", "=", "outgoing"]

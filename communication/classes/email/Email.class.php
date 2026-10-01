@@ -83,6 +83,19 @@ class Email extends Model {
                 'visible'           => ['direction', '=', 'incoming']
             ],
 
+            'attachment_import_status' => [
+                'type'              => 'string',
+                'selection'         => [
+                    'pending',
+                    'complete',
+                    'unsupported',
+                    'missing'
+                ],
+                'description'       => 'Result of importing attachments from an incoming email.',
+                'help'              => 'Indicates whether attachments were imported, unsupported, missing, or are still pending.',
+                'visible'           => ['direction', '=', 'incoming']
+            ],
+
             'case_file_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'tracking\CaseFile',
@@ -189,7 +202,7 @@ class Email extends Model {
                     'processed'
                 ],
                 'default'           => 'pending',
-                'description'       => 'Sending status of the mail.',
+                'description'       => 'Processing status of the email.',
                 'onupdate'          => 'onupdateStatus'
             ]
 
@@ -228,7 +241,7 @@ class Email extends Model {
             if($email['direction'] !== 'outgoing') {
                 continue;
             }
-            if($email['status'] === 'sent') {
+            if($email['status'] === 'processed') {
                 $metric_def = MetricDefinition::search(['code', '=', 'email.outbound.count'])
                     ->read(['id'])
                     ->first();

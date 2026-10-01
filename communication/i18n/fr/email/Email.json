@@ -63,15 +63,24 @@
             "description": "Documents joints à ce message sortant.",
             "help": ""
         },
+        "attachment_import_status": {
+            "label": "Import des pièces jointes",
+            "description": "Résultat de l'import des pièces jointes du message entrant.",
+            "help": "Les images intégrées au corps du message, comme les signatures, ne sont pas comptabilisées.",
+            "selection": {
+                "pending": "En attente",
+                "complete": "Complet",
+                "unsupported": "Format non pris en charge",
+                "missing": "Aucune pièce jointe"
+            }
+        },
         "status": {
             "label": "Statut",
-            "description": "Indique si l'Email est en attente ou traité (sortant).",
+            "description": "Indique si l'email est en attente ou traité.",
             "help": "",
             "selection": {
                 "pending" : "en attente",
-                "failing" : "en échec",
-                "processed" : "traité",
-                "sent" : "envoyé"
+                "processed" : "traité"
             }
         },
         "response_status": {
