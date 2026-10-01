@@ -106,8 +106,7 @@ $tests = [
                     'remaining_amount',
                     'is_paid',
                     'status',
-                    'funding_allocations_ids',
-                    'payments_ids'
+                    'funding_allocations_ids'
                 ])
                 ->first(true);
 
@@ -119,7 +118,7 @@ $tests = [
 
             return [
                 'funding_allocation_count'  => count($after_assignment_refresh['funding_allocations_ids']),
-                'payment_count'             => count($after_assignment_refresh['payments_ids']),
+                'payment_count'             => count(Payment::search(['funding_id', '=', $funding_id])->ids()),
                 'after_assignment_refresh'  => [
                     'paid_amount'      => $after_assignment_refresh['paid_amount'],
                     'remaining_amount' => $after_assignment_refresh['remaining_amount'],
