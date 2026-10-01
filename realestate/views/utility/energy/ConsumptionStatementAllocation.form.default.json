@@ -1,6 +1,6 @@
 {
-    "name": "Consumption Statement Line",
-    "description": "Edit an individual line of an energy consumption statement.",
+    "name": "Consumption Statement Allocation",
+    "description": "Edit an allocation of a consumption statement amount.",
     "layout": {
         "groups": [
             {
@@ -24,27 +24,17 @@
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "ownership_id",
+                                                "value": "account_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "property_lot_id",
+                                                "value": "apportionment_id",
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "amount",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "page_from",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "page_to",
                                                 "width": "100%"
                                             }
                                         ]

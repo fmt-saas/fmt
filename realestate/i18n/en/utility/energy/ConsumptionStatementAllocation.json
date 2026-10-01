@@ -1,0 +1,42 @@
+{
+    "name": "Consumption statement allocation",
+    "plural": "Consumption statement allocations",
+    "description": "Allocation of a consumption statement amount to an accounting account and an apportionment.",
+    "model": {
+        "condo_id": {
+            "label": "Condominium",
+            "description": "Condominium the allocation relates to.",
+            "help": "Select the condominium that owns the statement, account and apportionment."
+        },
+        "consumption_statement_id": {
+            "label": "Consumption statement",
+            "description": "Consumption statement the allocation relates to.",
+            "help": "Only statements from the selected condominium are available."
+        },
+        "account_id": {
+            "label": "Accounting account",
+            "description": "Accounting account the allocated amount relates to.",
+            "help": "Only accounts from the selected condominium are available."
+        },
+        "apportionment_id": {
+            "label": "Apportionment",
+            "description": "Apportionment used to distribute the allocated amount.",
+            "help": "Only apportionments from the selected condominium are available."
+        },
+        "amount": {
+            "label": "Amount",
+            "description": "Amount allocated to the accounting account and apportionment.",
+            "help": "Enter the amount of the consumption statement assigned to this allocation."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Consumption statement allocation",
+            "description": "Edit an allocation of a consumption statement amount."
+        },
+        "list.default": {
+            "name": "Consumption statement allocations",
+            "description": "Allocations of consumption statement amounts by accounting account and apportionment."
+        }
+    }
+}

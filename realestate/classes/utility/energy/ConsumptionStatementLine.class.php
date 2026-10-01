@@ -13,6 +13,10 @@ class ConsumptionStatementLine extends \equal\orm\Model {
         return 'Consumption Statement Line';
     }
 
+    public static function getDescription() {
+        return 'Line assigning an amount from a consumption statement to a property lot and an ownership.';
+    }
+
     public static function getColumns() {
         return [
             'condo_id' => [
@@ -25,8 +29,11 @@ class ConsumptionStatementLine extends \equal\orm\Model {
             'consumption_statement_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\utility\energy\ConsumptionStatement',
-                'description'       => "Period of the fiscal year the consumption statement relates to.",
-                'dependents'        => ['parent_consumption_meter_id']
+                'description'       => 'Consumption statement the line belongs to.',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'dependents'        => ['parent_consumption_meter_id'],
+                'ondelete'          => 'cascade',
+                'required'          => true
             ],
 
             'parent_consumption_meter_id' => [
@@ -51,14 +58,16 @@ class ConsumptionStatementLine extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The ownership that the line refers to (based on accounting account).",
                 'foreign_object'    => 'realestate\ownership\Ownership',
-                'domain'            => [['condo_id', '=', 'object.condo_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id']],
+                'required'          => true
             ],
 
             'property_lot_id' => [
                 'type'              => 'many2one',
                 'description'       => "Property Lot to apply the charge to.",
                 'foreign_object'    => 'realestate\property\PropertyLot',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'required'          => true
             ],
 
             // intersection between the statement period and the propertyLotOwnership
@@ -93,10 +102,12 @@ class ConsumptionStatementLine extends \equal\orm\Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
             ],
 
-            'price' => [
+            'amount' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
-                'description'       => 'Final tax-included price for targeted consumptions.'
+                'description'       => 'Amount assigned to the property lot and ownership.',
+                'default'           => 0.0,
+                'required'          => true
             ]
 
         ];

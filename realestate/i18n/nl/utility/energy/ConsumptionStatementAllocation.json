@@ -1,0 +1,42 @@
+{
+    "name": "Verdeling van verbruiksafrekening",
+    "plural": "Verdelingen van verbruiksafrekeningen",
+    "description": "Verdeling van een bedrag van een verbruiksafrekening over een boekhoudrekening en een verdeelsleutel.",
+    "model": {
+        "condo_id": {
+            "label": "Mede-eigendom",
+            "description": "Mede-eigendom waarop de verdeling betrekking heeft.",
+            "help": "Selecteer de mede-eigendom waartoe de afrekening, rekening en verdeelsleutel behoren."
+        },
+        "consumption_statement_id": {
+            "label": "Verbruiksafrekening",
+            "description": "Verbruiksafrekening waarop de verdeling betrekking heeft.",
+            "help": "Alleen afrekeningen van de geselecteerde mede-eigendom zijn beschikbaar."
+        },
+        "account_id": {
+            "label": "Boekhoudrekening",
+            "description": "Boekhoudrekening waarop het verdeelde bedrag betrekking heeft.",
+            "help": "Alleen rekeningen van de geselecteerde mede-eigendom zijn beschikbaar."
+        },
+        "apportionment_id": {
+            "label": "Verdeelsleutel",
+            "description": "Verdeelsleutel die wordt gebruikt om het bedrag te verdelen.",
+            "help": "Alleen verdeelsleutels van de geselecteerde mede-eigendom zijn beschikbaar."
+        },
+        "amount": {
+            "label": "Bedrag",
+            "description": "Bedrag dat aan de boekhoudrekening en verdeelsleutel is toegewezen.",
+            "help": "Voer het bedrag van de verbruiksafrekening in dat aan deze verdeling is toegewezen."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Verdeling van verbruiksafrekening",
+            "description": "Bewerk een verdeling van een bedrag van een verbruiksafrekening."
+        },
+        "list.default": {
+            "name": "Verdelingen van verbruiksafrekeningen",
+            "description": "Verdelingen van bedragen van verbruiksafrekeningen per boekhoudrekening en verdeelsleutel."
+        }
+    }
+}

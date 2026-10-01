@@ -1,0 +1,37 @@
+{
+    "name": "Dossier de consommation",
+    "plural": "Dossiers de consommation",
+    "description": "Dossier fournisseur regroupant des relevés de consommation pour une copropriété.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété concernée par le dossier de consommation.",
+            "help": ""
+        },
+        "suppliership_id": {
+            "label": "Contrat fournisseur",
+            "description": "Contrat fournisseur associé au dossier de consommation.",
+            "help": "Doit appartenir à la copropriété."
+        },
+        "code": {
+            "label": "Code",
+            "description": "Code identifiant le dossier de consommation.",
+            "help": ""
+        },
+        "name": {
+            "label": "Nom",
+            "description": "Nom affiché du dossier de consommation, composé du nom du fournisseur et du code du dossier.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Dossier de consommation",
+            "description": "Formulaire d'édition d'un dossier de consommation."
+        },
+        "list.default": {
+            "name": "Dossiers de consommation",
+            "description": "Liste des dossiers de consommation."
+        }
+    }
+}

@@ -84,27 +84,11 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'required'          => true
             ],
 
-            // (décompte eau et chaufffage)
-            'accounting_account_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'store'             => false,
-                'relation'          => ['consumption_meter_id' => 'accounting_account_id'],
-                'foreign_object'    => 'finance\accounting\Account',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
-                'readonly'          => true
-            ],
-
-            'apportionment_id' => [
-                'type'              => 'computed',
-                'result_type'       => 'many2one',
-                'store'             => false,
-                'relation'          => ['consumption_meter_id' => 'apportionment_id'],
-                'description'       => "The key that the apportionment refers to.",
-                'foreign_object'    => 'realestate\property\Apportionment',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_statutory', '=', false], ['is_active', '=', true], ['status', '=', 'validated']],
-                'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
-                'readonly'          => true
+            'consumption_file_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\utility\energy\ConsumptionFile',
+                'description'       => 'The consumption file the statement belongs to.',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             /*
@@ -120,6 +104,13 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'description'       => "Period of the fiscal year the consumption statement relates to."
             ],
 
+            'consumption_statement_allocations_ids' => [
+                'type'              => 'one2many',
+                'foreign_object'    => 'realestate\utility\energy\ConsumptionStatementAllocation',
+                'foreign_field'     => 'consumption_statement_id',
+                'description'       => 'Allocations of the consumption statement amount.'
+            ],
+
 
             'statement_total' => [
                 'type'              => 'computed',
@@ -133,14 +124,14 @@ class ConsumptionStatement extends \equal\orm\Model {
 
             'status' => [
                 'type'              => 'string',
+                'description'       => 'Current status of the invoice.',
                 'selection'         => [
-                    'proforma',
-                    'posted',
+                    'draft',
+                    'ready',
+                    'imported',
+                    'cancelled',
                 ],
-                'description'       => 'Status of the reading.',
-                'default'           => 'proforma',
-                // cannot be set manually
-                'readonly'          => true
+                'default'           => 'draft'
             ],
 
         ];
@@ -148,19 +139,43 @@ class ConsumptionStatement extends \equal\orm\Model {
 
     public static function getWorkflow() {
         return [
-            'proforma' => [
-                'description' => 'Draft consumption statement, pending and still waiting to be completed.',
-                'icon' => 'edit',
+            'draft' => [
+                'description' => 'The consumption statement is being prepared.',
+                'icon'        => 'edit',
                 'transitions' => [
-                    'post' => [
-                        'description' => 'Update the consumption statement. Generate a Misc Operation, generate accounting entries and validate accounting entries.',
-                        'policies'    => [
-                            'can_post'
-                        ],
-                        'onbefore'  => 'onbeforePost',
-                        'status'    => 'posted',
+                    'mark_ready' => [
+                        'description' => 'Mark the consumption statement as ready for import.',
+                        'status'      => 'ready'
+                    ],
+                    'cancel' => [
+                        'description' => 'Cancel the consumption statement.',
+                        'status'      => 'cancelled'
                     ]
-                ],
+                ]
+            ],
+            'ready' => [
+                'description' => 'The consumption statement is ready for import.',
+                'icon'        => 'check',
+                'transitions' => [
+                    'mark_imported' => [
+                        'description' => 'Mark the consumption statement as imported.',
+                        'status'      => 'imported'
+                    ],
+                    'cancel' => [
+                        'description' => 'Cancel the consumption statement.',
+                        'status'      => 'cancelled'
+                    ]
+                ]
+            ],
+            'imported' => [
+                'description' => 'The consumption statement has been imported.',
+                'icon'        => 'done',
+                'transitions' => []
+            ],
+            'cancelled' => [
+                'description' => 'The consumption statement has been cancelled.',
+                'icon'        => 'cancel',
+                'transitions' => []
             ]
         ];
     }
@@ -182,10 +197,6 @@ class ConsumptionStatement extends \equal\orm\Model {
 
     public static function getPolicies(): array {
         return array_merge(parent::getPolicies(), [
-            'can_post' => [
-                'description' => 'Verifies that the allocation of a fund request can still be updated.',
-                'function'    => 'policyCanPost'
-            ],
             'can_generate_statement_lines' => [
                 'description' => 'Verifies that the allocation of a fund request can still be updated.',
                 'function'    => 'policyCanGenerateStatementLine'
@@ -196,38 +207,11 @@ class ConsumptionStatement extends \equal\orm\Model {
 
     protected static function policyCanGenerateStatementLine($self) {
         $result = [];
-        $self->read(['status', 'accounting_account_id', 'statement_total']);
+        $self->read(['status']);
         foreach($self as $id => $expenseStatement) {
-            if($expenseStatement['status'] !== 'proforma') {
+            if($expenseStatement['status'] !== 'draft') {
                 $result[$id] = [
-                    'invalid_status' => 'Lines can only be generated while statement is in proforma.'
-                ];
-                continue;
-            }
-        }
-        return $result;
-    }
-
-    protected static function policyCanPost($self): array {
-        $result = [];
-        $self->read(['status', 'accounting_account_id', 'statement_total']);
-        foreach($self as $id => $expenseStatement) {
-            if($expenseStatement['status'] !== 'proforma') {
-                $result[$id] = [
-                    'invalid_status' => 'Already cancelled.'
-                ];
-                continue;
-            }
-            if(!$expenseStatement['accounting_account_id']) {
-                $result[$id] = [
-                    'invalid_account' => 'An accounting account must be specified.'
-                ];
-                continue;
-            }
-
-            if($expenseStatement['statement_total'] <= 0.01) {
-                $result[$id] = [
-                    'invalid_total' => 'Statement total must be greater than 0.'
+                    'invalid_status' => 'Lines can only be generated while the statement is in draft.'
                 ];
                 continue;
             }
@@ -237,18 +221,14 @@ class ConsumptionStatement extends \equal\orm\Model {
 
     protected static function calcStatementTotal($self) {
         $result = [];
-        $self->read(['consumption_statement_lines_ids' => ['price']]);
+        $self->read(['consumption_statement_lines_ids' => ['amount']]);
         foreach($self as $id => $consumptionStatement) {
             $result[$id] = 0.0;
             foreach($consumptionStatement['consumption_statement_lines_ids'] as $consumptionStatementLine) {
-                $result[$id] += $consumptionStatementLine['price'];
+                $result[$id] += $consumptionStatementLine['amount'];
             }
         }
         return $result;
-    }
-
-    protected static function onbeforePost($self) {
-        $self->do('generate_misc_operation');
     }
 
     protected static function doGenerateStatementLines($self) {
@@ -306,7 +286,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'accounting_account_id',
                 'apportionment_id',
                 'statement_total',
-                'consumption_statement_lines_ids' => ['price', 'property_lot_id', 'ownership_id']
+                'consumption_statement_lines_ids' => ['amount', 'property_lot_id', 'ownership_id']
             ]);
 
         foreach($self as $id => $consumptionStatement) {
@@ -366,7 +346,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                         'is_private_expense'        => true,
                         'ownership_id'              => $ownership_id,
                         'property_lot_id'           => $consumptionStatementLine['property_lot_id'],
-                        'debit'                     => $consumptionStatementLine['price'],
+                        'debit'                     => $consumptionStatementLine['amount'],
                         'credit'                    => 0.0,
                         'owner_share'               => 0,
                         'tenant_share'              => 100

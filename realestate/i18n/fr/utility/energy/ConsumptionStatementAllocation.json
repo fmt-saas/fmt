@@ -1,0 +1,42 @@
+{
+    "name": "Ventilation de relevé de consommation",
+    "plural": "Ventilations de relevé de consommation",
+    "description": "Ventilation d'un montant de relevé de consommation sur un compte comptable et une clé de répartition.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle la ventilation se rapporte.",
+            "help": "Sélectionnez la copropriété dont dépendent le relevé, le compte et la clé de répartition."
+        },
+        "consumption_statement_id": {
+            "label": "Relevé de consommation",
+            "description": "Relevé de consommation auquel la ventilation se rapporte.",
+            "help": "Seuls les relevés de la copropriété sélectionnée sont disponibles."
+        },
+        "account_id": {
+            "label": "Compte comptable",
+            "description": "Compte comptable auquel le montant ventilé se rapporte.",
+            "help": "Seuls les comptes de la copropriété sélectionnée sont disponibles."
+        },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé de répartition utilisée pour répartir le montant ventilé.",
+            "help": "Seules les clés de répartition de la copropriété sélectionnée sont disponibles."
+        },
+        "amount": {
+            "label": "Montant",
+            "description": "Montant ventilé sur le compte comptable et la clé de répartition.",
+            "help": "Saisissez le montant du relevé de consommation affecté à cette ventilation."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Ventilation de relevé de consommation",
+            "description": "Modifier une ventilation de montant d'un relevé de consommation."
+        },
+        "list.default": {
+            "name": "Ventilations de relevé de consommation",
+            "description": "Ventilations des montants de relevés de consommation par compte comptable et clé de répartition."
+        }
+    }
+}

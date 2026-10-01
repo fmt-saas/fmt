@@ -1,0 +1,40 @@
+{
+    "name": "Consumption statement",
+    "plural": "Consumption statements",
+    "description": "Statement grouping energy consumption data for import.",
+    "model": {
+        "status": {
+            "label": "Status",
+            "description": "Current status of the consumption statement.",
+            "help": "Indicates the current processing stage of the statement.",
+            "selection": {
+                "draft": "Draft",
+                "ready": "Ready",
+                "imported": "Imported",
+                "cancelled": "Cancelled"
+            }
+        }
+    },
+    "view": {
+        "form.default": {
+            "actions": {
+                "action.generate_lines": {
+                    "label": "Generate",
+                    "description": "Generate the statement lines."
+                },
+                "action.mark_ready": {
+                    "label": "Mark ready",
+                    "description": "Mark the consumption statement as ready for import."
+                },
+                "action.mark_imported": {
+                    "label": "Mark imported",
+                    "description": "Mark the consumption statement as imported."
+                },
+                "action.cancel": {
+                    "label": "Cancel",
+                    "description": "Cancel the consumption statement."
+                }
+            }
+        }
+    }
+}

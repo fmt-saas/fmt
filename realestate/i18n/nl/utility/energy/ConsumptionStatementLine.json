@@ -1,0 +1,77 @@
+{
+    "name": "Lijn van verbruiksafrekening",
+    "plural": "Lijnen van verbruiksafrekeningen",
+    "description": "Lijn die een bedrag van een verbruiksafrekening toewijst aan een privatieve kavel en een eigendomsdossier.",
+    "model": {
+        "condo_id": {
+            "label": "Mede-eigendom",
+            "description": "Mede-eigendom waarop de lijn betrekking heeft.",
+            "help": "De privatieve kavel en het eigendomsdossier moeten tot deze mede-eigendom behoren."
+        },
+        "consumption_statement_id": {
+            "label": "Verbruiksafrekening",
+            "description": "Verbruiksafrekening waartoe de lijn behoort.",
+            "help": "Selecteer de verbruiksafrekening die deze lijn bevat."
+        },
+        "parent_consumption_meter_id": {
+            "label": "Hoofdmeter",
+            "description": "Hoofdverbruiksmeter die aan de afrekening is gekoppeld.",
+            "help": "Deze meter wordt automatisch overgenomen van de verbruiksafrekening."
+        },
+        "consumption_meter_id": {
+            "label": "Verbruiksmeter",
+            "description": "Individuele verbruiksmeter die aan de lijn is gekoppeld.",
+            "help": "Selecteer de meter die aan de privatieve kavel is gekoppeld."
+        },
+        "ownership_id": {
+            "label": "Eigendomsdossier",
+            "description": "Eigendomsdossier waaraan het bedrag wordt toegewezen.",
+            "help": "Selecteer het eigendomsdossier waarop dit verbruiksbedrag betrekking heeft."
+        },
+        "property_lot_id": {
+            "label": "Privatieve kavel",
+            "description": "Privatieve kavel waaraan het bedrag wordt toegewezen.",
+            "help": "Selecteer de privatieve kavel waarop dit verbruiksbedrag betrekking heeft."
+        },
+        "date_from": {
+            "label": "Begindatum",
+            "description": "Eerste datum waarop het eigendomsdossier door de lijn wordt betroffen.",
+            "help": "Deze datum kan afwijken van de begindatum van de afrekening bij een eigendomsoverdracht."
+        },
+        "date_to": {
+            "label": "Einddatum",
+            "description": "Laatste datum waarop het eigendomsdossier door de lijn wordt betroffen.",
+            "help": "Deze datum kan afwijken van de einddatum van de afrekening bij een eigendomsoverdracht."
+        },
+        "page_from": {
+            "label": "Eerste pagina",
+            "description": "Eerste pagina van het gedeelte voor de privatieve kavel in het brondocument.",
+            "help": "Voer de eerste pagina in die voor deze lijn moet worden geëxtraheerd."
+        },
+        "page_to": {
+            "label": "Laatste pagina",
+            "description": "Laatste pagina van het gedeelte voor de privatieve kavel in het brondocument.",
+            "help": "Voer de laatste pagina in die voor deze lijn moet worden geëxtraheerd."
+        },
+        "document_id": {
+            "label": "Document",
+            "description": "Afrekeningsdocument dat specifiek is voor het eigendomsdossier.",
+            "help": "Document dat uit het opgegeven paginabereik wordt gegenereerd."
+        },
+        "amount": {
+            "label": "Bedrag",
+            "description": "Bedrag dat aan de privatieve kavel en het eigendomsdossier wordt toegewezen.",
+            "help": "Voer het verbruiksbedrag voor deze lijn in."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Lijn van verbruiksafrekening",
+            "description": "Bewerk een lijn van een verbruiksafrekening."
+        },
+        "list.default": {
+            "name": "Lijnen van verbruiksafrekeningen",
+            "description": "Verbruiksbedragen per privatieve kavel en eigendomsdossier."
+        }
+    }
+}

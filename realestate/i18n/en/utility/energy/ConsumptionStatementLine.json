@@ -1,0 +1,77 @@
+{
+    "name": "Consumption statement line",
+    "plural": "Consumption statement lines",
+    "description": "Line assigning an amount from a consumption statement to a property lot and an ownership.",
+    "model": {
+        "condo_id": {
+            "label": "Condominium",
+            "description": "Condominium the line relates to.",
+            "help": "The property lot and ownership must belong to this condominium."
+        },
+        "consumption_statement_id": {
+            "label": "Consumption statement",
+            "description": "Consumption statement the line belongs to.",
+            "help": "Select the consumption statement containing this line."
+        },
+        "parent_consumption_meter_id": {
+            "label": "Parent meter",
+            "description": "Main consumption meter associated with the statement.",
+            "help": "This meter is inherited automatically from the consumption statement."
+        },
+        "consumption_meter_id": {
+            "label": "Consumption meter",
+            "description": "Individual consumption meter associated with the line.",
+            "help": "Select the meter linked to the property lot."
+        },
+        "ownership_id": {
+            "label": "Ownership file",
+            "description": "Ownership file to which the amount is assigned.",
+            "help": "Select the ownership file concerned by this consumption amount."
+        },
+        "property_lot_id": {
+            "label": "Property lot",
+            "description": "Property lot to which the amount is assigned.",
+            "help": "Select the property lot concerned by this consumption amount."
+        },
+        "date_from": {
+            "label": "Start date",
+            "description": "First date on which the ownership is concerned by the statement line.",
+            "help": "This date may differ from the statement start date when an ownership transfer occurred."
+        },
+        "date_to": {
+            "label": "End date",
+            "description": "Last date on which the ownership is concerned by the statement line.",
+            "help": "This date may differ from the statement end date when an ownership transfer occurred."
+        },
+        "page_from": {
+            "label": "First page",
+            "description": "First page of the property lot section in the source document.",
+            "help": "Enter the first page to extract for this line."
+        },
+        "page_to": {
+            "label": "Last page",
+            "description": "Last page of the property lot section in the source document.",
+            "help": "Enter the last page to extract for this line."
+        },
+        "document_id": {
+            "label": "Document",
+            "description": "Statement document specific to the ownership.",
+            "help": "Document generated from the selected page range."
+        },
+        "amount": {
+            "label": "Amount",
+            "description": "Amount assigned to the property lot and ownership.",
+            "help": "Enter the consumption amount for this line."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Consumption statement line",
+            "description": "Edit a consumption statement line."
+        },
+        "list.default": {
+            "name": "Consumption statement lines",
+            "description": "Consumption amounts by property lot and ownership."
+        }
+    }
+}

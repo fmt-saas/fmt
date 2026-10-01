@@ -1,0 +1,77 @@
+{
+    "name": "Ligne de relevé de consommation",
+    "plural": "Lignes de relevé de consommation",
+    "description": "Ligne affectant un montant d'un relevé de consommation à un lot privatif et à un dossier de propriété.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle la ligne se rapporte.",
+            "help": "Le lot privatif et le dossier de propriété doivent appartenir à cette copropriété."
+        },
+        "consumption_statement_id": {
+            "label": "Relevé de consommation",
+            "description": "Relevé de consommation auquel la ligne appartient.",
+            "help": "Sélectionnez le relevé de consommation contenant cette ligne."
+        },
+        "parent_consumption_meter_id": {
+            "label": "Compteur parent",
+            "description": "Compteur de consommation principal associé au relevé.",
+            "help": "Ce compteur est repris automatiquement depuis le relevé de consommation."
+        },
+        "consumption_meter_id": {
+            "label": "Compteur de consommation",
+            "description": "Compteur de consommation individuel associé à la ligne.",
+            "help": "Sélectionnez le compteur lié au lot privatif."
+        },
+        "ownership_id": {
+            "label": "Dossier de propriété",
+            "description": "Dossier de propriété auquel le montant est affecté.",
+            "help": "Sélectionnez le dossier de propriété concerné par ce montant de consommation."
+        },
+        "property_lot_id": {
+            "label": "Lot privatif",
+            "description": "Lot privatif auquel le montant est affecté.",
+            "help": "Sélectionnez le lot privatif concerné par ce montant de consommation."
+        },
+        "date_from": {
+            "label": "Date de début",
+            "description": "Première date à laquelle le dossier de propriété est concerné par la ligne.",
+            "help": "Cette date peut différer de celle du relevé lorsqu'un transfert de propriété a eu lieu."
+        },
+        "date_to": {
+            "label": "Date de fin",
+            "description": "Dernière date à laquelle le dossier de propriété est concerné par la ligne.",
+            "help": "Cette date peut différer de celle du relevé lorsqu'un transfert de propriété a eu lieu."
+        },
+        "page_from": {
+            "label": "Première page",
+            "description": "Première page de la section du lot dans le document source.",
+            "help": "Indiquez la première page à extraire pour cette ligne."
+        },
+        "page_to": {
+            "label": "Dernière page",
+            "description": "Dernière page de la section du lot dans le document source.",
+            "help": "Indiquez la dernière page à extraire pour cette ligne."
+        },
+        "document_id": {
+            "label": "Document",
+            "description": "Document de relevé propre au dossier de propriété.",
+            "help": "Document généré à partir de la plage de pages renseignée."
+        },
+        "amount": {
+            "label": "Montant",
+            "description": "Montant affecté au lot privatif et au dossier de propriété.",
+            "help": "Saisissez le montant de consommation de cette ligne."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Ligne de relevé de consommation",
+            "description": "Modifier une ligne de relevé de consommation."
+        },
+        "list.default": {
+            "name": "Lignes de relevé de consommation",
+            "description": "Montants de consommation par lot privatif et dossier de propriété."
+        }
+    }
+}

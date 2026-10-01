@@ -1,5 +1,6 @@
 {
-    "name": "Consumption Statement Line",
+    "name": "Consumption Statement Allocations",
+    "description": "Allocations of consumption statement amounts by accounting account and apportionment.",
     "header": {
         "layout": "inline",
         "actions": {
@@ -24,38 +25,27 @@
             {
                 "type": "field",
                 "value": "condo_id",
-                "width": "10%",
-                "visible": false
+                "width": "15%"
             },
             {
                 "type": "field",
                 "value": "consumption_statement_id",
-                "width": "20%"
+                "width": "25%"
             },
             {
                 "type": "field",
-                "value": "property_lot_id",
-                "width": "20%"
+                "value": "account_id",
+                "width": "25%"
             },
             {
                 "type": "field",
-                "value": "ownership_id",
-                "width": "20%"
+                "value": "apportionment_id",
+                "width": "25%"
             },
             {
                 "type": "field",
                 "value": "amount",
-                "width": "16%"
-            },
-            {
-                "type": "field",
-                "value": "page_from",
-                "width": "12%"
-            },
-            {
-                "type": "field",
-                "value": "page_to",
-                "width": "12%"
+                "width": "10%"
             }
         ]
     }

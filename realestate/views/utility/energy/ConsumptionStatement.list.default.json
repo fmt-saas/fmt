@@ -43,6 +43,11 @@
             },
             {
                 "type": "field",
+                "value": "consumption_file_id",
+                "width": "10%"
+            },
+            {
+                "type": "field",
                 "value": "statement_total",
                 "width": "10%"
             },

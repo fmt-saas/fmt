@@ -11,7 +11,7 @@
             "visible": [
                 "status",
                 "=",
-                "proforma"
+                "draft"
             ],
             "params": {
                 "entity": "realestate\\utility\\energy\\ConsumptionStatement",
@@ -21,22 +21,63 @@
             "confirm": false
         },
         {
-            "id": "action.post",
-            "label": "Post",
-            "icon": "play_arrow",
-            "description": "Generate resulting Misc Operation.",
+            "id": "action.mark_ready",
+            "label": "Mark ready",
+            "icon": "check",
+            "description": "Mark the consumption statement as ready for import.",
             "controller": "core_model_transition",
             "visible": [
                 "status",
                 "=",
-                "proforma"
+                "draft"
             ],
             "params": {
                 "entity": "realestate\\utility\\energy\\ConsumptionStatement",
-                "transition": "post",
+                "transition": "mark_ready",
                 "ids": []
             },
             "confirm": false
+        },
+        {
+            "id": "action.mark_imported",
+            "label": "Mark imported",
+            "icon": "done",
+            "description": "Mark the consumption statement as imported.",
+            "controller": "core_model_transition",
+            "visible": [
+                "status",
+                "=",
+                "ready"
+            ],
+            "params": {
+                "entity": "realestate\\utility\\energy\\ConsumptionStatement",
+                "transition": "mark_imported",
+                "ids": []
+            },
+            "confirm": false
+        },
+        {
+            "id": "action.cancel",
+            "label": "Cancel",
+            "icon": "cancel",
+            "description": "Cancel the consumption statement.",
+            "controller": "core_model_transition",
+            "visible": [
+                [
+                    "status",
+                    "in",
+                    [
+                        "draft",
+                        "ready"
+                    ]
+                ]
+            ],
+            "params": {
+                "entity": "realestate\\utility\\energy\\ConsumptionStatement",
+                "transition": "cancel",
+                "ids": []
+            },
+            "confirm": true
         }
     ],
     "layout": {
@@ -53,17 +94,23 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "fiscal_year_id",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "consumption_meter_id",
-                                                "width": "33%"
+                                                "width": "25%",
+                                                "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "consumption_file_id",
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
@@ -79,18 +126,6 @@
                                                 "type": "field",
                                                 "value": "date_to",
                                                 "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Account",
-                                                "value": "accounting_account_id",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label": "Apportionment",
-                                                "value": "apportionment_id",
-                                                "width": "50%"
                                             }
                                         ]
                                     },
@@ -116,6 +151,33 @@
                                                 "value": "status",
                                                 "width": "100%",
                                                 "visible": false
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "visible": [
+                    "state",
+                    "<>",
+                    "draft"
+                ],
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "consumption_statement_allocations_ids",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

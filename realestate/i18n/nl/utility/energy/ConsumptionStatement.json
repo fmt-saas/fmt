@@ -1,0 +1,40 @@
+{
+    "name": "Verbruiksafrekening",
+    "plural": "Verbruiksafrekeningen",
+    "description": "Afrekening die energieverbruiksgegevens groepeert voor import.",
+    "model": {
+        "status": {
+            "label": "Status",
+            "description": "Huidige status van de verbruiksafrekening.",
+            "help": "Geeft de huidige verwerkingsfase van de afrekening aan.",
+            "selection": {
+                "draft": "Concept",
+                "ready": "Klaar",
+                "imported": "Geïmporteerd",
+                "cancelled": "Geannuleerd"
+            }
+        }
+    },
+    "view": {
+        "form.default": {
+            "actions": {
+                "action.generate_lines": {
+                    "label": "Genereren",
+                    "description": "De afrekeningsregels genereren."
+                },
+                "action.mark_ready": {
+                    "label": "Als klaar markeren",
+                    "description": "De verbruiksafrekening als klaar voor import markeren."
+                },
+                "action.mark_imported": {
+                    "label": "Als geïmporteerd markeren",
+                    "description": "De verbruiksafrekening als geïmporteerd markeren."
+                },
+                "action.cancel": {
+                    "label": "Annuleren",
+                    "description": "De verbruiksafrekening annuleren."
+                }
+            }
+        }
+    }
+}

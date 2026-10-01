@@ -2,6 +2,24 @@
     "name": "Relevé de consommation",
     "plural": "Relevés de consommation",
     "description": "",
+    "model": {
+        "consumption_file_id": {
+            "label": "Dossier de consommation",
+            "description": "Dossier de consommation auquel le relevé est rattaché.",
+            "help": "Le dossier doit appartenir à la même copropriété."
+        },
+        "status": {
+            "label": "Statut",
+            "description": "Statut actuel du relevé de consommation.",
+            "help": "Indique l'étape actuelle du traitement du relevé.",
+            "selection": {
+                "draft": "Brouillon",
+                "ready": "Prêt",
+                "imported": "Importé",
+                "cancelled": "Annulé"
+            }
+        }
+    },
     "view": {
         "form.default": {
             "actions": {
@@ -9,9 +27,17 @@
                     "label": "Générer",
                     "description": "Générer les lignes du relevé."
                 },
-                "action.post": {
-                    "label": "Passer",
-                    "description": "Créer l'opération diverse correspondante."
+                "action.mark_ready": {
+                    "label": "Marquer comme prêt",
+                    "description": "Marquer le relevé de consommation comme prêt à être importé."
+                },
+                "action.mark_imported": {
+                    "label": "Marquer comme importé",
+                    "description": "Marquer le relevé de consommation comme importé."
+                },
+                "action.cancel": {
+                    "label": "Annuler",
+                    "description": "Annuler le relevé de consommation."
                 }
             }
         }
