@@ -80,15 +80,15 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\utility\energy\ConsumptionMeter',
                 'description'       => 'The meter ID relates to the consumption meter reading in the booking.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['meter_scope', '=', 'master']],
-                'required'          => true
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['meter_scope', '=', 'master']]
             ],
 
             'consumption_file_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\utility\energy\ConsumptionFile',
                 'description'       => 'The consumption file the statement belongs to.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'required'          => true
             ],
 
             /*
