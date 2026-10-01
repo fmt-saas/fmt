@@ -230,6 +230,8 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
             ]);
 
         foreach($self as $id => $ownershipCommunicationPreference) {
+            /*
+            // #memo #todo - this is either incorrect or incomplete : identity can either be direct with an external representative, or the identity linked to the selected owner
             if(!empty($values['has_channel_email'])) {
                 $identity_id = array_key_exists('identity_id', $values)
                     ? $values['identity_id']
@@ -242,6 +244,7 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                     return ['has_channel_email' => ['email_missing' => 'An email address is required when email is used as communication channel.']];
                 }
             }
+            */
 
             $ownership_id = $ownershipCommunicationPreference['ownership_id']['id'];
             $identity_id = $ownershipCommunicationPreference['identity_id'];
