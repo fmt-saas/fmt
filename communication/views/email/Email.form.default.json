@@ -152,7 +152,15 @@
                                             {
                                                 "type": "field",
                                                 "value": "attachment_documents_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "visible": ["direction", "=", "outgoing"]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "documents_ids",
+                                                "width": "100%",
+                                                "readonly": true,
+                                                "visible": ["direction", "=", "incoming"]
                                             }
                                         ]
                                     }

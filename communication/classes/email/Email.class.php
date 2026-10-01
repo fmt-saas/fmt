@@ -56,7 +56,8 @@ class Email extends Model {
                 'rel_foreign_key'   => 'document_id',
                 'rel_local_key'     => 'email_id',
                 'description'       => 'Documents attached to the email.',
-                'help'              => 'Documents linked to the email message to be sent as attachments.'
+                'help'              => 'Documents linked to the email message to be sent as attachments.',
+                'visible'           => ['direction', '=', 'outgoing']
             ],
 
             'ownership_id' => [
@@ -78,7 +79,8 @@ class Email extends Model {
                 'foreign_field'     => 'email_id',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'Documents attached to the email.',
-                'help'              => 'Document that was created when importing attachment from the email message.'
+                'help'              => 'Document that was created when importing attachment from the email message.',
+                'visible'           => ['direction', '=', 'incoming']
             ],
 
             'case_file_id' => [

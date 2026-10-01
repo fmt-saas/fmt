@@ -54,8 +54,13 @@
             "help": ""
         },
         "documents_ids": {
-            "label": "Documents liés",
-            "description": "Pièces jointes ou documents indexés avec ce message.",
+            "label": "Pièces jointes reçues",
+            "description": "Documents importés avec ce message entrant.",
+            "help": ""
+        },
+        "attachment_documents_ids": {
+            "label": "Pièces jointes à envoyer",
+            "description": "Documents joints à ce message sortant.",
             "help": ""
         },
         "status": {
