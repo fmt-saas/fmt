@@ -120,7 +120,7 @@ $buildOwnerExpenses = function (array $owner, string $lang): array {
 
     $translated_accounts = [];
     if(count($map_account_ids)) {
-        $translated_accounts = Account::ids(array_values($map_account_ids))
+        $translated_accounts = Account::ids(array_keys($map_account_ids))
             ->read(['name'], $lang)
             ->get();
     }
@@ -171,8 +171,7 @@ $buildOwnerExpenses = function (array $owner, string $lang): array {
                     if(!isset(
                         $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]
                     )) {
-                        $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code]
-                            = [
+                        $expenses[$expense_type]['apportionments'][$apportionment_id]['accounts'][$account_code] = [
                                 'id'            => $account['id'],
                                 'name'          => $translated_accounts[$account['id']]['name'] ?? $account['name'],
                                 'code'          => $account['code'],

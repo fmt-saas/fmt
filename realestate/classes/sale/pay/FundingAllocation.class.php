@@ -9,7 +9,6 @@ namespace realestate\sale\pay;
 
 use equal\orm\Model;
 use finance\accounting\Journal;
-use finance\bank\BankStatement;
 use finance\bank\BankStatementLine;
 
 class FundingAllocation extends Model {
@@ -24,8 +23,9 @@ class FundingAllocation extends Model {
         return "sale_pay_payment";
     }
 
+    // FundingAllocation is not scoped and, therefore, includes Payment objects
     public static function getModelScope(): ?string {
-        return self::class;
+        return null;
     }
 
     public static function getDescription() {

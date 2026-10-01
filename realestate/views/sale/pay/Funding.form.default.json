@@ -297,7 +297,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "payments_ids",
+                                                "value": "funding_allocations_ids",
                                                 "width": "100%"
                                             }
                                         ]
