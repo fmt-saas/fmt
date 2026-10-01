@@ -39,6 +39,23 @@ use documents\Document;
  * Functions *
  *************/
 
+$getCleanedHtml = function($html) {
+    $cleaned_html = preg_replace(
+        [
+            '~<head\b[^>]*>.*?</head\s*>~is',
+            '~<script\b[^>]*>.*?</script\s*>~is',
+            '~<style\b[^>]*>.*?</style\s*>~is',
+            '~<(?:meta|link|base)\b[^>]*>~is',
+            '~</?(?:html|body)\b[^>]*>~i',
+            '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i'
+        ],
+        '',
+        (string) $html
+    );
+
+    return $cleaned_html ?? '';
+};
+
 /**
  * Returns a page of emails that were received after the given timestamp
  *
@@ -247,7 +264,7 @@ $allowed_mime_types = [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ];
 
-$max_messages_per_fetch = 50;
+$max_messages_per_fetch = 25;
 $gmail_page_size = 50;
 
 // check consistency
@@ -329,20 +346,20 @@ foreach($message_refs as $message_ref) {
         }
     }
 
-    $body = $extractMessageBody($message['payload']);
+    $body = $getCleanedHtml($extractMessageBody($message['payload']));
     $message_date = strtotime($headers['Date']);
     $message_internal_date = !empty($message['internalDate']) ? intval($message['internalDate'] / 1000) : null;
 
     if(!$email) {
         $email = Email::create([
-                'mailbox_id'              => $mailbox['id'],
-                'message_id'              => $message_id,
-                'subject'                 => substr($headers['Subject'], 0, 255),
-                'from'                    => $extractEmailAddress($headers['From']),
-                'to'                      => $extractEmailAddress($headers['To']),
-                'direction'               => 'incoming',
-                'date'                    => $message_date,
-                'body'                    => $body,
+                'mailbox_id'               => $mailbox['id'],
+                'message_id'               => $message_id,
+                'subject'                  => substr($headers['Subject'], 0, 255),
+                'from'                     => $extractEmailAddress($headers['From']),
+                'to'                       => $extractEmailAddress($headers['To']),
+                'direction'                => 'incoming',
+                'date'                     => $message_date,
+                'body'                     => $body,
                 'attachment_import_status' => 'pending'
             ])
             ->read(['thread_hash'])
@@ -364,17 +381,21 @@ foreach($message_refs as $message_ref) {
     $attachments = $extractMessageAttachments($message['payload']);
     $attachment_count = count($attachments);
     $has_unsupported_attachment = false;
+    $ignored_attachment_names = [];
 
     foreach($attachments as $attachment) {
+        $attachment_name = trim($attachment['filename'] ?? '') ?: 'attachment';
         $mime = strtolower(trim(explode(';', $attachment['mimeType'] ?? '')[0]));
 
         if(!in_array($mime, $allowed_mime_types, true)) {
             $has_unsupported_attachment = true;
+            $ignored_attachment_names[] = $attachment_name;
             continue;
         }
 
         if(!$attachment['data'] && !$attachment['attachmentId']) {
             $has_unsupported_attachment = true;
+            $ignored_attachment_names[] = $attachment_name;
             continue;
         }
 
@@ -387,10 +408,10 @@ foreach($message_refs as $message_ref) {
 
         if($attachment_data === false || $attachment_data === '') {
             $has_unsupported_attachment = true;
+            $ignored_attachment_names[] = $attachment_name;
             continue;
         }
 
-        $attachment_name = trim($attachment['filename'] ?? '') ?: 'attachment';
         $signature = $attachment_name . "\0" . hash('sha256', $attachment_data);
 
         if(!empty($existing_documents_by_signature[$signature])) {
@@ -421,6 +442,7 @@ foreach($message_refs as $message_ref) {
 
     Email::id($email['id'])->update([
         'attachment_import_status' => $attachment_import_status,
+        'ignored_attachments_log'  => implode("\n", $ignored_attachment_names),
         'status'                   => 'processed'
     ]);
 

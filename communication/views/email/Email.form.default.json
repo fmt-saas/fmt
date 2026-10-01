@@ -1,6 +1,25 @@
 {
     "name": "Email",
     "description": "Compose or review an email message with its metadata.",
+    "actions": [
+        {
+            "id": "action.force_attachment_import_complete",
+            "label": "Mark attachment import as complete",
+            "icon": "check_circle",
+            "description": "Mark ignored attachments as manually reviewed.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "communication\\email\\Email",
+                "action": "force_attachment_import_complete",
+                "ids": []
+            },
+            "confirm": true,
+            "visible": [
+                ["direction", "=", "incoming"],
+                ["attachment_import_status", "=", "unsupported"]
+            ]
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -151,13 +170,6 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "attachment_import_status",
-                                                "width": "100%",
-                                                "readonly": true,
-                                                "visible": ["direction", "=", "incoming"]
-                                            },
-                                            {
-                                                "type": "field",
                                                 "value": "attachment_documents_ids",
                                                 "width": "100%",
                                                 "visible": ["direction", "=", "outgoing"]
@@ -168,6 +180,37 @@
                                                 "width": "100%",
                                                 "readonly": true,
                                                 "visible": ["direction", "=", "incoming"]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.attachments_logs",
+                        "label": "Attachments Status",
+                        "visible": ["direction", "=", "incoming"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "attachment_import_status",
+                                                "width": "100%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ignored_attachments_log",
+                                                "width": "100%",
+                                                "readonly": true,
+                                                "widget": {
+                                                    "height": "200"
+                                                }
                                             }
                                         ]
                                     }

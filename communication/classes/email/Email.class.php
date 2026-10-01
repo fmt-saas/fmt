@@ -96,6 +96,14 @@ class Email extends Model {
                 'visible'           => ['direction', '=', 'incoming']
             ],
 
+            'ignored_attachments_log' => [
+                'type'              => 'string',
+                'usage'             => 'text/plain',
+                'description'       => 'Names of incoming email attachments that were ignored during import.',
+                'help'              => 'Contains one ignored attachment name per line.',
+                'visible'           => ['direction', '=', 'incoming']
+            ],
+
             'case_file_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'tracking\CaseFile',
@@ -207,6 +215,51 @@ class Email extends Model {
             ]
 
         ];
+    }
+
+    public static function getPolicies(): array {
+        return array_merge(parent::getPolicies(), [
+            'can_force_attachment_import_complete' => [
+                'description' => 'Checks whether an attachment import can be manually marked as complete.',
+                'function'    => 'policyCanForceAttachmentImportComplete'
+            ]
+        ]);
+    }
+
+    public static function getActions(): array {
+        return array_merge(parent::getActions(), [
+            'force_attachment_import_complete' => [
+                'description' => 'Mark the attachment import as complete after a manual review.',
+                'policies'    => ['can_force_attachment_import_complete'],
+                'function'    => 'doForceAttachmentImportComplete'
+            ]
+        ]);
+    }
+
+    protected static function policyCanForceAttachmentImportComplete($self): array {
+        $result = [];
+
+        $self->read(['direction', 'attachment_import_status']);
+        foreach($self as $id => $email) {
+            if($email['direction'] !== 'incoming') {
+                $result[$id] = [
+                    'invalid_direction' => 'Only incoming emails can have their attachment import manually completed.'
+                ];
+                continue;
+            }
+
+            if($email['attachment_import_status'] !== 'unsupported') {
+                $result[$id] = [
+                    'invalid_attachment_import_status' => 'Only an unsupported attachment import can be manually completed.'
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function doForceAttachmentImportComplete($self) {
+        $self->update(['attachment_import_status' => 'complete']);
     }
 
     protected static function calcHasError($self) {

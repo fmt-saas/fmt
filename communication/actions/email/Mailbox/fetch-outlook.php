@@ -39,14 +39,35 @@ use equal\http\HttpRequest;
 ['context' => $context, 'auth' => $auth] = $providers;
 
 
+$getCleanedHtml = function($html) {
+    $cleaned_html = preg_replace(
+        [
+            '~<head\b[^>]*>.*?</head\s*>~is',
+            '~<script\b[^>]*>.*?</script\s*>~is',
+            '~<style\b[^>]*>.*?</style\s*>~is',
+            '~<(?:meta|link|base)\b[^>]*>~is',
+            '~</?(?:html|body)\b[^>]*>~i',
+            '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i'
+        ],
+        '',
+        (string) $html
+    );
+
+    return $cleaned_html ?? '';
+};
+
+
 $allowed_mime_types = [
+        'text/xml',
+        'application/xml',
         'application/pdf',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     ];
-$max_messages_per_fetch = 50;
+
+$max_messages_per_fetch = 25;
 $graph_page_size = 50;
 
 
@@ -133,14 +154,14 @@ do {
 
         if(!$email) {
             $email = Email::create([
-                'mailbox_id'              => $mailbox['id'],
-                'message_id'              => $internet_id,
-                'subject'                 => substr($msg['subject'] ?: '(no subject)', 0, 255),
-                'from'                    => $msg['from']['emailAddress']['address'] ?? '',
-                'to'                      => $msg['toRecipients'][0]['emailAddress']['address'] ?? '',
-                'direction'               => 'incoming',
-                'date'                    => $message_date,
-                'body'                    => $msg['body']['content'] ?? '',
+                'mailbox_id'               => $mailbox['id'],
+                'message_id'               => $internet_id,
+                'subject'                  => substr($msg['subject'] ?: '(no subject)', 0, 255),
+                'from'                     => $msg['from']['emailAddress']['address'] ?? '',
+                'to'                       => $msg['toRecipients'][0]['emailAddress']['address'] ?? '',
+                'direction'                => 'incoming',
+                'date'                     => $message_date,
+                'body'                     => $getCleanedHtml($msg['body']['content'] ?? ''),
                 'attachment_import_status' => 'pending'
             ])
                 ->read(['thread_hash'])
@@ -168,6 +189,7 @@ do {
         $attachments_url = "https://graph.microsoft.com/v1.0/me/messages/{$encoded_message_id}/attachments";
         $attachment_count = 0;
         $has_unsupported_attachment = false;
+        $ignored_attachment_names = [];
 
         // #todo - en cas d'absence de document, reponse automatique pour dire donnant le cadre dans lequel ce mail sera traite (pas lu, uniq. piece jointe) -> si info importante : envoyer sur autre adresse
 
@@ -195,6 +217,7 @@ do {
 
                 ++$attachment_count;
 
+                $attachment_name = trim($att['name'] ?? '') ?: 'attachment';
                 $attachment_type = $att['@odata.type'] ?? null;
                 $mime = strtolower(trim(explode(';', $att['contentType'] ?? '')[0]));
 
@@ -204,6 +227,7 @@ do {
                     || !in_array($mime, $allowed_mime_types, true)
                 ) {
                     $has_unsupported_attachment = true;
+                    $ignored_attachment_names[] = $attachment_name;
                     continue;
                 }
 
@@ -211,10 +235,10 @@ do {
 
                 if($attachment_data === false || $attachment_data === '') {
                     $has_unsupported_attachment = true;
+                    $ignored_attachment_names[] = $attachment_name;
                     continue;
                 }
 
-                $attachment_name = trim($att['name'] ?? '') ?: 'attachment';
                 $signature = $attachment_name . "\0" . hash('sha256', $attachment_data);
 
                 if(!empty($existing_documents_by_signature[$signature])) {
@@ -249,6 +273,7 @@ do {
 
         Email::id($email['id'])->update([
             'attachment_import_status' => $attachment_import_status,
+            'ignored_attachments_log'  => implode("\n", $ignored_attachment_names),
             'status'                   => 'processed'
         ]);
 

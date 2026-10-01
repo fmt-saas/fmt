@@ -40,6 +40,23 @@ use documents\Document;
  */
 ['context' => $context, 'orm' => $om, 'auth' => $auth] = $providers;
 
+$getCleanedHtml = function($html) {
+    $cleaned_html = preg_replace(
+        [
+            '~<head\b[^>]*>.*?</head\s*>~is',
+            '~<script\b[^>]*>.*?</script\s*>~is',
+            '~<style\b[^>]*>.*?</style\s*>~is',
+            '~<(?:meta|link|base)\b[^>]*>~is',
+            '~</?(?:html|body)\b[^>]*>~i',
+            '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i'
+        ],
+        '',
+        (string) $html
+    );
+
+    return $cleaned_html ?? '';
+};
+
 $allowed_mime_types = [
         'text/xml',
         'application/xml',
@@ -49,6 +66,8 @@ $allowed_mime_types = [
         'application/vnd.ms-excel',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ];
+
+$max_messages_per_fetch = 25;
 
 // check consistency
 $mailbox = Mailbox::id($params['id'])
@@ -115,10 +134,21 @@ try {
 
     // limit query to messages received since last sync
     $messages = $inbox->query()->since($mailbox['date_last_sync'])->get();
+    $messages_buffer = [];
+    foreach($messages as $message) {
+        $messages_buffer[] = $message;
+    }
+
+    usort($messages_buffer, function($message_a, $message_b) {
+        return strtotime($message_a->getDate()) <=> strtotime($message_b->getDate());
+    });
 
     $new_date_last_sync = time();
+    $imported_messages_count = 0;
+    $fetch_limit_reached = false;
+    $last_processed_message_date = null;
 
-    foreach($messages as $message) {
+    foreach($messages_buffer as $message) {
         $message_id = $message->getMessageId();
 
         $email = Email::search(['message_id', '=', $message_id])
@@ -130,16 +160,18 @@ try {
             continue;
         }
 
+        $message_date = strtotime($message->getDate());
+
         if(!$email) {
             $email = Email::create([
-                    'mailbox_id'              => $mailbox['id'],
-                    'message_id'              => $message_id,
-                    'subject'                 => substr($message->getSubject() ?: '(no subject)', 0, 255),
-                    'from'                    => $message->getFrom()[0]->mail ?? '',
-                    'to'                      => $message->getTo()[0]->mail ?? '',
-                    'direction'               => 'incoming',
-                    'date'                    => strtotime($message->getDate()),
-                    'body'                    => $message->getHTMLBody() ?? ($message->getTextBody() ?? ''),
+                    'mailbox_id'               => $mailbox['id'],
+                    'message_id'               => $message_id,
+                    'subject'                  => substr($message->getSubject() ?: '(no subject)', 0, 255),
+                    'from'                     => $message->getFrom()[0]->mail ?? '',
+                    'to'                       => $message->getTo()[0]->mail ?? '',
+                    'direction'                => 'incoming',
+                    'date'                     => $message_date,
+                    'body'                     => $getCleanedHtml($message->getHTMLBody() ?? ($message->getTextBody() ?? '')),
                     'attachment_import_status' => 'pending'
                 ])
                 ->read(['thread_hash'])
@@ -161,6 +193,7 @@ try {
         // handle attachments
         $attachment_count = 0;
         $has_unsupported_attachment = false;
+        $ignored_attachment_names = [];
 
         // #todo - en cas d'absence de document, réponse automatique pour dire donnant le cadre dans lequel ce mail sera traité (pas lu, uniq. pièce jointe) -> si info importante : envoyer sur autre adresse
 
@@ -172,19 +205,21 @@ try {
 
             ++$attachment_count;
 
+            $attachment_name = trim($attachment->getName() ?? '') ?: 'attachment';
             $mime = strtolower(trim(explode(';', $attachment->getContentType() ?? '')[0]));
             if(!in_array($mime, $allowed_mime_types, true)) {
                 $has_unsupported_attachment = true;
+                $ignored_attachment_names[] = $attachment_name;
                 continue;
             }
 
             $attachment_data = $attachment->getContent();
             if($attachment_data === null || $attachment_data === '') {
                 $has_unsupported_attachment = true;
+                $ignored_attachment_names[] = $attachment_name;
                 continue;
             }
 
-            $attachment_name = trim($attachment->getName() ?? '') ?: 'attachment';
             $signature = $attachment_name . "\0" . hash('sha256', $attachment_data);
 
             if(!empty($existing_documents_by_signature[$signature])) {
@@ -216,11 +251,27 @@ try {
 
         Email::id($email['id'])->update([
             'attachment_import_status' => $attachment_import_status,
+            'ignored_attachments_log'  => implode("\n", $ignored_attachment_names),
             'status'                   => 'processed'
         ]);
+
+        ++$imported_messages_count;
+        if($message_date !== false) {
+            $last_processed_message_date = $message_date;
+        }
+
+        if($imported_messages_count >= $max_messages_per_fetch) {
+            $fetch_limit_reached = true;
+            break;
+        }
     }
 
-    Mailbox::id($mailbox['id'])->update(['date_last_sync' => $new_date_last_sync]);
+    if($fetch_limit_reached && $last_processed_message_date !== null) {
+        Mailbox::id($mailbox['id'])->update(['date_last_sync' => max(0, $last_processed_message_date - 1)]);
+    }
+    else {
+        Mailbox::id($mailbox['id'])->update(['date_last_sync' => $new_date_last_sync]);
+    }
 
     $client->disconnect();
 

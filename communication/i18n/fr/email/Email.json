@@ -74,6 +74,11 @@
                 "missing": "Aucune pièce jointe"
             }
         },
+        "ignored_attachments_log": {
+            "label": "Pièces jointes ignorées",
+            "description": "Noms des pièces jointes qui n'ont pas été acceptées lors de l'import.",
+            "help": "Une pièce jointe ignorée est affichée par ligne."
+        },
         "status": {
             "label": "Statut",
             "description": "Indique si l'email est en attente ou traité.",
@@ -98,6 +103,12 @@
         "form.default": {
             "name": "Email",
             "description": "Formulaire détaillé d'un message (participants, contenu, pièces jointes).",
+            "actions": {
+                "action.force_attachment_import_complete": {
+                    "label": "Marquer l'import comme complet",
+                    "description": "Confirmer après vérification manuelle que les pièces jointes ignorées ont été examinées."
+                }
+            },
             "layout": {
                 "section.message": {
                     "label": "Message"
@@ -111,5 +122,9 @@
             "name": "Emails",
             "description": "Liste des emails entrants et sortants, filtrables par boîte mail ou statut."
         }
+    },
+    "error": {
+        "invalid_direction": "Seuls les e-mails entrants peuvent être marqués manuellement comme complets.",
+        "invalid_attachment_import_status": "Seul un import contenant des pièces jointes non prises en charge peut être marqué manuellement comme complet."
     }
 }
