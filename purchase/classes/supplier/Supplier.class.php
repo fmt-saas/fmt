@@ -238,4 +238,30 @@ class Supplier extends Identity {
         }
     }
 
+    public static function canupdate($om, $ids, $values, $lang='en') {
+        if(isset($values['registration_number']) && $values['registration_number'] !== '') {
+            $condominium_identity_ids = Identity::search([
+                    ['registration_number', '=', $values['registration_number']],
+                    ['condominium_id', '<>', null]
+                ])
+                ->ids();
+
+            if(count($condominium_identity_ids)) {
+                $condominium_identity_id = current($condominium_identity_ids);
+                $suppliers = $om->read(self::getType(), $ids, ['identity_id'], $lang);
+
+                foreach($suppliers as $supplier) {
+                    if((int) ($supplier['identity_id'] ?? 0) !== (int) $condominium_identity_id) {
+                        return [
+                            'registration_number' => [
+                                'assigned_to_condominium' => 'Registration number is already assigned to a condominium.'
+                            ]
+                        ];
+                    }
+                }
+            }
+        }
+
+        return parent::canupdate($om, $ids, $values, $lang);
+    }
 }

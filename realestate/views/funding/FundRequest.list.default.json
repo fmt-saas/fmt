@@ -15,6 +15,14 @@
     ],
     "sort": "desc",
     "order": "request_date",
+    "filters": [
+        {
+            "id": "filter.active",
+            "label": "Active",
+            "description": "Show active entries only",
+            "clause": ["status", "=", "active"]
+        }
+    ],
     "layout": {
         "items": [
             {
