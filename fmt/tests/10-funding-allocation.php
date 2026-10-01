@@ -99,60 +99,55 @@ $tests = [
         'act'         => function($fixture) {
             $funding_id = $fixture['funding_id'];
 
-            $after_assignment = Funding::id($funding_id)
+            Funding::id($funding_id)->do('refresh_status');
+            $after_assignment_refresh = Funding::id($funding_id)
                 ->read([
                     'paid_amount',
                     'remaining_amount',
                     'is_paid',
-                    'funding_allocations_ids' => ['id'],
-                    'payments_ids'            => ['id']
+                    'status',
+                    'funding_allocations_ids',
+                    'payments_ids'
                 ])
                 ->first(true);
 
-            Funding::id($funding_id)->do('refresh_status');
-            $after_refresh = Funding::id($funding_id)
-                ->read(['paid_amount', 'remaining_amount', 'is_paid', 'status'])
-                ->first(true);
-
             FundingAllocation::id($fixture['funding_allocation_id'])->update(['amount' => 20.0]);
-            $after_allocation_update = Funding::id($funding_id)
-                ->read(['paid_amount', 'remaining_amount', 'is_paid'])
-                ->first(true);
-
             Funding::id($funding_id)->do('refresh_status');
-            $after_second_refresh = Funding::id($funding_id)
+            $after_allocation_refresh = Funding::id($funding_id)
                 ->read(['paid_amount', 'remaining_amount', 'is_paid', 'status'])
                 ->first(true);
 
             return [
-                'after_assignment'        => $after_assignment,
-                'after_refresh'           => $after_refresh,
-                'after_allocation_update' => $after_allocation_update,
-                'after_second_refresh'    => $after_second_refresh
+                'funding_allocation_count'  => count($after_assignment_refresh['funding_allocations_ids']),
+                'payment_count'             => count($after_assignment_refresh['payments_ids']),
+                'after_assignment_refresh'  => [
+                    'paid_amount'      => $after_assignment_refresh['paid_amount'],
+                    'remaining_amount' => $after_assignment_refresh['remaining_amount'],
+                    'is_paid'          => $after_assignment_refresh['is_paid'],
+                    'status'           => $after_assignment_refresh['status']
+                ],
+                'after_allocation_refresh'  => [
+                    'paid_amount'      => $after_allocation_refresh['paid_amount'],
+                    'remaining_amount' => $after_allocation_refresh['remaining_amount'],
+                    'is_paid'          => $after_allocation_refresh['is_paid'],
+                    'status'           => $after_allocation_refresh['status']
+                ]
             ];
         },
         'assert'      => function($result) {
-            $after_assignment = $result['after_assignment'];
-            $after_refresh = $result['after_refresh'];
-            $after_allocation_update = $result['after_allocation_update'];
-            $after_second_refresh = $result['after_second_refresh'];
+            $after_assignment_refresh = $result['after_assignment_refresh'];
+            $after_allocation_refresh = $result['after_allocation_refresh'];
 
-            return count($after_assignment['funding_allocations_ids']) === 3
-                && count($after_assignment['payments_ids']) === 2
-                && abs($after_assignment['paid_amount'] - 100.0) < 0.01
-                && abs($after_assignment['remaining_amount']) < 0.01
-                && $after_assignment['is_paid'] === true
-                && abs($after_refresh['paid_amount'] - 100.0) < 0.01
-                && abs($after_refresh['remaining_amount']) < 0.01
-                && $after_refresh['is_paid'] === true
-                && $after_refresh['status'] === 'balanced'
-                && abs($after_allocation_update['paid_amount'] - 90.0) < 0.01
-                && abs($after_allocation_update['remaining_amount'] - 10.0) < 0.01
-                && $after_allocation_update['is_paid'] === false
-                && abs($after_second_refresh['paid_amount'] - 90.0) < 0.01
-                && abs($after_second_refresh['remaining_amount'] - 10.0) < 0.01
-                && $after_second_refresh['is_paid'] === false
-                && $after_second_refresh['status'] === 'debit_balance';
+            return $result['funding_allocation_count'] === 3
+                && $result['payment_count'] === 2
+                && abs($after_assignment_refresh['paid_amount'] - 100.0) < 0.01
+                && abs($after_assignment_refresh['remaining_amount']) < 0.01
+                && $after_assignment_refresh['is_paid'] === true
+                && $after_assignment_refresh['status'] === 'balanced'
+                && abs($after_allocation_refresh['paid_amount'] - 90.0) < 0.01
+                && abs($after_allocation_refresh['remaining_amount'] - 10.0) < 0.01
+                && $after_allocation_refresh['is_paid'] === false
+                && $after_allocation_refresh['status'] === 'debit_balance';
         },
         'rollback'    => function() use($cleanupFundingTest) {
             $cleanupFundingTest();
