@@ -316,7 +316,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             'cancel' => [
                 'description'   => 'Cancel the sale invoice. No further change will be possible.',
                 'help'          => 'Void the accounting entry and set status to `cancelled`. By default (optional), a credit note can be create.',
-                'policies'      => ['can_cancel'],
+                'policies'      => ['can_unlock', 'can_cancel'],
                 'function'      => 'doCancel'
             ],
             'unlock' => [

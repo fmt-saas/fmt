@@ -249,7 +249,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             'cancel' => [
                 'description'   => 'Void the execution, and cancel subsequent accounting entry.',
                 'help'          => 'This is called after a transition to `cancel`.',
-                'policies'      => ['can_cancel'],
+                'policies'      => ['can_unlock', 'can_cancel'],
                 'function'      => 'doCancel'
             ],
             'unlock' => [
@@ -295,6 +295,10 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             'can_cancel' => [
                 'description' => 'Verifies that execution is not already invoiced.',
                 'function'    => 'policyCanCancel'
+            ],
+            'can_unlock' => [
+                'description' => 'Verifies that the execution is posted and no more recent posted execution exists.',
+                'function'    => 'policyCanUnlock'
             ]
         ];
     }
@@ -306,6 +310,20 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             if($fundRequestExecution['status'] !== 'posted') {
                 $result[$id] = [
                     'invalid_status' => "Already cancelled."
+                ];
+                continue;
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyCanUnlock($self): array {
+        $result = [];
+        $self->read(['condo_id', 'status', 'posting_date']);
+        foreach($self as $id => $fundRequestExecution) {
+            if($fundRequestExecution['status'] !== 'posted') {
+                $result[$id] = [
+                    'invalid_status' => "Non posted."
                 ];
                 continue;
             }
