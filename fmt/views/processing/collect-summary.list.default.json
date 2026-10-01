@@ -112,6 +112,23 @@
             "visible": [
                 ["payment_reminder", "=", "object.document_type_code"]
             ]
+        },
+        {
+            "id": "route.email",
+            "label": "Emails",
+            "inline": true,
+            "description": "",
+            "icon": "visibility",
+            "context": {
+                "entity": "communication\\email\\Email",
+                "view": "list.default",
+                "domain": [
+                    ["attachment_import_status", "<>", "complete"]
+                ]
+            },
+            "visible": [
+                ["email", "=", "object.document_type_code"]
+            ]
         }
     ],
     "layout": {

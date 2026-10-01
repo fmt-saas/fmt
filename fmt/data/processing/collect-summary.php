@@ -6,6 +6,7 @@
     Licensed under GNU AGPL 3 license <http://www.gnu.org/licenses/>
 */
 
+use communication\email\Email;
 use documents\processing\DocumentProcess;
 use equal\orm\Domain;
 use finance\bank\BankStatement;
@@ -15,6 +16,9 @@ use realestate\funding\PaymentReminder;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 
 [$params, $providers] = eQual::announce([
+    'type'          => 'get',
+    'name'          => 'fmt_processing_collect-summary',
+    'package_name'  => 'fmt',
     'description'   => 'Lists all processings.',
     'params'        => [
         /* mixed-usage parameters: required both for fetching data (input) and property of virtual entity (output) */
@@ -45,7 +49,8 @@ use realestate\purchase\accounting\invoice\PurchaseInvoice;
                 'bank_statement',
                 'expense_statement',
                 'fund_request',
-                'payment_reminder'
+                'payment_reminder',
+                'email'
             ],
             'description'       => 'Code identifier of the document type.',
             'help'              => 'The document type code is used for identifying the type of processing (invoice, bank_statement, maintenance_report, contract, etc.'
@@ -308,6 +313,30 @@ if($paymentReminders->count() > 0) {
         'document_type_code'    => 'payment_reminder',
         'count'                 => $count,
         // 'count_alerts'          => $alerts,
+        'count_alerts'          => 0,
+        'date_last'             => date('c', $date_last)
+    ];
+}
+
+
+$emails = Email::search([
+        ['attachment_import_status', '<>', 'complete']
+    ])
+    ->read(['id', 'date']);
+
+if($emails->count() > 0) {
+    $count = 0;
+    $date_last = 0;
+    foreach($emails as $email) {
+        ++$count;
+        if($email['date'] > $date_last) {
+            $date_last = $email['date'];
+        }
+    }
+
+    $result[] = [
+        'document_type_code'    => 'email',
+        'count'                 => $count,
         'count_alerts'          => 0,
         'date_last'             => date('c', $date_last)
     ];

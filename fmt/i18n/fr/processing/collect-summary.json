@@ -22,7 +22,8 @@
                 "bank_statement": "Extraits bancaires",
                 "expense_statement": "Décomptes de charges",
                 "fund_request": "Appels de fonds",
-                "payment_reminder": "Rappel de paiement"
+                "payment_reminder": "Rappel de paiement",
+                "email": "Emails à traiter"
             },
             "help": "Permet d'identifier le type de processing suivi dans la ligne."
         },
@@ -60,6 +61,10 @@
                 },
                 "route.fund_request": {
                     "label": "Appels de fonds",
+                    "description": ""
+                },
+                "route.email": {
+                    "label": "Emails à traiter",
                     "description": ""
                 }
             },
