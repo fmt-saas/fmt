@@ -40,10 +40,17 @@
             {{ organisation.legal_name }}
             {% set has_address = organisation.address_street or organisation.address_zip or organisation.address_city %}
             {% if organisation.legal_name and has_address %} - {% endif %}
-            {{ organisation.address_street }} {{ organisation.address_zip }} {{ organisation.address_city }}
+            {% if has_address %}
+                {{ organisation.address_street }} {{ organisation.address_zip }} {{ organisation.address_city }}
+            {% endif %}
+            {% if organisation.registration_number and has_address %} - {% endif %}
+            {% if organisation.registration_number %}
+                {{ labels['footer.registration_number'] }}: {{ organisation.registration_number }}
+            {% endif %}
         </div>
 
         {# Line 2 : registration number + IBAN #}
+        <!--
         <div>
             {% if organisation.registration_number %}
                 {{ labels['footer.registration_number'] }}: {{ organisation.registration_number }}
@@ -53,6 +60,7 @@
                 {{ labels['footer.iban'] }}: {{ organisation.bank_account_iban }}
             {% endif %}
         </div>
+        -->
 
         {# Line 3 : Email + website + phone + fax #}
         <div>

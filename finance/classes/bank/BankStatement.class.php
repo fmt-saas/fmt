@@ -579,7 +579,7 @@ class BankStatement extends Model {
     }
 
     protected static function doAttemptReconcile($self) {
-        $self->read(['statement_lines_ids' => ['status']]);
+        $self->read(['statement_lines_ids' => ['@sort' => ['sequence_number' => 'asc'], 'status']]);
         foreach($self as $id => $bankStatement) {
             try {
                 // attempt to reconcile lines
