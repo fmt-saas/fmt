@@ -252,7 +252,7 @@ class FundRequest extends \equal\orm\Model {
                     'cancel' => [
                         'description' => 'Cancel the fund request.',
                         'policies'    => ['can_cancel'],
-                        'status'      => 'cancel'
+                        'status'      => 'cancelled'
                     ]
                 ]
             ]
@@ -326,6 +326,7 @@ class FundRequest extends \equal\orm\Model {
     }
 
     public static function policyCanCancel($self): array {
+        // aucune execution posted ou aucune execution
         $result = [];
         $self->read(['status', 'request_executions_ids' => ['status']]);
         foreach($self as $id => $fundRequest) {
