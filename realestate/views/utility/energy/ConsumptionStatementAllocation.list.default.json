@@ -25,12 +25,14 @@
             {
                 "type": "field",
                 "value": "condo_id",
-                "width": "15%"
+                "width": "15%",
+                "visible": false
             },
             {
                 "type": "field",
                 "value": "consumption_statement_id",
-                "width": "25%"
+                "width": "25%",
+                "visible": false
             },
             {
                 "type": "field",

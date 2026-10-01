@@ -102,16 +102,17 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\utility\energy\ConsumptionStatementLine',
                 'foreign_field'     => 'consumption_statement_id',
-                'description'       => "Period of the fiscal year the consumption statement relates to."
+                'description'       => "Period of the fiscal year the consumption statement relates to.",
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
             'consumption_statement_allocations_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\utility\energy\ConsumptionStatementAllocation',
                 'foreign_field'     => 'consumption_statement_id',
-                'description'       => 'Allocations of the consumption statement amount.'
+                'description'       => 'Allocations of the consumption statement amount.',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
-
 
             'statement_total' => [
                 'type'              => 'computed',
