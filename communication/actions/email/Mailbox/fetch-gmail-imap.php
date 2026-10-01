@@ -48,7 +48,8 @@ $getCleanedHtml = function($html) {
             '~<style\b[^>]*>.*?</style\s*>~is',
             '~<(?:meta|link|base)\b[^>]*>~is',
             '~</?(?:html|body)\b[^>]*>~i',
-            '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i'
+            '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
+            '~\s+href\s*=\s*(?:"\s*javascript\s*:[^"]*"|\'\s*javascript\s*:[^\']*\'|javascript\s*:[^\s>]+)~i'
         ],
         '',
         (string) $html
