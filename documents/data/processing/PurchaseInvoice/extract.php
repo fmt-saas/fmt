@@ -17,7 +17,7 @@ use documents\Document;
             'required'          => true
         ]
     ],
-    'access' => [
+    'access'        => [
         'visibility'    => 'protected'
     ],
     'response'      => [
