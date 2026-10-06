@@ -79,18 +79,45 @@ if(!in_array($data['document_type'], ['Invoice', 'CreditNote'])) {
     throw new Exception('invalid_ubl_data', EQ_ERROR_INVALID_PARAM);
 }
 
-if($params['dissociate_attachments'] && !empty($data['attachments'])) {
-    foreach($data['attachments'] as $attachment) {
+if($params['dissociate_attachments']) {
+    $has_pdf_attachment = false;
+
+    if(!empty($data['attachments'])) {
+        foreach($data['attachments'] as $attachment) {
+            if($attachment['content_type'] === 'application/pdf') {
+                $has_pdf_attachment = true;
+            }
+
+            Document::create([
+                'name'                  => $attachment['name'],
+                'content_type'          => $attachment['content_type'],
+                'data'                  => base64_decode($attachment['data']),
+                'origin_document_id'    => $document['id']
+            ]);
+        }
+
+        Document::id($params['document_id'])
+            ->update(['data' => $removeAttachmentsFromUblXml($document['data'])]);
+    }
+
+    if(!$has_pdf_attachment) {
+        $invoice_number = trim($data['invoice_number']);
+        $filename = preg_replace('/[^\pL\pN._-]+/u', '-', $invoice_number);
+        $filename = trim($filename, '-.');
+        $filename = ($filename === '') ? 'invoice.pdf' : $filename . '.pdf';
+
+        $pdf = eQual::run('get', 'purchase_accounting_invoice_ubl_render-pdf', [
+            'invoice_data'  => $data,
+            'filename' => $filename
+        ]);
+
         Document::create([
-            'name'                  => $attachment['name'],
-            'content_type'          => $attachment['content_type'],
-            'data'                  => base64_decode($attachment['data']),
+            'name'                  => $filename,
+            'content_type'          => 'application/pdf',
+            'data'                  => $pdf,
             'origin_document_id'    => $document['id']
         ]);
     }
-
-    Document::id($params['document_id'])
-        ->update(['data' => $removeAttachmentsFromUblXml($document['data'])]);
 }
 
 unset($data['attachments']);
