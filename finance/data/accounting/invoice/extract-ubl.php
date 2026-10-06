@@ -13,22 +13,20 @@
             'type'              => 'text',
             'usage'             => 'text/plain.medium',
             'required'          => true
-        ],
+        ]
     ],
     'response'      => [
         'content-type'  => 'application/json',
         'charset'       => 'utf-8',
         'accept-origin' => '*'
     ],
-    'providers'     => ['context', 'auth', 'access']
+    'providers'     => ['context']
 ]);
 
 /**
- * @var \equal\auth\AuthenticationManager   $auth
- * @var \fmt\access\AccessController        $access
- * @var \equal\php\Context                  $context
+ * @var \equal\php\Context $context
  */
-['access' => $access, 'auth' => $auth, 'context' => $context] = $providers;
+['context' => $context] = $providers;
 
 
 $xpathValue = function ($xml, $query, $default = null) {

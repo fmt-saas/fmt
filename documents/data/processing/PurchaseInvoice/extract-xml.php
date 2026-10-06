@@ -73,15 +73,15 @@ if(!$document) {
     throw new Exception('invalid_document', EQ_ERROR_INVALID_PARAM);
 }
 
-$ubl_data = eQual::run('get', 'finance_accounting_invoice_extract-ubl', ['xml' => $document['data']]);
+$data = eQual::run('get', 'finance_accounting_invoice_extract-ubl', ['xml' => $document['data']]);
 
-if(!in_array($ubl_data['document_type'], ['Invoice', 'CreditNote'])) {
+if(!in_array($data['document_type'], ['Invoice', 'CreditNote'])) {
     throw new Exception('invalid_ubl_data', EQ_ERROR_INVALID_PARAM);
 }
 
 if($params['dissociate_attachments']) {
-    if(!empty($ubl_data['attachments'])) {
-        foreach($ubl_data['attachments'] as $attachment) {
+    if(!empty($data['attachments'])) {
+        foreach($data['attachments'] as $attachment) {
             Document::create([
                 'name'                  => $attachment['name'],
                 'content_type'          => $attachment['content_type'],
@@ -93,14 +93,14 @@ if($params['dissociate_attachments']) {
         Document::id($params['document_id'])
             ->update(['data' => $removeAttachmentsFromUblXml($document['data'])]);
 
-        unset($ubl_data['attachments']);
+        unset($data['attachments']);
     }
 }
 
 // #memo - Invoices and credit notes are considered as supplier invoices
-$ubl_data['document_type'] = 'supplier_invoice';
+$data['document_type'] = 'supplier_invoice';
 
 $context
     ->httpResponse()
-    ->body($ubl_data)
+    ->body($data)
     ->send();
