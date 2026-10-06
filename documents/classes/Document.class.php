@@ -768,10 +768,32 @@ class Document extends Model {
 
     protected static function calcLink($self) {
         $result = [];
-        $self->read(['hash']);
+        $self->read(['content_type', 'hash']);
         foreach($self as $id => $document) {
-            $result[$id] = '/document/' . $document['hash'];
+            $document_link = null;
+            if($document['content_type'] === 'application/pdf') {
+                $document_link = '/document/' . $document['hash'];
+            }
+            else {
+                $displayDocuments = Document::search(['origin_document_id', '=', $document['id']])
+                    ->read(['content_type', 'hash'])
+                    ->get();
+
+                foreach($displayDocuments as $displayDocument) {
+                    if($displayDocument['content_type'] === 'application/pdf') {
+                        $document_link = '/document/' . $displayDocument['hash'];
+                        break;
+                    }
+                }
+            }
+
+            if(!$document_link) {
+                $document_link = '/document/' . $document['hash'];
+            }
+
+            $result[$id] = $document_link;
         }
+
         return $result;
     }
 
