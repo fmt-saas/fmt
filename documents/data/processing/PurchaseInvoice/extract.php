@@ -65,10 +65,15 @@ if(!$document) {
 }
 
 if($document['content_type'] === 'application/pdf') {
-    $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_extract-pdf', ['document_id' => $document['id']]);
+    $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_extract-pdf', [
+        'document_id' => $document['id']
+    ]);
 }
 elseif(in_array($document['content_type'], ['application/xml', 'text/xml'])) {
-    $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_extract-xml', ['document_id' => $document['id']]);
+    $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_extract-xml', [
+        'document_id'               => $document['id'],
+        'dissociate_attachments'    => true
+    ]);
 }
 else {
     throw new Exception('invalid_content_type', EQ_ERROR_INVALID_PARAM);
