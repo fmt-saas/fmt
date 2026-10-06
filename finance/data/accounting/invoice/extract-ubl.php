@@ -71,8 +71,10 @@ $data['document_type'] = $xpathValue($xml, '//sh:StandardBusinessDocument/sh:Sta
 
 // main fields
 $data['invoice_number'] = $xpathValue($xml, '//cbc:ID', '');
-$data['issue_date'] = $xpathValue($xml, '//cbc:IssueDate', '');
-$data['due_date'] = $xpathValue($xml, '//cbc:DueDate', null);
+$issue_date = strtotime($xpathValue($xml, '//cbc:IssueDate', '1970-01-01'));
+$data['issue_date'] = date('c', $issue_date);
+$due_date = strtotime($xpathValue($xml, '//cbc:DueDate', '1970-01-01'));
+$data['due_date'] = date('c', $due_date);
 $data['currency'] = $xpathValue($xml, '//cbc:DocumentCurrencyCode', 'EUR');
 
 // supplier
@@ -145,7 +147,7 @@ foreach($lines as $line) {
         'description'   => $description,
         'amount'        => (float) $xpathValue($line, './cbc:LineExtensionAmount', 0.0),
         'unit_price'    => (float) $xpathValue($line, './/cac:Price//cbc:PriceAmount', 0.0),
-        'unit_code'     => (float) $xpathValue($line, './/cac:Price//cbc:InvoicedQuantity/@unitCode', ''),
+        'unit_code'     => (string) $xpathValue($line, './/cbc:InvoicedQuantity/@unitCode', ''),
         'quantity'      => (float) $xpathValue($line, './cbc:InvoicedQuantity', 1.0),
         'tax'           => [
             'category_id'   => $xpathValue($line, './/cac:Item//cac:ClassifiedTaxCategory//cbc:ID'),

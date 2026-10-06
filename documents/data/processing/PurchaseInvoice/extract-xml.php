@@ -91,6 +91,8 @@ if(!empty($ubl_data['attachments'])) {
 
     Document::id($params['document_id'])
         ->update(['data' => $removeAttachmentsFromUblXml($document['data'])]);
+
+    unset($ubl_data['attachments']);
 }
 
 // #memo - Invoices and credit notes are considered as supplier invoices
