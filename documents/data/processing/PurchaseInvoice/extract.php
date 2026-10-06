@@ -67,7 +67,7 @@ if(!$document) {
 if($document['content_type'] === 'application/pdf') {
     $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_extract-pdf', ['document_id' => $document['id']]);
 }
-elseif($document['content_type'] === 'application/xml') {
+elseif(in_array($document['content_type'], ['application/xml', 'text/xml'])) {
     $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_extract-xml', ['document_id' => $document['id']]);
 }
 else {
