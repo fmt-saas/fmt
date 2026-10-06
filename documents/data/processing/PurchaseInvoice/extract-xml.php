@@ -8,7 +8,7 @@
 use documents\Document;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Extract given UBL document data, and return the result as a JSON descriptor.',
+    'description'   => 'Extract given UBL XML document data, and return the result as a JSON descriptor.',
     'params'        => [
         'document_id' =>  [
             'type'              => 'many2one',
@@ -79,20 +79,22 @@ if(!in_array($ubl_data['document_type'], ['Invoice', 'CreditNote'])) {
     throw new Exception('invalid_ubl_data', EQ_ERROR_INVALID_PARAM);
 }
 
-if(!empty($ubl_data['attachments'])) {
-    foreach($ubl_data['attachments'] as $attachment) {
-        Document::create([
-            'name'                  => $attachment['name'],
-            'content_type'          => $attachment['content_type'],
-            'data'                  => base64_decode($attachment['data']),
-            'origin_document_id'    => $document['id']
-        ]);
+if($params['dissociate_attachments']) {
+    if(!empty($ubl_data['attachments'])) {
+        foreach($ubl_data['attachments'] as $attachment) {
+            Document::create([
+                'name'                  => $attachment['name'],
+                'content_type'          => $attachment['content_type'],
+                'data'                  => base64_decode($attachment['data']),
+                'origin_document_id'    => $document['id']
+            ]);
+        }
+
+        Document::id($params['document_id'])
+            ->update(['data' => $removeAttachmentsFromUblXml($document['data'])]);
+
+        unset($ubl_data['attachments']);
     }
-
-    Document::id($params['document_id'])
-        ->update(['data' => $removeAttachmentsFromUblXml($document['data'])]);
-
-    unset($ubl_data['attachments']);
 }
 
 // #memo - Invoices and credit notes are considered as supplier invoices
