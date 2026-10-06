@@ -166,6 +166,18 @@ $data['totals'] = [
     'payable_amount'    => (float) $xpathValue($xml, '//cac:LegalMonetaryTotal//cbc:PayableAmount', 0.0)
 ];
 
+// invoice attachments
+$data['attachments'] = [];
+
+$attachments = $xml->xpath('//cac:Attachment');
+foreach($attachments as $attachment) {
+    $data['attachments'][] = [
+        'content_type'  => $xpathValue($attachment, './/cbc:EmbeddedDocumentBinaryObject/@mimeCode'),
+        'name'          => $xpathValue($attachment, './/cbc:EmbeddedDocumentBinaryObject/@filename'),
+        'data'          => $xpathValue($attachment, './/cbc:EmbeddedDocumentBinaryObject')
+    ];
+}
+
 $context
     ->httpResponse()
     ->body($data)
