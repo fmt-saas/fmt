@@ -84,7 +84,7 @@ if(!empty($ubl_data['attachments'])) {
         Document::create([
             'name'                  => $attachment['name'],
             'content_type'          => $attachment['content_type'],
-            'data'                  => $attachment['data'],
+            'data'                  => base64_decode($attachment['data']),
             'origin_document_id'    => $document['id']
         ]);
     }
