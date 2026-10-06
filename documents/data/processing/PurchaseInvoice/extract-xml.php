@@ -79,23 +79,21 @@ if(!in_array($data['document_type'], ['Invoice', 'CreditNote'])) {
     throw new Exception('invalid_ubl_data', EQ_ERROR_INVALID_PARAM);
 }
 
-if($params['dissociate_attachments']) {
-    if(!empty($data['attachments'])) {
-        foreach($data['attachments'] as $attachment) {
-            Document::create([
-                'name'                  => $attachment['name'],
-                'content_type'          => $attachment['content_type'],
-                'data'                  => base64_decode($attachment['data']),
-                'origin_document_id'    => $document['id']
-            ]);
-        }
-
-        Document::id($params['document_id'])
-            ->update(['data' => $removeAttachmentsFromUblXml($document['data'])]);
-
-        unset($data['attachments']);
+if($params['dissociate_attachments'] && !empty($data['attachments'])) {
+    foreach($data['attachments'] as $attachment) {
+        Document::create([
+            'name'                  => $attachment['name'],
+            'content_type'          => $attachment['content_type'],
+            'data'                  => base64_decode($attachment['data']),
+            'origin_document_id'    => $document['id']
+        ]);
     }
+
+    Document::id($params['document_id'])
+        ->update(['data' => $removeAttachmentsFromUblXml($document['data'])]);
 }
+
+unset($data['attachments']);
 
 // #memo - Invoices and credit notes are considered as supplier invoices
 $data['document_type'] = 'supplier_invoice';
