@@ -110,12 +110,12 @@ $data['customer'] = [
 $data['buyer_reference'] = $xpathValue($xml, '//cbc:BuyerReference');
 
 // invoicing period
-$start = $xpathValue($xml, '//cac:InvoicePeriod//cbc:StartDate', null);
-$end = $xpathValue($xml, '//cac:InvoicePeriod//cbc:EndDate', null);
+$start = strtotime($xpathValue($xml, '//cac:InvoicePeriod//cbc:StartDate', '1970-01-01'));
+$end = strtotime($xpathValue($xml, '//cac:InvoicePeriod//cbc:EndDate', '1970-01-01'));
 if($start || $end) {
     $data['invoice_period'] = [
-        'start_date'    => $start,
-        'end_date'      => $end
+        'start_date'    => date('c', $start),
+        'end_date'      => date('c', $end)
     ];
 }
 
