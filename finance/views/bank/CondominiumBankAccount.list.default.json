@@ -23,6 +23,12 @@
                     },
                     {
                         "type": "field",
+                        "label": "Last statement",
+                        "value": "last_statement_date",
+                        "width": "10%"
+                    },
+                    {
+                        "type": "field",
                         "label": "Balance",
                         "value": "current_balance",
                         "width": "10%"

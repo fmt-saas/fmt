@@ -48,11 +48,6 @@
             "description": "Solde projeté tenant compte des opérations à venir.",
             "help": ""
         },
-        "last_statement_balance": {
-            "label": "Solde dernier relevé",
-            "description": "Solde provenant du dernier relevé importé.",
-            "help": ""
-        },
         "last_statement_date": {
             "label": "Date dernier relevé",
             "description": "Date d'import du dernier relevé.",

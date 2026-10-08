@@ -76,22 +76,21 @@ class CondominiumBankAccount extends BankAccount {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['operation_assignment', '=', 'object.bank_account_type']]
             ],
 
-            'last_statement_balance' => [
-                'type'              => 'float',
-                'usage'             => 'amount/money:2',
-                'default'           => 0.0
-            ],
-
             'last_statement_date' => [
-                'type'              => 'date',
+                'type'              => 'computed',
+                'result_type'       => 'date',
+                'relation'          => ['last_statement_id' => 'date'],
+                'store'             => false,
                 'description'       => 'Date of the last imported bank statement.',
             ],
 
             'last_statement_id' => [
-                'type'              => 'one2many',
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
                 'foreign_object'    => 'finance\bank\BankStatement',
-                'description'       => 'The last imported bank statement for this account.',
-                'domain'            => ['bank_account_id', '=', 'object.id'],
+                'description'       => 'The last imported bank statement for this bank account.',
+                'function'          => 'calcLastStatementId',
+                'store'             => false
             ],
 
             'bank_statements_ids' => [
@@ -107,6 +106,7 @@ class CondominiumBankAccount extends BankAccount {
                 'result_type'       => 'float',
                 'usage'             => 'amount/money:2',
                 'function'          => 'calcCurrentBalance',
+                'store'             => false
             ],
 
             'available_balance' => [
@@ -349,6 +349,27 @@ class CondominiumBankAccount extends BankAccount {
             }
 
             $result[$id] = round($balance, 2);
+        }
+
+        return $result;
+    }
+
+    protected static function calcLastStatementId($self) {
+        $result = [];
+
+        foreach($self as $id => $bankAccount) {
+            $bankStatement = BankStatement::search(
+                    [
+                        ['bank_account_id', '=', $id],
+                        ['status', '=', 'posted']
+                    ],
+                    ['sort' => ['date' => 'desc'], 'limit' => 1]
+                )
+                ->first();
+
+            if($bankStatement) {
+                $result[$id] = $bankStatement['id'];
+            }
         }
 
         return $result;
