@@ -120,6 +120,16 @@ class BankStatement extends Model {
                 'dependents'        => ['name']
             ],
 
+            'balance_delta' => [
+                'type'              => 'computed',
+                'result_type'       => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => 'Account balance after the transactions.',
+                'function'          => 'calcBalanceDelta',
+                'store'             => false,
+                'readonly'          => true
+            ],
+
             'expected_opening_balance' => [
                 'type'              => 'computed',
                 'result_type'       => 'float',
@@ -455,6 +465,15 @@ class BankStatement extends Model {
             else {
                 $result[$id] = 'success';
             }
+        }
+        return $result;
+    }
+
+    protected static function calcBalanceDelta($self): array {
+        $result = [];
+        $self->read(['opening_balance', 'closing_balance']);
+        foreach($self as $id => $bankStatement) {
+            $result[$id] = $bankStatement['closing_balance'] - $bankStatement['opening_balance'];
         }
         return $result;
     }
