@@ -53,6 +53,11 @@
             "description": "Solde du compte après les opérations du relevé.",
             "help": "Doit correspondre au solde d'ouverture du relevé suivant."
         },
+        "balance_delta": {
+            "label": "Solde à traiter",
+            "description": "Différence entre le solde de clôture et le solde d'ouverture.",
+            "help": "Calculée automatiquement en soustrayant le solde d'ouverture du solde de clôture."
+        },
         "bank_account_iban": {
             "label": "IBAN",
             "description": "Identifiant international du compte bancaire.",
