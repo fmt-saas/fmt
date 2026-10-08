@@ -27,7 +27,7 @@
                         "value": "last_statement_date",
                         "width": "10%",
                         "widget": {
-                            "usage": "date/plain.short"
+                            "usage": "date/plain"
                         }
                     },
                     {
