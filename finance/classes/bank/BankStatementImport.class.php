@@ -56,9 +56,15 @@ class BankStatementImport extends Model {
 
             'logs' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain',
+                'usage'             => 'text/plain.medium',
                 'description'       => 'Logs of the bank statement import processing.'
-            ]
+            ],
+
+            'has_error' => [
+                'type'              => 'boolean',
+                'description'       => 'Import status feedback.',
+                'default'           => false
+            ],
 
         ];
     }
@@ -129,7 +135,7 @@ class BankStatementImport extends Model {
      * This method is used to create the document based on received data, and start the processing.
      */
     protected static function onupdateData($self, $auth) {
-        $self->read(['name', 'data', 'logs']);
+        $self->read(['name', 'data', 'logs', 'has_error']);
 
         $documentType = DocumentType::search(['code', '=', 'bank_statement'])->first();
         $user = User::id($auth->userId())->read(['employee_id'])->first();
@@ -147,6 +153,7 @@ class BankStatementImport extends Model {
                 'unknown_accounts'  => 0
             ];
 
+            $has_error = (bool) ($bankStatementImport['has_error'] ?? false);
             $logs = [];
             if(isset($bankStatementImport['logs']) && strlen($bankStatementImport['logs']) > 0) {
                 $logs = explode("\n", $bankStatementImport['logs']);
@@ -161,10 +168,12 @@ class BankStatementImport extends Model {
                 );
             }
             catch(\Exception $e) {
+                $has_error = true;
                 $logs[] = "ERR  - Unable to read {$bankStatementImport['name']}: {$e->getMessage()}";
                 self::id($id)->write([
-                    'summary' => self::computeSummary($summary),
-                    'logs'    => implode("\n", $logs)
+                    'summary'   => self::computeSummary($summary),
+                    'logs'      => implode("\n", $logs),
+                    'has_error' => $has_error
                 ]);
                 throw $e;
             }
@@ -179,6 +188,7 @@ class BankStatementImport extends Model {
                     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
                     if(!in_array($ext, static::ALLOWED_EXTENSIONS)) {
+                        $has_error = true;
                         $logs[] = "WARN - Skipped file {$file['name']}: unsupported extension '{$ext}'";
                         continue;
                     }
@@ -201,6 +211,7 @@ class BankStatementImport extends Model {
                     }
 
                     if(!is_array($data)) {
+                        $has_error = true;
                         $logs[] = "WARN - Skipped file {$file['name']}: extraction returned no statement list";
                         continue;
                     }
@@ -210,7 +221,6 @@ class BankStatementImport extends Model {
 
                     foreach($data as $i => $statement) {
                         $statement_number = $statement['statement_number'] ?? 'unknown';
-                        $logs[] = "INFO - Processing statement {$statement_number} from {$file['name']}";
 
                         // ignore statement if relating to an irrelevant IBAN
                         $iban = strtoupper(preg_replace('/\s+/', '', $statement['account_iban'] ?? ''));
@@ -223,6 +233,7 @@ class BankStatementImport extends Model {
 
                         if(!$bankAccount || !$bankAccount['condo_id'] || !$bankAccount['condo_id']['is_active']) {
                             ++$summary['unknown_accounts'];
+                            $has_error = true;
                             $logs[] = "WARN - Skipped statement {$statement_number}: no active condominium bank account for IBAN {$iban}";
                             continue;
                         }
@@ -240,6 +251,7 @@ class BankStatementImport extends Model {
 
                         if($existingBankStatement) {
                             ++$summary['already_imported'];
+                            $has_error = true;
                             $logs[] = "WARN - Skipped statement {$statement_number}: already imported as bank statement {$existingBankStatement['id']}";
                             continue;
                         }
@@ -253,13 +265,13 @@ class BankStatementImport extends Model {
                                     'assigned_employee_id'  => $user['employee_id']
                                 ])
                                 ->first();
-                            $logs[] = "INFO - Created document process {$documentProcess['id']} for statement {$statement_number}";
 
                             DocumentProcess::id($documentProcess['id'])->update(['data' => $binary]);
                             ++$summary['imported'];
-                            $logs[] = "INFO - Submitted statement {$statement_number} to document process {$documentProcess['id']}";
+                            $logs[] = "INFO - Processed statement {$statement_number} from {$file['name']} as document process {$documentProcess['id']}";
                         }
                         catch(\Exception $e) {
+                            $has_error = true;
                             $logs[] = "ERR  - Unable to process statement {$statement_number}: {$e->getMessage()}";
                         }
                     }
@@ -267,16 +279,25 @@ class BankStatementImport extends Model {
                     $logs[] = "INFO - Finished processing file {$file['name']}";
                 }
                 catch(\Exception $e) {
+                    $has_error = true;
                     $logs[] = "ERR  - Error while processing file {$file['name']}: {$e->getMessage()}";
                     // keep on processing other files
                 }
             }
 
             $logs[] = "INFO - Finished bank statement import {$id}";
+
+            if(!$has_error) {
+                // Remove current import object after successful import.
+                self::id($id)->delete(true);
+                continue;
+            }
+
             self::id($id)->write([
-                'data'    => null,
-                'summary' => self::computeSummary($summary),
-                'logs'    => implode("\n", $logs)
+                'data'      => null,
+                'summary'   => self::computeSummary($summary),
+                'logs'      => implode("\n", $logs),
+                'has_error' => $has_error
             ]);
         }
     }
