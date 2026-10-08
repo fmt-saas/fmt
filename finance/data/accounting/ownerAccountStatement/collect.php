@@ -142,11 +142,11 @@ $fiscalYear = FiscalYear::search([
         ['date_from', '<=', $date_from],
         ['date_to', '>=', $date_from]
     ], ['limit' => 1])
-    ->read(['opening_balance_id'])
+    ->read(['date_from', 'opening_balance_id'])
     ->first();
 
 $opening_balance_id = $fiscalYear['opening_balance_id'] ?? null;
-$opening_balance_date_from = $date_from;
+$opening_balance_date_from = $fiscalYear['date_from'] ?? $date_from;
 
 if(!$opening_balance_id) {
     // find first available opening balance (last validated for given condominium)
