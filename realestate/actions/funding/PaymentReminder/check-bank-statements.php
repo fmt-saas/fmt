@@ -57,16 +57,31 @@ if($primaryBankAccount) {
     $bankAccounts[$primaryBankAccount['id']] = $primaryBankAccount;
 }
 
-$tierBankAccount = CondominiumBankAccount::search([
-        ['condo_id', '=', $paymentReminder['condo_id']],
-        ['is_active', '=', true],
-        ['bank_account_type', '=', 'bank_tier']
-    ], ['limit' => 1])
-    ->read(['created', 'last_statement_date'])
-    ->first();
+if(!$primaryBankAccount) {
+    $activeBankAccount = CondominiumBankAccount::search([
+            ['condo_id', '=', $paymentReminder['condo_id']],
+            ['is_active', '=', true],
+            ['bank_account_type', '=', 'bank_current']
+        ], ['limit' => 1])
+        ->read(['created', 'last_statement_date'])
+        ->first();
 
-if($tierBankAccount) {
-    $bankAccounts[$tierBankAccount['id']] = $tierBankAccount;
+    if($activeBankAccount) {
+        $bankAccounts[$activeBankAccount['id']] = $activeBankAccount;
+    }
+    else {
+        $tierBankAccount = CondominiumBankAccount::search([
+                ['condo_id', '=', $paymentReminder['condo_id']],
+                ['is_active', '=', true],
+                ['bank_account_type', '=', 'bank_tier']
+            ], ['limit' => 1])
+            ->read(['created', 'last_statement_date'])
+            ->first();
+
+        if($tierBankAccount) {
+            $bankAccounts[$tierBankAccount['id']] = $tierBankAccount;
+        }
+    }
 }
 
 foreach($bankAccounts as $bank_account_id => $bankAccount) {
