@@ -53,9 +53,17 @@
             "label": "Banques",
             "description": "Importer des données depuis un fichier XLS."
         },
-        "item.imports.data_imports": {
+        "item.imports.advanced": {
             "label": "Tous les imports",
-            "description": "Imports depuis un fichier XLS."
+            "description": "Consulter les historiques selon le type d'import."
+        },
+        "item.imports.data_imports": {
+            "label": "Imports XLS",
+            "description": "Consulter les imports depuis des fichiers XLS."
+        },
+        "item.imports.bank_statement_imports": {
+            "label": "Imports d'extraits bancaires",
+            "description": "Consulter l'historique des imports d'extraits bancaires."
         },
         "item.properties": {
             "label": "Biens",

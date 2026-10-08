@@ -182,15 +182,35 @@
                         }
                     },
                     {
-                        "id": "item.imports.data_imports",
-                        "type": "entry",
-                        "label": "All Imports",
+                        "id": "item.imports.advanced",
+                        "type": "parent",
+                        "label": "Advanced",
                         "icon": "list",
-                        "description": "Imports from XLS file.",
-                        "context": {
-                            "view": "list.default",
-                            "entity": "fmt\\import\\DataImport"
-                        }
+                        "description": "View import records by import type.",
+                        "children": [
+                            {
+                                "id": "item.imports.data_imports",
+                                "type": "entry",
+                                "label": "Data Imports",
+                                "icon": "table_view",
+                                "description": "View imports from XLS files.",
+                                "context": {
+                                    "view": "list.default",
+                                    "entity": "fmt\\import\\DataImport"
+                                }
+                            },
+                            {
+                                "id": "item.imports.bank_statement_imports",
+                                "type": "entry",
+                                "label": "Bank Statement Imports",
+                                "icon": "receipt",
+                                "description": "View bank statement imports.",
+                                "context": {
+                                    "view": "list.default",
+                                    "entity": "finance\\bank\\BankStatementImport"
+                                }
+                            }
+                        ]
                     }
                 ]
             },
