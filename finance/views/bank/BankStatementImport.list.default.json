@@ -21,7 +21,7 @@
             },
             {
                 "type": "field",
-                "value": "data",
+                "value": "has_error",
                 "width": "50%"
             }
         ]

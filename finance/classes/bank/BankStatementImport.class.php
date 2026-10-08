@@ -150,7 +150,9 @@ class BankStatementImport extends Model {
                 'files'             => 0,
                 'imported'          => 0,
                 'already_imported'  => 0,
-                'unknown_accounts'  => 0
+                'unknown_accounts'  => 0,
+                'warnings'          => 0,
+                'errors'            => 0
             ];
 
             $has_error = (bool) ($bankStatementImport['has_error'] ?? false);
@@ -169,6 +171,7 @@ class BankStatementImport extends Model {
             }
             catch(\Exception $e) {
                 $has_error = true;
+                ++$summary['errors'];
                 $logs[] = "ERR  - Unable to read {$bankStatementImport['name']}: {$e->getMessage()}";
                 self::id($id)->write([
                     'summary'   => self::computeSummary($summary),
@@ -189,6 +192,7 @@ class BankStatementImport extends Model {
 
                     if(!in_array($ext, static::ALLOWED_EXTENSIONS)) {
                         $has_error = true;
+                        ++$summary['warnings'];
                         $logs[] = "WARN - Skipped file {$file['name']}: unsupported extension '{$ext}'";
                         continue;
                     }
@@ -212,6 +216,7 @@ class BankStatementImport extends Model {
 
                     if(!is_array($data)) {
                         $has_error = true;
+                        ++$summary['warnings'];
                         $logs[] = "WARN - Skipped file {$file['name']}: extraction returned no statement list";
                         continue;
                     }
@@ -233,6 +238,7 @@ class BankStatementImport extends Model {
 
                         if(!$bankAccount || !$bankAccount['condo_id'] || !$bankAccount['condo_id']['is_active']) {
                             ++$summary['unknown_accounts'];
+                            ++$summary['warnings'];
                             $has_error = true;
                             $logs[] = "WARN - Skipped statement {$statement_number}: no active condominium bank account for IBAN {$iban}";
                             continue;
@@ -252,6 +258,7 @@ class BankStatementImport extends Model {
                         if($existingBankStatement) {
                             ++$summary['already_imported'];
                             $has_error = true;
+                            ++$summary['warnings'];
                             $logs[] = "WARN - Skipped statement {$statement_number}: already imported as bank statement {$existingBankStatement['id']}";
                             continue;
                         }
@@ -272,6 +279,7 @@ class BankStatementImport extends Model {
                         }
                         catch(\Exception $e) {
                             $has_error = true;
+                            ++$summary['errors'];
                             $logs[] = "ERR  - Unable to process statement {$statement_number}: {$e->getMessage()}";
                         }
                     }
@@ -280,7 +288,8 @@ class BankStatementImport extends Model {
                 }
                 catch(\Exception $e) {
                     $has_error = true;
-                    $logs[] = "ERR  - Error while processing file {$file['name']}: {$e->getMessage()}";
+                    ++$summary['errors'];
+                    $logs[] = "ERR  - Error while processing file - Invalid CODA file {$file['name']}";
                     // keep on processing other files
                 }
             }
