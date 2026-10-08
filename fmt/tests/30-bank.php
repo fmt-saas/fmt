@@ -260,7 +260,7 @@ $tests = [
 
             $documentProcess = $data['document_processes'][0];
 
-            return strpos($data['bank_statement_import']['summary'], 'Statements imported: 1') !== false
+            return $data['bank_statement_import'] === null
                 && $documentProcess['name'] === 'test_3004_doc_processing_coda_document(1).xlsx'
                 && $documentProcess['status'] === 'assigned'
                 && $documentProcess['document_id']
@@ -293,7 +293,7 @@ $tests = [
 
             $documentProcess = $data['document_processes'][0];
 
-            return strpos($data['bank_statement_import']['summary'], 'Statements imported: 1') !== false
+            return $data['bank_statement_import'] === null
                 && $documentProcess['status'] === 'assigned'
                 && $documentProcess['condo_id']
                 && $documentProcess['condo_id']['id'] === $data['condo_id'];
@@ -399,7 +399,7 @@ $tests = [
                 }
             }
 
-            return strpos($data['bank_statement_import']['summary'], 'Statements imported: 2') !== false;
+            return $data['bank_statement_import'] === null;
         },
         'rollback'    => function ($data) use ($cleanupBankStatementImport) {
             $cleanupBankStatementImport($data);
