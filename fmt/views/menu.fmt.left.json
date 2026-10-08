@@ -938,7 +938,7 @@
                         "id": "item.config.dashboards",
                         "label": "Dashboards",
                         "description": "",
-                        "icon": "lock_open",
+                        "icon": "dashboard",
                         "type": "parent",
                         "children": [
                             {

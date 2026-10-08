@@ -32,7 +32,17 @@
 		"form.default": {
 			"name": "Utilisateur",
 			"description": "Formulaire de base pour afficher un utilisateur.",
-			"layout": {}
+			"layout": {},
+			"actions": {
+				"action.impersonate": {
+					"label": "Agir comme",
+					"description": "Se connecter en tant que cet utilisateur."
+				},
+				"action.resend_invite": {
+					"label": "Renvoyer l'invitation",
+					"description": "Renvoyer l'invitation à cet utilisateur."
+				}
+			}
 		},
 		"list.default": {
 			"name": "Utilisateurs",
