@@ -216,12 +216,24 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
         ];
     }
 
+    protected static function oninstantiate($self): void {
+        foreach($self->ids() as $id) {
+            \eQual::run('do', 'realestate_funding_PaymentReminder_check-bank-statements', [
+                'id' => $id
+            ]);
+        }
+    }
+
     protected static function doGenerateReminder($self): void {
         $self->read(['condo_id']);
 
         $now = strtotime('today');
 
         foreach($self as $id => $paymentReminder) {
+
+            \eQual::run('do', 'realestate_funding_PaymentReminder_check-bank-statements', [
+                'id' => $id
+            ]);
 
             PaymentReminderOwnerLine::search(['payment_reminder_id', '=', $id])->delete(true);
             PaymentReminderOwner::search(['payment_reminder_id', '=', $id])->delete(true);
