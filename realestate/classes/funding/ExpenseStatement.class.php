@@ -510,8 +510,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         }
 
         $self
-            ->update(['status' => 'proforma', 'emission_date' => null])
-            ->update(['accounting_entry_id' => null]);
+            ->update(['status' => 'proforma'])
+            ->update([
+                'emission_date' => null,
+                'accounting_entry_id' => null
+            ]);
     }
 
     private static function normalizeMoneyAmount($amount): float {
