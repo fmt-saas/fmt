@@ -9,7 +9,6 @@ use equal\orm\Domain;
 use finance\accounting\Account;
 use finance\accounting\FiscalYear;
 use finance\accounting\AccountBalanceChange;
-use finance\accounting\OpeningBalance;
 use finance\accounting\OpeningBalanceLine;
 
 [$params, $providers] = eQual::announce([
@@ -142,27 +141,57 @@ if(!isset($params['condo_id'])) {
 }
 
 // Resolve date interval
-$date_from = null;
-$date_to   = null;
+$date_from = $params['date_from'] ?? null;
+$date_to = $params['date_to'] ?? null;
+$fiscalYear = null;
 
-if(!empty($params['fiscal_year_id'])) {
-    $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
-        ->read(['date_from', 'date_to'])
+$reference_date = $date_from ?? $date_to;
+
+if(!is_null($reference_date)) {
+    $fiscalYear = FiscalYear::search([
+            ['condo_id', '=', $params['condo_id']],
+            ['date_from', '<=', $reference_date]
+        ], ['sort' => ['date_from' => 'desc'], 'limit' => 1])
+        ->read(['date_from', 'date_to', 'opening_balance_id'])
         ->first();
 
-    if($fiscalYear) {
-        $date_from = $fiscalYear['date_from'];
-        $date_to   = $fiscalYear['date_to'];
+    if(!$fiscalYear) {
+        $fiscalYear = FiscalYear::search([
+                ['condo_id', '=', $params['condo_id']]
+            ], ['sort' => ['date_from' => 'asc'], 'limit' => 1])
+            ->read(['date_from', 'date_to', 'opening_balance_id'])
+            ->first();
+    }
+}
+elseif(!empty($params['fiscal_year_id'])) {
+    $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
+        ->read(['date_from', 'date_to', 'opening_balance_id'])
+        ->first();
+}
+else {
+    $fiscalYear = FiscalYear::search([
+            ['status', '=', 'open'],
+            ['condo_id', '=', $params['condo_id']]
+        ], ['sort' => ['date_from' => 'desc'], 'limit' => 1])
+        ->read(['date_from', 'date_to', 'opening_balance_id'])
+        ->first();
+
+    if(!$fiscalYear) {
+        $fiscalYear = FiscalYear::search([
+                ['status', '=', 'preopen'],
+                ['condo_id', '=', $params['condo_id']]
+            ], ['sort' => ['date_from' => 'asc'], 'limit' => 1])
+            ->read(['date_from', 'date_to', 'opening_balance_id'])
+            ->first();
     }
 }
 
-if(!empty($params['date_from']) && (!$date_from || $params['date_from'] > $date_from)) {
-    $date_from = $params['date_from'];
+if(!$fiscalYear) {
+    throw new Exception('missing_fiscal_year_or_dates', EQ_ERROR_MISSING_PARAM);
 }
 
-if(!empty($params['date_to']) && (!$date_to || $params['date_to'] < $date_to)) {
-    $date_to = $params['date_to'];
-}
+$date_from = $date_from ?? $fiscalYear['date_from'];
+$date_to = $date_to ?? $fiscalYear['date_to'];
 
 $adjustmentAccount = Account::search([['condo_id', '=', $params['condo_id']], ['operation_assignment', '=', 'adjustment_account']])
     ->read(['id', 'code', 'description', 'account_nature', ''])
@@ -245,38 +274,9 @@ $balances_liability = [];
  * Compute balances using AccountBalanceChange (same logic as general balance)
  */
 
-// resolve opening balance (fallback)
-$opening_balance_id = null;
-$opening_balance_date_from = $date_from;
-
-$fiscalYear = null;
-if(!empty($params['fiscal_year_id'])) {
-    $fiscalYear = FiscalYear::id($params['fiscal_year_id'])
-        ->read(['opening_balance_id'])
-        ->first();
-}
-
-if($fiscalYear && isset($fiscalYear['opening_balance_id'])) {
-    $opening_balance_id = $fiscalYear['opening_balance_id'];
-}
-else {
-    $openingBalance = OpeningBalance::search([
-                ['condo_id', '=', $params['condo_id']],
-                ['status', '=', 'validated']
-            ],
-            [
-                'sort'  => ['created' => 'desc'],
-                'limit' => 1
-            ]
-        )
-        ->read(['id', 'fiscal_year_id' => ['date_from']])
-        ->first();
-
-    if($openingBalance) {
-        $opening_balance_id = $openingBalance['id'];
-        $opening_balance_date_from = $openingBalance['fiscal_year_id']['date_from'];
-    }
-}
+// resolve opening balance from the selected fiscal year
+$opening_balance_id = $fiscalYear['opening_balance_id'] ?? null;
+$opening_balance_date_from = $fiscalYear['date_from'];
 
 // 1) retrieve balance changes up to dateTo
 $map_balances = [];
