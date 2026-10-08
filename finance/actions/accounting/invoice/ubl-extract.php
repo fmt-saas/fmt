@@ -10,7 +10,8 @@
     'params'        => [
         'xml' =>  [
             'description'       => 'XML content.',
-            'type'              => 'string',
+            'type'              => 'text',
+            'usage'             => 'text/plain.medium',
             'required'          => true
         ],
     ],
@@ -82,9 +83,14 @@ $data['supplier'] = [
         'company_id'=> $xpathValue($xml, '//cac:AccountingSupplierParty//cac:PartyLegalEntity//cbc:CompanyID')
     ];
 
+$name = $xpathValue($xml, '//cac:AccountingCustomerParty//cac:PartyName/cbc:Name', '');
+if(empty($name)) {
+    $name = $xpathValue($xml, '//cac:AccountingCustomerParty//cac:PartyLegalEntity/cbc:RegistrationName', '');
+}
+
 // customer
 $data['customer'] = [
-        'name'      => $xpathValue($xml, '//cac:AccountingCustomerParty//cac:PartyName/cbc:Name', ''),
+        'name'      => $name,
         'street'    => $xpathValue($xml, '//cac:AccountingCustomerParty//cac:PostalAddress//cbc:StreetName', ''),
         'vat_id'    => $xpathValue($xml, '//cac:AccountingCustomerParty//cac:PartyTaxScheme//cbc:CompanyID'),
         'company_id'=> $xpathValue($xml, '//cac:AccountingCustomerParty//cac:PartyLegalEntity//cbc:CompanyID')
@@ -129,22 +135,34 @@ foreach($lines as $line) {
     $line->registerXPathNamespace('cbc', $namespaces['cbc']);
     $line->registerXPathNamespace('cac', $namespaces['cac']);
 
+    $discounts = $line->xpath('//cac:AllowanceCharge');
+
+    $discount_amount = 0.0;
+    foreach($discounts as $discount) {
+        $discount_amount += (float) $xpathValue($discount, './cbc:Amount', 0.0);
+    }
+
     $data['lines'][] = [
-            'id'            => (string)  $xpathValue($line, './cbc:ID', ''),
-            'description'   => (string)  $xpathValue($line, './/cbc:Description', ''),
-            'amount'        => (float)   $xpathValue($line, './cbc:LineExtensionAmount', 0),
-            'unit_price'    => (float)   $xpathValue($line, './/cac:Price//cbc:PriceAmount', 0)
+            'id'                => (string) $xpathValue($line, './cbc:ID', ''),
+            'name'              => (string) $xpathValue($line, './/cbc:Name', ''),
+            'description'       => (string) $xpathValue($line, './/cbc:Description', ''),
+            'amount'            => (float) $xpathValue($line, './cbc:LineExtensionAmount', 0.0),
+            'unit_price'        => (float) $xpathValue($line, './/cac:Price//cbc:PriceAmount', 0.0),
+            'qty'               => (float) $xpathValue($line, './cbc:InvoicedQuantity', 1.0),
+            'vat_rate'          => (float) $xpathValue($line, './/cac:Item//cac:ClassifiedTaxCategory//cbc:Percent') * 0.01,
+            'discount_amount'   => $discount_amount
         ];
 }
 
 // total amounts
 $data['totals'] = [
-        'subtotal'          => (float) $xpathValue($xml, '//cac:LegalMonetaryTotal//cbc:LineExtensionAmount', 0),
-        'total_excl_tax'    => (float) $xpathValue($xml, '//cac:LegalMonetaryTotal//cbc:TaxExclusiveAmount', 0),
-        'total_incl_tax'    => (float) $xpathValue($xml, '//cac:LegalMonetaryTotal//cbc:TaxInclusiveAmount', 0),
-        'payable_amount'    => (float) $xpathValue($xml, '//cac:LegalMonetaryTotal//cbc:PayableAmount', 0)
+        'subtotal'          => (float) $xpathValue($xml, '//cac:LegalMonetaryTotal//cbc:LineExtensionAmount', 0.0),
+        'total_excl_tax'    => (float) $xpathValue($xml, '//cac:LegalMonetaryTotal//cbc:TaxExclusiveAmount', 0.0),
+        'total_incl_tax'    => (float) $xpathValue($xml, '//cac:LegalMonetaryTotal//cbc:TaxInclusiveAmount', 0.0),
+        'payable_amount'    => (float) $xpathValue($xml, '//cac:LegalMonetaryTotal//cbc:PayableAmount', 0.0)
     ];
 
-$context->httpResponse()
-        ->body($data)
-        ->send();
+$context
+    ->httpResponse()
+    ->body($data)
+    ->send();
