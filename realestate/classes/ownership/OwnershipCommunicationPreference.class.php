@@ -247,38 +247,64 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
             */
 
             $ownership_id = $ownershipCommunicationPreference['ownership_id']['id'];
-            $identity_id = $ownershipCommunicationPreference['identity_id'];
-            if($ownershipCommunicationPreference['has_channel_postal']
-                || $ownershipCommunicationPreference['has_channel_postal_registered']
-                || $ownershipCommunicationPreference['has_channel_postal_registered_receipt']) {
-                    $postalMailPreferences = self::search([
-                        [
-                            ['ownership_id', '=', $ownership_id],
-                            ['identity_id', '=', $identity_id],
-                            ['communication_reason', '=', $ownershipCommunicationPreference['communication_reason']],
-                            ['has_channel_postal', '=', true]
-                        ],
-                        [
-                            ['ownership_id', '=', $ownership_id],
-                            ['identity_id', '=', $identity_id],
-                            ['communication_reason', '=', $ownershipCommunicationPreference['communication_reason']],
-                            ['has_channel_postal_registered', '=', true]
-                        ],
-                        [
-                            ['ownership_id', '=', $ownership_id],
-                            ['identity_id', '=', $identity_id],
-                            ['communication_reason', '=', $ownershipCommunicationPreference['communication_reason']],
-                            ['has_channel_postal_registered_receipt', '=', true]
-                        ]
-                    ]);
-                if($postalMailPreferences->count() > 1) {
-                    trigger_error("APP::Duplicate found  while checking Ownership[{$ownership_id}] for {$ownershipCommunicationPreference['communication_reason']} on {$ownershipCommunicationPreference['identity_id']}", EQ_REPORT_WARNING);
+            $identity_id = array_key_exists('identity_id', $values)
+                ? $values['identity_id']
+                : $ownershipCommunicationPreference['identity_id'];
+
+            // When an owner is selected, the related identity is synchronized by onupdateOwnerId after validation.
+            // Resolve it now so that canupdate validates the values that will actually be stored.
+            if(!empty($values['owner_id'])) {
+                $owner = Owner::id($values['owner_id'])
+                    ->read(['identity_id'])
+                    ->first();
+                $identity_id = $owner['identity_id'] ?? null;
+            }
+
+            $communication_reason = array_key_exists('communication_reason', $values)
+                ? $values['communication_reason']
+                : $ownershipCommunicationPreference['communication_reason'];
+            $has_channel_postal = array_key_exists('has_channel_postal', $values)
+                ? $values['has_channel_postal']
+                : $ownershipCommunicationPreference['has_channel_postal'];
+            $has_channel_postal_registered = array_key_exists('has_channel_postal_registered', $values)
+                ? $values['has_channel_postal_registered']
+                : $ownershipCommunicationPreference['has_channel_postal_registered'];
+            $has_channel_postal_registered_receipt = array_key_exists('has_channel_postal_registered_receipt', $values)
+                ? $values['has_channel_postal_registered_receipt']
+                : $ownershipCommunicationPreference['has_channel_postal_registered_receipt'];
+
+            if($has_channel_postal
+                || $has_channel_postal_registered
+                || $has_channel_postal_registered_receipt) {
+                $postalMailPreferences = self::search([
+                    [
+                        ['id', '<>', $id],
+                        ['ownership_id', '=', $ownership_id],
+                        ['identity_id', '=', $identity_id],
+                        ['communication_reason', '=', $communication_reason],
+                        ['has_channel_postal', '=', true]
+                    ],
+                    [
+                        ['id', '<>', $id],
+                        ['ownership_id', '=', $ownership_id],
+                        ['identity_id', '=', $identity_id],
+                        ['communication_reason', '=', $communication_reason],
+                        ['has_channel_postal_registered', '=', true]
+                    ],
+                    [
+                        ['id', '<>', $id],
+                        ['ownership_id', '=', $ownership_id],
+                        ['identity_id', '=', $identity_id],
+                        ['communication_reason', '=', $communication_reason],
+                        ['has_channel_postal_registered_receipt', '=', true]
+                    ]
+                ]);
+                if($postalMailPreferences->count() > 0) {
+                    trigger_error("APP::Duplicate found while checking Ownership[{$ownership_id}] for {$communication_reason} on {$identity_id}", EQ_REPORT_WARNING);
                     return ['communication_reason' => ['not_allowed' => 'Only a single postal courier is allowed per communication reason.']];
                 }
             }
 
-
-            $identity_id = $ownershipCommunicationPreference['identity_id'];
             $found = false;
             foreach($ownershipCommunicationPreference['ownership_id']['owners_ids'] as $owner_id => $owner) {
                 if($owner['identity_id'] === $identity_id) {

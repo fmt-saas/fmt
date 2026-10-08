@@ -21,7 +21,10 @@
             {
                 "type": "field",
                 "value": "date_opening",
-                "width": "10%"
+                "width": "10%",
+                "widget": {
+                    "usage": "date/plain"
+                }
             },
             {
                 "type": "field",

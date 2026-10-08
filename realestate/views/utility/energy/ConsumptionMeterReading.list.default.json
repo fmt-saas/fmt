@@ -16,7 +16,10 @@
             {
                 "type": "field",
                 "value": "date_reading",
-                "width": "16%"
+                "width": "16%",
+                "widget": {
+                    "usage": "date/plain"
+                }
             },
             {
                 "type": "field",
