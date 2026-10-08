@@ -223,7 +223,10 @@ class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
                         'condo'     => $invoice['condo_id'],
                         'sequence'  => $sequence
                     ]);
-                self::id($id)->update(['invoice_number' => $invoice_number]);
+                self::id($id)->update([
+                    'invoice_number' => $invoice_number,
+                    'emission_date'  => time()
+                ]);
             }
         }
     }
