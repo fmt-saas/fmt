@@ -223,6 +223,7 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
         $self->read([
                 'identity_id',
                 'communication_reason',
+                'has_channel_email',
                 'has_channel_postal',
                 'has_channel_postal_registered',
                 'has_channel_postal_registered_receipt',
@@ -230,22 +231,6 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
             ]);
 
         foreach($self as $id => $ownershipCommunicationPreference) {
-            /*
-            // #memo #todo - this is either incorrect or incomplete : identity can either be direct with an external representative, or the identity linked to the selected owner
-            if(!empty($values['has_channel_email'])) {
-                $identity_id = array_key_exists('identity_id', $values)
-                    ? $values['identity_id']
-                    : $ownershipCommunicationPreference['identity_id'];
-                $identity = $identity_id
-                    ? Identity::id($identity_id)->read(['email', 'email_alt'])->first()
-                    : null;
-
-                if(!$identity || (empty($identity['email']) && empty($identity['email_alt']))) {
-                    return ['has_channel_email' => ['email_missing' => 'An email address is required when email is used as communication channel.']];
-                }
-            }
-            */
-
             $ownership_id = $ownershipCommunicationPreference['ownership_id']['id'];
             $identity_id = array_key_exists('identity_id', $values)
                 ? $values['identity_id']
@@ -258,6 +243,18 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                     ->read(['identity_id'])
                     ->first();
                 $identity_id = $owner['identity_id'] ?? null;
+            }
+
+            $has_channel_email = array_key_exists('has_channel_email', $values)
+                ? $values['has_channel_email']
+                : $ownershipCommunicationPreference['has_channel_email'];
+            if($has_channel_email) {
+                $identity = $identity_id
+                    ? Identity::id($identity_id)->read(['email', 'email_alt'])->first()
+                    : null;
+                if(!$identity || (empty($identity['email']) && empty($identity['email_alt']))) {
+                    return ['has_channel_email' => ['email_missing' => 'An email address is required when email is used as communication channel.']];
+                }
             }
 
             $communication_reason = array_key_exists('communication_reason', $values)
@@ -349,27 +346,6 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
 
     protected static function doRemove($self) {
         $self->delete();
-    }
-
-    protected static function onafterupdate($self, $dispatch) {
-        $self->read([
-                'identity_id',
-                'ownership_id',
-                'has_channel_email'
-            ]);
-
-        foreach($self as $id => $ownershipCommunicationPreference) {
-            if($ownershipCommunicationPreference['has_channel_email']) {
-                $identity = Identity::id($ownershipCommunicationPreference['identity_id'])
-                    ->read(['email','email_alt'])
-                    ->first();
-                if(!$identity['email'] && !$identity['email_alt']) {
-                    $dispatch->dispatch('realestate.workflow.ownership.invalid_communication_prefs', self::getType(), $ownershipCommunicationPreference['ownership_id'], 'warning');
-                    $dispatch->dispatch('realestate.workflow.communication_prefs.email_missing', self::getType(), $id, 'warning');
-                }
-            }
-        }
-
     }
 
     public static function onchange($event, $values) {
