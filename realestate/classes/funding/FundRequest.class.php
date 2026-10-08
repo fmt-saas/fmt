@@ -905,6 +905,7 @@ class FundRequest extends \equal\orm\Model {
                 }
 
                 $execution_values['posting_date'] = $execution_date;
+                $execution_values['emission_date'] = $execution_date;
                 $execution_values['date_from'] = $execution_date;
                 $execution_values['date_to'] = $map_execution_period_to[$execution_date] ?? $execution_date;
                 // #memo - by default, payment terms related to sale invoices are applied (due_date is set at invoice emission)
