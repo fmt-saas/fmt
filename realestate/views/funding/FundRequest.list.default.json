@@ -60,7 +60,10 @@
             {
                 "type": "field",
                 "value": "date_from",
-                "width": "10%"
+                "width": "10%",
+                "widget": {
+                    "usage": "date/plain"
+                }
             },
             {
                 "type": "field",

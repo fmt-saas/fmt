@@ -26,12 +26,18 @@
             {
                 "type": "field",
                 "value": "date_from",
-                "width": "11%"
+                "width": "11%",
+                "widget": {
+                    "usage": "date/plain"
+                }
             },
             {
                 "type": "field",
                 "value": "date_to",
-                "width": "11%"
+                "width": "11%",
+                "widget": {
+                    "usage": "date/plain"
+                }
             },
             {
                 "type": "field",
