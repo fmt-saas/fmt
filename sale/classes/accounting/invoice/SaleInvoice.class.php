@@ -615,8 +615,7 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
                 // #memo - due_date is computed from emission_date and payment_terms_id
                 self::id($id)->update([
                     'invoice_number' => $invoice_number,
-                    'emission_date'  => time(),
-                    'due_date'       => null
+                    'emission_date'  => time()
                 ]);
             }
         }
