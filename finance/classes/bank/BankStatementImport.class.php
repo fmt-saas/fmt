@@ -124,6 +124,8 @@ class BankStatementImport extends Model {
     private static function computeSummary(array $summary): string {
         return implode("\n", [
             "Files in import: {$summary['files']}",
+            "Warnings: {$summary['warnings']}",
+            "Errors: {$summary['errors']}",
             "Statements imported: {$summary['imported']}",
             "Statements skipped (already imported): {$summary['already_imported']}",
             "Statements skipped (unknown accounts): {$summary['unknown_accounts']}"

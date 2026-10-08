@@ -16,13 +16,18 @@
         "items": [
             {
                 "type": "field",
+                "value": "created",
+                "width": "10%"
+            },
+            {
+                "type": "field",
                 "value": "name",
-                "width": "50%"
+                "width": "30%"
             },
             {
                 "type": "field",
                 "value": "has_error",
-                "width": "50%"
+                "width": "15%"
             }
         ]
     }
