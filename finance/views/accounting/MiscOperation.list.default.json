@@ -49,12 +49,18 @@
             {
                 "type": "field",
                 "value": "posting_date",
-                "width": "9%"
+                "width": "9%",
+                "widget": {
+                    "usage": "date/plain"
+                }
             },
             {
                 "type": "field",
                 "value": "emission_date",
-                "width": "9%"
+                "width": "9%",
+                "widget": {
+                    "usage": "date/plain"
+                }
             },
             {
                 "type": "field",

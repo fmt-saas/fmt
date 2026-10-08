@@ -51,7 +51,10 @@
             {
                 "type": "field",
                 "value": "due_date",
-                "width": "15%"
+                "width": "15%",
+                "widget": {
+                    "usage": "date/plain"
+                }
             },
             {
                 "type": "field",

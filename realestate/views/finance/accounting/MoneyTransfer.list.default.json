@@ -42,7 +42,10 @@
             {
                 "type": "field",
                 "value": "posting_date",
-                "width": "7%"
+                "width": "7%",
+                "widget": {
+                    "usage": "date/plain"
+                }
             },
             {
                 "type": "field",

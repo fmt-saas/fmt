@@ -34,7 +34,10 @@
                 "type": "field",
                 "value": "emission_date",
                 "width": "20%",
-                "readonly": true
+                "readonly": true,
+                "widget": {
+                    "usage": "date/plain"
+                }
             },
             {
                 "type": "field",

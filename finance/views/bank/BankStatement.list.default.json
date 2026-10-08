@@ -82,7 +82,7 @@
                 "value": "opening_date",
                 "width": "10%",
                 "widget": {
-                    "usage": "date"
+                    "usage": "date/plain"
                 }
             },
             {
@@ -95,7 +95,7 @@
                 "value": "closing_date",
                 "width": "10%",
                 "widget": {
-                    "usage": "date"
+                    "usage": "date/plain"
                 }
             },
             {
