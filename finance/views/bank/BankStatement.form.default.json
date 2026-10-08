@@ -130,7 +130,7 @@
                                                 "width": "50%"
                                             },
                                             {
-                                                "type": "label",
+                                                "type": "field",
                                                 "value": "balance_delta",
                                                 "width": "50%",
                                                 "readonly": true
