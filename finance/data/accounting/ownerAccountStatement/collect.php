@@ -11,7 +11,6 @@ use finance\accounting\Account;
 use finance\accounting\AccountBalanceChange;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
-use finance\accounting\OpeningBalance;
 use finance\accounting\OpeningBalanceLine;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\ownership\Ownership;
@@ -139,34 +138,25 @@ $map_opening_balances = [];
 
 $fiscalYear = FiscalYear::search([
         ['condo_id', '=', $ownership['condo_id']],
-        ['date_from', '<=', $date_from],
-        ['date_to', '>=', $date_from]
-    ], ['limit' => 1])
+        ['date_from', '<=', $date_from]
+    ], ['sort' => ['date_from' => 'desc'], 'limit' => 1])
     ->read(['date_from', 'opening_balance_id'])
     ->first();
 
-$opening_balance_id = $fiscalYear['opening_balance_id'] ?? null;
-$opening_balance_date_from = $fiscalYear['date_from'] ?? $date_from;
-
-if(!$opening_balance_id) {
-    // find first available opening balance (last validated for given condominium)
-    $openingBalance = OpeningBalance::search([
-                ['condo_id', '=', $ownership['condo_id']],
-                ['status', '=', 'validated']
-            ],
-            [
-                'sort'  => ['created' => 'desc'],
-                'limit' => 1
-            ]
-        )
-        ->read(['id', 'fiscal_year_id' => ['date_from']])
+if(!$fiscalYear) {
+    $fiscalYear = FiscalYear::search([
+            ['condo_id', '=', $ownership['condo_id']]
+        ], ['sort' => ['date_from' => 'asc'], 'limit' => 1])
+        ->read(['date_from', 'opening_balance_id'])
         ->first();
-
-    if($openingBalance) {
-        $opening_balance_id = $openingBalance['id'];
-        $opening_balance_date_from = $openingBalance['fiscal_year_id']['date_from'];
-    }
 }
+
+if(!$fiscalYear) {
+    throw new Exception('missing_fiscal_year_or_dates', EQ_ERROR_MISSING_PARAM);
+}
+
+$opening_balance_id = $fiscalYear['opening_balance_id'] ?? null;
+$opening_balance_date_from = $fiscalYear['date_from'];
 
 if($opening_balance_id) {
     $openingLines = OpeningBalanceLine::search([

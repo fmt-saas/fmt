@@ -369,7 +369,6 @@ $fiscal_period_fields = [
         'date_from',
         'date_to',
         'name',
-        'fiscal_year_id' => ['date_from'],
         'condo_id' => [
             'name', 'legal_name', 'address_street', 'address_zip', 'address_city',
             'registration_number', 'bank_account_iban', 'bank_account_bic',
@@ -491,7 +490,7 @@ $funding = [];
 // generate pseudo instant Funding based on current account statement
 $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
     'ownership_id'      => $params['ownership_id'],
-    'date_from'         => $fiscalPeriod['fiscal_year_id']['date_from'],
+    'date_from'         => $fiscalPeriod['date_from'],
     'date_to'           => $statement['is_cutoff_at_document_date'] ? time() : $fiscalPeriod['date_to']
 ]);
 

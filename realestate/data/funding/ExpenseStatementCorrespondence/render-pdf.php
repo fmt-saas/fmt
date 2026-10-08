@@ -47,7 +47,12 @@ if(!$expenseStatementCorrespondence) {
 $expenseStatement = $expenseStatementCorrespondence['expense_statement_id'];
 
 $fiscalPeriod = FiscalPeriod::id($expenseStatement['fiscal_period_id'])
-    ->read(['date_from', 'date_to', 'condo_id' => ['ownerships_ids' => ['date_to']]])
+    ->read([
+        'date_from',
+        'date_to',
+        'fiscal_year_id' => ['date_from'],
+        'condo_id' => ['ownerships_ids' => ['date_to']]
+    ])
     ->first();
 
 if(!$fiscalPeriod) {
@@ -109,7 +114,7 @@ try {
     try {
 
         $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
-                'date_from'         => $fiscalPeriod['date_from'],
+                'date_from'         => $fiscalPeriod['fiscal_year_id']['date_from'],
                 'date_to'           => ($expenseStatement['is_cutoff_at_document_date']) ? time() : $fiscalPeriod['date_to'],
                 'ownership_id'      => $expenseStatementCorrespondence['ownership_id']
             ]);

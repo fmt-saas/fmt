@@ -213,6 +213,18 @@ if(isset($params['date_from'], $params['date_to'])) {
         ->read(['id', 'date_from', 'date_to', 'opening_balance_id'])
         ->first();
 
+    if(!$fiscalYear) {
+        $fiscalYear = FiscalYear::search([
+                ['condo_id', '=', $params['condo_id']]
+            ], ['sort' => ['date_from' => 'asc'], 'limit' => 1])
+            ->read(['id', 'date_from', 'date_to', 'opening_balance_id'])
+            ->first();
+    }
+
+    if(!$fiscalYear) {
+        throw new Exception('missing_fiscal_year_or_dates', EQ_ERROR_MISSING_PARAM);
+    }
+
     $date_from = $params['date_from'];
     $date_to = $params['date_to'];
 }
@@ -262,25 +274,7 @@ else {
 }
 
 $opening_date_from = $fiscalYear['date_from'];
-
-if(isset($fiscalYear['opening_balance_id'])) {
-    $opening_balance_id = $fiscalYear['opening_balance_id'];
-}
-else {
-    // find first available opening balance (last validated for given condominium)
-    $openingBalance = OpeningBalance::search([
-                ['condo_id', '=', $params['condo_id']],
-                ['status', '=', 'validated']
-            ],
-            [
-                'sort'  => ['created' => 'desc'],
-                'limit' => 1
-            ]
-        )
-        ->first();
-
-    $opening_balance_id = $openingBalance['id'] ?? null;
-}
+$opening_balance_id = $fiscalYear['opening_balance_id'] ?? null;
 
 if($opening_balance_id) {
     $openingBalance = OpeningBalance::id($opening_balance_id)
