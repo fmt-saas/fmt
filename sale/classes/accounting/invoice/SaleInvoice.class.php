@@ -141,7 +141,8 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
                 'type'              => 'many2one',
                 'foreign_object'    => 'sale\pay\PaymentTerms',
                 'description'       => 'The payment terms to apply to the invoice.',
-                'default'           => 1
+                'default'           => 1,
+                'dependents'        => ['due_date']
             ],
 
             'price_billed' => [
@@ -163,19 +164,17 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
 
             'posting_date' => [
                 'type'              => 'date',
-                'description'       => 'The date on which the invoice is recorded in the accounting system.',
+                'description'       => 'The date at which the invoice is recorded in the accounting system.',
                 'default'           => function () { return time(); },
-                'dependents'        => ['emission_date', 'fiscal_period_id']
+                'help'              => 'There is a distinction between the requested posting date and the time at which the invoice is actually posted (emission date).',
+                'dependents'        => ['fiscal_period_id']
             ],
 
             'emission_date' => [
-                'type'              => 'computed',
-                'result_type'       => 'date',
-                'relation'          => ['posting_date'],
+                'type'              => 'date',
                 'description'       => 'Date at which the invoice was emitted (by the system of origin).',
-                'help'              => 'For sale invoices, this value is the same as posting_date.',
-                'instant'           => true,
-                'store'             => true
+                'help'              => 'For sale invoices, this value is assigned when the invoice is posted.',
+                'dependents'        => ['due_date']
             ],
 
         ];
@@ -335,8 +334,8 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
         return sprintf("%3d%04d%03d%02d", $a, $b / 1000, $b % 1000, $control);
     }
 
-    private static function computeDueDate($posting_date, $delay_from, $delay_count): int {
-        $due_date = $posting_date;
+    private static function computeDueDate($emission_date, $delay_from, $delay_count): int {
+        $due_date = $emission_date;
 
         switch ($delay_from) {
             case 'created':
@@ -354,24 +353,19 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
 
     public static function calcDueDate($self): array {
         $result = [];
-        $self->read(['status', 'posting_date', 'payment_terms_id' => ['delay_from', 'delay_count']]);
+        $self->read(['emission_date', 'payment_terms_id' => ['delay_from', 'delay_count']]);
         foreach($self as $id => $invoice) {
-            /*
-            if($invoice['status'] === 'proforma') {
-                continue;
-            }
-            */
-            $result[$id] = strtotime('+1 month');
+            $result[$id] = null;
 
-            if(!isset($invoice['posting_date'], $invoice['payment_terms_id']['delay_from'], $invoice['payment_terms_id']['delay_count'])) {
+            if(!isset($invoice['emission_date'], $invoice['payment_terms_id']['delay_from'], $invoice['payment_terms_id']['delay_count'])) {
                 continue;
             }
 
             $from = $invoice['payment_terms_id']['delay_from'];
             $delay = $invoice['payment_terms_id']['delay_count'];
-            $posting_date = $invoice['posting_date'];
+            $emission_date = $invoice['emission_date'];
 
-            $result[$id] = self::computeDueDate($posting_date, $from, $delay);
+            $result[$id] = self::computeDueDate($emission_date, $from, $delay);
         }
 
         return $result;
@@ -487,7 +481,6 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
             $reversed_invoice = self::create([
                     'invoice_type'        => 'credit_note',
                     'status'              => 'proforma',
-                    'emission_date'       => time(),
                     'organisation_id'     => $invoice['organisation_id'],
                     'customer_id'         => $invoice['customer_id'],
                     'is_downpayment'      => $invoice['is_downpayment'],
@@ -619,8 +612,12 @@ class SaleInvoice extends \finance\accounting\invoice\Invoice {
                         'org'       => $invoice['organisation_id'],
                         'sequence'  => $sequence
                     ]);
-                // #memo - due_date is computed based on payment_terms_id
-                self::id($id)->update(['invoice_number' => $invoice_number, 'due_date' => null]);
+                // #memo - due_date is computed from emission_date and payment_terms_id
+                self::id($id)->update([
+                    'invoice_number' => $invoice_number,
+                    'emission_date'  => time(),
+                    'due_date'       => null
+                ]);
             }
         }
     }

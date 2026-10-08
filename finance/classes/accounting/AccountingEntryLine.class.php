@@ -697,7 +697,10 @@ class AccountingEntryLine extends Model {
 
     public static function canupdate($self, $values) {
         $self->read(['accounting_entry_id' => ['status']]);
-        $allowed_fields = ['status', 'description', 'old_matching_id', 'matching_id', 'matching_level', 'is_posted'];
+        $allowed_fields = ['status', 'description', 'old_matching_id', 'matching_id', 'matching_level', 'is_posted',
+            // #todo - temporary to allow fmt\init\updates\20260916131920_backfill_accounting_entry_line_allocation_dates
+            'allocation_date_from', 'allocation_date_to'
+        ];
         $updated_fields = array_keys($values);
 
         if(count(array_diff($updated_fields, $allowed_fields)) > 0) {

@@ -108,7 +108,7 @@ class DocumentCorrespondence extends \equal\orm\Model {
 
     protected static function canupdate($self, $values) {
         $self->read(['is_sent']);
-        $allowed_fields = ['document_id', 'is_acknowledged', 'is_sent', 'sent_date'];
+        $allowed_fields = ['document_id', 'is_acknowledged', 'is_sent', 'sent_date', 'download_link'];
         foreach($self as $id => $documentCorrespondence) {
             if($documentCorrespondence['is_sent']) {
                 if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {

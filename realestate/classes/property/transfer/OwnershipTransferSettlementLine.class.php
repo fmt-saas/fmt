@@ -213,9 +213,12 @@ class OwnershipTransferSettlementLine extends \equal\orm\Model {
 
     public static function canupdate($self, $values): array {
         $self->read(['settlement_id' => ['status']]);
+        $allowed_fields = ['operation_id'];
         foreach($self as $line) {
             if($line['settlement_id']['status'] !== 'pending') {
-                return ['operation_id' => ['settlement_already_validated' => 'A settlement line cannot be modified once settlement has been validated.']];
+                if(count(array_diff(array_keys($values), $allowed_fields)) > 0) {
+                    return ['operation_id' => ['settlement_already_validated' => 'A settlement line cannot be modified once settlement has been validated.']];
+                }
             }
         }
 
