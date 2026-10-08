@@ -29,7 +29,10 @@
                 "type": "field",
                 "value": "date",
                 "width": "20%",
-                "sortable": true
+                "sortable": true,
+                "widget": {
+                    "usage": "date/plain"
+                }
             },
             {
                 "type": "field",
