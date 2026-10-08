@@ -36,7 +36,7 @@ use realestate\management\ManagementProcess;
     ],
     'access'        => [
         'visibility'    => 'protected',
-        'groups'        => ['admins', 'operators']
+        'groups'        => ['admins', 'operators', 'employees']
     ],
     'providers'     => ['context', 'auth', 'self']
 ]);

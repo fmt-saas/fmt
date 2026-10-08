@@ -24,7 +24,17 @@
             "params": {
                 "id": "object.id"
             },
-            "visible": ["admins", "in", "user.groups"]
+            "visible": [
+                [
+                    ["admins", "in", "user.groups"]
+                ],
+                [
+                    ["operators", "in", "user.groups"]
+                ],
+                [
+                    ["employees", "in", "user.groups"]
+                ]
+            ]
         }
     ],
     "layout": {
