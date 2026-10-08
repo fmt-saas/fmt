@@ -13,7 +13,7 @@ list($params, $providers) = eQual::announce([
         'data' =>  [
             'type'          => 'string',
             'description'   => "Raw CODA data to parse as statements.",
-            'usage'         => 'text/plain',
+            'usage'         => 'text/plain.medium',
             'required'      => true
         ],
         'lang' => [
