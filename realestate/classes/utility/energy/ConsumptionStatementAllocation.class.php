@@ -74,21 +74,21 @@ class ConsumptionStatementAllocation extends \equal\orm\Model {
 
     public static function getPolicies(): array {
         return array_merge(parent::getPolicies(), [
-            'statement_allocations_editable' => [
+            'can_edit' => [
                 'description' => 'Checks that the statement allocations are still editable.',
-                'function'    => 'policyStatementAllocationsEditable'
+                'function'    => 'policyCanEdit'
             ]
         ]);
     }
 
     public static function getOperationPolicies(): array {
         return [
-            EQ_R_UPDATE => ['statement_allocations_editable'],
-            EQ_R_DELETE => ['statement_allocations_editable']
+            EQ_R_UPDATE => ['can_edit'],
+            EQ_R_DELETE => ['can_edit']
         ];
     }
 
-    protected static function policyStatementAllocationsEditable($self): array {
+    protected static function policyCanEdit($self): array {
         $result = [];
         $self->read(['consumption_statement_id' => ['status']]);
         foreach($self as $id => $allocation) {

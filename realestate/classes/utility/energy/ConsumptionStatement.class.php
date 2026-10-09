@@ -77,7 +77,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
-            // Kept optional for compatibility with statements created from the former meter-based workflow.
+            // #memo - kept optional for compatibility with statements with meter-based workflow.
             'consumption_meter_id' => [
                 'type'           => 'many2one',
                 'foreign_object' => 'realestate\utility\energy\ConsumptionMeter',
@@ -90,7 +90,8 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'foreign_object' => 'realestate\utility\energy\ConsumptionFile',
                 'description'    => 'Consumption file the statement belongs to.',
                 'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
-                'required'       => true
+                'required'       => true,
+                'onupdate'       => 
             ],
 
             'consumption_statement_lines_ids' => [
@@ -244,8 +245,7 @@ class ConsumptionStatement extends \equal\orm\Model {
         return [
             EQ_R_UPDATE => [
                 '*'                   => true,
-                'consumption_file_id' => ['statement_is_draft'],
-                'status'              => false
+                'consumption_file_id' => ['statement_is_draft']
             ]
         ];
     }

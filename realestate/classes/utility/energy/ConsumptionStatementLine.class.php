@@ -113,21 +113,21 @@ class ConsumptionStatementLine extends \equal\orm\Model {
 
     public static function getPolicies(): array {
         return array_merge(parent::getPolicies(), [
-            'statement_lines_editable' => [
+            'can_edit' => [
                 'description' => 'Checks that statement lines are currently editable.',
-                'function'    => 'policyStatementLinesEditable'
+                'function'    => 'policyCanEdit'
             ]
         ]);
     }
 
     public static function getOperationPolicies(): array {
         return [
-            EQ_R_UPDATE => ['statement_lines_editable'],
-            EQ_R_DELETE => ['statement_lines_editable']
+            EQ_R_UPDATE => ['can_edit'],
+            EQ_R_DELETE => ['can_edit']
         ];
     }
 
-    protected static function policyStatementLinesEditable($self): array {
+    protected static function policyCanEdit($self): array {
         $result = [];
         $self->read(['consumption_statement_id' => ['status']]);
         foreach($self as $id => $line) {
