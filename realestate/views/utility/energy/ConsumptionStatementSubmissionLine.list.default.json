@@ -16,7 +16,11 @@
             {"type": "field", "value": "consumption_file_section_id", "width": "20%", "visible": false},
             {"type": "field", "value": "account_id", "width": "35%"},
             {"type": "field", "value": "apportionment_id", "width": "35%"},
-            {"type": "field", "value": "amount", "width": "30%"}
+            {"type": "field", "value": "amount", "width": "30%"},
+            {"type": "field", "value": "units", "width": "20%"},
+            {"type": "field", "value": "calculation_method", "width": "20%"},
+            {"type": "field", "value": "quantity", "width": "10%"},
+            {"type": "field", "value": "unit_price", "width": "10%"}
         ]
     }
 }
