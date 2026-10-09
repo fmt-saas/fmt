@@ -42,9 +42,11 @@
         "errors": {
             "statement_not_draft": "The consumption file can only be changed while the statement is in draft.",
             "invalid_status": "Lines can only be generated while the statement is in the to-encode status.",
-            "missing_allocation_apportionment": "Every allocation must have an apportionment before the statement can be sent.",
+            "missing_allocation_apportionment": "Every allocation must have an apportionment before the statement can be encoded.",
             "allocations_total_mismatch": "The allocation total must match the statement total.",
             "lines_total_mismatch": "The line total must match the statement total.",
+            "missing_rounding_account": "A rounding account is required to balance the statement allocations.",
+            "missing_rounding_account_apportionment": "The rounding account must have an apportionment.",
             "accounting_operation_already_exists": "An accounting operation already exists for this statement.",
             "missing_misc_journal": "A miscellaneous operations journal is required for integration.",
             "missing_private_expense_account": "A private expense account is required for integration."

@@ -106,7 +106,7 @@
                                         "width": "25%",
                                         "items": [
                                             {"type": "field", "value": "statement_total", "width": "100%"},
-                                            {"type": "field", "value": "document_id", "width": "100%"},
+                                            {"type": "field", "value": "document_id", "width": "100%", "widget": {"readonly": true}},
                                             {"type": "field", "value": "status", "width": "50%", "visible": false}
                                         ]
                                     }

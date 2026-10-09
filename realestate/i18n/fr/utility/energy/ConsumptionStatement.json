@@ -42,9 +42,11 @@
         "errors": {
             "statement_not_draft": "Le dossier de consommation ne peut être modifié que lorsque le relevé est en brouillon.",
             "invalid_status": "Les lignes ne peuvent être générées qu'au statut À encoder.",
-            "missing_allocation_apportionment": "Chaque ventilation doit avoir une clé de répartition avant l'envoi.",
+            "missing_allocation_apportionment": "Chaque ventilation doit avoir une clé de répartition avant l'encodage.",
             "allocations_total_mismatch": "Le total des ventilations doit correspondre au total du relevé.",
             "lines_total_mismatch": "Le total des lignes doit correspondre au total du relevé.",
+            "missing_rounding_account": "Un compte d'arrondi est requis pour équilibrer les ventilations du relevé.",
+            "missing_rounding_account_apportionment": "Le compte d'arrondi doit avoir une clé de répartition.",
             "accounting_operation_already_exists": "Une opération comptable existe déjà pour ce relevé.",
             "missing_misc_journal": "Un journal d'opérations diverses est requis pour l'intégration.",
             "missing_private_expense_account": "Un compte de charges privatives est requis pour l'intégration."

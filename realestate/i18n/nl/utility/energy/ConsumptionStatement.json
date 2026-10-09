@@ -42,9 +42,11 @@
         "errors": {
             "statement_not_draft": "Het verbruiksdossier kan alleen worden gewijzigd wanneer de afrekening in concept staat.",
             "invalid_status": "Regels kunnen alleen in de status Te coderen worden gegenereerd.",
-            "missing_allocation_apportionment": "Elke verdeling moet vóór verzending een verdeelsleutel hebben.",
+            "missing_allocation_apportionment": "Elke verdeling moet vóór het coderen een verdeelsleutel hebben.",
             "allocations_total_mismatch": "Het totaal van de verdelingen moet overeenkomen met het totaal van de afrekening.",
             "lines_total_mismatch": "Het totaal van de regels moet overeenkomen met het totaal van de afrekening.",
+            "missing_rounding_account": "Een afrondingsrekening is vereist om de verdelingen van de afrekening in evenwicht te brengen.",
+            "missing_rounding_account_apportionment": "De afrondingsrekening moet een verdeelsleutel hebben.",
             "accounting_operation_already_exists": "Er bestaat al een boekhoudkundige verrichting voor deze afrekening.",
             "missing_misc_journal": "Een dagboek voor diverse verrichtingen is vereist voor integratie.",
             "missing_private_expense_account": "Een rekening voor privatieve kosten is vereist voor integratie."

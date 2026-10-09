@@ -172,7 +172,8 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'transitions' => [
                     'encode' => [
                         'description' => 'Mark the consumption statement as encoded.',
-                        'policies'    => ['allocations_are_balanced', 'lines_are_balanced'],
+                        'policies'    => ['lines_are_balanced', 'allocations_can_be_balanced'],
+                        'onbefore'    => 'onbeforeEncode',
                         'status'      => 'encoded'
                     ]
                 ]
@@ -209,6 +210,11 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'policies'    => [],
                 'function'    => 'doSyncAllocations'
             ],
+            'apply_rounding_allocation' => [
+                'description' => 'Balance a statement allocation difference below two euros with the rounding account.',
+                'policies'    => ['allocations_can_be_balanced'],
+                'function'    => 'doApplyRoundingAllocation'
+            ],
             'detach_file_allocations' => [
                 'description' => 'Detach allocations generated from the previous consumption file.',
                 'policies'    => [],
@@ -235,6 +241,10 @@ class ConsumptionStatement extends \equal\orm\Model {
             'allocations_are_balanced' => [
                 'description' => 'Checks that allocations match the statement total and have an apportionment.',
                 'function'    => 'policyAllocationsAreBalanced'
+            ],
+            'allocations_can_be_balanced' => [
+                'description' => 'Checks that allocations match the statement total or can be balanced with a rounding allocation.',
+                'function'    => 'policyAllocationsCanBeBalanced'
             ],
             'lines_are_balanced' => [
                 'description' => 'Checks that statement lines match the statement total.',
@@ -290,11 +300,54 @@ class ConsumptionStatement extends \equal\orm\Model {
             foreach($consumptionStatement['consumption_statement_allocations_ids'] as $allocation) {
                 $allocations_total += (float) $allocation['amount'];
                 if(!$allocation['apportionment_id']) {
-                    $result[$id]['missing_allocation_apportionment'] = 'Every allocation must have an apportionment before the statement can be sent.';
+                    $result[$id]['missing_allocation_apportionment'] = 'Every allocation must have an apportionment before the statement can be encoded.';
                 }
             }
             if(round($allocations_total, 2) != round((float) $consumptionStatement['statement_total'], 2)) {
                 $result[$id]['allocations_total_mismatch'] = 'The total of the statement allocations must match the statement total.';
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyAllocationsCanBeBalanced($self): array {
+        $result = [];
+        $self->read([
+            'condo_id',
+            'statement_total',
+            'consumption_statement_allocations_ids' => ['amount', 'apportionment_id']
+        ]);
+
+        foreach($self as $id => $consumptionStatement) {
+            $allocations_total = 0.0;
+            foreach($consumptionStatement['consumption_statement_allocations_ids'] as $allocation) {
+                $allocations_total += (float) $allocation['amount'];
+                if(!$allocation['apportionment_id']) {
+                    $result[$id]['missing_allocation_apportionment'] = 'Every allocation must have an apportionment before the statement can be encoded.';
+                }
+            }
+
+            $delta = round((float) $consumptionStatement['statement_total'] - $allocations_total, 2);
+            if($delta == 0.0) {
+                continue;
+            }
+            if(abs($delta) >= 2.0) {
+                $result[$id]['allocations_total_mismatch'] = 'The total of the statement allocations must match the statement total.';
+                continue;
+            }
+
+            $roundingAccount = Account::search([
+                    ['condo_id', '=', $consumptionStatement['condo_id']],
+                    ['operation_assignment', '=', 'rounding_adjustment']
+                ])
+                ->read(['apportionment_id'])
+                ->first();
+            if(!$roundingAccount) {
+                $result[$id]['missing_rounding_account'] = 'A rounding account is required to balance the statement allocations.';
+            }
+            elseif(!$roundingAccount['apportionment_id']) {
+                $result[$id]['missing_rounding_account_apportionment'] = 'The rounding account must have an apportionment.';
             }
         }
 
@@ -313,7 +366,9 @@ class ConsumptionStatement extends \equal\orm\Model {
             foreach($consumptionStatement['consumption_statement_lines_ids'] as $line) {
                 $lines_total += (float) $line['amount'];
             }
-            if(round($lines_total, 2) != round((float) $consumptionStatement['statement_total'], 2)) {
+            $lines_total_cents = (int) round($lines_total * 100);
+            $statement_total_cents = (int) round((float) $consumptionStatement['statement_total'] * 100);
+            if($lines_total_cents !== $statement_total_cents) {
                 $result[$id]['lines_total_mismatch'] = 'The total of the statement lines must match the statement total.';
             }
         }
@@ -460,6 +515,52 @@ class ConsumptionStatement extends \equal\orm\Model {
         }
     }
 
+    protected static function doApplyRoundingAllocation($self) {
+        $self->read([
+            'status',
+            'condo_id',
+            'statement_total',
+            'consumption_statement_allocations_ids' => ['amount']
+        ]);
+
+        foreach($self as $statement_id => $consumptionStatement) {
+            if($consumptionStatement['status'] !== 'to_encode') {
+                continue;
+            }
+
+            $allocations_total = 0.0;
+            foreach($consumptionStatement['consumption_statement_allocations_ids'] as $allocation) {
+                $allocations_total += (float) $allocation['amount'];
+            }
+
+            $delta = round((float) $consumptionStatement['statement_total'] - $allocations_total, 2);
+            if($delta == 0.0 || abs($delta) >= 2.0) {
+                continue;
+            }
+
+            $roundingAccount = Account::search([
+                    ['condo_id', '=', $consumptionStatement['condo_id']],
+                    ['operation_assignment', '=', 'rounding_adjustment']
+                ])
+                ->read(['apportionment_id'])
+                ->first();
+            if(!$roundingAccount) {
+                throw new \Exception('missing_rounding_account', EQ_ERROR_INVALID_CONFIG);
+            }
+            if(!$roundingAccount['apportionment_id']) {
+                throw new \Exception('missing_rounding_account_apportionment', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            ConsumptionStatementAllocation::create([
+                'condo_id'                 => $consumptionStatement['condo_id'],
+                'consumption_statement_id' => $statement_id,
+                'account_id'               => $roundingAccount['id'],
+                'apportionment_id'         => $roundingAccount['apportionment_id'],
+                'amount'                   => $delta
+            ]);
+        }
+    }
+
     protected static function doDetachFileAllocations($self) {
         $self->read([
             'status',
@@ -490,6 +591,10 @@ class ConsumptionStatement extends \equal\orm\Model {
 
     protected static function onafterSend($self) {
         $self->do('generate_statement_lines');
+    }
+
+    protected static function onbeforeEncode($self) {
+        $self->do('apply_rounding_allocation');
     }
 
     protected static function onbeforeIntegrate($self) {
