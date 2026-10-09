@@ -407,17 +407,6 @@
                         "type": "parent",
                         "children": [
                             {
-                                "id": "consumption_meters",
-                                "type": "entry",
-                                "label": "Cons. Meters",
-                                "icon": "gas_meter",
-                                "description": "List and configure energy meters.",
-                                "context": {
-                                    "entity": "realestate\\utility\\energy\\ConsumptionMeter",
-                                    "view": "list.default"
-                                }
-                            },
-                            {
                                 "id": "consumption_statements",
                                 "type": "entry",
                                 "label": "Cons. Statements",
@@ -425,6 +414,28 @@
                                 "description": "Generate and review consumption data.",
                                 "context": {
                                     "entity": "realestate\\utility\\energy\\ConsumptionStatement",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "consumption_files",
+                                "type": "entry",
+                                "label": "Consumption Files",
+                                "icon": "file_present",
+                                "description": "Consumption files by supplier.",
+                                "context": {
+                                    "entity": "realestate\\utility\\energy\\ConsumptionFile",
+                                    "view": "list.default"
+                                }
+                            },
+                            {
+                                "id": "consumption_meters",
+                                "type": "entry",
+                                "label": "Cons. Meters",
+                                "icon": "gas_meter",
+                                "description": "List and configure energy meters.",
+                                "context": {
+                                    "entity": "realestate\\utility\\energy\\ConsumptionMeter",
                                     "view": "list.default"
                                 }
                             }

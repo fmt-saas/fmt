@@ -114,8 +114,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'type'        => 'float',
                 'usage'       => 'amount/money:2',
                 'description' => 'Total amount shown on the consumption statement.',
-                'help'        => 'Enter the statement total manually. It is used to verify the totals of the lines and allocations.',
-                'required'    => true
+                'help'        => 'Enter the statement total manually. It is used to verify the totals of the lines and allocations.'
             ],
 
             'status' => [
