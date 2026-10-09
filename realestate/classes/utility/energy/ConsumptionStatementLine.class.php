@@ -68,6 +68,12 @@ class ConsumptionStatementLine extends \equal\orm\Model {
                 'required'          => true
             ],
 
+            'property_lot_extref' => [
+                'type'        => 'string',
+                'description' => 'External reference used by the supplier to identify the property lot.',
+                'required'    => true
+            ],
+
             // intersection between the statement period and the propertyLotOwnership
             'date_from' => [
                 'type'              => 'date',
@@ -97,7 +103,10 @@ class ConsumptionStatementLine extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
                 'description'       => 'PDF with statement specific to the ownership.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['condo_id', '<>', null]
+                ],
             ],
 
             'amount' => [
