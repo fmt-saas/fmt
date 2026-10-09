@@ -49,7 +49,8 @@ class ConsumptionFile extends \equal\orm\Model {
                 'foreign_object' => 'realestate\utility\energy\ConsumptionFileSection',
                 'foreign_field'  => 'consumption_file_id',
                 'description'    => 'Accounting sections configured for the consumption file.',
-                'domain'         => ['condo_id', '=', 'object.condo_id']
+                'domain'         => ['condo_id', '=', 'object.condo_id'],
+                'ondetach'       => 'delete'
             ],
 
             'consumption_file_lots_ids' => [
@@ -57,7 +58,8 @@ class ConsumptionFile extends \equal\orm\Model {
                 'foreign_object' => 'realestate\utility\energy\ConsumptionFileLot',
                 'foreign_field'  => 'consumption_file_id',
                 'description'    => 'Property lot references configured for the consumption file.',
-                'domain'         => ['condo_id', '=', 'object.condo_id']
+                'domain'         => ['condo_id', '=', 'object.condo_id'],
+                'ondetach'       => 'delete'
             ],
 
             'status' => [
