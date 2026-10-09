@@ -1,6 +1,6 @@
 {
-    "name": "Ventilation de relevé de consommation",
-    "plural": "Ventilations de relevé de consommation",
+    "name": "Ligne de ventilation de relevé de consommation",
+    "plural": "Lignes de ventilation de relevé de consommation",
     "description": "Ventilation d'un montant de relevé de consommation sur un compte comptable et une clé de répartition.",
     "model": {
         "condo_id": {
@@ -36,11 +36,11 @@
     },
     "view": {
         "form.default": {
-            "name": "Ventilation de relevé de consommation",
+            "name": "Ligne de ventilation de relevé de consommation",
             "description": "Modifier une ventilation de montant d'un relevé de consommation."
         },
         "list.default": {
-            "name": "Ventilations de relevé de consommation",
+            "name": "Lignes de ventilation de relevé de consommation",
             "description": "Ventilations des montants de relevés de consommation par compte comptable et clé de répartition."
         }
     },

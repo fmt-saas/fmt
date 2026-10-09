@@ -6,10 +6,10 @@
 */
 namespace realestate\utility\energy;
 
-class ConsumptionStatementAllocation extends \equal\orm\Model {
+class ConsumptionStatementAllocationLine extends \equal\orm\Model {
 
     public static function getName() {
-        return 'Consumption Statement Allocation';
+        return 'Consumption Statement Allocation Line';
     }
 
     public static function getDescription() {

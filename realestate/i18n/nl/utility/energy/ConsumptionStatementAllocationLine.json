@@ -1,6 +1,6 @@
 {
-    "name": "Verdeling van verbruiksafrekening",
-    "plural": "Verdelingen van verbruiksafrekeningen",
+    "name": "Verdelingsregel van verbruiksafrekening",
+    "plural": "Verdelingsregels van verbruiksafrekeningen",
     "description": "Verdeling van een bedrag van een verbruiksafrekening over een boekhoudrekening en een verdeelsleutel.",
     "model": {
         "condo_id": {
@@ -36,11 +36,11 @@
     },
     "view": {
         "form.default": {
-            "name": "Verdeling van verbruiksafrekening",
+            "name": "Verdelingsregel van verbruiksafrekening",
             "description": "Bewerk een verdeling van een bedrag van een verbruiksafrekening."
         },
         "list.default": {
-            "name": "Verdelingen van verbruiksafrekeningen",
+            "name": "Verdelingsregels van verbruiksafrekeningen",
             "description": "Verdelingen van bedragen van verbruiksafrekeningen per boekhoudrekening en verdeelsleutel."
         }
     },

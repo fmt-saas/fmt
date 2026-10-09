@@ -109,7 +109,7 @@ class ConsumptionStatement extends \equal\orm\Model {
 
             'consumption_statement_allocations_ids' => [
                 'type'           => 'one2many',
-                'foreign_object' => 'realestate\utility\energy\ConsumptionStatementAllocation',
+                'foreign_object' => 'realestate\utility\energy\ConsumptionStatementAllocationLine',
                 'foreign_field'  => 'consumption_statement_id',
                 'description'    => 'Accounting allocations of the consumption statement amount.',
                 'domain'         => ['condo_id', '=', 'object.condo_id']
@@ -409,6 +409,99 @@ class ConsumptionStatement extends \equal\orm\Model {
 
         return $result;
     }
+/*
+    protected static function doGenerateAccountingEntry($self) {
+
+        $self->read([
+                'condo_id',
+                'name',
+                'fiscal_year_id',
+                'accounting_entry_id',
+                'emission_date',
+                'called_amount',
+                'description',
+                'fund_request_id' => ['request_type', 'request_account_id'],
+                'execution_lines_ids' => ['ownership_id', 'called_amount']
+            ]);
+
+        foreach($self as $id => $requestExecution) {
+            $logs = [];
+
+            if($requestExecution['accounting_entry_id'] !== null) {
+                AccountingEntry::id($requestExecution['accounting_entry_id'])->delete(true);
+            }
+
+            $journal = Journal::search([['condo_id', '=', $requestExecution['condo_id']], ['journal_type', '=', 'SALE']])->first();
+
+            $logs[] = "Retrieved SALE journal id {$journal['id']}";
+
+            // create an accounting entry
+            $accountingEntry = AccountingEntry::create([
+                    'condo_id'                  => $requestExecution['condo_id'],
+                    'journal_id'                => $journal['id'],
+                    'invoice_id'                => $id,
+                    'fiscal_year_id'            => $requestExecution['fiscal_year_id'],
+                    'entry_date'                => $requestExecution['emission_date'],
+                    'origin_object_class'       => self::getType(),
+                    'origin_object_id'          => $id,
+                    'sale_invoice_id'           => $id,
+                    'fund_request_execution_id' => $id
+                ])
+                ->first();
+
+            $logs[] = "Created accounting entry id {$accountingEntry['id']}";
+
+            // create the credit line
+            AccountingEntryLine::create([
+                    'condo_id'              => $requestExecution['condo_id'],
+                    'accounting_entry_id'   => $accountingEntry['id'],
+                    'description'           => $requestExecution['description'],
+                    'account_id'            => $requestExecution['fund_request_id']['request_account_id'],
+                    'debit'                 => 0.0,
+                    'credit'                => $requestExecution['called_amount']
+                ]);
+
+            //create the debit lines
+            $debit_operation_assignment = static::getDebitOperationAssignment($requestExecution['fund_request_id']['request_type']);
+            $logs[] = "Retrieved debit operation assignment {$debit_operation_assignment}";
+
+            foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
+
+                $ownership_id = $executionLine['ownership_id'];
+                // find the account based on operation_assignment
+                $logs[] = "Fetching account for ownership {$ownership_id}";
+                $ownershipAccount = Account::search([
+                        ['condo_id', '=', $requestExecution['condo_id']],
+                        ['ownership_id', '=', $ownership_id],
+                        ['operation_assignment', '=', $debit_operation_assignment]
+                    ])
+                    ->first();
+
+                if(!$ownershipAccount) {
+                    throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
+                }
+
+                $logs[] = "Retrieved owner account {$ownershipAccount['id']}";
+
+                AccountingEntryLine::create([
+                        'condo_id'              => $requestExecution['condo_id'],
+                        'accounting_entry_id'   => $accountingEntry['id'],
+                        // #memo - in realestate package, 'sale_invoice_line_id' targets `ExpenseStatementOwnerLine` and `FundRequestExecutionLine`
+                        'sale_invoice_line_id'  => $execution_line_id,
+                        'description'           => $requestExecution['description'],
+                        'account_id'            => $ownershipAccount['id'],
+                        'debit'                 => $executionLine['called_amount'],
+                        'credit'                => 0.0
+                    ]);
+            }
+            self::id($id)->update([
+                    'accounting_entry_id' => $accountingEntry['id'],
+                    'logs'  => implode("\n", $logs)
+                ]);
+        }
+
+    }
+*/
 
     protected static function doGenerateStatementLines($self) {
         $self->read(['condo_id', 'consumption_file_id', 'date_from', 'date_to']);
@@ -502,11 +595,11 @@ class ConsumptionStatement extends \equal\orm\Model {
                 ];
 
                 if(isset($allocations_by_section[$section_id])) {
-                    ConsumptionStatementAllocation::id($allocations_by_section[$section_id])->update($values);
+                    ConsumptionStatementAllocationLine::id($allocations_by_section[$section_id])->update($values);
                     continue;
                 }
 
-                ConsumptionStatementAllocation::create(array_merge($values, [
+                ConsumptionStatementAllocationLine::create(array_merge($values, [
                     'consumption_statement_id'    => $statement_id,
                     'consumption_file_section_id' => $section_id,
                     'amount'                      => 0.0
@@ -551,7 +644,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 throw new \Exception('missing_rounding_account_apportionment', EQ_ERROR_INVALID_CONFIG);
             }
 
-            ConsumptionStatementAllocation::create([
+            ConsumptionStatementAllocationLine::create([
                 'condo_id'                 => $consumptionStatement['condo_id'],
                 'consumption_statement_id' => $statement_id,
                 'account_id'               => $roundingAccount['id'],
@@ -578,7 +671,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 }
             }
             if(count($allocation_ids)) {
-                ConsumptionStatementAllocation::ids($allocation_ids)->update([
+                ConsumptionStatementAllocationLine::ids($allocation_ids)->update([
                     'consumption_file_section_id' => null
                 ]);
             }

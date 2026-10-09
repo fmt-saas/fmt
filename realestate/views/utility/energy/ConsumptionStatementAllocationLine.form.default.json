@@ -1,5 +1,5 @@
 {
-    "name": "Consumption Statement Allocation",
+    "name": "Consumption Statement Allocation Line",
     "description": "Edit an accounting allocation of a consumption statement.",
     "layout": {
         "groups": [

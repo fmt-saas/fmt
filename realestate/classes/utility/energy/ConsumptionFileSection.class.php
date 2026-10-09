@@ -117,7 +117,7 @@ class ConsumptionFileSection extends \equal\orm\Model {
                 ->read(['id']);
 
             foreach($statements as $statement_id => $statement) {
-                $allocation = ConsumptionStatementAllocation::search([
+                $allocation = ConsumptionStatementAllocationLine::search([
                         ['consumption_statement_id', '=', $statement_id],
                         ['consumption_file_section_id', '=', $section_id]
                     ])
@@ -130,11 +130,11 @@ class ConsumptionFileSection extends \equal\orm\Model {
                 ];
 
                 if($allocation) {
-                    ConsumptionStatementAllocation::id($allocation['id'])->update($values);
+                    ConsumptionStatementAllocationLine::id($allocation['id'])->update($values);
                     continue;
                 }
 
-                ConsumptionStatementAllocation::create(array_merge($values, [
+                ConsumptionStatementAllocationLine::create(array_merge($values, [
                     'consumption_statement_id'    => $statement_id,
                     'consumption_file_section_id' => $section_id,
                     'amount'                      => 0.0
@@ -156,7 +156,7 @@ class ConsumptionFileSection extends \equal\orm\Model {
                 continue;
             }
 
-            ConsumptionStatementAllocation::search([
+            ConsumptionStatementAllocationLine::search([
                     ['consumption_statement_id', 'in', $statement_ids],
                     ['consumption_file_section_id', '=', $section_id]
                 ])

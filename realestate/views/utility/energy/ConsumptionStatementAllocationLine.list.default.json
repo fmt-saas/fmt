@@ -1,5 +1,5 @@
 {
-    "name": "Consumption Statement Allocations",
+    "name": "Consumption Statement Allocation Lines",
     "description": "Accounting allocations of consumption statement amounts.",
     "header": {
         "layout": "inline",
