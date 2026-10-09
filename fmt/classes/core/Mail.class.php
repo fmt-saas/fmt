@@ -9,7 +9,7 @@ namespace fmt\core;
 
 use communication\email\Email;
 use communication\email\Mailbox;
-use equal\email\Email as EmailMessage;
+use equal\email\EmailMessage;
 use equal\services\Container;
 use infra\metering\MeteringRecord;
 use infra\metering\MetricDefinition;
