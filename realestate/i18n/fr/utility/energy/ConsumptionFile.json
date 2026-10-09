@@ -15,7 +15,10 @@
         "form.default": {
             "name": "Dossier de consommation",
             "description": "Configurer un dossier de consommation.",
-            "actions": {"action.validate": {"label": "Valider", "description": "Valider le dossier et générer les correspondances de lots manquantes."}},
+            "actions": {
+                "action.sync_property_lots": {"label": "Importer les lots", "description": "Importer les lots de la copropriété qui ne sont pas encore présents dans le dossier de consommation."},
+                "action.validate": {"label": "Valider", "description": "Valider le dossier et générer les correspondances de lots manquantes."}
+            },
             "layout": {
                 "section.configuration": {"label": "Configuration"},
                 "section.sections": {"label": "Sections"},

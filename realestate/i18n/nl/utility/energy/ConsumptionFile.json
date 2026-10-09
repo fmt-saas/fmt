@@ -15,7 +15,10 @@
         "form.default": {
             "name": "Verbruiksdossier",
             "description": "Beheer een verbruiksdossierconfiguratie.",
-            "actions": {"action.validate": {"label": "Valideren", "description": "Valideer het dossier en maak ontbrekende kavelkoppelingen aan."}},
+            "actions": {
+                "action.sync_property_lots": {"label": "Kavels importeren", "description": "Importeer de kavels van de mede-eigendom die nog niet in het verbruiksdossier aanwezig zijn."},
+                "action.validate": {"label": "Valideren", "description": "Valideer het dossier en maak ontbrekende kavelkoppelingen aan."}
+            },
             "layout": {
                 "section.configuration": {"label": "Configuratie"},
                 "section.sections": {"label": "Secties"},

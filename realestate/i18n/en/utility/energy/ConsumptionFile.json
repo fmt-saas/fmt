@@ -15,7 +15,10 @@
         "form.default": {
             "name": "Consumption file",
             "description": "Maintain a consumption file configuration.",
-            "actions": {"action.validate": {"label": "Validate", "description": "Validate the file and generate missing property lot references."}},
+            "actions": {
+                "action.sync_property_lots": {"label": "Import property lots", "description": "Import condominium property lots that are not yet present in the consumption file."},
+                "action.validate": {"label": "Validate", "description": "Validate the file and generate missing property lot references."}
+            },
             "layout": {
                 "section.configuration": {"label": "Configuration"},
                 "section.sections": {"label": "Sections"},

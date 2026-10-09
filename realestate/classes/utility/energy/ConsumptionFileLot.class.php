@@ -65,19 +65,6 @@ class ConsumptionFileLot extends \equal\orm\Model {
         $self->delete();
     }
 
-    protected static function oncreate($self) {
-        try {
-            self::assertSameCondo($self);
-        }
-        catch(\Throwable $throwable) {
-            $self->delete(true);
-            throw $throwable;
-        }
-    }
-
-    protected static function onbeforeupdate($self, $values) {
-        self::assertSameCondo($self, $values);
-    }
 
     public static function onchange($event, $values): array {
         $result = [];
@@ -90,25 +77,6 @@ class ConsumptionFileLot extends \equal\orm\Model {
             }
         }
         return $result;
-    }
-
-    private static function assertSameCondo($self, array $values = []) {
-        $self->read(['condo_id', 'consumption_file_id', 'property_lot_id']);
-        foreach($self as $fileLot) {
-            $condo_id = self::relationId($values['condo_id'] ?? $fileLot['condo_id']);
-            $consumption_file_id = self::relationId($values['consumption_file_id'] ?? $fileLot['consumption_file_id']);
-            $property_lot_id = self::relationId($values['property_lot_id'] ?? $fileLot['property_lot_id']);
-
-            $file = ConsumptionFile::id($consumption_file_id)->read(['condo_id'])->first();
-            if(!$file || $file['condo_id'] !== $condo_id) {
-                throw new \Exception('file_condo_mismatch', EQ_ERROR_INVALID_PARAM);
-            }
-
-            $propertyLot = PropertyLot::id($property_lot_id)->read(['condo_id'])->first();
-            if(!$propertyLot || $propertyLot['condo_id'] !== $condo_id) {
-                throw new \Exception('property_lot_condo_mismatch', EQ_ERROR_INVALID_PARAM);
-            }
-        }
     }
 
     private static function relationId($value) {

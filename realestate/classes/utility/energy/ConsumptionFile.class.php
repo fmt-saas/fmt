@@ -44,13 +44,6 @@ class ConsumptionFile extends \equal\orm\Model {
                 'readonly'    => true
             ],
 
-            'status' => [
-                'type'        => 'string',
-                'description' => 'Current configuration status of the consumption file.',
-                'selection'   => ['pending', 'ready'],
-                'default'     => 'pending'
-            ],
-
             'consumption_file_sections_ids' => [
                 'type'           => 'one2many',
                 'foreign_object' => 'realestate\utility\energy\ConsumptionFileSection',
@@ -65,6 +58,16 @@ class ConsumptionFile extends \equal\orm\Model {
                 'foreign_field'  => 'consumption_file_id',
                 'description'    => 'Property lot references configured for the consumption file.',
                 'domain'         => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'status' => [
+                'type'        => 'string',
+                'description' => 'Current configuration status of the consumption file.',
+                'selection'   => [
+                    'pending',
+                    'ready'
+                ],
+                'default'     => 'pending'
             ]
         ];
     }
