@@ -66,7 +66,7 @@ class ConsumptionStatementAllocationLine extends \equal\orm\Model {
         ];
     }
 
-    public function getUnique() {
+    public function getUniques(): array {
         return [
             ['consumption_statement_id', 'consumption_file_section_id']
         ];

@@ -146,7 +146,12 @@
                                     {
                                         "width": "100%",
                                         "items": [
-                                            {"type": "field", "value": "consumption_statement_allocation_lines_ids", "width": "100%", "widget": {"view": "list.default"}}
+                                            {
+                                                "type": "field",
+                                                "value": "consumption_statement_allocation_lines_ids",
+                                                "width": "100%",
+                                                "widget": {"view": "list.default"}
+                                            }
                                         ]
                                     }
                                 ]
