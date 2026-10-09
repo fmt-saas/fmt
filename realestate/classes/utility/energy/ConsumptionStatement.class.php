@@ -271,7 +271,7 @@ class ConsumptionStatement extends \equal\orm\Model {
         $result = [];
         $self->read(['status']);
         foreach($self as $id => $consumptionStatement) {
-            if(!in_array($consumptionStatement['status'], ['sent', 'to_encode'])) {
+            if(in_array($consumptionStatement['status'], ['encoded', 'integrated'])) {
                 $result[$id]['invalid_status'] = 'Lines can only be generated while the statement is sent or in the to-encode status.';
             }
         }
