@@ -120,8 +120,7 @@ class ConsumptionFile extends \equal\orm\Model {
                 '*'               => true,
                 'condo_id'        => ['is_pending'],
                 'suppliership_id' => ['is_pending'],
-                'code'            => ['is_pending'],
-                'status'          => false
+                'code'            => ['is_pending']
             ]
         ];
     }
