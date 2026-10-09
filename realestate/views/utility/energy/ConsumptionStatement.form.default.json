@@ -12,6 +12,20 @@
     },
     "actions": [
         {
+            "id": "action.sync_submission_lines",
+            "label": "Import sections",
+            "icon": "sync",
+            "description": "Import consumption file sections as submission lines.",
+            "controller": "core_model_do",
+            "visible": ["status", "=", "draft"],
+            "params": {
+                "entity": "realestate\\utility\\energy\\ConsumptionStatement",
+                "action": "sync_submission_lines",
+                "ids": []
+            },
+            "confirm": false
+        },
+        {
             "id": "action.mark_proforma",
             "label": "Mark proforma",
             "icon": "description",
@@ -48,7 +62,11 @@
             "description": "Generate missing statement lines from the configured property lots.",
             "controller": "core_model_do",
             "visible": ["status", "=", "to_encode"],
-            "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "action": "generate_statement_lines", "ids": []},
+            "params": {
+                "entity": "realestate\\utility\\energy\\ConsumptionStatement",
+                "action": "generate_statement_lines",
+                "ids": []
+            },
             "confirm": false
         },
         {

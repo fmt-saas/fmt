@@ -25,6 +25,7 @@
             "name": "Consumption statement",
             "description": "Maintain a consumption statement through its processing workflow.",
             "actions": {
+                "action.sync_submission_lines": {"label": "Import sections", "description": "Import consumption file sections as submission lines."},
                 "action.mark_proforma": {"label": "Mark proforma", "description": "Mark the statement as proforma."},
                 "action.send": {"label": "Send", "description": "Mark the statement as sent after checking allocations."},
                 "action.mark_to_encode": {"label": "Encode lines", "description": "Open statement lines for encoding."},

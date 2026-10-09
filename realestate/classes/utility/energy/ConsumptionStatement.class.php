@@ -124,7 +124,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'type'           => 'one2many',
                 'foreign_object' => 'realestate\utility\energy\ConsumptionStatementSubmissionLine',
                 'foreign_field'  => 'consumption_statement_id',
-                'description'    => 'Accounting allocations of the consumption statement amount.',
+                'description'    => 'Submitted amounts of the consumption statement.',
                 'domain'         => ['condo_id', '=', 'object.condo_id']
             ],
 
@@ -218,10 +218,10 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'policies'    => ['can_generate_statement_lines'],
                 'function'    => 'doGenerateStatementLines'
             ],
-            'sync_allocations' => [
-                'description' => 'Add missing draft allocations from the sections of the consumption file.',
+            'sync_submission_lines' => [
+                'description' => 'Add missing draft submission lines from the sections of the consumption file.',
                 'policies'    => [],
-                'function'    => 'doSyncAllocations'
+                'function'    => 'doSyncSubmissionLines'
             ],
             'apply_rounding_allocation' => [
                 'description' => 'Balance a statement allocation difference below two euros with the rounding account.',
@@ -567,7 +567,7 @@ class ConsumptionStatement extends \equal\orm\Model {
         }
     }
 
-    protected static function doSyncAllocations($self) {
+    protected static function doSyncSubmissionLines($self) {
         $self->read([
             'status',
             'condo_id',
@@ -577,7 +577,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                     'accounting_account_id' => ['apportionment_id']
                 ]
             ],
-            'consumption_statement_allocation_lines_ids' => ['consumption_file_section_id']
+            'consumption_statement_submission_lines_ids' => ['consumption_file_section_id']
         ]);
 
         foreach($self as $statement_id => $consumptionStatement) {
@@ -585,10 +585,10 @@ class ConsumptionStatement extends \equal\orm\Model {
                 continue;
             }
 
-            $allocations_by_section = [];
-            foreach($consumptionStatement['consumption_statement_allocation_lines_ids'] as $allocation_id => $allocation) {
-                if($allocation['consumption_file_section_id']) {
-                    $allocations_by_section[$allocation['consumption_file_section_id']] = $allocation_id;
+            $submission_lines_by_section = [];
+            foreach($consumptionStatement['consumption_statement_submission_lines_ids'] as $submission_line_id => $submissionLine) {
+                if($submissionLine['consumption_file_section_id']) {
+                    $submission_lines_by_section[$submissionLine['consumption_file_section_id']] = $submission_line_id;
                 }
             }
 
@@ -603,8 +603,8 @@ class ConsumptionStatement extends \equal\orm\Model {
                     'apportionment_id' => $account['apportionment_id']
                 ];
 
-                if(isset($allocations_by_section[$section_id])) {
-                    ConsumptionStatementSubmissionLine::id($allocations_by_section[$section_id])->update($values);
+                if(isset($submission_lines_by_section[$section_id])) {
+                    ConsumptionStatementSubmissionLine::id($submission_lines_by_section[$section_id])->update($values);
                     continue;
                 }
 
@@ -704,7 +704,7 @@ class ConsumptionStatement extends \equal\orm\Model {
     }
 
     protected static function oninstantitate($self) {
-        $self->do('sync_allocations');
+        $self->do('sync_submission_lines');
     }
 
     protected static function onbeforeupdate($self, $values) {
@@ -725,7 +725,7 @@ class ConsumptionStatement extends \equal\orm\Model {
     }
 
     protected static function onupdateConsumptionFileId($self) {
-        $self->do('sync_allocations');
+        $self->do('sync_submission_lines');
     }
 
     public static function onchange($event, $values): array {

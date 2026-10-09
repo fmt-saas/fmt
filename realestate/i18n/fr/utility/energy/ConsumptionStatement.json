@@ -25,6 +25,7 @@
             "name": "Relevé de consommation",
             "description": "Gérer un relevé selon son workflow de traitement.",
             "actions": {
+                "action.sync_submission_lines": {"label": "Importer les sections", "description": "Importer les sections du dossier de consommation comme lignes de soumission."},
                 "action.mark_proforma": {"label": "Passer en pro forma", "description": "Marquer le relevé comme pro forma."},
                 "action.send": {"label": "Envoyer", "description": "Marquer le relevé comme envoyé après contrôle des ventilations."},
                 "action.mark_to_encode": {"label": "Marquer comme reçu", "description": "Ouvrir les lignes du relevé à l'encodage."},

@@ -25,6 +25,7 @@
             "name": "Verbruiksafrekening",
             "description": "Beheer een verbruiksafrekening via de verwerkingsworkflow.",
             "actions": {
+                "action.sync_submission_lines": {"label": "Secties importeren", "description": "Importeer de secties van het verbruiksdossier als indieningsregels."},
                 "action.mark_proforma": {"label": "Pro forma maken", "description": "Markeer de afrekening als pro forma."},
                 "action.send": {"label": "Verzenden", "description": "Markeer de afrekening als verzonden na controle van de verdelingen."},
                 "action.mark_to_encode": {"label": "Regels coderen", "description": "Open de regels voor codering."},
