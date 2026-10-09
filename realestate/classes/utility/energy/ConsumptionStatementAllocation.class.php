@@ -94,7 +94,7 @@ class ConsumptionStatementAllocation extends \equal\orm\Model {
         foreach($self as $id => $allocation) {
             if(
                 !$allocation['consumption_statement_id']
-                || !in_array($allocation['consumption_statement_id']['status'], ['draft', 'proforma'], true)
+                || !in_array($allocation['consumption_statement_id']['status'], ['draft', 'proforma', 'sent', 'to_encode'], true)
             ) {
                 $result[$id]['statement_allocations_locked'] = 'Allocations can only be edited while the statement is in draft or proforma.';
             }

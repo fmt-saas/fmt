@@ -25,7 +25,7 @@
             "actions": {
                 "action.mark_proforma": {"label": "Passer en pro forma", "description": "Marquer le relevé comme pro forma."},
                 "action.send": {"label": "Envoyer", "description": "Marquer le relevé comme envoyé après contrôle des ventilations."},
-                "action.mark_to_encode": {"label": "Encoder les lignes", "description": "Ouvrir les lignes du relevé à l'encodage."},
+                "action.mark_to_encode": {"label": "Marquer comme reçu", "description": "Ouvrir les lignes du relevé à l'encodage."},
                 "action.generate_lines": {"label": "Générer les lignes", "description": "Générer les lignes manquantes à partir des lots configurés."},
                 "action.encode": {"label": "Marquer comme encodé", "description": "Marquer le relevé comme encodé après contrôle des totaux."},
                 "action.integrate": {"label": "Intégrer", "description": "Intégrer le relevé en comptabilité."}
