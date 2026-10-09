@@ -43,8 +43,7 @@ class ConsumptionFileSection extends \equal\orm\Model {
                     'l',
                     'hl',
                     'kWh'
-                ],
-                'required'    => true
+                ]
             ],
 
             'accounting_account_id' => [

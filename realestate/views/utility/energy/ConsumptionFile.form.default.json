@@ -30,6 +30,15 @@
             "confirm": true
         }
     ],
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                { "id": "SAVE_AND_VIEW" },
+                { "id": "SAVE_AND_CONTINUE" },
+                { "id": "SAVE_AND_CLOSE" }
+            ]
+        }
+    },
     "layout": {
         "groups": [
             {
