@@ -1,51 +1,53 @@
 {
     "name": "Verbruiksafrekening",
     "plural": "Verbruiksafrekeningen",
-    "description": "Afrekening die energieverbruiksgegevens groepeert voor import.",
+    "description": "Afrekening die verbruiksbedragen groepeert voor verdeling, invoer en boekhoudkundige integratie.",
     "model": {
-        "statement_total": {
-            "label": "Totaal van de afrekening",
-            "description": "Totaalbedrag dat op de verbruiksafrekening staat.",
-            "help": "Voer dit bedrag handmatig in. De afrekening kan alleen als klaar worden gemarkeerd wanneer de totalen van de regels en toewijzingen hiermee overeenkomen."
-        },
-        "status": {
-            "label": "Status",
-            "description": "Huidige status van de verbruiksafrekening.",
-            "help": "Geeft de huidige verwerkingsfase van de afrekening aan.",
-            "selection": {
-                "draft": "Concept",
-                "ready": "Klaar",
-                "imported": "Geïmporteerd",
-                "cancelled": "Geannuleerd"
-            }
-        }
+        "condo_id": {"label": "Mede-eigendom", "description": "Mede-eigendom waarop de afrekening betrekking heeft.", "help": "Alle gekoppelde gegevens moeten tot deze mede-eigendom behoren."},
+        "fiscal_year_id": {"label": "Boekjaar", "description": "Boekjaar dat aan de afrekening is gekoppeld.", "help": "De begindatum wordt gebruikt voor de eerste afrekening van een dossier."},
+        "fiscal_period_id": {"label": "Boekhoudperiode", "description": "Boekhoudperiode die aan de afrekening is gekoppeld.", "help": "De periode moet tot het geselecteerde boekjaar en de mede-eigendom behoren."},
+        "date_from": {"label": "Begindatum", "description": "Eerste dag van de afrekeningsperiode.", "help": "Deze volgt op de laatste gevorderde afrekening of begint bij het boekjaar."},
+        "date_to": {"label": "Einddatum", "description": "Laatste dag van de afrekeningsperiode.", "help": "Deze wordt voorgesteld als één kalenderjaar min één dag na de begindatum."},
+        "misc_operation_id": {"label": "Boekhoudkundige verrichting", "description": "Verrichting die bij integratie wordt aangemaakt.", "help": "Deze waarde wordt door de boekhoudkundige integratie toegewezen."},
+        "posting_date": {"label": "Boekingsdatum", "description": "Datum waarop de afrekening wordt geboekt.", "help": "Selecteer de boekhoudkundige boekingsdatum."},
+        "document_id": {"label": "Document", "description": "Origineel document van de verbruiksafrekening.", "help": "Selecteer het brondocument van de leverancier."},
+        "consumption_meter_id": {"label": "Oude meter", "description": "Voormalige hoofdmeter van de afrekening.", "help": "Dit optionele verborgen veld blijft behouden voor bestaande gegevens."},
+        "consumption_file_id": {"label": "Verbruiksdossier", "description": "Configuratiedossier dat door de afrekening wordt gebruikt.", "help": "Een wijziging in concept behoudt bestaande verdelingen en voegt die van het nieuwe dossier toe."},
+        "consumption_statement_lines_ids": {"label": "Regels", "description": "Bedragen toegewezen aan kavels en eigendomsperioden.", "help": "Regels zijn alleen bewerkbaar in de status Te coderen."},
+        "consumption_statement_allocations_ids": {"label": "Verdelingen", "description": "Bedragen verdeeld over rekeningen en verdeelsleutels.", "help": "Verdelingen zijn bewerkbaar in concept en pro forma."},
+        "statement_total": {"label": "Totaal van de afrekening", "description": "Totaalbedrag op de afrekening.", "help": "De totalen van verdelingen en regels worden met dit bedrag vergeleken."},
+        "status": {"label": "Status", "description": "Huidige verwerkingsstatus.", "help": "De workflow staat alleen voorwaartse overgangen toe.", "selection": {"draft": "Concept", "proforma": "Pro forma", "sent": "Verzonden", "to_encode": "Te coderen", "encoded": "Gecodeerd", "integrated": "Geïntegreerd"}}
     },
     "view": {
         "form.default": {
+            "name": "Verbruiksafrekening",
+            "description": "Beheer een verbruiksafrekening via de verwerkingsworkflow.",
             "actions": {
-                "action.generate_lines": {
-                    "label": "Genereren",
-                    "description": "De afrekeningsregels genereren."
-                },
-                "action.mark_ready": {
-                    "label": "Als klaar markeren",
-                    "description": "De verbruiksafrekening als klaar voor import markeren."
-                },
-                "action.mark_imported": {
-                    "label": "Als geïmporteerd markeren",
-                    "description": "De verbruiksafrekening als geïmporteerd markeren."
-                },
-                "action.cancel": {
-                    "label": "Annuleren",
-                    "description": "De verbruiksafrekening annuleren."
-                }
+                "action.mark_proforma": {"label": "Pro forma maken", "description": "Markeer de afrekening als pro forma."},
+                "action.send": {"label": "Verzenden", "description": "Markeer de afrekening als verzonden na controle van de verdelingen."},
+                "action.mark_to_encode": {"label": "Regels coderen", "description": "Open de regels voor codering."},
+                "action.generate_lines": {"label": "Regels genereren", "description": "Genereer ontbrekende regels uit de geconfigureerde kavels."},
+                "action.encode": {"label": "Als gecodeerd markeren", "description": "Markeer de afrekening als gecodeerd na controle van alle totalen."},
+                "action.integrate": {"label": "Integreren", "description": "Integreer de afrekening in de boekhouding."}
+            },
+            "layout": {
+                "section.statement": {"label": "Afrekening"},
+                "section.allocations": {"label": "Verdelingen"},
+                "section.lines": {"label": "Regels"}
             }
-        }
+        },
+        "list.default": {"name": "Verbruiksafrekeningen", "description": "Lijst van verbruiksafrekeningen."}
     },
     "error": {
         "errors": {
-            "lines_total_mismatch": "Het totaal van de afrekeningsregels moet overeenkomen met het totaal van de afrekening.",
-            "allocations_total_mismatch": "Het totaal van de toewijzingen moet overeenkomen met het totaal van de afrekening."
+            "statement_not_draft": "Het verbruiksdossier kan alleen worden gewijzigd wanneer de afrekening in concept staat.",
+            "invalid_status": "Regels kunnen alleen in de status Te coderen worden gegenereerd.",
+            "missing_allocation_apportionment": "Elke verdeling moet vóór verzending een verdeelsleutel hebben.",
+            "allocations_total_mismatch": "Het totaal van de verdelingen moet overeenkomen met het totaal van de afrekening.",
+            "lines_total_mismatch": "Het totaal van de regels moet overeenkomen met het totaal van de afrekening.",
+            "accounting_operation_already_exists": "Er bestaat al een boekhoudkundige verrichting voor deze afrekening.",
+            "missing_misc_journal": "Een dagboek voor diverse verrichtingen is vereist voor integratie.",
+            "missing_private_expense_account": "Een rekening voor privatieve kosten is vereist voor integratie."
         }
     }
 }

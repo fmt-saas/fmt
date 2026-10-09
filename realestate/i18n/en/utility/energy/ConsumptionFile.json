@@ -1,0 +1,36 @@
+{
+    "name": "Consumption file",
+    "plural": "Consumption files",
+    "description": "Supplier configuration grouping consumption statements for a condominium.",
+    "model": {
+        "condo_id": {"label": "Condominium", "description": "Condominium concerned by the consumption file.", "help": "Select the condominium that owns this configuration."},
+        "suppliership_id": {"label": "Suppliership", "description": "Supplier contract associated with the consumption file.", "help": "The contract must belong to the selected condominium."},
+        "code": {"label": "Code", "description": "Code identifying the consumption file.", "help": "Enter the identifier used for this supplier configuration."},
+        "name": {"label": "Name", "description": "Display name composed of the supplier name and file code.", "help": "This value is calculated automatically."},
+        "status": {"label": "Status", "description": "Current configuration status.", "help": "Validation locks the condominium, suppliership and code.", "selection": {"pending": "Pending", "ready": "Ready"}},
+        "consumption_file_sections_ids": {"label": "Sections", "description": "Accounting sections configured for the file.", "help": "At least one complete section is required for validation."},
+        "consumption_file_lots_ids": {"label": "Property lot references", "description": "Supplier references matched with property lots.", "help": "Missing references are generated when the file is validated."}
+    },
+    "view": {
+        "form.default": {
+            "name": "Consumption file",
+            "description": "Maintain a consumption file configuration.",
+            "actions": {"action.validate": {"label": "Validate", "description": "Validate the file and generate missing property lot references."}},
+            "layout": {
+                "section.configuration": {"label": "Configuration"},
+                "section.sections": {"label": "Sections"},
+                "section.lots": {"label": "Property lot references"}
+            }
+        },
+        "list.default": {"name": "Consumption files", "description": "List consumption file configurations."}
+    },
+    "error": {
+        "errors": {
+            "missing_condo": "A condominium is required.",
+            "missing_suppliership": "A suppliership is required.",
+            "missing_code": "A consumption file code is required.",
+            "missing_complete_section": "At least one complete section is required.",
+            "file_already_validated": "The condominium, suppliership and code cannot be changed after validation."
+        }
+    }
+}

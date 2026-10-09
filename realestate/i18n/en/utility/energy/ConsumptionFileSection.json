@@ -1,0 +1,23 @@
+{
+    "name": "Consumption file section",
+    "plural": "Consumption file sections",
+    "description": "Accounting section used to allocate consumption statement amounts.",
+    "model": {
+        "name": {"label": "Name", "description": "Name identifying the section.", "help": "The name must be unique within the consumption file."},
+        "accounting_account_id": {"label": "Accounting account", "description": "Accounting account associated with the section.", "help": "The account must belong to the file condominium and may provide the default apportionment."},
+        "condo_id": {"label": "Condominium", "description": "Condominium the section belongs to.", "help": "This value is inherited from the consumption file."},
+        "consumption_file_id": {"label": "Consumption file", "description": "Consumption file the section belongs to.", "help": "The file must belong to the same condominium."}
+    },
+    "view": {
+        "form.default": {"name": "Consumption file section", "description": "Maintain an accounting section of a consumption file."},
+        "list.default": {"name": "Consumption file sections", "description": "Accounting sections configured for a consumption file."}
+    },
+    "error": {
+        "errors": {
+            "account_condo_mismatch": "The accounting account must belong to the condominium of the consumption file.",
+            "file_condo_mismatch": "The section and consumption file must belong to the same condominium."
+        },
+        "accounting_account_id": {"account_condo_mismatch": "The accounting account must belong to the condominium of the consumption file."},
+        "consumption_file_id": {"file_condo_mismatch": "The section and consumption file must belong to the same condominium."}
+    }
+}

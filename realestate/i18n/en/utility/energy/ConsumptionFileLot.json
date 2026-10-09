@@ -1,0 +1,27 @@
+{
+    "name": "Consumption file property lot",
+    "plural": "Consumption file property lots",
+    "description": "Mapping between a consumption file reference and a condominium property lot.",
+    "model": {
+        "consumption_file_id": {"label": "Consumption file", "description": "Consumption file owning the mapping.", "help": "The file must belong to the selected condominium."},
+        "condo_id": {"label": "Condominium", "description": "Condominium owning the property lot.", "help": "This value is inherited from the consumption file."},
+        "property_lot_id": {"label": "Property lot", "description": "Property lot matched in the consumption file.", "help": "A property lot can only occur once in a consumption file."},
+        "property_lot_extref": {"label": "External reference", "description": "Reference used by the supplier for the property lot.", "help": "The property lot code is proposed by default and the value remains editable."}
+    },
+    "view": {
+        "form.default": {"name": "Consumption file property lot", "description": "Maintain a property lot mapping for a consumption file."},
+        "list.default": {
+            "name": "Consumption file property lots",
+            "description": "Property lot references configured for a consumption file.",
+            "actions": {"action.remove": {"label": "Remove", "description": "Remove the property lot reference."}}
+        }
+    },
+    "error": {
+        "errors": {
+            "file_condo_mismatch": "The mapping and consumption file must belong to the same condominium.",
+            "property_lot_condo_mismatch": "The property lot must belong to the condominium of the consumption file."
+        },
+        "consumption_file_id": {"file_condo_mismatch": "The mapping and consumption file must belong to the same condominium."},
+        "property_lot_id": {"property_lot_condo_mismatch": "The property lot must belong to the condominium of the consumption file."}
+    }
+}

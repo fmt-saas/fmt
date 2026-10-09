@@ -34,6 +34,13 @@ class ConsumptionStatementAllocation extends \equal\orm\Model {
                 'required'       => true
             ],
 
+            'consumption_file_section_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'realestate\utility\energy\ConsumptionFileSection',
+                'description'    => 'Consumption file section from which the allocation was generated.',
+                'ondelete'       => 'null'
+            ],
+
             'account_id' => [
                 'type'           => 'many2one',
                 'foreign_object' => 'finance\accounting\Account',
@@ -46,16 +53,52 @@ class ConsumptionStatementAllocation extends \equal\orm\Model {
                 'type'           => 'many2one',
                 'foreign_object' => 'realestate\property\Apportionment',
                 'description'    => 'Apportionment used to distribute the allocated amount.',
-                'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
-                'required'       => true
+                'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'amount' => [
                 'type'        => 'float',
                 'usage'       => 'amount/money:2',
                 'description' => 'Amount allocated to the accounting account and apportionment.',
+                'default'     => 0.0,
                 'required'    => true
             ]
         ];
+    }
+
+    public function getUnique() {
+        return [
+            ['consumption_statement_id', 'consumption_file_section_id']
+        ];
+    }
+
+    public static function getPolicies(): array {
+        return array_merge(parent::getPolicies(), [
+            'statement_allocations_editable' => [
+                'description' => 'Checks that the statement allocations are still editable.',
+                'function'    => 'policyStatementAllocationsEditable'
+            ]
+        ]);
+    }
+
+    public static function getOperationPolicies(): array {
+        return [
+            EQ_R_UPDATE => ['statement_allocations_editable'],
+            EQ_R_DELETE => ['statement_allocations_editable']
+        ];
+    }
+
+    protected static function policyStatementAllocationsEditable($self): array {
+        $result = [];
+        $self->read(['consumption_statement_id' => ['status']]);
+        foreach($self as $id => $allocation) {
+            if(
+                !$allocation['consumption_statement_id']
+                || !in_array($allocation['consumption_statement_id']['status'], ['draft', 'proforma'], true)
+            ) {
+                $result[$id]['statement_allocations_locked'] = 'Allocations can only be edited while the statement is in draft or proforma.';
+            }
+        }
+        return $result;
     }
 }

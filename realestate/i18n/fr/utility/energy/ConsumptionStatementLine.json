@@ -73,5 +73,10 @@
             "name": "Lignes de relevé de consommation",
             "description": "Montants de consommation par lot privatif et dossier de propriété."
         }
+    },
+    "error": {
+        "errors": {
+            "statement_lines_locked": "Les lignes ne sont modifiables que lorsque le relevé est au statut À encoder."
+        }
     }
 }

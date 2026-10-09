@@ -1,56 +1,53 @@
 {
     "name": "Relevé de consommation",
     "plural": "Relevés de consommation",
-    "description": "",
+    "description": "Relevé regroupant les montants de consommation pour ventilation, encodage et intégration comptable.",
     "model": {
-        "statement_total": {
-            "label": "Total du relevé",
-            "description": "Montant total indiqué sur le relevé de consommation.",
-            "help": "Saisissez ce montant manuellement. Le relevé ne peut être marqué comme prêt que si les totaux des lignes et des allocations lui correspondent."
-        },
-        "consumption_file_id": {
-            "label": "Dossier de consommation",
-            "description": "Dossier de consommation auquel le relevé est rattaché.",
-            "help": "Le dossier doit appartenir à la même copropriété."
-        },
-        "status": {
-            "label": "Statut",
-            "description": "Statut actuel du relevé de consommation.",
-            "help": "Indique l'étape actuelle du traitement du relevé.",
-            "selection": {
-                "draft": "Brouillon",
-                "ready": "Prêt",
-                "imported": "Importé",
-                "cancelled": "Annulé"
-            }
-        }
+        "condo_id": {"label": "Copropriété", "description": "Copropriété concernée par le relevé.", "help": "Tous les éléments liés doivent appartenir à cette copropriété."},
+        "fiscal_year_id": {"label": "Exercice comptable", "description": "Exercice associé au relevé.", "help": "Sa date de début est utilisée pour le premier relevé d'un dossier."},
+        "fiscal_period_id": {"label": "Période comptable", "description": "Période comptable associée au relevé.", "help": "La période doit appartenir à l'exercice et à la copropriété sélectionnés."},
+        "date_from": {"label": "Date de début", "description": "Premier jour inclus dans le relevé.", "help": "Elle suit le dernier relevé avancé ou reprend le début de l'exercice."},
+        "date_to": {"label": "Date de fin", "description": "Dernier jour inclus dans le relevé.", "help": "Elle est proposée à un an calendaire moins un jour de la date de début."},
+        "misc_operation_id": {"label": "Opération comptable", "description": "Opération comptable générée lors de l'intégration.", "help": "Cette valeur est attribuée par l'intégration comptable."},
+        "posting_date": {"label": "Date de comptabilisation", "description": "Date de comptabilisation du relevé.", "help": "Sélectionnez la date de comptabilisation."},
+        "document_id": {"label": "Document", "description": "Document original du relevé.", "help": "Sélectionnez le document source reçu du fournisseur."},
+        "consumption_meter_id": {"label": "Ancien compteur", "description": "Ancien compteur principal lié au relevé.", "help": "Ce champ facultatif et masqué est conservé pour les données existantes."},
+        "consumption_file_id": {"label": "Dossier de consommation", "description": "Dossier de configuration utilisé par le relevé.", "help": "En brouillon, un changement conserve les allocations et ajoute celles du nouveau dossier."},
+        "consumption_statement_lines_ids": {"label": "Lignes", "description": "Montants affectés aux lots et périodes de propriété.", "help": "Les lignes sont modifiables uniquement au statut À encoder."},
+        "consumption_statement_allocations_ids": {"label": "Ventilations", "description": "Montants ventilés par compte et clé de répartition.", "help": "Les ventilations sont modifiables en brouillon et pro forma."},
+        "statement_total": {"label": "Total du relevé", "description": "Montant total indiqué sur le relevé.", "help": "Les totaux des ventilations et des lignes sont comparés à ce montant."},
+        "status": {"label": "Statut", "description": "Statut actuel du traitement.", "help": "Le workflow autorise uniquement les transitions vers l'avant.", "selection": {"draft": "Brouillon", "proforma": "Pro forma", "sent": "Envoyé", "to_encode": "À encoder", "encoded": "Encodé", "integrated": "Intégré"}}
     },
     "view": {
         "form.default": {
+            "name": "Relevé de consommation",
+            "description": "Gérer un relevé selon son workflow de traitement.",
             "actions": {
-                "action.generate_lines": {
-                    "label": "Générer",
-                    "description": "Générer les lignes du relevé."
-                },
-                "action.mark_ready": {
-                    "label": "Marquer comme prêt",
-                    "description": "Marquer le relevé de consommation comme prêt à être importé."
-                },
-                "action.mark_imported": {
-                    "label": "Marquer comme importé",
-                    "description": "Marquer le relevé de consommation comme importé."
-                },
-                "action.cancel": {
-                    "label": "Annuler",
-                    "description": "Annuler le relevé de consommation."
-                }
+                "action.mark_proforma": {"label": "Passer en pro forma", "description": "Marquer le relevé comme pro forma."},
+                "action.send": {"label": "Envoyer", "description": "Marquer le relevé comme envoyé après contrôle des ventilations."},
+                "action.mark_to_encode": {"label": "Encoder les lignes", "description": "Ouvrir les lignes du relevé à l'encodage."},
+                "action.generate_lines": {"label": "Générer les lignes", "description": "Générer les lignes manquantes à partir des lots configurés."},
+                "action.encode": {"label": "Marquer comme encodé", "description": "Marquer le relevé comme encodé après contrôle des totaux."},
+                "action.integrate": {"label": "Intégrer", "description": "Intégrer le relevé en comptabilité."}
+            },
+            "layout": {
+                "section.statement": {"label": "Relevé"},
+                "section.allocations": {"label": "Ventilations"},
+                "section.lines": {"label": "Lignes"}
             }
-        }
+        },
+        "list.default": {"name": "Relevés de consommation", "description": "Liste des relevés de consommation."}
     },
     "error": {
         "errors": {
+            "statement_not_draft": "Le dossier de consommation ne peut être modifié que lorsque le relevé est en brouillon.",
+            "invalid_status": "Les lignes ne peuvent être générées qu'au statut À encoder.",
+            "missing_allocation_apportionment": "Chaque ventilation doit avoir une clé de répartition avant l'envoi.",
+            "allocations_total_mismatch": "Le total des ventilations doit correspondre au total du relevé.",
             "lines_total_mismatch": "Le total des lignes doit correspondre au total du relevé.",
-            "allocations_total_mismatch": "Le total des allocations doit correspondre au total du relevé."
+            "accounting_operation_already_exists": "Une opération comptable existe déjà pour ce relevé.",
+            "missing_misc_journal": "Un journal d'opérations diverses est requis pour l'intégration.",
+            "missing_private_expense_account": "Un compte de charges privatives est requis pour l'intégration."
         }
     }
 }

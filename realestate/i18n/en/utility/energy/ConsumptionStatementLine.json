@@ -73,5 +73,10 @@
             "name": "Consumption statement lines",
             "description": "Consumption amounts by property lot and ownership."
         }
+    },
+    "error": {
+        "errors": {
+            "statement_lines_locked": "Statement lines can only be edited while the statement is in the to-encode status."
+        }
     }
 }

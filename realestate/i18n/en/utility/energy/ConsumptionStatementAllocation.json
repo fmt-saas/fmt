@@ -13,6 +13,11 @@
             "description": "Consumption statement the allocation relates to.",
             "help": "Only statements from the selected condominium are available."
         },
+        "consumption_file_section_id": {
+            "label": "Source section",
+            "description": "Consumption file section from which the allocation was generated.",
+            "help": "The source is detached when a draft statement changes consumption file."
+        },
         "account_id": {
             "label": "Accounting account",
             "description": "Accounting account the allocated amount relates to.",
@@ -37,6 +42,11 @@
         "list.default": {
             "name": "Consumption statement allocations",
             "description": "Allocations of consumption statement amounts by accounting account and apportionment."
+        }
+    },
+    "error": {
+        "errors": {
+            "statement_allocations_locked": "Allocations can only be edited while the statement is in draft or proforma."
         }
     }
 }

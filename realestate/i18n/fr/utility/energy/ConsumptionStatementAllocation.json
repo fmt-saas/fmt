@@ -13,6 +13,11 @@
             "description": "Relevé de consommation auquel la ventilation se rapporte.",
             "help": "Seuls les relevés de la copropriété sélectionnée sont disponibles."
         },
+        "consumption_file_section_id": {
+            "label": "Section source",
+            "description": "Section du dossier ayant généré la ventilation.",
+            "help": "La source est détachée lorsqu'un relevé brouillon change de dossier."
+        },
         "account_id": {
             "label": "Compte comptable",
             "description": "Compte comptable auquel le montant ventilé se rapporte.",
@@ -37,6 +42,11 @@
         "list.default": {
             "name": "Ventilations de relevé de consommation",
             "description": "Ventilations des montants de relevés de consommation par compte comptable et clé de répartition."
+        }
+    },
+    "error": {
+        "errors": {
+            "statement_allocations_locked": "Les ventilations ne sont modifiables qu'en brouillon ou en pro forma."
         }
     }
 }

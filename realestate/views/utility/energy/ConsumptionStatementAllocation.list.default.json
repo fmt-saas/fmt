@@ -1,54 +1,22 @@
 {
     "name": "Consumption Statement Allocations",
-    "description": "Allocations of consumption statement amounts by accounting account and apportionment.",
+    "description": "Accounting allocations of consumption statement amounts.",
     "header": {
         "layout": "inline",
-        "actions": {
-            "ACTION.CREATE_INLINE": [
-                {
-                    "view": true
-                }
-            ]
-        }
+        "actions": {"ACTION.CREATE": false, "ACTION.CREATE_INLINE": false}
     },
     "operations": {
-        "total": {
-            "amount": {
-                "operation": "SUM",
-                "usage": "amount/money:2"
-            }
-        }
+        "total": {"amount": {"operation": "SUM", "usage": "amount/money:2"}}
     },
     "limit": 100,
     "layout": {
         "items": [
-            {
-                "type": "field",
-                "value": "condo_id",
-                "width": "15%",
-                "visible": false
-            },
-            {
-                "type": "field",
-                "value": "consumption_statement_id",
-                "width": "25%",
-                "visible": false
-            },
-            {
-                "type": "field",
-                "value": "account_id",
-                "width": "25%"
-            },
-            {
-                "type": "field",
-                "value": "apportionment_id",
-                "width": "25%"
-            },
-            {
-                "type": "field",
-                "value": "amount",
-                "width": "10%"
-            }
+            {"type": "field", "value": "condo_id", "width": "10%", "visible": false},
+            {"type": "field", "value": "consumption_statement_id", "width": "20%", "visible": false},
+            {"type": "field", "value": "consumption_file_section_id", "width": "20%", "visible": false},
+            {"type": "field", "value": "account_id", "width": "35%"},
+            {"type": "field", "value": "apportionment_id", "width": "35%"},
+            {"type": "field", "value": "amount", "width": "30%"}
         ]
     }
 }

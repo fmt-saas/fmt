@@ -1,0 +1,27 @@
+{
+    "name": "Kavelkoppeling van verbruiksdossier",
+    "plural": "Kavelkoppelingen van verbruiksdossiers",
+    "description": "Koppeling tussen een leveranciersreferentie en een privatieve kavel.",
+    "model": {
+        "consumption_file_id": {"label": "Verbruiksdossier", "description": "Verbruiksdossier waartoe de koppeling behoort.", "help": "Het dossier moet tot de geselecteerde mede-eigendom behoren."},
+        "condo_id": {"label": "Mede-eigendom", "description": "Mede-eigendom waartoe de privatieve kavel behoort.", "help": "Deze waarde wordt overgenomen van het verbruiksdossier."},
+        "property_lot_id": {"label": "Privatieve kavel", "description": "Privatieve kavel die in het dossier wordt gekoppeld.", "help": "Een kavel kan slechts eenmaal per verbruiksdossier voorkomen."},
+        "property_lot_extref": {"label": "Externe referentie", "description": "Referentie die de leverancier voor de kavel gebruikt.", "help": "De kavelcode wordt standaard voorgesteld en blijft bewerkbaar."}
+    },
+    "view": {
+        "form.default": {"name": "Kavelkoppeling van verbruiksdossier", "description": "Beheer een kavelkoppeling voor een verbruiksdossier."},
+        "list.default": {
+            "name": "Kavelkoppelingen van verbruiksdossiers",
+            "description": "Kavelreferenties van een verbruiksdossier.",
+            "actions": {"action.remove": {"label": "Verwijderen", "description": "Verwijder de kavelkoppeling."}}
+        }
+    },
+    "error": {
+        "errors": {
+            "file_condo_mismatch": "De koppeling en het dossier moeten tot dezelfde mede-eigendom behoren.",
+            "property_lot_condo_mismatch": "De kavel moet tot de mede-eigendom van het dossier behoren."
+        },
+        "consumption_file_id": {"file_condo_mismatch": "De koppeling en het dossier moeten tot dezelfde mede-eigendom behoren."},
+        "property_lot_id": {"property_lot_condo_mismatch": "De kavel moet tot de mede-eigendom van het dossier behoren."}
+    }
+}

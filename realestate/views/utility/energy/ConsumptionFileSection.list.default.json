@@ -1,0 +1,20 @@
+{
+    "name": "Consumption File Sections",
+    "description": "Accounting sections configured for a consumption file.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE": false,
+            "ACTION.CREATE_INLINE": [{"view": true}]
+        }
+    },
+    "limit": 100,
+    "layout": {
+        "items": [
+            {"type": "field", "value": "condo_id", "width": "10%", "visible": false},
+            {"type": "field", "value": "consumption_file_id", "width": "20%", "visible": false},
+            {"type": "field", "value": "name", "width": "40%"},
+            {"type": "field", "value": "accounting_account_id", "width": "60%"}
+        ]
+    }
+}

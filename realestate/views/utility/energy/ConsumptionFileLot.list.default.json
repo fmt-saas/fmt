@@ -1,0 +1,36 @@
+{
+    "name": "Consumption File Property Lots",
+    "description": "Property lot references configured for a consumption file.",
+    "header": {
+        "layout": "inline",
+        "actions": {
+            "ACTION.CREATE": false,
+            "ACTION.CREATE_INLINE": [{"view": true}]
+        }
+    },
+    "actions": [
+        {
+            "id": "action.remove",
+            "inline": true,
+            "label": "Remove",
+            "icon": "delete",
+            "description": "Remove the property lot reference.",
+            "controller": "core_model_do",
+            "confirm": true,
+            "params": {
+                "entity": "realestate\\utility\\energy\\ConsumptionFileLot",
+                "action": "remove",
+                "ids": []
+            }
+        }
+    ],
+    "limit": 100,
+    "layout": {
+        "items": [
+            {"type": "field", "value": "condo_id", "width": "10%", "visible": false},
+            {"type": "field", "value": "consumption_file_id", "width": "20%", "visible": false},
+            {"type": "field", "value": "property_lot_id", "width": "50%"},
+            {"type": "field", "value": "property_lot_extref", "width": "50%"}
+        ]
+    }
+}

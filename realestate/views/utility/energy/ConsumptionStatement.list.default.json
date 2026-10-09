@@ -42,7 +42,8 @@
             {
                 "type": "field",
                 "value": "consumption_meter_id",
-                "width": "10%"
+                "width": "10%",
+                "visible": false
             },
             {
                 "type": "field",

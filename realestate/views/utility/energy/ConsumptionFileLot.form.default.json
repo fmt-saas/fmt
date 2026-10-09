@@ -1,6 +1,6 @@
 {
-    "name": "Consumption Statement Allocation",
-    "description": "Edit an accounting allocation of a consumption statement.",
+    "name": "Consumption File Property Lot",
+    "description": "Maintain a property lot reference for a consumption file.",
     "layout": {
         "groups": [
             {
@@ -13,11 +13,9 @@
                                         "width": "100%",
                                         "items": [
                                             {"type": "field", "value": "condo_id", "width": "100%"},
-                                            {"type": "field", "value": "consumption_statement_id", "width": "100%"},
-                                            {"type": "field", "value": "consumption_file_section_id", "width": "100%", "visible": false},
-                                            {"type": "field", "value": "account_id", "width": "100%"},
-                                            {"type": "field", "value": "apportionment_id", "width": "100%"},
-                                            {"type": "field", "value": "amount", "width": "100%"}
+                                            {"type": "field", "value": "consumption_file_id", "width": "100%"},
+                                            {"type": "field", "value": "property_lot_id", "width": "100%"},
+                                            {"type": "field", "value": "property_lot_extref", "width": "100%"}
                                         ]
                                     }
                                 ]

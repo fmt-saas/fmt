@@ -3,21 +3,10 @@
     "description": "List consumption files.",
     "layout": {
         "items": [
-            {
-                "type": "field",
-                "value": "condo_id",
-                "width": "35%"
-            },
-            {
-                "type": "field",
-                "value": "suppliership_id",
-                "width": "35%"
-            },
-            {
-                "type": "field",
-                "value": "code",
-                "width": "30%"
-            }
+            {"type": "field", "value": "condo_id", "width": "30%"},
+            {"type": "field", "value": "suppliership_id", "width": "30%"},
+            {"type": "field", "value": "code", "width": "20%"},
+            {"type": "field", "value": "status", "width": "20%"}
         ]
     }
 }

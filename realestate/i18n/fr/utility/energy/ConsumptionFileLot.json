@@ -1,0 +1,27 @@
+{
+    "name": "Correspondance de lot de consommation",
+    "plural": "Correspondances de lots de consommation",
+    "description": "Correspondance entre une référence de dossier de consommation et un lot privatif.",
+    "model": {
+        "consumption_file_id": {"label": "Dossier de consommation", "description": "Dossier propriétaire de la correspondance.", "help": "Le dossier doit appartenir à la copropriété sélectionnée."},
+        "condo_id": {"label": "Copropriété", "description": "Copropriété propriétaire du lot privatif.", "help": "Cette valeur est héritée du dossier de consommation."},
+        "property_lot_id": {"label": "Lot privatif", "description": "Lot privatif identifié dans le dossier.", "help": "Un lot ne peut apparaître qu'une fois par dossier de consommation."},
+        "property_lot_extref": {"label": "Référence externe", "description": "Référence utilisée par le fournisseur pour le lot.", "help": "Le code du lot est proposé par défaut et la valeur reste modifiable."}
+    },
+    "view": {
+        "form.default": {"name": "Correspondance de lot de consommation", "description": "Gérer une correspondance de lot pour un dossier."},
+        "list.default": {
+            "name": "Correspondances de lots de consommation",
+            "description": "Références de lots configurées pour un dossier de consommation.",
+            "actions": {"action.remove": {"label": "Supprimer", "description": "Supprimer la correspondance du lot."}}
+        }
+    },
+    "error": {
+        "errors": {
+            "file_condo_mismatch": "La correspondance et le dossier doivent appartenir à la même copropriété.",
+            "property_lot_condo_mismatch": "Le lot doit appartenir à la copropriété du dossier."
+        },
+        "consumption_file_id": {"file_condo_mismatch": "La correspondance et le dossier doivent appartenir à la même copropriété."},
+        "property_lot_id": {"property_lot_condo_mismatch": "Le lot doit appartenir à la copropriété du dossier."}
+    }
+}

@@ -1,82 +1,65 @@
 {
     "name": "Consumption Statement",
-    "description": "Maintain the header information of a consumption statement.",
+    "description": "Maintain a consumption statement through its strict processing workflow.",
     "actions": [
         {
+            "id": "action.mark_proforma",
+            "label": "Mark proforma",
+            "icon": "description",
+            "description": "Mark the statement as proforma.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "draft"],
+            "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "transition": "mark_proforma", "ids": []},
+            "confirm": false
+        },
+        {
+            "id": "action.send",
+            "label": "Send",
+            "icon": "send",
+            "description": "Mark the statement as sent after checking its allocations.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "proforma"],
+            "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "transition": "send", "ids": []},
+            "confirm": false
+        },
+        {
+            "id": "action.mark_to_encode",
+            "label": "Encode lines",
+            "icon": "edit_note",
+            "description": "Open the statement lines for encoding.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "sent"],
+            "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "transition": "mark_to_encode", "ids": []},
+            "confirm": false
+        },
+        {
             "id": "action.generate_lines",
-            "label": "Generate",
+            "label": "Generate lines",
             "icon": "play_arrow",
-            "description": "Generate statement lines.",
+            "description": "Generate missing statement lines from the configured property lots.",
             "controller": "core_model_do",
-            "visible": [
-                "status",
-                "=",
-                "draft"
-            ],
-            "params": {
-                "entity": "realestate\\utility\\energy\\ConsumptionStatement",
-                "action": "generate_statement_lines",
-                "ids": []
-            },
+            "visible": ["status", "=", "to_encode"],
+            "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "action": "generate_statement_lines", "ids": []},
             "confirm": false
         },
         {
-            "id": "action.mark_ready",
-            "label": "Mark ready",
+            "id": "action.encode",
+            "label": "Mark encoded",
             "icon": "check",
-            "description": "Mark the consumption statement as ready for import.",
+            "description": "Mark the statement as encoded after checking its lines and allocations.",
             "controller": "core_model_transition",
-            "visible": [
-                "status",
-                "=",
-                "draft"
-            ],
-            "params": {
-                "entity": "realestate\\utility\\energy\\ConsumptionStatement",
-                "transition": "mark_ready",
-                "ids": []
-            },
+            "visible": ["status", "=", "to_encode"],
+            "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "transition": "encode", "ids": []},
             "confirm": false
         },
         {
-            "id": "action.mark_imported",
-            "label": "Mark imported",
-            "icon": "done",
-            "description": "Mark the consumption statement as imported.",
+            "id": "action.integrate",
+            "label": "Integrate",
+            "icon": "done_all",
+            "description": "Integrate the statement into accounting.",
             "controller": "core_model_transition",
-            "visible": [
-                "status",
-                "=",
-                "ready"
-            ],
-            "params": {
-                "entity": "realestate\\utility\\energy\\ConsumptionStatement",
-                "transition": "mark_imported",
-                "ids": []
-            },
-            "confirm": false
-        },
-        {
-            "id": "action.cancel",
-            "label": "Cancel",
-            "icon": "cancel",
-            "description": "Cancel the consumption statement.",
-            "controller": "core_model_transition",
-            "visible": [
-                [
-                    "status",
-                    "in",
-                    [
-                        "draft",
-                        "ready"
-                    ]
-                ]
-            ],
-            "params": {
-                "entity": "realestate\\utility\\energy\\ConsumptionStatement",
-                "transition": "cancel",
-                "ids": []
-            },
+            "visible": ["status", "=", "encoded"],
+            "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "transition": "integrate", "ids": []},
             "confirm": true
         }
     ],
@@ -85,73 +68,31 @@
             {
                 "sections": [
                     {
+                        "id": "section.statement",
+                        "label": "Statement",
                         "rows": [
                             {
                                 "columns": [
                                     {
                                         "width": "50%",
                                         "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "condo_id",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "fiscal_year_id",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "consumption_meter_id",
-                                                "width": "25%",
-                                                "visible": false
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "consumption_file_id",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "posting_date",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "date_from",
-                                                "width": "25%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "date_to",
-                                                "width": "25%"
-                                            }
+                                            {"type": "field", "value": "condo_id", "width": "50%"},
+                                            {"type": "field", "value": "fiscal_year_id", "width": "50%"},
+                                            {"type": "field", "value": "fiscal_period_id", "width": "50%"},
+                                            {"type": "field", "value": "consumption_file_id", "width": "50%"},
+                                            {"type": "field", "value": "consumption_meter_id", "width": "50%", "visible": false},
+                                            {"type": "field", "value": "posting_date", "width": "50%"},
+                                            {"type": "field", "value": "date_from", "width": "50%"},
+                                            {"type": "field", "value": "date_to", "width": "50%"}
                                         ]
                                     },
                                     {
-                                        "width": "25%",
-                                        "items": []
-                                    },
-                                    {
-                                        "width": "25%",
+                                        "width": "50%",
                                         "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "document_id",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "statement_total",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "status",
-                                                "width": "100%",
-                                                "visible": false
-                                            }
+                                            {"type": "field", "value": "document_id", "width": "100%"},
+                                            {"type": "field", "value": "statement_total", "width": "50%"},
+                                            {"type": "field", "value": "misc_operation_id", "width": "50%"},
+                                            {"type": "field", "value": "status", "width": "50%", "visible": false}
                                         ]
                                     }
                                 ]
@@ -161,11 +102,6 @@
                 ]
             },
             {
-                "visible": [
-                    "state",
-                    "<>",
-                    "draft"
-                ],
                 "sections": [
                     {
                         "id": "section.allocations",
@@ -176,11 +112,7 @@
                                     {
                                         "width": "100%",
                                         "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "consumption_statement_allocations_ids",
-                                                "width": "100%"
-                                            }
+                                            {"type": "field", "value": "consumption_statement_allocations_ids", "width": "100%", "widget": {"view": "list.default"}}
                                         ]
                                     }
                                 ]
@@ -190,17 +122,14 @@
                     {
                         "id": "section.lines",
                         "label": "Lines",
+                        "visible": ["status", "in", ["to_encode", "encoded", "integrated"]],
                         "rows": [
                             {
                                 "columns": [
                                     {
                                         "width": "100%",
                                         "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "consumption_statement_lines_ids",
-                                                "width": "100%"
-                                            }
+                                            {"type": "field", "value": "consumption_statement_lines_ids", "width": "100%", "widget": {"view": "list.default"}}
                                         ]
                                     }
                                 ]

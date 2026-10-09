@@ -1,11 +1,52 @@
 {
     "name": "Consumption File",
-    "description": "Maintain a consumption file.",
+    "description": "Maintain a consumption file configuration.",
+    "actions": [
+        {
+            "id": "action.validate",
+            "label": "Validate",
+            "icon": "check",
+            "description": "Validate the consumption file and generate missing property lot references.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "pending"],
+            "params": {
+                "entity": "realestate\\utility\\energy\\ConsumptionFile",
+                "transition": "validate",
+                "ids": []
+            },
+            "confirm": true
+        }
+    ],
     "layout": {
         "groups": [
             {
                 "sections": [
                     {
+                        "id": "section.configuration",
+                        "label": "Configuration",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {"type": "field", "value": "condo_id", "width": "25%"},
+                                            {"type": "field", "value": "suppliership_id", "width": "25%"},
+                                            {"type": "field", "value": "code", "width": "25%"},
+                                            {"type": "field", "value": "status", "width": "25%", "visible": false}
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.sections",
+                        "label": "Sections",
                         "rows": [
                             {
                                 "columns": [
@@ -14,18 +55,30 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "condo_id",
-                                                "width": "33%"
-                                            },
+                                                "value": "consumption_file_sections_ids",
+                                                "width": "100%",
+                                                "widget": {"view": "list.default"}
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "section.lots",
+                        "label": "Property lot references",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
                                             {
                                                 "type": "field",
-                                                "value": "suppliership_id",
-                                                "width": "33%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "code",
-                                                "width": "33%"
+                                                "value": "consumption_file_lots_ids",
+                                                "width": "100%",
+                                                "widget": {"view": "list.default"}
                                             }
                                         ]
                                     }

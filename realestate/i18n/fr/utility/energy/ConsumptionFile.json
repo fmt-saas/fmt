@@ -1,37 +1,36 @@
 {
     "name": "Dossier de consommation",
     "plural": "Dossiers de consommation",
-    "description": "Dossier fournisseur regroupant des relevés de consommation pour une copropriété.",
+    "description": "Configuration fournisseur regroupant les relevés de consommation d'une copropriété.",
     "model": {
-        "condo_id": {
-            "label": "Copropriété",
-            "description": "Copropriété concernée par le dossier de consommation.",
-            "help": ""
-        },
-        "suppliership_id": {
-            "label": "Contrat fournisseur",
-            "description": "Contrat fournisseur associé au dossier de consommation.",
-            "help": "Doit appartenir à la copropriété."
-        },
-        "code": {
-            "label": "Code",
-            "description": "Code identifiant le dossier de consommation.",
-            "help": ""
-        },
-        "name": {
-            "label": "Nom",
-            "description": "Nom affiché du dossier de consommation, composé du nom du fournisseur et du code du dossier.",
-            "help": ""
-        }
+        "condo_id": {"label": "Copropriété", "description": "Copropriété concernée par le dossier de consommation.", "help": "Sélectionnez la copropriété propriétaire de cette configuration."},
+        "suppliership_id": {"label": "Contrat fournisseur", "description": "Contrat fournisseur associé au dossier.", "help": "Le contrat doit appartenir à la copropriété sélectionnée."},
+        "code": {"label": "Code", "description": "Code identifiant le dossier de consommation.", "help": "Saisissez l'identifiant utilisé pour cette configuration fournisseur."},
+        "name": {"label": "Nom", "description": "Nom composé du fournisseur et du code du dossier.", "help": "Cette valeur est calculée automatiquement."},
+        "status": {"label": "Statut", "description": "Statut actuel de la configuration.", "help": "La validation verrouille la copropriété, le contrat fournisseur et le code.", "selection": {"pending": "En attente", "ready": "Prêt"}},
+        "consumption_file_sections_ids": {"label": "Sections", "description": "Sections comptables configurées pour le dossier.", "help": "Au moins une section complète est requise pour valider."},
+        "consumption_file_lots_ids": {"label": "Correspondances de lots", "description": "Références fournisseur associées aux lots privatifs.", "help": "Les correspondances manquantes sont générées à la validation."}
     },
     "view": {
         "form.default": {
             "name": "Dossier de consommation",
-            "description": "Formulaire d'édition d'un dossier de consommation."
+            "description": "Configurer un dossier de consommation.",
+            "actions": {"action.validate": {"label": "Valider", "description": "Valider le dossier et générer les correspondances de lots manquantes."}},
+            "layout": {
+                "section.configuration": {"label": "Configuration"},
+                "section.sections": {"label": "Sections"},
+                "section.lots": {"label": "Correspondances de lots"}
+            }
         },
-        "list.default": {
-            "name": "Dossiers de consommation",
-            "description": "Liste des dossiers de consommation."
+        "list.default": {"name": "Dossiers de consommation", "description": "Liste des configurations de consommation."}
+    },
+    "error": {
+        "errors": {
+            "missing_condo": "Une copropriété est requise.",
+            "missing_suppliership": "Un contrat fournisseur est requis.",
+            "missing_code": "Un code de dossier est requis.",
+            "missing_complete_section": "Au moins une section complète est requise.",
+            "file_already_validated": "La copropriété, le contrat fournisseur et le code ne peuvent plus être modifiés après validation."
         }
     }
 }

@@ -1,0 +1,23 @@
+{
+    "name": "Section de dossier de consommation",
+    "plural": "Sections de dossier de consommation",
+    "description": "Section comptable utilisée pour ventiler les montants des relevés de consommation.",
+    "model": {
+        "name": {"label": "Nom", "description": "Nom identifiant la section.", "help": "Le nom doit être unique dans le dossier de consommation."},
+        "accounting_account_id": {"label": "Compte comptable", "description": "Compte comptable associé à la section.", "help": "Le compte doit appartenir à la copropriété et peut fournir la clé de répartition par défaut."},
+        "condo_id": {"label": "Copropriété", "description": "Copropriété à laquelle la section appartient.", "help": "Cette valeur est héritée du dossier de consommation."},
+        "consumption_file_id": {"label": "Dossier de consommation", "description": "Dossier auquel la section appartient.", "help": "Le dossier doit appartenir à la même copropriété."}
+    },
+    "view": {
+        "form.default": {"name": "Section de dossier de consommation", "description": "Gérer une section comptable d'un dossier de consommation."},
+        "list.default": {"name": "Sections de dossier de consommation", "description": "Sections comptables configurées pour un dossier."}
+    },
+    "error": {
+        "errors": {
+            "account_condo_mismatch": "Le compte comptable doit appartenir à la copropriété du dossier.",
+            "file_condo_mismatch": "La section et le dossier doivent appartenir à la même copropriété."
+        },
+        "accounting_account_id": {"account_condo_mismatch": "Le compte comptable doit appartenir à la copropriété du dossier."},
+        "consumption_file_id": {"file_condo_mismatch": "La section et le dossier doivent appartenir à la même copropriété."}
+    }
+}

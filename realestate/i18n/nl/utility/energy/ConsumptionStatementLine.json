@@ -73,5 +73,10 @@
             "name": "Lijnen van verbruiksafrekeningen",
             "description": "Verbruiksbedragen per privatieve kavel en eigendomsdossier."
         }
+    },
+    "error": {
+        "errors": {
+            "statement_lines_locked": "Regels zijn alleen bewerkbaar wanneer de afrekening in de status Te coderen staat."
+        }
     }
 }

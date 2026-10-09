@@ -13,6 +13,11 @@
             "description": "Verbruiksafrekening waarop de verdeling betrekking heeft.",
             "help": "Alleen afrekeningen van de geselecteerde mede-eigendom zijn beschikbaar."
         },
+        "consumption_file_section_id": {
+            "label": "Bronsectie",
+            "description": "Sectie van het verbruiksdossier waaruit de verdeling werd aangemaakt.",
+            "help": "De bron wordt losgekoppeld wanneer een conceptafrekening van dossier verandert."
+        },
         "account_id": {
             "label": "Boekhoudrekening",
             "description": "Boekhoudrekening waarop het verdeelde bedrag betrekking heeft.",
@@ -37,6 +42,11 @@
         "list.default": {
             "name": "Verdelingen van verbruiksafrekeningen",
             "description": "Verdelingen van bedragen van verbruiksafrekeningen per boekhoudrekening en verdeelsleutel."
+        }
+    },
+    "error": {
+        "errors": {
+            "statement_allocations_locked": "Verdelingen zijn alleen bewerkbaar wanneer de afrekening in concept of pro forma staat."
         }
     }
 }

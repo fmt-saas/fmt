@@ -1,0 +1,36 @@
+{
+    "name": "Verbruiksdossier",
+    "plural": "Verbruiksdossiers",
+    "description": "Leveranciersconfiguratie die verbruiksafrekeningen voor een mede-eigendom groepeert.",
+    "model": {
+        "condo_id": {"label": "Mede-eigendom", "description": "Mede-eigendom waarop het verbruiksdossier betrekking heeft.", "help": "Selecteer de mede-eigendom die eigenaar is van deze configuratie."},
+        "suppliership_id": {"label": "Leverancierscontract", "description": "Leverancierscontract dat aan het dossier is gekoppeld.", "help": "Het contract moet tot de geselecteerde mede-eigendom behoren."},
+        "code": {"label": "Code", "description": "Code die het verbruiksdossier identificeert.", "help": "Voer de identificatie voor deze leveranciersconfiguratie in."},
+        "name": {"label": "Naam", "description": "Weergavenaam samengesteld uit leverancier en dossiercode.", "help": "Deze waarde wordt automatisch berekend."},
+        "status": {"label": "Status", "description": "Huidige configuratiestatus.", "help": "Validatie vergrendelt de mede-eigendom, het contract en de code.", "selection": {"pending": "In afwachting", "ready": "Klaar"}},
+        "consumption_file_sections_ids": {"label": "Secties", "description": "Boekhoudkundige secties van het dossier.", "help": "Minstens één volledige sectie is vereist voor validatie."},
+        "consumption_file_lots_ids": {"label": "Kavelkoppelingen", "description": "Leveranciersreferenties gekoppeld aan privatieve kavels.", "help": "Ontbrekende koppelingen worden bij validatie aangemaakt."}
+    },
+    "view": {
+        "form.default": {
+            "name": "Verbruiksdossier",
+            "description": "Beheer een verbruiksdossierconfiguratie.",
+            "actions": {"action.validate": {"label": "Valideren", "description": "Valideer het dossier en maak ontbrekende kavelkoppelingen aan."}},
+            "layout": {
+                "section.configuration": {"label": "Configuratie"},
+                "section.sections": {"label": "Secties"},
+                "section.lots": {"label": "Kavelkoppelingen"}
+            }
+        },
+        "list.default": {"name": "Verbruiksdossiers", "description": "Lijst van verbruiksdossierconfiguraties."}
+    },
+    "error": {
+        "errors": {
+            "missing_condo": "Een mede-eigendom is vereist.",
+            "missing_suppliership": "Een leverancierscontract is vereist.",
+            "missing_code": "Een dossiercode is vereist.",
+            "missing_complete_section": "Minstens één volledige sectie is vereist.",
+            "file_already_validated": "De mede-eigendom, het leverancierscontract en de code kunnen na validatie niet meer worden gewijzigd."
+        }
+    }
+}

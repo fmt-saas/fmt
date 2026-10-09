@@ -42,16 +42,14 @@ class ConsumptionStatementLine extends \equal\orm\Model {
                 'foreign_object'    => 'realestate\utility\energy\ConsumptionMeter',
                 'description'       => 'The meter ID relates to the consumption meter reading in the booking.',
                 'relation'          => ['consumption_statement_id' => 'consumption_meter_id'],
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['meter_scope', '=', 'unit']],
-                'required'          => true
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['meter_scope', '=', 'unit']]
             ],
 
             'consumption_meter_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\utility\energy\ConsumptionMeter',
                 'description'       => 'The consumption meter ID the line relates to.',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['meter_scope', '=', 'unit']],
-                'required'          => true
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['meter_scope', '=', 'unit']]
             ],
 
             'ownership_id' => [
@@ -111,5 +109,35 @@ class ConsumptionStatementLine extends \equal\orm\Model {
             ]
 
         ];
+    }
+
+    public static function getPolicies(): array {
+        return array_merge(parent::getPolicies(), [
+            'statement_lines_editable' => [
+                'description' => 'Checks that statement lines are currently editable.',
+                'function'    => 'policyStatementLinesEditable'
+            ]
+        ]);
+    }
+
+    public static function getOperationPolicies(): array {
+        return [
+            EQ_R_UPDATE => ['statement_lines_editable'],
+            EQ_R_DELETE => ['statement_lines_editable']
+        ];
+    }
+
+    protected static function policyStatementLinesEditable($self): array {
+        $result = [];
+        $self->read(['consumption_statement_id' => ['status']]);
+        foreach($self as $id => $line) {
+            if(
+                !$line['consumption_statement_id']
+                || $line['consumption_statement_id']['status'] !== 'to_encode'
+            ) {
+                $result[$id]['statement_lines_locked'] = 'Statement lines can only be edited while the statement is in the to-encode status.';
+            }
+        }
+        return $result;
     }
 }

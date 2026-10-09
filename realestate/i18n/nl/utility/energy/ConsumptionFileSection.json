@@ -1,0 +1,23 @@
+{
+    "name": "Sectie van verbruiksdossier",
+    "plural": "Secties van verbruiksdossiers",
+    "description": "Boekhoudkundige sectie voor de verdeling van bedragen van verbruiksafrekeningen.",
+    "model": {
+        "name": {"label": "Naam", "description": "Naam die de sectie identificeert.", "help": "De naam moet uniek zijn binnen het verbruiksdossier."},
+        "accounting_account_id": {"label": "Boekhoudrekening", "description": "Boekhoudrekening die aan de sectie is gekoppeld.", "help": "De rekening moet tot de mede-eigendom behoren en kan de standaardverdeelsleutel leveren."},
+        "condo_id": {"label": "Mede-eigendom", "description": "Mede-eigendom waartoe de sectie behoort.", "help": "Deze waarde wordt overgenomen van het verbruiksdossier."},
+        "consumption_file_id": {"label": "Verbruiksdossier", "description": "Verbruiksdossier waartoe de sectie behoort.", "help": "Het dossier moet tot dezelfde mede-eigendom behoren."}
+    },
+    "view": {
+        "form.default": {"name": "Sectie van verbruiksdossier", "description": "Beheer een boekhoudkundige sectie van een verbruiksdossier."},
+        "list.default": {"name": "Secties van verbruiksdossiers", "description": "Boekhoudkundige secties van een verbruiksdossier."}
+    },
+    "error": {
+        "errors": {
+            "account_condo_mismatch": "De boekhoudrekening moet tot de mede-eigendom van het dossier behoren.",
+            "file_condo_mismatch": "De sectie en het dossier moeten tot dezelfde mede-eigendom behoren."
+        },
+        "accounting_account_id": {"account_condo_mismatch": "De boekhoudrekening moet tot de mede-eigendom van het dossier behoren."},
+        "consumption_file_id": {"file_condo_mismatch": "De sectie en het dossier moeten tot dezelfde mede-eigendom behoren."}
+    }
+}
