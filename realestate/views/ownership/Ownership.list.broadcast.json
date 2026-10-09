@@ -41,7 +41,10 @@
             {
                 "type": "field",
                 "value": "date_to",
-                "width": "20%"
+                "width": "20%",
+                "widget": {
+                    "usage": "date/plain"
+                }
             }
         ]
     }

@@ -385,14 +385,13 @@ class ConsumptionStatement extends \equal\orm\Model {
                         ? min($propertyLotOwnership['date_to'], $consumptionStatement['date_to'])
                         : $consumptionStatement['date_to'];
 
-                    $existing = ConsumptionStatementLine::search([
-                        ['consumption_statement_id', '=', $id],
-                        ['property_lot_id', '=', $property_lot_id],
-                        ['ownership_id', '=', $propertyLotOwnership['ownership_id']],
-                        ['date_from', '=', $date_from],
-                        ['date_to', '=', $date_to]
-                    ]);
-                    if($existing->count() > 0) {
+                    if(ConsumptionStatementLine::search([
+                            ['consumption_statement_id', '=', $id],
+                            ['property_lot_id', '=', $property_lot_id],
+                            ['ownership_id', '=', $propertyLotOwnership['ownership_id']],
+                            ['date_from', '=', $date_from],
+                            ['date_to', '=', $date_to]
+                        ])->count() > 0) {
                         continue;
                     }
 
