@@ -153,6 +153,10 @@
             "label": "Relevés de consommation",
             "description": "Générer et vérifier les données de consommation."
         },
+        "consumption_files": {
+            "label": "Dossiers de consommation",
+            "description": "Générer et vérifier les données de consommation."
+        },
         "item.allocations": {
             "label": "Répartitions",
             "description": ""
