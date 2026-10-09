@@ -124,7 +124,7 @@
                     {
                         "id": "section.lines",
                         "label": "Lines",
-                        "visible": ["status", "in", ["to_encode", "encoded", "integrated"]],
+                        "visible": ["status", "not in", ["draft", "proforma"]],
                         "rows": [
                             {
                                 "columns": [

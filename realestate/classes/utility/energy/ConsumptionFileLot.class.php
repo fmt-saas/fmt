@@ -62,7 +62,7 @@ class ConsumptionFileLot extends \equal\orm\Model {
     }
 
     protected static function doRemove($self) {
-        $self->delete();
+        $self->delete(true);
     }
 
 

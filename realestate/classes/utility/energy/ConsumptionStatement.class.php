@@ -144,7 +144,8 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'transitions' => [
                     'send' => [
                         'description' => 'Mark the statement as sent.',
-                        'policies'    => ['allocations_are_balanced'],
+                        'policies'    => ['allocations_are_balanced', 'can_generate_statement_lines'],
+                        'onafter'     => 'onafterSend',
                         'status'      => 'sent'
                     ]
                 ]
@@ -264,8 +265,8 @@ class ConsumptionStatement extends \equal\orm\Model {
         $result = [];
         $self->read(['status']);
         foreach($self as $id => $consumptionStatement) {
-            if($consumptionStatement['status'] !== 'to_encode') {
-                $result[$id]['invalid_status'] = 'Lines can only be generated while the statement is in the to-encode status.';
+            if(!in_array($consumptionStatement['status'], ['sent', 'to_encode'])) {
+                $result[$id]['invalid_status'] = 'Lines can only be generated while the statement is sent or in the to-encode status.';
             }
         }
         return $result;
@@ -354,7 +355,7 @@ class ConsumptionStatement extends \equal\orm\Model {
             $fileLots = ConsumptionFileLot::search([
                     ['consumption_file_id', '=', $consumptionStatement['consumption_file_id']]
                 ])
-                ->read(['property_lot_id']);
+                ->read(['property_lot_id', 'property_lot_extref']);
 
             foreach($fileLots as $fileLot) {
                 $property_lot_id = $fileLot['property_lot_id'];
@@ -393,6 +394,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                         'condo_id'                 => $consumptionStatement['condo_id'],
                         'consumption_statement_id' => $id,
                         'property_lot_id'          => $property_lot_id,
+                        'property_lot_extref'      => $fileLot['property_lot_extref'],
                         'ownership_id'             => $propertyLotOwnership['ownership_id'],
                         'date_from'                => $date_from,
                         'date_to'                  => $date_to,
@@ -481,11 +483,15 @@ class ConsumptionStatement extends \equal\orm\Model {
         // Accounting integration is intentionally left for a later implementation.
     }
 
+    protected static function onafterSend($self) {
+        $self->do('generate_statement_lines');
+    }
+
     protected static function onbeforeIntegrate($self) {
         $self->do('integrate');
     }
 
-    protected static function oncreate($self) {
+    protected static function oninstantitate($self) {
         $self->do('sync_allocations');
     }
 
