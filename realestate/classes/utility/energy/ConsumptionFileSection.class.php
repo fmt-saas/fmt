@@ -68,19 +68,11 @@ class ConsumptionFileSection extends \equal\orm\Model {
         ]);
     }
 
-    protected static function oncreate($self) {
-        try {
-            self::assertSameCondo($self);
-        }
-        catch(\Throwable $throwable) {
-            $self->delete(true);
-            throw $throwable;
-        }
+    protected static function oninstantiate($self) {
         $self->do('sync_draft_allocations');
     }
 
     protected static function onbeforeupdate($self, $values) {
-        self::assertSameCondo($self, $values);
 
         if(!array_key_exists('consumption_file_id', $values)) {
             return;
@@ -106,6 +98,10 @@ class ConsumptionFileSection extends \equal\orm\Model {
     protected static function doSyncDraftAllocations($self) {
         $self->read(['consumption_file_id', 'condo_id', 'accounting_account_id']);
         foreach($self as $section_id => $section) {
+            if(!$section['consumption_file_id'] || !$section['condo_id'] || !$section['accounting_account_id']) {
+                continue;
+            }
+
             $account = Account::id($section['accounting_account_id'])
                 ->read(['apportionment_id'])
                 ->first();
@@ -171,6 +167,10 @@ class ConsumptionFileSection extends \equal\orm\Model {
             $condo_id = self::relationId($values['condo_id'] ?? $section['condo_id']);
             $consumption_file_id = self::relationId($values['consumption_file_id'] ?? $section['consumption_file_id']);
             $account_id = self::relationId($values['accounting_account_id'] ?? $section['accounting_account_id']);
+
+            if(!$condo_id || !$consumption_file_id || !$account_id) {
+                continue;
+            }
 
             $file = ConsumptionFile::id($consumption_file_id)->read(['condo_id'])->first();
             if(!$file || $file['condo_id'] !== $condo_id) {
