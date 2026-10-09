@@ -46,15 +46,15 @@ class ConsumptionStatement extends \equal\orm\Model {
             ],
 
             'date_from' => [
-                'type'        => 'date',
-                'description' => 'First day included in the consumption statement period.',
-                'required'    => true
+                'type'           => 'date',
+                'description'    => 'First day included in the consumption statement period.',
+                'required'       => true
             ],
 
             'date_to' => [
-                'type'        => 'date',
-                'description' => 'Last day included in the consumption statement period.',
-                'required'    => true
+                'type'           => 'date',
+                'description'    => 'Last day included in the consumption statement period.',
+                'required'       => true
             ],
 
             'misc_operation_id' => [
@@ -65,16 +65,17 @@ class ConsumptionStatement extends \equal\orm\Model {
             ],
 
             'posting_date' => [
-                'type'        => 'date',
-                'description' => 'Date on which the statement must be posted in accounting.',
-                'default'     => function () { return time(); }
+                'type'           => 'date',
+                'description'    => 'Date on which the statement must be posted in accounting.',
+                'default'        => function () { return time(); }
             ],
 
             'document_id' => [
                 'type'           => 'many2one',
                 'foreign_object' => 'documents\Document',
                 'description'    => 'Original document of the consumption statement.',
-                'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
+                'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'visible'        => ['status', 'not in ', ['draft', 'proforma']]
             ],
 
             // #memo - kept optional for compatibility with statements with meter-based workflow.
@@ -89,7 +90,11 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'type'           => 'many2one',
                 'foreign_object' => 'realestate\utility\energy\ConsumptionFile',
                 'description'    => 'Consumption file the statement belongs to.',
-                'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'domain'         => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['condo_id', '<>', null],
+                    ['status', '=', 'ready']
+                ],
                 'required'       => true,
                 'onupdate'       => 'onupdateConsumptionFileId'
             ],
@@ -111,17 +116,18 @@ class ConsumptionStatement extends \equal\orm\Model {
             ],
 
             'statement_total' => [
-                'type'        => 'float',
-                'usage'       => 'amount/money:2',
-                'description' => 'Total amount shown on the consumption statement.',
-                'help'        => 'Enter the statement total manually. It is used to verify the totals of the lines and allocations.'
+                'type'           => 'float',
+                'usage'          => 'amount/money:2',
+                'description'    => 'Total amount shown on the consumption statement.',
+                'help'           => 'Enter the statement total manually. It is used to verify the totals of the lines and allocations.',
+                'visible'        => ['status', 'not in ', ['draft', 'proforma']]
             ],
 
             'status' => [
-                'type'        => 'string',
-                'description' => 'Current processing status of the consumption statement.',
-                'selection'   => ['draft', 'proforma', 'sent', 'to_encode', 'encoded', 'integrated'],
-                'default'     => 'draft'
+                'type'           => 'string',
+                'description'    => 'Current processing status of the consumption statement.',
+                'selection'      => ['draft', 'proforma', 'sent', 'to_encode', 'encoded', 'integrated'],
+                'default'        => 'draft'
             ]
         ];
     }
@@ -144,7 +150,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'transitions' => [
                     'send' => [
                         'description' => 'Mark the statement as sent.',
-                        'policies'    => ['allocations_are_balanced', 'can_generate_statement_lines'],
+                        'policies'    => ['can_generate_statement_lines'],
                         'onafter'     => 'onafterSend',
                         'status'      => 'sent'
                     ]

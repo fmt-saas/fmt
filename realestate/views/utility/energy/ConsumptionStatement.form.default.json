@@ -1,6 +1,15 @@
 {
     "name": "Consumption Statement",
     "description": "Maintain a consumption statement through its strict processing workflow.",
+    "header": {
+        "actions": {
+            "ACTION.SAVE": [
+                { "id": "SAVE_AND_CONTINUE" },
+                { "id": "SAVE_AND_VIEW" },
+                { "id": "SAVE_AND_CLOSE" }
+            ]
+        }
+    },
     "actions": [
         {
             "id": "action.mark_proforma",
