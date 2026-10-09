@@ -12,6 +12,14 @@ class ConsumptionFileSection extends \equal\orm\Model {
 
     public static function getColumns() {
         return [
+            'condo_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'realestate\property\Condominium',
+                'description'    => 'Condominium the section belongs to.',
+                'required'       => true,
+                'readonly'       => true
+            ],
+
             'name' => [
                 'type'        => 'string',
                 'usage'       => 'text/plain:200',
@@ -27,19 +35,14 @@ class ConsumptionFileSection extends \equal\orm\Model {
                 'required'       => true
             ],
 
-            'condo_id' => [
-                'type'           => 'many2one',
-                'foreign_object' => 'realestate\property\Condominium',
-                'description'    => 'Condominium the section belongs to.',
-                'required'       => true,
-                'readonly'       => true
-            ],
-
             'consumption_file_id' => [
                 'type'           => 'many2one',
                 'foreign_object' => 'realestate\utility\energy\ConsumptionFile',
                 'description'    => 'Consumption file the section belongs to.',
-                'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'domain'         => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['condo_id', '<>', null]
+                ],
                 'ondelete'       => 'cascade',
                 'required'       => true
             ]

@@ -495,7 +495,7 @@ class ConsumptionStatement extends \equal\orm\Model {
             return;
         }
 
-        $new_consumption_file_id = self::relationId($values['consumption_file_id']);
+        $new_consumption_file_id = $values['consumption_file_id'];
         $self->read(['status', 'consumption_file_id']);
         foreach($self as $id => $consumptionStatement) {
             if(
@@ -517,7 +517,7 @@ class ConsumptionStatement extends \equal\orm\Model {
         $result = [];
 
         if(isset($event['condo_id']) && $event['condo_id']) {
-            $condo_id = self::relationId($event['condo_id']);
+            $condo_id = $event['condo_id'];
             $fiscalYear = FiscalYear::search([
                     ['condo_id', '=', $condo_id],
                     ['status', '=', 'open']
@@ -535,10 +535,10 @@ class ConsumptionStatement extends \equal\orm\Model {
 
         $consumption_file_id = null;
         if(array_key_exists('consumption_file_id', $event)) {
-            $consumption_file_id = self::relationId($event['consumption_file_id']);
+            $consumption_file_id = $event['consumption_file_id'];
         }
         elseif(!empty($values['consumption_file_id'])) {
-            $consumption_file_id = self::relationId($values['consumption_file_id']);
+            $consumption_file_id = $values['consumption_file_id'];
         }
 
         $should_propose_date_from = array_key_exists('consumption_file_id', $event)
@@ -562,10 +562,10 @@ class ConsumptionStatement extends \equal\orm\Model {
 
         $fiscal_year_id = null;
         if(array_key_exists('fiscal_year_id', $event)) {
-            $fiscal_year_id = self::relationId($event['fiscal_year_id']);
+            $fiscal_year_id = $event['fiscal_year_id'];
         }
         elseif(!empty($values['fiscal_year_id'])) {
-            $fiscal_year_id = self::relationId($values['fiscal_year_id']);
+            $fiscal_year_id = $values['fiscal_year_id'];
         }
 
         if($should_propose_date_from && !isset($result['date_from']) && $fiscal_year_id) {
@@ -588,13 +588,6 @@ class ConsumptionStatement extends \equal\orm\Model {
         }
 
         return $result;
-    }
-
-    private static function relationId($value) {
-        if(is_array($value)) {
-            return $value['id'] ?? null;
-        }
-        return $value;
     }
 
     private static function nextCalendarDay(int $timestamp): int {
