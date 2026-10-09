@@ -47,7 +47,7 @@ class ConsumptionFileLot extends \equal\orm\Model {
 
     public function getUnique() {
         return [
-            ['consumption_file_id', 'property_lot_id']
+            ['consumption_file_id', 'property_lot_extref']
         ];
     }
 
@@ -79,10 +79,4 @@ class ConsumptionFileLot extends \equal\orm\Model {
         return $result;
     }
 
-    private static function relationId($value) {
-        if(is_array($value)) {
-            return $value['id'] ?? null;
-        }
-        return $value;
-    }
 }
