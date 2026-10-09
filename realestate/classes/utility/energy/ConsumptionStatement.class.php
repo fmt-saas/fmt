@@ -91,7 +91,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'description'    => 'Consumption file the statement belongs to.',
                 'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'required'       => true,
-                'onupdate'       => 
+                'onupdate'       => 'onupdateConsumptionFileId'
             ],
 
             'consumption_statement_lines_ids' => [
@@ -507,10 +507,8 @@ class ConsumptionStatement extends \equal\orm\Model {
         }
     }
 
-    protected static function onafterupdate($self, $values) {
-        if(array_key_exists('consumption_file_id', $values)) {
-            $self->do('sync_allocations');
-        }
+    protected static function onupdateConsumptionFileId($self) {
+        $self->do('sync_allocations');
     }
 
     public static function onchange($event, $values): array {
