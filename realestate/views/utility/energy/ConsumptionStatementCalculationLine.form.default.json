@@ -1,6 +1,6 @@
 {
-    "name": "Consumption Statement Line",
-    "description": "Edit an individual line of an energy consumption statement.",
+    "name": "Consumption Statement Calculation Line",
+    "description": "Edit an individual calculation line of an energy consumption statement.",
     "layout": {
         "groups": [
             {

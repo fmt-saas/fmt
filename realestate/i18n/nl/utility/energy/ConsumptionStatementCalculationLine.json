@@ -1,7 +1,7 @@
 {
-    "name": "Lijn van verbruiksafrekening",
-    "plural": "Lijnen van verbruiksafrekeningen",
-    "description": "Lijn die een bedrag van een verbruiksafrekening toewijst aan een privatieve kavel en een eigendomsdossier.",
+    "name": "Berekeningsregel van verbruiksafrekening",
+    "plural": "Berekeningsregels van verbruiksafrekeningen",
+    "description": "Berekeningsregel die een bedrag van een verbruiksafrekening toewijst aan een privatieve kavel en een eigendomsdossier.",
     "model": {
         "condo_id": {
             "label": "Mede-eigendom",
@@ -10,8 +10,8 @@
         },
         "consumption_statement_id": {
             "label": "Verbruiksafrekening",
-            "description": "Verbruiksafrekening waartoe de lijn behoort.",
-            "help": "Selecteer de verbruiksafrekening die deze lijn bevat."
+            "description": "Verbruiksafrekening waartoe de berekeningsregel behoort.",
+            "help": "Selecteer de verbruiksafrekening die deze berekeningsregel bevat."
         },
         "parent_consumption_meter_id": {
             "label": "Hoofdmeter",
@@ -20,7 +20,7 @@
         },
         "consumption_meter_id": {
             "label": "Verbruiksmeter",
-            "description": "Individuele verbruiksmeter die aan de lijn is gekoppeld.",
+            "description": "Individuele verbruiksmeter die aan de berekeningsregel is gekoppeld.",
             "help": "Selecteer de meter die aan de privatieve kavel is gekoppeld."
         },
         "ownership_id": {
@@ -66,17 +66,17 @@
     },
     "view": {
         "form.default": {
-            "name": "Lijn van verbruiksafrekening",
-            "description": "Bewerk een lijn van een verbruiksafrekening."
+            "name": "Berekeningsregel van verbruiksafrekening",
+            "description": "Bewerk een berekeningsregel van een verbruiksafrekening."
         },
         "list.default": {
-            "name": "Lijnen van verbruiksafrekeningen",
-            "description": "Verbruiksbedragen per privatieve kavel en eigendomsdossier."
+            "name": "Berekeningsregels van verbruiksafrekeningen",
+            "description": "Berekende verbruiksbedragen per privatieve kavel en eigendomsdossier."
         }
     },
     "error": {
         "errors": {
-            "statement_lines_locked": "Regels zijn alleen bewerkbaar wanneer de afrekening in de status Te coderen staat."
+            "statement_lines_locked": "Berekeningsregels zijn alleen bewerkbaar wanneer de afrekening in de status Te coderen staat."
         }
     }
 }

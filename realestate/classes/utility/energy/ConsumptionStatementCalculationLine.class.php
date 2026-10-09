@@ -7,14 +7,14 @@
 namespace realestate\utility\energy;
 
 
-class ConsumptionStatementLine extends \equal\orm\Model {
+class ConsumptionStatementCalculationLine extends \equal\orm\Model {
 
     public static function getName() {
-        return 'Consumption Statement Line';
+        return 'Consumption Statement Calculation Line';
     }
 
     public static function getDescription() {
-        return 'Line assigning an amount from a consumption statement to a property lot and an ownership.';
+        return 'Calculation line assigning an amount from a consumption statement to a property lot and an ownership.';
     }
 
     public static function getColumns() {
@@ -29,7 +29,7 @@ class ConsumptionStatementLine extends \equal\orm\Model {
             'consumption_statement_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\utility\energy\ConsumptionStatement',
-                'description'       => 'Consumption statement the line belongs to.',
+                'description'       => 'Consumption statement the calculation line belongs to.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'dependents'        => ['parent_consumption_meter_id'],
                 'ondelete'          => 'cascade',
@@ -48,13 +48,13 @@ class ConsumptionStatementLine extends \equal\orm\Model {
             'consumption_meter_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\utility\energy\ConsumptionMeter',
-                'description'       => 'The consumption meter ID the line relates to.',
+                'description'       => 'The consumption meter ID the calculation line relates to.',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['meter_scope', '=', 'unit']]
             ],
 
             'ownership_id' => [
                 'type'              => 'many2one',
-                'description'       => "The ownership that the line refers to (based on accounting account).",
+                'description'       => "The ownership that the calculation line refers to (based on accounting account).",
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'domain'            => [['condo_id', '=', 'object.condo_id']],
                 'required'          => true
@@ -123,7 +123,7 @@ class ConsumptionStatementLine extends \equal\orm\Model {
     public static function getPolicies(): array {
         return array_merge(parent::getPolicies(), [
             'can_edit' => [
-                'description' => 'Checks that statement lines are currently editable.',
+                'description' => 'Checks that statement calculation lines are currently editable.',
                 'function'    => 'policyCanEdit'
             ]
         ]);
@@ -144,7 +144,7 @@ class ConsumptionStatementLine extends \equal\orm\Model {
                 !$line['consumption_statement_id']
                 || $line['consumption_statement_id']['status'] !== 'to_encode'
             ) {
-                $result[$id]['statement_lines_locked'] = 'Statement lines can only be edited while the statement is in the to-encode status.';
+                $result[$id]['statement_lines_locked'] = 'Statement calculation lines can only be edited while the statement is in the to-encode status.';
             }
         }
         return $result;

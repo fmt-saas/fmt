@@ -94,6 +94,9 @@
                                             {"type": "field", "value": "date_from", "width": "50%"},
                                             {"type": "field", "value": "date_to", "width": "50%"},
 
+                                            {"type": "field", "value": "fixed_share_heating", "width": "50%"},
+                                            {"type": "field", "value": "has_deduct_advances", "width": "50%"},
+
                                             {"type": "field", "value": "consumption_meter_id", "width": "50%", "visible": false},
                                             {"type": "field", "value": "posting_date", "width": "50%", "visible": false}
                                         ]
@@ -119,6 +122,22 @@
             {
                 "sections": [
                     {
+                        "id": "section.submission_lines",
+                        "label": "Submission lines",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {"type": "field", "value": "consumption_statement_submission_lines_ids", "width": "100%", "widget": {"view": "list.default"}}
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "id": "section.allocations",
                         "label": "Allocations",
                         "rows": [
@@ -127,7 +146,7 @@
                                     {
                                         "width": "100%",
                                         "items": [
-                                            {"type": "field", "value": "consumption_statement_allocations_ids", "width": "100%", "widget": {"view": "list.default"}}
+                                            {"type": "field", "value": "consumption_statement_allocation_lines_ids", "width": "100%", "widget": {"view": "list.default"}}
                                         ]
                                     }
                                 ]
@@ -135,8 +154,8 @@
                         ]
                     },
                     {
-                        "id": "section.lines",
-                        "label": "Lines",
+                        "id": "section.calculation_lines",
+                        "label": "Calculation lines",
                         "visible": ["status", "not in", ["draft", "proforma"]],
                         "rows": [
                             {
@@ -144,7 +163,7 @@
                                     {
                                         "width": "100%",
                                         "items": [
-                                            {"type": "field", "value": "consumption_statement_lines_ids", "width": "100%", "widget": {"view": "list.default"}}
+                                            {"type": "field", "value": "consumption_statement_calculation_lines_ids", "width": "100%", "widget": {"view": "list.default"}}
                                         ]
                                     }
                                 ]

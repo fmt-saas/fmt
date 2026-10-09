@@ -13,8 +13,10 @@
         "document_id": {"label": "Document", "description": "Origineel document van de verbruiksafrekening.", "help": "Selecteer het brondocument van de leverancier."},
         "consumption_meter_id": {"label": "Oude meter", "description": "Voormalige hoofdmeter van de afrekening.", "help": "Dit optionele verborgen veld blijft behouden voor bestaande gegevens."},
         "consumption_file_id": {"label": "Verbruiksdossier", "description": "Configuratiedossier dat door de afrekening wordt gebruikt.", "help": "Een wijziging in concept behoudt bestaande verdelingen en voegt die van het nieuwe dossier toe."},
-        "consumption_statement_lines_ids": {"label": "Regels", "description": "Bedragen toegewezen aan kavels en eigendomsperioden.", "help": "Regels zijn alleen bewerkbaar in de status Te coderen."},
-        "consumption_statement_allocations_ids": {"label": "Verdelingen", "description": "Bedragen verdeeld over rekeningen en verdeelsleutels.", "help": "Verdelingen zijn bewerkbaar in concept en pro forma."},
+        "fixed_share_heating": {"label": "Vast aandeel verwarming", "description": "Percentage van de verwarmingskosten dat als vaste kosten wordt toegewezen.", "help": "Het vaste en variabele aandeel vormen samen 100%."},
+        "has_deduct_advances": {"label": "Voorschotten aftrekken", "description": "Geeft aan of voorschotten worden afgetrokken zonder verdelingsregels aan te maken.", "help": "Schakel deze optie in om voorschotten af te trekken zonder verdelingsregels aan te maken."},
+        "consumption_statement_calculation_lines_ids": {"label": "Berekeningsregels", "description": "Bedragen berekend voor kavels en eigendomsperioden.", "help": "Berekeningsregels zijn alleen bewerkbaar in de status Te coderen."},
+        "consumption_statement_allocation_lines_ids": {"label": "Verdelingsregels", "description": "Bedragen verdeeld over rekeningen en verdeelsleutels.", "help": "Verdelingsregels zijn bewerkbaar in concept en pro forma."},
         "statement_total": {"label": "Totaal van de afrekening", "description": "Totaalbedrag op de afrekening.", "help": "De totalen van verdelingen en regels worden met dit bedrag vergeleken."},
         "status": {"label": "Status", "description": "Huidige verwerkingsstatus.", "help": "De workflow staat alleen voorwaartse overgangen toe.", "selection": {"draft": "Concept", "proforma": "Pro forma", "sent": "Verzonden", "to_encode": "Te coderen", "encoded": "Gecodeerd", "integrated": "Geïntegreerd"}}
     },
@@ -33,7 +35,7 @@
             "layout": {
                 "section.statement": {"label": "Afrekening"},
                 "section.allocations": {"label": "Verdelingen"},
-                "section.lines": {"label": "Regels"}
+                "section.calculation_lines": {"label": "Berekeningsregels"}
             }
         },
         "list.default": {"name": "Verbruiksafrekeningen", "description": "Lijst van verbruiksafrekeningen."}

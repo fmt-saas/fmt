@@ -1,0 +1,52 @@
+{
+    "name": "Aangifteregel van verbruiksafrekening",
+    "plural": "Aangifteregels van verbruiksafrekeningen",
+    "description": "Aangegeven bedrag van een verbruiksafrekening toegewezen aan een boekhoudrekening en een verdeelsleutel.",
+    "model": {
+        "condo_id": {
+            "label": "Mede-eigendom",
+            "description": "Mede-eigendom waarop de aangifte betrekking heeft.",
+            "help": "Selecteer de mede-eigendom waartoe de afrekening, rekening en verdeelsleutel behoren."
+        },
+        "consumption_statement_id": {
+            "label": "Verbruiksafrekening",
+            "description": "Verbruiksafrekening waarop de aangifte betrekking heeft.",
+            "help": "Alleen afrekeningen van de geselecteerde mede-eigendom zijn beschikbaar."
+        },
+        "consumption_file_section_id": {
+            "label": "Bronsectie",
+            "description": "Sectie van het verbruiksdossier waaruit de aangifte werd aangemaakt.",
+            "help": "Identificeert de bronsectie van het aangegeven bedrag."
+        },
+        "account_id": {
+            "label": "Boekhoudrekening",
+            "description": "Boekhoudrekening waarop het aangegeven bedrag betrekking heeft.",
+            "help": "Alleen rekeningen van de geselecteerde mede-eigendom zijn beschikbaar."
+        },
+        "apportionment_id": {
+            "label": "Verdeelsleutel",
+            "description": "Verdeelsleutel die wordt gebruikt om het aangegeven bedrag te verdelen.",
+            "help": "Alleen verdeelsleutels van de geselecteerde mede-eigendom zijn beschikbaar."
+        },
+        "amount": {
+            "label": "Bedrag",
+            "description": "Aangegeven bedrag toegewezen aan de boekhoudrekening en verdeelsleutel.",
+            "help": "Voer het aangegeven bedrag voor deze rekening en verdeelsleutel in."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Aangifteregel van verbruiksafrekening",
+            "description": "Bewerk een aangegeven bedrag van een verbruiksafrekening."
+        },
+        "list.default": {
+            "name": "Aangifteregels van verbruiksafrekeningen",
+            "description": "Aangegeven bedragen van verbruiksafrekeningen per boekhoudrekening en verdeelsleutel."
+        }
+    },
+    "error": {
+        "errors": {
+            "statement_submissions_locked": "Aangiften zijn alleen bewerkbaar wanneer de afrekening in concept of pro forma staat."
+        }
+    }
+}

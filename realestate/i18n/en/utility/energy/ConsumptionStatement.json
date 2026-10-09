@@ -13,8 +13,10 @@
         "document_id": {"label": "Document", "description": "Original consumption statement document.", "help": "Select the source document received from the supplier."},
         "consumption_meter_id": {"label": "Legacy meter", "description": "Former master meter linked to the statement.", "help": "This optional hidden field is retained for existing data."},
         "consumption_file_id": {"label": "Consumption file", "description": "Configuration file used by the statement.", "help": "Changing it in draft preserves existing allocations and adds those of the new file."},
-        "consumption_statement_lines_ids": {"label": "Lines", "description": "Amounts assigned to property lots and ownership periods.", "help": "Lines are editable only in the to-encode status."},
-        "consumption_statement_allocations_ids": {"label": "Allocations", "description": "Amounts allocated to accounting accounts and apportionments.", "help": "Allocations are editable in draft and proforma."},
+        "fixed_share_heating": {"label": "Fixed heating share", "description": "Percentage of heating costs allocated as fixed costs.", "help": "The fixed and variable shares together equal 100%."},
+        "has_deduct_advances": {"label": "Deduct advances", "description": "Indicates whether advances are deducted without creating allocation lines.", "help": "Enable this option to deduct advances without creating allocation lines."},
+        "consumption_statement_calculation_lines_ids": {"label": "Calculation lines", "description": "Amounts calculated for property lots and ownership periods.", "help": "Calculation lines are editable only in the to-encode status."},
+        "consumption_statement_allocation_lines_ids": {"label": "Allocation lines", "description": "Amounts allocated to accounting accounts and apportionments.", "help": "Allocation lines are editable in draft and proforma."},
         "statement_total": {"label": "Statement total", "description": "Total amount shown on the statement.", "help": "Allocation and line totals are checked against this amount."},
         "status": {"label": "Status", "description": "Current processing status.", "help": "The workflow only allows forward transitions.", "selection": {"draft": "Draft", "proforma": "Proforma", "sent": "Sent", "to_encode": "To encode", "encoded": "Encoded", "integrated": "Integrated"}}
     },
@@ -33,7 +35,7 @@
             "layout": {
                 "section.statement": {"label": "Statement"},
                 "section.allocations": {"label": "Allocations"},
-                "section.lines": {"label": "Lines"}
+                "section.calculation_lines": {"label": "Calculation lines"}
             }
         },
         "list.default": {"name": "Consumption statements", "description": "List consumption statements."}

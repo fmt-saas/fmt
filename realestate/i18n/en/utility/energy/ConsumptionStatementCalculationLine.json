@@ -1,7 +1,7 @@
 {
-    "name": "Consumption statement line",
-    "plural": "Consumption statement lines",
-    "description": "Line assigning an amount from a consumption statement to a property lot and an ownership.",
+    "name": "Consumption statement calculation line",
+    "plural": "Consumption statement calculation lines",
+    "description": "Calculation line assigning an amount from a consumption statement to a property lot and an ownership.",
     "model": {
         "condo_id": {
             "label": "Condominium",
@@ -10,8 +10,8 @@
         },
         "consumption_statement_id": {
             "label": "Consumption statement",
-            "description": "Consumption statement the line belongs to.",
-            "help": "Select the consumption statement containing this line."
+            "description": "Consumption statement the calculation line belongs to.",
+            "help": "Select the consumption statement containing this calculation line."
         },
         "parent_consumption_meter_id": {
             "label": "Parent meter",
@@ -20,7 +20,7 @@
         },
         "consumption_meter_id": {
             "label": "Consumption meter",
-            "description": "Individual consumption meter associated with the line.",
+            "description": "Individual consumption meter associated with the calculation line.",
             "help": "Select the meter linked to the property lot."
         },
         "ownership_id": {
@@ -66,17 +66,17 @@
     },
     "view": {
         "form.default": {
-            "name": "Consumption statement line",
-            "description": "Edit a consumption statement line."
+            "name": "Consumption statement calculation line",
+            "description": "Edit a consumption statement calculation line."
         },
         "list.default": {
-            "name": "Consumption statement lines",
-            "description": "Consumption amounts by property lot and ownership."
+            "name": "Consumption statement calculation lines",
+            "description": "Calculated consumption amounts by property lot and ownership."
         }
     },
     "error": {
         "errors": {
-            "statement_lines_locked": "Statement lines can only be edited while the statement is in the to-encode status."
+            "statement_lines_locked": "Statement calculation lines can only be edited while the statement is in the to-encode status."
         }
     }
 }

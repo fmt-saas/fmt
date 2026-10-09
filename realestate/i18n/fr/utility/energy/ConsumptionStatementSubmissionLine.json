@@ -1,0 +1,52 @@
+{
+    "name": "Ligne de déclaration de relevé de consommation",
+    "plural": "Lignes de déclaration de relevé de consommation",
+    "description": "Montant déclaré d'un relevé de consommation affecté à un compte comptable et une clé de répartition.",
+    "model": {
+        "condo_id": {
+            "label": "Copropriété",
+            "description": "Copropriété à laquelle la déclaration se rapporte.",
+            "help": "Sélectionnez la copropriété dont dépendent le relevé, le compte et la clé de répartition."
+        },
+        "consumption_statement_id": {
+            "label": "Relevé de consommation",
+            "description": "Relevé de consommation auquel la déclaration se rapporte.",
+            "help": "Seuls les relevés de la copropriété sélectionnée sont disponibles."
+        },
+        "consumption_file_section_id": {
+            "label": "Section source",
+            "description": "Section du dossier ayant généré la déclaration.",
+            "help": "Identifie la section source du montant déclaré."
+        },
+        "account_id": {
+            "label": "Compte comptable",
+            "description": "Compte comptable auquel le montant déclaré se rapporte.",
+            "help": "Seuls les comptes de la copropriété sélectionnée sont disponibles."
+        },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé de répartition utilisée pour répartir le montant déclaré.",
+            "help": "Seules les clés de répartition de la copropriété sélectionnée sont disponibles."
+        },
+        "amount": {
+            "label": "Montant",
+            "description": "Montant déclaré affecté au compte comptable et à la clé de répartition.",
+            "help": "Saisissez le montant déclaré pour ce compte et cette clé de répartition."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Ligne de déclaration de relevé de consommation",
+            "description": "Modifier un montant déclaré d'un relevé de consommation."
+        },
+        "list.default": {
+            "name": "Lignes de déclaration de relevé de consommation",
+            "description": "Montants déclarés des relevés de consommation par compte comptable et clé de répartition."
+        }
+    },
+    "error": {
+        "errors": {
+            "statement_submissions_locked": "Les déclarations ne sont modifiables qu'en brouillon ou en pro forma."
+        }
+    }
+}

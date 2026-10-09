@@ -1,0 +1,52 @@
+{
+    "name": "Consumption statement submission line",
+    "plural": "Consumption statement submission lines",
+    "description": "Submitted consumption statement amount assigned to an accounting account and an apportionment.",
+    "model": {
+        "condo_id": {
+            "label": "Condominium",
+            "description": "Condominium the submission relates to.",
+            "help": "Select the condominium that owns the statement, account and apportionment."
+        },
+        "consumption_statement_id": {
+            "label": "Consumption statement",
+            "description": "Consumption statement the submission relates to.",
+            "help": "Only statements from the selected condominium are available."
+        },
+        "consumption_file_section_id": {
+            "label": "Source section",
+            "description": "Consumption file section from which the submission was generated.",
+            "help": "Identifies the source section for the submitted amount."
+        },
+        "account_id": {
+            "label": "Accounting account",
+            "description": "Accounting account the submitted amount relates to.",
+            "help": "Only accounts from the selected condominium are available."
+        },
+        "apportionment_id": {
+            "label": "Apportionment",
+            "description": "Apportionment used to distribute the submitted amount.",
+            "help": "Only apportionments from the selected condominium are available."
+        },
+        "amount": {
+            "label": "Amount",
+            "description": "Submitted amount assigned to the accounting account and apportionment.",
+            "help": "Enter the amount declared for this account and apportionment."
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Consumption statement submission line",
+            "description": "Edit a submitted amount of a consumption statement."
+        },
+        "list.default": {
+            "name": "Consumption statement submission lines",
+            "description": "Submitted consumption statement amounts by accounting account and apportionment."
+        }
+    },
+    "error": {
+        "errors": {
+            "statement_submissions_locked": "Submissions can only be edited while the statement is in draft or proforma."
+        }
+    }
+}

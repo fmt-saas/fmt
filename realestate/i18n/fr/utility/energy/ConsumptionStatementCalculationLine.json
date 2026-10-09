@@ -1,7 +1,7 @@
 {
-    "name": "Ligne de relevé de consommation",
-    "plural": "Lignes de relevé de consommation",
-    "description": "Ligne affectant un montant d'un relevé de consommation à un lot privatif et à un dossier de propriété.",
+    "name": "Ligne de calcul de relevé de consommation",
+    "plural": "Lignes de calcul de relevé de consommation",
+    "description": "Ligne de calcul affectant un montant d'un relevé de consommation à un lot privatif et à un dossier de propriété.",
     "model": {
         "condo_id": {
             "label": "Copropriété",
@@ -10,8 +10,8 @@
         },
         "consumption_statement_id": {
             "label": "Relevé de consommation",
-            "description": "Relevé de consommation auquel la ligne appartient.",
-            "help": "Sélectionnez le relevé de consommation contenant cette ligne."
+            "description": "Relevé de consommation auquel la ligne de calcul appartient.",
+            "help": "Sélectionnez le relevé de consommation contenant cette ligne de calcul."
         },
         "parent_consumption_meter_id": {
             "label": "Compteur parent",
@@ -20,7 +20,7 @@
         },
         "consumption_meter_id": {
             "label": "Compteur de consommation",
-            "description": "Compteur de consommation individuel associé à la ligne.",
+            "description": "Compteur de consommation individuel associé à la ligne de calcul.",
             "help": "Sélectionnez le compteur lié au lot privatif."
         },
         "ownership_id": {
@@ -66,17 +66,17 @@
     },
     "view": {
         "form.default": {
-            "name": "Ligne de relevé de consommation",
-            "description": "Modifier une ligne de relevé de consommation."
+            "name": "Ligne de calcul de relevé de consommation",
+            "description": "Modifier une ligne de calcul de relevé de consommation."
         },
         "list.default": {
-            "name": "Lignes de relevé de consommation",
-            "description": "Montants de consommation par lot privatif et dossier de propriété."
+            "name": "Lignes de calcul de relevé de consommation",
+            "description": "Montants de consommation calculés par lot privatif et dossier de propriété."
         }
     },
     "error": {
         "errors": {
-            "statement_lines_locked": "Les lignes ne sont modifiables que lorsque le relevé est au statut À encoder."
+            "statement_lines_locked": "Les lignes de calcul ne sont modifiables que lorsque le relevé est au statut À encoder."
         }
     }
 }

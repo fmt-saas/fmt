@@ -13,8 +13,10 @@
         "document_id": {"label": "Document", "description": "Document original du relevé.", "help": "Sélectionnez le document source reçu du fournisseur."},
         "consumption_meter_id": {"label": "Ancien compteur", "description": "Ancien compteur principal lié au relevé.", "help": "Ce champ facultatif et masqué est conservé pour les données existantes."},
         "consumption_file_id": {"label": "Dossier de consommation", "description": "Dossier de configuration utilisé par le relevé.", "help": "En brouillon, un changement conserve les allocations et ajoute celles du nouveau dossier."},
-        "consumption_statement_lines_ids": {"label": "Lignes", "description": "Montants affectés aux lots et périodes de propriété.", "help": "Les lignes sont modifiables uniquement au statut À encoder."},
-        "consumption_statement_allocations_ids": {"label": "Ventilations", "description": "Montants ventilés par compte et clé de répartition.", "help": "Les ventilations sont modifiables en brouillon et pro forma."},
+        "fixed_share_heating": {"label": "Part fixe chauffage", "description": "Pourcentage des frais de chauffage attribué à la part fixe.", "help": "La part fixe et la part variable totalisent 100 %."},
+        "has_deduct_advances": {"label": "Déduire les provisions", "description": "Indique si les provisions sont déduites sans créer de lignes de ventilation.", "help": "Activez cette option pour déduire les provisions sans créer de lignes de ventilation."},
+        "consumption_statement_calculation_lines_ids": {"label": "Lignes de calcul", "description": "Montants calculés pour les lots et périodes de propriété.", "help": "Les lignes de calcul sont modifiables uniquement au statut À encoder."},
+        "consumption_statement_allocation_lines_ids": {"label": "Lignes de ventilation", "description": "Montants ventilés par compte et clé de répartition.", "help": "Les lignes de ventilation sont modifiables en brouillon et pro forma."},
         "statement_total": {"label": "Total du relevé", "description": "Montant total indiqué sur le relevé.", "help": "Les totaux des ventilations et des lignes sont comparés à ce montant."},
         "status": {"label": "Statut", "description": "Statut actuel du traitement.", "help": "Le workflow autorise uniquement les transitions vers l'avant.", "selection": {"draft": "Brouillon", "proforma": "Pro forma", "sent": "Envoyé", "to_encode": "À encoder", "encoded": "Encodé", "integrated": "Intégré"}}
     },
@@ -33,7 +35,7 @@
             "layout": {
                 "section.statement": {"label": "Relevé"},
                 "section.allocations": {"label": "Ventilations"},
-                "section.lines": {"label": "Lignes"}
+                "section.calculation_lines": {"label": "Lignes de calcul"}
             }
         },
         "list.default": {"name": "Relevés de consommation", "description": "Liste des relevés de consommation."}

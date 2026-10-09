@@ -22,8 +22,28 @@ class ConsumptionFileSection extends \equal\orm\Model {
 
             'name' => [
                 'type'        => 'string',
-                'usage'       => 'text/plain:200',
+                'usage'       => 'text/plain:30',
                 'description' => 'Name identifying the accounting section in the consumption file.',
+                'selection'   => [
+                    'heating',
+                    'heating_and_hot_water',
+                    'hot_water',
+                    'cold_water'
+                ],
+                'multilang'   => true,
+                'required'    => true
+            ],
+
+            'units' => [
+                'type'        => 'string',
+                'usage'       => 'text/plain:20',
+                'description' => 'Units of the section in the consumption file.',
+                'selection'   => [
+                    'm3',
+                    'l',
+                    'hl',
+                    'kWh'
+                ],
                 'required'    => true
             ],
 
@@ -130,11 +150,11 @@ class ConsumptionFileSection extends \equal\orm\Model {
                 ];
 
                 if($allocation) {
-                    ConsumptionStatementAllocationLine::id($allocation['id'])->update($values);
+                    ConsumptionStatementSubmissionLine::id($allocation['id'])->update($values);
                     continue;
                 }
 
-                ConsumptionStatementAllocationLine::create(array_merge($values, [
+                ConsumptionStatementSubmissionLine::create(array_merge($values, [
                     'consumption_statement_id'    => $statement_id,
                     'consumption_file_section_id' => $section_id,
                     'amount'                      => 0.0

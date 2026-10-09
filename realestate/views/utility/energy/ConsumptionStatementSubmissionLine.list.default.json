@@ -1,0 +1,22 @@
+{
+    "name": "Consumption Statement Submission Lines",
+    "description": "Submitted consumption statement amounts.",
+    "header": {
+        "layout": "inline",
+        "actions": {"ACTION.CREATE": false, "ACTION.CREATE_INLINE": false}
+    },
+    "operations": {
+        "total": {"amount": {"operation": "SUM", "usage": "amount/money:2"}}
+    },
+    "limit": 100,
+    "layout": {
+        "items": [
+            {"type": "field", "value": "condo_id", "width": "10%", "visible": false},
+            {"type": "field", "value": "consumption_statement_id", "width": "20%", "visible": false},
+            {"type": "field", "value": "consumption_file_section_id", "width": "20%", "visible": false},
+            {"type": "field", "value": "account_id", "width": "35%"},
+            {"type": "field", "value": "apportionment_id", "width": "35%"},
+            {"type": "field", "value": "amount", "width": "30%"}
+        ]
+    }
+}

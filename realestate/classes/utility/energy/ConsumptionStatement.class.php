@@ -57,13 +57,6 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'required'       => true
             ],
 
-            'misc_operation_id' => [
-                'type'           => 'many2one',
-                'foreign_object' => 'finance\accounting\MiscOperation',
-                'description'    => 'Accounting operation generated when the statement is integrated.',
-                'readonly'       => true
-            ],
-
             'posting_date' => [
                 'type'           => 'date',
                 'description'    => 'Date on which the statement must be posted in accounting.',
@@ -99,17 +92,37 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'onupdate'       => 'onupdateConsumptionFileId'
             ],
 
-            'consumption_statement_lines_ids' => [
+            'fixed_share_heating' => [
+                'type'        => 'float',
+                'usage'       => 'amount/percent',
+                'description' => 'Fixed share applied to heating costs; the variable share is the complement to 100%.'
+            ],
+
+            'has_deduct_advances' => [
+                'type'        => 'boolean',
+                'description' => 'Indicates whether advances are deducted without creating allocation lines.',
+                'default'     => false
+            ],
+
+            'consumption_statement_calculation_lines_ids' => [
                 'type'           => 'one2many',
-                'foreign_object' => 'realestate\utility\energy\ConsumptionStatementLine',
+                'foreign_object' => 'realestate\utility\energy\ConsumptionStatementCalculationLine',
                 'foreign_field'  => 'consumption_statement_id',
-                'description'    => 'Property lot and ownership lines of the consumption statement.',
+                'description'    => 'Property lot and ownership calculation lines of the consumption statement.',
                 'domain'         => ['condo_id', '=', 'object.condo_id']
             ],
 
-            'consumption_statement_allocations_ids' => [
+            'consumption_statement_allocation_lines_ids' => [
                 'type'           => 'one2many',
                 'foreign_object' => 'realestate\utility\energy\ConsumptionStatementAllocationLine',
+                'foreign_field'  => 'consumption_statement_id',
+                'description'    => 'Accounting allocations of the consumption statement amount.',
+                'domain'         => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'consumption_statement_submission_lines_ids' => [
+                'type'           => 'one2many',
+                'foreign_object' => 'realestate\utility\energy\ConsumptionStatementSubmissionLine',
                 'foreign_field'  => 'consumption_statement_id',
                 'description'    => 'Accounting allocations of the consumption statement amount.',
                 'domain'         => ['condo_id', '=', 'object.condo_id']
@@ -292,12 +305,12 @@ class ConsumptionStatement extends \equal\orm\Model {
         $result = [];
         $self->read([
             'statement_total',
-            'consumption_statement_allocations_ids' => ['amount', 'apportionment_id']
+            'consumption_statement_allocation_lines_ids' => ['amount', 'apportionment_id']
         ]);
 
         foreach($self as $id => $consumptionStatement) {
             $allocations_total = 0.0;
-            foreach($consumptionStatement['consumption_statement_allocations_ids'] as $allocation) {
+            foreach($consumptionStatement['consumption_statement_allocation_lines_ids'] as $allocation) {
                 $allocations_total += (float) $allocation['amount'];
                 if(!$allocation['apportionment_id']) {
                     $result[$id]['missing_allocation_apportionment'] = 'Every allocation must have an apportionment before the statement can be encoded.';
@@ -316,12 +329,12 @@ class ConsumptionStatement extends \equal\orm\Model {
         $self->read([
             'condo_id',
             'statement_total',
-            'consumption_statement_allocations_ids' => ['amount', 'apportionment_id']
+            'consumption_statement_allocation_lines_ids' => ['amount', 'apportionment_id']
         ]);
 
         foreach($self as $id => $consumptionStatement) {
             $allocations_total = 0.0;
-            foreach($consumptionStatement['consumption_statement_allocations_ids'] as $allocation) {
+            foreach($consumptionStatement['consumption_statement_allocation_lines_ids'] as $allocation) {
                 $allocations_total += (float) $allocation['amount'];
                 if(!$allocation['apportionment_id']) {
                     $result[$id]['missing_allocation_apportionment'] = 'Every allocation must have an apportionment before the statement can be encoded.';
@@ -358,12 +371,12 @@ class ConsumptionStatement extends \equal\orm\Model {
         $result = [];
         $self->read([
             'statement_total',
-            'consumption_statement_lines_ids' => ['amount']
+            'consumption_statement_calculation_lines_ids' => ['amount']
         ]);
 
         foreach($self as $id => $consumptionStatement) {
             $lines_total = 0.0;
-            foreach($consumptionStatement['consumption_statement_lines_ids'] as $line) {
+            foreach($consumptionStatement['consumption_statement_calculation_lines_ids'] as $line) {
                 $lines_total += (float) $line['amount'];
             }
             $lines_total_cents = (int) round($lines_total * 100);
@@ -382,12 +395,8 @@ class ConsumptionStatement extends \equal\orm\Model {
             self::policyLinesAreBalanced($self)
         );
 
-        $self->read(['condo_id', 'misc_operation_id']);
+        $self->read(['condo_id']);
         foreach($self as $id => $consumptionStatement) {
-            if($consumptionStatement['misc_operation_id']) {
-                $result[$id]['accounting_operation_already_exists'] = 'An accounting operation already exists for this statement.';
-            }
-
             $journal = Journal::search([
                     ['condo_id', '=', $consumptionStatement['condo_id']],
                     ['journal_type', '=', 'MISC']
@@ -533,7 +542,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                         ? min($propertyLotOwnership['date_to'], $consumptionStatement['date_to'])
                         : $consumptionStatement['date_to'];
 
-                    if(ConsumptionStatementLine::search([
+                    if(ConsumptionStatementCalculationLine::search([
                             ['consumption_statement_id', '=', $id],
                             ['property_lot_id', '=', $property_lot_id],
                             ['ownership_id', '=', $propertyLotOwnership['ownership_id']],
@@ -543,7 +552,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                         continue;
                     }
 
-                    ConsumptionStatementLine::create([
+                    ConsumptionStatementCalculationLine::create([
                         'condo_id'                 => $consumptionStatement['condo_id'],
                         'consumption_statement_id' => $id,
                         'property_lot_id'          => $property_lot_id,
@@ -568,7 +577,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                     'accounting_account_id' => ['apportionment_id']
                 ]
             ],
-            'consumption_statement_allocations_ids' => ['consumption_file_section_id']
+            'consumption_statement_allocation_lines_ids' => ['consumption_file_section_id']
         ]);
 
         foreach($self as $statement_id => $consumptionStatement) {
@@ -577,7 +586,7 @@ class ConsumptionStatement extends \equal\orm\Model {
             }
 
             $allocations_by_section = [];
-            foreach($consumptionStatement['consumption_statement_allocations_ids'] as $allocation_id => $allocation) {
+            foreach($consumptionStatement['consumption_statement_allocation_lines_ids'] as $allocation_id => $allocation) {
                 if($allocation['consumption_file_section_id']) {
                     $allocations_by_section[$allocation['consumption_file_section_id']] = $allocation_id;
                 }
@@ -595,11 +604,11 @@ class ConsumptionStatement extends \equal\orm\Model {
                 ];
 
                 if(isset($allocations_by_section[$section_id])) {
-                    ConsumptionStatementAllocationLine::id($allocations_by_section[$section_id])->update($values);
+                    ConsumptionStatementSubmissionLine::id($allocations_by_section[$section_id])->update($values);
                     continue;
                 }
 
-                ConsumptionStatementAllocationLine::create(array_merge($values, [
+                ConsumptionStatementSubmissionLine::create(array_merge($values, [
                     'consumption_statement_id'    => $statement_id,
                     'consumption_file_section_id' => $section_id,
                     'amount'                      => 0.0
@@ -613,7 +622,7 @@ class ConsumptionStatement extends \equal\orm\Model {
             'status',
             'condo_id',
             'statement_total',
-            'consumption_statement_allocations_ids' => ['amount']
+            'consumption_statement_allocation_lines_ids' => ['amount']
         ]);
 
         foreach($self as $statement_id => $consumptionStatement) {
@@ -622,7 +631,7 @@ class ConsumptionStatement extends \equal\orm\Model {
             }
 
             $allocations_total = 0.0;
-            foreach($consumptionStatement['consumption_statement_allocations_ids'] as $allocation) {
+            foreach($consumptionStatement['consumption_statement_allocation_lines_ids'] as $allocation) {
                 $allocations_total += (float) $allocation['amount'];
             }
 
@@ -657,7 +666,7 @@ class ConsumptionStatement extends \equal\orm\Model {
     protected static function doDetachFileAllocations($self) {
         $self->read([
             'status',
-            'consumption_statement_allocations_ids' => ['consumption_file_section_id']
+            'consumption_statement_allocation_lines_ids' => ['consumption_file_section_id']
         ]);
 
         foreach($self as $consumptionStatement) {
@@ -665,7 +674,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 continue;
             }
             $allocation_ids = [];
-            foreach($consumptionStatement['consumption_statement_allocations_ids'] as $allocation_id => $allocation) {
+            foreach($consumptionStatement['consumption_statement_allocation_lines_ids'] as $allocation_id => $allocation) {
                 if($allocation['consumption_file_section_id']) {
                     $allocation_ids[] = $allocation_id;
                 }
