@@ -5,5 +5,8 @@
     "header.date": "Date",
     "header.email": "Email",
     "header.status": "Status",
-    "header.communication": "Communication"
+    "header.communication": "Communication",
+    "header.period": "Période",
+    "header.period_from": "du",
+    "header.period_to": "au"
 }

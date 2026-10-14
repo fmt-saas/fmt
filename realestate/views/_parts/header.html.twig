@@ -118,10 +118,10 @@
                                     {% if fiscal_period is defined %}
                                     <tr>
                                         <td style="text-align: right; text-transform: uppercase; padding-right: 10px;">
-                                            PERIODE EXERCICE:
+                                            {{ labels['header.period'] }}:
                                         </td>
                                         <td style="text-align: left;">
-                                            du {{ fiscal_period.date_from | date(date_format, timezone) }} au {{ fiscal_period.date_to | date(date_format, timezone) }}
+                                            {{ labels['header.period_from'] }} {{ fiscal_period.date_from | date(date_format, timezone) }} {{ labels['header.period_to'] }} {{ fiscal_period.date_to | date(date_format, timezone) }}
                                         </td>
                                     </tr>
                                     {% endif %}
