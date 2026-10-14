@@ -32,6 +32,15 @@
             "label": "Montant",
             "description": "Montant déclaré affecté au compte comptable et à la clé de répartition.",
             "help": "Saisissez le montant déclaré pour ce compte et cette clé de répartition."
+        },
+        "calculation_method": {
+            "label": "Méthode de calcul",
+            "description": "Méthode utilisée pour calculer le montant déclaré.",
+            "help": "Sélectionnez un calcul à partir du prix unitaire ou la saisie directe du montant total.",
+            "selection": {
+                "unit_price": "Prix unitaire",
+                "total_amount": "Montant total"
+            }
         }
     },
     "view": {

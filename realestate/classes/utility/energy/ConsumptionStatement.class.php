@@ -513,8 +513,79 @@ class ConsumptionStatement extends \equal\orm\Model {
 */
 
     protected static function doGenerateStatementLines($self) {
-        $self->read(['condo_id', 'consumption_file_id', 'date_from', 'date_to']);
+        $self->read([
+            'condo_id',
+            'consumption_file_id',
+            'date_from',
+            'date_to',
+            'has_deduct_advances',
+            'consumption_statement_submission_lines_ids' => [
+                'consumption_file_section_id',
+                'account_id',
+                'apportionment_id',
+                'amount'
+            ],
+            'consumption_statement_allocation_lines_ids' => [
+                'consumption_file_section_id',
+                'account_id',
+                'apportionment_id',
+                'amount'
+            ]
+        ]);
         foreach($self as $id => $consumptionStatement) {
+            if(!$consumptionStatement['has_deduct_advances']) {
+                $allocations_by_section = [];
+                $unlinked_allocations_by_values = [];
+                foreach($consumptionStatement['consumption_statement_allocation_lines_ids'] as $allocation_id => $allocation) {
+                    if($allocation['consumption_file_section_id']) {
+                        $allocations_by_section[$allocation['consumption_file_section_id']] = $allocation_id;
+                        continue;
+                    }
+
+                    $allocation_key = implode(':', [
+                        $allocation['account_id'],
+                        $allocation['apportionment_id'],
+                        number_format((float) $allocation['amount'], 2, '.', '')
+                    ]);
+                    $unlinked_allocations_by_values[$allocation_key] = ($unlinked_allocations_by_values[$allocation_key] ?? 0) + 1;
+                }
+
+                foreach($consumptionStatement['consumption_statement_submission_lines_ids'] as $submissionLine) {
+                    $values = [
+                        'condo_id'                 => $consumptionStatement['condo_id'],
+                        'consumption_statement_id' => $id,
+                        'account_id'               => $submissionLine['account_id'],
+                        'apportionment_id'         => $submissionLine['apportionment_id'],
+                        'amount'                   => $submissionLine['amount']
+                    ];
+
+                    $section_id = $submissionLine['consumption_file_section_id'];
+                    if($section_id) {
+                        if(isset($allocations_by_section[$section_id])) {
+                            ConsumptionStatementAllocationLine::id($allocations_by_section[$section_id])->update($values);
+                            continue;
+                        }
+
+                        ConsumptionStatementAllocationLine::create(array_merge($values, [
+                            'consumption_file_section_id' => $section_id
+                        ]));
+                        continue;
+                    }
+
+                    $allocation_key = implode(':', [
+                        $submissionLine['account_id'],
+                        $submissionLine['apportionment_id'],
+                        number_format((float) $submissionLine['amount'], 2, '.', '')
+                    ]);
+                    if(($unlinked_allocations_by_values[$allocation_key] ?? 0) > 0) {
+                        --$unlinked_allocations_by_values[$allocation_key];
+                        continue;
+                    }
+
+                    ConsumptionStatementAllocationLine::create($values);
+                }
+            }
+
             $fileLots = ConsumptionFileLot::search([
                     ['consumption_file_id', '=', $consumptionStatement['consumption_file_id']]
                 ])
@@ -574,6 +645,7 @@ class ConsumptionStatement extends \equal\orm\Model {
             'consumption_file_id' => [
                 'consumption_file_sections_ids' => [
                     'condo_id',
+                    'units',
                     'accounting_account_id' => ['apportionment_id']
                 ]
             ],
@@ -600,7 +672,8 @@ class ConsumptionStatement extends \equal\orm\Model {
                 $values = [
                     'condo_id'         => $section['condo_id'],
                     'account_id'       => $account['id'],
-                    'apportionment_id' => $account['apportionment_id']
+                    'apportionment_id' => $account['apportionment_id'],
+                    'units'            => $section['units']
                 ];
 
                 if(isset($submission_lines_by_section[$section_id])) {
