@@ -39,7 +39,7 @@
             "help": ""
         },
         "ownership_type": {
-            "label": "Type d'ownership",
+            "label": "Type de dossier",
             "description": "Détermine si la propriété est unique ou en indivision.",
             "selection": {
                 "unique": "Propriété unique",

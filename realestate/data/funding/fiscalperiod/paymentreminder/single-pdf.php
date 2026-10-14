@@ -19,17 +19,17 @@ use Dompdf\Options as DompdfOptions;
         ],
 
         'ownership_id' => [
-            'description'       => 'Identifier of the targeted Ownership (from which Owner is deduced).',
+            'description'       => 'Identifier of the targeted Ownership.',
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\ownership\Ownership',
             'required'          => true
         ],
 
-        'owner_id' => [
-            'description'       => 'Identifier of the targeted Owner, if any.',
-            'help'              => 'If not provided, fallback to first Owner of given Ownership.',
+        'recipient_identity_id' => [
+            'description'       => 'Identifier of the recipient Identity, if already resolved.',
+            'help'              => 'If omitted, the recipient Identity is deduced from the Ownership.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\ownership\Owner',
+            'foreign_object'    => 'identity\Identity'
         ],
 
         'debug' => [
@@ -67,9 +67,9 @@ $context = $providers['context'];
 try {
 
     $html = (string) eQual::run('get', 'realestate_funding_fiscalperiod_paymentreminder_single-html', [
-            'payment_reminder_id' => $params['payment_reminder_id'],
-            'ownership_id'        => $params['ownership_id'],
-            'owner_id'            => $params['owner_id'] ?? null
+            'payment_reminder_id'   => $params['payment_reminder_id'],
+            'ownership_id'          => $params['ownership_id'],
+            'recipient_identity_id' => $params['recipient_identity_id'] ?? null
         ]);
 
     /*

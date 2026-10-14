@@ -11,7 +11,6 @@ use identity\Identity;
 use identity\Organisation;
 use realestate\governance\Assembly;
 use realestate\governance\AssemblyInvitationCorrespondence;
-use realestate\ownership\Owner;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
@@ -168,8 +167,8 @@ $getRecipient = function($identity_id, $lang) {
 $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params['id'])
     ->read([
         'assembly_id',
-        'owner_id',
-        'ownership_id'
+        'recipient_identity_id' => ['lang_id' => ['code']],
+        'ownership_id' => ['code', 'address_recipient']
     ])
     ->first(true);
 
@@ -177,23 +176,18 @@ if(!$assemblyInvitationCorrespondence) {
     throw new Exception('unknown_assembly_invitation', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$owner = Owner::id($assemblyInvitationCorrespondence['owner_id'])
-    ->read([
-        'firstname', 'lastname',
-        'ownership_id' => ['code', 'address_recipient'],
-        'identity_id' => [
-            'lang_id' => ['code']
-        ]
-    ])
-    ->first();
-
-if(!$owner) {
-    throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
+$recipientIdentity = $assemblyInvitationCorrespondence['recipient_identity_id'];
+if(!$recipientIdentity) {
+    throw new Exception('unknown_recipient_identity', EQ_ERROR_INVALID_PARAM);
 }
 
-$owner_lang = $owner['identity_id']['lang_id']['code'] ?? $params['lang'];
+$recipient_lang = $recipientIdentity['lang_id']['code'] ?? $params['lang'];
 
-$recipient = $getRecipient($owner['identity_id']['id'], $owner_lang);
+$recipient = $getRecipient($recipientIdentity['id'], $recipient_lang);
+
+if(strlen($assemblyInvitationCorrespondence['ownership_id']['address_recipient'] ?? '') > 0) {
+    $recipient['name'] = $assemblyInvitationCorrespondence['ownership_id']['address_recipient'];
+}
 
 $assembly = Assembly::id($assemblyInvitationCorrespondence['assembly_id'])
     ->read([
@@ -259,7 +253,7 @@ $ownerTemplate = Template::search([
         ['code', '=', $template_code],
         ['type', '=', 'document']
     ])
-    ->read(['id', 'parts_ids' => ['name', 'value']], $owner_lang)
+    ->read(['id', 'parts_ids' => ['name', 'value']], $recipient_lang)
     ->first(true);
 
 $condoTemplate = Template::id($ownerTemplate['id'])
@@ -296,7 +290,7 @@ $map_types = [
 
 foreach($ownerTemplate['parts_ids'] as $part) {
     $part_value = $part['value'];
-    $part_lang = $owner_lang;
+    $part_lang = $recipient_lang;
     if(is_null($part_value)) {
         $part_value = $map_condo_template_parts[$part['name']] ?? '';
         $part_lang = $condo_lang;
@@ -349,8 +343,8 @@ foreach($ownerTemplate['parts_ids'] as $part) {
 }
 
 $labels = $getLabels(
-    $owner_lang,
-    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $owner_lang, 'AssemblyInvitationCorrespondence.' . $params['view_id'])
+    $recipient_lang,
+    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $recipient_lang, 'AssemblyInvitationCorrespondence.' . $params['view_id'])
 );
 
 $values = [

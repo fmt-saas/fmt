@@ -13,7 +13,6 @@ use equal\email\Email as EmailMessage;
 use equal\email\EmailAttachment;
 use realestate\governance\AssemblyMinutesCorrespondence;
 use realestate\management\ManagementProcess;
-use realestate\ownership\OwnershipCommunicationPreference;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send a single email for a given Assembly Invitation.",
@@ -62,6 +61,7 @@ $assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id']
         'is_sent',
         'communication_method',
         'owner_id' => ['firstname', 'lastname', 'lang_id'],
+        'recipient_identity_id' => ['email', 'email_alt'],
         'ownership_id' => ['id', 'name'],
         'assembly_id' => ['name', 'assembly_date', 'assembly_type'],
         'document_id'
@@ -134,18 +134,9 @@ foreach($template['parts_ids'] as $part_id => $part) {
     }
 }
 
-// retrieve recipient
-$communicationPreference = OwnershipCommunicationPreference::search([
-        ['condo_id', '=', $assemblyMinutesCorrespondence['condo_id']['id']],
-        ['ownership_id', '=', $assemblyMinutesCorrespondence['ownership_id']['id']],
-        ['communication_reason', '=', 'general_assembly_minutes'],
-        ['has_channel_email', '=', true]
-    ])
-    ->read(['email', 'email_alt'])
-    ->first();
-
-$recipient_email = ($communicationPreference['email'] ?? null)
-    ?: ($communicationPreference['email_alt'] ?? null);
+$recipientIdentity = $assemblyMinutesCorrespondence['recipient_identity_id'];
+$recipient_email = ($recipientIdentity['email'] ?? null)
+    ?: ($recipientIdentity['email_alt'] ?? null);
 
 if(!$recipient_email || $recipient_email === '') {
     throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
