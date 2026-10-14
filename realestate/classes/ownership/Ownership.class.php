@@ -593,10 +593,13 @@ class Ownership extends \equal\orm\Model {
         $result = [];
 
         $self->read([
+            'representative_identity_id' => ['email', 'email_alt'],
             'ownership_communication_preferences_ids' => [
                 'communication_reason',
                 'has_channel_email',
-                'identity_id' => ['email', 'email_alt']
+                'owner_id' => [
+                    'identity_id' => ['email', 'email_alt']
+                ]
             ]
         ]);
 
@@ -606,7 +609,9 @@ class Ownership extends \equal\orm\Model {
                     continue;
                 }
 
-                $identity = $communicationPreference['identity_id'] ?? null;
+                $identity = $communicationPreference['owner_id']['identity_id']
+                    ?? $ownership['representative_identity_id']
+                    ?? null;
 
                 $has_email = $identity && (!empty($identity['email']) || !empty($identity['email_alt']));
 
@@ -835,14 +840,14 @@ class Ownership extends \equal\orm\Model {
             if(OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $ownership['condo_id']],
                         ['ownership_id', '=', $id],
-                        ['identity_id', '=', $identity_id],
+                        ['owner_id', '=', $owner_id],
                         ['communication_reason', '=', 'general_assembly_call']
                     ])->count() <= 0) {
 
                 OwnershipCommunicationPreference::create([
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
-                        'identity_id'                           => $identity_id,
+                        'is_owner'                              => $is_owner,
                         'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'general_assembly_call',
                         'has_channel_email'                     => false,
@@ -855,14 +860,14 @@ class Ownership extends \equal\orm\Model {
             if(OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $ownership['condo_id']],
                         ['ownership_id', '=', $id],
-                        ['identity_id', '=', $identity_id],
+                        ['owner_id', '=', $owner_id],
                         ['communication_reason', '=', 'general_assembly_minutes']
                     ])->count() <= 0) {
 
                 OwnershipCommunicationPreference::create([
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
-                        'identity_id'                           => $identity_id,
+                        'is_owner'                              => $is_owner,
                         'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'general_assembly_minutes',
                         'has_channel_email'                     => false,
@@ -875,14 +880,14 @@ class Ownership extends \equal\orm\Model {
             if(OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $ownership['condo_id']],
                         ['ownership_id', '=', $id],
-                        ['identity_id', '=', $identity_id],
+                        ['owner_id', '=', $owner_id],
                         ['communication_reason', '=', 'expense_statement']
                     ])->count() <= 0) {
 
                 OwnershipCommunicationPreference::create([
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
-                        'identity_id'                           => $identity_id,
+                        'is_owner'                              => $is_owner,
                         'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'expense_statement',
                         'has_channel_email'                     => false,
@@ -895,14 +900,14 @@ class Ownership extends \equal\orm\Model {
             if(OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $ownership['condo_id']],
                         ['ownership_id', '=', $id],
-                        ['identity_id', '=', $identity_id],
+                        ['owner_id', '=', $owner_id],
                         ['communication_reason', '=', 'fund_request']
                     ])->count() <= 0) {
 
                 OwnershipCommunicationPreference::create([
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
-                        'identity_id'                           => $identity_id,
+                        'is_owner'                              => $is_owner,
                         'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'fund_request',
                         'has_channel_email'                     => false,
@@ -915,14 +920,14 @@ class Ownership extends \equal\orm\Model {
             if(OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $ownership['condo_id']],
                         ['ownership_id', '=', $id],
-                        ['identity_id', '=', $identity_id],
+                        ['owner_id', '=', $owner_id],
                         ['communication_reason', '=', 'technical_communication']
                     ])->count() <= 0) {
 
                 OwnershipCommunicationPreference::create([
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
-                        'identity_id'                           => $identity_id,
+                        'is_owner'                              => $is_owner,
                         'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'technical_communication',
                         'has_channel_email'                     => false,

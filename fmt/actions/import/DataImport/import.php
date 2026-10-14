@@ -109,6 +109,39 @@ $mapSupplierRowToJson = function (array $row): array {
     ];
 };
 
+$parseMultilangFieldValue = function ($value): ?array {
+    if(!is_string($value)) {
+        return null;
+    }
+
+    $value = trim($value);
+    if(!str_starts_with($value, '{') || !str_ends_with($value, '}')) {
+        return null;
+    }
+
+    $translations = json_decode($value, true);
+    if(json_last_error() !== JSON_ERROR_NONE) {
+        // Also accept JSON-like objects whose two-letter language keys are not quoted.
+        $normalized_value = preg_replace('/([,{]\s*)([a-z]{2})(\s*:)/i', '$1"$2"$3', $value);
+        $translations = json_decode($normalized_value, true);
+    }
+
+    if(json_last_error() !== JSON_ERROR_NONE || !is_array($translations) || !$translations) {
+        return null;
+    }
+
+    $result = [];
+    foreach($translations as $lang => $translation) {
+        if(!is_string($lang) || !preg_match('/^[a-z]{2}$/i', $lang) || !is_string($translation)) {
+            return null;
+        }
+
+        $result[strtolower($lang)] = $translation;
+    }
+
+    return $result;
+};
+
 $result = [
     'created'   => 0,
     'updated'   => 0,
@@ -1394,13 +1427,30 @@ try {
 
             $is_statutory = ($apportionment_key['code'] === 'stat');
 
+            $description_translations = $parseMultilangFieldValue($apportionment_key['description']);
+            $description_lang = $description_translations ? array_key_first($description_translations) : null;
+            $description = $description_lang
+                ? $description_translations[$description_lang]
+                : $apportionment_key['description'];
+
             $apportionment = Apportionment::create([
                     'condo_id'          => $condominium['id'],
-                    'description'       => $apportionment_key['description'],
+                    'description'       => $description,
                     'total_shares'      => $apportionment_key['total_shares'],
                     'is_statutory'      => $is_statutory
-                ])
+                ], $description_lang)
                 ->first();
+
+            if($description_translations) {
+                foreach($description_translations as $lang => $translated_description) {
+                    if($lang === $description_lang) {
+                        continue;
+                    }
+
+                    Apportionment::id($apportionment['id'])
+                        ->update(['description' => $translated_description], $lang);
+                }
+            }
 
             $map_apportionments[$apportionment_key['code']] = $apportionment['id'];
         }

@@ -154,6 +154,8 @@ $getRecipient = function($identity_id, $lang) {
 
     return [
             'name'              => $title . ' ' . ucfirst($identity['firstname']) . ' ' . strtoupper($identity['lastname']),
+            'firstname'         => $identity['firstname'],
+            'lastname'          => $identity['lastname'],
             'address_street'    => $identity['address_street'],
             'address_dispatch'  => $identity['address_dispatch'],
             'address_zip'       => $identity['address_zip'],
@@ -324,8 +326,8 @@ foreach($ownerTemplate['parts_ids'] as $part) {
         $introduction = $part_value;
 
         $map_values = [
-            'firstname'         => $owner['firstname'],
-            'lastname'          => $owner['lastname'],
+            'firstname'         => $recipient['firstname'],
+            'lastname'          => $recipient['lastname'],
             'condo'             => $assembly['condo_id']['name'],
             'assembly'          => $assembly['name'],
             'date'              => $getFormattedDate($assembly['assembly_date']),
