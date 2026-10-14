@@ -14,7 +14,6 @@ use finance\accounting\Account;
 use finance\accounting\FiscalYear;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
-use realestate\ownership\Ownership;
 use fmt\setting\Setting;
 use realestate\ownership\OwnershipCommunicationPreference;
 use finance\bank\BankStatementLine;
@@ -536,16 +535,11 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             // remove any previously created correspondence
             FundRequestExecutionCorrespondence::search(['fund_request_execution_id', '=', $id])->delete(true);
 
-            $ownerships_ids = array_column($fundRequestExecution['execution_lines_ids']->get(true), 'ownership_id');
-            $ownerships = Ownership::ids($ownerships_ids)->read(['representative_owner_id']);
+            $ownerships_ids = array_column($fundRequestExecution['execution_lines_ids']->toArray(), 'ownership_id');
 
             $now = time();
 
-            foreach($ownerships as $ownership_id => $ownership) {
-                if(!$ownership['representative_owner_id']) {
-                    continue;
-                }
-
+            foreach($ownerships_ids as $ownership_id) {
                 // init prefs
                 $communication_methods = [
                         'email'                     => false,
@@ -561,6 +555,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         ['communication_reason', '=', 'fund_request']
                     ])
                     ->read([
+                        'owner_id',
                         'has_channel_email',
                         'has_channel_postal',
                         'has_channel_postal_registered',
@@ -568,7 +563,9 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                     ])
                     ->first();
 
+                $owner_id = null;
                 if($communicationPreference) {
+                    $owner_id = $communicationPreference['owner_id'];
                     $communication_methods = [
                             'email'                     => $communicationPreference['has_channel_email'],
                             'postal'                    => $communicationPreference['has_channel_postal'],
@@ -591,7 +588,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         'condo_id'                  => $fundRequestExecution['condo_id'],
                         'fund_request_execution_id' => $id,
                         'ownership_id'              => $ownership_id,
-                        'owner_id'                  => $ownership['representative_owner_id'],
+                        'owner_id'                  => $owner_id,
                         'communication_method'      => $communication_method
                     ])
                     ->first();

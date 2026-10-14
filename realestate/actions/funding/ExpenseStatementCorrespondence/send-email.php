@@ -16,7 +16,6 @@ use finance\accounting\FiscalPeriod;
 use fmt\setting\Setting;
 use realestate\funding\ExpenseStatementCorrespondence;
 use realestate\management\ManagementProcess;
-use realestate\ownership\OwnershipCommunicationPreference;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send a single email for a given Expense Statement correspondence.",
@@ -86,7 +85,7 @@ $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id
         'name',
         'communication_method',
         'is_sent',
-        'owner_id' => ['firstname', 'lastname', 'lang_id'],
+        'recipient_identity_id' => ['firstname', 'lastname', 'lang_id', 'email', 'email_alt'],
         'ownership_id' => ['id', 'name'],
         'expense_statement_id' => ['name', 'emission_date', 'fiscal_period_id'],
         'document_id'
@@ -157,8 +156,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $body = $part['value'];
 
         $map_values = [
-            'firstname'         => $expenseStatementCorrespondence['owner_id']['firstname'],
-            'lastname'          => $expenseStatementCorrespondence['owner_id']['lastname'],
+            'firstname'         => $expenseStatementCorrespondence['recipient_identity_id']['firstname'] ?? '',
+            'lastname'          => $expenseStatementCorrespondence['recipient_identity_id']['lastname'] ?? '',
             'condo'             => $expenseStatementCorrespondence['condo_id']['name'],
             'date'              => $getFormattedDate($expenseStatementCorrespondence['expense_statement_id']['emission_date']),
             'period'            => $getFormattedDate($fiscalPeriod['date_from']) . ' - ' . $getFormattedDate($fiscalPeriod['date_to']),
@@ -179,18 +178,9 @@ foreach($template['parts_ids'] as $part_id => $part) {
 }
 
 
-// retrieve recipient
-$communicationPreference = OwnershipCommunicationPreference::search([
-        ['condo_id', '=', $expenseStatementCorrespondence['condo_id']['id']],
-        ['ownership_id', '=', $expenseStatementCorrespondence['ownership_id']['id']],
-        ['communication_reason', '=', 'expense_statement'],
-        ['has_channel_email', '=', true]
-    ])
-    ->read(['email', 'email_alt'])
-    ->first();
-
-$recipient_email = ($communicationPreference['email'] ?? null)
-    ?: ($communicationPreference['email_alt'] ?? null);
+$recipientIdentity = $expenseStatementCorrespondence['recipient_identity_id'];
+$recipient_email = ($recipientIdentity['email'] ?? null)
+    ?: ($recipientIdentity['email_alt'] ?? null);
 
 if(!$recipient_email || $recipient_email === '') {
     throw new Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);

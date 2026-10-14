@@ -1005,14 +1005,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $mapExistingCorrespondences[$key] = true;
             }
 
-            $ownerships_ids = array_column($expenseStatement['statement_owners_ids']->get(true), 'ownership_id');
-            $ownerships = Ownership::ids($ownerships_ids)->read(['representative_owner_id']);
+            $ownerships_ids = array_column($expenseStatement['statement_owners_ids']->toArray(), 'ownership_id');
 
-            foreach($ownerships as $ownership_id => $ownership) {
-                if(!$ownership['representative_owner_id']) {
-                    continue;
-                }
-
+            foreach($ownerships_ids as $ownership_id) {
                 // init prefs
                 $communication_methods = [
                         'email'                     => false,
@@ -1028,6 +1023,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         ['communication_reason', '=', 'expense_statement']
                     ])
                     ->read([
+                        'owner_id',
                         'has_channel_email',
                         'has_channel_postal',
                         'has_channel_postal_registered',
@@ -1035,7 +1031,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     ])
                     ->first();
 
+                $owner_id = null;
                 if($communicationPreference) {
+                    $owner_id = $communicationPreference['owner_id'];
                     $communication_methods = [
                             'email'                     => $communicationPreference['has_channel_email'],
                             'postal'                    => $communicationPreference['has_channel_postal'],
@@ -1056,7 +1054,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                     $key = implode(':', [
                         $ownership_id,
-                        $ownership['representative_owner_id'],
+                        $owner_id,
                         $communication_method
                     ]);
 
@@ -1068,7 +1066,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                         'condo_id'                  => $expenseStatement['condo_id'],
                         'expense_statement_id'      => $id,
                         'ownership_id'              => $ownership_id,
-                        'owner_id'                  => $ownership['representative_owner_id'],
+                        'owner_id'                  => $owner_id,
                         'communication_method'      => $communication_method
                     ]);
 

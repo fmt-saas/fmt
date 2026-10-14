@@ -40,7 +40,7 @@ use realestate\funding\FundRequestExecutionCorrespondence;
 ['context' => $context] = $providers;
 
 $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($params['id'])
-    ->read(['ownership_id', 'owner_id', 'fund_request_execution_id' => ['id', 'fiscal_period_id', 'posting_date', 'with_due_balance']])
+    ->read(['ownership_id', 'recipient_identity_id', 'fund_request_execution_id' => ['id', 'fiscal_period_id', 'posting_date', 'with_due_balance']])
     ->first();
 
 if(!$fundRequestExecutionCorrespondence) {
@@ -66,7 +66,7 @@ try {
         $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_fundrequestexecution_single-pdf', [
             'fund_request_execution_id' => $fundRequestExecution['id'],
             'ownership_id'              => $fundRequestExecutionCorrespondence['ownership_id'],
-            'owner_id'                  => $fundRequestExecutionCorrespondence['owner_id']
+            'recipient_identity_id'     => $fundRequestExecutionCorrespondence['recipient_identity_id']
         ]);
 
         $temp = tempnam(sys_get_temp_dir(), 'pdf_');

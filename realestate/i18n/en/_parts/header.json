@@ -1,9 +1,12 @@
 {
-    "header.registration_number": "Company number",
+    "header.registration_number": "CBE",
     "header.vat_number": "VAT",
     "header.number": "No.",
     "header.date": "Date",
     "header.email": "Email",
     "header.status": "Status",
-    "header.communication": "Communication"
+    "header.communication": "Communication",
+    "header.period": "Period",
+    "header.period_from": "from",
+    "header.period_to": "to"
 }

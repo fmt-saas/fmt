@@ -35,7 +35,7 @@ $context = $providers['context'];
 
 $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id'])
     ->read([
-        'status', 'condo_id', 'ownership_id', 'owner_id', 'name',
+        'status', 'condo_id', 'ownership_id', 'recipient_identity_id', 'name',
         'expense_statement_id' => ['id', 'fiscal_period_id', 'posting_date', 'is_cutoff_at_document_date']
     ])
     ->first();
@@ -96,14 +96,14 @@ $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
 $output = '';
 
-// merge all PDF documents for given Ownership/Owner
+// merge all PDF documents for given Ownership/recipient identity
 try {
 
     try {
         $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-pdf', [
                 'expense_statement_id'  => $expenseStatement['id'],
                 'ownership_id'          => $expenseStatementCorrespondence['ownership_id'],
-                'owner_id'              => $expenseStatementCorrespondence['owner_id']
+                'recipient_identity_id' => $expenseStatementCorrespondence['recipient_identity_id']
             ]);
         $temp = tempnam(sys_get_temp_dir(), 'pdf_');
         file_put_contents($temp, $pdf);

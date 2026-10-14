@@ -207,7 +207,8 @@ class Ownership extends \equal\orm\Model {
                 'description'       => "External person that represents the ownership.",
                 'help'              => "External person that has a mandate for representing the ownership, but is not amongst the owners.",
                 'foreign_object'    => 'identity\Identity',
-                'domain'            => ['type_id', '=', 1],
+                // #memo - legal person is allowed
+                // 'domain'            => ['type_id', '=', 1],
                 'visible'           => ['has_external_representative', '=', true],
                 'dependents'        => ['name']
             ],

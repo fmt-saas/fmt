@@ -1287,11 +1287,11 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
             ];
 
             $map_ownerships = Ownership::ids(array_values($ownerships_by_role))
-                ->read(['representative_owner_id'])
+                ->read(['id'])
                 ->get();
 
             foreach($ownerships_by_role as $recipient_role => $ownership_id) {
-                if(!isset($map_ownerships[$ownership_id]) || !$map_ownerships[$ownership_id]['representative_owner_id']) {
+                if(!isset($map_ownerships[$ownership_id])) {
                     continue;
                 }
 
@@ -1308,6 +1308,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                         ['communication_reason', '=', 'technical_communication']
                     ])
                     ->read([
+                        'owner_id',
                         'has_channel_email',
                         'has_channel_postal',
                         'has_channel_postal_registered',
@@ -1315,7 +1316,9 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     ])
                     ->first();
 
+                $owner_id = null;
                 if($communicationPreference) {
+                    $owner_id = $communicationPreference['owner_id'];
                     $communication_methods = [
                         'email'                     => $communicationPreference['has_channel_email'],
                         'postal'                    => $communicationPreference['has_channel_postal'],
@@ -1338,7 +1341,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                         'settlement_id'        => $id,
                         'recipient_role'       => $recipient_role,
                         'ownership_id'         => $ownership_id,
-                        'owner_id'             => $map_ownerships[$ownership_id]['representative_owner_id'],
+                        'owner_id'             => $owner_id,
                         'communication_method' => $communication_method
                     ]);
                 }
@@ -1654,14 +1657,14 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     }
 
                     $buyer_ownership_id = $settlement['buyer_ownership_id'];
-                    $buyerOwnership = Ownership::id($buyer_ownership_id)->read(['representative_owner_id'])->first();
+                    $buyerOwnership = Ownership::id($buyer_ownership_id)->read(['id'])->first();
 
                     $invitation = AssemblyInvitationCorrespondence::search([
                             ['assembly_id', '=', $assembly_id],
                             ['ownership_id', '=', $buyer_ownership_id],
                             ['ownership_transfer_settlement_id', '=', $id]
                         ])
-                        ->read(['document_id', 'is_sent', 'owner_id' => ['id', 'email']])
+                        ->read(['document_id', 'is_sent', 'recipient_identity_id' => ['id', 'email', 'email_alt']])
                         ->first();
 
                     if(!$buyerOwnership) {
@@ -1682,21 +1685,28 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                             continue;
                         }
 
-                        $representative_owner_id = $buyerOwnership['representative_owner_id'] ?? null;
-                        if(!$representative_owner_id) {
-                            $log_entries[] = "Assembly {$assembly_id}: buyer ownership {$buyer_ownership_id} has no representative owner; supplementary invitation was not generated.";
-                            continue;
+                        $communicationPreference = OwnershipCommunicationPreference::search([
+                                ['condo_id', '=', $settlement['condo_id']],
+                                ['ownership_id', '=', $buyer_ownership_id],
+                                ['communication_reason', '=', 'general_assembly_call']
+                            ])
+                            ->read(['owner_id'])
+                            ->first();
+
+                        $owner_id = null;
+                        if($communicationPreference) {
+                            $owner_id = $communicationPreference['owner_id'];
                         }
 
                         $invitation = AssemblyInvitationCorrespondence::create([
                                 'condo_id'                         => $settlement['condo_id'],
                                 'assembly_id'                      => $assembly_id,
                                 'ownership_id'                     => $buyer_ownership_id,
-                                'owner_id'                         => $representative_owner_id,
+                                'owner_id'                         => $owner_id,
                                 'communication_method'             => 'email',
                                 'ownership_transfer_settlement_id' => $id
                             ])
-                            ->read(['document_id', 'is_sent', 'owner_id' => ['id', 'email']])
+                            ->read(['document_id', 'is_sent', 'recipient_identity_id' => ['id', 'email', 'email_alt']])
                             ->first();
                     }
 
@@ -1712,10 +1722,12 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                         continue;
                     }
 
-                    $representative_owner_id = $invitation['owner_id']['id'];
-                    $representative_email = $invitation['owner_id']['email'] ?? null;
-                    if(!$representative_email) {
-                        $log_entries[] = "Assembly {$assembly_id}: supplementary invitation document was generated, but representative owner {$representative_owner_id} has no email address.";
+                    $recipientIdentity = $invitation['recipient_identity_id'];
+                    $recipient_identity_id = $recipientIdentity['id'] ?? null;
+                    $recipient_email = ($recipientIdentity['email'] ?? null)
+                        ?: ($recipientIdentity['email_alt'] ?? null);
+                    if(!$recipient_email) {
+                        $log_entries[] = "Assembly {$assembly_id}: supplementary invitation document was generated, but recipient identity {$recipient_identity_id} has no email address.";
                         continue;
                     }
 

@@ -12,7 +12,7 @@ use identity\Identity;
 use identity\Organisation;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecution;
-use realestate\ownership\Owner;
+use realestate\ownership\Ownership;
 use Twig\TwigFilter;
 use Twig\Environment as TwigEnvironment;
 use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
@@ -31,17 +31,17 @@ use Twig\Extension\ExtensionInterface;
         ],
 
         'ownership_id' => [
-            'description'       => 'Identifier of the targeted Ownership (from which Owner is deduced).',
+            'description'       => 'Identifier of the targeted Ownership.',
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\ownership\Ownership',
             'required'          => true
         ],
 
-        'owner_id' => [
-            'description'       => 'Identifier of the targeted Owner, if any.',
-            'help'              => 'If not provided, fallback to first Owner of given Ownership.',
+        'recipient_identity_id' => [
+            'description'       => 'Identifier of the recipient Identity, if already resolved.',
+            'help'              => 'If omitted, the recipient Identity is deduced from the Ownership.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\ownership\Owner',
+            'foreign_object'    => 'identity\Identity'
         ],
 
         'debug' => [
@@ -359,35 +359,48 @@ $organisation = Organisation::id(1)
     ->first();
 
 
-// retrieve Owner : required for Correspondence but optional for preview (fallback to first owner of given ownership)
-if($params['owner_id']) {
-    $ownerCollection = Owner::id($params['owner_id']);
-}
-elseif($params['ownership_id']) {
-    $ownerCollection = Owner::search(['ownership_id', '=', $params['ownership_id']]);
-}
-else {
-    throw new Exception('missing_ownership', EQ_ERROR_INVALID_PARAM);
-}
-
-$owner = $ownerCollection->read([
-        'ownership_id' => ['code', 'address_recipient'],
-        'identity_id' => [
-            'lang_id' => ['code']
-        ]
+$ownership = Ownership::id($params['ownership_id'])
+    ->read([
+        'code',
+        'address_recipient',
+        'has_external_representative',
+        'representative_identity_id',
+        'representative_owner_id' => ['identity_id']
     ])
     ->first();
 
-if(!$owner) {
-    throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
+if(!$ownership) {
+    throw new Exception('unknown_ownership', EQ_ERROR_INVALID_PARAM);
 }
 
-$lang = $owner['identity_id']['lang_id']['code'] ?? 'fr';
+$recipient_identity_id = $params['recipient_identity_id'] ?? null;
 
-$recipient = $getRecipient($owner['identity_id']['id'], $lang);
+if(!$recipient_identity_id && $ownership['has_external_representative']) {
+    $recipient_identity_id = $ownership['representative_identity_id'];
+}
 
-if(!isset($params['owner_id']) && strlen($owner['ownership_id']['address_recipient'] ?? '') > 0) {
-    $recipient['name'] = $owner['ownership_id']['address_recipient'];
+if(!$recipient_identity_id) {
+    $recipient_identity_id = $ownership['representative_owner_id']['identity_id'] ?? null;
+}
+
+if(!$recipient_identity_id) {
+    throw new Exception('missing_recipient_identity', EQ_ERROR_INVALID_CONFIG);
+}
+
+$recipientIdentity = Identity::id($recipient_identity_id)
+    ->read(['lang_id' => ['code']])
+    ->first();
+
+if(!$recipientIdentity) {
+    throw new Exception('unknown_recipient_identity', EQ_ERROR_INVALID_PARAM);
+}
+
+$lang = $recipientIdentity['lang_id']['code'] ?? 'fr';
+
+$recipient = $getRecipient($recipientIdentity['id'], $lang);
+
+if(strlen($ownership['address_recipient'] ?? '') > 0) {
+    $recipient['name'] = $ownership['address_recipient'];
 }
 
 // either theoretical funding, or due_balance funding
@@ -408,7 +421,7 @@ if($fundRequestExecution['with_due_balance']) {
     }
 
     $reference = substr(str_pad((int) $fundRequestExecution['condo_id']['code'], 6, '0', STR_PAD_LEFT), 0, 6) .
-                 substr(str_pad((int) $owner['ownership_id']['code'], 4, '0', STR_PAD_LEFT), 0, 4);
+                 substr(str_pad((int) $ownership['code'], 4, '0', STR_PAD_LEFT), 0, 4);
 
     $funding = [
             'payment_reference'     => $getPaymentReference(substr($reference, 0, 3), substr($reference, 3)),

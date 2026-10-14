@@ -1461,16 +1461,12 @@ class Assembly extends \equal\orm\Model {
      * Generate invites for each ownership.
      */
     protected static function doGenerateInvitationCorrespondences($self) {
-        $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
+        $self->read(['condo_id', 'ownerships_ids']);
         foreach($self as $id => $assembly) {
             // remove any previously created invite
             AssemblyInvitationCorrespondence::search(['assembly_id', '=', $id])->delete(true);
 
-            foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
-                if(!$ownership['representative_owner_id']) {
-                    continue;
-                }
-
+            foreach($assembly['ownerships_ids'] as $ownership_id) {
                 // init prefs
                 $communication_methods = [
                         'email'                     => false,
@@ -1486,6 +1482,7 @@ class Assembly extends \equal\orm\Model {
                         ['communication_reason', '=', 'general_assembly_call']
                     ])
                     ->read([
+                        'owner_id',
                         'has_channel_email',
                         'has_channel_postal',
                         'has_channel_postal_registered',
@@ -1493,7 +1490,9 @@ class Assembly extends \equal\orm\Model {
                     ])
                     ->first();
 
+                $owner_id = null;
                 if($communicationPreference) {
+                    $owner_id = $communicationPreference['owner_id'];
                     $communication_methods = [
                             'email'                     => $communicationPreference['has_channel_email'],
                             'postal'                    => $communicationPreference['has_channel_postal'],
@@ -1516,7 +1515,7 @@ class Assembly extends \equal\orm\Model {
                         'condo_id'              => $assembly['condo_id'],
                         'assembly_id'           => $id,
                         'ownership_id'          => $ownership_id,
-                        'owner_id'              => $ownership['representative_owner_id'],
+                        'owner_id'              => $owner_id,
                         'communication_method'  => $communication_method
                     ]);
                 }
@@ -1531,16 +1530,12 @@ class Assembly extends \equal\orm\Model {
      * Generate minutes report for each ownership.
      */
     protected static function doGenerateMinutesCorrespondences($self) {
-        $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
+        $self->read(['condo_id', 'ownerships_ids']);
         foreach($self as $id => $assembly) {
             // remove any previously created invite
             AssemblyMinutesCorrespondence::search(['assembly_id', '=', $id])->delete(true);
 
-            foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
-                if(!$ownership['representative_owner_id']) {
-                    continue;
-                }
-
+            foreach($assembly['ownerships_ids'] as $ownership_id) {
                 // init prefs
                 $communication_methods = [
                         'email'                     => false,
@@ -1556,6 +1551,7 @@ class Assembly extends \equal\orm\Model {
                         ['communication_reason', '=', 'general_assembly_minutes']
                     ])
                     ->read([
+                        'owner_id',
                         'has_channel_email',
                         'has_channel_postal',
                         'has_channel_postal_registered',
@@ -1563,7 +1559,9 @@ class Assembly extends \equal\orm\Model {
                     ])
                     ->first();
 
+                $owner_id = null;
                 if($communicationPreference) {
+                    $owner_id = $communicationPreference['owner_id'];
                     $communication_methods = [
                             'email'                     => $communicationPreference['has_channel_email'],
                             'postal'                    => $communicationPreference['has_channel_postal'],
@@ -1586,7 +1584,7 @@ class Assembly extends \equal\orm\Model {
                         'condo_id'              => $assembly['condo_id'],
                         'assembly_id'           => $id,
                         'ownership_id'          => $ownership_id,
-                        'owner_id'              => $ownership['representative_owner_id'],
+                        'owner_id'              => $owner_id,
                         'communication_method'  => $communication_method
                     ]);
                 }

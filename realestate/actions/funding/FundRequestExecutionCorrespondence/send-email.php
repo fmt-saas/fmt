@@ -14,7 +14,6 @@ use identity\Organisation;
 use realestate\funding\FundRequest;
 use realestate\funding\FundRequestExecutionCorrespondence;
 use realestate\management\ManagementProcess;
-use realestate\ownership\OwnershipCommunicationPreference;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Send a single email for a given Fund Request Execution correspondence.",
@@ -52,7 +51,7 @@ $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($pa
         'name',
         'communication_method',
         'is_sent',
-        'owner_id' => ['firstname', 'lastname', 'lang_id'],
+        'recipient_identity_id' => ['firstname', 'lastname', 'lang_id', 'email', 'email_alt'],
         'ownership_id' => ['id', 'name'],
         'fund_request_execution_id' => ['name', 'due_date', 'fund_request_id'],
         'document_id'
@@ -122,8 +121,8 @@ foreach($template['parts_ids'] as $part) {
         $body = $part['value'];
 
         $map_values = [
-            'firstname'              => $fundRequestExecutionCorrespondence['owner_id']['firstname'],
-            'lastname'               => $fundRequestExecutionCorrespondence['owner_id']['lastname'],
+            'firstname'              => $fundRequestExecutionCorrespondence['recipient_identity_id']['firstname'] ?? '',
+            'lastname'               => $fundRequestExecutionCorrespondence['recipient_identity_id']['lastname'] ?? '',
             'condo'                  => $fundRequestExecutionCorrespondence['condo_id']['name'],
             'due_date'               => $due_date,
             'type'                   => $map_types_translations['fr'][$fundRequest['request_type']],
@@ -141,17 +140,9 @@ foreach($template['parts_ids'] as $part) {
     }
 }
 
-$communicationPreference = OwnershipCommunicationPreference::search([
-        ['condo_id', '=', $fundRequestExecutionCorrespondence['condo_id']['id']],
-        ['ownership_id', '=', $fundRequestExecutionCorrespondence['ownership_id']['id']],
-        ['communication_reason', '=', 'fund_request'],
-        ['has_channel_email', '=', true]
-    ])
-    ->read(['email', 'email_alt'])
-    ->first();
-
-$recipient_email = ($communicationPreference['email'] ?? null)
-    ?: ($communicationPreference['email_alt'] ?? null);
+$recipientIdentity = $fundRequestExecutionCorrespondence['recipient_identity_id'];
+$recipient_email = ($recipientIdentity['email'] ?? null)
+    ?: ($recipientIdentity['email_alt'] ?? null);
 
 if(!$recipient_email || $recipient_email === '') {
     throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);

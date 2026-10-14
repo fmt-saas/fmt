@@ -11,7 +11,6 @@ use equal\email\Email as EmailMessage;
 use fmt\core\Mail;
 use identity\Organisation;
 use realestate\management\ManagementProcess;
-use realestate\ownership\OwnershipCommunicationPreference;
 use realestate\property\transfer\OwnershipTransferSettlementCorrespondence;
 
 [$params, $providers] = eQual::announce([
@@ -42,7 +41,7 @@ $correspondence = OwnershipTransferSettlementCorrespondence::id($params['id'])
         'document_id',
         'condo_id',
         'ownership_id',
-        'owner_id' => ['firstname', 'lastname'],
+        'recipient_identity_id' => ['firstname', 'lastname', 'email', 'email_alt'],
         'settlement_id' => [
             'name',
             'transfer_date',
@@ -64,17 +63,9 @@ if(!$correspondence['document_id']) {
     throw new Exception('missing_correspondence_document', EQ_ERROR_INVALID_CONFIG);
 }
 
-$communicationPreference = OwnershipCommunicationPreference::search([
-        ['condo_id', '=', $correspondence['condo_id']],
-        ['ownership_id', '=', $correspondence['ownership_id']],
-        ['communication_reason', '=', 'technical_communication'],
-        ['has_channel_email', '=', true]
-    ])
-    ->read(['email', 'email_alt'])
-    ->first();
-
-$recipient_email = ($communicationPreference['email'] ?? null)
-    ?: ($communicationPreference['email_alt'] ?? null);
+$recipientIdentity = $correspondence['recipient_identity_id'];
+$recipient_email = ($recipientIdentity['email'] ?? null)
+    ?: ($recipientIdentity['email_alt'] ?? null);
 if(!$recipient_email) {
     throw new Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
 }
@@ -107,8 +98,8 @@ if($template) {
 }
 
 $map_values = [
-    'firstname' => $correspondence['owner_id']['firstname'],
-    'lastname'  => $correspondence['owner_id']['lastname'],
+    'firstname' => $correspondence['recipient_identity_id']['firstname'] ?? '',
+    'lastname'  => $correspondence['recipient_identity_id']['lastname'] ?? '',
     'condo'     => $correspondence['settlement_id']['condo_id']['name'],
     'settlement'=> $correspondence['settlement_id']['name'],
     'date'      => date('d/m/Y', $correspondence['settlement_id']['transfer_date'])
