@@ -1,5 +1,6 @@
 parameters:
     paths:
+        - ../packages/automation
         - ../packages/communication
         - ../packages/documents
         - ../packages/finance
