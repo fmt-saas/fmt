@@ -75,7 +75,7 @@ Document::create([
     'content_type'          => 'application/pdf',
     'data'                  => $generic_invoice['pdf'],
     'origin_document_id'    => $document['id'],
-    'origin_document_role'  => 'rendering'
+    'origin_relation_type'  => 'rendering'
 ]);
 
 foreach($data['attachments'] ?? [] as $attachment) {
@@ -88,7 +88,7 @@ foreach($data['attachments'] ?? [] as $attachment) {
         'content_type'          => $attachment['content_type'],
         'data'                  => base64_decode($attachment['data']),
         'origin_document_id'    => $document['id'],
-        'origin_document_role'  => 'attachment'
+        'origin_relation_type'  => 'attachment'
     ]);
 }
 

@@ -334,7 +334,7 @@ class Document extends Model {
                 'visible'           => ['is_source', '=', true]
             ],
 
-            'origin_document_role' => [
+            'origin_relation_type' => [
                 'type'              => 'string',
                 'selection'         => ['rendering', 'attachment'],
                 'readonly'          => true,
@@ -785,7 +785,7 @@ class Document extends Model {
             else {
                 $displayDocuments = Document::search([
                         ['origin_document_id', '=', $document['id']],
-                        ['origin_document_role', '=', 'rendering']
+                        ['origin_relation_type', '=', 'rendering']
                     ])
                     ->read(['content_type', 'hash'])
                     ->get();

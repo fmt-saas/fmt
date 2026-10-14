@@ -2116,7 +2116,7 @@ class DocumentProcess extends Model {
             else {
                 $displayDocuments = Document::search([
                         ['origin_document_id', '=', $documentProcess['document_id']['id']],
-                        ['origin_document_role', '=', 'rendering']
+                        ['origin_relation_type', '=', 'rendering']
                     ])
                     ->read(['content_type', 'hash'])
                     ->get();
