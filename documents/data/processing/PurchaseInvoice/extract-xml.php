@@ -95,6 +95,8 @@ foreach($data['attachments'] ?? [] as $attachment) {
 // #memo - Invoices and credit notes are considered as supplier invoices
 $data['document_type'] = 'supplier_invoice';
 
+unset($data['attachments']);
+
 $context
     ->httpResponse()
     ->body($data)
