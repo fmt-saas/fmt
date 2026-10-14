@@ -540,16 +540,8 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             $now = time();
 
             foreach($ownerships_ids as $ownership_id) {
-                // init prefs
-                $communication_methods = [
-                        'email'                     => false,
-                        'postal'                    => false,
-                        'postal_registered'         => false,
-                        'postal_registered_receipt' => false
-                    ];
-
                 // fetch Ownership communication preferences
-                $communicationPreference = OwnershipCommunicationPreference::search([
+                $communicationPreferences = OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $fundRequestExecution['condo_id']],
                         ['ownership_id', '=', $ownership_id],
                         ['communication_reason', '=', 'fund_request']
@@ -560,11 +552,19 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                         'has_channel_postal',
                         'has_channel_postal_registered',
                         'has_channel_postal_registered_receipt'
-                    ])
-                    ->first();
+                    ]);
 
-                $owner_id = null;
-                if($communicationPreference) {
+                if($communicationPreferences->count() === 0) {
+                    $communicationPreferences = [[
+                        'owner_id'                              => null,
+                        'has_channel_email'                     => false,
+                        'has_channel_postal'                    => false,
+                        'has_channel_postal_registered'         => false,
+                        'has_channel_postal_registered_receipt' => false
+                    ]];
+                }
+
+                foreach($communicationPreferences as $communicationPreference) {
                     $owner_id = $communicationPreference['owner_id'];
                     $communication_methods = [
                             'email'                     => $communicationPreference['has_channel_email'],
@@ -572,37 +572,37 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                             'postal_registered'         => $communicationPreference['has_channel_postal_registered'],
                             'postal_registered_receipt' => $communicationPreference['has_channel_postal_registered_receipt']
                         ];
-                }
 
-                // if not requested otherwise, fund requests must be sent through registered postal mail
-                if(!in_array(true, $communication_methods, true)) {
-                    $communication_methods['postal_registered'] = true;
-                }
-
-                foreach($communication_methods as $communication_method => $communication_method_flag) {
-                    if(!$communication_method_flag) {
-                        continue;
+                    // if not requested otherwise, fund requests must be sent through registered postal mail
+                    if(!in_array(true, $communication_methods, true)) {
+                        $communication_methods['postal_registered'] = true;
                     }
 
-                    $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::create([
-                        'condo_id'                  => $fundRequestExecution['condo_id'],
-                        'fund_request_execution_id' => $id,
-                        'ownership_id'              => $ownership_id,
-                        'owner_id'                  => $owner_id,
-                        'communication_method'      => $communication_method
-                    ])
-                    ->first();
+                    foreach($communication_methods as $communication_method => $communication_method_flag) {
+                        if(!$communication_method_flag) {
+                            continue;
+                        }
 
-                    // schedule generate of document
-                    $cron->schedule(
-                        "realestate_funding_FundRequestExecutionCorrespondence_generate-document.{$fundRequestExecutionCorrespondence['id']}",
-                        ++$now,
-                        'realestate_funding_FundRequestExecutionCorrespondence_generate-document',
-                        [
-                            'id'  => $fundRequestExecutionCorrespondence['id']
-                        ]
-                    );
+                        $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::create([
+                            'condo_id'                  => $fundRequestExecution['condo_id'],
+                            'fund_request_execution_id' => $id,
+                            'ownership_id'              => $ownership_id,
+                            'owner_id'                  => $owner_id,
+                            'communication_method'      => $communication_method
+                        ])
+                        ->first();
 
+                        // schedule generate of document
+                        $cron->schedule(
+                            "realestate_funding_FundRequestExecutionCorrespondence_generate-document.{$fundRequestExecutionCorrespondence['id']}",
+                            ++$now,
+                            'realestate_funding_FundRequestExecutionCorrespondence_generate-document',
+                            [
+                                'id'  => $fundRequestExecutionCorrespondence['id']
+                            ]
+                        );
+
+                    }
                 }
             }
         }

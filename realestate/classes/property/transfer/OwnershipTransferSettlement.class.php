@@ -1295,14 +1295,7 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     continue;
                 }
 
-                $communication_methods = [
-                    'email'                     => false,
-                    'postal'                    => false,
-                    'postal_registered'         => false,
-                    'postal_registered_receipt' => false
-                ];
-
-                $communicationPreference = OwnershipCommunicationPreference::search([
+                $communicationPreferences = OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $settlement['condo_id']],
                         ['ownership_id', '=', $ownership_id],
                         ['communication_reason', '=', 'technical_communication']
@@ -1313,11 +1306,19 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                         'has_channel_postal',
                         'has_channel_postal_registered',
                         'has_channel_postal_registered_receipt'
-                    ])
-                    ->first();
+                    ]);
 
-                $owner_id = null;
-                if($communicationPreference) {
+                if($communicationPreferences->count() === 0) {
+                    $communicationPreferences = [[
+                        'owner_id'                              => null,
+                        'has_channel_email'                     => false,
+                        'has_channel_postal'                    => false,
+                        'has_channel_postal_registered'         => false,
+                        'has_channel_postal_registered_receipt' => false
+                    ]];
+                }
+
+                foreach($communicationPreferences as $communicationPreference) {
                     $owner_id = $communicationPreference['owner_id'];
                     $communication_methods = [
                         'email'                     => $communicationPreference['has_channel_email'],
@@ -1325,25 +1326,25 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                         'postal_registered'         => $communicationPreference['has_channel_postal_registered'],
                         'postal_registered_receipt' => $communicationPreference['has_channel_postal_registered_receipt']
                     ];
-                }
 
-                if(!in_array(true, $communication_methods, true)) {
-                    $communication_methods['postal_registered'] = true;
-                }
-
-                foreach($communication_methods as $communication_method => $enabled) {
-                    if(!$enabled) {
-                        continue;
+                    if(!in_array(true, $communication_methods, true)) {
+                        $communication_methods['postal_registered'] = true;
                     }
 
-                    OwnershipTransferSettlementCorrespondence::create([
-                        'condo_id'             => $settlement['condo_id'],
-                        'settlement_id'        => $id,
-                        'recipient_role'       => $recipient_role,
-                        'ownership_id'         => $ownership_id,
-                        'owner_id'             => $owner_id,
-                        'communication_method' => $communication_method
-                    ]);
+                    foreach($communication_methods as $communication_method => $enabled) {
+                        if(!$enabled) {
+                            continue;
+                        }
+
+                        OwnershipTransferSettlementCorrespondence::create([
+                            'condo_id'             => $settlement['condo_id'],
+                            'settlement_id'        => $id,
+                            'recipient_role'       => $recipient_role,
+                            'ownership_id'         => $ownership_id,
+                            'owner_id'             => $owner_id,
+                            'communication_method' => $communication_method
+                        ]);
+                    }
                 }
             }
         }
