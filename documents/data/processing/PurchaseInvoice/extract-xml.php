@@ -15,11 +15,6 @@ use documents\Document;
             'foreign_object'    => 'documents\Document',
             'description'       => 'Identifier of the document to parse.',
             'required'          => true
-        ],
-        'dissociate_attachments' => [
-            'type'              => 'boolean',
-            'description'       => 'If true, the attachements inside the xml document will be removed from xml and linked as associated documents.',
-            'default'           => false
         ]
     ],
     'access'        => [
@@ -41,25 +36,19 @@ use documents\Document;
  * Methods
  */
 
-$removeAttachmentsFromUblXml = function($ubl_xml) {
-    $doc = new DOMDocument();
-    $doc->preserveWhiteSpace = false;
-    $doc->formatOutput = false;
+$generateGenericInvoicePdf = function($data) {
+    $invoice_number = trim($data['invoice_number']);
+    $filename = preg_replace('/[^\pL\pN._-]+/u', '-', $invoice_number);
+    $filename = trim($filename, '-.');
+    $filename = ($filename === '') ? 'invoice.pdf' : $filename . '.pdf';
 
-    if (!$doc->loadXML($ubl_xml, LIBXML_NONET)) {
-        throw new RuntimeException('Invalid XML');
-    }
+    $pdf = eQual::run('get', 'purchase_accounting_invoice_ubl_render-pdf', [
+        'invoice_data'  => $data,
+        'filename'      => $filename
+    ]);
 
-    $xpath = new DOMXPath($doc);
-    $xpath->registerNamespace('cac', 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2');
-
-    foreach ($xpath->query('//cac:Attachment') as $node) {
-        $node->parentNode->removeChild($node);
-    }
-
-    return $doc->saveXML();
+    return compact('filename', 'pdf');
 };
-
 
 /**
  * Action
@@ -79,48 +68,29 @@ if(!in_array($data['document_type'], ['Invoice', 'CreditNote'])) {
     throw new Exception('invalid_ubl_data', EQ_ERROR_INVALID_PARAM);
 }
 
-if($params['dissociate_attachments']) {
-    $has_pdf_attachment = false;
+$generic_invoice = $generateGenericInvoicePdf($data);
 
-    if(!empty($data['attachments'])) {
-        foreach($data['attachments'] as $attachment) {
-            if($attachment['content_type'] === 'application/pdf') {
-                $has_pdf_attachment = true;
-            }
+Document::create([
+    'name'                  => $generic_invoice['filename'],
+    'content_type'          => 'application/pdf',
+    'data'                  => $generic_invoice['pdf'],
+    'origin_document_id'    => $document['id'],
+    'origin_document_role'  => 'rendering'
+]);
 
-            Document::create([
-                'name'                  => $attachment['name'],
-                'content_type'          => $attachment['content_type'],
-                'data'                  => base64_decode($attachment['data']),
-                'origin_document_id'    => $document['id']
-            ]);
-        }
-
-        Document::id($params['document_id'])
-            ->update(['data' => $removeAttachmentsFromUblXml($document['data'])]);
+foreach($data['attachments'] ?? [] as $attachment) {
+    if($attachment['content_type'] !== 'application/pdf') {
+        continue;
     }
 
-    if(!$has_pdf_attachment) {
-        $invoice_number = trim($data['invoice_number']);
-        $filename = preg_replace('/[^\pL\pN._-]+/u', '-', $invoice_number);
-        $filename = trim($filename, '-.');
-        $filename = ($filename === '') ? 'invoice.pdf' : $filename . '.pdf';
-
-        $pdf = eQual::run('get', 'purchase_accounting_invoice_ubl_render-pdf', [
-            'invoice_data'  => $data,
-            'filename' => $filename
-        ]);
-
-        Document::create([
-            'name'                  => $filename,
-            'content_type'          => 'application/pdf',
-            'data'                  => $pdf,
-            'origin_document_id'    => $document['id']
-        ]);
-    }
+    Document::create([
+        'name'                  => $attachment['name'],
+        'content_type'          => $attachment['content_type'],
+        'data'                  => base64_decode($attachment['data']),
+        'origin_document_id'    => $document['id'],
+        'origin_document_role'  => 'attachment'
+    ]);
 }
-
-unset($data['attachments']);
 
 // #memo - Invoices and credit notes are considered as supplier invoices
 $data['document_type'] = 'supplier_invoice';

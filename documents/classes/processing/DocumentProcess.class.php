@@ -2114,9 +2114,20 @@ class DocumentProcess extends Model {
                 $document_link = '/document/' . $documentProcess['document_id']['hash'];
             }
             else {
-                $displayDocuments = Document::search(['origin_document_id', '=', $documentProcess['document_id']['id']])
+                $displayDocuments = Document::search([
+                        ['origin_document_id', '=', $documentProcess['document_id']['id']],
+                        ['origin_document_role', '=', 'rendering']
+                    ])
                     ->read(['content_type', 'hash'])
                     ->get();
+
+                // Keep legacy documents usable: records created before roles were
+                // introduced only have origin_document_id set.
+                if(empty($displayDocuments)) {
+                    $displayDocuments = Document::search(['origin_document_id', '=', $documentProcess['document_id']['id']])
+                        ->read(['content_type', 'hash'])
+                        ->get();
+                }
                 
                 foreach($displayDocuments as $displayDocument) {
                     if($displayDocument['content_type'] === 'application/pdf') {

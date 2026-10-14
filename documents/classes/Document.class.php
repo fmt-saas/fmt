@@ -334,6 +334,14 @@ class Document extends Model {
                 'visible'           => ['is_source', '=', true]
             ],
 
+            'origin_document_role' => [
+                'type'              => 'string',
+                'selection'         => ['rendering', 'attachment'],
+                'readonly'          => true,
+                'description'       => 'Role of this document relative to its origin document.',
+                'help'              => 'A rendering is generated for displaying the origin document. An attachment is extracted from the origin document.'
+            ],
+
             /* fields below serve as link between the document and the entity it originates from, independently from its type, and are mutually exclusive */
 
             'case_file_id' => [
@@ -775,9 +783,20 @@ class Document extends Model {
                 $document_link = '/document/' . $document['hash'];
             }
             else {
-                $displayDocuments = Document::search(['origin_document_id', '=', $document['id']])
+                $displayDocuments = Document::search([
+                        ['origin_document_id', '=', $document['id']],
+                        ['origin_document_role', '=', 'rendering']
+                    ])
                     ->read(['content_type', 'hash'])
                     ->get();
+
+                // Keep legacy documents usable: records created before roles were
+                // introduced only have origin_document_id set.
+                if(empty($displayDocuments)) {
+                    $displayDocuments = Document::search(['origin_document_id', '=', $document['id']])
+                        ->read(['content_type', 'hash'])
+                        ->get();
+                }
 
                 foreach($displayDocuments as $displayDocument) {
                     if($displayDocument['content_type'] === 'application/pdf') {
