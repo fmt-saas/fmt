@@ -107,7 +107,7 @@ $computeSignerInfoFromCert = function (string $cert): array {
     $intersectWords = function (array $a, array $b) {
         $aLower = array_map('mb_strtolower', $a);
         $bLower = array_map('mb_strtolower', $b);
-        $inter = array_uintersect_assoc($a, $a, function ($w1, $w2) use ($aLower, $bLower) {
+        $inter = array_uintersect_assoc($a, $a, function ($w1, $w2) use ($bLower) {
             return (in_array(mb_strtolower($w1), $bLower)) ? 0 : 1;
         });
         return $inter;

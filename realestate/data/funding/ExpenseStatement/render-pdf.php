@@ -117,6 +117,8 @@ $expenseSummaryDocumentData = eQual::run('get', 'finance_accounting_expenseSumma
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
+$output = '';
+
 // merge all PDF documents for each Ownership
 try {
 
@@ -182,11 +184,11 @@ catch(Exception $e) {
 }
 finally {
     foreach($temp_files as $file) {
-        if(isset($file) && is_file($file)) {
+        if($file && is_file($file)) {
             @unlink($file);
         }
     }
-    if(isset($output_file) && is_file($output_file)) {
+    if($output_file && is_file($output_file)) {
         @unlink($output_file);
     }
 }

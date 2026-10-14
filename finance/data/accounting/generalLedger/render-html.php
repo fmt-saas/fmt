@@ -221,6 +221,9 @@ if(!$fiscalYear) {
         ->first();
 }
 
+$date_from = null;
+$date_to = null;
+
 if($fiscalYear) {
     $date_from = $fiscalYear['date_from'];
     $date_to = $fiscalYear['date_to'];

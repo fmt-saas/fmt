@@ -81,7 +81,7 @@ if(!is_file($tmp_file)) {
 // read raw data
 $data = '';
 
-if(isset($tmp_file) && is_file($tmp_file)) {
+if($tmp_file && is_file($tmp_file)) {
     $data = file_get_contents($tmp_file);
     unlink($tmp_file);
 }

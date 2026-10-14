@@ -34,7 +34,7 @@ $tests = [
         'description'       => 'Create supplier identity lists in two steps.',
         'help'              => 'Create a draft supplier, instantiate it in a second update, and assert that the related Identity has primary Address and BankAccount rows.',
         'return'            => ['array'],
-        'arrange'           => function() use($cleanupSupplierTwoStepTest, $supplierTwoStepRegistrationNumber, $supplierTwoStepIban) {
+        'arrange'           => function() use($cleanupSupplierTwoStepTest) {
             $cleanupSupplierTwoStepTest();
 
             $supplier = Supplier::create([

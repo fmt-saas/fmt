@@ -65,9 +65,7 @@ if(constant('FMT_INSTANCE_TYPE') === 'agency') {
     $api_url_global = !empty($global_instance['url']) ? $global_instance['url'] : "https://platform.fmtsolutions.be";
 }
 
-$oauth_callback_base_url = (constant('FMT_INSTANCE_TYPE') === 'agency' && !empty($api_url_global))
-    ? $api_url_global
-    : constant('BACKEND_URL');
+$oauth_callback_base_url = constant('FMT_INSTANCE_TYPE') === 'agency' ? $api_url_global : constant('BACKEND_URL');
 
 // Exchange authorization code for tokens (Microsoft OAuth)
 $oauthRequest = new HttpRequest('POST https://login.microsoftonline.com/common/oauth2/v2.0/token');

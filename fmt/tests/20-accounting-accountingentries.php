@@ -21,7 +21,7 @@ $tests = [
             'description'       => "Accounting entry with non-balanced lines.",
             'help'              => "Create an accounting entry, with 2 balanced lines. Entry balance test is expected to return true.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $condo = Condominium::create(['name' => 'test condo', 'managing_agent_id' => 1])
                         ->do('generate_journals')
                         ->first(true);
@@ -33,7 +33,7 @@ $tests = [
                         ->first(true);
                     return [$condo, $fiscalYear];
                 },
-            'act'               => function($params) use($providers) {
+            'act'               => function($params) {
                     [$condo, $fiscalYear] = $params;
 
                     $accountingEntry = AccountingEntry::create([
@@ -61,7 +61,7 @@ $tests = [
 
                     return $accountingEntry['id'];
                 },
-            'assert'            => function($accounting_entry_id) use($providers) {
+            'assert'            => function($accounting_entry_id) {
                     $accountingEntry = AccountingEntry::id($accounting_entry_id)->read(['is_balanced'])->first();
                     return $accountingEntry['is_balanced'];
                 },
@@ -78,7 +78,7 @@ $tests = [
             'description'       => "Accounting entry with non-balanced lines.",
             'help'              => "Create an accounting entry, with 2 non-balanced lines. Entry balance test is expected to return false.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $condo = Condominium::create(['name' => 'test condo', 'managing_agent_id' => 1])->first(true);
                     $fiscalYear = FiscalYear::create([
                             'date_from' => strtotime(date('Y-01-01')),
@@ -88,7 +88,7 @@ $tests = [
                         ->first(true);
                     return [$condo, $fiscalYear];
                 },
-            'act'               => function($params) use($providers) {
+            'act'               => function($params) {
                     [$condo, $fiscalYear] = $params;
 
                     $accountingEntry = AccountingEntry::create([
@@ -116,7 +116,7 @@ $tests = [
 
                     return $accountingEntry['id'];
                 },
-            'assert'            => function($accounting_entry_id) use($providers) {
+            'assert'            => function($accounting_entry_id) {
                     $accountingEntry = AccountingEntry::id($accounting_entry_id)->read(['is_balanced'])->first();
                     return !$accountingEntry['is_balanced'];
                 },
@@ -133,7 +133,7 @@ $tests = [
             'description'       => "Accounting entry cancelation creates a linked reversal entry.",
             'help'              => "Create an accounting entry, validate it, cancel it, and verify both entries are linked through reversed_entry_id with status reversed.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $condo = Condominium::create(['name' => 'test condo reversal', 'managing_agent_id' => 1])
                         ->do('generate_journals')
                         ->first(true);
@@ -170,12 +170,12 @@ $tests = [
 
                     return $accountingEntry['id'];
                 },
-            'act'               => function($accounting_entry_id) use($providers) {
+            'act'               => function($accounting_entry_id) {
                     AccountingEntry::id($accounting_entry_id)->transition('validate');
                     AccountingEntry::id($accounting_entry_id)->do('cancel');
                     return $accounting_entry_id;
                 },
-            'assert'            => function($accounting_entry_id) use($providers) {
+            'assert'            => function($accounting_entry_id) {
                     $entry = AccountingEntry::id($accounting_entry_id)
                         ->read(['id', 'status', 'reversed_entry_id'])
                         ->first();

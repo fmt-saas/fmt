@@ -112,11 +112,11 @@ catch(Exception $e) {
 }
 finally {
     foreach($temp_files as $file) {
-        if(isset($file) && is_file($file)) {
+        if($file && is_file($file)) {
             @unlink($file);
         }
     }
-    if(isset($output_file) && is_file($output_file)) {
+    if($output_file && is_file($output_file)) {
         @unlink($output_file);
     }
 }

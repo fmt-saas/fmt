@@ -45,6 +45,7 @@ if(!$paymentReminderCorrespondence) {
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
+$output = '';
 try {
 
     try {
@@ -80,11 +81,11 @@ catch(Exception $e) {
 }
 finally {
     foreach($temp_files as $file) {
-        if(isset($file) && is_file($file)) {
+        if($file && is_file($file)) {
             @unlink($file);
         }
     }
-    if(isset($output_file) && is_file($output_file)) {
+    if($output_file && is_file($output_file)) {
         @unlink($output_file);
     }
 }
@@ -93,5 +94,5 @@ finally {
 $context->httpResponse()
         // ->header('Content-Disposition', 'attachment; filename="document.pdf"')
         ->header('Content-Disposition', 'inline; filename="document.pdf"')
-        ->body($output ?? '')
+        ->body($output)
         ->send();

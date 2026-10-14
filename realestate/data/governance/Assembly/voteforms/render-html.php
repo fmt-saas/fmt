@@ -66,6 +66,7 @@ if(!$assembly) {
 
 usort($assembly['ownerships_ids'], fn($a, $b) => strcmp($a['name'], $b['name']));
 
+$html = '';
 try {
     foreach($assembly['ownerships_ids'] as $ownership) {
         $html = (string) eQual::run('get', 'realestate_governance_Assembly_voteforms_single-html', [

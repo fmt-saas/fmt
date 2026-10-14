@@ -78,11 +78,7 @@ $getMessagesPage = function($access_token, $after, $page_token = null, $max_resu
         $params['pageToken'] = $page_token;
     }
 
-    $url = "https://gmail.googleapis.com/gmail/v1/users/me/messages";
-
-    if(!empty($params)) {
-        $url .= '?'.http_build_query($params);
-    }
+    $url = "https://gmail.googleapis.com/gmail/v1/users/me/messages?".http_build_query($params);
 
     $http = new \equal\http\HttpRequest("GET $url");
 

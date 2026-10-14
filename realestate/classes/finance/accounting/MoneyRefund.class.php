@@ -345,6 +345,8 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
         // request an amount from the owner, to be paid on the current account
         foreach($self as $id => $moneyRefund) {
 
+            $counterpartAccount = null;
+
             switch($moneyRefund['refund_type']) {
                 case 'owner_refund':
                     $counterpartAccount = Account::search([
@@ -370,6 +372,10 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                         throw new \Exception('missing_suppliership_accounting_account', EQ_ERROR_INVALID_PARAM);
                     }
                     break;
+            }
+
+            if(!$counterpartAccount) {
+                throw new \Exception('missing_accounting_account', EQ_ERROR_INVALID_PARAM);
             }
 
             Funding::create([
@@ -445,7 +451,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
             }
             catch(\Exception $e) {
                 // rollback
-                if($accountingEntry) {
+                if(isset($accountingEntry['id'])) {
                     AccountingEntry::id($accountingEntry['id'])->delete(true);
                 }
                 trigger_error("APP:Unexpected error while creating accounting entry: ".$e->getMessage(), EQ_REPORT_WARNING);
