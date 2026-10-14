@@ -1751,6 +1751,8 @@ class DocumentProcess extends Model {
 
                     Document::id($documentProcess['document_id']['id'])->update(['purchase_invoice_id' => $invoice['id']]);
 
+                    Document::search(['origin_document_id', '=', $documentProcess['document_id']['id']])->update(['purchase_invoice_id' => $invoice['id']]);
+
                     if(isset($data['invoice_period'], $data['invoice_period']['start_date'], $data['invoice_period']['end_date'])) {
                         PurchaseInvoice::id($invoice['id'])
                             ->update([
