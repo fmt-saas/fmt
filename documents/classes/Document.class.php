@@ -339,7 +339,8 @@ class Document extends Model {
                 'selection'         => ['rendering', 'attachment'],
                 'readonly'          => true,
                 'description'       => 'Role of this document relative to its origin document.',
-                'help'              => 'A rendering is generated for displaying the origin document. An attachment is extracted from the origin document.'
+                'help'              => 'A rendering is generated for displaying the origin document. An attachment is extracted from the origin document.',
+                'visible'           => ['origin_document_id', '<>', null]
             ],
 
             /* fields below serve as link between the document and the entity it originates from, independently from its type, and are mutually exclusive */
