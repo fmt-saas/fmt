@@ -470,12 +470,15 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 }
 
                 $ownership_id = $paymentReminderOwner['ownership_id'] ?? null;
+                if(!$ownership_id) {
+                    continue;
+                }
 
                 $ownership = Ownership::id($ownership_id)
-                    ->read(['representative_owner_id'])
+                    ->read(['id'])
                     ->first();
 
-                if(!$ownership || !$ownership['representative_owner_id']) {
+                if(!$ownership) {
                     continue;
                 }
 
@@ -492,6 +495,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                         ['communication_reason', '=', 'fund_request']
                     ])
                     ->read([
+                        'owner_id',
                         'has_channel_email',
                         'has_channel_postal',
                         'has_channel_postal_registered',
@@ -499,7 +503,9 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                     ])
                     ->first();
 
+                $owner_id = null;
                 if($communicationPreference) {
+                    $owner_id = $communicationPreference['owner_id'];
                     $communication_methods = [
                         'email'                     => $communicationPreference['has_channel_email'],
                         'postal'                    => $communicationPreference['has_channel_postal'],
@@ -522,7 +528,7 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                         'payment_reminder_id'           => $id,
                         'payment_reminder_owner_id'     => $payment_reminder_owner_id,
                         'ownership_id'                  => $ownership_id,
-                        'owner_id'                      => $ownership['representative_owner_id'],
+                        'owner_id'                      => $owner_id,
                         'communication_method'          => $communication_method
                     ]);
                 }

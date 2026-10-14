@@ -82,7 +82,7 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
             'is_owner' => [
                 'type'              => 'boolean',
                 'description'       => "Mark the recipient as an owner (from ownership).",
-                'default'           => true
+                'default'           => false
             ],
 
             'owner_id' => [

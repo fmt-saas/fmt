@@ -23,7 +23,6 @@ class DocumentCorrespondence extends \equal\orm\Model {
                 'description'       => "The owner concerned by the invitation.",
                 'help'              => 'Correspondences are generated for each Owner of each Ownership.',
                 'foreign_object'    => 'realestate\ownership\Owner',
-                'required'          => true,
                 'dependents'        => ['recipient_identity_id']
             ],
 

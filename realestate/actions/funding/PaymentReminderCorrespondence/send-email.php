@@ -52,8 +52,7 @@ $paymentReminderCorrespondence = PaymentReminderCorrespondence::id($params['id']
         'name',
         'communication_method',
         'is_sent',
-        'owner_id' => ['firstname', 'lastname', 'lang_id'],
-        'recipient_identity_id' => ['email', 'email_alt'],
+        'recipient_identity_id' => ['firstname', 'lastname', 'lang_id', 'email', 'email_alt'],
         'ownership_id' => ['id', 'name'],
         'payment_reminder_id' => ['name', 'emission_date', 'due_amount'],
         'payment_reminder_owner_id' => ['due_amount'],
@@ -112,8 +111,8 @@ foreach($template['parts_ids'] as $part) {
         $body = $part['value'];
 
         $map_values = [
-            'firstname'        => $paymentReminderCorrespondence['owner_id']['firstname'],
-            'lastname'         => $paymentReminderCorrespondence['owner_id']['lastname'],
+            'firstname'        => $paymentReminderCorrespondence['recipient_identity_id']['firstname'] ?? '',
+            'lastname'         => $paymentReminderCorrespondence['recipient_identity_id']['lastname'] ?? '',
             'condo'            => $paymentReminderCorrespondence['condo_id']['name'],
             'emission_date'    => $emission_date,
             'due_amount'       => number_format((float) ($paymentReminderCorrespondence['payment_reminder_owner_id']['due_amount'] ?? 0), 2, ',', '.') . ' €'

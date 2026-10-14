@@ -60,8 +60,7 @@ $assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id']
         'name',
         'is_sent',
         'communication_method',
-        'owner_id' => ['firstname', 'lastname', 'lang_id'],
-        'recipient_identity_id' => ['email', 'email_alt'],
+        'recipient_identity_id' => ['firstname', 'lastname', 'lang_id', 'email', 'email_alt'],
         'ownership_id' => ['id', 'name'],
         'assembly_id' => ['name', 'assembly_date', 'assembly_type'],
         'document_id'
@@ -116,8 +115,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $body = $part['value'];
 
         $map_values = [
-            'firstname' => $assemblyMinutesCorrespondence['owner_id']['firstname'],
-            'lastname'  => $assemblyMinutesCorrespondence['owner_id']['lastname'],
+            'firstname' => $assemblyMinutesCorrespondence['recipient_identity_id']['firstname'] ?? '',
+            'lastname'  => $assemblyMinutesCorrespondence['recipient_identity_id']['lastname'] ?? '',
             'condo'     => $assemblyMinutesCorrespondence['condo_id']['name'],
             'date'      => $assemblyMinutesCorrespondence['assembly_id']['assembly_date'],
         ];

@@ -41,8 +41,7 @@ $correspondence = OwnershipTransferSettlementCorrespondence::id($params['id'])
         'document_id',
         'condo_id',
         'ownership_id',
-        'owner_id' => ['firstname', 'lastname'],
-        'recipient_identity_id' => ['email', 'email_alt'],
+        'recipient_identity_id' => ['firstname', 'lastname', 'email', 'email_alt'],
         'settlement_id' => [
             'name',
             'transfer_date',
@@ -99,8 +98,8 @@ if($template) {
 }
 
 $map_values = [
-    'firstname' => $correspondence['owner_id']['firstname'],
-    'lastname'  => $correspondence['owner_id']['lastname'],
+    'firstname' => $correspondence['recipient_identity_id']['firstname'] ?? '',
+    'lastname'  => $correspondence['recipient_identity_id']['lastname'] ?? '',
     'condo'     => $correspondence['settlement_id']['condo_id']['name'],
     'settlement'=> $correspondence['settlement_id']['name'],
     'date'      => date('d/m/Y', $correspondence['settlement_id']['transfer_date'])

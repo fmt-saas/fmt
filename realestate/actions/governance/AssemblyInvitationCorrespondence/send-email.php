@@ -61,8 +61,7 @@ $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params
         'communication_method',
         'is_sent',
         'sent_date',
-        'owner_id' => ['firstname', 'lastname', 'lang_id'],
-        'recipient_identity_id' => ['email', 'email_alt'],
+        'recipient_identity_id' => ['firstname', 'lastname', 'lang_id', 'email', 'email_alt'],
         'ownership_id' => ['id', 'name'],
         'assembly_id' => ['name', 'assembly_date', 'assembly_type', 'is_second_session'],
         'document_id'
@@ -123,8 +122,8 @@ foreach($template['parts_ids'] as $part_id => $part) {
         $body = $part['value'];
 
         $map_values = [
-            'firstname' => $assemblyInvitationCorrespondence['owner_id']['firstname'],
-            'lastname'  => $assemblyInvitationCorrespondence['owner_id']['lastname'],
+            'firstname' => $assemblyInvitationCorrespondence['recipient_identity_id']['firstname'] ?? '',
+            'lastname'  => $assemblyInvitationCorrespondence['recipient_identity_id']['lastname'] ?? '',
             'condo'     => $assemblyInvitationCorrespondence['condo_id']['name'],
             'date'      => $assemblyInvitationCorrespondence['assembly_id']['assembly_date'],
         ];

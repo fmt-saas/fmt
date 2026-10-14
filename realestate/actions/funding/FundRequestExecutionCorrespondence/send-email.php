@@ -51,8 +51,7 @@ $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($pa
         'name',
         'communication_method',
         'is_sent',
-        'owner_id' => ['firstname', 'lastname', 'lang_id'],
-        'recipient_identity_id' => ['email', 'email_alt'],
+        'recipient_identity_id' => ['firstname', 'lastname', 'lang_id', 'email', 'email_alt'],
         'ownership_id' => ['id', 'name'],
         'fund_request_execution_id' => ['name', 'due_date', 'fund_request_id'],
         'document_id'
@@ -122,8 +121,8 @@ foreach($template['parts_ids'] as $part) {
         $body = $part['value'];
 
         $map_values = [
-            'firstname'              => $fundRequestExecutionCorrespondence['owner_id']['firstname'],
-            'lastname'               => $fundRequestExecutionCorrespondence['owner_id']['lastname'],
+            'firstname'              => $fundRequestExecutionCorrespondence['recipient_identity_id']['firstname'] ?? '',
+            'lastname'               => $fundRequestExecutionCorrespondence['recipient_identity_id']['lastname'] ?? '',
             'condo'                  => $fundRequestExecutionCorrespondence['condo_id']['name'],
             'due_date'               => $due_date,
             'type'                   => $map_types_translations['fr'][$fundRequest['request_type']],
