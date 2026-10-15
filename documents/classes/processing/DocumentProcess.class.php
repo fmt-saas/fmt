@@ -1504,8 +1504,9 @@ class DocumentProcess extends Model {
                         }
                         if(!$values['supplier_id']) {
                             if(isset($data['supplier']['name']) && strlen($data['supplier']['name']) > 0) {
-                                $suppliers_ids = Supplier::search(['legal_name', 'ilike', $data['supplier']['name'] . '%'])->ids();
-                                if(count($suppliers_ids)) {
+                                // #memo - allow only 1 exact match, if any
+                                $suppliers_ids = Supplier::search(['legal_name', 'ilike', $data['supplier']['name']])->ids();
+                                if(count($suppliers_ids) === 1) {
                                     $values['supplier_id'] = current($suppliers_ids);
                                     $logs[] = "supplier_id retrieved from NAME '{$data['supplier']['name']}'";
                                 }
@@ -1579,7 +1580,8 @@ class DocumentProcess extends Model {
                             if(isset($data['customer']['name']) && strlen($data['customer']['name']) > 0) {
                                 $parts = explode(' ', trim($data['customer']['name'], " \n\r\t\v\0-_\/"));
                                 $customer_name = implode(' ', array_filter($parts, function($a, $k) { return $k < 3 && !preg_match('/[^\p{L}\p{N}]/iu', $a); }, ARRAY_FILTER_USE_BOTH));
-                                $condominiums_ids = Condominium::search(['legal_name', 'ilike', $customer_name . '%'])->ids();
+                                // #memo - allow only 1 exact match, if any
+                                $condominiums_ids = Condominium::search(['legal_name', 'ilike', $customer_name])->ids();
                                 if(count($condominiums_ids) === 1) {
                                     $values['condo_id'] = current($condominiums_ids);
                                     $doc_values['condo_id'] = $values['condo_id'];
