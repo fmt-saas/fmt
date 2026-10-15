@@ -214,7 +214,10 @@ class CondominiumBankAccount extends BankAccount {
 
     protected static function doRefreshAccountNames($self) {
         Account::search(['condo_bank_account_id', 'in', $self->ids()])
-            ->update(['name' => null]);
+            ->update([
+                'name'          => null,
+                'description'   => null
+            ]);
     }
 
     protected static function onafterValidate($self) {
