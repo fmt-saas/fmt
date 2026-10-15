@@ -36,6 +36,14 @@ class CondominiumBankAccount extends BankAccount {
                 'default'           => 'finance\bank\CondominiumBankAccount',
             ],
 
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Short description of the account (purpose).',
+                'dependents'        => ['name'],
+                'multilang'         => true,
+                'onupdate'          => 'onupdateDescription'
+            ],
+
             'bank_account_type' => [
                 'type'              => 'string',
                 'description'       => 'Type of bank account (current of savings).',
@@ -191,8 +199,22 @@ class CondominiumBankAccount extends BankAccount {
                 'description'   => 'Generate mandatory accounting Accounts for Ownership.',
                 'policies'      => [],
                 'function'      => 'doGenerateAccounts'
+            ],
+            'refresh_account_names' => [
+                'description'   => 'Refresh the names of the related accounting accounts.',
+                'policies'      => [],
+                'function'      => 'doRefreshAccountNames'
             ]
         ];
+    }
+
+    protected static function onupdateDescription($self) {
+        $self->do('refresh_account_names');
+    }
+
+    protected static function doRefreshAccountNames($self) {
+        Account::search(['condo_bank_account_id', 'in', $self->ids()])
+            ->update(['name' => null]);
     }
 
     protected static function onafterValidate($self) {

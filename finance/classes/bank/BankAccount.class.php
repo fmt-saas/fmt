@@ -39,9 +39,11 @@ class BankAccount extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'function'          => 'calcName',
-                'description'       => 'The display name of the account (IBAN).',
+                'multilang'         => true,
+                'description'       => 'The display name of the account (IBAN) and description, if any.',
                 'store'             => true,
-                'instant'           => true
+                'instant'           => true,
+                'readonly'          => true
             ],
 
             'uuid' => [
@@ -56,7 +58,8 @@ class BankAccount extends Model {
             'description' => [
                 'type'              => 'string',
                 'description'       => 'Short description of the account (purpose).',
-                'dependents'        => ['name']
+                'dependents'        => ['name'],
+                'multilang'         => true
             ],
 
             'bank_account_type' => [
