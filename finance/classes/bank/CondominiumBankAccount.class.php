@@ -212,12 +212,12 @@ class CondominiumBankAccount extends BankAccount {
         $self->do('refresh_account_names');
     }
 
-    protected static function doRefreshAccountNames($self) {
+    protected static function doRefreshAccountNames($self, $lang) {
         $self
             ->read(['description'])
-            ->each(function ($id, $condominiumBankAccount) {
+            ->each(function ($id, $condominiumBankAccount) use($lang) {
                 Account::search(['condo_bank_account_id', '=', $id])
-                    ->update(['description' => $condominiumBankAccount['description']]);
+                    ->update(['description' => $condominiumBankAccount['description']], $lang);
             });
     }
 
