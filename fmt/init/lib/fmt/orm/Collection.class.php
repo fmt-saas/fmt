@@ -61,7 +61,7 @@ class Collection extends \equal\orm\Collection {
         return $this;
     }
 
-    public function create(array $values=null, $lang=null) {
+    public function create(?array $values=null, $lang=null) {
 
         if(\eQual::constant('FMT_INSTANCE_TYPE') === 'agency') {
             // #todo - adapt according to final logic

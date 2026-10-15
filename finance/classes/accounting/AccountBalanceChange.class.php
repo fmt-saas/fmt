@@ -77,7 +77,8 @@ class AccountBalanceChange extends Model {
         ];
     }
 
-// #todo
+    /*
+    #todo
     protected static function doAuditBalanceProjection($values) {
 
         $condo_id = $values['condo_id'];
@@ -125,5 +126,5 @@ class AccountBalanceChange extends Model {
 
         return ['status' => $status, 'issues' => $issues];
     }
-
+    */
 }

@@ -1936,6 +1936,10 @@ class OwnershipTransferSettlement extends \equal\orm\Model {
                     $is_new_operation = true;
                 }
 
+                if(!isset($miscOperation['id'])) {
+                    throw new \Exception('misc_operation_missing', EQ_ERROR_INVALID_CONFIG);
+                }
+
                 $misc_operation_id = $miscOperation['id'];
 
                 foreach($group['lines'] as $line_id => $line) {

@@ -129,7 +129,7 @@ class ClosingBalance extends Balance {
             }
 
             // pass-1 - read all accounting entry lines
-            foreach($accounting_entries_ids ?? [] as $entry_id) {
+            foreach($accounting_entries_ids as $entry_id) {
                 $accountingEntry = AccountingEntry::id($entry_id)
                     ->read(['entry_lines_ids' => ['account_id', 'debit', 'credit']])
                     ->first();

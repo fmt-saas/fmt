@@ -105,7 +105,7 @@ $getDocumentsByIds = function($document_ids) use($getDocumentByHash) {
     );
 };
 
-$getExpenseSummaryDoc = function($period_id, $condo_id) use($getDocumentByHash) {
+$getExpenseSummaryDoc = function($period_id, $condo_id) {
 
     $expenseSummary = Document::search([
             ['document_type_code', '=', 'expense_summary'],
@@ -126,7 +126,7 @@ $getExpenseSummaryDoc = function($period_id, $condo_id) use($getDocumentByHash) 
     ];
 };
 
-$getBalanceSheetDoc = function($period_id, $condo_id) use($getDocumentByHash) {
+$getBalanceSheetDoc = function($period_id, $condo_id) {
 
     $balanceSheet = Document::search([
             ['document_type_code', '=', 'balance_sheet'],

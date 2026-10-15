@@ -72,7 +72,7 @@ catch(Exception $e) {
     throw new Exception("Error while generating token: ".$e->getMessage(), EQ_ERROR_UNKNOWN);
 }
 
-if(isset($access_token) && $params['save_in_description']) {
+if(!empty($access_token) && $params['save_in_description']) {
     $instance = Instance::id($params['id'])
         ->read(['description'])
         ->first();

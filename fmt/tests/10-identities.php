@@ -17,7 +17,7 @@ $tests = [
             'description'       => "Create Employee & Identity.",
             'help'              => "Create an Employee, assign it to an Identity and asserts that backlink is set.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
 
                     $identity = Identity::create([
                         "type_id"   => 1,
@@ -27,18 +27,18 @@ $tests = [
 
                     return $identity['id'];
                 },
-            'act'               => function($identity_id) use($providers) {
+            'act'               => function($identity_id) {
                     Employee::create()->update(['identity_id' => $identity_id]);
 
                     return $identity_id;
                 },
-            'assert'            => function($identity_id) use($providers) {
+            'assert'            => function($identity_id) {
                     $employee = Employee::search([['identity_id', '=', $identity_id]])->first();
                     $identity = Identity::id($identity_id)->read(['employee_id'])->first();
 
                     return $identity['employee_id'] == $employee['id'];
                 },
-            'rollback'          => function() use($providers) {
+            'rollback'          => function() {
                 }
         ],
 

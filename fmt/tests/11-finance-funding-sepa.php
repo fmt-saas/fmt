@@ -40,7 +40,7 @@ $tests = [
         '1101' => [
             'description'       => "Test a valid SEPA XML.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $xml = <<<XML
                     <?xml version="1.0" encoding="UTF-8"?>
                     <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03"
@@ -113,10 +113,10 @@ $tests = [
 
                     return $xml;
                 },
-            'act'               => function($xml) use($providers) {
+            'act'               => function($xml) {
                     return $xml;
                 },
-            'assert'            => function($xml) use($providers) {
+            'assert'            => function($xml) {
                     $result = eQual::run('get', 'xml-validate', [
                             'xml'       => $xml,
                             'schema_id' => 'pain.001.001.03',
@@ -125,7 +125,7 @@ $tests = [
 
                     return $result['result'];
                 },
-            'rollback'          => function() use($providers) {
+            'rollback'          => function() {
                 }
         ],
 
@@ -133,7 +133,7 @@ $tests = [
         '1102' => [
             'description'       => "Test a non-valid SEPA XML.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $xml = <<<XML
                     <?xml version="1.0" encoding="UTF-8"?>
                     <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03"
@@ -144,10 +144,10 @@ $tests = [
 
                     return $xml;
                 },
-            'act'               => function($xml) use($providers) {
+            'act'               => function($xml) {
                     return $xml;
                 },
-            'assert'            => function($xml) use($providers) {
+            'assert'            => function($xml) {
                     $result = eQual::run('get', 'xml-validate', [
                             'xml'       => $xml,
                             'schema_id' => 'pain.001.001.03',
@@ -156,7 +156,7 @@ $tests = [
 
                     return !((bool) $result['result']);
                 },
-            'rollback'          => function() use($providers) {
+            'rollback'          => function() {
                 }
         ],
 
@@ -170,7 +170,7 @@ $tests = [
                 - a valid chart of accounts with an accounting account assigned to operation_assignment = 'bank_transfer'.
             ",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $originBankAccount = CondominiumBankAccount::search([ ['condo_id', '=', 1], ['bank_account_type', '=', 'bank_current'] ])->first();
                     $targetBankAccount = CondominiumBankAccount::search([ ['condo_id', '=', 1], ['bank_account_type', '=', 'bank_savings'] ])->first();
 
@@ -191,11 +191,11 @@ $tests = [
 
                     return $funding;
                 },
-            'act'               => function($funding) use($providers) {
+            'act'               => function($funding) {
                     $xml = eQual::run('get', 'sale_pay_Funding_sepa', ['id' => $funding['id']]);
                     return $xml;
                 },
-            'assert'            => function($xml) use($providers) {
+            'assert'            => function($xml) {
                     $result = eQual::run('get', 'xml-validate', [
                             'xml'       => $xml,
                             'schema_id' => 'pain.001.001.03',
@@ -204,7 +204,7 @@ $tests = [
 
                     return $result['result'];
                 },
-            'rollback'          => function() use($providers) {
+            'rollback'          => function() {
                     Funding::search(['description', '=', 'Test Funding'])->delete(true);
                 }
         ]

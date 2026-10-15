@@ -148,12 +148,12 @@ $tests = [
             'description'       => "Assignment for non-existing group.",
             'help'              => "Create a user, check with a non existing group. User should be assigned to the role.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
                     $role = Role::create(['name' => 'test role', 'code' => 'test'])->first();
                     return [$user, $role];
                 },
-            'act'               => function($params) use($providers) {
+            'act'               => function($params) {
                     [$user, $role] = $params;
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id']]);
                     return $user['id'];
@@ -171,7 +171,7 @@ $tests = [
             'description'       => "Without permissions, on class with condo_id.",
             'help'              => "Verify permissions for a user who has no granted rights on a class containing a condo_id. User should not be granted rights.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
                 },
             'act'               => function() use($providers) {
@@ -198,7 +198,7 @@ $tests = [
             'description'       => "With HR permissions, on class, with condo_id.",
             'help'              => "Verify permissions for user with granted rights on class holding a condo_id. User should be granted rights.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
                     $group = Group::create(['name' => 'test group'])->first();
                     $role = Role::create(['name' => 'test role', 'code' => 'test'])
@@ -207,7 +207,7 @@ $tests = [
 
                     return [$user, $role, $group];
                 },
-            'act'               => function($params) use($providers) {
+            'act'               => function($params) {
                     [$user, $role, $group] = $params;
                     Permission::create(['class_name' => 'realestate\property\PropertyLot', 'group_id' => $group['id'], 'rights' => 15]);
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id']]);
@@ -229,7 +229,7 @@ $tests = [
             'description'       => "Without permissions, on class without condo_id.",
             'help'              => "Verify permissions for a user who has no granted rights on a class that does not contain a condo_id. User should not be granted rights.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
                 },
             'act'               => function() use($providers) {
@@ -256,7 +256,7 @@ $tests = [
             'description'       => "With Group permissions, on class, without condo_id.",
             'help'              => "Verify permissions for user with granted rights on class that does not contain a condo_id. User should be granted rights.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
                     $group = Group::create(['name' => 'test group'])->first();
                     return [$user, $group];
@@ -288,7 +288,7 @@ $tests = [
                     User should not be granted rights.
                 ",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
                     $group = Group::create(['name' => 'test group'])->first();
                     $role = Role::create(['name' => 'test role', 'code' => 'test'])
@@ -296,7 +296,7 @@ $tests = [
                         ->first();
                     return [$user, $role, $group];
                 },
-            'act'               => function($params) use($providers) {
+            'act'               => function($params) {
                     [$user, $role, $group] = $params;
                     Permission::create(['class_name' => 'realestate\management\ManagingAgent', 'group_id' => $group['id'], 'rights' => EQ_R_READ|EQ_R_UPDATE]);
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id']]);
@@ -322,7 +322,7 @@ $tests = [
                     User should not be granted rights.
                 ",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
                     $group = Group::create(['name' => 'test group'])->first();
                     $role = Role::create(['name' => 'test role', 'code' => 'test'])
@@ -330,7 +330,7 @@ $tests = [
                         ->first();
                     return [$user, $role, $group];
                 },
-            'act'               => function($params) use($providers) {
+            'act'               => function($params) {
                     [$user, $role, $group] = $params;
                     Permission::create(['class_name' => 'realestate\property\PropertyLot', 'group_id' => $group['id'], 'rights' => EQ_R_READ]);
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id']]);
@@ -356,7 +356,7 @@ $tests = [
                     User should be granted rights.
                 ",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
                     $group = Group::create(['name' => 'test group'])->first();
                     $role = Role::create(['name' => 'test role', 'code' => 'test'])
@@ -365,7 +365,7 @@ $tests = [
                     $condo = Condominium::create(['name' => 'test condo', 'managing_agent_id' => 1])->first();
                     return [$user, $role, $condo, $group];
                 },
-            'act'               => function($params) use($providers) {
+            'act'               => function($params) {
                     [$user, $role, $condo, $group] = $params;
                     Permission::create(['class_name' => 'realestate\property\PropertyLot', 'group_id' => $group['id'], 'rights' => EQ_R_UPDATE]);
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id'], 'condo_id' => $condo['id' ]]);
@@ -376,7 +376,7 @@ $tests = [
                     $lot = PropertyLot::create(['condo_id' => $condo['id'], 'name' => 'test lot', 'property_lot_ref' => '001', 'nature_id' => 1])->first();
                     return $providers['access']->userIsAllowed($user['id'], EQ_R_UPDATE, 'realestate\property\PropertyLot', [], $lot['id']);
                 },
-            'rollback'          => function() use($providers) {
+            'rollback'          => function() {
                     User::search(['login', '=', 'user_test@example.com'])->delete(true);
                     Role::search(['code', '=', 'test'])->delete(true);
                     Group::search(['name', '=', 'test group'])->delete(true);
@@ -391,7 +391,7 @@ $tests = [
                     User should be granted rights.
                 ",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
                     $group = Group::create(['name' => 'test group'])->first();
                     $role = Role::create(['name' => 'test role', 'code' => 'test'])
@@ -400,7 +400,7 @@ $tests = [
                     $condo = Condominium::create(['name' => 'test condo', 'managing_agent_id' => 1])->first();
                     return [$user, $role, $condo, $group];
                 },
-            'act'               => function($params) use($providers) {
+            'act'               => function($params) {
                     [$user, $role, $condo, $group] = $params;
                     Permission::create(['class_name' => 'realestate\property\PropertyLot', 'group_id' => $group['id'], 'rights' => EQ_R_UPDATE]);
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id']]);
@@ -411,7 +411,7 @@ $tests = [
                     $lot = PropertyLot::create(['condo_id' => $condo['id'], 'name' => 'test lot', 'property_lot_ref' => '001', 'nature_id' => 1])->first();
                     return $providers['access']->userIsAllowed($user['id'], EQ_R_UPDATE, 'realestate\property\PropertyLot', [], $lot['id']);
                 },
-            'rollback'          => function() use($providers) {
+            'rollback'          => function() {
                     User::search(['login', '=', 'user_test@example.com'])->delete(true);
                     Role::search(['code', '=', 'test'])->delete(true);
                     Group::search(['name', '=', 'test group'])->delete(true);
@@ -426,7 +426,7 @@ $tests = [
                     User should not be granted rights.
                 ",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $user = User::create(['login' => 'user_test@example.com', 'password' => 'abcd1234'])->first();
                     $group = Group::create(['name' => 'test group'])->first();
                     $role = Role::create(['name' => 'test role', 'code' => 'test'])
@@ -436,7 +436,7 @@ $tests = [
 
                     return [$user, $role, $condo, $group];
                 },
-            'act'               => function($params) use($providers) {
+            'act'               => function($params) {
                     [$user, $role, $condo, $group] = $params;
                     Permission::create(['class_name' => 'realestate\property\PropertyLot', 'group_id' => $group['id'], 'rights' => 15]);
                     RoleAssignment::create(['user_id' => $user['id'], 'role_id' => $role['id'], 'condo_id' => $condo['id' ]]);
@@ -468,7 +468,7 @@ $tests = [
                     User should keep READ rights and be denied non-read rights.
                 ",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $identity = Identity::create([
                         'type_id'   => 1,
                         'type'      => 'IN',
@@ -499,7 +499,7 @@ $tests = [
                         && !$am->userIsAllowed($user_id, EQ_R_UPDATE, 'realestate\management\ManagingAgent')
                         && !$am->userIsAllowed($user_id, EQ_R_READ|EQ_R_UPDATE, 'realestate\management\ManagingAgent');
                 },
-            'rollback'          => function() use($providers) {
+            'rollback'          => function() {
                     $users = User::search(['login', '=', 'owner_access_test@example.com'])->read(['identity_id']);
                     $identity_ids = [];
                     foreach($users as $user) {

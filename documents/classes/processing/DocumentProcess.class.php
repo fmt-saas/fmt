@@ -1425,7 +1425,10 @@ class DocumentProcess extends Model {
                 $logs[] = "Non supported document type (`{$documentProcess['document_type_id']['code']}`) or Document does not match expected format.";
                 trigger_error("APP::unable to extract document for process {$id} ({$documentProcess['document_type_id']['code']}): " . $e->getMessage(), EQ_REPORT_WARNING);
                 $logs[] = "Attempting to fall back to default document descriptor.";
-                // extraction failed : populat with empty document_json descriptor
+
+                $data = [];
+
+                // extraction failed : populate with empty document_json descriptor
                 switch($documentProcess['document_type_id']['code']) {
                     case 'supplier_invoice':
                         $data = \eQual::run('get', 'documents_processing_PurchaseInvoice_empty');

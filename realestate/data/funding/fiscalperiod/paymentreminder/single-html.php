@@ -436,7 +436,7 @@ foreach($template['parts_ids'] as $part) {
             return $map_values[$key] ?? '';
         }, $introduction);
     }
-    elseif($part['name'] == 'communication_payment_amount' && $funding && $funding['remaining_amount'] >= 0.01) {
+    elseif($part['name'] == 'communication_payment_amount' && isset($funding['remaining_amount']) && $funding['remaining_amount'] >= 0.01) {
         $communication = $part['value'];
 
         $map_values = [

@@ -156,13 +156,13 @@ $tests = [
     '3001' => [
         'description' => "Validate CODA import.",
         'help'        => "Convert a CODA bank statement to standardized JSON and validate result against `bank-statement` schema.",
-        'arrange'     => function () use ($providers) {
+        'arrange'     => function () {
         },
-        'act'         => function () use ($providers) {
+        'act'         => function () {
             $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_coda.txt');
             return eQual::run('get', 'finance_bank_BankStatement_parse-coda', ['data' => $data]);
         },
-        'assert'      => function ($statements) use ($providers) {
+        'assert'      => function ($statements) {
             $valid = true;
             foreach($statements as $statement) {
                 $data = eQual::run('get', 'json-validate', ['json' => json_encode($statement), 'schema_id' => 'urn:fmt:json-schema:finance:bank-statement']);
@@ -170,20 +170,20 @@ $tests = [
             }
             return $valid;
         },
-        'rollback'    => function () use ($providers) {
+        'rollback'    => function () {
         }
     ],
 
     '3002' => [
         'description' => "Validate ISABEL XLSX import.",
         'help'        => "Convert a XLSX bank statement to standardized JSON and validate result against `bank-statement` schema.",
-        'arrange'     => function () use ($providers) {
+        'arrange'     => function () {
         },
-        'act'         => function () use ($providers) {
+        'act'         => function () {
             $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_isabel.xlsx');
             return eQual::run('get', 'finance_bank_BankStatement_parse-xls', ['data' => base64_encode($data)]);
         },
-        'assert'      => function ($statements) use ($providers) {
+        'assert'      => function ($statements) {
             $valid = true;
 
             foreach($statements as $i => $statement) {
@@ -192,20 +192,20 @@ $tests = [
             }
             return $valid;
         },
-        'rollback'    => function () use ($providers) {
+        'rollback'    => function () {
         }
     ],
 
     '3003' => [
         'description' => "Check CODA import.",
         'help'        => "Convert a CODA bank statement to standardized JSON and validate result data.",
-        'arrange'     => function () use ($providers) {
+        'arrange'     => function () {
         },
-        'act'         => function () use ($providers) {
+        'act'         => function () {
             $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'bank_coda.txt');
             return eQual::run('get', 'finance_bank_BankStatement_parse-coda', ['data' => $data]);
         },
-        'assert'      => function ($statements) use ($providers) {
+        'assert'      => function ($statements) {
             if(count($statements) !== 1) {
                 return false;
             }
@@ -234,7 +234,7 @@ $tests = [
                 && $transactions[3]['amount'] === -479.04
                 && $transactions[4]['amount'] === 63.74;
         },
-        'rollback'    => function () use ($providers) {
+        'rollback'    => function () {
         },
     ],
 
@@ -253,7 +253,7 @@ $tests = [
         'act'         => function ($data) use ($runBankStatementImport) {
             return $runBankStatementImport($data, 'bank_coda.txt');
         },
-        'assert'      => function ($data) use ($providers) {
+        'assert'      => function ($data) {
             if(count($data['document_processes']) !== 1) {
                 return false;
             }
@@ -286,7 +286,7 @@ $tests = [
         'act'         => function ($data) use ($runBankStatementImport) {
             return $runBankStatementImport($data, 'bank_coda.txt');
         },
-        'assert'      => function ($data) use ($providers) {
+        'assert'      => function ($data) {
             if(count($data['document_processes']) !== 1) {
                 return false;
             }
@@ -306,7 +306,7 @@ $tests = [
     '3006' => [
         'description' => "Test explicit document assignment transition.",
         'help'        => "Create a DocumentProcess, set its condominium without events and use the assign transition.",
-        'arrange'     => function () use ($providers) {
+        'arrange'     => function () {
             $condo = Condominium::search(['name', '=', 'ACP HAUTE 115-117'])
                 ->read(['id'])
                 ->first(true);
@@ -348,7 +348,7 @@ $tests = [
 
             return $data;
         },
-        'assert'      => function ($data) use ($providers) {
+        'assert'      => function ($data) {
             $documentProcess = DocumentProcess::id($data['document_process_id'])
                 ->read(['status', 'condo_id'])
                 ->first();
@@ -384,7 +384,7 @@ $tests = [
         'act'         => function ($data) use ($runBankStatementImport) {
             return $runBankStatementImport($data, 'bank_coda_multi_accounts.txt');
         },
-        'assert'      => function ($data) use ($providers) {
+        'assert'      => function ($data) {
             if(count($data['document_processes']) !== 2) {
                 return false;
             }
@@ -407,4 +407,3 @@ $tests = [
     ]
 
 ];
-

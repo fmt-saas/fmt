@@ -1661,7 +1661,7 @@ finally {
         $values['condo_id'] = $condominium['id'];
     }
 
-    if($dataImport['import_type'] === 'ownership_import' && $ownership) {
+    if($dataImport['import_type'] === 'ownership_import' && isset($ownership['id'])) {
         $values['ownership_id'] = $ownership['id'];
     }
 

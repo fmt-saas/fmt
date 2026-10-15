@@ -44,6 +44,7 @@ if(!in_array($document['content_type'], $supported_content_types)) {
     throw new Exception('non_supported_document_type', EQ_ERROR_INVALID_PARAM);
 }
 
+$result = [];
 switch($document['content_type']) {
     case 'application/octet-stream':
     case 'text/plain':
