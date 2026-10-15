@@ -851,15 +851,33 @@ try {
                             'savings'       => 'bank_savings',
                         ][$bank_account['type']] ?? strtolower($bank_account['type']);
 
-            CondominiumBankAccount::create([
+            $description_translations = $parseMultilangFieldValue($bank_account['description']);
+            $description_lang = $description_translations ? array_key_first($description_translations) : null;
+            $description = $description_lang
+                ? $description_translations[$description_lang]
+                : $bank_account['description'];
+
+            $condominium_bank_account = CondominiumBankAccount::create([
                     'condo_id'              => $condominium['id'],
                     'owner_identity_id'     => $condominiumIdentity['id'] ?? null,
-                    'description'           => $bank_account['description'],
+                    'description'           => $description,
                     'bank_account_type'     => $bank_account_type,
                     'bank_account_iban'     => $bank_account['iban'],
                     'is_primary'            => (bool) $bank_account['is_primary'] && $bank_account_type === 'bank_current',
                     'is_primary_reserve'    => (bool) $bank_account['is_primary'] && $bank_account_type === 'bank_savings'
-                ]);
+                ], $description_lang)
+                ->first();
+
+            if($description_translations) {
+                foreach($description_translations as $lang => $translated_description) {
+                    if($lang === $description_lang) {
+                        continue;
+                    }
+
+                    CondominiumBankAccount::id($condominium_bank_account['id'])
+                        ->update(['description' => $translated_description], $lang);
+                }
+            }
         }
 
         foreach($data['External_representatives'] as $external_representative) {
