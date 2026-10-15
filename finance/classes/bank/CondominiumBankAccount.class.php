@@ -274,7 +274,7 @@ class CondominiumBankAccount extends BankAccount {
     }
 
     protected static function doGenerateAccounts($self, $lang) {
-        $self->read(['condo_id', 'bank_account_type', 'name']);
+        $self->read(['condo_id', 'bank_account_type', 'name'], $lang);
         foreach($self as $id => $bankAccount) {
             if(!$bankAccount['condo_id']) {
                 continue;
