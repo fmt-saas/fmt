@@ -31,7 +31,7 @@ class CondominiumBankAccount extends BankAccount {
             'object_class' => [
                 'type'              => 'string',
                 'description'       => 'Explicit class name of the object.',
-                'help'              => 'This is necessary to distinguish between different types of bank accounts since class uses same table as BankAccount.', 
+                'help'              => 'This is necessary to distinguish between different types of bank accounts since class uses same table as BankAccount.',
                 'readonly'          => true,
                 'default'           => 'finance\bank\CondominiumBankAccount',
             ],
@@ -214,10 +214,10 @@ class CondominiumBankAccount extends BankAccount {
 
     protected static function doRefreshAccountNames($self, $lang) {
         $self
-            ->read(['description'])
+            ->read(['name'])
             ->each(function ($id, $condominiumBankAccount) use($lang) {
                 Account::search(['condo_bank_account_id', '=', $id])
-                    ->update(['description' => $condominiumBankAccount['description']], $lang);
+                    ->update(['description' => $condominiumBankAccount['name']], $lang);
             });
     }
 
@@ -273,7 +273,7 @@ class CondominiumBankAccount extends BankAccount {
         }
     }
 
-    protected static function doGenerateAccounts($self) {
+    protected static function doGenerateAccounts($self, $lang) {
         $self->read(['condo_id', 'bank_account_type', 'name']);
         foreach($self as $id => $bankAccount) {
             if(!$bankAccount['condo_id']) {
@@ -313,7 +313,7 @@ class CondominiumBankAccount extends BankAccount {
                         'description'           => $bankAccount['name'],
                         'operation_assignment'  => $bankAccount['bank_account_type'],
                         'condo_bank_account_id' => $id
-                    ])
+                    ], $lang)
                     ->read(['name'])
                     ->first();
 

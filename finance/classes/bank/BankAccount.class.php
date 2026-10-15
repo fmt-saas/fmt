@@ -283,9 +283,9 @@ class BankAccount extends Model {
         return $result;
     }
 
-    public static function calcName($self) {
+    public static function calcName($self, $lang) {
         $result = [];
-        $self->read(['description', 'organisation_id', 'bank_account_iban']);
+        $self->read(['description', 'organisation_id', 'bank_account_iban'], $lang);
         foreach($self as $id => $bankAccount) {
             if($bankAccount['bank_account_iban'] && strlen($bankAccount['bank_account_iban']) > 0) {
                 $parts = [];
