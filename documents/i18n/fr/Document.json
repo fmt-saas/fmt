@@ -104,6 +104,15 @@
             "label": "Envois groupés",
             "description": "Envois groupés auxquels ce document est joint.",
             "help": ""
+        },
+        "origin_relation_type": {
+            "label": "Rôle par rapport au document d'origine",
+            "description": "Rôle de ce document par rapport au document dont il est issu.",
+            "help": "Un rendu est généré pour afficher le document d'origine. Une pièce jointe est extraite du document d'origine.",
+            "selection": {
+                "rendering": "Rendu",
+                "attachment": "Pièce jointe"
+            }
         }
     },
     "view": {
