@@ -22,6 +22,16 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
         return 'purchase_accounting_invoice_invoiceline';
     }
 
+    public static function getActions() {
+        return array_merge(parent::getActions(), [
+            'sync_date_range' => [
+                'description' => 'Synchronize the date range with the related invoice.',
+                'policies'    => [],
+                'function'    => 'doSyncDateRange'
+            ]
+        ]);
+    }
+
     public static function getColumns() {
         return [
 
@@ -221,6 +231,28 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             }
         }
         return $result;
+    }
+
+    protected static function onafterinstantiate($self, $orm, $values) {
+        $self->do('sync_date_range');
+    }
+
+    protected static function doSyncDateRange($self) {
+        $self->read([
+            'invoice_id' => ['has_date_range', 'date_from', 'date_to']
+        ]);
+
+        foreach($self as $id => $invoiceLine) {
+            if(!$invoiceLine['invoice_id']) {
+                continue;
+            }
+
+            self::id($id)->update([
+                'has_date_range' => $invoiceLine['invoice_id']['has_date_range'],
+                'date_from'      => $invoiceLine['invoice_id']['date_from'],
+                'date_to'        => $invoiceLine['invoice_id']['date_to']
+            ]);
+        }
     }
 
     protected static function onupdateTenantShare($self) {
