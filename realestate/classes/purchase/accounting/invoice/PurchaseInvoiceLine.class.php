@@ -441,6 +441,15 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             }
         }
 
+        $is_private_expense = $result['is_private_expense']
+            ?? $event['is_private_expense']
+            ?? $values['is_private_expense']
+            ?? false;
+
+        if($is_private_expense) {
+            $result['has_date_range'] = false;
+        }
+
         return $result;
     }
 
