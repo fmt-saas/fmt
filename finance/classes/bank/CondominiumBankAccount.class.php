@@ -6,6 +6,7 @@
 */
 namespace finance\bank;
 
+use core\Lang;
 use finance\accounting\Account;
 use finance\accounting\AccountBalanceChange;
 use finance\accounting\FiscalYear;
@@ -212,13 +213,18 @@ class CondominiumBankAccount extends BankAccount {
         $self->do('refresh_account_names');
     }
 
-    protected static function doRefreshAccountNames($self, $lang) {
-        $self
-            ->read(['name'])
-            ->each(function ($id, $condominiumBankAccount) use($lang) {
-                Account::search(['condo_bank_account_id', '=', $id])
-                    ->update(['description' => $condominiumBankAccount['name']], $lang);
-            });
+    protected static function doRefreshAccountNames($self) {
+        $languages = Lang::search()->read(['code']);
+
+        foreach($languages as $language) {
+            $lang = $language['code'];
+            $self
+                ->read(['name'], $lang)
+                ->each(function ($id, $condominiumBankAccount) use($lang) {
+                    Account::search(['condo_bank_account_id', '=', $id])
+                        ->update(['description' => $condominiumBankAccount['name']], $lang);
+                });
+        }
     }
 
     protected static function onafterValidate($self) {
@@ -316,6 +322,8 @@ class CondominiumBankAccount extends BankAccount {
                     ], $lang)
                     ->read(['name'])
                     ->first();
+
+                self::id($id)->do('refresh_account_names');
 
                 $parentJournal = Journal::search([['condo_id', '=', $bankAccount['condo_id']], ['journal_type', '=', 'BANK'], ['has_parent', '=', false]])
                     ->read(['code', 'mnemo', 'sub_journals_ids'])
