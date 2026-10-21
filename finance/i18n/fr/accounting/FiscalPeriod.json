@@ -59,6 +59,10 @@
             "name": "Période comptable",
             "description": "Formulaire pour ajuster les dates et visualiser l'exercice/copropriété.",
             "actions": {
+                "action.renumber_purchase_invoices": {
+                    "label": "Renuméroter les factures d'achat",
+                    "description": "Renuméroter séquentiellement les factures d'achat non proforma de cette période, par date d'émission."
+                },
                 "action.preclose": {
                     "label": "Pré-clôturer",
                     "description": "Pré-clôturer la période comptable et générer un décompte de charges proforma."
@@ -68,6 +72,12 @@
                     "description": "Remettre la période comptable en pré-clôture."
                 }
             }
+        }
+    },
+    "error": {
+        "errors": {
+            "fiscal_period_not_open": "Les factures d'achat ne peuvent être renumérotées que pour une période comptable ouverte.",
+            "purchase_invoice_sequence_initialization_failed": "La séquence des factures d'achat n'a pas pu être initialisée."
         }
     }
 }

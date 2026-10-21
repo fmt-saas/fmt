@@ -490,8 +490,7 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
 
             if($purchaseInvoice && $purchaseInvoice['has_fund_usage']) {
                 $result['has_date_range'] = [
-                    'value'   => false,
-                    'visible' => false
+                    'value'   => false
                 ];
             }
         }
