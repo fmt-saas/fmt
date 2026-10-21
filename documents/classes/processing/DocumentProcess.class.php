@@ -1101,7 +1101,7 @@ class DocumentProcess extends Model {
 
                     if($roleAssignment) {
                         $employee_id = $roleAssignment['employee_id']['id'];
-                        $logs[] = "Role Assignment retrieved for step `" . $documentProcess['status'] . "` on doc type `" . $documentProcess['document_type_id']['name'] . "` with role `" . $documentAssignmentRule['role_id']['name'] . "` on condo `" . $documentProcess['condo_id']['name'] . "`";
+                        $logs[] = "Role Assignment retrieved for step `" . htmlspecialchars((string) $documentProcess['status']) . "` on doc type `" . htmlspecialchars((string) $documentProcess['document_type_id']['name']) . "` with role `" . htmlspecialchars((string) $documentAssignmentRule['role_id']['name']) . "` on condo `" . htmlspecialchars((string) $documentProcess['condo_id']['name']) . "`";
                     }
                 }
             }
@@ -1116,7 +1116,7 @@ class DocumentProcess extends Model {
                     ->first();
                 if($roleAssignment && $roleAssignment['employee_id']) {
                     $employee_id = $roleAssignment['employee_id']['id'];
-                    $logs[] = "Global Role Assignment retrieved for `document_dispatch_officer`: " . $roleAssignment['employee_id']['name'];
+                    $logs[] = "Global Role Assignment retrieved for `document_dispatch_officer`: " . htmlspecialchars((string) $roleAssignment['employee_id']['name']);
                 }
                 // fallback to employee relating to current user (if set)
                 else {
@@ -1125,7 +1125,7 @@ class DocumentProcess extends Model {
                         ->first();
                     if($identity && $identity['employee_id']) {
                         $employee_id = $identity['employee_id']['id'];
-                        $logs[] = "No Assignment retrieved, fallback to `creator` of the document: " . $identity['employee_id']['name'];
+                        $logs[] = "No Assignment retrieved, fallback to `creator` of the document: " . htmlspecialchars((string) $identity['employee_id']['name']);
                     }
                 }
             }
@@ -1314,17 +1314,17 @@ class DocumentProcess extends Model {
 
             if(isset($identification['document_type']['id'])) {
                 $values['document_type_id'] = $identification['document_type']['id'];
-                $logs[] = "Retrieved document type: " . $identification['document_type']['code'];
+                $logs[] = "Retrieved document type: " . htmlspecialchars((string) $identification['document_type']['code']);
 
                 if(isset($identification['document_subtype']['id'])) {
                     $values['document_subtype_id'] = $identification['document_subtype']['id'];
-                    $logs[] = "Retrieved document sub-type: " . $identification['document_subtype']['code'];
+                    $logs[] = "Retrieved document sub-type: " . htmlspecialchars((string) $identification['document_subtype']['code']);
                 }
             }
 
             if(isset($identification['condominium']['id'])) {
                 $values['condo_id'] = $identification['condominium']['id'];
-                $logs[] = "Retrieved condominium: " . $identification['condominium']['name'];
+                $logs[] = "Retrieved condominium: " . htmlspecialchars((string) $identification['condominium']['name']);
             }
 
             if(strlen($report_html) > 0) {
@@ -1388,7 +1388,7 @@ class DocumentProcess extends Model {
                     if(isset($validation['errors']) && count($validation['errors'])) {
                         foreach((array) $validation['errors'] as $section => $errors) {
                             foreach($errors as $error) {
-                                $logs[] = $error;
+                                $logs[] = htmlspecialchars((string) $error);
                             }
                         }
                         ob_start();
@@ -1421,8 +1421,8 @@ class DocumentProcess extends Model {
                     $message = substr($message, 0, 197) . '...';
                 }
 
-                $logs[] = "Extraction error : " . $message;
-                $logs[] = "Non supported document type (`{$documentProcess['document_type_id']['code']}`) or Document does not match expected format.";
+                $logs[] = "Extraction error : " . htmlspecialchars((string) $message);
+                $logs[] = "Non supported document type (`" . htmlspecialchars((string) $documentProcess['document_type_id']['code']) . "`) or Document does not match expected format.";
                 trigger_error("APP::unable to extract document for process {$id} ({$documentProcess['document_type_id']['code']}): " . $e->getMessage(), EQ_REPORT_WARNING);
                 $logs[] = "Attempting to fall back to default document descriptor.";
 
@@ -1498,7 +1498,7 @@ class DocumentProcess extends Model {
                                 $suppliers_ids = Supplier::search(['vat_number', '=', $data['supplier']['vat_id']])->ids();
                                 if(count($suppliers_ids)) {
                                     $values['supplier_id'] = current($suppliers_ids);
-                                    $logs[] = "supplier_id retrieved from VAT ID '{$data['supplier']['vat_id']}'";
+                                    $logs[] = "supplier_id retrieved from VAT ID '" . htmlspecialchars((string) $data['supplier']['vat_id']) . "'";
                                 }
                             }
                         }
@@ -1508,7 +1508,7 @@ class DocumentProcess extends Model {
                                 $suppliers_ids = Supplier::search(['legal_name', 'ilike', $data['supplier']['name']])->ids();
                                 if(count($suppliers_ids) === 1) {
                                     $values['supplier_id'] = current($suppliers_ids);
-                                    $logs[] = "supplier_id retrieved from NAME '{$data['supplier']['name']}'";
+                                    $logs[] = "supplier_id retrieved from NAME '" . htmlspecialchars((string) $data['supplier']['name']) . "'";
                                 }
                             }
                         }
@@ -1526,7 +1526,7 @@ class DocumentProcess extends Model {
                                     ->ids();
                                 if(count($condominiums_ids) === 1) {
                                     $values['condo_id'] = current($condominiums_ids);
-                                    $logs[] = "condo_id retrieved from VAT ID '{$data['customer']['vat_id']}'";
+                                    $logs[] = "condo_id retrieved from VAT ID '" . htmlspecialchars((string) $data['customer']['vat_id']) . "'";
                                 }
                             }
                         }
@@ -1551,7 +1551,7 @@ class DocumentProcess extends Model {
                                     if($supplierReference) {
                                         $values['condo_id'] = $supplierReference['condo_id'];
                                         $doc_values['condo_id'] = $values['condo_id'];
-                                        $logs[] = "condo_id retrieved from $ref '{$data['customer'][$ref]}'";
+                                        $logs[] = "condo_id retrieved from " . htmlspecialchars((string) $ref) . " '" . htmlspecialchars((string) $data['customer'][$ref]) . "'";
                                         break;
                                     }
                                 }
@@ -1585,7 +1585,7 @@ class DocumentProcess extends Model {
                                 if(count($condominiums_ids) === 1) {
                                     $values['condo_id'] = current($condominiums_ids);
                                     $doc_values['condo_id'] = $values['condo_id'];
-                                    $logs[] = "condo_id retrieved from NAME '{$customer_name}'";
+                                    $logs[] = "condo_id retrieved from NAME '" . htmlspecialchars((string) $customer_name) . "'";
                                 }
                             }
                         }
@@ -1600,7 +1600,7 @@ class DocumentProcess extends Model {
                                 if($bankAccount && $bankAccount['condo_id']) {
                                     $values['condo_id'] = $bankAccount['condo_id'];
                                     $doc_values['condo_id'] = $values['condo_id'];
-                                    $logs[] = "condo_id retrieved from '{$data['account_iban']}'";
+                                    $logs[] = "condo_id retrieved from '" . htmlspecialchars((string) $data['account_iban']) . "'";
                                 }
                             }
                         }
@@ -1609,7 +1609,7 @@ class DocumentProcess extends Model {
                             $bank = Bank::search(['bic', '=', $data['bank_bic']])->first();
                             if($bank) {
                                 $values['supplier_id'] = $bank['id'];
-                                $logs[] = "supplier_id retrieved from BIC '{$data['bank_bic']}'";
+                                $logs[] = "supplier_id retrieved from BIC '" . htmlspecialchars((string) $data['bank_bic']) . "'";
                             }
                         }
                         break;
@@ -1622,7 +1622,7 @@ class DocumentProcess extends Model {
             catch(\Exception $e) {
                 // unexpected error
                 // unable to extract or confidence level too low
-                $logs[] = "Extraction error : " . $e->getMessage();
+                $logs[] = "Extraction error : " . htmlspecialchars((string) $e->getMessage());
                 $logs[] = "Unable to extract from given data.";
                 trigger_error("APP::unable to extract document, or confidence level too low." . $e->getMessage(), EQ_REPORT_WARNING);
             }
@@ -1791,7 +1791,7 @@ class DocumentProcess extends Model {
                         }
                     }
 
-                    $logs[] = "Drafted purchase invoice {$invoice['id']}";
+                    $logs[] = "Drafted purchase invoice " . htmlspecialchars((string) $invoice['id']);
                     self::id($id)->update(['document_invoice_id' => $invoice['id'], 'has_target_object' => true]);
                 }
                 elseif($documentProcess['document_type_code'] === 'bank_statement') {
@@ -1994,7 +1994,7 @@ class DocumentProcess extends Model {
                         }
                     }
 
-                    $logs[] = "Drafted bank statement {$bankStatement['id']}";
+                    $logs[] = "Drafted bank statement " . htmlspecialchars((string) $bankStatement['id']);
                     self::id($id)->update(['document_bank_statement_id' => $bankStatement['id'], 'has_target_object' => true]);
                 }
 
@@ -2002,7 +2002,7 @@ class DocumentProcess extends Model {
             catch(\Exception $e) {
                 // unexpected error
                 // unable to extract or confidence level too low
-                $logs[] = "Drafting error : " . $e->getMessage();
+                $logs[] = "Drafting error : " . htmlspecialchars((string) $e->getMessage());
                 trigger_error("APP::unable to draft target object for DocumentProcess ({$id}) from document ({$documentProcess['document_id']['id']})." . $e->getMessage(), EQ_REPORT_WARNING);
             }
 
@@ -2040,7 +2040,7 @@ class DocumentProcess extends Model {
                 if(isset($data[$key]) && $data[$key] !== '') {
                     $depth = substr_count($full_key, '.');
                     $pad = str_repeat('-', 4 * $depth);
-                    $logs[] = "{$pad}$full_key: '{$data[$key]}'";
+                    $logs[] = $pad . htmlspecialchars((string) $full_key) . ": '" . htmlspecialchars((string) $data[$key]) . "'";
                 }
             }
         }
