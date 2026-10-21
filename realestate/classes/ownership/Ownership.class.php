@@ -1102,7 +1102,7 @@ class Ownership extends \equal\orm\Model {
     protected static function doAssertAddressRecipient($self) {
         $self->read(['address_recipient']);
         foreach($self as $id => $ownership) {
-            if(!$ownership['address_recipient'] || strlen($ownership['address_recipient']) <= 0) {
+            if(trim((string) ($ownership['address_recipient'] ?? '')) === '') {
                 self::id($id)->update([
                     'address_recipient' => self::computeAddressRecipient($id)
                 ]);
