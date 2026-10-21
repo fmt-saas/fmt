@@ -1371,10 +1371,11 @@ try {
 
             $representative_owner_id = $ownership['representative_owner_id']['id'] ?? null;
             $representative_owner_identity_id = $ownership['representative_owner_id']['identity_id'] ?? null;
+            $has_external_representative = $ownership['has_external_representative'] ?? false;
 
-            // pass-1 : representative owner
+            // Create preferences for the representative owner only when there is no external representative.
             foreach($preferences as $preference) {
-                if(!$communication_preferences[$preference]) {
+                if($has_external_representative || !$communication_preferences[$preference]) {
                     continue;
                 }
 
@@ -1415,9 +1416,9 @@ try {
                 OwnershipCommunicationPreference::create($values);
             }
 
-            // pass-2 : external representative, if any
+            // Create preferences for the external representative, if any.
             $external_representative_identity_id = $ownership['representative_identity_id'] ?? null;
-            if(($ownership['has_external_representative'] ?? false) && $external_representative_identity_id) {
+            if($has_external_representative && $external_representative_identity_id) {
                 foreach($preferences as $preference) {
                     OwnershipCommunicationPreference::create([
                         'condo_id'                              => $condominium['id'],
