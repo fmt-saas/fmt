@@ -482,6 +482,20 @@ class PurchaseInvoiceLine extends \purchase\accounting\invoice\PurchaseInvoiceLi
             $result['has_date_range'] = false;
         }
 
+        $invoice_id = $event['invoice_id'] ?? $values['invoice_id'] ?? null;
+        if($invoice_id) {
+            $purchaseInvoice = PurchaseInvoice::id($invoice_id)
+                ->read(['has_fund_usage'])
+                ->first();
+
+            if($purchaseInvoice && $purchaseInvoice['has_fund_usage']) {
+                $result['has_date_range'] = [
+                    'value'   => false,
+                    'visible' => false
+                ];
+            }
+        }
+
         return $result;
     }
 
