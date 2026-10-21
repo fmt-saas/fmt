@@ -279,6 +279,9 @@
         "errors": {
             "cannot_remove_non_proforma": "Seules les factures en brouillon peuvent être supprimées.",
             "fund_usage_date_range_outside_fiscal_period": "La plage de dates d'une facture utilisant des fonds de réserve doit être entièrement comprise dans sa période comptable.",
+            "missing_emission_date": "La date d'émission est obligatoire pour attribuer le numéro de facture.",
+            "invalid_fiscal_year_for_emission_date": "L'exercice comptable doit appartenir à la copropriété et contenir la date d'émission.",
+            "invalid_fiscal_period_for_emission_date": "La période comptable doit appartenir à la copropriété et à l'exercice comptable, et contenir la date d'émission.",
             "missing_suppliership_accounting_account": "Compte comptable fournisseur introuvable pour la copropriété ou le propriétaire concerné."
         }
     }

@@ -210,9 +210,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'type'              => 'date',
                 'usage'             => 'date/plain',
                 'description'       => 'The date on which the invoice is recorded in the accounting system.',
-                'visible'           => ['has_date_range', '=', false],
-                'onupdate'          => 'onupdatePostingDate',
-                'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
+                'visible'           => ['has_date_range', '=', false]
             ],
 
             'due_date' => [
@@ -396,6 +394,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         'help'        => 'Assign invoice number, generate accounting entries and validate accounting entries.',
                         'policies'    => [
                             'can_post',
+                            'can_assign_invoice_number',
                             'can_be_allocated'
                         ],
                         'onbefore'  => 'onbeforePost',
@@ -980,6 +979,10 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     public static function getPolicies(): array {
         return array_merge(parent::getPolicies(), [
+            'can_assign_invoice_number' => [
+                'description' => 'Checks that all required values are available and consistent for assigning the invoice number.',
+                'function'    => 'policyCanAssignInvoiceNumber'
+            ],
             'can_be_allocated' => [
                 'description' => 'Verifies that an invoice can be allocated of the posting date(s).',
                 'function'    => 'policyCanBeAllocated'
@@ -1229,14 +1232,90 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         return $result;
     }
 
+    protected static function policyCanAssignInvoiceNumber($self): array {
+        $result = [];
+        $self->read([
+                'condo_id',
+                'emission_date',
+                'fiscal_year_id' => ['id', 'condo_id', 'date_from', 'date_to'],
+                'fiscal_period_id' => ['id', 'condo_id', 'fiscal_year_id', 'date_from', 'date_to']
+            ]);
+
+        foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['condo_id']) {
+                $result[$id]['missing_condo_id'] = 'Condominium is mandatory for assigning the invoice number.';
+            }
+            if(!$purchaseInvoice['emission_date']) {
+                $result[$id]['missing_emission_date'] = 'Emission date is mandatory for assigning the invoice number.';
+            }
+            if(!$purchaseInvoice['fiscal_year_id']) {
+                $result[$id]['missing_fiscal_year_id'] = 'Fiscal year is mandatory for assigning the invoice number.';
+            }
+            elseif(
+                $purchaseInvoice['emission_date'] < $purchaseInvoice['fiscal_year_id']['date_from']
+                || $purchaseInvoice['emission_date'] > $purchaseInvoice['fiscal_year_id']['date_to']
+            ) {
+                $result[$id]['invalid_fiscal_year_for_emission_date'] = 'Fiscal year must match the condominium and contain the emission date.';
+            }
+            if(!$purchaseInvoice['fiscal_period_id']) {
+                $result[$id]['missing_fiscal_period_id'] = 'Fiscal period is mandatory for assigning the invoice number.';
+            }
+            elseif(
+                $purchaseInvoice['fiscal_period_id']['fiscal_year_id'] !== $purchaseInvoice['fiscal_year_id']['id']
+                || $purchaseInvoice['emission_date'] < $purchaseInvoice['fiscal_period_id']['date_from']
+                || $purchaseInvoice['emission_date'] > $purchaseInvoice['fiscal_period_id']['date_to']
+            ) {
+                $result[$id]['invalid_fiscal_period_for_emission_date'] = 'Fiscal period must match the condominium and fiscal year, and contain the emission date.';
+            }
+        }
+
+        return $result;
+    }
+
 
     /**
-     * Checks that if the invoice must be split, no part of it must be assigned to a non-open fiscal period (or fiscal year).
+     * Checks that allocation ranges are complete and that no part of the invoice is assigned to a non-open fiscal period (or fiscal year).
      */
     protected static function policyCanBeAllocated($self) {
         $result = [];
-        $self->read(['posting_date', 'has_date_range', 'date_from', 'date_to', 'condo_id', 'fiscal_period_id' => ['date_from', 'date_to']]);
+        $self->read([
+                'emission_date',
+                'posting_date',
+                'has_date_range',
+                'date_from',
+                'date_to',
+                'condo_id',
+                'fiscal_period_id' => ['date_from', 'date_to'],
+                'invoice_lines_ids' => ['has_date_range', 'date_from', 'date_to']
+            ]);
         foreach($self as $id => $invoice) {
+
+            foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
+                if(!$invoiceLine['has_date_range']) {
+                    continue;
+                }
+
+                if(!isset($invoiceLine['date_from']) || $invoiceLine['date_from'] <= 0) {
+                    $result[$id] = [
+                        'missing_invoice_line_date_from' => "Invoice line {$invoice_line_id} requires a start date."
+                    ];
+                    continue 2;
+                }
+
+                if(!isset($invoiceLine['date_to']) || $invoiceLine['date_to'] <= 0) {
+                    $result[$id] = [
+                        'missing_invoice_line_date_to' => "Invoice line {$invoice_line_id} requires an end date."
+                    ];
+                    continue 2;
+                }
+
+                if($invoiceLine['date_from'] > $invoiceLine['date_to']) {
+                    $result[$id] = [
+                        'invalid_invoice_line_date_range' => "Invoice line {$invoice_line_id} has an invalid date range."
+                    ];
+                    continue 2;
+                }
+            }
 
             if($invoice['has_date_range']) {
                 $date_from = $invoice['date_from'];
@@ -1246,8 +1325,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 $date_from = $date_to = $invoice['posting_date'];
             }
             else {
-                $date_from = $invoice['fiscal_period_id']['date_from'];
-                $date_to = $invoice['fiscal_period_id']['date_to'];
+                $date_from = $date_to = $invoice['emission_date'];
             }
 
             $period_allocation_dates = self::computePeriodAllocationDates($date_from, $date_to, $invoice['condo_id']);
@@ -1499,42 +1577,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         }
     }
 
-    protected static function onupdatePostingDate($self, $values) {
-        $self->read(['condo_id', 'posting_date', 'has_date_range']);
-        foreach($self as $id => $purchaseInvoice) {
-            if(!$purchaseInvoice['posting_date']) {
-                continue;
-            }
-            if(!$purchaseInvoice['has_date_range']) {
-                continue;
-            }
-            if(isset($values['date_from'], $values['date_to'])) {
-                // do not force value is both date_from and date_to are given
-                continue;
-            }
-            // assign date_from and date_to to posting period
-            $fiscalYear = FiscalYear::search([
-                    ['condo_id', '=', $purchaseInvoice['condo_id']],
-                    ['date_from', '<=', $purchaseInvoice['posting_date']],
-                    ['date_to', '>=', $purchaseInvoice['posting_date']]
-                ])
-                ->read(['id', 'name', 'fiscal_periods_ids' => ['name', 'date_from', 'date_to']])
-                ->first();
-            if(!$fiscalYear) {
-                continue;
-            }
-            foreach($fiscalYear['fiscal_periods_ids'] ?? [] as $period_id => $period) {
-                if($purchaseInvoice['posting_date'] >= $period['date_from'] && $purchaseInvoice['posting_date'] <= $period['date_to']) {
-                    self::id($id)->update([
-                        'date_from' => $period['date_from'],
-                        'date_to' => $period['date_to']
-                    ]);
-                    break;
-                }
-            }
-        }
-    }
-
     protected static function onupdateSuppliershipBankAccountId($self) {
         /*
         $self->read(['condo_id', 'document_process_id', 'document_id', 'suppliership_bank_account_id']);
@@ -1614,15 +1656,15 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 ])
                 ->delete(true);
 
-            $date_from = $date_to = $invoice['posting_date'];
-
             if($invoice['has_date_range']) {
                 $date_from = $invoice['date_from'];
                 $date_to = $invoice['date_to'];
             }
+            elseif($invoice['posting_date']) {
+                $date_from = $date_to = $invoice['posting_date'];
+            }
             else {
-                $date_from = $invoice['fiscal_period_id']['date_from'];
-                $date_to = $invoice['fiscal_period_id']['date_to'];
+                $date_from = $date_to = $invoice['emission_date'];
             }
 
             $allocation_date_from = $invoice['fiscal_period_id']['date_from'];
@@ -1673,7 +1715,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'journal_id'            => $journal['id'],
                     'fiscal_year_id'        => $invoice['fiscal_year_id'],
                     // #memo - if necessary, entry_date will be reassigned based on selected fiscal year and matching period (so that dates remain in ascending order)
-                    'entry_date'            => $invoice['posting_date'],
+                    'entry_date'            => $invoice['emission_date'],
                     'origin_object_class'   => self::getType(),
                     'origin_object_id'      => $id,
                     'purchase_invoice_id'   => $id
@@ -2189,15 +2231,15 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function calcFiscalYearId($self) {
         $result = [];
-        $self->read(['condo_id', 'posting_date']);
+        $self->read(['condo_id', 'emission_date']);
         foreach($self as $id => $invoice) {
-            if(!$invoice['posting_date']) {
+            if(!$invoice['emission_date']) {
                 continue;
             }
             $fiscalYear = FiscalYear::search([
                     ['condo_id', '=', $invoice['condo_id']],
-                    ['date_from', '<=', $invoice['posting_date']],
-                    ['date_to', '>=', $invoice['posting_date']]
+                    ['date_from', '<=', $invoice['emission_date']],
+                    ['date_to', '>=', $invoice['emission_date']]
                 ])
                 ->first();
             if($fiscalYear) {
@@ -2209,13 +2251,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function calcFiscalPeriodId($self) {
         $result = [];
-        $self->read(['posting_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
+        $self->read(['emission_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
         foreach($self as $id => $invoice) {
-            if(!$invoice['posting_date']) {
+            if(!$invoice['emission_date']) {
                 continue;
             }
             foreach($invoice['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
-                if($invoice['posting_date'] >= $period['date_from'] && $invoice['posting_date'] <= $period['date_to']) {
+                if($invoice['emission_date'] >= $period['date_from'] && $invoice['emission_date'] <= $period['date_to']) {
                     $result[$id] = $period_id;
                     break;
                 }
@@ -2309,28 +2351,24 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 }
 
                 $result['posting_date'] = $event['emission_date'];
-                // force updating fiscal_year and fiscal_period accordingly
-                $event['posting_date'] = $event['emission_date'];
             }
-            if(isset($event['posting_date']) || isset($event['date_from'])) {
-                if(isset($event['posting_date'])) {
-                    $fiscalYear = FiscalYear::search([['condo_id', '=', $values['condo_id']], ['date_from', '<=', $event['posting_date']], ['date_to', '>=', $event['posting_date']]])
+            if(isset($event['emission_date']) || isset($event['date_from'])) {
+                if(isset($event['emission_date'])) {
+                    $fiscalYear = FiscalYear::search([
+                            ['condo_id', '=', $values['condo_id']],
+                            ['date_from', '<=', $event['emission_date']],
+                            ['date_to', '>=', $event['emission_date']]
+                        ])
                         ->read(['id', 'name', 'fiscal_periods_ids' => ['name', 'date_from', 'date_to']])
                         ->first();
-                }
-                else {
-                    $fiscalYear = FiscalYear::search([['condo_id', '=', $values['condo_id']], ['date_from', '<=', $event['date_from']], ['date_to', '>=', $event['date_from']]])
-                        ->read(['id', 'name', 'fiscal_periods_ids' => ['name', 'date_from', 'date_to']])
-                        ->first();
-                }
-                if($fiscalYear) {
-                    $result['fiscal_year_id'] = [
-                        'id'    => $fiscalYear['id'],
-                        'name'  => $fiscalYear['name']
-                    ];
-                    if(isset($event['posting_date'])) {
+                    if($fiscalYear) {
+                        $result['fiscal_year_id'] = [
+                            'id'    => $fiscalYear['id'],
+                            'name'  => $fiscalYear['name']
+                        ];
+
                         foreach($fiscalYear['fiscal_periods_ids'] ?? [] as $period_id => $period) {
-                            if($event['posting_date'] >= $period['date_from'] && $event['posting_date'] <= $period['date_to']) {
+                            if($event['emission_date'] >= $period['date_from'] && $event['emission_date'] <= $period['date_to']) {
                                 $result['fiscal_period_id'] = [
                                     'id'    => $period_id,
                                     'name'  => $period['name']
@@ -2340,6 +2378,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 break;
                             }
                         }
+
                     }
                 }
             }
