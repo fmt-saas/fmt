@@ -207,7 +207,8 @@ class Ownership extends \equal\orm\Model {
                 'description'       => "External person that represents the ownership.",
                 'help'              => "External person that has a mandate for representing the ownership, but is not amongst the owners.",
                 'foreign_object'    => 'identity\Identity',
-                'domain'            => ['type_id', '=', 1],
+                // #memo - legal person is allowed
+                // 'domain'            => ['type_id', '=', 1],
                 'visible'           => ['has_external_representative', '=', true],
                 'dependents'        => ['name']
             ],
@@ -464,7 +465,7 @@ class Ownership extends \equal\orm\Model {
             ],
             'generate_communication_prefs' => [
                 'description'   => 'Generate Communication Preferences for Ownership.',
-                'policies'      => [],
+                'policies'      => ['can_generate_communication_prefs'],
                 'function'      => 'doGenerateCommunicationPrefs'
             ],
             'generate_history' => [
@@ -488,6 +489,10 @@ class Ownership extends \equal\orm\Model {
             'has_valid_communication_preferences' => [
                 'description' => 'Verifies that communication preferences can be used for their selected channels.',
                 'function'    => 'policyHasValidCommunicationPreferences'
+            ],
+            'can_generate_communication_prefs' => [
+                'description' => 'Verifies that communication preferences can be generated.',
+                'function'    => 'policyCanGenerateCommunicationPrefs'
             ]
         ];
     }
@@ -592,10 +597,13 @@ class Ownership extends \equal\orm\Model {
         $result = [];
 
         $self->read([
+            'representative_identity_id' => ['email', 'email_alt'],
             'ownership_communication_preferences_ids' => [
                 'communication_reason',
                 'has_channel_email',
-                'identity_id' => ['email', 'email_alt']
+                'owner_id' => [
+                    'identity_id' => ['email', 'email_alt']
+                ]
             ]
         ]);
 
@@ -605,7 +613,9 @@ class Ownership extends \equal\orm\Model {
                     continue;
                 }
 
-                $identity = $communicationPreference['identity_id'] ?? null;
+                $identity = $communicationPreference['owner_id']['identity_id']
+                    ?? $ownership['representative_identity_id']
+                    ?? null;
 
                 $has_email = $identity && (!empty($identity['email']) || !empty($identity['email_alt']));
 
@@ -614,6 +624,80 @@ class Ownership extends \equal\orm\Model {
                     $result[$id]['missing_email_for_' . $reason] =
                         'An email address is required when email is used as communication channel.';
                 }
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanGenerateCommunicationPrefs($self) {
+        $result = [];
+
+        $identity_fields = [
+            'email',
+            'email_alt',
+            'address_street',
+            'address_zip',
+            'address_city',
+            'address_country'
+        ];
+
+        $self->read([
+            'condo_id',
+            'address_recipient',
+            'has_external_representative',
+            'representative_identity_id' => $identity_fields,
+            'representative_owner_id' => [
+                'ownership_id',
+                'identity_id' => $identity_fields
+            ]
+        ]);
+
+        foreach($self as $id => $ownership) {
+            if(!$ownership['condo_id']) {
+                $result[$id]['missing_condo_id'] = 'The condominium must be provided.';
+            }
+
+            if(trim((string) ($ownership['address_recipient'] ?? '')) === '') {
+                $result[$id]['missing_address_recipient'] = 'The postal address recipient must be provided.';
+            }
+
+            $identity = null;
+            if($ownership['has_external_representative']) {
+                $identity = $ownership['representative_identity_id'] ?? null;
+                if(!$identity) {
+                    $result[$id]['missing_representative_identity'] = 'The representative identity must be provided.';
+                }
+            }
+            else {
+                $representative_owner = $ownership['representative_owner_id'] ?? null;
+                if(!$representative_owner) {
+                    $result[$id]['missing_representative_owner'] = 'The representative owner must be provided.';
+                }
+                elseif($representative_owner['ownership_id'] !== $id) {
+                    $result[$id]['invalid_representative_owner'] = 'The representative owner must belong to the ownership.';
+                }
+                else {
+                    $identity = $representative_owner['identity_id'] ?? null;
+                    if(!$identity) {
+                        $result[$id]['missing_representative_identity'] = 'The representative owner must have a related identity.';
+                    }
+                }
+            }
+
+            if(!$identity) {
+                continue;
+            }
+
+            foreach(['address_street', 'address_zip', 'address_city', 'address_country'] as $field) {
+                if(trim((string) ($identity[$field] ?? '')) === '') {
+                    $result[$id]['missing_' . $field] = 'The representative identity must have a complete postal address.';
+                }
+            }
+
+            if(trim((string) ($identity['email'] ?? '')) === ''
+                && trim((string) ($identity['email_alt'] ?? '')) === '') {
+                $result[$id]['missing_email'] = 'The representative identity must have an email address.';
             }
         }
 
@@ -834,14 +918,14 @@ class Ownership extends \equal\orm\Model {
             if(OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $ownership['condo_id']],
                         ['ownership_id', '=', $id],
-                        ['identity_id', '=', $identity_id],
+                        ['owner_id', '=', $owner_id],
                         ['communication_reason', '=', 'general_assembly_call']
                     ])->count() <= 0) {
 
                 OwnershipCommunicationPreference::create([
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
-                        'identity_id'                           => $identity_id,
+                        'is_owner'                              => $is_owner,
                         'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'general_assembly_call',
                         'has_channel_email'                     => false,
@@ -854,14 +938,14 @@ class Ownership extends \equal\orm\Model {
             if(OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $ownership['condo_id']],
                         ['ownership_id', '=', $id],
-                        ['identity_id', '=', $identity_id],
+                        ['owner_id', '=', $owner_id],
                         ['communication_reason', '=', 'general_assembly_minutes']
                     ])->count() <= 0) {
 
                 OwnershipCommunicationPreference::create([
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
-                        'identity_id'                           => $identity_id,
+                        'is_owner'                              => $is_owner,
                         'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'general_assembly_minutes',
                         'has_channel_email'                     => false,
@@ -874,14 +958,14 @@ class Ownership extends \equal\orm\Model {
             if(OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $ownership['condo_id']],
                         ['ownership_id', '=', $id],
-                        ['identity_id', '=', $identity_id],
+                        ['owner_id', '=', $owner_id],
                         ['communication_reason', '=', 'expense_statement']
                     ])->count() <= 0) {
 
                 OwnershipCommunicationPreference::create([
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
-                        'identity_id'                           => $identity_id,
+                        'is_owner'                              => $is_owner,
                         'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'expense_statement',
                         'has_channel_email'                     => false,
@@ -894,14 +978,14 @@ class Ownership extends \equal\orm\Model {
             if(OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $ownership['condo_id']],
                         ['ownership_id', '=', $id],
-                        ['identity_id', '=', $identity_id],
+                        ['owner_id', '=', $owner_id],
                         ['communication_reason', '=', 'fund_request']
                     ])->count() <= 0) {
 
                 OwnershipCommunicationPreference::create([
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
-                        'identity_id'                           => $identity_id,
+                        'is_owner'                              => $is_owner,
                         'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'fund_request',
                         'has_channel_email'                     => false,
@@ -914,14 +998,14 @@ class Ownership extends \equal\orm\Model {
             if(OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $ownership['condo_id']],
                         ['ownership_id', '=', $id],
-                        ['identity_id', '=', $identity_id],
+                        ['owner_id', '=', $owner_id],
                         ['communication_reason', '=', 'technical_communication']
                     ])->count() <= 0) {
 
                 OwnershipCommunicationPreference::create([
                         'condo_id'                              => $ownership['condo_id'],
                         'ownership_id'                          => $id,
-                        'identity_id'                           => $identity_id,
+                        'is_owner'                              => $is_owner,
                         'owner_id'                              => $owner_id,
                         'communication_reason'                  => 'technical_communication',
                         'has_channel_email'                     => false,
@@ -969,7 +1053,10 @@ class Ownership extends \equal\orm\Model {
             if(!$ownership['representative_owner_id']) {
                 // by default, pick the first owner
                 if(count($ownership['owners_ids']) > 0) {
-                    self::id($id)->update(['representative_owner_id' => current($ownership['owners_ids'])]);
+                    self::id($id)->update([
+                        'has_representative'      => true,
+                        'representative_owner_id' => current($ownership['owners_ids'])
+                    ]);
                 }
             }
             else {
@@ -1015,7 +1102,7 @@ class Ownership extends \equal\orm\Model {
     protected static function doAssertAddressRecipient($self) {
         $self->read(['address_recipient']);
         foreach($self as $id => $ownership) {
-            if(!$ownership['address_recipient'] || strlen($ownership['address_recipient']) <= 0) {
+            if(trim((string) ($ownership['address_recipient'] ?? '')) === '') {
                 self::id($id)->update([
                     'address_recipient' => self::computeAddressRecipient($id)
                 ]);

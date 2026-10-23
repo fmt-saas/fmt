@@ -1005,74 +1005,72 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 $mapExistingCorrespondences[$key] = true;
             }
 
-            $ownerships_ids = array_column($expenseStatement['statement_owners_ids']->get(true), 'ownership_id');
-            $ownerships = Ownership::ids($ownerships_ids)->read(['representative_owner_id']);
+            $ownerships_ids = array_column($expenseStatement['statement_owners_ids']->toArray(), 'ownership_id');
 
-            foreach($ownerships as $ownership_id => $ownership) {
-                if(!$ownership['representative_owner_id']) {
-                    continue;
-                }
-
-                // init prefs
-                $communication_methods = [
-                        'email'                     => false,
-                        'postal'                    => false,
-                        'postal_registered'         => false,
-                        'postal_registered_receipt' => false
-                    ];
-
+            foreach($ownerships_ids as $ownership_id) {
                 // fetch Ownership communication preferences
-                $communicationPreference = OwnershipCommunicationPreference::search([
+                $communicationPreferences = OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $expenseStatement['condo_id']],
                         ['ownership_id', '=', $ownership_id],
                         ['communication_reason', '=', 'expense_statement']
                     ])
                     ->read([
+                        'owner_id',
                         'has_channel_email',
                         'has_channel_postal',
                         'has_channel_postal_registered',
                         'has_channel_postal_registered_receipt'
-                    ])
-                    ->first();
+                    ]);
 
-                if($communicationPreference) {
+                if($communicationPreferences->count() === 0) {
+                    $communicationPreferences = [[
+                        'owner_id'                              => null,
+                        'has_channel_email'                     => false,
+                        'has_channel_postal'                    => false,
+                        'has_channel_postal_registered'         => false,
+                        'has_channel_postal_registered_receipt' => false
+                    ]];
+                }
+
+                foreach($communicationPreferences as $communicationPreference) {
+                    $owner_id = $communicationPreference['owner_id'];
                     $communication_methods = [
                             'email'                     => $communicationPreference['has_channel_email'],
                             'postal'                    => $communicationPreference['has_channel_postal'],
                             'postal_registered'         => $communicationPreference['has_channel_postal_registered'],
                             'postal_registered_receipt' => $communicationPreference['has_channel_postal_registered_receipt']
                         ];
-                }
 
-                // if not requested otherwise, expense statements must be sent through registered postal mail
-                if(!in_array(true, $communication_methods, true)) {
-                    $communication_methods['postal_registered'] = true;
-                }
-
-                foreach($communication_methods as $communication_method => $communication_method_flag) {
-                    if(!$communication_method_flag) {
-                        continue;
+                    // if not requested otherwise, expense statements must be sent through registered postal mail
+                    if(!in_array(true, $communication_methods, true)) {
+                        $communication_methods['postal_registered'] = true;
                     }
 
-                    $key = implode(':', [
-                        $ownership_id,
-                        $ownership['representative_owner_id'],
-                        $communication_method
-                    ]);
+                    foreach($communication_methods as $communication_method => $communication_method_flag) {
+                        if(!$communication_method_flag) {
+                            continue;
+                        }
 
-                    if(isset($mapExistingCorrespondences[$key])) {
-                        continue;
+                        $key = implode(':', [
+                            $ownership_id,
+                            $owner_id,
+                            $communication_method
+                        ]);
+
+                        if(isset($mapExistingCorrespondences[$key])) {
+                            continue;
+                        }
+
+                        ExpenseStatementCorrespondence::create([
+                            'condo_id'                  => $expenseStatement['condo_id'],
+                            'expense_statement_id'      => $id,
+                            'ownership_id'              => $ownership_id,
+                            'owner_id'                  => $owner_id,
+                            'communication_method'      => $communication_method
+                        ]);
+
+                        $mapExistingCorrespondences[$key] = true;
                     }
-
-                    ExpenseStatementCorrespondence::create([
-                        'condo_id'                  => $expenseStatement['condo_id'],
-                        'expense_statement_id'      => $id,
-                        'ownership_id'              => $ownership_id,
-                        'owner_id'                  => $ownership['representative_owner_id'],
-                        'communication_method'      => $communication_method
-                    ]);
-
-                    $mapExistingCorrespondences[$key] = true;
                 }
             }
         }

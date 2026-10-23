@@ -39,9 +39,11 @@ class BankAccount extends Model {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'function'          => 'calcName',
-                'description'       => 'The display name of the account (IBAN).',
+                'multilang'         => true,
+                'description'       => 'The display name of the account (IBAN) and description, if any.',
                 'store'             => true,
-                'instant'           => true
+                'instant'           => true,
+                'readonly'          => true
             ],
 
             'uuid' => [
@@ -56,7 +58,8 @@ class BankAccount extends Model {
             'description' => [
                 'type'              => 'string',
                 'description'       => 'Short description of the account (purpose).',
-                'dependents'        => ['name']
+                'dependents'        => ['name'],
+                'multilang'         => true
             ],
 
             'bank_account_type' => [
@@ -280,9 +283,9 @@ class BankAccount extends Model {
         return $result;
     }
 
-    public static function calcName($self) {
+    public static function calcName($self, $lang) {
         $result = [];
-        $self->read(['description', 'organisation_id', 'bank_account_iban']);
+        $self->read(['description', 'organisation_id', 'bank_account_iban'], $lang);
         foreach($self as $id => $bankAccount) {
             if($bankAccount['bank_account_iban'] && strlen($bankAccount['bank_account_iban']) > 0) {
                 $parts = [];

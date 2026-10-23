@@ -22,6 +22,7 @@
                                                 "value": "ownership_id",
                                                 "width": "50%"
                                             },
+
                                             {
                                                 "type": "field",
                                                 "value": "is_owner",
@@ -30,13 +31,16 @@
                                             {
                                                 "type": "field",
                                                 "value": "owner_id",
-                                                "width": "25%"
+                                                "width": "25%",
+                                                "visible": ["is_owner", "=", true]
                                             },
                                             {
-                                                "type": "field",
-                                                "value": "identity_id",
-                                                "width": "25%"
+                                                "type": "label",
+                                                "value": "",
+                                                "width": "25%",
+                                                "visible": ["is_owner", "=", false]
                                             },
+
                                             {
                                                 "type": "field",
                                                 "value": "communication_title",
@@ -47,6 +51,7 @@
                                                 "value": "communication_reason",
                                                 "width": "25%"
                                             },
+
                                             {
                                                 "type": "field",
                                                 "value": "has_channel_email",

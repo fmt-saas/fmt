@@ -1461,64 +1461,63 @@ class Assembly extends \equal\orm\Model {
      * Generate invites for each ownership.
      */
     protected static function doGenerateInvitationCorrespondences($self) {
-        $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
+        $self->read(['condo_id', 'ownerships_ids']);
         foreach($self as $id => $assembly) {
             // remove any previously created invite
             AssemblyInvitationCorrespondence::search(['assembly_id', '=', $id])->delete(true);
 
-            foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
-                if(!$ownership['representative_owner_id']) {
-                    continue;
-                }
-
-                // init prefs
-                $communication_methods = [
-                        'email'                     => false,
-                        'postal'                    => false,
-                        'postal_registered'         => false,
-                        'postal_registered_receipt' => false
-                    ];
-
+            foreach($assembly['ownerships_ids'] as $ownership_id) {
                 // fetch Ownership communication preferences
-                $communicationPreference = OwnershipCommunicationPreference::search([
+                $communicationPreferences = OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $assembly['condo_id']],
                         ['ownership_id', '=', $ownership_id],
                         ['communication_reason', '=', 'general_assembly_call']
                     ])
                     ->read([
+                        'owner_id',
                         'has_channel_email',
                         'has_channel_postal',
                         'has_channel_postal_registered',
                         'has_channel_postal_registered_receipt'
-                    ])
-                    ->first();
+                    ]);
 
-                if($communicationPreference) {
+                if($communicationPreferences->count() === 0) {
+                    $communicationPreferences = [[
+                        'owner_id'                              => null,
+                        'has_channel_email'                     => false,
+                        'has_channel_postal'                    => false,
+                        'has_channel_postal_registered'         => false,
+                        'has_channel_postal_registered_receipt' => false
+                    ]];
+                }
+
+                foreach($communicationPreferences as $communicationPreference) {
+                    $owner_id = $communicationPreference['owner_id'];
                     $communication_methods = [
                             'email'                     => $communicationPreference['has_channel_email'],
                             'postal'                    => $communicationPreference['has_channel_postal'],
                             'postal_registered'         => $communicationPreference['has_channel_postal_registered'],
                             'postal_registered_receipt' => $communicationPreference['has_channel_postal_registered_receipt']
                         ];
-                }
 
-                // if not requested otherwise, invite must be sent through registered postal mail
-                if(!in_array(true, $communication_methods, true)) {
-                    $communication_methods['postal_registered'] = true;
-                }
-
-                foreach($communication_methods as $communication_method => $communication_method_flag) {
-                    if(!$communication_method_flag) {
-                        continue;
+                    // if not requested otherwise, invite must be sent through registered postal mail
+                    if(!in_array(true, $communication_methods, true)) {
+                        $communication_methods['postal_registered'] = true;
                     }
 
-                    AssemblyInvitationCorrespondence::create([
-                        'condo_id'              => $assembly['condo_id'],
-                        'assembly_id'           => $id,
-                        'ownership_id'          => $ownership_id,
-                        'owner_id'              => $ownership['representative_owner_id'],
-                        'communication_method'  => $communication_method
-                    ]);
+                    foreach($communication_methods as $communication_method => $communication_method_flag) {
+                        if(!$communication_method_flag) {
+                            continue;
+                        }
+
+                        AssemblyInvitationCorrespondence::create([
+                            'condo_id'              => $assembly['condo_id'],
+                            'assembly_id'           => $id,
+                            'ownership_id'          => $ownership_id,
+                            'owner_id'              => $owner_id,
+                            'communication_method'  => $communication_method
+                        ]);
+                    }
                 }
             }
 
@@ -1531,64 +1530,63 @@ class Assembly extends \equal\orm\Model {
      * Generate minutes report for each ownership.
      */
     protected static function doGenerateMinutesCorrespondences($self) {
-        $self->read(['condo_id', 'ownerships_ids' => ['representative_owner_id']]);
+        $self->read(['condo_id', 'ownerships_ids']);
         foreach($self as $id => $assembly) {
             // remove any previously created invite
             AssemblyMinutesCorrespondence::search(['assembly_id', '=', $id])->delete(true);
 
-            foreach($assembly['ownerships_ids'] as $ownership_id => $ownership) {
-                if(!$ownership['representative_owner_id']) {
-                    continue;
-                }
-
-                // init prefs
-                $communication_methods = [
-                        'email'                     => false,
-                        'postal'                    => false,
-                        'postal_registered'         => false,
-                        'postal_registered_receipt' => false
-                    ];
-
+            foreach($assembly['ownerships_ids'] as $ownership_id) {
                 // fetch Ownership communication preferences
-                $communicationPreference = OwnershipCommunicationPreference::search([
+                $communicationPreferences = OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $assembly['condo_id']],
                         ['ownership_id', '=', $ownership_id],
                         ['communication_reason', '=', 'general_assembly_minutes']
                     ])
                     ->read([
+                        'owner_id',
                         'has_channel_email',
                         'has_channel_postal',
                         'has_channel_postal_registered',
                         'has_channel_postal_registered_receipt'
-                    ])
-                    ->first();
+                    ]);
 
-                if($communicationPreference) {
+                if($communicationPreferences->count() === 0) {
+                    $communicationPreferences = [[
+                        'owner_id'                              => null,
+                        'has_channel_email'                     => false,
+                        'has_channel_postal'                    => false,
+                        'has_channel_postal_registered'         => false,
+                        'has_channel_postal_registered_receipt' => false
+                    ]];
+                }
+
+                foreach($communicationPreferences as $communicationPreference) {
+                    $owner_id = $communicationPreference['owner_id'];
                     $communication_methods = [
                             'email'                     => $communicationPreference['has_channel_email'],
                             'postal'                    => $communicationPreference['has_channel_postal'],
                             'postal_registered'         => $communicationPreference['has_channel_postal_registered'],
                             'postal_registered_receipt' => $communicationPreference['has_channel_postal_registered_receipt']
                         ];
-                }
 
-                // if not requested otherwise, invite must be sent through registered postal mail
-                if(!in_array(true, $communication_methods, true)) {
-                    $communication_methods['postal_registered'] = true;
-                }
-
-                foreach($communication_methods as $communication_method => $communication_method_flag) {
-                    if(!$communication_method_flag) {
-                        continue;
+                    // if not requested otherwise, invite must be sent through registered postal mail
+                    if(!in_array(true, $communication_methods, true)) {
+                        $communication_methods['postal_registered'] = true;
                     }
 
-                    AssemblyMinutesCorrespondence::create([
-                        'condo_id'              => $assembly['condo_id'],
-                        'assembly_id'           => $id,
-                        'ownership_id'          => $ownership_id,
-                        'owner_id'              => $ownership['representative_owner_id'],
-                        'communication_method'  => $communication_method
-                    ]);
+                    foreach($communication_methods as $communication_method => $communication_method_flag) {
+                        if(!$communication_method_flag) {
+                            continue;
+                        }
+
+                        AssemblyMinutesCorrespondence::create([
+                            'condo_id'              => $assembly['condo_id'],
+                            'assembly_id'           => $id,
+                            'ownership_id'          => $ownership_id,
+                            'owner_id'              => $owner_id,
+                            'communication_method'  => $communication_method
+                        ]);
+                    }
                 }
             }
 

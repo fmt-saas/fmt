@@ -27,10 +27,17 @@ use Dompdf\Options as DompdfOptions;
         ],
 
         'ownership_id' => [
-            'description'       => 'Identifier of the targeted Ownership (from which Owner is deduced).',
+            'description'       => 'Identifier of the targeted Ownership.',
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\ownership\Ownership',
             'required'          => true
+        ],
+
+        'recipient_identity_id' => [
+            'description'       => 'Identifier of the recipient Identity, if already resolved.',
+            'help'              => 'If omitted, the recipient Identity is deduced from the Ownership.',
+            'type'              => 'many2one',
+            'foreign_object'    => 'identity\Identity'
         ],
 
         'debug' => [
@@ -69,7 +76,8 @@ try {
 
     $html = (string) eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-html', [
             'expense_statement_id'  => $params['expense_statement_id'],
-            'ownership_id'          => $params['ownership_id']
+            'ownership_id'          => $params['ownership_id'],
+            'recipient_identity_id' => $params['recipient_identity_id'] ?? null
         ]);
 
     /*

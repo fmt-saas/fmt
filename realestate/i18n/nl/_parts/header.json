@@ -5,5 +5,8 @@
     "header.date": "Datum",
     "header.email": "E-mail",
     "header.status": "Status",
-    "header.communication": "Mededeling"
+    "header.communication": "Mededeling",
+    "header.period": "Periode",
+    "header.period_from": "van",
+    "header.period_to": "tot"
 }

@@ -23,7 +23,7 @@ $tests = [
             'description'       => "Create Misc Operation.",
             'help'              => "Create an accounting entry, with 2 balanced lines. Entry balance test is expected to return true.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
 
                     $bankAccount = CondominiumBankAccount::search([
                             ['condo_id', '=', 1],
@@ -58,18 +58,18 @@ $tests = [
 
                     return $accountingEntry;
                 },
-            'act'               => function($accountingEntry) use($providers) {
+            'act'               => function($accountingEntry) {
                     AccountingEntry::id($accountingEntry['id'])
                         ->transition('validate');
                 },
-            'assert'            => function() use($providers) {
+            'assert'            => function() {
                     $bankAccount = CondominiumBankAccount::search([['condo_id', '=', 1], ['bank_account_type', '=', 'bank_savings']])
                         ->read(['current_balance'])
                         ->first();
 
                     return $bankAccount && $bankAccount['current_balance'] == 5000;
                 },
-            'rollback'          => function() use($providers) {
+            'rollback'          => function() {
                 }
         ],
 
@@ -77,7 +77,7 @@ $tests = [
             'description'       => "Create Money transfer.",
             'help'              => "Create an accounting entry, with 2 balanced lines. Entry balance test is expected to return true.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $currentAccount = CondominiumBankAccount::search([['condo_id', '=', 1], ['bank_account_type', '=', 'bank_current']])
                         ->first();
 
@@ -97,40 +97,40 @@ $tests = [
 
                     return $moneyTransfer;
                 },
-            'act'               => function($moneyTransfer) use($providers) {
+            'act'               => function($moneyTransfer) {
                     MoneyTransfer::id($moneyTransfer['id'])
                         ->transition('post');
                 },
-            'assert'            => function() use($providers) {
+            'assert'            => function() {
                     $bankAccount = CondominiumBankAccount::search([['condo_id', '=', 1], ['bank_account_type', '=', 'bank_savings']])
                         ->read(['available_balance'])
                         ->first();
 
                     return $bankAccount && abs($bankAccount['available_balance']) < 0.01;
                 },
-            'rollback'          => function() use($providers) {
+            'rollback'          => function() {
                 }
         ],
     '1103' => [
             'description'       => "Import Bank statement with Money transfer.",
             'help'              => "Load a bank statement, validate it, and account for the validation of the Money Transfer.",
             'return'            => ['boolean'],
-            'arrange'           => function() use($providers) {
+            'arrange'           => function() {
                     $data = file_get_contents(EQ_BASEDIR . '/packages/fmt/tests/' . 'bank_isabel_demo.xlsx');
                     BankStatementImport::create()
                         ->update(['name' => 'bank_statement_import.xlsx'])
                         ->update(['data' => $data]);
                 },
-            'act'               => function() use($providers) {
+            'act'               => function() {
                     BankStatement::search(['condo_id', '=', 1], ['sort' => ['date' => 'desc'], 'limit' => 2])
                         ->do('attempt_reconcile')
                         ->transition('post');
                 },
-            'assert'            => function() use($providers) {
+            'assert'            => function() {
                     $moneyTransfer = MoneyTransfer::search(['condo_id', '=', 1])->read(['payment_status'])->first();
                     return $moneyTransfer['payment_status'] === 'balanced';
                 },
-            'rollback'          => function() use($providers) {
+            'rollback'          => function() {
                 }
         ]
 

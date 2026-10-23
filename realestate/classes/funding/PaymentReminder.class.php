@@ -470,61 +470,68 @@ class PaymentReminder extends \sale\pay\PaymentReminder {
                 }
 
                 $ownership_id = $paymentReminderOwner['ownership_id'] ?? null;
-
-                $ownership = Ownership::id($ownership_id)
-                    ->read(['representative_owner_id'])
-                    ->first();
-
-                if(!$ownership || !$ownership['representative_owner_id']) {
+                if(!$ownership_id) {
                     continue;
                 }
 
-                $communication_methods = [
-                    'email'                     => false,
-                    'postal'                    => false,
-                    'postal_registered'         => false,
-                    'postal_registered_receipt' => false
-                ];
+                $ownership = Ownership::id($ownership_id)
+                    ->read(['id'])
+                    ->first();
 
-                $communicationPreference = OwnershipCommunicationPreference::search([
+                if(!$ownership) {
+                    continue;
+                }
+
+                $communicationPreferences = OwnershipCommunicationPreference::search([
                         ['condo_id', '=', $paymentReminder['condo_id']],
                         ['ownership_id', '=', $ownership_id],
                         ['communication_reason', '=', 'fund_request']
                     ])
                     ->read([
+                        'owner_id',
                         'has_channel_email',
                         'has_channel_postal',
                         'has_channel_postal_registered',
                         'has_channel_postal_registered_receipt'
-                    ])
-                    ->first();
+                    ]);
 
-                if($communicationPreference) {
+                if($communicationPreferences->count() === 0) {
+                    $communicationPreferences = [[
+                        'owner_id'                              => null,
+                        'has_channel_email'                     => false,
+                        'has_channel_postal'                    => false,
+                        'has_channel_postal_registered'         => false,
+                        'has_channel_postal_registered_receipt' => false
+                    ]];
+                }
+
+                foreach($communicationPreferences as $communicationPreference) {
+                    $owner_id = $communicationPreference['owner_id'];
                     $communication_methods = [
                         'email'                     => $communicationPreference['has_channel_email'],
                         'postal'                    => $communicationPreference['has_channel_postal'],
                         'postal_registered'         => $communicationPreference['has_channel_postal_registered'],
                         'postal_registered_receipt' => $communicationPreference['has_channel_postal_registered_receipt']
                     ];
-                }
 
-                if(!in_array(true, $communication_methods, true)) {
-                    $communication_methods['postal_registered'] = true;
-                }
-
-                foreach($communication_methods as $communication_method => $communication_method_flag) {
-                    if(!$communication_method_flag) {
-                        continue;
+                    if(!in_array(true, $communication_methods, true)) {
+                        $communication_methods['postal_registered'] = true;
                     }
 
-                    PaymentReminderCorrespondence::create([
-                        'condo_id'                      => $paymentReminder['condo_id'],
-                        'payment_reminder_id'           => $id,
-                        'payment_reminder_owner_id'     => $payment_reminder_owner_id,
-                        'ownership_id'                  => $ownership_id,
-                        'owner_id'                      => $ownership['representative_owner_id'],
-                        'communication_method'          => $communication_method
-                    ]);
+                    foreach($communication_methods as $communication_method => $communication_method_flag) {
+                        if(!$communication_method_flag) {
+                            continue;
+                        }
+
+                        PaymentReminderCorrespondence::create([
+                            'condo_id'                      => $paymentReminder['condo_id'],
+                            'payment_reminder_id'           => $id,
+                            'payment_reminder_owner_id'     => $payment_reminder_owner_id,
+                            'ownership_id'                  => $ownership_id,
+                            'owner_id'                      => $owner_id,
+                            'communication_method'          => $communication_method
+                        ]);
+                    }
                 }
             }
         }

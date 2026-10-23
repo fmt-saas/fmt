@@ -16,7 +16,6 @@ use finance\accounting\Account;
 use finance\accounting\Journal;
 use finance\accounting\MiscOperation;
 use finance\accounting\MiscOperationLine;
-use finance\bank\BankStatementLine;
 use finance\bank\CondominiumBankAccount;
 use finance\bank\SuppliershipBankAccount;
 use fmt\setting\Setting;
@@ -27,7 +26,6 @@ use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
 use realestate\sale\pay\Funding;
 use realestate\sale\pay\FundingAllocation;
-use sale\pay\Payment;
 
 class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
@@ -210,9 +208,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'type'              => 'date',
                 'usage'             => 'date/plain',
                 'description'       => 'The date on which the invoice is recorded in the accounting system.',
-                'visible'           => ['has_date_range', '=', false],
-                'onupdate'          => 'onupdatePostingDate',
-                'dependents'        => ['fiscal_year_id', 'fiscal_period_id']
+                'visible'           => ['has_date_range', '=', false]
             ],
 
             'due_date' => [
@@ -396,6 +392,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                         'help'        => 'Assign invoice number, generate accounting entries and validate accounting entries.',
                         'policies'    => [
                             'can_post',
+                            'can_assign_invoice_number',
                             'can_be_allocated'
                         ],
                         'onbefore'  => 'onbeforePost',
@@ -980,8 +977,12 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     public static function getPolicies(): array {
         return array_merge(parent::getPolicies(), [
+            'can_assign_invoice_number' => [
+                'description' => 'Checks that all required values are available and consistent for assigning the invoice number.',
+                'function'    => 'policyCanAssignInvoiceNumber'
+            ],
             'can_be_allocated' => [
-                'description' => 'Verifies that an invoice can be allocated of the posting date(s).',
+                'description' => 'Verifies that an invoice can be allocated over its invoice line date ranges.',
                 'function'    => 'policyCanBeAllocated'
             ],
             'can_cancel' => [
@@ -1229,36 +1230,114 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         return $result;
     }
 
+    protected static function policyCanAssignInvoiceNumber($self): array {
+        $result = [];
+        $self->read([
+                'condo_id',
+                'emission_date',
+                'fiscal_year_id' => ['id', 'condo_id', 'date_from', 'date_to'],
+                'fiscal_period_id' => ['id', 'condo_id', 'fiscal_year_id', 'date_from', 'date_to']
+            ]);
+
+        foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['condo_id']) {
+                $result[$id]['missing_condo_id'] = 'Condominium is mandatory for assigning the invoice number.';
+            }
+            if(!$purchaseInvoice['emission_date']) {
+                $result[$id]['missing_emission_date'] = 'Emission date is mandatory for assigning the invoice number.';
+            }
+            if(!$purchaseInvoice['fiscal_year_id']) {
+                $result[$id]['missing_fiscal_year_id'] = 'Fiscal year is mandatory for assigning the invoice number.';
+            }
+            elseif(
+                $purchaseInvoice['emission_date'] < $purchaseInvoice['fiscal_year_id']['date_from']
+                || $purchaseInvoice['emission_date'] > $purchaseInvoice['fiscal_year_id']['date_to']
+            ) {
+                $result[$id]['invalid_fiscal_year_for_emission_date'] = 'Fiscal year must match the condominium and contain the emission date.';
+            }
+            if(!$purchaseInvoice['fiscal_period_id']) {
+                $result[$id]['missing_fiscal_period_id'] = 'Fiscal period is mandatory for assigning the invoice number.';
+            }
+            elseif(
+                $purchaseInvoice['fiscal_period_id']['fiscal_year_id'] !== $purchaseInvoice['fiscal_year_id']['id']
+                || $purchaseInvoice['emission_date'] < $purchaseInvoice['fiscal_period_id']['date_from']
+                || $purchaseInvoice['emission_date'] > $purchaseInvoice['fiscal_period_id']['date_to']
+            ) {
+                $result[$id]['invalid_fiscal_period_for_emission_date'] = 'Fiscal period must match the condominium and fiscal year, and contain the emission date.';
+            }
+        }
+
+        return $result;
+    }
+
 
     /**
-     * Checks that if the invoice must be split, no part of it must be assigned to a non-open fiscal period (or fiscal year).
+     * Checks that allocation ranges are complete and that no part of the invoice is assigned to a non-open fiscal period (or fiscal year).
      */
     protected static function policyCanBeAllocated($self) {
         $result = [];
-        $self->read(['posting_date', 'has_date_range', 'date_from', 'date_to', 'condo_id', 'fiscal_period_id' => ['date_from', 'date_to']]);
+        $self->read([
+                'emission_date',
+                'posting_date',
+                'has_date_range',
+                'date_from',
+                'date_to',
+                'condo_id',
+                'fiscal_period_id' => ['date_from', 'date_to'],
+                'invoice_lines_ids' => ['has_date_range', 'date_from', 'date_to']
+            ]);
         foreach($self as $id => $invoice) {
 
-            if($invoice['has_date_range']) {
-                $date_from = $invoice['date_from'];
-                $date_to = $invoice['date_to'];
-            }
-            elseif($invoice['posting_date']) {
-                $date_from = $date_to = $invoice['posting_date'];
-            }
-            else {
-                $date_from = $invoice['fiscal_period_id']['date_from'];
-                $date_to = $invoice['fiscal_period_id']['date_to'];
+            $map_period_allocation_dates = [];
+
+            foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
+                if($invoiceLine['has_date_range']) {
+                    if(!isset($invoiceLine['date_from']) || $invoiceLine['date_from'] <= 0) {
+                        $result[$id] = [
+                            'missing_invoice_line_date_from' => "Invoice line {$invoice_line_id} requires a start date."
+                        ];
+                        continue 2;
+                    }
+
+                    if(!isset($invoiceLine['date_to']) || $invoiceLine['date_to'] <= 0) {
+                        $result[$id] = [
+                            'missing_invoice_line_date_to' => "Invoice line {$invoice_line_id} requires an end date."
+                        ];
+                        continue 2;
+                    }
+
+                    if($invoiceLine['date_from'] > $invoiceLine['date_to']) {
+                        $result[$id] = [
+                            'invalid_invoice_line_date_range' => "Invoice line {$invoice_line_id} has an invalid date range."
+                        ];
+                        continue 2;
+                    }
+
+                    $date_from = $invoiceLine['date_from'];
+                    $date_to = $invoiceLine['date_to'];
+                }
+                elseif($invoice['posting_date']) {
+                    $date_from = $date_to = $invoice['posting_date'];
+                }
+                else {
+                    $date_from = $date_to = $invoice['emission_date'];
+                }
+
+                $period_allocation_dates = self::computePeriodAllocationDates($date_from, $date_to, $invoice['condo_id']);
+                if(empty($period_allocation_dates)) {
+                    $result[$id] = [
+                        'invalid_posting_dates' => "Unable to generate allocation dates for invoice line {$invoice_line_id}."
+                    ];
+                    continue 2;
+                }
+
+                foreach($period_allocation_dates as $date) {
+                    $map_period_allocation_dates[$date] = true;
+                }
             }
 
-            $period_allocation_dates = self::computePeriodAllocationDates($date_from, $date_to, $invoice['condo_id']);
-            if(empty($period_allocation_dates)) {
-                $result[$id] = [
-                    'invalid_posting_dates' => 'Unable to generate allocation dates.'
-                ];
-                continue;
-            }
             // for each date, which should correspond to a fiscal period, check the status of the period and corresponding fiscal year
-            foreach($period_allocation_dates as $date) {
+            foreach(array_keys($map_period_allocation_dates) as $date) {
                 $fiscalPeriod = FiscalPeriod::search([['date_from', '=', $date], ['condo_id', '=', $invoice['condo_id']]])
                     ->read(['status', 'fiscal_year_id' => ['id', 'status']])
                     ->first();
@@ -1499,42 +1578,6 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
         }
     }
 
-    protected static function onupdatePostingDate($self, $values) {
-        $self->read(['condo_id', 'posting_date', 'has_date_range']);
-        foreach($self as $id => $purchaseInvoice) {
-            if(!$purchaseInvoice['posting_date']) {
-                continue;
-            }
-            if(!$purchaseInvoice['has_date_range']) {
-                continue;
-            }
-            if(isset($values['date_from'], $values['date_to'])) {
-                // do not force value is both date_from and date_to are given
-                continue;
-            }
-            // assign date_from and date_to to posting period
-            $fiscalYear = FiscalYear::search([
-                    ['condo_id', '=', $purchaseInvoice['condo_id']],
-                    ['date_from', '<=', $purchaseInvoice['posting_date']],
-                    ['date_to', '>=', $purchaseInvoice['posting_date']]
-                ])
-                ->read(['id', 'name', 'fiscal_periods_ids' => ['name', 'date_from', 'date_to']])
-                ->first();
-            if(!$fiscalYear) {
-                continue;
-            }
-            foreach($fiscalYear['fiscal_periods_ids'] ?? [] as $period_id => $period) {
-                if($purchaseInvoice['posting_date'] >= $period['date_from'] && $purchaseInvoice['posting_date'] <= $period['date_to']) {
-                    self::id($id)->update([
-                        'date_from' => $period['date_from'],
-                        'date_to' => $period['date_to']
-                    ]);
-                    break;
-                }
-            }
-        }
-    }
-
     protected static function onupdateSuppliershipBankAccountId($self) {
         /*
         $self->read(['condo_id', 'document_process_id', 'document_id', 'suppliership_bank_account_id']);
@@ -1590,6 +1633,9 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'expense_account_id',
                     'description',
                     'price',
+                    'has_date_range',
+                    'date_from',
+                    'date_to',
                     'is_private_expense',
                     'has_instant_reinvoice',
                     'owner_share',
@@ -1614,15 +1660,15 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 ])
                 ->delete(true);
 
-            $date_from = $date_to = $invoice['posting_date'];
-
             if($invoice['has_date_range']) {
                 $date_from = $invoice['date_from'];
                 $date_to = $invoice['date_to'];
             }
+            elseif($invoice['posting_date']) {
+                $date_from = $date_to = $invoice['posting_date'];
+            }
             else {
-                $date_from = $invoice['fiscal_period_id']['date_from'];
-                $date_to = $invoice['fiscal_period_id']['date_to'];
+                $date_from = $date_to = $invoice['emission_date'];
             }
 
             $allocation_date_from = $invoice['fiscal_period_id']['date_from'];
@@ -1673,7 +1719,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     'journal_id'            => $journal['id'],
                     'fiscal_year_id'        => $invoice['fiscal_year_id'],
                     // #memo - if necessary, entry_date will be reassigned based on selected fiscal year and matching period (so that dates remain in ascending order)
-                    'entry_date'            => $invoice['posting_date'],
+                    'entry_date'            => $invoice['emission_date'],
                     'origin_object_class'   => self::getType(),
                     'origin_object_id'      => $id,
                     'purchase_invoice_id'   => $id
@@ -1710,6 +1756,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             // 2) create entry lines for reserve funds use, if any
             // #memo - reserve fund use is always considered for a single date
             if($invoice['has_fund_usage']) {
+                $fund_usage_allocation_date = $invoice['posting_date'] ?: $invoice['emission_date'];
+
                 foreach($invoice['fund_usage_lines_ids'] as $usage_line_id => $fundUsageLine) {
                     // pay with reserve fund : create the debit line on the reserve fund
                     AccountingEntryLine::create([
@@ -1718,8 +1766,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             'description'           => $fundUsageLine['description'] ?? $invoice['description'],
                             'account_id'            => $fundUsageLine['fund_account_id'],
                             'fund_usage_line_id'    => $usage_line_id,
-                            'allocation_date_from'  => $allocation_date_from,
-                            'allocation_date_to'    => $allocation_date_to,
+                            'allocation_date_from'  => $fund_usage_allocation_date,
+                            'allocation_date_to'    => $fund_usage_allocation_date,
                             'debit'                 => ($fundUsageLine['amount'] > 0.0) ? abs($fundUsageLine['amount']) : 0.0,
                             'credit'                => ($fundUsageLine['amount'] > 0.0) ? 0.0 : abs($fundUsageLine['amount'])
                         ]);
@@ -1731,8 +1779,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             'description'           => $fundUsageLine['description'] ?? $invoice['description'],
                             'account_id'            => $fundUsageLine['expense_account_id'],
                             'fund_usage_line_id'    => $usage_line_id,
-                            'allocation_date_from'  => $allocation_date_from,
-                            'allocation_date_to'    => $allocation_date_to,
+                            'allocation_date_from'  => $fund_usage_allocation_date,
+                            'allocation_date_to'    => $fund_usage_allocation_date,
                             'debit'                 => ($fundUsageLine['amount'] > 0.0) ? 0.0 : abs($fundUsageLine['amount']),
                             'credit'                => ($fundUsageLine['amount'] > 0.0) ? abs($fundUsageLine['amount']) : 0.0
                         ]);
@@ -1746,6 +1794,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             MiscOperation::search(['purchase_invoice_id', '=', $id])->delete(true);
 
             // #memo - in case of a private expense, only first date is used for accounting
+            $private_expense_allocation_date = $invoice['posting_date'] ?: $invoice['emission_date'];
+
             foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
                 if($invoiceLine['is_private_expense']) {
                     $ownershipAccount = Account::search([
@@ -1766,6 +1816,8 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             'description'               => $invoiceLine['description'],
                             'account_id'                => $privateExpenseAccount['id'],
                             'purchase_invoice_line_id'  => $invoice_line_id,
+                            'allocation_date_from'      => $private_expense_allocation_date,
+                            'allocation_date_to'        => $private_expense_allocation_date,
                             'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
                             'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
                         ]);
@@ -1820,17 +1872,84 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 }
             }
 
-            // 4) single date: create lines relating to the common expenses
-            if($date_from === $date_to) {
-                foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
-                    if($invoiceLine['is_private_expense']) {
-                        continue;
-                    }
+            // Initial entry lines can include a gross expense line and correction lines on the same account/source.
+            // Queue them, to be able to limit useless lines in expense summaries by creating only lines with net amount.
+            $map_accounting_entry_lines = [];
 
+            $add_accounting_entry_line = function($values) use (&$map_accounting_entry_lines) {
+                $group_key = implode(':', [
+                    $values['accounting_entry_id'],
+                    $values['account_id'],
+                    $values['purchase_invoice_line_id'] ?? 0
+                ]);
+
+                if(!isset($map_accounting_entry_lines[$group_key])) {
+                    $map_accounting_entry_lines[$group_key] = $values;
+                    $map_accounting_entry_lines[$group_key]['debit'] = 0.0;
+                    $map_accounting_entry_lines[$group_key]['credit'] = 0.0;
+                }
+
+                $map_accounting_entry_lines[$group_key]['debit'] = round(
+                    $map_accounting_entry_lines[$group_key]['debit'] + (float) $values['debit'],
+                    4
+                );
+                $map_accounting_entry_lines[$group_key]['credit'] = round(
+                    $map_accounting_entry_lines[$group_key]['credit'] + (float) $values['credit'],
+                    4
+                );
+            };
+
+            $deferredExpensesAccount = null;
+            $accruedExpensesAccount = null;
+
+            // 4) create common expense lines using each invoice line's allocation range
+            foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
+                if($invoiceLine['is_private_expense']) {
+                    continue;
+                }
+
+                if($invoiceLine['has_date_range']) {
+                    $date_from = $invoiceLine['date_from'];
+                    $date_to = $invoiceLine['date_to'];
+                }
+                elseif($invoice['posting_date']) {
+                    $date_from = $date_to = $invoice['posting_date'];
+                }
+                else {
+                    $date_from = $date_to = $invoice['emission_date'];
+                }
+
+                $allocation_date_from = $invoice['fiscal_period_id']['date_from'];
+                $allocation_date_to = $invoice['fiscal_period_id']['date_to'];
+
+                $intersect_from = max($allocation_date_from, $date_from);
+                $intersect_to = min($allocation_date_to, $date_to);
+                if($intersect_from <= $intersect_to) {
+                    $allocation_date_from = $intersect_from;
+                    $allocation_date_to = $intersect_to;
+                }
+
+                // single date: create the debit line on the expense account
+                if($date_from === $date_to) {
+                    AccountingEntryLine::create([
+                            'condo_id'                  => $invoice['condo_id'],
+                            'accounting_entry_id'       => $accountingEntry['id'],
+                            'description'               => $invoiceLine['description'],
+                            'account_id'                => $invoiceLine['expense_account_id'],
+                            'purchase_invoice_line_id'  => $invoice_line_id,
+                            'allocation_date_from'      => $allocation_date_from,
+                            'allocation_date_to'        => $allocation_date_to,
+                            'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
+                            'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
+                        ]);
+                    continue;
+                }
+
+                // date range within posting period: only add the debit line
+                if($date_from >= $invoice['fiscal_period_id']['date_from'] && $date_to <= $invoice['fiscal_period_id']['date_to']) {
                     $description = $invoiceLine['description'];
-                    // $description .= ' (' . date('Y-m-d', $allocation_date_from) . ' - ' . date('Y-m-d', $allocation_date_to) . ')';
+                    $description .= ' (' . date('Y-m-d', $allocation_date_from) . ' - ' . date('Y-m-d', $allocation_date_to) . ')';
 
-                    // create the debit line on the expense account
                     AccountingEntryLine::create([
                             'condo_id'                  => $invoice['condo_id'],
                             'accounting_entry_id'       => $accountingEntry['id'],
@@ -1842,20 +1961,103 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
                             'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
                         ]);
+                    continue;
                 }
-            }
-            // 5) date range within posting period: only add debit lines
-            elseif($date_from >= $invoice['fiscal_period_id']['date_from'] && $date_to <= $invoice['fiscal_period_id']['date_to']) {
-                foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
-                    if($invoiceLine['is_private_expense']) {
-                        continue;
+
+                // date range across several periods: split the expense and lazily create planned entries
+                $total_days = ( ($date_to - $date_from) / 86400 ) + 1;
+                $period_allocation_dates = self::computePeriodAllocationDates($date_from, $date_to, $invoice['condo_id']);
+
+                if(!$deferredExpensesAccount) {
+                    $deferredExpensesAccount = Account::search([
+                            ['condo_id', '=', $invoice['condo_id']],
+                            ['operation_assignment', '=', 'deferred_expenses']
+                        ])
+                        ->first();
+
+                    if(!$deferredExpensesAccount) {
+                        throw new \Exception("missing_mandatory_deferred_expenses_account", EQ_ERROR_INVALID_CONFIG);
                     }
+                }
+
+                if(!$accruedExpensesAccount) {
+                    $accruedExpensesAccount = Account::search([
+                            ['condo_id', '=', $invoice['condo_id']],
+                            ['operation_assignment', '=', 'accrued_expenses']
+                        ])
+                        ->first();
+
+                    if(!$accruedExpensesAccount) {
+                        throw new \Exception("missing_mandatory_accrued_expenses_account", EQ_ERROR_INVALID_CONFIG);
+                    }
+                }
+
+                $total_amount = round($invoiceLine['price'], 2);
+                $remaining_amount = $total_amount;
+
+                for($i = 0, $n = count($period_allocation_dates); $i < $n; ++$i) {
+                    $period_date_from = $period_allocation_dates[$i];
+                    $period_date_to = ($i+1 < $n) ? ($period_allocation_dates[$i+1] - 86400) : $date_to;
+
+                    $is_posting_period = (
+                        $period_date_from <= $invoice['fiscal_period_id']['date_to']
+                        && $period_date_from >= $invoice['fiscal_period_id']['date_from']
+                    );
 
                     $description = $invoiceLine['description'];
                     $description .= ' (' . date('Y-m-d', $allocation_date_from) . ' - ' . date('Y-m-d', $allocation_date_to) . ')';
 
-                    // create the debit line for the whole common expense
-                    AccountingEntryLine::create([
+                    // first date of the allocation range
+                    if($i == 0) {
+                        $add_accounting_entry_line([
+                                'condo_id'                  => $invoice['condo_id'],
+                                'accounting_entry_id'       => $accountingEntry['id'],
+                                'description'               => $description,
+                                'account_id'                => $invoiceLine['expense_account_id'],
+                                'purchase_invoice_line_id'  => $invoice_line_id,
+                                'allocation_date_from'      => $allocation_date_from,
+                                'allocation_date_to'        => $allocation_date_to,
+                                'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
+                                'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
+                            ]);
+                    }
+
+                    if($i == $n-1) {
+                        $amount = round($remaining_amount, 2);
+                    }
+                    else {
+                        $intersect_from = max($date_from, $period_date_from);
+                        $intersect_to = min($date_to, $period_date_to);
+
+                        $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
+                        $ratio = $intersect_days / $total_days;
+                        $amount = round($total_amount * $ratio, 2);
+                        $remaining_amount = round($remaining_amount - $amount, 2);
+                    }
+
+                    // no accrual/deferral entry is required for the posting period
+                    if($is_posting_period) {
+                        continue;
+                    }
+
+                    $adjustmentAccount = ($period_date_from < $invoice['fiscal_period_id']['date_from'])
+                        ? $accruedExpensesAccount
+                        : $deferredExpensesAccount;
+
+                    // create accrual/deferral lines on the initial entry
+                    $add_accounting_entry_line([
+                            'condo_id'                  => $invoice['condo_id'],
+                            'accounting_entry_id'       => $accountingEntry['id'],
+                            'description'               => $description,
+                            'account_id'                => $adjustmentAccount['id'],
+                            'purchase_invoice_line_id'  => $invoice_line_id,
+                            'allocation_date_from'      => $allocation_date_from,
+                            'allocation_date_to'        => $allocation_date_to,
+                            'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
+                            'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
+                        ]);
+
+                    $add_accounting_entry_line([
                             'condo_id'                  => $invoice['condo_id'],
                             'accounting_entry_id'       => $accountingEntry['id'],
                             'description'               => $description,
@@ -1863,224 +2065,86 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                             'purchase_invoice_line_id'  => $invoice_line_id,
                             'allocation_date_from'      => $allocation_date_from,
                             'allocation_date_to'        => $allocation_date_to,
-                            'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
-                            'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
+                            'debit'                     => ($amount > 0.0) ? 0.0 : abs($amount),
+                            'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
+                        ]);
+
+                    $plannedFiscalYear = FiscalYear::search([['condo_id', '=', $invoice['condo_id']], ['date_from', '<=', $period_date_from], ['date_to', '>=', $period_date_from]])->first();
+
+                    if(!$plannedFiscalYear) {
+                        throw new \Exception("missing_mandatory_matching_fiscal_year", EQ_ERROR_INVALID_CONFIG);
+                    }
+
+                    $planned_allocation_date_from = max($date_from, $period_date_from);
+                    $planned_allocation_date_to = min($date_to, $period_date_to);
+
+                    // Prior-period entries are posted on the first allocation date, while later entries
+                    // are posted on the first date of their fiscal period.
+                    $planned_entry_date = ($period_date_from < $invoice['fiscal_period_id']['date_from'])
+                        ? $planned_allocation_date_from
+                        : $period_date_from;
+
+                    // Lines can start on different dates within the same prior fiscal period. Group them
+                    // only when their resulting entry date is identical.
+                    if(!isset($map_planned_accounting_entries[$planned_entry_date])) {
+                        $map_planned_accounting_entries[$planned_entry_date] = AccountingEntry::create([
+                                'condo_id'              => $invoice['condo_id'],
+                                'journal_id'            => $journal['id'],
+                                'fiscal_year_id'        => $plannedFiscalYear['id'],
+                                'entry_date'            => $planned_entry_date,
+                                'origin_object_class'   => self::getType(),
+                                'origin_object_id'      => $id,
+                                'purchase_invoice_id'   => $id
+                            ])
+                            ->first();
+                    }
+
+                    $plannedAccountingEntry = $map_planned_accounting_entries[$planned_entry_date];
+
+                    $description = $invoiceLine['description'];
+                    $description .= ' (' . date('Y-m-d', $planned_allocation_date_from) . ' - ' . date('Y-m-d', $planned_allocation_date_to) . ')';
+
+                    AccountingEntryLine::create([
+                            'condo_id'                  => $invoice['condo_id'],
+                            'accounting_entry_id'       => $plannedAccountingEntry['id'],
+                            'description'               => $description,
+                            'account_id'                => $adjustmentAccount['id'],
+                            'purchase_invoice_line_id'  => $invoice_line_id,
+                            'allocation_date_from'      => $planned_allocation_date_from,
+                            'allocation_date_to'        => $planned_allocation_date_to,
+                            'debit'                     => ($amount > 0.0) ? 0.0 : abs($amount),
+                            'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
+                        ]);
+
+                    AccountingEntryLine::create([
+                            'condo_id'                  => $invoice['condo_id'],
+                            'accounting_entry_id'       => $plannedAccountingEntry['id'],
+                            'description'               => $description,
+                            'account_id'                => $invoiceLine['expense_account_id'],
+                            'purchase_invoice_line_id'  => $invoice_line_id,
+                            'allocation_date_from'      => $planned_allocation_date_from,
+                            'allocation_date_to'        => $planned_allocation_date_to,
+                            'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
+                            'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
                         ]);
                 }
             }
-            // 6) date range: split expenses across impacted periods
-            else {
-                $total_days = ( ($date_to - $date_from) / 86400 ) + 1;
-                // Initial entry lines can include a gross expense line and correction lines on the same account/source.
-                // Queue them, to be able to limit useless lines in expense summaries by creating only lines with net amount.
-                $map_accounting_entry_lines = [];
 
-                $add_accounting_entry_line = function($values) use (&$map_accounting_entry_lines) {
-                    $group_key = implode(':', [
-                        $values['accounting_entry_id'],
-                        $values['account_id'],
-                        $values['purchase_invoice_line_id'] ?? 0
-                    ]);
+            foreach($map_accounting_entry_lines as $values) {
+                $net_amount = round($values['debit'] - $values['credit'], 2);
 
-                    if(!isset($map_accounting_entry_lines[$group_key])) {
-                        $map_accounting_entry_lines[$group_key] = $values;
-                        $map_accounting_entry_lines[$group_key]['debit'] = 0.0;
-                        $map_accounting_entry_lines[$group_key]['credit'] = 0.0;
-                    }
-
-                    $map_accounting_entry_lines[$group_key]['debit'] = round(
-                        $map_accounting_entry_lines[$group_key]['debit'] + (float) $values['debit'],
-                        4
-                    );
-                    $map_accounting_entry_lines[$group_key]['credit'] = round(
-                        $map_accounting_entry_lines[$group_key]['credit'] + (float) $values['credit'],
-                        4
-                    );
-                };
-
-                // retrieve dates for allocating amounts to accounting entries
-                $period_allocation_dates = self::computePeriodAllocationDates($date_from, $date_to, $invoice['condo_id']);
-
-                // retrieve account for deferred expenses
-                $deferredExpensesAccount = Account::search([
-                        ['condo_id', '=', $invoice['condo_id']],
-                        ['operation_assignment', '=', 'deferred_expenses']
-                    ])
-                    ->first();
-
-                if(!$deferredExpensesAccount) {
-                    throw new \Exception("missing_mandatory_deferred_expenses_account", EQ_ERROR_INVALID_CONFIG);
+                if(abs($net_amount) < 0.01) {
+                    continue;
                 }
 
-                // retrieve account for accrued expenses
-                $accruedExpensesAccount = Account::search([
-                        ['condo_id', '=', $invoice['condo_id']],
-                        ['operation_assignment', '=', 'accrued_expenses']
-                    ])
-                    ->first();
+                $values['debit'] = ($net_amount > 0.0) ? $net_amount : 0.0;
+                $values['credit'] = ($net_amount < 0.0) ? abs($net_amount) : 0.0;
 
-                if(!$accruedExpensesAccount) {
-                    throw new \Exception("missing_mandatory_accrued_expenses_account", EQ_ERROR_INVALID_CONFIG);
-                }
-
-                // create accrued/deferred accounting entries and lines for each allocation period
-                foreach($invoice['invoice_lines_ids'] as $invoice_line_id => $invoiceLine) {
-                    $total_amount = round($invoiceLine['price'], 2);
-                    $remaining_amount = $total_amount;
-
-                    for($i = 0, $n = count($period_allocation_dates); $i < $n; ++$i) {
-
-                        $period_date_from = $period_allocation_dates[$i];
-                        $period_date_to = ($i+1 < $n) ? ($period_allocation_dates[$i+1] - 86400) : $date_to;
-
-                        $is_posting_period = (
-                            $period_date_from <= $invoice['fiscal_period_id']['date_to']
-                            && $period_date_from >= $invoice['fiscal_period_id']['date_from']
-                        );
-
-                        $description = $invoiceLine['description'];
-                        $description .= ' (' . date('Y-m-d', $allocation_date_from) . ' - ' . date('Y-m-d', $allocation_date_to) . ')';
-
-                        // first date of the allocation range
-                        if($i == 0) {
-                            // queue the debit line for the whole common expense
-                            $add_accounting_entry_line([
-                                    'condo_id'                  => $invoice['condo_id'],
-                                    'accounting_entry_id'       => $accountingEntry['id'],
-                                    'description'               => $description,
-                                    'account_id'                => $invoiceLine['expense_account_id'],
-                                    'purchase_invoice_line_id'  => $invoice_line_id,
-                                    'allocation_date_from'      => $allocation_date_from,
-                                    'allocation_date_to'        => $allocation_date_to,
-                                    'debit'                     => ($invoiceLine['price'] > 0.0) ? abs($invoiceLine['price']) : 0.0,
-                                    'credit'                    => ($invoiceLine['price'] > 0.0) ? 0.0 : abs($invoiceLine['price'])
-                                ]);
-                        }
-
-                        if($i == $n-1) {
-                            $amount = round($remaining_amount, 2);
-                        }
-                        else {
-                            //  we allocate the paid amount pro-rata based on the duration of the date range.
-                            $intersect_from = max($date_from, $period_date_from);
-                            $intersect_to = min($date_to, $period_date_to);
-
-                            $intersect_days = ( ($intersect_to - $intersect_from) / 86400 ) + 1;
-                            $ratio = $intersect_days / $total_days;
-                            $amount = round($total_amount * $ratio, 2);
-                            $remaining_amount = round($remaining_amount - $amount, 2);
-                        }
-
-                        // no accrual/deferral entry is required for the posting period
-                        if($is_posting_period) {
-                            continue;
-                        }
-
-                        // handle expense accrual/deferral
-                        $adjustmentAccount = ($period_date_from < $invoice['fiscal_period_id']['date_from'])
-                            ? $accruedExpensesAccount
-                            : $deferredExpensesAccount;
-
-                        // 1) create accrual/deferral entry lines
-                        // queue the debit line for the adjustment account
-                        $add_accounting_entry_line([
-                                'condo_id'                  => $invoice['condo_id'],
-                                'accounting_entry_id'       => $accountingEntry['id'],
-                                'description'               => $description,
-                                'account_id'                => $adjustmentAccount['id'],
-                                'purchase_invoice_line_id'  => $invoice_line_id,
-                                'allocation_date_from'      => $allocation_date_from,
-                                'allocation_date_to'        => $allocation_date_to,
-                                'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
-                                'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
-                            ]);
-
-                        // queue the credit line for the expense
-                        $add_accounting_entry_line([
-                                'condo_id'                  => $invoice['condo_id'],
-                                'accounting_entry_id'       => $accountingEntry['id'],
-                                'description'               => $description,
-                                'account_id'                => $invoiceLine['expense_account_id'],
-                                'purchase_invoice_line_id'  => $invoice_line_id,
-                                'allocation_date_from'      => $allocation_date_from,
-                                'allocation_date_to'        => $allocation_date_to,
-                                'debit'                     => ($amount > 0.0) ? 0.0 : abs($amount),
-                                'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
-                            ]);
-
-                        // 2) schedule a symmetrical accounting entry for the related period
-                        $plannedFiscalYear = FiscalYear::search([['condo_id', '=', $invoice['condo_id']], ['date_from', '<=', $period_date_from], ['date_to', '>=', $period_date_from]])->first();
-
-                        if(!$plannedFiscalYear) {
-                            throw new \Exception("missing_mandatory_matching_fiscal_year", EQ_ERROR_INVALID_CONFIG);
-                        }
-
-                        // put all lines related to a period on a single accounting entry
-                        if(!isset($map_planned_accounting_entries[$period_date_from])) {
-                            $map_planned_accounting_entries[$period_date_from] = AccountingEntry::create([
-                                    'condo_id'              => $invoice['condo_id'],
-                                    'journal_id'            => $journal['id'],
-                                    'fiscal_year_id'        => $plannedFiscalYear['id'],
-                                    'entry_date'            => $period_date_from,
-                                    'origin_object_class'   => self::getType(),
-                                    'origin_object_id'      => $id,
-                                    'purchase_invoice_id'   => $id
-                                ])
-                                ->first();
-                        }
-
-                        $plannedAccountingEntry = $map_planned_accounting_entries[$period_date_from];
-                        $planned_allocation_date_from = max($date_from, $period_date_from);
-                        $planned_allocation_date_to = min($date_to, $period_date_to);
-
-                        $description = $invoiceLine['description'];
-                        $description .= ' (' . date('Y-m-d', $planned_allocation_date_from) . ' - ' . date('Y-m-d', $planned_allocation_date_to) . ')';
-
-                        // create the credit line for the adjustment account
-                        AccountingEntryLine::create([
-                                'condo_id'                  => $invoice['condo_id'],
-                                'accounting_entry_id'       => $plannedAccountingEntry['id'],
-                                'description'               => $description,
-                                'account_id'                => $adjustmentAccount['id'],
-                                'purchase_invoice_line_id'  => $invoice_line_id,
-                                'allocation_date_from'      => $planned_allocation_date_from,
-                                'allocation_date_to'        => $planned_allocation_date_to,
-                                'debit'                     => ($amount > 0.0) ? 0.0 : abs($amount),
-                                'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
-                            ]);
-
-                        // create the debit line for the expense
-                        AccountingEntryLine::create([
-                                'condo_id'                  => $invoice['condo_id'],
-                                'accounting_entry_id'       => $plannedAccountingEntry['id'],
-                                'description'               => $description,
-                                'account_id'                => $invoiceLine['expense_account_id'],
-                                'purchase_invoice_line_id'  => $invoice_line_id,
-                                'allocation_date_from'      => $planned_allocation_date_from,
-                                'allocation_date_to'        => $planned_allocation_date_to,
-                                'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
-                                'credit'                    => ($amount > 0.0) ? 0.0 : abs($amount)
-                            ]);
-
-                    }
-                }
-
-                foreach($map_accounting_entry_lines as $values) {
-                    $net_amount = round($values['debit'] - $values['credit'], 2);
-
-                    if(abs($net_amount) < 0.01) {
-                        continue;
-                    }
-
-                    $values['debit'] = ($net_amount > 0.0) ? $net_amount : 0.0;
-                    $values['credit'] = ($net_amount < 0.0) ? abs($net_amount) : 0.0;
-
-                    AccountingEntryLine::create($values);
-                }
+                AccountingEntryLine::create($values);
             }
 
             // validate all scheduled accounting entries
-            foreach($map_planned_accounting_entries as $period_date_from => $plannedAccountingEntry) {
+            foreach($map_planned_accounting_entries as $plannedAccountingEntry) {
                 AccountingEntry::id($plannedAccountingEntry['id'])->transition('validate');
             }
 
@@ -2090,10 +2154,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     protected static function doAssignInvoiceNumber($self) {
         $self->read(['condo_id', 'invoice_number', 'fiscal_year_id' => ['code'], 'fiscal_period_id' => ['code']]);
         foreach($self as $id => $invoice) {
-            // #memo - unlocked invoices are set to status `proforma`, but keep their invoice number
+            // #memo - unlocked invoices are set to status `proforma`
+            // #memo - invoice number can be re-generated (might lead to a gap in numbering)
+            /*
             if($invoice['invoice_number']) {
                 continue;
             }
+            */
 
             $format = Setting::get_value(
                     'purchase',
@@ -2189,15 +2256,15 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function calcFiscalYearId($self) {
         $result = [];
-        $self->read(['condo_id', 'posting_date']);
+        $self->read(['condo_id', 'emission_date']);
         foreach($self as $id => $invoice) {
-            if(!$invoice['posting_date']) {
+            if(!$invoice['emission_date']) {
                 continue;
             }
             $fiscalYear = FiscalYear::search([
                     ['condo_id', '=', $invoice['condo_id']],
-                    ['date_from', '<=', $invoice['posting_date']],
-                    ['date_to', '>=', $invoice['posting_date']]
+                    ['date_from', '<=', $invoice['emission_date']],
+                    ['date_to', '>=', $invoice['emission_date']]
                 ])
                 ->first();
             if($fiscalYear) {
@@ -2209,13 +2276,13 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
     protected static function calcFiscalPeriodId($self) {
         $result = [];
-        $self->read(['posting_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
+        $self->read(['emission_date', 'fiscal_year_id' => ['fiscal_periods_ids' => ['date_from', 'date_to']]]);
         foreach($self as $id => $invoice) {
-            if(!$invoice['posting_date']) {
+            if(!$invoice['emission_date']) {
                 continue;
             }
             foreach($invoice['fiscal_year_id']['fiscal_periods_ids'] ?? [] as $period_id => $period) {
-                if($invoice['posting_date'] >= $period['date_from'] && $invoice['posting_date'] <= $period['date_to']) {
+                if($invoice['emission_date'] >= $period['date_from'] && $invoice['emission_date'] <= $period['date_to']) {
                     $result[$id] = $period_id;
                     break;
                 }
@@ -2309,28 +2376,24 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 }
 
                 $result['posting_date'] = $event['emission_date'];
-                // force updating fiscal_year and fiscal_period accordingly
-                $event['posting_date'] = $event['emission_date'];
             }
-            if(isset($event['posting_date']) || isset($event['date_from'])) {
-                if(isset($event['posting_date'])) {
-                    $fiscalYear = FiscalYear::search([['condo_id', '=', $values['condo_id']], ['date_from', '<=', $event['posting_date']], ['date_to', '>=', $event['posting_date']]])
+            if(isset($event['emission_date']) || isset($event['date_from'])) {
+                if(isset($event['emission_date'])) {
+                    $fiscalYear = FiscalYear::search([
+                            ['condo_id', '=', $values['condo_id']],
+                            ['date_from', '<=', $event['emission_date']],
+                            ['date_to', '>=', $event['emission_date']]
+                        ])
                         ->read(['id', 'name', 'fiscal_periods_ids' => ['name', 'date_from', 'date_to']])
                         ->first();
-                }
-                else {
-                    $fiscalYear = FiscalYear::search([['condo_id', '=', $values['condo_id']], ['date_from', '<=', $event['date_from']], ['date_to', '>=', $event['date_from']]])
-                        ->read(['id', 'name', 'fiscal_periods_ids' => ['name', 'date_from', 'date_to']])
-                        ->first();
-                }
-                if($fiscalYear) {
-                    $result['fiscal_year_id'] = [
-                        'id'    => $fiscalYear['id'],
-                        'name'  => $fiscalYear['name']
-                    ];
-                    if(isset($event['posting_date'])) {
+                    if($fiscalYear) {
+                        $result['fiscal_year_id'] = [
+                            'id'    => $fiscalYear['id'],
+                            'name'  => $fiscalYear['name']
+                        ];
+
                         foreach($fiscalYear['fiscal_periods_ids'] ?? [] as $period_id => $period) {
-                            if($event['posting_date'] >= $period['date_from'] && $event['posting_date'] <= $period['date_to']) {
+                            if($event['emission_date'] >= $period['date_from'] && $event['emission_date'] <= $period['date_to']) {
                                 $result['fiscal_period_id'] = [
                                     'id'    => $period_id,
                                     'name'  => $period['name']
@@ -2340,6 +2403,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                                 break;
                             }
                         }
+
                     }
                 }
             }
@@ -2384,6 +2448,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                     $result['date_to'] = $fiscalPeriod['date_to'];
                 }
             }
+        }
+
+        $has_fund_usage = $event['has_fund_usage'] ?? $values['has_fund_usage'] ?? false;
+        if($has_fund_usage) {
+            $result['has_date_range'] = false;
         }
 
         // do not apply parent onchange, to reduce complexity

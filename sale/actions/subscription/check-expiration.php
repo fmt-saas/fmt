@@ -43,12 +43,15 @@ $httpResponse = $context->httpResponse()->status(200);
 if($subscription['is_expired'] || $subscription['has_upcoming_expiry']) {
     $result = $subscription['id'];
     $dispatch->dispatch('sale.subscription.check.expiration', 'sale\subscription\Subscription', $subscription['id'], 'important', 'sale_subscription_check-expiration', ['id' => $params['id']], [], null, null);
-    $httpResponse->status(qn_error_http(QN_ERROR_NOT_ALLOWED));
+
+    $httpResponse
+        ->status(qn_error_http(QN_ERROR_NOT_ALLOWED))
+        ->body($result);
 }
 else {
     $dispatch->cancel('sale.subscription.check.expiration', 'sale\subscription\Subscription', $subscription['id']);
 }
 
-$httpResponse->body($result)
-             ->send();
+$httpResponse
+    ->send();
 

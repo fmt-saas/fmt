@@ -13,7 +13,6 @@ use identity\Organisation;
 use realestate\governance\Assembly;
 use realestate\governance\AssemblyMinutesCorrespondence;
 use realestate\governance\AssemblyItem;
-use realestate\ownership\Owner;
 use realestate\ownership\Ownership;
 use realestate\property\Apportionment;
 use realestate\property\PropertyLotApportionmentShare;
@@ -130,6 +129,8 @@ $getRecipient = function($identity_id, $lang) {
 
     return [
             'name'              => $title . ' ' . ucfirst($identity['firstname']) . ' ' . strtoupper($identity['lastname']),
+            'firstname'         => $identity['firstname'],
+            'lastname'          => $identity['lastname'],
             'address_street'    => $identity['address_street'],
             'address_dispatch'  => $identity['address_dispatch'],
             'address_zip'       => $identity['address_zip'],
@@ -143,8 +144,8 @@ $getRecipient = function($identity_id, $lang) {
 $assemblyMinutesCorrespondence = AssemblyMinutesCorrespondence::id($params['id'])
     ->read([
         'assembly_id',
-        'owner_id',
-        'ownership_id'
+        'recipient_identity_id' => ['lang_id' => ['code']],
+        'ownership_id' => ['code', 'address_recipient']
     ])
     ->first(true);
 
@@ -153,23 +154,18 @@ if(!$assemblyMinutesCorrespondence) {
 }
 
 
-$owner = Owner::id($assemblyMinutesCorrespondence['owner_id'])
-    ->read([
-        'firstname', 'lastname',
-        'ownership_id' => ['code', 'address_recipient'],
-        'identity_id' => [
-            'lang_id' => ['code']
-        ]
-    ])
-    ->first();
-
-if(!$owner) {
-    throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
+$recipientIdentity = $assemblyMinutesCorrespondence['recipient_identity_id'];
+if(!$recipientIdentity) {
+    throw new Exception('unknown_recipient_identity', EQ_ERROR_INVALID_PARAM);
 }
 
-$owner_lang = $owner['identity_id']['lang_id']['code'] ?? $params['lang'];
+$recipient_lang = $recipientIdentity['lang_id']['code'] ?? $params['lang'];
 
-$recipient = $getRecipient($owner['identity_id']['id'], $owner_lang);
+$recipient = $getRecipient($recipientIdentity['id'], $recipient_lang);
+
+if(strlen($assemblyMinutesCorrespondence['ownership_id']['address_recipient'] ?? '') > 0) {
+    $recipient['name'] = $assemblyMinutesCorrespondence['ownership_id']['address_recipient'];
+}
 
 $assembly = Assembly::id($assemblyMinutesCorrespondence['assembly_id'])
     ->read([
@@ -241,7 +237,7 @@ $ownerTemplate = Template::search([
         ['code', '=', 'general_meetings_minutes_correspondence'],
         ['type', '=', 'document']
     ])
-    ->read(['id', 'parts_ids' => ['name', 'value']], $owner_lang)
+    ->read(['id', 'parts_ids' => ['name', 'value']], $recipient_lang)
     ->first(true);
 
 $condoTemplate = Template::id($ownerTemplate['id'])
@@ -278,7 +274,7 @@ $map_types = [
 
 foreach($ownerTemplate['parts_ids'] as $part) {
     $part_value = $part['value'];
-    $part_lang = $owner_lang;
+    $part_lang = $recipient_lang;
     if(is_null($part_value)) {
         $part_value = $map_condo_template_parts[$part['name']] ?? '';
         $part_lang = $condo_lang;
@@ -311,8 +307,8 @@ foreach($ownerTemplate['parts_ids'] as $part) {
         $introduction = $part_value;
 
         $map_values = [
-            'firstname'         => $owner['firstname'],
-            'lastname'          => $owner['lastname'],
+            'firstname'         => $recipient['firstname'],
+            'lastname'          => $recipient['lastname'],
             'condo'             => $assembly['condo_id']['name'],
             'date'              => $getFormattedDate($assembly['assembly_date'])
         ];
@@ -326,8 +322,8 @@ foreach($ownerTemplate['parts_ids'] as $part) {
 }
 
 $labels = $getLabels(
-    $owner_lang,
-    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $owner_lang, 'AssemblyMinutes.'.$params['view_id'])
+    $recipient_lang,
+    sprintf('%s/packages/realestate/i18n/%s/governance/%s.json', EQ_BASEDIR, $recipient_lang, 'AssemblyMinutes.'.$params['view_id'])
 );
 
 $values = [

@@ -210,7 +210,7 @@ $accountingEntryLines = AccountingEntryLine::search(['accounting_entry_id', 'in'
 
 // append involved accounts
 foreach($accountingEntryLines as $accountingEntryLine) {
-    $map_accounts_ids[$line['account_id']] = true;
+    $map_accounts_ids[$accountingEntryLine['account_id']] = true;
     $accounting_lines[] = [
         'account_id'    => $accountingEntryLine['account_id'],
         'debit'         => $accountingEntryLine['debit'],

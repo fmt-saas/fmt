@@ -6,6 +6,7 @@
 */
 namespace finance\bank;
 
+use core\Lang;
 use finance\accounting\Account;
 use finance\accounting\AccountBalanceChange;
 use finance\accounting\FiscalYear;
@@ -31,9 +32,17 @@ class CondominiumBankAccount extends BankAccount {
             'object_class' => [
                 'type'              => 'string',
                 'description'       => 'Explicit class name of the object.',
-                'help'              => 'This is necessary to distinguish between different types of bank accounts since class uses same table as BankAccount.', 
+                'help'              => 'This is necessary to distinguish between different types of bank accounts since class uses same table as BankAccount.',
                 'readonly'          => true,
                 'default'           => 'finance\bank\CondominiumBankAccount',
+            ],
+
+            'description' => [
+                'type'              => 'string',
+                'description'       => 'Short description of the account (purpose).',
+                'dependents'        => ['name'],
+                'multilang'         => true,
+                'onupdate'          => 'onupdateDescription'
             ],
 
             'bank_account_type' => [
@@ -191,8 +200,31 @@ class CondominiumBankAccount extends BankAccount {
                 'description'   => 'Generate mandatory accounting Accounts for Ownership.',
                 'policies'      => [],
                 'function'      => 'doGenerateAccounts'
+            ],
+            'refresh_account_names' => [
+                'description'   => 'Refresh the names of the related accounting accounts.',
+                'policies'      => [],
+                'function'      => 'doRefreshAccountNames'
             ]
         ];
+    }
+
+    protected static function onupdateDescription($self) {
+        $self->do('refresh_account_names');
+    }
+
+    protected static function doRefreshAccountNames($self) {
+        $languages = Lang::search()->read(['code']);
+
+        foreach($languages as $language) {
+            $lang = $language['code'];
+            $self
+                ->read(['name'], $lang)
+                ->each(function ($id, $condominiumBankAccount) use($lang) {
+                    Account::search(['condo_bank_account_id', '=', $id])
+                        ->update(['description' => $condominiumBankAccount['name']], $lang);
+                });
+        }
     }
 
     protected static function onafterValidate($self) {
@@ -247,8 +279,8 @@ class CondominiumBankAccount extends BankAccount {
         }
     }
 
-    protected static function doGenerateAccounts($self) {
-        $self->read(['condo_id', 'bank_account_type', 'name']);
+    protected static function doGenerateAccounts($self, $lang) {
+        $self->read(['condo_id', 'bank_account_type', 'name'], $lang);
         foreach($self as $id => $bankAccount) {
             if(!$bankAccount['condo_id']) {
                 continue;
@@ -287,9 +319,11 @@ class CondominiumBankAccount extends BankAccount {
                         'description'           => $bankAccount['name'],
                         'operation_assignment'  => $bankAccount['bank_account_type'],
                         'condo_bank_account_id' => $id
-                    ])
+                    ], $lang)
                     ->read(['name'])
                     ->first();
+
+                self::id($id)->do('refresh_account_names');
 
                 $parentJournal = Journal::search([['condo_id', '=', $bankAccount['condo_id']], ['journal_type', '=', 'BANK'], ['has_parent', '=', false]])
                     ->read(['code', 'mnemo', 'sub_journals_ids'])

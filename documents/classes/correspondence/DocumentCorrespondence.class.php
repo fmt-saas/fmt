@@ -23,15 +23,25 @@ class DocumentCorrespondence extends \equal\orm\Model {
                 'description'       => "The owner concerned by the invitation.",
                 'help'              => 'Correspondences are generated for each Owner of each Ownership.',
                 'foreign_object'    => 'realestate\ownership\Owner',
-                'required'          => true,
-                'dependents'        => ['email_address']
+                'dependents'        => ['recipient_identity_id']
             ],
 
             'ownership_id' => [
                 'type'              => 'many2one',
                 'description'       => "The ownership concerned by the invitation.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['recipient_identity_id']
+            ],
+
+            'recipient_identity_id' => [
+                'type'              => 'computed',
+                'result_type'       => 'many2one',
+                'foreign_object'    => 'identity\Identity',
+                'description'       => 'Identity that is the effective recipient of the correspondence.',
+                'function'          => 'calcRecipientIdentityId',
+                'store'             => false,
+                'readonly'          => true
             ],
 
             'document_id' => [
@@ -84,19 +94,47 @@ class DocumentCorrespondence extends \equal\orm\Model {
                 'type'              => 'boolean',
                 'description'       => "Indicates whether the invitation has been acknowledged by the owner.",
                 'default'           => false
-            ],
-
-            'email_address' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'relation'          => ['owner_id' => ['identity_id' => 'email']],
-                'description'       => "Email address of the owner.",
-                'readonly'          => true,
-                'store'             => true,
-                'visible'           => ['communication_method', '=', 'email']
             ]
 
         ];
+    }
+
+    protected static function calcRecipientIdentityId($self) {
+        $result = [];
+
+        $self->read([
+            'owner_id' => ['identity_id'],
+            'ownership_id' => [
+                'has_external_representative',
+                'representative_identity_id',
+                'representative_owner_id' => ['identity_id']
+            ]
+        ]);
+
+        foreach($self as $id => $documentCorrespondence) {
+            $result[$id] = null;
+
+            if($documentCorrespondence['owner_id']['identity_id'] ?? null) {
+                $result[$id] = $documentCorrespondence['owner_id']['identity_id'];
+                continue;
+            }
+
+            $ownership = $documentCorrespondence['ownership_id'];
+            if(!$ownership) {
+                continue;
+            }
+
+            if($ownership['has_external_representative'] && $ownership['representative_identity_id']) {
+                $result[$id] = $ownership['representative_identity_id'];
+                continue;
+            }
+
+            if($ownership['representative_owner_id']['identity_id'] ?? null) {
+                $result[$id] = $ownership['representative_owner_id']['identity_id'];
+            }
+        }
+
+        return $result;
     }
 
     protected static function onupdateDocumentId($self) {

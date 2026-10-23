@@ -11,7 +11,7 @@ use fmt\setting\Setting;
 use identity\Identity;
 use identity\Organisation;
 use realestate\funding\PaymentReminder;
-use realestate\ownership\Owner;
+use realestate\ownership\Ownership;
 use Twig\Environment as TwigEnvironment;
 use Twig\Extension\ExtensionInterface;
 use Twig\Extra\Intl\IntlExtension;
@@ -29,17 +29,17 @@ use Twig\TwigFilter;
         ],
 
         'ownership_id' => [
-            'description'       => 'Identifier of the targeted Ownership (from which Owner is deduced).',
+            'description'       => 'Identifier of the targeted Ownership.',
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\ownership\Ownership',
             'required'          => true
         ],
 
-        'owner_id' => [
-            'description'       => 'Identifier of the targeted Owner, if any.',
-            'help'              => 'If not provided, fallback to first Owner of given Ownership.',
+        'recipient_identity_id' => [
+            'description'       => 'Identifier of the recipient Identity, if any.',
+            'help'              => 'If not provided, fallback to the representative Identity of given Ownership.',
             'type'              => 'many2one',
-            'foreign_object'    => 'realestate\ownership\Owner',
+            'foreign_object'    => 'identity\Identity'
         ],
 
         'debug' => [
@@ -253,37 +253,52 @@ if(!$paymentReminderOwner) {
     throw new Exception('unknown_payment_reminder_owner', EQ_ERROR_INVALID_PARAM);
 }
 
-// retrieve Owner : required for Correspondence but optional for preview (fallback to first owner of given ownership)
-if($params['owner_id']) {
-    $ownerCollection = Owner::id($params['owner_id']);
-}
-elseif($params['ownership_id']) {
-    $ownerCollection = Owner::search(['ownership_id', '=', $params['ownership_id']]);
-}
-else {
+if(!$params['ownership_id']) {
     throw new Exception('missing_ownership', EQ_ERROR_INVALID_PARAM);
 }
 
-$owner = $ownerCollection->read([
-        'ownership_id' => ['address_recipient', 'payment_reference'],
-        'identity_id' => [
-            'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
-            'address_city', 'address_country', 'has_vat', 'vat_number',
-            'lang_id' => ['code']
-        ]
+$ownership = Ownership::id($params['ownership_id'])
+    ->read([
+        'address_recipient',
+        'payment_reference',
+        'has_external_representative',
+        'representative_identity_id',
+        'representative_owner_id' => ['identity_id']
     ])
     ->first();
 
-if(!$owner) {
-    throw new Exception('unknown_owner', EQ_ERROR_INVALID_PARAM);
+if(!$ownership) {
+    throw new Exception('unknown_ownership', EQ_ERROR_INVALID_PARAM);
 }
 
-$lang = $owner['identity_id']['lang_id']['code'] ?? 'fr';
+$recipient_identity_id = $params['recipient_identity_id'] ?? null;
 
-$recipient = $getRecipient($owner['identity_id']['id'], $lang);
+if(!$recipient_identity_id && $ownership['has_external_representative']) {
+    $recipient_identity_id = $ownership['representative_identity_id'];
+}
 
-if(!isset($params['owner_id']) && strlen($owner['ownership_id']['address_recipient'] ?? '') > 0) {
-    $recipient['name'] = $owner['ownership_id']['address_recipient'];
+if(!$recipient_identity_id) {
+    $recipient_identity_id = $ownership['representative_owner_id']['identity_id'] ?? null;
+}
+
+if(!$recipient_identity_id) {
+    throw new Exception('missing_recipient_identity', EQ_ERROR_INVALID_CONFIG);
+}
+
+$recipientIdentity = Identity::id($recipient_identity_id)
+    ->read(['lang_id' => ['code']])
+    ->first();
+
+if(!$recipientIdentity) {
+    throw new Exception('unknown_recipient_identity', EQ_ERROR_INVALID_PARAM);
+}
+
+$lang = $recipientIdentity['lang_id']['code'] ?? 'fr';
+
+$recipient = $getRecipient($recipientIdentity['id'], $lang);
+
+if(strlen($ownership['address_recipient'] ?? '') > 0) {
+    $recipient['name'] = $ownership['address_recipient'];
 }
 
 
@@ -421,7 +436,7 @@ foreach($template['parts_ids'] as $part) {
             return $map_values[$key] ?? '';
         }, $introduction);
     }
-    elseif($part['name'] == 'communication_payment_amount' && $funding && $funding['remaining_amount'] >= 0.01) {
+    elseif($part['name'] == 'communication_payment_amount' && isset($funding['remaining_amount']) && $funding['remaining_amount'] >= 0.01) {
         $communication = $part['value'];
 
         $map_values = [
@@ -460,12 +475,12 @@ $values = [
     'due_total'           => $due_total,
     'fundings'            => $due_fundings,
 
-    'payment_reference'   => $owner['ownership_id']['payment_reference'],
+    'payment_reference'   => $ownership['payment_reference'],
     'payment_qr_code_uri' => $getPaymentQrCodeUri(
             $paymentReminder['condo_id']['legal_name'],
             $paymentReminder['condo_id']['bank_account_iban'],
             $paymentReminder['condo_id']['bank_account_bic'],
-            $owner['ownership_id']['payment_reference'] ?? '',
+            $ownership['payment_reference'] ?? '',
             $owner_balance
         ),
 

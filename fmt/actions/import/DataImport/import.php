@@ -109,6 +109,39 @@ $mapSupplierRowToJson = function (array $row): array {
     ];
 };
 
+$parseMultilangFieldValue = function ($value): ?array {
+    if(!is_string($value)) {
+        return null;
+    }
+
+    $value = trim($value);
+    if(!str_starts_with($value, '{') || !str_ends_with($value, '}')) {
+        return null;
+    }
+
+    $translations = json_decode($value, true);
+    if(json_last_error() !== JSON_ERROR_NONE) {
+        // Also accept JSON-like objects whose two-letter language keys are not quoted.
+        $normalized_value = preg_replace('/([,{]\s*)([a-z]{2})(\s*:)/i', '$1"$2"$3', $value);
+        $translations = json_decode($normalized_value, true);
+    }
+
+    if(json_last_error() !== JSON_ERROR_NONE || !is_array($translations) || !$translations) {
+        return null;
+    }
+
+    $result = [];
+    foreach($translations as $lang => $translation) {
+        if(!is_string($lang) || !preg_match('/^[a-z]{2}$/i', $lang) || !is_string($translation)) {
+            return null;
+        }
+
+        $result[strtolower($lang)] = $translation;
+    }
+
+    return $result;
+};
+
 $result = [
     'created'   => 0,
     'updated'   => 0,
@@ -818,15 +851,33 @@ try {
                             'savings'       => 'bank_savings',
                         ][$bank_account['type']] ?? strtolower($bank_account['type']);
 
-            CondominiumBankAccount::create([
+            $description_translations = $parseMultilangFieldValue($bank_account['description']);
+            $description_lang = $description_translations ? array_key_first($description_translations) : null;
+            $description = $description_lang
+                ? $description_translations[$description_lang]
+                : $bank_account['description'];
+
+            $condominium_bank_account = CondominiumBankAccount::create([
                     'condo_id'              => $condominium['id'],
                     'owner_identity_id'     => $condominiumIdentity['id'] ?? null,
-                    'description'           => $bank_account['description'],
+                    'description'           => $description,
                     'bank_account_type'     => $bank_account_type,
                     'bank_account_iban'     => $bank_account['iban'],
                     'is_primary'            => (bool) $bank_account['is_primary'] && $bank_account_type === 'bank_current',
                     'is_primary_reserve'    => (bool) $bank_account['is_primary'] && $bank_account_type === 'bank_savings'
-                ]);
+                ], $description_lang)
+                ->first();
+
+            if($description_translations) {
+                foreach($description_translations as $lang => $translated_description) {
+                    if($lang === $description_lang) {
+                        continue;
+                    }
+
+                    CondominiumBankAccount::id($condominium_bank_account['id'])
+                        ->update(['description' => $translated_description], $lang);
+                }
+            }
         }
 
         foreach($data['External_representatives'] as $external_representative) {
@@ -1320,10 +1371,11 @@ try {
 
             $representative_owner_id = $ownership['representative_owner_id']['id'] ?? null;
             $representative_owner_identity_id = $ownership['representative_owner_id']['identity_id'] ?? null;
+            $has_external_representative = $ownership['has_external_representative'] ?? false;
 
-            // pass-1 : representative owner
+            // Create preferences for the representative owner only when there is no external representative.
             foreach($preferences as $preference) {
-                if(!$communication_preferences[$preference]) {
+                if($has_external_representative || !$communication_preferences[$preference]) {
                     continue;
                 }
 
@@ -1364,9 +1416,9 @@ try {
                 OwnershipCommunicationPreference::create($values);
             }
 
-            // pass-2 : external representative, if any
+            // Create preferences for the external representative, if any.
             $external_representative_identity_id = $ownership['representative_identity_id'] ?? null;
-            if(($ownership['has_external_representative'] ?? false) && $external_representative_identity_id) {
+            if($has_external_representative && $external_representative_identity_id) {
                 foreach($preferences as $preference) {
                     OwnershipCommunicationPreference::create([
                         'condo_id'                              => $condominium['id'],
@@ -1394,13 +1446,30 @@ try {
 
             $is_statutory = ($apportionment_key['code'] === 'stat');
 
+            $description_translations = $parseMultilangFieldValue($apportionment_key['description']);
+            $description_lang = $description_translations ? array_key_first($description_translations) : null;
+            $description = $description_lang
+                ? $description_translations[$description_lang]
+                : $apportionment_key['description'];
+
             $apportionment = Apportionment::create([
                     'condo_id'          => $condominium['id'],
-                    'description'       => $apportionment_key['description'],
+                    'description'       => $description,
                     'total_shares'      => $apportionment_key['total_shares'],
                     'is_statutory'      => $is_statutory
-                ])
+                ], $description_lang)
                 ->first();
+
+            if($description_translations) {
+                foreach($description_translations as $lang => $translated_description) {
+                    if($lang === $description_lang) {
+                        continue;
+                    }
+
+                    Apportionment::id($apportionment['id'])
+                        ->update(['description' => $translated_description], $lang);
+                }
+            }
 
             $map_apportionments[$apportionment_key['code']] = $apportionment['id'];
         }
@@ -1611,7 +1680,7 @@ finally {
         $values['condo_id'] = $condominium['id'];
     }
 
-    if($dataImport['import_type'] === 'ownership_import' && $ownership) {
+    if($dataImport['import_type'] === 'ownership_import' && isset($ownership['id'])) {
         $values['ownership_id'] = $ownership['id'];
     }
 

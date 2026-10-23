@@ -18,6 +18,11 @@
             "description": "Dossier de propriété concerné par la correspondance.",
             "help": ""
         },
+        "recipient_identity_id": {
+            "label": "Identité destinataire",
+            "description": "Identité qui est la destinataire effective de la correspondance.",
+            "help": "Déterminée à partir du propriétaire, du représentant externe ou, à défaut, du propriétaire représentant."
+        },
         "document_id": {
             "label": "Document",
             "description": "Document PDF généré pour cette correspondance, le cas échéant.",

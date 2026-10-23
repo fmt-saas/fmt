@@ -6,8 +6,6 @@
 */
 namespace realestate\ownership;
 
-use identity\Identity;
-
 class OwnershipCommunicationPreference extends \equal\orm\Model {
 
     public static function getColumns() {
@@ -84,101 +82,17 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
             'is_owner' => [
                 'type'              => 'boolean',
                 'description'       => "Mark the recipient as an owner (from ownership).",
-                'default'           => true
+                'default'           => false
             ],
 
             'owner_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'realestate\ownership\Owner',
                 'description'       => 'The Owner the communication preference refers to.',
+                'required'          => false,
                 'visible'           => ['is_owner', '=', true],
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.ownership_id'] ],
-                'help'              => 'This field might be empty in case of an external representant (not an owner)',
-                'onupdate'          => 'onupdateOwnerId',
-                'oncreate'          => 'onupdateOwnerId'
-            ],
-
-            'identity_id' => [
-                'type'              => 'many2one',
-                'description'       => "Identity of an external person.",
-                'foreign_object'    => 'identity\Identity',
-                'visible'           => ['is_owner', '=', false],
-                'dependents'        => ['name', 'email', 'address_street', 'address_city', 'address_zip']
-            ],
-
-            'email' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'usage'             => 'email',
-                'relation'          => ['identity_id' => 'email'],
-                'store'             => true,
-                'description'       => "Identity main email address."
-            ],
-
-            'email_alt' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'usage'             => 'email',
-                'relation'          => ['identity_id' => 'email_alt'],
-                'store'             => true,
-                'description'       => "Identity secondary email address."
-            ],
-
-            'address_street' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'relation'          => ['identity_id' => 'address_street'],
-                'store'             => true,
-                'description'       => 'Street and number.',
-                'visible'           => [
-                    [
-                        ['has_channel_postal', '=', true]
-                    ],
-                    [
-                        ['has_channel_postal_registered', '=', true]
-                    ],
-                    [
-                        ['has_channel_postal_registered_receipt', '=', true]
-                    ]
-                ]
-            ],
-
-            'address_city' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'relation'          => ['identity_id' => 'address_city'],
-                'store'             => true,
-                'description'       => 'City.',
-                'visible'           => [
-                    [
-                        ['has_channel_postal', '=', true]
-                    ],
-                    [
-                        ['has_channel_postal_registered', '=', true]
-                    ],
-                    [
-                        ['has_channel_postal_registered_receipt', '=', true]
-                    ]
-                ]
-            ],
-
-            'address_zip' => [
-                'type'              => 'computed',
-                'result_type'       => 'string',
-                'relation'          => ['identity_id' => 'address_zip'],
-                'store'             => true,
-                'description'       => 'Postal code.',
-                'visible'           => [
-                    [
-                        ['has_channel_postal', '=', true]
-                    ],
-                    [
-                        ['has_channel_postal_registered', '=', true]
-                    ],
-                    [
-                        ['has_channel_postal_registered_receipt', '=', true]
-                    ]
-                ]
+                'help'              => 'This field is empty when the ownership is represented by an external person.'
             ]
 
         ];
@@ -203,55 +117,52 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
         ]);
     }
 
-    protected static function onupdateOwnerId($self) {
-        $self->read(['state', 'owner_id' => ['identity_id']]);
-        foreach($self as $id => $ownershipCommunicationPreference) {
-            if($ownershipCommunicationPreference['owner_id']) {
-                self::id($id)->update([
-                    'state'         => $ownershipCommunicationPreference['state'],
-                    'identity_id'   => $ownershipCommunicationPreference['owner_id']['identity_id']
-                ]);
-            }
-        }
-    }
-
     /**
-     * #memo - we allow only several identity for a same communication reason for the `email` channel.
-     *
+     * #memo - only one postal channel is allowed per recipient and communication reason.
      */
     protected static function canupdate($self, $values) {
         $self->read([
-                'identity_id',
+                'owner_id' => [
+                    'ownership_id',
+                    'identity_id' => ['email', 'email_alt']
+                ],
                 'communication_reason',
                 'has_channel_email',
                 'has_channel_postal',
                 'has_channel_postal_registered',
                 'has_channel_postal_registered_receipt',
-                'ownership_id' => ['id', 'representative_identity_id', 'owners_ids' => ['identity_id']]
+                'ownership_id' => [
+                    'id',
+                    'representative_identity_id' => ['email', 'email_alt']
+                ]
             ]);
 
         foreach($self as $id => $ownershipCommunicationPreference) {
             $ownership_id = $ownershipCommunicationPreference['ownership_id']['id'];
-            $identity_id = array_key_exists('identity_id', $values)
-                ? $values['identity_id']
-                : $ownershipCommunicationPreference['identity_id'];
+            $owner_id = array_key_exists('owner_id', $values)
+                ? $values['owner_id']
+                : ($ownershipCommunicationPreference['owner_id']['id'] ?? null);
 
-            // When an owner is selected, the related identity is synchronized by onupdateOwnerId after validation.
-            // Resolve it now so that canupdate validates the values that will actually be stored.
-            if(!empty($values['owner_id'])) {
-                $owner = Owner::id($values['owner_id'])
-                    ->read(['identity_id'])
+            $identity = $ownershipCommunicationPreference['ownership_id']['representative_identity_id'] ?? null;
+            if($owner_id) {
+                $owner = Owner::id($owner_id)
+                    ->read([
+                        'ownership_id',
+                        'identity_id' => ['email', 'email_alt']
+                    ])
                     ->first();
-                $identity_id = $owner['identity_id'] ?? null;
+
+                if(!$owner || $owner['ownership_id'] !== $ownership_id) {
+                    return ['owner_id' => ['not_allowed' => 'Owner does not belong to the ownership.']];
+                }
+
+                $identity = $owner['identity_id'];
             }
 
             $has_channel_email = array_key_exists('has_channel_email', $values)
                 ? $values['has_channel_email']
                 : $ownershipCommunicationPreference['has_channel_email'];
             if($has_channel_email) {
-                $identity = $identity_id
-                    ? Identity::id($identity_id)->read(['email', 'email_alt'])->first()
-                    : null;
                 if(!$identity || (empty($identity['email']) && empty($identity['email_alt']))) {
                     return ['has_channel_email' => ['email_missing' => 'An email address is required when email is used as communication channel.']];
                 }
@@ -277,46 +188,30 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                     [
                         ['id', '<>', $id],
                         ['ownership_id', '=', $ownership_id],
-                        ['identity_id', '=', $identity_id],
+                        ['owner_id', '=', $owner_id],
                         ['communication_reason', '=', $communication_reason],
                         ['has_channel_postal', '=', true]
                     ],
                     [
                         ['id', '<>', $id],
                         ['ownership_id', '=', $ownership_id],
-                        ['identity_id', '=', $identity_id],
+                        ['owner_id', '=', $owner_id],
                         ['communication_reason', '=', $communication_reason],
                         ['has_channel_postal_registered', '=', true]
                     ],
                     [
                         ['id', '<>', $id],
                         ['ownership_id', '=', $ownership_id],
-                        ['identity_id', '=', $identity_id],
+                        ['owner_id', '=', $owner_id],
                         ['communication_reason', '=', $communication_reason],
                         ['has_channel_postal_registered_receipt', '=', true]
                     ]
                 ]);
                 if($postalMailPreferences->count() > 0) {
-                    trigger_error("APP::Duplicate found while checking Ownership[{$ownership_id}] for {$communication_reason} on {$identity_id}", EQ_REPORT_WARNING);
+                    trigger_error("APP::Duplicate found while checking Ownership[{$ownership_id}] for {$communication_reason} on Owner[{$owner_id}]", EQ_REPORT_WARNING);
                     return ['communication_reason' => ['not_allowed' => 'Only a single postal courier is allowed per communication reason.']];
                 }
             }
-
-            $found = false;
-            foreach($ownershipCommunicationPreference['ownership_id']['owners_ids'] as $owner_id => $owner) {
-                if($owner['identity_id'] === $identity_id) {
-                    $found = true;
-                    break;
-                }
-            }
-            if(!$found && $ownershipCommunicationPreference['ownership_id']['representative_identity_id'] === $identity_id) {
-                $found = true;
-            }
-
-            if(!$found) {
-                return ['identity_id' => ['not_allowed' => 'Identity does not relate to any owner or representative.']];
-            }
-
         }
 
         return parent::canupdate($self, $values);

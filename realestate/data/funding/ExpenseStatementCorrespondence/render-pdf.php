@@ -35,7 +35,7 @@ $context = $providers['context'];
 
 $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id'])
     ->read([
-        'status', 'condo_id', 'ownership_id', 'owner_id', 'name',
+        'status', 'condo_id', 'ownership_id', 'recipient_identity_id', 'name',
         'expense_statement_id' => ['id', 'fiscal_period_id', 'posting_date', 'is_cutoff_at_document_date']
     ])
     ->first();
@@ -94,14 +94,16 @@ if(!$expenseSummaryDocument) {
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
-// merge all PDF documents for given Ownership/Owner
+$output = '';
+
+// merge all PDF documents for given Ownership/recipient identity
 try {
 
     try {
         $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-pdf', [
                 'expense_statement_id'  => $expenseStatement['id'],
                 'ownership_id'          => $expenseStatementCorrespondence['ownership_id'],
-                'owner_id'              => $expenseStatementCorrespondence['owner_id']
+                'recipient_identity_id' => $expenseStatementCorrespondence['recipient_identity_id']
             ]);
         $temp = tempnam(sys_get_temp_dir(), 'pdf_');
         file_put_contents($temp, $pdf);
@@ -158,11 +160,11 @@ catch(Exception $e) {
 }
 finally {
     foreach($temp_files as $file) {
-        if(isset($file) && is_file($file)) {
+        if($file && is_file($file)) {
             @unlink($file);
         }
     }
-    if(isset($output_file) && is_file($output_file)) {
+    if($output_file && is_file($output_file)) {
         @unlink($output_file);
     }
 }
@@ -170,5 +172,5 @@ finally {
 $context->httpResponse()
         // ->header('Content-Disposition', 'attachment; filename="document.pdf"')
         ->header('Content-Disposition', 'inline; filename="document.pdf"')
-        ->body($output ?? '')
+        ->body($output)
         ->send();

@@ -34,7 +34,7 @@ use realestate\funding\PaymentReminderCorrespondence;
 $context = $providers['context'];
 
 $paymentReminderCorrespondence = PaymentReminderCorrespondence::id($params['id'])
-    ->read(['ownership_id', 'owner_id', 'payment_reminder_id'])
+    ->read(['ownership_id', 'recipient_identity_id', 'payment_reminder_id'])
     ->first();
 
 if(!$paymentReminderCorrespondence) {
@@ -45,13 +45,14 @@ if(!$paymentReminderCorrespondence) {
 $temp_files = [];
 $output_file = tempnam(sys_get_temp_dir(), 'merged_pdf_');
 
+$output = '';
 try {
 
     try {
         $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_paymentreminder_single-pdf', [
-                'payment_reminder_id' => $paymentReminderCorrespondence['payment_reminder_id'],
-                'ownership_id'        => $paymentReminderCorrespondence['ownership_id'],
-                'owner_id'            => $paymentReminderCorrespondence['owner_id']
+                'payment_reminder_id'   => $paymentReminderCorrespondence['payment_reminder_id'],
+                'ownership_id'          => $paymentReminderCorrespondence['ownership_id'],
+                'recipient_identity_id' => $paymentReminderCorrespondence['recipient_identity_id']
             ]);
 
         $temp = tempnam(sys_get_temp_dir(), 'pdf_');
@@ -80,11 +81,11 @@ catch(Exception $e) {
 }
 finally {
     foreach($temp_files as $file) {
-        if(isset($file) && is_file($file)) {
+        if($file && is_file($file)) {
             @unlink($file);
         }
     }
-    if(isset($output_file) && is_file($output_file)) {
+    if($output_file && is_file($output_file)) {
         @unlink($output_file);
     }
 }
@@ -93,5 +94,5 @@ finally {
 $context->httpResponse()
         // ->header('Content-Disposition', 'attachment; filename="document.pdf"')
         ->header('Content-Disposition', 'inline; filename="document.pdf"')
-        ->body($output ?? '')
+        ->body($output)
         ->send();

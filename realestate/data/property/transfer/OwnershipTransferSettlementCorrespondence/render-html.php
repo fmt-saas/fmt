@@ -8,7 +8,6 @@
 use fmt\setting\Setting;
 use identity\Identity;
 use identity\Organisation;
-use realestate\ownership\Owner;
 use realestate\property\transfer\OwnershipTransferSettlementCorrespondence;
 use Twig\Environment as TwigEnvironment;
 use Twig\Extra\Intl\IntlExtension;
@@ -43,8 +42,8 @@ use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
 $correspondence = OwnershipTransferSettlementCorrespondence::id($params['id'])
     ->read([
         'recipient_role',
-        'owner_id',
-        'ownership_id' => ['name', 'code'],
+        'recipient_identity_id' => ['lang_id' => ['code']],
+        'ownership_id' => ['name', 'code', 'address_recipient'],
         'settlement_id' => [
             'name',
             'transfer_date',
@@ -82,16 +81,13 @@ if(!in_array($correspondence['recipient_role'], ['seller', 'buyer'], true)) {
     throw new Exception('invalid_correspondence_recipient_role', EQ_ERROR_INVALID_CONFIG);
 }
 
-$owner = Owner::id($correspondence['owner_id'])
-    ->read(['firstname', 'lastname', 'email', 'identity_id' => ['lang_id' => ['code']]])
-    ->first();
-
-if(!$owner || !$owner['identity_id']) {
+$recipientIdentity = $correspondence['recipient_identity_id'];
+if(!$recipientIdentity) {
     throw new Exception('unknown_correspondence_recipient', EQ_ERROR_INVALID_CONFIG);
 }
 
-$lang = $owner['identity_id']['lang_id']['code'] ?? 'fr';
-$identity = Identity::id($owner['identity_id']['id'])
+$lang = $recipientIdentity['lang_id']['code'] ?? 'fr';
+$identity = Identity::id($recipientIdentity['id'])
     ->read([
         'firstname',
         'lastname',
@@ -134,6 +130,10 @@ $recipient = [
     'has_vat'          => $identity['has_vat'],
     'vat_number'       => $identity['vat_number']
 ];
+
+if(strlen($correspondence['ownership_id']['address_recipient'] ?? '') > 0) {
+    $recipient['name'] = $correspondence['ownership_id']['address_recipient'];
+}
 
 $organisation = Organisation::id(1)
     ->read([

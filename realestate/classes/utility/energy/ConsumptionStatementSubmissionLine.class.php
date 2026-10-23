@@ -6,6 +6,8 @@
 */
 namespace realestate\utility\energy;
 
+use finance\accounting\Account;
+
 class ConsumptionStatementSubmissionLine extends \equal\orm\Model {
 
     public static function getName() {
@@ -89,16 +91,15 @@ class ConsumptionStatementSubmissionLine extends \equal\orm\Model {
                 'description' => 'Units of the section in the consumption file.',
                 'selection'   => [
                     'unit_price',
-                    'total_mount'
+                    'total_amount'
                 ],
-                'default'    => 'total_mount'
+                'default'    => 'total_amount'
             ],
 
             'quantity' => [
                 'type'        => 'float',
                 'usage'       => 'number/real:2',
-                'description' => 'Quantity, if known.',
-                'visible'     => ['calculation_method', '=', 'unit_price']
+                'description' => 'Quantity, if known.'
             ],
 
             'unit_price' => [
@@ -131,6 +132,25 @@ class ConsumptionStatementSubmissionLine extends \equal\orm\Model {
             EQ_R_UPDATE => ['can_edit'],
             EQ_R_DELETE => ['can_edit']
         ];
+    }
+
+    public static function onchange($event, $values): array {
+        $result = [];
+
+        if(isset($event['account_id'])) {
+            $account = Account::id($event['account_id'])
+                ->read(['apportionment_id' => ['id', 'name']])
+                ->first();
+
+            if($account && $account['apportionment_id']) {
+                $result['apportionment_id'] = [
+                    'id'   => $account['apportionment_id']['id'],
+                    'name' => $account['apportionment_id']['name']
+                ];
+            }
+        }
+
+        return $result;
     }
 
     protected static function policyCanEdit($self): array {

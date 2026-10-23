@@ -931,8 +931,8 @@ class Identity extends Model {
                         $values[$field] = $parentIdentity[$field];
                     }
                 }
+                $orm_events = $orm->disableEvents();
                 try {
-                    $orm_events = $orm->disableEvents();
                     // trigger_error("APP::updating values to target object", EQ_REPORT_ERROR);
                     $object['object_class']::id($id)->update($values);
                 }

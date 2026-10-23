@@ -27,25 +27,25 @@ $tests = [
     '3101' => [
         'description' => "Validate purchase invoice import.",
         'help'        => "Convert a purchase invoice to standardized JSON and validate result against `purchase-invoice` schema.",
-        'arrange'     => function () use ($providers) {
+        'arrange'     => function () {
         },
-        'act'         => function () use ($providers) {
+        'act'         => function () {
             $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'invoice_purchase.json');
             return $data;
         },
-        'assert'      => function ($json_invoice) use ($providers) {
+        'assert'      => function ($json_invoice) {
             $data = eQual::run('get', 'json-validate', ['json' => $json_invoice, 'schema_id' => 'urn:fmt:json-schema:finance:purchase-invoice']);
             $valid = $data['result'] ?? false;
             return $valid;
         },
-        'rollback'    => function () use ($providers) {
+        'rollback'    => function () {
         }
     ],
 
     '3102' => [
         'description' => "Test document processing of purchase invoice document.",
         'help'        => "Create PurchaseInvoiceImport with purchase invoice json to test the creation of the DocumentProcess.",
-        'arrange'     => function () use ($providers) {
+        'arrange'     => function () {
             $purchaseInvoiceImport = PurchaseInvoiceImport::create([
                 'name' => 'Test document processing of Purchase invoice document'
             ])
@@ -54,14 +54,14 @@ $tests = [
 
             return $purchaseInvoiceImport;
         },
-        'act'         => function ($purchaseInvoiceImport) use ($providers) {
+        'act'         => function ($purchaseInvoiceImport) {
             $data = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.'invoice_purchase.json');
 
             PurchaseInvoiceImport::id($purchaseInvoiceImport['id'])->update(['data' => $data]);
 
             return $purchaseInvoiceImport;
         },
-        'assert'      => function ($purchaseInvoiceImport) use ($providers) {
+        'assert'      => function ($purchaseInvoiceImport) {
             $invoiceDocument = Document::search(['name', '=', 'Test document processing of Purchase invoice document'])
                 ->read(['name'])
                 ->first();
@@ -95,7 +95,7 @@ $tests = [
             - Test AccountingEntry validated
             - Test Funding creation
         ",
-        'arrange'     => function () use ($providers) {
+        'arrange'     => function () {
             $condo = Condominium::search(['name', '=', 'ACP Résidence Theo 4'])
                 ->read(['suppliers_ids'])
                 ->first(true);
@@ -147,7 +147,7 @@ $tests = [
 
             return compact('condo', 'documentType', 'documentSubtype', 'supplierType', 'purchaseInvoiceImport');
         },
-        'act'         => function ($data) use ($providers) {
+        'act'         => function ($data) {
             [
                 'condo'                 => $condo,
                 'documentType'          => $documentType,
@@ -184,7 +184,7 @@ $tests = [
 
             return $documentProcess['id'];
         },
-        'assert'      => function ($document_process_id) use ($providers) {
+        'assert'      => function ($document_process_id) {
             $documentProcess = DocumentProcess::id($document_process_id)
                 ->read([
                     'status',

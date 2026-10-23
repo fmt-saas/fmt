@@ -11,9 +11,7 @@ use equal\orm\Model;
 
 class Status extends Model {
 
-    public static function getFlags(): int {
-        return EQ_FLAG_ABSTRACT;
-    }
+    // #todo - handle abstract class (to separate ServerStatus and InstanceStatus in different tables)
 
     public static function getColumns(): array {
         return [

@@ -2,6 +2,19 @@
     "name": "Fiscal Period",
     "actions": [
         {
+            "id": "action.renumber_purchase_invoices",
+            "label": "Renumber purchase invoices",
+            "description": "Renumber purchase invoices sequentially for this fiscal period.",
+            "controller": "core_model_do",
+            "visible": ["status", "=", "open"],
+            "params": {
+                "entity": "finance\\accounting\\FiscalPeriod",
+                "action": "renumber_purchase_invoices",
+                "ids": []
+            },
+            "confirm": true
+        },
+        {
             "id": "action.preclose",
             "label": "Pre-close",
             "description": "Pre-close the fiscal period. This will generate a proforma Expense Statement.",
