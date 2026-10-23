@@ -712,7 +712,7 @@ try {
         $map_external_representatives = [];
         $map_owners_identity = [];
         $map_ownerships = [];
-        $map_owners = [];
+        $created_owner_ids = [];
         $map_property_entrances = [];
         $map_property_lots = [];
         $map_apportionments = [];
@@ -1191,7 +1191,7 @@ try {
                 ->first();
 
             $map_ownership_owners_ids[$ownership['code']][$ownership['owner_code']] = $ownerObject['id'];
-            $map_owners[$ownership['owner_code']] = $ownerObject['id'];
+            $created_owner_ids[] = $ownerObject['id'];
         }
 
         // ownerships pass 3 - set ownership_type
@@ -1526,7 +1526,9 @@ try {
 
         // trigger refresh & sync events on created objects
 
-        Owner::ids(array_values($map_owners))->do('sync_from_identity');
+        if(count($created_owner_ids)) {
+            Owner::ids(array_values(array_unique($created_owner_ids)))->do('sync_from_identity');
+        }
 
         Condominium::id($condominium['id'])
             ->do('sync_from_identity')

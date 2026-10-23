@@ -602,30 +602,33 @@ class BankStatementLine extends Model {
     }
 
     protected static function doAddOwnershipBankAccount($self) {
-        $self->read(['condo_id', 'ownership_id', 'account_iban']);
+        $self->read(['condo_id', 'ownership_id', 'account_iban', 'account_bic']);
         foreach($self as $bankStatementLine) {
-            $iban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', (string) $bankStatementLine['account_iban']));
+            if(!$bankStatementLine['account_iban']) {
+                continue;
+            }
             $ownershipBankAccounts = OwnershipBankAccount::search([
                     ['condo_id', '=', $bankStatementLine['condo_id']],
                     ['ownership_id', '=', $bankStatementLine['ownership_id']]
                 ])
                 ->read(['bank_account_iban']);
 
-            $ibanExists = false;
+            $iban_exists = false;
             foreach($ownershipBankAccounts as $ownershipBankAccount) {
-                $existingIban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', (string) $ownershipBankAccount['bank_account_iban']));
-                if($existingIban === $iban) {
-                    $ibanExists = true;
+                if($ownershipBankAccount['bank_account_iban'] === $bankStatementLine['account_iban']) {
+                    $iban_exists = true;
                     break;
                 }
             }
 
-            if(!$ibanExists) {
-                OwnershipBankAccount::create([
-                    'condo_id'         => $bankStatementLine['condo_id'],
-                    'ownership_id'     => $bankStatementLine['ownership_id'],
-                    'bank_account_iban' => $iban
-                ]);
+            if(!$iban_exists) {
+                $values = [
+                    'condo_id'          => $bankStatementLine['condo_id'],
+                    'ownership_id'      => $bankStatementLine['ownership_id'],
+                    'bank_account_iban' => $bankStatementLine['account_iban'],
+                    'bank_account_bic'  => $bankStatementLine['account_bic'] ?? null
+                ];
+                OwnershipBankAccount::create($values);
             }
         }
     }

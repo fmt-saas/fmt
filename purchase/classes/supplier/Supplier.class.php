@@ -127,7 +127,10 @@ class Supplier extends Identity {
                 'foreign_object'    => 'finance\bank\BankAccount',
                 // #memo - foreign_field cannot be used here, since it should be identity_id, which points back to current object's `id` instead of `identity_id`
                 'description'       => 'List of the bank account of the supplier.',
-                'domain'            => ['owner_identity_id', '=', 'object.identity_id']
+                'domain'            => [
+                    ['owner_identity_id', '=', 'object.identity_id'],
+                    ['owner_identity_id', '<>', null]
+                ]
             ],
 
             'addresses_ids' => [

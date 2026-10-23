@@ -201,7 +201,6 @@ class BankAccount extends Model {
                 continue;
             }
             $bank = Bank::search([
-                    ['object_class', '=', 'finance\bank\Bank'],
                     ['bic', '=', $bankAccount['bank_account_bic']]
                 ])
                 ->first();
@@ -219,7 +218,8 @@ class BankAccount extends Model {
                 continue;
             }
             if($bankAccount['is_primary']) {
-                Identity::id($bankAccount['owner_identity_id'])->update(['bank_account_iban' => $bankAccount['bank_account_iban']]);
+                Identity::id($bankAccount['owner_identity_id'])
+                    ->update(['bank_account_iban' => $bankAccount['bank_account_iban']]);
             }
         }
     }
@@ -231,7 +231,7 @@ class BankAccount extends Model {
             $result['bank_account_iban'] = preg_replace('/[^A-Z0-9]/i', '', $event['bank_account_iban']);
             $result['bank_country'] = self::computeCountryFromIban($result['bank_account_iban']);
             $bank_info = self::computeBankFromIban($result['bank_account_iban'], $lang);
-            if($bank_info) {
+            if($bank_info && isset($bank_info['name']) && isset($bank_info['bic'])) {
                 $result['bank_name'] = $bank_info['name'];
                 $result['bank_account_bic'] = $bank_info['bic'];
             }
@@ -276,7 +276,7 @@ class BankAccount extends Model {
         $self->read(['bank_account_iban']);
         foreach($self as $id => $bankAccount) {
             $bank_info = self::computeBankFromIban($bankAccount['bank_account_iban'], $lang);
-            if($bank_info) {
+            if($bank_info && isset($bank_info['bic'])) {
                 $result[$id] = $bank_info['bic'];
             }
         }
