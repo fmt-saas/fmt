@@ -465,7 +465,7 @@ class Ownership extends \equal\orm\Model {
             ],
             'generate_communication_prefs' => [
                 'description'   => 'Generate Communication Preferences for Ownership.',
-                'policies'      => ['can_generate_communication_prefs'],
+                'policies'      => [],
                 'function'      => 'doGenerateCommunicationPrefs'
             ],
             'generate_history' => [
@@ -489,10 +489,6 @@ class Ownership extends \equal\orm\Model {
             'has_valid_communication_preferences' => [
                 'description' => 'Verifies that communication preferences can be used for their selected channels.',
                 'function'    => 'policyHasValidCommunicationPreferences'
-            ],
-            'can_generate_communication_prefs' => [
-                'description' => 'Verifies that communication preferences can be generated.',
-                'function'    => 'policyCanGenerateCommunicationPrefs'
             ]
         ];
     }
@@ -596,108 +592,62 @@ class Ownership extends \equal\orm\Model {
     protected static function policyHasValidCommunicationPreferences($self) {
         $result = [];
 
+        $identity_fields = [
+            'email',
+            'email_alt',
+            'address_street',
+            'address_city',
+            'address_country'
+        ];
+
         $self->read([
-            'representative_identity_id' => ['email', 'email_alt'],
+            'representative_identity_id' => $identity_fields,
             'ownership_communication_preferences_ids' => [
                 'communication_reason',
                 'has_channel_email',
+                'has_channel_postal',
+                'has_channel_postal_registered',
+                'has_channel_postal_registered_receipt',
                 'owner_id' => [
-                    'identity_id' => ['email', 'email_alt']
+                    'identity_id' => $identity_fields
                 ]
             ]
         ]);
 
         foreach($self as $id => $ownership) {
             foreach($ownership['ownership_communication_preferences_ids'] as $communicationPreference) {
-                if(!$communicationPreference['has_channel_email']) {
-                    continue;
-                }
-
                 $identity = $communicationPreference['owner_id']['identity_id']
                     ?? $ownership['representative_identity_id']
                     ?? null;
+                $reason = $communicationPreference['communication_reason'] ?? 'unknown';
 
-                $has_email = $identity && (!empty($identity['email']) || !empty($identity['email_alt']));
+                if($communicationPreference['has_channel_email']) {
+                    $has_email = $identity && (!empty($identity['email']) || !empty($identity['email_alt']));
 
-                if(!$has_email) {
-                    $reason = $communicationPreference['communication_reason'] ?? 'unknown';
-                    $result[$id]['missing_email_for_' . $reason] =
-                        'An email address is required when email is used as communication channel.';
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    protected static function policyCanGenerateCommunicationPrefs($self) {
-        $result = [];
-
-        $identity_fields = [
-            'email',
-            'email_alt',
-            'address_street',
-            'address_zip',
-            'address_city',
-            'address_country'
-        ];
-
-        $self->read([
-            'condo_id',
-            'address_recipient',
-            'has_external_representative',
-            'representative_identity_id' => $identity_fields,
-            'representative_owner_id' => [
-                'ownership_id',
-                'identity_id' => $identity_fields
-            ]
-        ]);
-
-        foreach($self as $id => $ownership) {
-            if(!$ownership['condo_id']) {
-                $result[$id]['missing_condo_id'] = 'The condominium must be provided.';
-            }
-
-            if(trim((string) ($ownership['address_recipient'] ?? '')) === '') {
-                $result[$id]['missing_address_recipient'] = 'The postal address recipient must be provided.';
-            }
-
-            $identity = null;
-            if($ownership['has_external_representative']) {
-                $identity = $ownership['representative_identity_id'] ?? null;
-                if(!$identity) {
-                    $result[$id]['missing_representative_identity'] = 'The representative identity must be provided.';
-                }
-            }
-            else {
-                $representative_owner = $ownership['representative_owner_id'] ?? null;
-                if(!$representative_owner) {
-                    $result[$id]['missing_representative_owner'] = 'The representative owner must be provided.';
-                }
-                elseif($representative_owner['ownership_id'] !== $id) {
-                    $result[$id]['invalid_representative_owner'] = 'The representative owner must belong to the ownership.';
-                }
-                else {
-                    $identity = $representative_owner['identity_id'] ?? null;
-                    if(!$identity) {
-                        $result[$id]['missing_representative_identity'] = 'The representative owner must have a related identity.';
+                    if(!$has_email) {
+                        $result[$id]['missing_email_for_' . $reason] =
+                            'An email address is required when email is used as communication channel.';
                     }
                 }
-            }
 
-            if(!$identity) {
-                continue;
-            }
+                $has_postal_channel = $communicationPreference['has_channel_postal']
+                    || $communicationPreference['has_channel_postal_registered']
+                    || $communicationPreference['has_channel_postal_registered_receipt'];
 
-            foreach(['address_street', 'address_zip', 'address_city', 'address_country'] as $field) {
-                if(trim((string) ($identity[$field] ?? '')) === '') {
-                    $result[$id]['missing_' . $field] = 'The representative identity must have a complete postal address.';
+                if($has_postal_channel) {
+                    $has_complete_address = $identity;
+                    foreach(['address_street', 'address_city', 'address_country'] as $field) {
+                        if(trim((string) ($identity[$field] ?? '')) === '') {
+                            $has_complete_address = false;
+                            break;
+                        }
+                    }
+
+                    if(!$has_complete_address) {
+                        $result[$id]['missing_postal_address_for_' . $reason] =
+                            'A complete postal address is required when postal mail is used as communication channel.';
+                    }
                 }
-            }
-
-            if(trim((string) ($identity['email'] ?? '')) === ''
-                && trim((string) ($identity['email_alt'] ?? '')) === '') {
-                $result[$id]['missing_email'] = 'The representative identity must have an email address.';
             }
         }
 

@@ -86,21 +86,31 @@ if($dataImport['import_type'] == 'condominium_import') {
 
     $map_owners_codes = [];
     $map_owners_has_email = [];
+    $map_owners_has_complete_address = [];
     foreach($data['Owners'] as $owner) {
         if(isset($owner['code'])) {
             $map_owners_codes[$owner['code']] = true;
             $map_owners_has_email[$owner['code']] =
                 (isset($owner['email_1']) && trim((string) $owner['email_1']) !== '')
                 || (isset($owner['email_2']) && trim((string) $owner['email_2']) !== '');
+            $map_owners_has_complete_address[$owner['code']] =
+                trim((string) ($owner['street'] ?? '')) !== ''
+                && trim((string) ($owner['city'] ?? '')) !== ''
+                && trim((string) ($owner['country'] ?? '')) !== '';
         }
     }
 
     $map_external_representatives_has_email = [];
+    $map_external_representatives_has_complete_address = [];
     foreach($data['External_representatives'] ?? [] as $external_representative) {
         if(isset($external_representative['code'])) {
             $map_external_representatives_has_email[$external_representative['code']] =
                 (isset($external_representative['email_1']) && trim((string) $external_representative['email_1']) !== '')
                 || (isset($external_representative['email_2']) && trim((string) $external_representative['email_2']) !== '');
+            $map_external_representatives_has_complete_address[$external_representative['code']] =
+                trim((string) ($external_representative['street'] ?? '')) !== ''
+                && trim((string) ($external_representative['city'] ?? '')) !== ''
+                && trim((string) ($external_representative['country'] ?? '')) !== '';
         }
     }
 
@@ -120,6 +130,48 @@ if($dataImport['import_type'] == 'condominium_import') {
             if(isset($ownership['external_representative_code']) && trim((string) $ownership['external_representative_code']) !== '') {
                 $map_ownerships_external_representative_code[$ownership['code']] = $ownership['external_representative_code'];
             }
+        }
+    }
+
+    foreach(array_keys($map_ownerships_codes) as $ownership_code) {
+        if(trim((string) $ownership_code) === '') {
+            continue;
+        }
+
+        $contact_type = null;
+        $contact_code = null;
+        $has_email = false;
+        $has_complete_address = false;
+
+        if(isset($map_ownerships_external_representative_code[$ownership_code])) {
+            $contact_type = 'external representative';
+            $contact_code = $map_ownerships_external_representative_code[$ownership_code];
+            $has_email = $map_external_representatives_has_email[$contact_code] ?? false;
+            $has_complete_address = $map_external_representatives_has_complete_address[$contact_code] ?? false;
+        }
+        else {
+            $owner_codes = array_values(array_unique(array_filter(
+                $map_ownerships_owners_codes[$ownership_code] ?? [],
+                static fn($owner_code) => trim((string) $owner_code) !== ''
+            )));
+            if(count($owner_codes) !== 1) {
+                continue;
+            }
+
+            $contact_type = 'sole owner';
+            $contact_code = $owner_codes[0];
+            $has_email = $map_owners_has_email[$contact_code] ?? false;
+            $has_complete_address = $map_owners_has_complete_address[$contact_code] ?? false;
+        }
+
+        if(!$has_email) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing `email_1` or `email_2` for $contact_type with code '$contact_code' referenced by ownership_code '$ownership_code'";
+        }
+
+        if(!$has_complete_address) {
+            ++$result['errors'];
+            $result['logs'][] = "ERR - missing `street`, `city` or `country` for $contact_type with code '$contact_code' referenced by ownership_code '$ownership_code'";
         }
     }
 
