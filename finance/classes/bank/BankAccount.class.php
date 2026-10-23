@@ -9,6 +9,7 @@ namespace finance\bank;
 use equal\data\DataFormatter;
 use equal\orm\Model;
 use identity\Identity;
+use purchase\supplier\Suppliership;
 
 class BankAccount extends Model {
 
@@ -190,6 +191,18 @@ class BankAccount extends Model {
             ],
 
         ];
+    }
+
+    protected static function onafterinstantiate($self) {
+        $self->read(['supplier_id']);
+        foreach($self as $bankAccount) {
+            if(!$bankAccount['supplier_id']) {
+                continue;
+            }
+
+            Suppliership::search(['supplier_id', '=', $bankAccount['supplier_id']])
+                ->do('sync_bank_accounts');
+        }
     }
 
 

@@ -129,7 +129,7 @@ class Supplier extends Identity {
                 'description'       => 'List of the bank account of the supplier.',
                 'domain'            => [
                     ['owner_identity_id', '=', 'object.identity_id'],
-                    ['owner_identity_id', '<>', null]
+                    ['supplier_id', '=', 'object.id']
                 ]
             ],
 
