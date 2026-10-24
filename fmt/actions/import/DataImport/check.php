@@ -55,7 +55,28 @@ if(!$dataImport) {
 }
 
 // fetch parsed JSON
-$data = eQual::run('get', 'fmt_import_DataImport_parse', ['id' => $params['id']]);
+try {
+    $data = eQual::run('get', 'fmt_import_DataImport_parse', ['id' => $params['id']]);
+}
+catch(Exception $e) {
+    if($e->getMessage() !== 'invalid_import_headers') {
+        throw $e;
+    }
+
+    $result['errors'] = 1;
+    $result['logs'][] = "ERR - invalid column headers; column names and order must match the import template.";
+
+    DataImport::id($params['id'])
+        ->update([
+            'logs'      => json_encode($result['logs'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+            'status'    => 'failing'
+        ]);
+
+    $context->httpResponse()
+        ->body(['result' => $result])
+        ->send();
+    return;
+}
 
 $iban_constraints = (new UsageUri('uri/urn.iban'))->getConstraints();
 $is_valid_iban = static function(string $iban) use($iban_constraints): bool {

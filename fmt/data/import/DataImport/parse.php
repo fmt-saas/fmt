@@ -201,8 +201,17 @@ foreach($spreadsheet->getWorksheetIterator() as $worksheet) {
     $headers = $map[$dataImport['import_type']][$sheet_name] ?? current($map[$dataImport['import_type']]);
     $rows = $worksheet->toArray(null, true, true, true);
 
-    // skip first line
-    array_shift($rows);
+    $actual_headers = array_map(
+        static fn($header) => trim((string) $header),
+        array_values(array_shift($rows) ?? [])
+    );
+    while(count($actual_headers) > 0 && end($actual_headers) === '') {
+        array_pop($actual_headers);
+    }
+
+    if($actual_headers !== $headers) {
+        throw new Exception('invalid_import_headers', EQ_ERROR_INVALID_PARAM);
+    }
 
     $mappedData = [];
     foreach($rows as $row) {

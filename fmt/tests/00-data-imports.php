@@ -603,4 +603,71 @@ $tests = [
             }
         }
     ],
+    '0303' => [
+        'description'       => "Tests that condominium import check rejects invalid column headers.",
+        'help'              => "
+            Removes the shares_total column from the Ownerships sheet.
+            Triggers action fmt_import_DataImport_check on the malformed data import.
+            Asserts that the check reports the invalid headers and marks the import as failing.
+            Removes the created data import and document.
+        ",
+        'return'            => ['boolean'],
+        'arrange'           => function() {
+            $spreadsheet = IOFactory::load(EQ_BASEDIR . '/packages/fmt/tests/condominium_import.xlsx');
+            $worksheet = $spreadsheet->getSheetByName('Ownerships');
+            if(!$worksheet) {
+                throw new Exception('missing_ownerships_worksheet', EQ_ERROR_UNKNOWN);
+            }
+
+            $worksheet->removeColumn('F');
+
+            $tmpFile = tempnam(sys_get_temp_dir(), 'condominium_import_headers_test_');
+            if($tmpFile === false) {
+                throw new Exception('unable_to_create_temporary_import_file', EQ_ERROR_UNKNOWN);
+            }
+
+            try {
+                IOFactory::createWriter($spreadsheet, 'Xlsx')->save($tmpFile);
+                $data = file_get_contents($tmpFile);
+            }
+            finally {
+                $spreadsheet->disconnectWorksheets();
+                unlink($tmpFile);
+            }
+
+            $document = Document::create([
+                    'name' => 'Condominium import invalid headers test'
+                ])
+                ->update(['data' => $data])
+                ->read(['id'])
+                ->first();
+
+            return DataImport::create([
+                    'name'          => 'Condominium import invalid headers test',
+                    'document_id'   => $document['id'],
+                    'import_type'   => 'condominium_import'
+                ])
+                ->read(['id'])
+                ->first();
+        },
+        'act'               => function($data_import) {
+            return eQual::run('do', 'fmt_import_DataImport_check', ['id' => $data_import['id']])['result'];
+        },
+        'assert'            => function($check_results) {
+            $data_import = DataImport::search(['name', '=', 'Condominium import invalid headers test'])
+                ->read(['status'])
+                ->first();
+
+            return $check_results['errors'] === 1
+                && $check_results['logs'] === [
+                    "ERR - invalid column headers; column names and order must match the import template."
+                ]
+                && $data_import
+                && $data_import['status'] === 'failing';
+        },
+        'rollback'          => function() {
+            DataImport::search(['name', '=', 'Condominium import invalid headers test'])->delete(true);
+            Document::search(['name', '=', 'Condominium import invalid headers test'])->delete(true);
+        }
+    ],
 ];
