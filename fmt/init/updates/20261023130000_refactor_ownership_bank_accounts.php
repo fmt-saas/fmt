@@ -38,7 +38,7 @@ if(count($missing_source_columns)) {
 }
 
 $ownership_bank_account_rows = [];
-$result = $db->getRecords(
+$ownership_bank_account_result = $db->getRecords(
     $source_table,
     $required_source_columns,
     null,
@@ -48,7 +48,7 @@ $result = $db->getRecords(
         [['ownership_id', 'is not', null]]
     ]
 );
-while($row = $db->fetchArray($result)) {
+while($row = $db->fetchArray($ownership_bank_account_result)) {
     $ownership_bank_account_rows[(int) $row['id']] = $row;
 }
 
