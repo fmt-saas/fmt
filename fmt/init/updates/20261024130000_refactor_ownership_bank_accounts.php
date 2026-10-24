@@ -18,7 +18,7 @@ foreach([$source_table, $target_table] as $required_table) {
     }
 }
 
-$required_source_columns = [
+$source_fields = [
     'id',
     'model',
     'object_class',
@@ -28,19 +28,11 @@ $required_source_columns = [
     'is_primary',
     'is_validated'
 ];
-$source_columns = $db->getTableColumns($source_table);
-$missing_source_columns = array_values(array_diff($required_source_columns, $source_columns));
-if(count($missing_source_columns)) {
-    throw new Exception(
-        'missing_columns:' . implode(',', $missing_source_columns),
-        EQ_ERROR_INVALID_CONFIG
-    );
-}
 
 $ownership_bank_account_rows = [];
 $ownership_bank_account_result = $db->getRecords(
     $source_table,
-    $required_source_columns,
+    $source_fields,
     null,
     [
         [['object_class', '=', 'finance\\bank\\OwnershipBankAccount']],
