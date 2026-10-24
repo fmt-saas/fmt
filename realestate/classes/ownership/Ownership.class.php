@@ -7,6 +7,7 @@
 namespace realestate\ownership;
 
 use finance\accounting\Account;
+use finance\bank\OwnershipBankAccount;
 use fmt\setting\Setting;
 use realestate\property\PropertyLotOwnership;
 
@@ -472,6 +473,11 @@ class Ownership extends \equal\orm\Model {
                 'description'   => 'Used at validation to ensure a PropertyLotOwnership exists.',
                 'policies'      => [],
                 'function'      => 'doGenerateHistory'
+            ],
+            'sync_bank_accounts' => [
+                'description'   => 'Synchronize bank accounts available through the ownership owners.',
+                'policies'      => [],
+                'function'      => 'doSyncBankAccounts'
             ]
         ];
     }
@@ -829,6 +835,75 @@ class Ownership extends \equal\orm\Model {
                             'date_to'           => $ownership['date_to']
                         ]);
                 }
+            }
+        }
+    }
+
+    protected static function doSyncBankAccounts($self) {
+        $self->read([
+            'condo_id',
+            'owners_ids' => [
+                'identity_id' => ['bank_accounts_ids']
+            ]
+        ]);
+
+        foreach($self as $id => $ownership) {
+            if(!$ownership['condo_id']) {
+                continue;
+            }
+
+            $expected_bank_accounts = [];
+            foreach($ownership['owners_ids'] as $owner) {
+                $identity = $owner['identity_id'] ?? null;
+                if(!$identity) {
+                    continue;
+                }
+
+                foreach($identity['bank_accounts_ids'] as $bank_account_id) {
+                    $expected_bank_accounts[$bank_account_id] = $identity['id'];
+                }
+            }
+
+            $obsolete_ids = [];
+            $refresh_ids = [];
+            $ownershipBankAccounts = OwnershipBankAccount::search([
+                    ['ownership_id', '=', $id]
+                ])
+                ->read(['owner_identity_id', 'bank_account_id']);
+
+            foreach($ownershipBankAccounts as $ownership_bank_account_id => $ownershipBankAccount) {
+                $bank_account_id = $ownershipBankAccount['bank_account_id'];
+                if(!$bank_account_id || !isset($expected_bank_accounts[$bank_account_id])) {
+                    $obsolete_ids[] = $ownership_bank_account_id;
+                    continue;
+                }
+
+                $owner_identity_id = $expected_bank_accounts[$bank_account_id];
+                if($ownershipBankAccount['owner_identity_id'] !== $owner_identity_id) {
+                    OwnershipBankAccount::id($ownership_bank_account_id)
+                        ->update(['owner_identity_id' => $owner_identity_id]);
+                }
+
+                $refresh_ids[] = $ownership_bank_account_id;
+                unset($expected_bank_accounts[$bank_account_id]);
+            }
+
+            if(count($obsolete_ids)) {
+                OwnershipBankAccount::ids($obsolete_ids)->delete(true);
+            }
+
+            if(count($refresh_ids)) {
+                OwnershipBankAccount::ids($refresh_ids)
+                    ->do('refresh_bank_account_fields');
+            }
+
+            foreach($expected_bank_accounts as $bank_account_id => $owner_identity_id) {
+                OwnershipBankAccount::create([
+                        'condo_id'          => $ownership['condo_id'],
+                        'ownership_id'      => $id,
+                        'owner_identity_id' => $owner_identity_id,
+                        'bank_account_id'   => $bank_account_id
+                    ]);
             }
         }
     }

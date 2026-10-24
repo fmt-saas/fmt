@@ -56,6 +56,18 @@
                 "action": "generate_history",
                 "ids": []
             }
+        },
+        {
+            "id": "action.sync_bank_accounts",
+            "label": "Sync Bank Accounts",
+            "description": "Synchronize bank accounts available through the ownership owners.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\ownership\\Ownership",
+                "action": "sync_bank_accounts",
+                "ids": []
+            },
+            "confirm": false
         }
     ],
     "routes": [
@@ -215,9 +227,7 @@
                                                 "widget": {
                                                     "header": {
                                                         "actions": {
-                                                            "ACTION.CREATE": [ {
-                                                                "view_id": "form.create"
-                                                            } ]
+                                                            "ACTION.CREATE": false
                                                         }
                                                     }
                                                 }
