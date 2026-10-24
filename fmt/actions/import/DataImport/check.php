@@ -59,12 +59,21 @@ try {
     $data = eQual::run('get', 'fmt_import_DataImport_parse', ['id' => $params['id']]);
 }
 catch(Exception $e) {
-    if($e->getMessage() !== 'invalid_import_headers') {
+    $error = explode(':', $e->getMessage(), 4);
+    if($error[0] !== 'invalid_import_headers') {
         throw $e;
     }
 
+    $sheet_name = $error[1] ?? 'unknown';
+    $column = $error[2] ?? 'unknown';
+    $expected_header = $error[3] ?? '';
     $result['errors'] = 1;
-    $result['logs'][] = "ERR - invalid column headers; column names and order must match the import template.";
+    if($expected_header !== '') {
+        $result['logs'][] = "ERR - invalid column headers in `$sheet_name` sheet at column `$column`: expected `$expected_header`.";
+    }
+    else {
+        $result['logs'][] = "ERR - unexpected column in `$sheet_name` sheet at column `$column`.";
+    }
 
     DataImport::id($params['id'])
         ->update([

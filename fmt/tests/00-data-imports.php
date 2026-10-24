@@ -660,7 +660,7 @@ $tests = [
 
             return $check_results['errors'] === 1
                 && $check_results['logs'] === [
-                    "ERR - invalid column headers; column names and order must match the import template."
+                    "ERR - invalid column headers in `Ownerships` sheet at column `F`: expected `shares_total`."
                 ]
                 && $data_import
                 && $data_import['status'] === 'failing';
