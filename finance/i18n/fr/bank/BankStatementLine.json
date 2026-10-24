@@ -380,6 +380,7 @@
             "not_owner_line": "Seules les lignes liées à un ownership peuvent ajouter un compte bancaire.",
             "missing_ownership": "Aucun ownership cible n'est défini sur la ligne de relevé.",
             "missing_counterparty_iban": "Aucun IBAN de contrepartie n'est défini sur la ligne de relevé.",
+            "ownership_bank_account_owner_ambiguous": "Le titulaire du compte bancaire ne peut pas être déterminé sans ambiguïté parmi les propriétaires et le représentant externe.",
             "provided_funding_not_found": "Le funding fourni est introuvable.",
             "already_imported": "Fichier déjà importé."
         }

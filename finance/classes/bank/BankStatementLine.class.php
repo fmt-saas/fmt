@@ -17,6 +17,7 @@ use finance\bank\BankStatement;
 use finance\bank\CondominiumBankAccount;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
+use realestate\ownership\Ownership;
 
 class BankStatementLine extends Model {
 
@@ -602,35 +603,116 @@ class BankStatementLine extends Model {
     }
 
     protected static function doAddOwnershipBankAccount($self) {
-        $self->read(['condo_id', 'ownership_id', 'account_iban', 'account_bic']);
+        $self->read(['condo_id', 'ownership_id', 'account_iban']);
         foreach($self as $bankStatementLine) {
             if(!$bankStatementLine['account_iban']) {
                 continue;
             }
+
+            $iban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', $bankStatementLine['account_iban']));
             $ownershipBankAccounts = OwnershipBankAccount::search([
                     ['condo_id', '=', $bankStatementLine['condo_id']],
-                    ['ownership_id', '=', $bankStatementLine['ownership_id']]
+                    ['ownership_id', '=', $bankStatementLine['ownership_id']],
+                    ['bank_account_iban', '=', $iban]
                 ])
-                ->read(['bank_account_iban']);
+                ->read(['id']);
 
-            $iban_exists = false;
-            foreach($ownershipBankAccounts as $ownershipBankAccount) {
-                if($ownershipBankAccount['bank_account_iban'] === $bankStatementLine['account_iban']) {
-                    $iban_exists = true;
-                    break;
-                }
+            if($ownershipBankAccounts->count() > 0) {
+                continue;
             }
 
-            if(!$iban_exists) {
-                $values = [
-                    'condo_id'          => $bankStatementLine['condo_id'],
-                    'ownership_id'      => $bankStatementLine['ownership_id'],
-                    'bank_account_iban' => $bankStatementLine['account_iban'],
-                    'bank_account_bic'  => $bankStatementLine['account_bic'] ?? null
-                ];
-                OwnershipBankAccount::create($values);
+            $bankAccount = self::resolveOwnershipBankAccount(
+                $bankStatementLine['ownership_id'],
+                $iban
+            );
+
+            if(!$bankAccount) {
+                throw new \Exception('ownership_bank_account_owner_ambiguous', EQ_ERROR_INVALID_PARAM);
+            }
+
+            if(!$bankAccount['ownership_id']) {
+                BankAccount::id($bankAccount['id'])
+                    ->update(['ownership_id' => $bankStatementLine['ownership_id']]);
+            }
+
+            OwnershipBankAccount::create([
+                'condo_id'          => $bankStatementLine['condo_id'],
+                'ownership_id'      => $bankStatementLine['ownership_id'],
+                'owner_identity_id' => $bankAccount['owner_identity_id'],
+                'bank_account_id'   => $bankAccount['id']
+            ]);
+        }
+    }
+
+    private static function resolveOwnershipBankAccount($ownership_id, $iban) {
+        $ownership = Ownership::id($ownership_id)
+            ->read([
+                'has_external_representative',
+                'representative_identity_id',
+                'representative_owner_id' => ['identity_id'],
+                'owners_ids' => ['identity_id']
+            ])
+            ->first();
+
+        if(!$ownership) {
+            return null;
+        }
+
+        $allowed_identity_ids = [];
+        foreach($ownership['owners_ids'] as $owner) {
+            if($owner['identity_id']) {
+                $allowed_identity_ids[] = $owner['identity_id'];
             }
         }
+
+        $preferred_identity_id = $ownership['representative_owner_id']['identity_id'] ?? null;
+        if($ownership['has_external_representative'] && $ownership['representative_identity_id']) {
+            $allowed_identity_ids[] = $ownership['representative_identity_id'];
+            $preferred_identity_id = $ownership['representative_identity_id'];
+        }
+
+        $allowed_identity_ids = array_values(array_unique($allowed_identity_ids));
+        if(empty($allowed_identity_ids)) {
+            return null;
+        }
+
+        $bankAccounts = BankAccount::search([
+                ['owner_identity_id', 'in', $allowed_identity_ids],
+                ['bank_account_iban', '=', $iban]
+            ])
+            ->read(['owner_identity_id', 'ownership_id']);
+
+        if($preferred_identity_id) {
+            foreach($bankAccounts as $bankAccount) {
+                if($bankAccount['owner_identity_id'] === $preferred_identity_id) {
+                    return $bankAccount;
+                }
+            }
+        }
+
+        if($bankAccounts->count() === 1) {
+            return $bankAccounts->first();
+        }
+
+        if($bankAccounts->count() > 1) {
+            return null;
+        }
+
+        if(!$preferred_identity_id && count($allowed_identity_ids) === 1) {
+            $preferred_identity_id = reset($allowed_identity_ids);
+        }
+
+        if(!$preferred_identity_id) {
+            return null;
+        }
+
+        return BankAccount::create([
+                'owner_identity_id' => $preferred_identity_id,
+                'ownership_id'      => $ownership_id,
+                'bank_account_iban' => $iban
+            ])
+            ->read(['owner_identity_id', 'ownership_id'])
+            ->first();
     }
 
 

@@ -1,87 +1,127 @@
 {
-    "name": "Compte bancaire coproprietaire",
-    "plural": "Comptes bancaires coproprietaires",
-    "description": "Coordonnees bancaires renseignees par une copropriete/ownership pour remboursements.",
+    "name": "Compte bancaire d'ownership",
+    "plural": "Comptes bancaires d'ownership",
+    "description": "Lien entre une ownership et le compte bancaire d'un propriétaire ou de son représentant externe.",
     "model": {
         "condo_id": {
-            "label": "Copropriete",
-            "description": "Immeuble rattache au compte.",
-            "help": "Champs affiche uniquement lorsque le compte n'est pas lie a une organisation."
+            "label": "Copropriété",
+            "description": "Copropriété de l'ownership.",
+            "help": "La copropriété est reprise depuis l'ownership."
         },
-        "bank_account_type": {
-            "label": "Type de compte",
-            "description": "Type operationnel (courant, epargne, ...).",
-            "help": "Doit correspondre au code d'affectation utilise dans le plan comptable."
+        "name": {
+            "label": "Compte bancaire",
+            "description": "Libellé du compte bancaire lié.",
+            "help": "Le libellé est calculé depuis le compte bancaire."
         },
         "ownership_id": {
             "label": "Ownership",
-            "description": "Ownership proprietaire du compte.",
-            "help": ""
+            "description": "Ownership pouvant utiliser le compte bancaire.",
+            "help": "Le compte est disponible pour les remboursements de cette ownership."
         },
         "description": {
             "label": "Description",
-            "description": "Libelle calcule reprenant le nom de l'ownership.",
-            "help": ""
+            "description": "Nom calculé de l'ownership.",
+            "help": "La valeur est calculée depuis l'ownership."
         },
         "ownership_code": {
             "label": "Code ownership",
-            "description": "Code unique associe a l'ownership.",
-            "help": ""
+            "description": "Code calculé de l'ownership.",
+            "help": "La valeur est calculée depuis l'ownership."
+        },
+        "allowed_owner_identity_ids": {
+            "label": "Identités autorisées",
+            "description": "Propriétaires et représentant externe autorisés.",
+            "help": "Cette liste limite les titulaires pouvant être sélectionnés."
         },
         "owner_identity_id": {
-            "label": "Identite liée",
-            "description": "Identite à laquelle le compte bancaire appartient.",
-            "help": ""
+            "label": "Titulaire",
+            "description": "Propriétaire ou représentant externe titulaire du compte.",
+            "help": "L'identité doit appartenir à l'ownership ou être son représentant externe."
         },
-        "accounting_account_id": {
-            "label": "Compte comptable",
-            "description": "Compte comptable déduit via le type de compte.",
-            "help": ""
+        "bank_account_id": {
+            "label": "Compte bancaire",
+            "description": "Compte bancaire mis à disposition de l'ownership.",
+            "help": "Le compte doit appartenir au titulaire sélectionné et être actif."
         },
-        "is_validated": {
-            "label": "Compte valide",
-            "description": "Confirme par le proprietaire via le self service.",
-            "help": "Permet de limiter les remboursements aux comptes approuves."
+        "bank_account_type": {
+            "label": "Type de compte",
+            "description": "Type du compte bancaire lié.",
+            "help": "La valeur est calculée depuis le compte bancaire."
         },
         "bank_account_iban": {
             "label": "IBAN",
-            "description": "Numero IBAN du compte.",
-            "help": ""
+            "description": "IBAN du compte bancaire lié.",
+            "help": "La valeur est calculée depuis le compte bancaire."
         },
         "bank_account_bic": {
             "label": "BIC",
-            "description": "Code BIC lié à la banque.",
-            "help": ""
+            "description": "BIC du compte bancaire lié.",
+            "help": "La valeur est calculée depuis le compte bancaire."
+        },
+        "bank_account_suffix": {
+            "label": "Suffixe",
+            "description": "Suffixe du compte bancaire lié.",
+            "help": "La valeur est calculée depuis le compte bancaire."
+        },
+        "bank_country": {
+            "label": "Pays",
+            "description": "Pays du compte bancaire lié.",
+            "help": "La valeur est calculée depuis l'IBAN."
         },
         "bank_name": {
             "label": "Banque",
-            "description": "Nom de la banque detenant le compte.",
-            "help": ""
+            "description": "Nom de la banque du compte lié.",
+            "help": "La valeur est calculée depuis l'IBAN."
         },
-        "bank_country": {
-            "label": "Pays banque",
-            "description": "Pays ou se trouve la banque.",
-            "help": ""
+        "bank_id": {
+            "label": "Banque",
+            "description": "Banque associée au compte lié.",
+            "help": "La valeur est calculée depuis le compte bancaire."
+        },
+        "is_active": {
+            "label": "Actif",
+            "description": "Indique si le compte bancaire lié est actif.",
+            "help": "Un compte inactif ne doit plus être utilisé."
         },
         "is_primary": {
             "label": "Compte principal",
-            "description": "Indique si ce compte est definie par defaut pour l'ownership.",
-            "help": ""
+            "description": "Indique le compte privilégié pour l'ownership.",
+            "help": "Le compte principal est proposé en priorité pour les remboursements."
         },
-        "available_balance": {
-            "label": "Solde disponible",
-            "description": "Solde calcule pour information.",
-            "help": ""
+        "accounting_account_id": {
+            "label": "Compte comptable",
+            "description": "Compte comptable associé au type de compte bancaire.",
+            "help": "La valeur est déterminée depuis la copropriété et le type du compte."
+        },
+        "is_validated": {
+            "label": "Compte validé",
+            "description": "Indique que l'ownership a confirmé le compte bancaire.",
+            "help": "Seuls les comptes confirmés devraient être utilisés pour les remboursements."
         }
     },
     "view": {
         "form.default": {
-            "name": "Compte ownership",
-            "description": "Fiche des coordonnees bancaires (IBAN, BIC, coproprietaire, validation)."
+            "name": "Compte bancaire d'ownership",
+            "description": "Détails du compte bancaire disponible pour l'ownership."
+        },
+        "form.create": {
+            "name": "Ajouter un compte bancaire",
+            "description": "Sélectionner un compte d'un propriétaire ou du représentant externe."
         },
         "list.default": {
-            "name": "Comptes ownership",
-            "description": "Liste etendue des comptes bancaires d'ownership avec solde."
+            "name": "Comptes bancaires d'ownership",
+            "description": "Comptes bancaires disponibles pour les remboursements d'ownerships."
+        }
+    },
+    "error": {
+        "owner_identity_id": {
+            "invalid_owner_identity_id": "Le titulaire doit être un propriétaire de l'ownership ou son représentant externe."
+        },
+        "bank_account_id": {
+            "invalid_bank_account_owner": "Le compte bancaire n'appartient pas au titulaire sélectionné."
+        },
+        "id": {
+            "non_removable": "Le compte bancaire principal de l'ownership ne peut pas être supprimé."
         }
     }
 }

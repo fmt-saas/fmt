@@ -1,0 +1,36 @@
+{
+    "name": "Ownership bank account",
+    "plural": "Ownership bank accounts",
+    "description": "Link between an ownership and a bank account held by an owner or its external representative.",
+    "model": {
+        "condo_id": { "label": "Condominium", "description": "Condominium of the ownership.", "help": "The condominium is inherited from the ownership." },
+        "name": { "label": "Bank account", "description": "Display name of the linked bank account.", "help": "The value is computed from the bank account." },
+        "ownership_id": { "label": "Ownership", "description": "Ownership allowed to use the bank account.", "help": "The account is available for refunds to this ownership." },
+        "description": { "label": "Description", "description": "Computed name of the ownership.", "help": "The value is computed from the ownership." },
+        "ownership_code": { "label": "Ownership code", "description": "Computed code of the ownership.", "help": "The value is computed from the ownership." },
+        "allowed_owner_identity_ids": { "label": "Allowed identities", "description": "Owners and external representative allowed for the account.", "help": "This list restricts the identities that can be selected." },
+        "owner_identity_id": { "label": "Account holder", "description": "Owner or external representative holding the account.", "help": "The identity must belong to the ownership or be its external representative." },
+        "bank_account_id": { "label": "Bank account", "description": "Bank account made available to the ownership.", "help": "The account must belong to the selected holder and be active." },
+        "bank_account_type": { "label": "Account type", "description": "Type of the linked bank account.", "help": "The value is computed from the bank account." },
+        "bank_account_iban": { "label": "IBAN", "description": "IBAN of the linked bank account.", "help": "The value is computed from the bank account." },
+        "bank_account_bic": { "label": "BIC", "description": "BIC of the linked bank account.", "help": "The value is computed from the bank account." },
+        "bank_account_suffix": { "label": "Suffix", "description": "Suffix of the linked bank account.", "help": "The value is computed from the bank account." },
+        "bank_country": { "label": "Country", "description": "Country of the linked bank account.", "help": "The value is computed from the IBAN." },
+        "bank_name": { "label": "Bank", "description": "Name of the bank holding the linked account.", "help": "The value is computed from the IBAN." },
+        "bank_id": { "label": "Bank", "description": "Bank associated with the linked account.", "help": "The value is computed from the bank account." },
+        "is_active": { "label": "Active", "description": "Indicates whether the linked bank account is active.", "help": "An inactive account should no longer be used." },
+        "is_primary": { "label": "Primary account", "description": "Indicates the preferred account for the ownership.", "help": "The primary account is preferred for refunds." },
+        "accounting_account_id": { "label": "Accounting account", "description": "Accounting account associated with the bank account type.", "help": "The value is determined from the condominium and account type." },
+        "is_validated": { "label": "Validated account", "description": "Indicates that the ownership confirmed the bank account.", "help": "Only confirmed accounts should be used for refunds." }
+    },
+    "view": {
+        "form.default": { "name": "Ownership bank account", "description": "Details of the bank account available to the ownership." },
+        "form.create": { "name": "Add a bank account", "description": "Select an account held by an owner or external representative." },
+        "list.default": { "name": "Ownership bank accounts", "description": "Bank accounts available for ownership refunds." }
+    },
+    "error": {
+        "owner_identity_id": { "invalid_owner_identity_id": "The holder must be an owner of the ownership or its external representative." },
+        "bank_account_id": { "invalid_bank_account_owner": "The bank account does not belong to the selected holder." },
+        "id": { "non_removable": "The primary ownership bank account cannot be removed." }
+    }
+}

@@ -12,6 +12,7 @@ use finance\accounting\Journal;
 use finance\accounting\OpeningBalance;
 use finance\bank\Bank;
 use finance\bank\BankAccount;
+use finance\bank\OwnershipBankAccount;
 use finance\bank\SuppliershipBankAccount;
 use hr\employee\Employee;
 use fmt\import\DataImport;
@@ -593,6 +594,7 @@ $tests = [
                 FiscalPeriod::getType(),
                 FiscalYear::getType(),
                 Journal::getType(),
+                OwnershipBankAccount::getType(),
                 SuppliershipBankAccount::getType()
             ];
             foreach($types as $type) {

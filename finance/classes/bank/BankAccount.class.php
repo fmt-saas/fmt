@@ -410,6 +410,11 @@ class BankAccount extends Model {
                     ]);
             }
         }
+
+        OwnershipBankAccount::search(['bank_account_id', 'in', $self->ids()])
+            ->do('refresh_bank_account_fields');
+        SuppliershipBankAccount::search(['bank_account_id', 'in', $self->ids()])
+            ->do('refresh_bank_account_fields');
     }
 
     protected static function doSyncUuidLinks($self) {
