@@ -72,7 +72,6 @@ class DocumentType extends Model {
                     'agency'        // visible only to syndic (employees)
                 ],
                 'default'           => 'agency',
-                'onupdate'          => 'onupdateDocumentVisibility',
                 'description'       => 'Defines who can access the document.',
                 'help'              => 'This field is synchronized with the node and updates automatically when the parent node visibility changes.'
             ],

@@ -328,7 +328,7 @@
                 },
                 "action.add_ownership_bank_account": {
                     "label": "Ajouter le compte bancaire de l'ownership",
-                    "description": "Ajouter l'IBAN de contrepartie aux comptes bancaires de l'ownership ciblé."
+                    "description": "Ajouter l'IBAN de contrepartie à l'ownership ciblé pour le propriétaire sélectionné."
                 }
             }
         },
@@ -380,7 +380,9 @@
             "not_owner_line": "Seules les lignes liées à un ownership peuvent ajouter un compte bancaire.",
             "missing_ownership": "Aucun ownership cible n'est défini sur la ligne de relevé.",
             "missing_counterparty_iban": "Aucun IBAN de contrepartie n'est défini sur la ligne de relevé.",
-            "ownership_bank_account_owner_ambiguous": "Le titulaire du compte bancaire ne peut pas être déterminé sans ambiguïté parmi les propriétaires et le représentant externe.",
+            "missing_owner": "Un propriétaire doit être sélectionné.",
+            "invalid_ownership": "L'ownership fourni ne correspond pas à celui de la ligne de relevé.",
+            "invalid_owner": "Le propriétaire sélectionné n'appartient pas à l'ownership ciblé ou n'a pas d'identité associée.",
             "provided_funding_not_found": "Le funding fourni est introuvable.",
             "already_imported": "Fichier déjà importé."
         }

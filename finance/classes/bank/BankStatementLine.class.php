@@ -17,7 +17,7 @@ use finance\bank\BankStatement;
 use finance\bank\CondominiumBankAccount;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
-use realestate\ownership\Ownership;
+use realestate\ownership\Owner;
 
 class BankStatementLine extends Model {
 
@@ -538,7 +538,7 @@ class BankStatementLine extends Model {
                 'function'      => 'doRefreshBankStatementStatus'
             ],
             'add_ownership_bank_account' => [
-                'description'   => 'Add the counterparty IBAN to the targeted ownership bank accounts if it is not already present.',
+                'description'   => 'Add the counterparty IBAN to the targeted ownership for the selected owner if it is not already present.',
                 'policies'      => ['can_add_ownership_bank_account'],
                 'function'      => 'doAddOwnershipBankAccount'
             ],
@@ -604,11 +604,28 @@ class BankStatementLine extends Model {
         return $result;
     }
 
-    protected static function doAddOwnershipBankAccount($self) {
+    protected static function doAddOwnershipBankAccount($self, $values=[]) {
+        $owner_id = $values['owner_id'] ?? null;
+        if(!$owner_id) {
+            throw new \Exception('missing_owner', EQ_ERROR_MISSING_PARAM);
+        }
+
         $self->read(['condo_id', 'ownership_id', 'account_iban']);
         foreach($self as $bankStatementLine) {
             if(!$bankStatementLine['account_iban']) {
                 continue;
+            }
+
+            $owner = Owner::id($owner_id)
+                ->read(['ownership_id', 'identity_id'])
+                ->first();
+
+            if(
+                !$owner
+                || !$owner['identity_id']
+                || $owner['ownership_id'] !== $bankStatementLine['ownership_id']
+            ) {
+                throw new \Exception('invalid_owner', EQ_ERROR_INVALID_PARAM);
             }
 
             $iban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', $bankStatementLine['account_iban']));
@@ -623,13 +640,21 @@ class BankStatementLine extends Model {
                 continue;
             }
 
-            $bankAccount = self::resolveOwnershipBankAccount(
-                $bankStatementLine['ownership_id'],
-                $iban
-            );
+            $bankAccount = BankAccount::search([
+                    ['owner_identity_id', '=', $owner['identity_id']],
+                    ['bank_account_iban', '=', $iban]
+                ])
+                ->read(['owner_identity_id', 'ownership_id'])
+                ->first();
 
             if(!$bankAccount) {
-                throw new \Exception('ownership_bank_account_owner_ambiguous', EQ_ERROR_INVALID_PARAM);
+                $bankAccount = BankAccount::create([
+                        'owner_identity_id' => $owner['identity_id'],
+                        'ownership_id'      => $bankStatementLine['ownership_id'],
+                        'bank_account_iban' => $iban
+                    ])
+                    ->read(['owner_identity_id', 'ownership_id'])
+                    ->first();
             }
 
             if(!$bankAccount['ownership_id']) {
@@ -640,81 +665,10 @@ class BankStatementLine extends Model {
             OwnershipBankAccount::create([
                 'condo_id'          => $bankStatementLine['condo_id'],
                 'ownership_id'      => $bankStatementLine['ownership_id'],
-                'owner_identity_id' => $bankAccount['owner_identity_id'],
+                'owner_identity_id' => $owner['identity_id'],
                 'bank_account_id'   => $bankAccount['id']
             ]);
         }
-    }
-
-    private static function resolveOwnershipBankAccount($ownership_id, $iban) {
-        $ownership = Ownership::id($ownership_id)
-            ->read([
-                'has_external_representative',
-                'representative_identity_id',
-                'representative_owner_id' => ['identity_id'],
-                'owners_ids' => ['identity_id']
-            ])
-            ->first();
-
-        if(!$ownership) {
-            return null;
-        }
-
-        $allowed_identity_ids = [];
-        foreach($ownership['owners_ids'] as $owner) {
-            if($owner['identity_id']) {
-                $allowed_identity_ids[] = $owner['identity_id'];
-            }
-        }
-
-        $preferred_identity_id = $ownership['representative_owner_id']['identity_id'] ?? null;
-        if($ownership['has_external_representative'] && $ownership['representative_identity_id']) {
-            $allowed_identity_ids[] = $ownership['representative_identity_id'];
-            $preferred_identity_id = $ownership['representative_identity_id'];
-        }
-
-        $allowed_identity_ids = array_values(array_unique($allowed_identity_ids));
-        if(empty($allowed_identity_ids)) {
-            return null;
-        }
-
-        $bankAccounts = BankAccount::search([
-                ['owner_identity_id', 'in', $allowed_identity_ids],
-                ['bank_account_iban', '=', $iban]
-            ])
-            ->read(['owner_identity_id', 'ownership_id']);
-
-        if($preferred_identity_id) {
-            foreach($bankAccounts as $bankAccount) {
-                if($bankAccount['owner_identity_id'] === $preferred_identity_id) {
-                    return $bankAccount;
-                }
-            }
-        }
-
-        if($bankAccounts->count() === 1) {
-            return $bankAccounts->first();
-        }
-
-        if($bankAccounts->count() > 1) {
-            return null;
-        }
-
-        if(!$preferred_identity_id && count($allowed_identity_ids) === 1) {
-            $preferred_identity_id = reset($allowed_identity_ids);
-        }
-
-        if(!$preferred_identity_id) {
-            return null;
-        }
-
-        return BankAccount::create([
-                'owner_identity_id' => $preferred_identity_id,
-                'ownership_id'      => $ownership_id,
-                'bank_account_iban' => $iban
-            ])
-            ->read(['owner_identity_id', 'ownership_id'])
-            ->first();
     }
 
 
