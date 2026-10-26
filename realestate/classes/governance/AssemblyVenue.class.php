@@ -9,5 +9,6 @@ namespace realestate\governance;
 class AssemblyVenue extends \equal\orm\Model {
 
     public static function getColumns() {
+        return [];
     }
 }

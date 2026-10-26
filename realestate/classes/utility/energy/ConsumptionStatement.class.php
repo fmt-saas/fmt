@@ -68,7 +68,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'foreign_object' => 'documents\Document',
                 'description'    => 'Original document of the consumption statement.',
                 'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
-                'visible'        => ['status', 'not in ', ['draft', 'proforma']]
+                'visible'        => ['status', 'not in', ['draft', 'proforma']]
             ],
 
             // #memo - kept optional for compatibility with statements with meter-based workflow.
@@ -133,7 +133,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'usage'          => 'amount/money:2',
                 'description'    => 'Total amount shown on the consumption statement.',
                 'help'           => 'Enter the statement total manually. It is used to verify the totals of the lines and allocations.',
-                'visible'        => ['status', 'not in ', ['draft', 'proforma']]
+                'visible'        => ['status', 'not in', ['draft', 'proforma']]
             ],
 
             'status' => [
