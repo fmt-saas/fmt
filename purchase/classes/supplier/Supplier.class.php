@@ -185,6 +185,13 @@ class Supplier extends Identity {
                 'onupdate'          => 'onupdateAddressCountry'
             ],
 
+            'labeling_rule_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'documents\labeling\LabelingRule',
+                'description'    => 'Labeling rule assigned to the supplier.',
+                'ondelete'       => 'null'
+            ]
+
         ];
     }
 
