@@ -109,5 +109,62 @@ $tests = [
                 unlink($output_file);
             }
         }
+    ],
+    '0003' => [
+        'description' => 'Generate a PDF with Ghostscript.',
+        'help'        => 'The gs binary must convert a minimal PDF into a valid PDF document.',
+        'act'         => static function() use($first_pdf): array {
+            $output_file = sys_get_temp_dir()
+                .DIRECTORY_SEPARATOR
+                .'fmt-ghostscript-'.bin2hex(random_bytes(8)).'.pdf';
+            $escaped_output = escapeshellarg($output_file);
+
+            $ghostscript_output = [];
+            $ghostscript_result_code = 0;
+            $command = 'gs -q -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -sOutputFile='
+                .$escaped_output
+                .' '
+                .escapeshellarg($first_pdf)
+                .' 2>&1';
+            exec($command, $ghostscript_output, $ghostscript_result_code);
+
+            $pdf_signature = null;
+            $validation_output = [];
+            $validation_result_code = null;
+            if(is_file($output_file)) {
+                $handle = fopen($output_file, 'rb');
+                if(is_resource($handle)) {
+                    $pdf_signature = fread($handle, 5);
+                    fclose($handle);
+                }
+
+                $validation_result_code = 0;
+                exec(
+                    'qpdf --check '.$escaped_output.' 2>&1',
+                    $validation_output,
+                    $validation_result_code
+                );
+            }
+
+            return [
+                'output_file'                 => $output_file,
+                'ghostscript_result_code'     => $ghostscript_result_code,
+                'ghostscript_output'          => implode("\n", $ghostscript_output),
+                'pdf_signature'               => $pdf_signature,
+                'validation_result_code'      => $validation_result_code,
+                'validation_output'           => implode("\n", $validation_output)
+            ];
+        },
+        'assert'      => static function(array $result): bool {
+            return $result['ghostscript_result_code'] === 0
+                && $result['pdf_signature'] === '%PDF-'
+                && $result['validation_result_code'] === 0;
+        },
+        'rollback'    => static function($result): void {
+            $output_file = is_array($result) ? ($result['output_file'] ?? null) : null;
+            if(is_string($output_file) && is_file($output_file)) {
+                unlink($output_file);
+            }
+        }
     ]
 ];
