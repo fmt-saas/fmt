@@ -35,31 +35,25 @@
         },
         "gs": {
             "version": ">=10.0",
-            "check": "gs -q -dNODISPLAY -c quit",
+            "check": "gs -v",
             "package": {
                 "generic": "ghostscript"
             },
             "persist": {
                 "paths": [
                     "/usr/share/ghostscript",
-                    {
-                        "source": "/usr/share/color/icc/ghostscript",
-                        "required": false
-                    },
-                    {
-                        "source": "/usr/share/fonts/type1/urw-base35",
-                        "required": false
-                    }
+                    "/usr/share/color/icc/ghostscript",
+                    "/usr/share/fonts/type1/urw-base35"
                 ],
                 "environment": {
                     "GS_LIB": [
-                        "{rootfs}/usr/share/ghostscript/*/Resource/Init",
-                        "{rootfs}/usr/share/ghostscript/*/lib",
-                        "{rootfs}/usr/share/ghostscript/*/Resource",
-                        "{rootfs}/usr/share/color/icc/ghostscript"
+                        "/usr/share/ghostscript/*/Resource/Init",
+                        "/usr/share/ghostscript/*/lib",
+                        "/usr/share/ghostscript/*/Resource",
+                        "/usr/share/color/icc/ghostscript"
                     ],
                     "GS_FONTPATH": [
-                        "{rootfs}/usr/share/fonts"
+                        "/usr/share/fonts"
                     ]
                 }
             }
