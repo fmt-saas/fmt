@@ -85,12 +85,14 @@ class BankStatementLine extends Model {
             'payment_status' => [
                 'type'              => 'string',
                 'selection'         => [
+                    'pending',          // payment balance has not been evaluated yet
                     'debit_balance',    // buyer still has to pay something
                     'credit_balance',   // reimbursement to buyer is required
                     'balanced'          // fully paid and balanced
                 ],
                 'visible'           => ['status', '=', 'posted'],
-                'default'           => 'pending'
+                'default'           => 'pending',
+                'description'       => 'Payment balance status of the bank statement line.'
             ],
 
             'date' => [
@@ -266,7 +268,7 @@ class BankStatementLine extends Model {
                 'type'              => 'string',
                 'description'       => 'Proprietary or extended account identifier (e.g. ING sub-account, not SEPA-valid).',
                 // #memo - so far this only applies to ING bank
-                'domain'            => ['account_bic', '=', 'BBRUBEBB']
+                'visible'            => ['account_bic', '=', 'BBRUBEBB']
             ],
 
             'account_bic' => [

@@ -155,7 +155,7 @@ class BankStatement extends Model {
                 'type'              => 'string',
                 'description'       => 'Proprietary or extended account identifier (e.g. ING sub-account, not SEPA-valid).',
                 // #memo - so far this only applies to ING bank
-                'domain'            => ['bank_account_bic', '=', 'BBRUBEBB']
+                'visible'           => ['bank_account_bic', '=', 'BBRUBEBB']
             ],
 
             'statement_lines_ids' => [
