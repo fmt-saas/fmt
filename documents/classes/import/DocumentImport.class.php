@@ -34,7 +34,6 @@ class DocumentImport extends Model {
                 'description'       => "The condominium the document belongs to.",
                 'help'              => "At first, this value can be left to null (might be assigned manually or retrieved from document filename).",
                 'foreign_object'    => 'realestate\property\Condominium',
-                'onupdate'          => 'onupdateCondoId',
                 'dependents'        => ['suppliership_id'],
                 'required'          => true
             ],
@@ -43,7 +42,6 @@ class DocumentImport extends Model {
                 'type'              => 'many2one',
                 'description'       => "The ownership that the document relates to, if any.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
-                'onupdate'          => 'onupdateOwnershipId',
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 
@@ -71,7 +69,6 @@ class DocumentImport extends Model {
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\DocumentType',
                 'description'       => 'Document type associated with the document.',
-                'onupdate'          => 'onupdateDocumentTypeId',
                 'domain'            => ['code', 'not in', ['supplier_invoice', 'bank_statement']],
                 'dependents'        => ['document_type_code'],
                 'required'          => true
@@ -82,7 +79,6 @@ class DocumentImport extends Model {
                 'foreign_object'    => 'documents\DocumentSubtype',
                 'description'       => 'Document subtype associated with the document, if any.',
                 'domain'            => ['document_type_id', '=', 'object.document_type_id'],
-                'onupdate'          => 'onupdateDocumentSubtypeId',
                 'dependents'        => ['document_subtype_code']
             ],
 
@@ -124,7 +120,6 @@ class DocumentImport extends Model {
                     'agency'        // visible only to syndic (employees)
                 ],
                 'default'           => 'agency',
-                'onupdate'          => 'onupdateDocumentVisibility',
                 'description'       => 'Defines who can access the document.',
                 'help'              => 'This field is synchronized with the node and updates automatically when the parent node visibility changes.'
             ],

@@ -47,7 +47,6 @@ class ExportingTaskLine extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => 'The document (PDF) of the invitation, if any.',
                 'foreign_object'    => 'documents\Document',
-                'onupdate'          => 'onupdateDocumentId',
                 'visible'           => [['status', '=', 'ready']]
             ],
 
