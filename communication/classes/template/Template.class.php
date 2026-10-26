@@ -90,7 +90,7 @@ class Template extends Model {
         ];
     }
 
-    public static function calcName($self) {
+    protected static function calcName($self) {
         $result = [];
         $self->read(['state', 'code', 'type', 'category']);
         foreach($self as $id => $template) {
