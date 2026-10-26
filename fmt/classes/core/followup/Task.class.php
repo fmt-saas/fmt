@@ -29,8 +29,7 @@ class Task extends \core\followup\Task {
                 'result_type'       => 'string',
                 'description'       => "Short description of the task.",
                 'store'             => true,
-                'function'          => 'calcDescription',
-                'dependents'        => ['task_type', 'purchase_invoice_id']
+                'function'          => 'calcDescription'
             ],
 
             'is_done' => [
@@ -61,14 +60,16 @@ class Task extends \core\followup\Task {
                     'purchase_invoice'
                 ],
                 'default'           => 'purchase_invoice',
-                'required'          => true
+                'required'          => true,
+                'dependents'        => ['description', 'object_class', 'object_id']
             ],
 
             'purchase_invoice_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoice',
                 'description'       => 'Purchase invoice the task relates to.',
-                'readonly'          => true
+                'readonly'          => true,
+                'dependents'        => ['description', 'object_class', 'object_id']
             ],
 
             'object_class' => [
@@ -78,7 +79,6 @@ class Task extends \core\followup\Task {
                 'store'             => true,
                 'instant'           => true,
                 'function'          => 'calcObjectClass',
-                'dependents'        => ['task_type', 'purchase_invoice_id'],
                 'readonly'          => true
             ],
 
@@ -89,7 +89,6 @@ class Task extends \core\followup\Task {
                 'store'             => true,
                 'instant'           => true,
                 'function'          => 'calcObjectId',
-                'dependents'        => ['task_type', 'purchase_invoice_id'],
                 'readonly'          => true
             ]
 

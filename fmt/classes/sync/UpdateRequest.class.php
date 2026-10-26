@@ -84,7 +84,7 @@ class UpdateRequest extends Model {
 
             'approval_user_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'core\user\User',
+                'foreign_object'    => 'core\User',
                 'description'       => 'User who approved this update.',
                 'visible'           => ['status', '=', 'approved']
             ],
@@ -103,7 +103,7 @@ class UpdateRequest extends Model {
 
             'rejection_user_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'core\user\User',
+                'foreign_object'    => 'core\User',
                 'description'       => 'User who rejected this update.',
                 'visible'           => ['status', '=', 'rejected']
             ],
