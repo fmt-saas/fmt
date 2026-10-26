@@ -33,7 +33,7 @@
                 "macos": "poppler"
             }
         },
-        "ghostscript": {
+        "gs": {
             "version": ">=10.0",
             "check": "gs -q -dNODISPLAY -c quit",
             "package": {
