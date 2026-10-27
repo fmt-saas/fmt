@@ -393,6 +393,28 @@ class Condominium extends Identity {
         ];
     }
 
+    /*
+     * #todo - Replace this legacy guard with an EQ_R_CREATE rule in getOperationPolicies()
+     * once create(), draft(), and instantiate() consistently enforce operation policies.
+     * This currently protects create() and clone(), but not direct draft()/instantiate() flows.
+     */
+    protected static function cancreate($self, $values, $auth, $access): array {
+        $user_id = $auth->userId();
+
+        if(
+            $user_id !== EQ_ROOT_USER_ID
+            && !$access->userHasGroup($user_id, 'admins')
+        ) {
+            return [
+                'id' => [
+                    'not_allowed' => 'Only administrators can create condominiums.'
+                ]
+            ];
+        }
+
+        return parent::cancreate($self, $values);
+    }
+
     public static function getPolicies(): array {
         return [
             'is_valid' => [
