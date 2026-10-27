@@ -95,11 +95,32 @@
     "view": {
         "form.default": {
             "name": "Compte comptable",
-            "description": "Formulaire détaillé (code, nature, ventilation, rattachements copropriété et actionnaires)."
+            "description": "Formulaire détaillé (code, nature, ventilation, rattachements copropriété et actionnaires).",
+            "actions": {
+                "action.duplicate_tree": {
+                    "label": "Dupliquer la hiérarchie de comptes",
+                    "description": "Dupliquer ce compte et tous ses sous-comptes en ajoutant le suffixe choisi à chaque libellé."
+                }
+            }
         },
         "list.default": {
             "name": "Comptes comptables",
             "description": "Liste hiérarchique des comptes visibles (code, classe, nature, clés de répartition)."
+        }
+    },
+    "error": {
+        "errors": {
+            "missing_condo_id": "Le compte doit appartenir à une copropriété.",
+            "missing_account_chart_id": "Le compte doit appartenir à un plan comptable.",
+            "invalid_account_chart": "Le plan comptable doit appartenir à la même copropriété que le compte.",
+            "not_control_account": "Seul un compte collecteur peut être dupliqué avec ses sous-comptes.",
+            "invalid_account_type": "Seul un compte de résultat peut être dupliqué.",
+            "invalid_account_class": "Seul un compte de charge de classe 6 peut être dupliqué.",
+            "invalid_source_code": "Le code du compte source doit contenir exactement six chiffres et se terminer par 00.",
+            "duplicate_index_exhausted": "Aucun index de duplication n'est plus disponible pour ce code de compte (la limite est 99).",
+            "assigned_related_account": "Aucun compte parent, compte source ou sous-compte ne peut avoir d'affectation d'opération.",
+            "target_code_exists": "La hiérarchie de comptes cible contient déjà au moins un compte.",
+            "missing_suffix": "Un suffixe non vide est requis pour dupliquer les comptes."
         }
     }
 }

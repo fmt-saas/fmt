@@ -1,0 +1,33 @@
+{
+    "name": "Boekhoudrekening",
+    "plural": "Boekhoudrekeningen",
+    "description": "Een regel in een rekeningschema.",
+    "model": {},
+    "view": {
+        "form.default": {
+            "name": "Boekhoudrekening",
+            "description": "Gedetailleerd formulier voor een boekhoudrekening.",
+            "actions": {
+                "action.duplicate_tree": {
+                    "label": "Rekeninghiërarchie dupliceren",
+                    "description": "Dupliceer deze rekening en alle subrekeningen en voeg het gekozen achtervoegsel aan elk label toe."
+                }
+            }
+        }
+    },
+    "error": {
+        "errors": {
+            "missing_condo_id": "De rekening moet aan een mede-eigendom gekoppeld zijn.",
+            "missing_account_chart_id": "De rekening moet tot een rekeningschema behoren.",
+            "invalid_account_chart": "Het rekeningschema moet tot hetzelfde mede-eigendom als de rekening behoren.",
+            "not_control_account": "Alleen een verzamelrekening kan samen met haar subrekeningen worden gedupliceerd.",
+            "invalid_account_type": "Alleen een resultatenrekening kan worden gedupliceerd.",
+            "invalid_account_class": "Alleen een kostenrekening van klasse 6 kan worden gedupliceerd.",
+            "invalid_source_code": "De code van de bronrekening moet uit precies zes cijfers bestaan en eindigen op 00.",
+            "duplicate_index_exhausted": "Er is geen duplicatie-index meer beschikbaar voor deze rekeningcode (de limiet is 99).",
+            "assigned_related_account": "Geen bovenliggende rekening, bronrekening of subrekening mag een bewerkingstoewijzing hebben.",
+            "target_code_exists": "De doelhiërarchie bevat al minstens één rekening.",
+            "missing_suffix": "Een niet-leeg achtervoegsel is vereist om de rekeningen te dupliceren."
+        }
+    }
+}

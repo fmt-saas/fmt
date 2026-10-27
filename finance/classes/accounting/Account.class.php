@@ -5,6 +5,7 @@
     Licensed under the GNU AGPL v3 License - https://www.gnu.org/licenses/agpl-3.0.html
 */
 namespace finance\accounting;
+use core\Lang;
 use equal\orm\Model;
 use fmt\setting\Setting;
 use realestate\finance\accounting\AccountingEntry;
@@ -342,6 +343,284 @@ class Account extends Model {
         return [
             ['condo_id', 'code']
         ];
+    }
+
+    public static function getPolicies(): array {
+        return array_merge(parent::getPolicies(), [
+            'can_duplicate_tree' => [
+                'description' => 'Verifies that an account and its sub-accounts can be duplicated.',
+                'function'    => 'policyCanDuplicateTree'
+            ]
+        ]);
+    }
+
+    public static function getActions() {
+        return array_merge(parent::getActions(), [
+            'duplicate_tree' => [
+                'description' => 'Duplicates an account and all its sub-accounts.',
+                'help'        => 'Only six-digit expense control accounts ending in 00 and without operation assignments in their hierarchy can be duplicated.',
+                'policies'    => ['can_duplicate_tree'],
+                'function'    => 'doDuplicateTree'
+            ]
+        ]);
+    }
+
+    protected static function policyCanDuplicateTree($self): array {
+        $result = [];
+
+        $self->read([
+            'condo_id',
+            'account_chart_id',
+            'code',
+            'account_type',
+            'account_class',
+            'is_control_account'
+        ]);
+
+        foreach($self as $id => $account) {
+            if(!$account['condo_id']) {
+                $result[$id] = [
+                    'missing_condo_id' => 'The account must belong to a condominium.'
+                ];
+                continue;
+            }
+
+            if(!$account['account_chart_id']) {
+                $result[$id] = [
+                    'missing_account_chart_id' => 'The account must belong to a chart of accounts.'
+                ];
+                continue;
+            }
+
+            $accountChart = AccountChart::id($account['account_chart_id'])
+                ->read(['condo_id'])
+                ->first();
+
+            if(!$accountChart || !$accountChart['condo_id'] || $accountChart['condo_id'] !== $account['condo_id']) {
+                $result[$id] = [
+                    'invalid_account_chart' => 'The chart of accounts must belong to the same condominium as the account.'
+                ];
+                continue;
+            }
+
+            if(!$account['is_control_account']) {
+                $result[$id] = [
+                    'not_control_account' => 'Only a control account can be duplicated with its sub-accounts.'
+                ];
+                continue;
+            }
+
+            if($account['account_type'] !== 'I') {
+                $result[$id] = [
+                    'invalid_account_type' => 'Only an income statement account can be duplicated.'
+                ];
+                continue;
+            }
+
+            if($account['account_class'] !== 6) {
+                $result[$id] = [
+                    'invalid_account_class' => 'Only a class 6 expense account can be duplicated.'
+                ];
+                continue;
+            }
+
+            $sourceCode = (string) $account['code'];
+            if(strlen($sourceCode) !== 6 || !ctype_digit($sourceCode) || substr($sourceCode, -2) !== '00') {
+                $result[$id] = [
+                    'invalid_source_code' => 'The source account code must contain exactly six digits and end in 00.'
+                ];
+                continue;
+            }
+
+            $targetRootCode = self::computeNextDuplicateRootCode($account['account_chart_id'], $sourceCode);
+            if($targetRootCode === null) {
+                $result[$id] = [
+                    'duplicate_index_exhausted' => 'No duplicate index is available for this account code.'
+                ];
+                continue;
+            }
+
+            $chartAccounts = self::search([
+                    ['account_chart_id', '=', $account['account_chart_id']]
+                ])
+                ->read(['code', 'is_control_account', 'operation_assignment']);
+
+            $existingCodes = [];
+            $condoAccounts = self::search([
+                    ['condo_id', '=', $account['condo_id']]
+                ])
+                ->read(['code']);
+
+            foreach($condoAccounts as $condoAccount) {
+                $existingCodes[(string) $condoAccount['code']] = true;
+            }
+
+            $hasOperationAssignment = false;
+
+            foreach($chartAccounts as $chartAccount) {
+                $chartAccountCode = (string) $chartAccount['code'];
+
+                $isSourceAccount = $chartAccountCode === $sourceCode;
+                $isDescendant = strlen($chartAccountCode) > strlen($sourceCode)
+                    && strncmp($chartAccountCode, $sourceCode, strlen($sourceCode)) === 0;
+                $isAncestor = $chartAccount['is_control_account']
+                    && strlen($chartAccountCode) < strlen($sourceCode)
+                    && strncmp($sourceCode, $chartAccountCode, strlen($chartAccountCode)) === 0;
+
+                if(($isSourceAccount || $isDescendant || $isAncestor) && $chartAccount['operation_assignment']) {
+                    $hasOperationAssignment = true;
+                }
+
+            }
+
+            if($hasOperationAssignment) {
+                $result[$id] = [
+                    'assigned_related_account' => 'The account hierarchy must not contain an operation assignment.'
+                ];
+                continue;
+            }
+
+            foreach(array_keys($existingCodes) as $existingCode) {
+                if(strncmp($existingCode, $targetRootCode, strlen($targetRootCode)) === 0) {
+                    $result[$id] = [
+                        'target_code_exists' => 'The target account hierarchy already contains at least one account.'
+                    ];
+                    break;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function doDuplicateTree($self, $values, $lang) {
+        if(!isset($values['suffix']) || !is_string($values['suffix']) || trim($values['suffix']) === '') {
+            throw new \Exception('missing_suffix', EQ_ERROR_INVALID_PARAM);
+        }
+
+        $suffix = $values['suffix'];
+        $copyFields = [
+            'code',
+            'condo_id',
+            'account_chart_id',
+            'description',
+            'account_category',
+            'is_visible',
+            'is_control_account',
+            'is_tier_balance',
+            'operation_assignment',
+            'apportionment_id',
+            'vat_rate',
+            'tenant_share',
+            'owner_share',
+            'owner_share_usufruct',
+            'owner_share_bare',
+            'ownership_id',
+            'suppliership_id',
+            'condo_bank_account_id'
+        ];
+
+        $self->read(['account_chart_id', 'code']);
+
+        foreach($self as $account) {
+            $sourceCode = (string) $account['code'];
+            $targetRootCode = self::computeNextDuplicateRootCode($account['account_chart_id'], $sourceCode);
+            if($targetRootCode === null) {
+                throw new \Exception('duplicate_index_exhausted', EQ_ERROR_INVALID_PARAM);
+            }
+
+            $sourceAccounts = self::search(
+                    [
+                        ['account_chart_id', '=', $account['account_chart_id']],
+                        ['code', 'like', $sourceCode . '%']
+                    ],
+                    ['sort' => ['code' => 'asc']]
+                )
+                ->read($copyFields, $lang);
+
+            $mapSourceTargetIds = [];
+
+            foreach($sourceAccounts as $sourceAccountId => $sourceAccount) {
+                $targetCode = $targetRootCode . substr($sourceAccount['code'], strlen($sourceCode));
+                $newAccount = self::create([
+                        'condo_id'              => $sourceAccount['condo_id'],
+                        'account_chart_id'      => $sourceAccount['account_chart_id'],
+                        'code'                  => $targetCode,
+                        'description'           => ((string) $sourceAccount['description']) . $suffix,
+                        'account_category'      => $sourceAccount['account_category'],
+                        'is_visible'            => $sourceAccount['is_visible'],
+                        'is_control_account'    => $sourceAccount['is_control_account'],
+                        'is_tier_balance'       => $sourceAccount['is_tier_balance'],
+                        'operation_assignment'  => $sourceAccount['operation_assignment'],
+                        'apportionment_id'       => $sourceAccount['apportionment_id'],
+                        'vat_rate'               => $sourceAccount['vat_rate'],
+                        'tenant_share'           => $sourceAccount['tenant_share'],
+                        'owner_share'            => $sourceAccount['owner_share'],
+                        'owner_share_usufruct'   => $sourceAccount['owner_share_usufruct'],
+                        'owner_share_bare'       => $sourceAccount['owner_share_bare'],
+                        'ownership_id'           => $sourceAccount['ownership_id'],
+                        'suppliership_id'        => $sourceAccount['suppliership_id'],
+                        'condo_bank_account_id'  => $sourceAccount['condo_bank_account_id']
+                    ],
+                    $lang
+                )
+                ->first();
+
+                $mapSourceTargetIds[$sourceAccountId] = $newAccount['id'];
+            }
+
+            $languages = Lang::search()->read(['code']);
+
+            foreach($languages as $language) {
+                if($language['code'] === $lang) {
+                    continue;
+                }
+
+                $translatedAccounts = self::ids(array_keys($mapSourceTargetIds))
+                    ->read(['description'], $language['code']);
+
+                foreach($translatedAccounts as $sourceAccountId => $translatedAccount) {
+                    if($translatedAccount['description'] === null) {
+                        continue;
+                    }
+
+                    self::id($mapSourceTargetIds[$sourceAccountId])
+                        ->update([
+                            'description' => ((string) $translatedAccount['description']) . $suffix
+                        ], $language['code']);
+                }
+            }
+        }
+    }
+
+    private static function computeNextDuplicateRootCode(int $accountChartId, string $sourceCode): ?string {
+        $codePrefix = substr($sourceCode, 0, 4);
+        $highestIndex = 0;
+        $accounts = self::search([
+                ['account_chart_id', '=', $accountChartId],
+                ['code', 'like', $codePrefix . '%']
+            ])
+            ->read(['code']);
+
+        foreach($accounts as $account) {
+            $accountCode = (string) $account['code'];
+            if(strlen($accountCode) !== 6 || strncmp($accountCode, $codePrefix, strlen($codePrefix)) !== 0) {
+                continue;
+            }
+
+            $index = substr($accountCode, -2);
+            if(!ctype_digit($index)) {
+                continue;
+            }
+
+            $highestIndex = max($highestIndex, (int) $index);
+        }
+
+        if($highestIndex >= 99) {
+            return null;
+        }
+
+        return $codePrefix . str_pad((string) ($highestIndex + 1), 2, '0', STR_PAD_LEFT);
     }
 
     private static function computeAccountNature(string $code) {
