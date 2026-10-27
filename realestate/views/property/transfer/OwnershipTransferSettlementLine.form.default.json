@@ -15,7 +15,7 @@
                                         "width": "50%",
                                         "items": [
                                             {"type": "field", "value": "settlement_id", "width": "100%"},
-                                            {"type": "field", "value": "condo_id", "width": "100%", "visible": false},
+                                            {"type": "field", "value": "condo_id", "width": "100%", "visible": false, "widget": {"header": {"actions": {"ACTION.CREATE": false}}}},
                                             {"type": "field", "value": "seller_ownership_id", "width": "50%"},
                                             {"type": "field", "value": "buyer_ownership_id", "width": "50%"},
                                             {"type": "field", "value": "property_lot_id", "width": "100%"}

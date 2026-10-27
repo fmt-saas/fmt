@@ -162,7 +162,14 @@
                                                 "value": "condo_id",
                                                 "width": "25%",
                                                 "readonly": true,
-                                                "visible": false
+                                                "visible": false,
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

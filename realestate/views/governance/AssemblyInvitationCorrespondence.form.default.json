@@ -29,7 +29,14 @@
                                                 "type": "field",
                                                 "value": "condo_id",
                                                 "width": "100%",
-                                                "visible": false
+                                                "visible": false,
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",

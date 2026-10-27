@@ -35,7 +35,14 @@
                                                 "label": "Condominium",
                                                 "value": "condo_id",
                                                 "width": "50%",
-                                                "visible": false
+                                                "visible": false,
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
