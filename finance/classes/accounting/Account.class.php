@@ -498,7 +498,7 @@ class Account extends Model {
             throw new \Exception('missing_suffix', EQ_ERROR_INVALID_PARAM);
         }
 
-        $suffix = $values['suffix'];
+        $suffix = ' - ' . $values['suffix'];
         $copyFields = [
             'code',
             'condo_id',
