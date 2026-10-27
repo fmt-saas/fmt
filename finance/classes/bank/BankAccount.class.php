@@ -127,8 +127,7 @@ class BankAccount extends Model {
                 'dependents'        => ['name', 'bank_country', 'bank_account_bic', 'bank_name', 'bank_id'],
                 // for individuals, several persons might share/have a bank account in common
                 // 'unique'            => true
-                'required'          => true,
-                'onupdate'          => 'onupdateBankAccountIban'
+                'required'          => true
             ],
 
             'bank_account_bic' => [
@@ -194,6 +193,8 @@ class BankAccount extends Model {
     }
 
     protected static function onafterinstantiate($self) {
+        $self->do('sync_owner_identity_bank_account');
+
         $self->read(['supplier_id']);
         foreach($self as $bankAccount) {
             if(!$bankAccount['supplier_id']) {
@@ -222,19 +223,6 @@ class BankAccount extends Model {
             }
         }
         return $result;
-    }
-
-    protected static function onupdateBankAccountIban($self) {
-        $self->read(['owner_identity_id', 'bank_account_iban', 'is_primary']);
-        foreach($self as $id => $bankAccount) {
-            if(!$bankAccount['owner_identity_id']) {
-                continue;
-            }
-            if($bankAccount['is_primary']) {
-                Identity::id($bankAccount['owner_identity_id'])
-                    ->update(['bank_account_iban' => $bankAccount['bank_account_iban']]);
-            }
-        }
     }
 
     public static function onchange($event, $values, $lang) {
@@ -400,6 +388,22 @@ class BankAccount extends Model {
      *
      */
     protected static function onafterupdate($self, $values) {
+        if(array_intersect_key($values, array_flip([
+            'owner_identity_id',
+            'is_primary',
+            'bank_account_iban',
+            'bank_account_bic'
+        ]))) {
+            $self->do('sync_owner_identity_bank_account');
+        }
+
+        OwnershipBankAccount::search(['bank_account_id', 'in', $self->ids()])
+            ->do('refresh_bank_account_fields');
+        SuppliershipBankAccount::search(['bank_account_id', 'in', $self->ids()])
+            ->do('refresh_bank_account_fields');
+    }
+
+    protected static function doSyncOwnerIdentityBankAccount($self) {
         $self->read(['is_primary', 'owner_identity_id', 'bank_account_iban', 'bank_account_bic']);
         foreach($self as $id => $bankAccount) {
             if($bankAccount['is_primary'] && $bankAccount['owner_identity_id']) {
@@ -410,11 +414,6 @@ class BankAccount extends Model {
                     ]);
             }
         }
-
-        OwnershipBankAccount::search(['bank_account_id', 'in', $self->ids()])
-            ->do('refresh_bank_account_fields');
-        SuppliershipBankAccount::search(['bank_account_id', 'in', $self->ids()])
-            ->do('refresh_bank_account_fields');
     }
 
     protected static function doSyncUuidLinks($self) {
@@ -433,6 +432,11 @@ class BankAccount extends Model {
 
     public static function getActions() {
         return [
+            'sync_owner_identity_bank_account' => [
+                'description'   => 'Synchronize the primary bank account fields with the owner identity.',
+                'policies'      => [],
+                'function'      => 'doSyncOwnerIdentityBankAccount'
+            ],
             'sync_uuid_links' => [
                 'description'   => 'Synchronize the uuid links.',
                 'policies'      => [],

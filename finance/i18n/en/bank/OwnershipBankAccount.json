@@ -24,7 +24,13 @@
         "is_validated": { "label": "Validated account", "description": "Indicates that the ownership confirmed the bank account.", "help": "Only confirmed accounts should be used for refunds." }
     },
     "view": {
-        "form.default": { "name": "Ownership bank account", "description": "Details of the bank account available to the ownership." },
+        "form.default": {
+            "name": "Ownership bank account",
+            "description": "Details of the bank account available to the ownership.",
+            "actions": {
+                "action.mark_as_primary": { "label": "Mark as primary", "description": "Mark this bank account as primary for the ownership." }
+            }
+        },
         "form.create": { "name": "Add a bank account", "description": "Select an account held by an owner or external representative." },
         "list.default": { "name": "Ownership bank accounts", "description": "Bank accounts available for ownership refunds." }
     },

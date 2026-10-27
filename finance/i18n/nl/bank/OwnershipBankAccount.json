@@ -24,7 +24,13 @@
         "is_validated": { "label": "Gevalideerde rekening", "description": "Geeft aan dat de eigendom de bankrekening heeft bevestigd.", "help": "Alleen bevestigde rekeningen mogen voor terugbetalingen worden gebruikt." }
     },
     "view": {
-        "form.default": { "name": "Bankrekening van een eigendom", "description": "Details van de bankrekening die voor de eigendom beschikbaar is." },
+        "form.default": {
+            "name": "Bankrekening van een eigendom",
+            "description": "Details van de bankrekening die voor de eigendom beschikbaar is.",
+            "actions": {
+                "action.mark_as_primary": { "label": "Als primair markeren", "description": "Markeer deze bankrekening als primaire rekening voor de eigendom." }
+            }
+        },
         "form.create": { "name": "Bankrekening toevoegen", "description": "Selecteer een rekening van een eigenaar of externe vertegenwoordiger." },
         "list.default": { "name": "Bankrekeningen van eigendommen", "description": "Bankrekeningen beschikbaar voor terugbetalingen aan eigendommen." }
     },

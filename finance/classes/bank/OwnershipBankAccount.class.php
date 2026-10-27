@@ -218,6 +218,11 @@ class OwnershipBankAccount extends Model {
                 'description'   => 'Ensure that only one primary account exists per ownership and account type.',
                 'policies'      => [],
                 'function'      => 'doEnsurePrimaryAccount'
+            ],
+            'mark_as_primary' => [
+                'description'   => 'Mark the account as primary for its ownership.',
+                'policies'      => [],
+                'function'      => 'doMarkAsPrimary'
             ]
         ];
     }
@@ -306,6 +311,22 @@ class OwnershipBankAccount extends Model {
                     ['is_primary', '=', true]
                 ])
                 ->update(['is_primary' => false]);
+        }
+    }
+
+    protected static function doMarkAsPrimary($self) {
+        $self->read(['ownership_id']);
+
+        foreach($self as $id => $ownershipBankAccount) {
+            OwnershipBankAccount::search([
+                    ['id', '<>', $id],
+                    ['ownership_id', '=', $ownershipBankAccount['ownership_id']],
+                    ['is_primary', '=', true]
+                ])
+                ->update(['is_primary' => false]);
+
+            OwnershipBankAccount::id($id)
+                ->update(['is_primary' => true]);
         }
     }
 

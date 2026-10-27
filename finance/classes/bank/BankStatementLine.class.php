@@ -646,10 +646,17 @@ class BankStatementLine extends Model {
                 ->first();
 
             if(!$bankAccount) {
+                $hasPrimaryBankAccount = BankAccount::search([
+                        ['owner_identity_id', '=', $owner['identity_id']],
+                        ['is_primary', '=', true]
+                    ])
+                    ->count() > 0;
+
                 $bankAccount = BankAccount::create([
                         'owner_identity_id' => $owner['identity_id'],
                         'ownership_id'      => $bankStatementLine['ownership_id'],
-                        'bank_account_iban' => $iban
+                        'bank_account_iban' => $iban,
+                        'is_primary'        => !$hasPrimaryBankAccount
                     ])
                     ->read(['owner_identity_id', 'ownership_id'])
                     ->first();

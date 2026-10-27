@@ -1,6 +1,25 @@
 {
     "name": "Ownership Bank Account",
     "description": "Bank account made available to an ownership.",
+    "header": {
+        "actions": {
+            "ACTION.EDIT": false
+        }
+    },
+    "actions": [
+        {
+            "id": "action.mark_as_primary",
+            "label": "Mark as primary",
+            "description": "Mark this bank account as primary for the ownership.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "finance\\bank\\OwnershipBankAccount",
+                "action": "mark_as_primary",
+                "ids": []
+            },
+            "visible": ["is_primary", "=", false]
+        }
+    ],
     "layout": {
         "groups": [
             {

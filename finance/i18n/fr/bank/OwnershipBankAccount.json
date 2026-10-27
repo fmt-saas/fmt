@@ -102,7 +102,13 @@
     "view": {
         "form.default": {
             "name": "Compte bancaire d'ownership",
-            "description": "Détails du compte bancaire disponible pour l'ownership."
+            "description": "Détails du compte bancaire disponible pour l'ownership.",
+            "actions": {
+                "action.mark_as_primary": {
+                    "label": "Marquer comme principal",
+                    "description": "Marquer ce compte bancaire comme compte principal de l'ownership."
+                }
+            }
         },
         "form.create": {
             "name": "Ajouter un compte bancaire",
