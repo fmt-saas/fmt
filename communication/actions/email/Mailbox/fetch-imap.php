@@ -44,7 +44,7 @@ $getCleanedHtml = function($html) {
     $normalized_html = preg_replace(
         [
             '~<(?:wbr|hr)\b[^>]*>~i',
-            '~</tr\s*>~i',
+            '~</(?:tr|p)\s*>~i',
             '~</(?:td|th)\s*>~i'
         ],
         ['<br />', '<br />', ' '],
@@ -57,9 +57,9 @@ $getCleanedHtml = function($html) {
             '~<script\b[^>]*>.*?</script\s*>~is',
             '~<style\b[^>]*>.*?</style\s*>~is',
             '~<(?:meta|link|base|img)\b[^>]*>~is',
-            '~</?(?:html|body|div|font|wbr|hr|table|thead|tbody|tfoot|tr|td|th)\b[^>]*>~i',
+            '~</?(?:html|body|div|font|wbr|hr|table|thead|tbody|tfoot|tr|td|th|p)\b[^>]*>~i',
             '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
-            '~\s+(?:face|color|alt|src|width|height|lang|clear|value|id)\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
+            '~\s+(?:face|color|alt|src|width|height|lang|clear|value|id|role|aria-[a-z][a-z0-9:_-]*)\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
             '~\s+href\s*=\s*(?:"\s*javascript\s*:[^"]*"|\'\s*javascript\s*:[^\']*\'|javascript\s*:[^\s>]+)~i'
         ],
         '',
