@@ -40,15 +40,7 @@ use equal\http\HttpRequest;
 
 
 $getCleanedHtml = function($html) {
-    $normalized_html = preg_replace(
-        [
-            '~<(?:wbr|hr)\b[^>]*>~i',
-            '~</(?:tr|p)\s*>~i',
-            '~</(?:td|th)\s*>~i'
-        ],
-        ['<br />', '<br />', ' '],
-        (string) $html
-    );
+    $normalized_html = preg_replace('~</p\s*>~i', '<br />', (string) $html);
 
     $cleaned_html = preg_replace(
         [
@@ -56,13 +48,19 @@ $getCleanedHtml = function($html) {
             '~<script\b[^>]*>.*?</script\s*>~is',
             '~<style\b[^>]*>.*?</style\s*>~is',
             '~<(?:meta|link|base|img)\b[^>]*>~is',
-            '~</?(?:html|body|div|font|wbr|hr|table|thead|tbody|tfoot|tr|td|th|p)\b[^>]*>~i',
+            '~</?(?:html|body|font|center|p)\b[^>]*>~i',
             '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
             '~\s+(?:face|color|alt|src|width|height|lang|clear|value|id|role|tabindex|shape|start|(?:aria|data)-[a-z][a-z0-9:_-]*)\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
             '~\s+href\s*=\s*(?:"\s*javascript\s*:[^"]*"|\'\s*javascript\s*:[^\']*\'|javascript\s*:[^\s>]+)~i'
         ],
         '',
         $normalized_html ?? ''
+    );
+
+    $cleaned_html = preg_replace(
+        '~(?:^[\t ]*<br\s*/?>[\t ]*(?:\R|$)){2,}~mi',
+        "<br />\n",
+        $cleaned_html ?? ''
     );
 
     $max_body_length = 65000;
