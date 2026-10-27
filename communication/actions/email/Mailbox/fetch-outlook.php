@@ -40,19 +40,25 @@ use equal\http\HttpRequest;
 
 
 $getCleanedHtml = function($html) {
+    $normalized_html = preg_replace(
+        '~<(?:wbr|hr)\b[^>]*>~i',
+        '<br />',
+        (string) $html
+    );
+
     $cleaned_html = preg_replace(
         [
             '~<head\b[^>]*>.*?</head\s*>~is',
             '~<script\b[^>]*>.*?</script\s*>~is',
             '~<style\b[^>]*>.*?</style\s*>~is',
-            '~<(?:meta|link|base|img|hr)\b[^>]*>~is',
-            '~</?(?:html|body|div|font|wbr)\b[^>]*>~i',
+            '~<(?:meta|link|base|img)\b[^>]*>~is',
+            '~</?(?:html|body|div|font|wbr|hr)\b[^>]*>~i',
             '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
-            '~\s+(?:face|color|alt|src|width|height)\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
+            '~\s+(?:face|color|alt|src|width|height|lang)\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
             '~\s+href\s*=\s*(?:"\s*javascript\s*:[^"]*"|\'\s*javascript\s*:[^\']*\'|javascript\s*:[^\s>]+)~i'
         ],
         '',
-        (string) $html
+        $normalized_html ?? ''
     );
 
     return $cleaned_html ?? '';
