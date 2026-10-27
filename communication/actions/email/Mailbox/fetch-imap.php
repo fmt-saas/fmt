@@ -41,7 +41,14 @@ use documents\Document;
 ['context' => $context, 'orm' => $om, 'auth' => $auth] = $providers;
 
 $getCleanedHtml = function($html) {
-    $normalized_html = preg_replace('~</p\s*>~i', '<br />', (string) $html);
+    $normalized_html = preg_replace(
+        [
+            '~</(?:p|tr|caption)\s*>~i',
+            '~</(?:td|th)\s*>~i'
+        ],
+        ['<br />', ' '],
+        (string) $html
+    );
 
     $cleaned_html = preg_replace(
         [
@@ -49,7 +56,7 @@ $getCleanedHtml = function($html) {
             '~<script\b[^>]*>.*?</script\s*>~is',
             '~<style\b[^>]*>.*?</style\s*>~is',
             '~<(?:meta|link|base|img)\b[^>]*>~is',
-            '~</?(?:html|body|font|center|p)\b[^>]*>~i',
+            '~</?(?:html|body|font|center|p|table|thead|tbody|tfoot|tr|td|th|caption|colgroup|col)\b[^>]*>~i',
             '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
             '~\s+(?:face|color|alt|src|width|height|lang|clear|value|id|role|tabindex|shape|start|(?:aria|data)-[a-z][a-z0-9:_-]*)\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
             '~\s+href\s*=\s*(?:"\s*javascript\s*:[^"]*"|\'\s*javascript\s*:[^\']*\'|javascript\s*:[^\s>]+)~i'
