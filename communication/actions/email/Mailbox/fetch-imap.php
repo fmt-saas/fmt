@@ -66,6 +66,13 @@ $getCleanedHtml = function($html) {
         $normalized_html ?? ''
     );
 
+    $max_body_length = 65000;
+    if(strlen($cleaned_html) > $max_body_length) {
+        $suffix = '[...]';
+        $cleaned_html = mb_strcut($cleaned_html, 0, $max_body_length - strlen($suffix), 'UTF-8');
+        $cleaned_html = preg_replace('/<[^>]*$/', '', $cleaned_html) . $suffix;
+    }
+
     return $cleaned_html ?? '';
 };
 
