@@ -57,7 +57,7 @@ $getCleanedHtml = function($html) {
             '~<(?:meta|link|base|img)\b[^>]*>~is',
             '~</?(?:html|body|font|center|p|table|thead|tbody|tfoot|tr|td|th|caption|colgroup|col)\b[^>]*>~i',
             '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
-            '~\s+(?:face|color|alt|src|width|height|lang|clear|value|id|role|tabindex|shape|start|(?:aria|data)-[a-z][a-z0-9:_-]*)\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
+            '~\s+(?:face|color|alt|src|width|height|lang|clear|value|id|name|role|tabindex|shape|start|(?:aria|data)-[a-z][a-z0-9:_-]*)\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
             '~\s+href\s*=\s*(?:"\s*javascript\s*:[^"]*"|\'\s*javascript\s*:[^\']*\'|javascript\s*:[^\s>]+)~i'
         ],
         '',
