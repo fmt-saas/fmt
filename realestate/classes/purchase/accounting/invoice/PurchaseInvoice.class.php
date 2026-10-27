@@ -433,6 +433,11 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
                 'policies'      => [],
                 'function'      => 'doUpdateDocumentJson'
             ],
+            'sync_date_range' => [
+                'description'   => 'Synchronize the date range with the related fiscal period.',
+                'policies'      => [],
+                'function'      => 'doSyncDateRange'
+            ],
             'assign_invoice_number' => [
                 'description'   => 'Creates accounting entries according to invoice lines.',
                 'policies'      => [],
@@ -488,6 +493,28 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
             ]
 
         ]);
+    }
+
+    protected static function onafterinstantiate($self, $orm, $values) {
+        $self->do('sync_date_range');
+    }
+
+    protected static function doSyncDateRange($self) {
+        $self->read([
+            'has_date_range',
+            'fiscal_period_id' => ['date_from', 'date_to']
+        ]);
+
+        foreach($self as $id => $purchaseInvoice) {
+            if(!$purchaseInvoice['has_date_range'] || !$purchaseInvoice['fiscal_period_id']) {
+                continue;
+            }
+
+            self::id($id)->update([
+                'date_from' => $purchaseInvoice['fiscal_period_id']['date_from'],
+                'date_to'   => $purchaseInvoice['fiscal_period_id']['date_to']
+            ]);
+        }
     }
 
     protected static function onbeforeCancel($self) {
@@ -1512,21 +1539,24 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
     protected static function onupdateHasDateRange($self, $values) {
         $self->read(['invoice_lines_ids']);
         foreach($self as $id => $purchaseInvoice) {
-            PurchaseInvoiceLine::ids($purchaseInvoice['invoice_lines_ids'])->update(['has_date_range' => $values['has_date_range']]);
+            PurchaseInvoiceLine::ids($purchaseInvoice['invoice_lines_ids'])
+                ->update(['has_date_range' => $values['has_date_range']]);
         }
     }
 
     protected static function onupdateDateFrom($self, $values) {
         $self->read(['invoice_lines_ids']);
         foreach($self as $id => $purchaseInvoice) {
-            PurchaseInvoiceLine::ids($purchaseInvoice['invoice_lines_ids'])->update(['date_from' => $values['date_from']]);
+            PurchaseInvoiceLine::ids($purchaseInvoice['invoice_lines_ids'])
+                ->update(['date_from' => $values['date_from']]);
         }
     }
 
     protected static function onupdateDateTo($self, $values) {
         $self->read(['invoice_lines_ids']);
         foreach($self as $id => $purchaseInvoice) {
-            PurchaseInvoiceLine::ids($purchaseInvoice['invoice_lines_ids'])->update(['date_to' => $values['date_to']]);
+            PurchaseInvoiceLine::ids($purchaseInvoice['invoice_lines_ids'])
+                ->update(['date_to' => $values['date_to']]);
         }
     }
 

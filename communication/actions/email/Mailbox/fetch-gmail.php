@@ -39,45 +39,22 @@ use documents\Document;
  * Functions *
  *************/
 
-$getCleanedHtml = function($html) {
-    $normalized_html = preg_replace(
-        [
-            '~</(?:p|tr|caption)\s*>~i',
-            '~</(?:td|th)\s*>~i'
-        ],
-        ['<br />', ' '],
-        (string) $html
-    );
-
-    $cleaned_html = preg_replace(
-        [
-            '~<head\b[^>]*>.*?</head\s*>~is',
-            '~<script\b[^>]*>.*?</script\s*>~is',
-            '~<style\b[^>]*>.*?</style\s*>~is',
-            '~<(?:meta|link|base|img)\b[^>]*>~is',
-            '~</?(?:html|body|font|center|p|table|thead|tbody|tfoot|tr|td|th|caption|colgroup|col)\b[^>]*>~i',
-            '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
-            '~\s+(?:face|color|alt|src|width|height|lang|clear|value|id|name|role|tabindex|shape|start|(?:aria|data)-[a-z][a-z0-9:_-]*)\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
-            '~\s+href\s*=\s*(?:"\s*javascript\s*:[^"]*"|\'\s*javascript\s*:[^\']*\'|javascript\s*:[^\s>]+)~i'
-        ],
-        '',
-        $normalized_html ?? ''
-    );
-
-    $cleaned_html = preg_replace(
-        '~(?:^[\t ]*<br\s*/?>[\t ]*(?:\R|$)){2,}~mi',
-        "<br />\n",
-        $cleaned_html ?? ''
-    );
-
-    $max_body_length = 65000;
-    if(strlen($cleaned_html) > $max_body_length) {
-        $suffix = '[...]';
-        $cleaned_html = mb_strcut($cleaned_html, 0, $max_body_length - strlen($suffix), 'UTF-8');
-        $cleaned_html = preg_replace('/<[^>]*$/', '', $cleaned_html) . $suffix;
+$getSafeTextHtml = function($text) {
+    $content = (string) ($text ?? '');
+    if(trim($content) === '') {
+        return '[no content]';
     }
 
-    return $cleaned_html ?? '';
+    $max_body_length = 65000;
+    if(strlen($content) > $max_body_length) {
+        $suffix = '[...]';
+        $content = mb_strcut($content, 0, $max_body_length - strlen($suffix), 'UTF-8') . $suffix;
+    }
+
+    return nl2br(
+        htmlspecialchars($content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8'),
+        false
+    );
 };
 
 /**
@@ -152,37 +129,29 @@ $getMessage = function($access_token, $id) {
 };
 
 /**
- * Extracts an HTML body from the given Gmail message payload
+ * Extracts a plain-text body from the given Gmail message payload.
  *
  * @param array $payload    Gmail API message payload
- * @return string           HTML body
+ * @return string|null      Plain-text body, or null if none is available
  */
-$extractMessageBody = function($payload) use(&$extractMessageBody) {
-    // Simple (non-multipart) body
-    if(!empty($payload['body']['data'])) {
-        return base64_decode(strtr($payload['body']['data'], '-_', '+/'));
+$extractTextBody = function($payload) use(&$extractTextBody) {
+    if(
+        ($payload['mimeType'] ?? '') === 'text/plain'
+        && empty($payload['filename'])
+        && !empty($payload['body']['data'])
+    ) {
+        $decoded = base64_decode(strtr($payload['body']['data'], '-_', '+/'), true);
+        return $decoded === false ? null : $decoded;
     }
 
-    // Multipart — search parts for text/plain or text/html
-    $body = '';
     foreach($payload['parts'] ?? [] as $part) {
-        // HTML part prioritized
-        if($part['mimeType'] === 'text/html' && !empty($part['body']['data'])) {
-            return base64_decode(strtr($part['body']['data'], '-_', '+/'));
-        }
-
-        if($part['mimeType'] === 'text/plain' && !empty($part['body']['data'])) {
-            $body =  base64_decode(strtr($part['body']['data'], '-_', '+/'));
-        }
-
-        // Recurse into nested parts
-        if(!empty($part['parts'])) {
-            $nested = $extractMessageBody($part);
-            if($nested) return $nested;
+        $text = $extractTextBody($part);
+        if($text !== null) {
+            return $text;
         }
     }
 
-    return $body;
+    return null;
 };
 
 /**
@@ -366,7 +335,7 @@ foreach($message_refs as $message_ref) {
         }
     }
 
-    $body = $getCleanedHtml($extractMessageBody($message['payload']));
+    $body = $getSafeTextHtml($extractTextBody($message['payload']));
     $message_date = strtotime($headers['Date']);
     $message_internal_date = !empty($message['internalDate']) ? intval($message['internalDate'] / 1000) : null;
 
