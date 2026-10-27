@@ -45,7 +45,7 @@ $getCleanedHtml = function($html) {
             '~<head\b[^>]*>.*?</head\s*>~is',
             '~<script\b[^>]*>.*?</script\s*>~is',
             '~<style\b[^>]*>.*?</style\s*>~is',
-            '~<(?:meta|link|base|img)\b[^>]*>~is',
+            '~<(?:meta|link|base|img|hr)\b[^>]*>~is',
             '~</?(?:html|body|div|font|wbr)\b[^>]*>~i',
             '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
             '~\s+(?:face|color|alt|src|width|height)\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
@@ -156,16 +156,16 @@ do {
 
         if(!$email) {
             $email = Email::create([
-                'mailbox_id'               => $mailbox['id'],
-                'message_id'               => $internet_id,
-                'subject'                  => substr($msg['subject'] ?: '(no subject)', 0, 255),
-                'from'                     => $msg['from']['emailAddress']['address'] ?? '',
-                'to'                       => $msg['toRecipients'][0]['emailAddress']['address'] ?? '',
-                'direction'                => 'incoming',
-                'date'                     => $message_date,
-                'body'                     => $getCleanedHtml($msg['body']['content'] ?? ''),
-                'attachment_import_status' => 'pending'
-            ])
+                    'mailbox_id'               => $mailbox['id'],
+                    'message_id'               => $internet_id,
+                    'subject'                  => substr($msg['subject'] ?: '(no subject)', 0, 255),
+                    'from'                     => $msg['from']['emailAddress']['address'] ?? '',
+                    'to'                       => $msg['toRecipients'][0]['emailAddress']['address'] ?? '',
+                    'direction'                => 'incoming',
+                    'date'                     => $message_date,
+                    'body'                     => $getCleanedHtml($msg['body']['content'] ?? ''),
+                    'attachment_import_status' => 'pending'
+                ])
                 ->read(['thread_hash'])
                 ->first();
         }
