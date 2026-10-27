@@ -178,7 +178,8 @@ class Account extends Model {
                 'type'              => 'boolean',
                 'description'       => "Flag telling if the account is a group/collector account.",
                 'help'              => "Accounting entries can only be made on non-group accounts.",
-                'default'           => false
+                'default'           => false,
+                'onupdate'          => 'onupdateIsControlAccount'
             ],
 
             'is_tier_balance' => [
@@ -361,8 +362,61 @@ class Account extends Model {
                 'help'        => 'Only six-digit expense control accounts ending in 00 and without operation assignments in their hierarchy can be duplicated.',
                 'policies'    => ['can_duplicate_tree'],
                 'function'    => 'doDuplicateTree'
+            ],
+            'refresh_descendant_parents' => [
+                'description' => 'Recomputes the parent account of all descendant accounts.',
+                'policies'    => [],
+                'function'    => 'doRefreshDescendantParents'
             ]
         ]);
+    }
+
+    protected static function onupdateIsControlAccount($self) {
+        $self->do('refresh_descendant_parents');
+    }
+
+    protected static function doRefreshDescendantParents($self) {
+        $self->read(['condo_id', 'account_chart_id', 'code']);
+
+        $descendant_ids = [];
+
+        foreach($self as $id => $account) {
+            if(!$account['condo_id'] || !$account['account_chart_id'] || !$account['code']) {
+                continue;
+            }
+
+            $prefix = (string) $account['code'];
+            $candidates = self::search([
+                    ['condo_id', '=', $account['condo_id']],
+                    ['account_chart_id', '=', $account['account_chart_id']],
+                    ['code', 'like', $prefix . '%']
+                ])
+                ->read(['code']);
+
+            foreach($candidates as $candidate_id => $candidate) {
+                $candidateCode = (string) $candidate['code'];
+
+                if(
+                    (int) $candidate_id === (int) $id
+                    || strlen($candidateCode) <= strlen($prefix)
+                    || strncmp($candidateCode, $prefix, strlen($prefix)) !== 0
+                ) {
+                    continue;
+                }
+
+                $descendant_ids[$candidate_id] = true;
+            }
+        }
+
+        if(empty($descendant_ids)) {
+            return;
+        }
+
+        $descendants = self::ids(array_keys($descendant_ids));
+
+        $descendants
+            ->update(['parent_account_id' => null])
+            ->read(['parent_account_id']);
     }
 
     protected static function policyCanDuplicateTree($self): array {
