@@ -66,8 +66,7 @@ class Account extends Model {
                 'dependents'        => ['name'],
                 'multilang'         => true,
                 'store'             => false,
-                'readonly'          => true,
-                'visible'           => ['is_control_account', '=', true]
+                'readonly'          => true
             ],
 
             'level' => [

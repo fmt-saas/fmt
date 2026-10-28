@@ -165,11 +165,7 @@
                                 ]
                             }
                         ]
-                    }
-                ]
-            },
-            {
-                "sections": [
+                    },
                     {
                         "label": "Shares",
                         "id": "section.apportionment_shares",
