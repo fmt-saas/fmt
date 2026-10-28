@@ -65,7 +65,7 @@ class Account extends Model {
                 'description'       => "Suffix inherited from the account apportionment.",
                 'dependents'        => ['name'],
                 'multilang'         => true,
-                'store'             => false,
+                'store'             => true,
                 'readonly'          => true
             ],
 
@@ -958,8 +958,8 @@ class Account extends Model {
     protected static function calcSuffix($self, $lang) {
         $result = [];
         $self->read([
-            'apportionment_id' => ['suffix']
-        ], $lang);
+                'apportionment_id' => ['suffix']
+            ], $lang);
 
         foreach($self as $id => $account) {
             if(!$account['apportionment_id']) {

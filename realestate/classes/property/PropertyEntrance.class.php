@@ -59,7 +59,7 @@ class PropertyEntrance extends \equal\orm\Model {
                 'result_type'       => 'string',
                 'function'          => 'calcSuffix',
                 'description'       => "Suffix inherited from the selected apportionment when duplicating account hierarchies for this property entrance.",
-                'store'             => false,
+                'store'             => true,
                 'readonly'          => true,
                 'multilang'         => true
             ],

@@ -44,7 +44,8 @@ class Apportionment extends \equal\orm\Model {
             'suffix' => [
                 'type'              => 'string',
                 'description'       => "Suffix appended to account names during duplication.",
-                'multilang'         => true
+                'multilang'         => true,
+                'onupdate'          => 'onupdateSuffix'
             ],
 
             'duplication_accounts_ids' => [
@@ -197,8 +198,33 @@ class Apportionment extends \equal\orm\Model {
                 'description' => 'Duplicates the selected account hierarchies using the current apportionment.',
                 'policies'    => ['can_duplicate_accounts'],
                 'function'    => 'doDuplicateAccounts'
+            ],
+            'reset_account_suffixes' => [
+                'description' => 'Resets the suffix of all accounts linked to the apportionment in every language.',
+                'policies'    => [],
+                'function'    => 'doResetAccountSuffixes'
             ]
         ]);
+    }
+
+    protected static function onupdateSuffix($self) {
+        $self->do('reset_account_suffixes');
+    }
+
+    protected static function doResetAccountSuffixes($self) {
+        $accounts = Account::search([
+            ['apportionment_id', 'in', $self->ids()]
+        ]);
+
+        if($accounts->count() === 0) {
+            return;
+        }
+
+        $languages = Lang::search()->read(['code']);
+
+        foreach($languages as $language) {
+            $accounts->update(['suffix' => null], $language['code']);
+        }
     }
 
     protected static function policyCanDuplicateAccounts($self): array {
