@@ -15,7 +15,7 @@
                                                 "type": "field",
                                                 "label": "Condominium",
                                                 "value": "condo_id",
-                                                "width": "66%",
+                                                "width": "33%",
                                                 "widget": {
                                                     "header": {
                                                         "actions": {
@@ -27,8 +27,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "code",
-                                                "width": "33%",
-                                                "readonly": true
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
@@ -43,12 +42,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "address_street",
-                                                "width": "50%"
+                                                "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "description",
-                                                "width": "50%"
+                                                "width": "33%"
                                             }
                                         ]
                                     }
