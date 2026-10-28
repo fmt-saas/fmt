@@ -2,7 +2,13 @@
     "name": "Accounting account",
     "plural": "Accounting accounts",
     "description": "A line in a chart of accounts.",
-    "model": {},
+    "model": {
+        "property_entrances_ids": {
+            "label": "Property entrances",
+            "description": "Property entrances for which this account must be duplicated.",
+            "help": ""
+        }
+    },
     "view": {
         "form.default": {
             "name": "Accounting account",

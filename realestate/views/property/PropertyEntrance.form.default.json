@@ -36,6 +36,21 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "duplication_accounts_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "mode": "edit",
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.SELECT": true,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "address_street",
                                                 "width": "100%"
                                             },

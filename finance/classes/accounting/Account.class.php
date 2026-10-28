@@ -258,6 +258,16 @@ class Account extends Model {
                 'onupdate'          => 'onupdateApportionmentId'
             ],
 
+            'property_entrances_ids' => [
+                'type'              => 'many2many',
+                'description'       => "Property entrances for which this account must be duplicated.",
+                'foreign_object'    => 'realestate\property\PropertyEntrance',
+                'foreign_field'     => 'duplication_accounts_ids',
+                'rel_table'         => 'realestate_propertyentrance_rel_account',
+                'rel_local_key'     => 'account_id',
+                'rel_foreign_key'   => 'property_entrance_id'
+            ],
+
             'vat_rate' => [
                 'type'              => 'float',
                 'usage'             => 'amount/rate',

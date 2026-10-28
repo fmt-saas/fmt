@@ -2,7 +2,13 @@
     "name": "Boekhoudrekening",
     "plural": "Boekhoudrekeningen",
     "description": "Een regel in een rekeningschema.",
-    "model": {},
+    "model": {
+        "property_entrances_ids": {
+            "label": "Gebouwingangen",
+            "description": "Ingangen of blokken waarvoor deze rekening moet worden gedupliceerd.",
+            "help": ""
+        }
+    },
     "view": {
         "form.default": {
             "name": "Boekhoudrekening",
