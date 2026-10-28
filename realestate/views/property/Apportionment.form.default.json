@@ -23,6 +23,22 @@
             }
         },
         {
+            "id": "action.duplicate_account_tree",
+            "label": "Duplicate account hierarchy",
+            "icon": "content_copy",
+            "description": "Duplicate an account hierarchy using this apportionment.",
+            "controller": "realestate_property_Apportionment_duplicate-account",
+            "params": {
+                "apportionment_id": "object.id",
+                "condo_id": "object.condo_id"
+            },
+            "visible": [
+                ["state", "<>", "draft"],
+                ["is_statutory", "=", false]
+            ],
+            "confirm": true
+        },
+        {
             "id": "action.validate",
             "label": "Validate",
             "description": "Mark the apportionment as published.",

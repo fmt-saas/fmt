@@ -72,6 +72,10 @@
                     "label": "Dupliquer",
                     "description": "Tenter de dupliquer la répartition."
                 },
+                "action.duplicate_account_tree": {
+                    "label": "Dupliquer une hiérarchie de comptes",
+                    "description": "Dupliquer un compte et ses sous-comptes en utilisant cette clé de répartition."
+                },
                 "action.validate": {
                     "label": "Valider",
                     "description": "Marquer la répartition comme publiée."
@@ -95,6 +99,11 @@
         "list.default": {
             "name": "Clés de répartition",
             "description": "Vue liste des clés avec leur statut et leur total de parts."
+        }
+    },
+    "error": {
+        "errors": {
+            "missing_account_id": "Un compte comptable source doit être sélectionné."
         }
     }
 }

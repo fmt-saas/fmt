@@ -6,6 +6,7 @@
 */
 namespace realestate\property;
 
+use finance\accounting\Account;
 use fmt\setting\Setting;
 
 class Apportionment extends \equal\orm\Model {
@@ -156,14 +157,19 @@ class Apportionment extends \equal\orm\Model {
     }
 
     public static function getActions() {
-        return [
+        return array_merge(parent::getActions(), [
             'duplicate' => [
                 'description'   => 'Creates a new invoice of type credit note to reverse invoice.',
                 'help'          => 'Reversing an invoice can only be done when status is "invoice".',
                 'policies'      => [],
                 'function'      => 'doDuplicateApportionment'
+            ],
+            'duplicate_account_tree' => [
+                'description' => 'Duplicates an account hierarchy using the current apportionment.',
+                'policies'    => [],
+                'function'    => 'doDuplicateAccountTree'
             ]
-        ];
+        ]);
     }
 
     protected static function policyCanValidate($self) {
@@ -309,5 +315,19 @@ class Apportionment extends \equal\orm\Model {
             }
         }
 
+    }
+
+    protected static function doDuplicateAccountTree($self, $values) {
+        if(!isset($values['account_id']) || $values['account_id'] <= 0) {
+            throw new \Exception('missing_account_id', EQ_ERROR_INVALID_PARAM);
+        }
+
+        foreach($self as $id => $apportionment) {
+            Account::id($values['account_id'])
+                ->do('duplicate_tree', [
+                    'suffix'           => $values['suffix'] ?? null,
+                    'apportionment_id' => $id
+                ]);
+        }
     }
 }

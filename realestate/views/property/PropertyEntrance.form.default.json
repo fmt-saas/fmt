@@ -1,5 +1,22 @@
 {
     "name": "Property Entrance",
+    "actions": [
+        {
+            "id": "action.duplicate_accounts",
+            "label": "Duplicate accounts",
+            "description": "Duplicate the selected account hierarchies for this property entrance.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\property\\PropertyEntrance",
+                "action": "duplicate_accounts",
+                "params": {
+                    "id": "object.id",
+                    "condo_id": "object.condo_id"
+                }
+            },
+            "confirm": true
+        }
+    ],
     "layout": {
         "groups": [
             {

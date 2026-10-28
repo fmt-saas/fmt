@@ -62,7 +62,13 @@
     "view": {
         "form.default": {
             "name": "Entrée d'immeuble",
-            "description": "Formulaire de gestion d'une entrée (nom, code, adresse, lots rattachés)."
+            "description": "Formulaire de gestion d'une entrée (nom, code, adresse, lots rattachés).",
+            "actions": {
+                "action.duplicate_accounts": {
+                    "label": "Dupliquer les comptes",
+                    "description": "Dupliquer les arborescences de comptes sélectionnées pour cette entrée d'immeuble."
+                }
+            }
         },
         "list.default": {
             "name": "Entrées",
