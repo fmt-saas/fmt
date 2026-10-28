@@ -254,7 +254,8 @@ class Account extends Model {
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'description'       => "Default apportionment to use when creating accounting entries on this account.",
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
-                'visible'           => ['is_apportionable', '=', true]
+                'visible'           => ['is_apportionable', '=', true],
+                'onupdate'          => 'onupdateApportionmentId'
             ],
 
             'vat_rate' => [
@@ -367,12 +368,21 @@ class Account extends Model {
                 'description' => 'Recomputes the parent account of all descendant accounts.',
                 'policies'    => [],
                 'function'    => 'doRefreshDescendantParents'
+            ],
+            'sync_descendant_apportionment' => [
+                'description' => 'Synchronizes the apportionment of all descendant accounts.',
+                'policies'    => [],
+                'function'    => 'doSyncDescendantApportionment'
             ]
         ]);
     }
 
     protected static function onupdateIsControlAccount($self) {
         $self->do('refresh_descendant_parents');
+    }
+
+    protected static function onupdateApportionmentId($self) {
+        $self->do('sync_descendant_apportionment');
     }
 
     protected static function doRefreshDescendantParents($self) {
@@ -417,6 +427,52 @@ class Account extends Model {
         $descendants
             ->update(['parent_account_id' => null])
             ->read(['parent_account_id']);
+    }
+
+    protected static function doSyncDescendantApportionment($self) {
+        $self->read(['condo_id', 'account_chart_id', 'code', 'level', 'is_control_account', 'apportionment_id']);
+
+        foreach($self as $account) {
+            if(
+                !$account['is_control_account']
+                || !$account['condo_id']
+                || !$account['account_chart_id']
+                || !$account['code']
+                || $account['level'] < 6
+            ) {
+                continue;
+            }
+
+            $prefix = (string) $account['code'];
+            $targetApportionmentId = $account['apportionment_id'] ? (int) $account['apportionment_id'] : null;
+            $descendantIds = [];
+
+            $candidates = self::search([
+                    ['condo_id', '=', $account['condo_id']],
+                    ['account_chart_id', '=', $account['account_chart_id']],
+                    ['code', 'like', $prefix . '%']
+                ])
+                ->read(['code', 'apportionment_id']);
+
+            foreach($candidates as $candidateId => $candidate) {
+                $candidateCode = (string) $candidate['code'];
+                $candidateApportionmentId = $candidate['apportionment_id'] ? (int) $candidate['apportionment_id'] : null;
+
+                if(
+                    strlen($candidateCode) <= strlen($prefix)
+                    || strncmp($candidateCode, $prefix, strlen($prefix)) !== 0
+                    || $candidateApportionmentId === $targetApportionmentId
+                ) {
+                    continue;
+                }
+
+                $descendantIds[] = $candidateId;
+            }
+
+            if(count($descendantIds)) {
+                self::ids($descendantIds)->write(['apportionment_id' => $targetApportionmentId]);
+            }
+        }
     }
 
     protected static function policyCanDuplicateTree($self): array {
