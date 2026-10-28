@@ -572,16 +572,80 @@ if($year_to !== $year_from) {
 }
 $year = $year_from;
 
-$document = Document::create([
-        'name'              => "{$condo_name}_EXERCICE_$year".($params['export_type'] === 'consolidated_pdf' ? '_PDF' : ''),
-        'content_type'      => $params['export_type'] === 'consolidated_pdf' ? 'application/pdf' : 'application/zip',
-        'data'              => $params['export_type'] === 'consolidated_pdf' ? $createConsolidatedPdf($map_documents) : $createZipArchive($map_documents, $missing_documents),
-        'condo_id'          => $fiscalYear['condo_id']['id'],
-        'fiscal_year_id'    => $fiscalYear['id'],
-        'document_type'     => ($dt = DocumentType::search(['code', '=', 'auditor_document'])->first()) ? $dt['id'] : null,
-        'document_subtype'  => ($dt = DocumentSubtype::search(['code', '=', 'auditor_documents'])->first()) ? $dt['id'] : null
-    ])
-    ->first();
+$document_data = null;
+
+try {
+    $document_data = $params['export_type'] === 'consolidated_pdf'
+        ? $createConsolidatedPdf($map_documents)
+        : $createZipArchive($map_documents, $missing_documents);
+
+    $document = Document::create([
+            'name'              => "{$condo_name}_EXERCICE_$year".($params['export_type'] === 'consolidated_pdf' ? '_PDF' : ''),
+            'content_type'      => $params['export_type'] === 'consolidated_pdf' ? 'application/pdf' : 'application/zip',
+            'data'              => $document_data,
+            'condo_id'          => $fiscalYear['condo_id']['id'],
+            'fiscal_year_id'    => $fiscalYear['id'],
+            'document_type'     => ($dt = DocumentType::search(['code', '=', 'auditor_document'])->first()) ? $dt['id'] : null,
+            'document_subtype'  => ($dt = DocumentSubtype::search(['code', '=', 'auditor_documents'])->first()) ? $dt['id'] : null
+        ])
+        ->first();
+}
+catch(\Throwable $e) {
+    $source_documents_count = 0;
+    $source_documents_size = 0;
+    $categories = [];
+
+    foreach($map_documents as $category => $documents) {
+        $category_size = 0;
+        foreach($documents as $source_document) {
+            if(isset($source_document['data']) && is_string($source_document['data'])) {
+                $category_size += strlen($source_document['data']);
+            }
+        }
+
+        $document_count = count($documents);
+        $source_documents_count += $document_count;
+        $source_documents_size += $category_size;
+        $categories[$category] = [
+            'document_count' => $document_count,
+            'size'           => $category_size
+        ];
+    }
+
+    $diagnostics = [
+        'controller'               => 'finance_accounting_FiscalYear_export',
+        'fiscal_year_id'           => $fiscalYear['id'],
+        'condo_id'                 => $fiscalYear['condo_id']['id'],
+        'export_type'              => $params['export_type'],
+        'generated_document_size'  => is_string($document_data) ? strlen($document_data) : null,
+        'source_documents_count'   => $source_documents_count,
+        'source_documents_size'    => $source_documents_size,
+        'missing_documents_count'  => count($missing_documents),
+        'categories'               => $categories,
+        'upload_max_file_size'     => defined('UPLOAD_MAX_FILE_SIZE') ? constant('UPLOAD_MAX_FILE_SIZE') : null,
+        'file_storage_mode'        => defined('FILE_STORAGE_MODE') ? constant('FILE_STORAGE_MODE') : null,
+        'db_dbms'                  => defined('DB_DBMS') ? constant('DB_DBMS') : null,
+        'php_version'              => PHP_VERSION,
+        'php_memory_limit'         => ini_get('memory_limit'),
+        'php_memory_usage'         => memory_get_usage(true),
+        'php_peak_memory_usage'    => memory_get_peak_usage(true),
+        'php_upload_max_filesize'  => ini_get('upload_max_filesize'),
+        'php_post_max_size'        => ini_get('post_max_size'),
+        'temporary_directory'      => sys_get_temp_dir(),
+        'temporary_free_space'     => @disk_free_space(sys_get_temp_dir()),
+        'exception_class'          => get_class($e),
+        'exception_code'           => $e->getCode(),
+        'exception_message'        => $e->getMessage()
+    ];
+
+    trigger_error(
+        'APP::Fiscal year accounting export failed: '
+        .json_encode($diagnostics, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE),
+        EQ_REPORT_ERROR
+    );
+
+    throw $e;
+}
 
 
 $context

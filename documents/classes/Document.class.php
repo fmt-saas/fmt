@@ -804,14 +804,19 @@ class Document extends Model {
     protected static function calcReadableSize($self) {
         $result = [];
         $self->read(['content_size']);
-        $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+
+        $units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB'];
+        $max_power = count($units) - 1;
+
         foreach($self as $id => $document) {
-            $size = $document['content_size'];
-            if($size) {
-                $power = $size > 0 ? floor(log($size, 1024)) : 0;
-                $result[$id] = number_format($size / pow(1024, $power), 1, '.', '') . ' ' . $units[$power];
-            }
+            $size = max(0, (int) ($document['content_size'] ?? 0));
+            $power = $size > 0
+                ? min((int) floor(log($size, 1024)), $max_power)
+                : 0;
+
+            $result[$id] = number_format($size / pow(1024, $power), 1, '.', '') . ' ' . $units[$power];
         }
+
         return $result;
     }
 
