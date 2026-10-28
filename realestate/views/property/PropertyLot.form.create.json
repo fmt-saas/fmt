@@ -86,7 +86,12 @@
                                                 "value": "condo_id",
                                                 "width": "50%",
                                                 "widget": {
-                                                    "readonly": false
+                                                    "readonly": false,
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
                                                 }
                                             },
                                             {

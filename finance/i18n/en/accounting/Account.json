@@ -1,0 +1,41 @@
+{
+    "name": "Accounting account",
+    "plural": "Accounting accounts",
+    "description": "A line in a chart of accounts.",
+    "model": {
+        "property_entrances_ids": {
+            "label": "Property entrances",
+            "description": "Property entrances for which this account must be duplicated.",
+            "help": ""
+        }
+    },
+    "view": {
+        "form.default": {
+            "name": "Accounting account",
+            "description": "Detailed accounting account form.",
+            "actions": {
+                "action.duplicate_tree": {
+                    "label": "Duplicate account hierarchy",
+                    "description": "Duplicate this account and all its sub-accounts, appending the selected suffix to every label and applying the selected apportionment to all of them."
+                }
+            }
+        }
+    },
+    "error": {
+        "errors": {
+            "missing_condo_id": "The account must belong to a condominium.",
+            "missing_account_chart_id": "The account must belong to a chart of accounts.",
+            "invalid_account_chart": "The chart of accounts must belong to the same condominium as the account.",
+            "not_control_account": "Only a control account can be duplicated with its sub-accounts.",
+            "invalid_account_type": "Only an income statement account can be duplicated.",
+            "invalid_account_class": "Only a class 6 expense account can be duplicated.",
+            "invalid_source_code": "The source account code must contain exactly six digits and end in 0.",
+            "duplicate_index_exhausted": "No duplicate index remains available for this account code.",
+            "assigned_related_account": "No parent account, source account, or sub-account may have an operation assignment.",
+            "target_code_exists": "The target account hierarchy already contains at least one account.",
+            "missing_suffix": "A non-empty suffix is required to duplicate the accounts.",
+            "missing_apportionment_id": "An apportionment must be selected.",
+            "invalid_apportionment": "The apportionment must be non-statutory and belong to the account condominium."
+        }
+    }
+}

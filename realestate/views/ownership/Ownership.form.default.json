@@ -56,6 +56,18 @@
                 "action": "generate_history",
                 "ids": []
             }
+        },
+        {
+            "id": "action.sync_bank_accounts",
+            "label": "Sync Bank Accounts",
+            "description": "Synchronize bank accounts available through the ownership owners.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\ownership\\Ownership",
+                "action": "sync_bank_accounts",
+                "ids": []
+            },
+            "confirm": false
         }
     ],
     "routes": [
@@ -95,7 +107,14 @@
                                             {
                                                 "type": "field",
                                                 "value": "condo_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             },
                                             {
                                                 "type": "field",
@@ -215,9 +234,7 @@
                                                 "widget": {
                                                     "header": {
                                                         "actions": {
-                                                            "ACTION.CREATE": [ {
-                                                                "view_id": "form.create"
-                                                            } ]
+                                                            "ACTION.CREATE": false
                                                         }
                                                     }
                                                 }

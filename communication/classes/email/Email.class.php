@@ -99,7 +99,7 @@ class Email extends Model {
             'ignored_attachments_log' => [
                 'type'              => 'string',
                 'usage'             => 'text/plain',
-                'description'       => 'Names of incoming email attachments that were ignored during import.',
+                'description'       => 'Names of incoming email attachments ignored during import.',
                 'help'              => 'Contains one ignored attachment name per line.',
                 'visible'           => ['direction', '=', 'incoming']
             ],

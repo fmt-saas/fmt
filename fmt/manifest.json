@@ -33,11 +33,29 @@
                 "macos": "poppler"
             }
         },
-        "ghostscript": {
+        "gs": {
             "version": ">=10.0",
-            "check": "ghostscript --version",
+            "check": "gs -v",
             "package": {
                 "generic": "ghostscript"
+            },
+            "persist": {
+                "paths": [
+                    "/usr/share/ghostscript",
+                    "/usr/share/color/icc/ghostscript",
+                    "/usr/share/fonts/type1/urw-base35"
+                ],
+                "environment": {
+                    "GS_LIB": [
+                        "/usr/share/ghostscript/*/Resource/Init",
+                        "/usr/share/ghostscript/*/lib",
+                        "/usr/share/ghostscript/*/Resource",
+                        "/usr/share/color/icc/ghostscript"
+                    ],
+                    "GS_FONTPATH": [
+                        "/usr/share/fonts"
+                    ]
+                }
             }
         }
     },

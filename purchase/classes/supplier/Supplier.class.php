@@ -127,7 +127,10 @@ class Supplier extends Identity {
                 'foreign_object'    => 'finance\bank\BankAccount',
                 // #memo - foreign_field cannot be used here, since it should be identity_id, which points back to current object's `id` instead of `identity_id`
                 'description'       => 'List of the bank account of the supplier.',
-                'domain'            => ['owner_identity_id', '=', 'object.identity_id']
+                'domain'            => [
+                    ['owner_identity_id', '=', 'object.identity_id'],
+                    ['supplier_id', '=', 'object.id']
+                ]
             ],
 
             'addresses_ids' => [
@@ -181,6 +184,13 @@ class Supplier extends Identity {
                 'dependents'        => ['address_hash', 'identity_slug', 'slug_hash'],
                 'onupdate'          => 'onupdateAddressCountry'
             ],
+
+            'labeling_rule_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'documents\labeling\LabelingRule',
+                'description'    => 'Labeling rule assigned to the supplier.',
+                'ondelete'       => 'null'
+            ]
 
         ];
     }

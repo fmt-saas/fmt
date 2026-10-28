@@ -12,7 +12,7 @@
                                     {
                                         "width": "100%",
                                         "items": [
-                                            {"type": "field", "value": "condo_id", "width": "100%"},
+                                            {"type": "field", "value": "condo_id", "width": "100%", "widget": {"header": {"actions": {"ACTION.CREATE": false}}}},
                                             {"type": "field", "value": "consumption_file_id", "width": "100%"},
                                             {"type": "field", "value": "name", "width": "100%"},
                                             {"type": "field", "value": "accounting_account_id", "width": "100%"}

@@ -45,6 +45,11 @@
             },
             {
                 "type": "field",
+                "value": "apportionment_id",
+                "width": "20%"
+            },
+            {
+                "type": "field",
                 "value": "address_street",
                 "width": "25%"
             },

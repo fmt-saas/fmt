@@ -1,6 +1,25 @@
 {
     "name": "Ownership Bank Account",
-    "description": "Ownership bank account details.",
+    "description": "Bank account made available to an ownership.",
+    "header": {
+        "actions": {
+            "ACTION.EDIT": false
+        }
+    },
+    "actions": [
+        {
+            "id": "action.mark_as_primary",
+            "label": "Mark as primary",
+            "description": "Mark this bank account as primary for the ownership.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "finance\\bank\\OwnershipBankAccount",
+                "action": "mark_as_primary",
+                "ids": []
+            },
+            "visible": ["is_primary", "=", false]
+        }
+    ],
     "layout": {
         "groups": [
             {
@@ -22,23 +41,48 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "owner_identity_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "bank_account_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "bank_account_iban",
+                                                "readonly": true,
                                                 "width": "50%"
                                             },
                                             {
                                                 "type": "field",
-                                                "value": "bank_name",
-                                                "width": "50%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label" : "BIC",
                                                 "value": "bank_account_bic",
+                                                "readonly": true,
                                                 "width": "25%"
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "bank_account_suffix",
+                                                "readonly": true,
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "bank_name",
+                                                "readonly": true,
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "bank_country",
+                                                "readonly": true,
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "bank_account_type",
+                                                "readonly": true,
                                                 "width": "25%"
                                             }
                                         ]
@@ -52,34 +96,36 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "organisation_id",
-                                                "visible": false,
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "ownership_id",
-                                                "visible": false,
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "label" : "Condominium",
                                                 "value": "condo_id",
                                                 "readonly": true,
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label" : "Type",
-                                                "value": "bank_account_type",
-                                                "visible": false,
+                                                "value": "ownership_id",
+                                                "readonly": true,
                                                 "width": "100%"
                                             },
                                             {
                                                 "type": "field",
-                                                "label": "Primary",
+                                                "value": "accounting_account_id",
+                                                "readonly": true,
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "is_primary",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_validated",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_active",
+                                                "readonly": true,
                                                 "width": "100%"
                                             }
                                         ]

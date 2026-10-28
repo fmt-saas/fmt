@@ -178,7 +178,7 @@ class DocumentProcess extends Model {
                     'case_file'
                     //#todo - to complete
                 ],
-                'default'           => 'import'
+                'default'           => 'manual_import'
             ],
 
             'document_origin' => [

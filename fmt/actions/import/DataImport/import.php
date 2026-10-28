@@ -56,6 +56,82 @@ use realestate\ownership\OwnershipCommunicationPreference;
 
 ['context' => $context, 'orm' => $orm, 'auth' => $auth] = $providers;
 
+$linkOwnershipBankAccount = function ($condo_id, $ownership_id, $owner_identity_id, $iban) {
+    $iban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', (string) $iban));
+    if(!$condo_id || !$ownership_id || !$owner_identity_id || !$iban) {
+        return null;
+    }
+
+    $bankAccount = BankAccount::search([
+            ['owner_identity_id', '=', $owner_identity_id],
+            ['bank_account_iban', '=', $iban]
+        ])
+        ->read(['ownership_id'])
+        ->first();
+
+    if(!$bankAccount) {
+        $bankAccount = BankAccount::create([
+                'owner_identity_id' => $owner_identity_id,
+                'ownership_id'      => $ownership_id,
+                'bank_account_iban' => $iban
+            ])
+            ->read(['ownership_id'])
+            ->first();
+    }
+    elseif(!$bankAccount['ownership_id']) {
+        BankAccount::id($bankAccount['id'])
+            ->update(['ownership_id' => $ownership_id]);
+    }
+
+    $ownershipBankAccount = OwnershipBankAccount::search([
+            ['condo_id', '=', $condo_id],
+            ['ownership_id', '=', $ownership_id],
+            ['bank_account_id', '=', $bankAccount['id']]
+        ])
+        ->first();
+
+    if(!$ownershipBankAccount) {
+        $ownershipBankAccount = OwnershipBankAccount::create([
+                'condo_id'          => $condo_id,
+                'ownership_id'      => $ownership_id,
+                'owner_identity_id' => $owner_identity_id,
+                'bank_account_id'   => $bankAccount['id']
+            ])
+            ->first();
+    }
+
+    return $ownershipBankAccount;
+};
+
+$linkExternalRepresentativeBankAccounts = function ($condo_id, $ownership_id) use($linkOwnershipBankAccount) {
+    $ownership = Ownership::id($ownership_id)
+        ->read(['has_external_representative', 'representative_identity_id'])
+        ->first();
+
+    if(
+        !$ownership
+        || !$ownership['has_external_representative']
+        || !$ownership['representative_identity_id']
+    ) {
+        return;
+    }
+
+    $bankAccounts = BankAccount::search([
+            ['owner_identity_id', '=', $ownership['representative_identity_id']],
+            ['is_active', '=', true]
+        ])
+        ->read(['bank_account_iban']);
+
+    foreach($bankAccounts as $bankAccount) {
+        $linkOwnershipBankAccount(
+            $condo_id,
+            $ownership_id,
+            $ownership['representative_identity_id'],
+            $bankAccount['bank_account_iban']
+        );
+    }
+};
+
 $mapBankRowToJson = function (array $row): array {
     return [
         "source"              => "manual",
@@ -670,31 +746,22 @@ try {
 
             // create ownership bank accounts from owners' primary IBANs
             $owners = Owner::search(['ownership_id', '=', $ownership_id])
-                ->read(['bank_account_iban']);
+                ->read(['identity_id', 'bank_account_iban']);
 
             foreach($owners as $owner) {
-                if(!$owner['bank_account_iban']) {
+                if(!$owner['identity_id'] || !$owner['bank_account_iban']) {
                     continue;
                 }
 
-                $iban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', $owner['bank_account_iban']));
-
-                $bankAccount = OwnershipBankAccount::search([
-                        ['condo_id', '=', $condo_id],
-                        ['ownership_id', '=', $ownership_id],
-                        ['bank_account_iban', '=', $iban],
-                        ['object_class', '=', 'finance\bank\OwnershipBankAccount']
-                    ])
-                    ->first();
-
-                if(!$bankAccount) {
-                    OwnershipBankAccount::create([
-                        'condo_id'          => $condo_id,
-                        'ownership_id'      => $ownership_id,
-                        'bank_account_iban' => $iban
-                    ]);
-                }
+                $linkOwnershipBankAccount(
+                    $condo_id,
+                    $ownership_id,
+                    $owner['identity_id'],
+                    $owner['bank_account_iban']
+                );
             }
+
+            $linkExternalRepresentativeBankAccounts($condo_id, $ownership_id);
         }
 
         $result['logs'][] = "---";
@@ -712,7 +779,7 @@ try {
         $map_external_representatives = [];
         $map_owners_identity = [];
         $map_ownerships = [];
-        $map_owners = [];
+        $created_owner_ids = [];
         $map_property_entrances = [];
         $map_property_lots = [];
         $map_apportionments = [];
@@ -1191,7 +1258,7 @@ try {
                 ->first();
 
             $map_ownership_owners_ids[$ownership['code']][$ownership['owner_code']] = $ownerObject['id'];
-            $map_owners[$ownership['owner_code']] = $ownerObject['id'];
+            $created_owner_ids[] = $ownerObject['id'];
         }
 
         // ownerships pass 3 - set ownership_type
@@ -1526,7 +1593,9 @@ try {
 
         // trigger refresh & sync events on created objects
 
-        Owner::ids(array_values($map_owners))->do('sync_from_identity');
+        if(count($created_owner_ids)) {
+            Owner::ids(array_values(array_unique($created_owner_ids)))->do('sync_from_identity');
+        }
 
         Condominium::id($condominium['id'])
             ->do('sync_from_identity')
@@ -1625,30 +1694,25 @@ try {
 
         // create ownership bank accounts from owners' primary IBANs
         $owners = Owner::search(['condo_id', '=', $condominium['id']])
-            ->read(['ownership_id', 'bank_account_iban']);
+            ->read(['ownership_id', 'identity_id', 'bank_account_iban']);
 
         foreach($owners as $owner) {
-            if(!$owner['ownership_id'] || !$owner['bank_account_iban']) {
+            if(!$owner['ownership_id'] || !$owner['identity_id'] || !$owner['bank_account_iban']) {
                 continue;
             }
 
-            $iban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', $owner['bank_account_iban']));
+            $linkOwnershipBankAccount(
+                $condominium['id'],
+                $owner['ownership_id'],
+                $owner['identity_id'],
+                $owner['bank_account_iban']
+            );
+        }
 
-            $bankAccount = OwnershipBankAccount::search([
-                    ['condo_id', '=', $condominium['id']],
-                    ['ownership_id', '=', $owner['ownership_id']],
-                    ['bank_account_iban', '=', $iban],
-                    ['object_class', '=', 'finance\bank\OwnershipBankAccount']
-                ])
-                ->first();
-
-            if(!$bankAccount) {
-                OwnershipBankAccount::create([
-                    'condo_id'          => $condominium['id'],
-                    'ownership_id'      => $owner['ownership_id'],
-                    'bank_account_iban' => $iban
-                ]);
-            }
+        $ownerships = Ownership::search(['condo_id', '=', $condominium['id']])
+            ->read(['id']);
+        foreach($ownerships as $ownership) {
+            $linkExternalRepresentativeBankAccounts($condominium['id'], $ownership['id']);
         }
 
         // validate bank accounts & assign accounting accounts

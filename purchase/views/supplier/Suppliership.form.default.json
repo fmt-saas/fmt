@@ -130,7 +130,14 @@
                                             {
                                                 "type": "field",
                                                 "value": "suppliership_bank_accounts_ids",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "widget": {
+                                                    "header": {
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

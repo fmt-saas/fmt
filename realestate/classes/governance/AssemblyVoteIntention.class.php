@@ -87,8 +87,7 @@ class AssemblyVoteIntention extends \equal\orm\Model {
                     'against',
                     'abstain'
                 ],
-                'default'           => 'abstain',
-                'dependents'        => ['vote_weight_for', 'vote_weight_against', 'vote_weight_abstain']
+                'default'           => 'abstain'
             ],
 
             'vote_weight' => [

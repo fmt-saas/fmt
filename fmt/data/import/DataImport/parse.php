@@ -6,6 +6,7 @@
 */
 
 use fmt\import\DataImport;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 [$params, $providers] = eQual::announce([
@@ -198,11 +199,29 @@ foreach($spreadsheet->getWorksheetIterator() as $worksheet) {
         continue;
     }
 
-    $headers = $map[$dataImport['import_type']][$sheet_name] ?? current($map[$dataImport['import_type']]);
+    $sheet_headers = $map[$dataImport['import_type']];
+    $expected_sheet_name = isset($sheet_headers[$sheet_name]) ? $sheet_name : array_key_first($sheet_headers);
+    $headers = $sheet_headers[$expected_sheet_name];
     $rows = $worksheet->toArray(null, true, true, true);
 
-    // skip first line
-    array_shift($rows);
+    $actual_headers = array_map(
+        static fn($header) => trim((string) $header),
+        array_values(array_shift($rows) ?? [])
+    );
+    while(count($actual_headers) > 0 && end($actual_headers) === '') {
+        array_pop($actual_headers);
+    }
+
+    if($actual_headers !== $headers) {
+        $column_index = 0;
+        while(($actual_headers[$column_index] ?? null) === ($headers[$column_index] ?? null)) {
+            ++$column_index;
+        }
+
+        $column = Coordinate::stringFromColumnIndex($column_index + 1);
+        $expected_header = $headers[$column_index] ?? '';
+        throw new Exception("invalid_import_headers:$expected_sheet_name:$column:$expected_header", EQ_ERROR_INVALID_PARAM);
+    }
 
     $mappedData = [];
     foreach($rows as $row) {

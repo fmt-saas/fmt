@@ -186,6 +186,10 @@
                 "action.generate_history": {
                     "label": "Générer l'historique",
                     "description": "Générer l'historique des attributions de lots."
+                },
+                "action.sync_bank_accounts": {
+                    "label": "Synchroniser les comptes bancaires",
+                    "description": "Synchroniser les comptes bancaires connus des propriétaires."
                 }
             },
             "routes": {

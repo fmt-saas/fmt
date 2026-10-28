@@ -17,6 +17,7 @@ use finance\bank\BankStatement;
 use finance\bank\CondominiumBankAccount;
 use realestate\finance\accounting\AccountingEntry;
 use realestate\finance\accounting\AccountingEntryLine;
+use realestate\ownership\Owner;
 
 class BankStatementLine extends Model {
 
@@ -84,12 +85,14 @@ class BankStatementLine extends Model {
             'payment_status' => [
                 'type'              => 'string',
                 'selection'         => [
+                    'pending',          // payment balance has not been evaluated yet
                     'debit_balance',    // buyer still has to pay something
                     'credit_balance',   // reimbursement to buyer is required
                     'balanced'          // fully paid and balanced
                 ],
                 'visible'           => ['status', '=', 'posted'],
-                'default'           => 'pending'
+                'default'           => 'pending',
+                'description'       => 'Payment balance status of the bank statement line.'
             ],
 
             'date' => [
@@ -265,7 +268,7 @@ class BankStatementLine extends Model {
                 'type'              => 'string',
                 'description'       => 'Proprietary or extended account identifier (e.g. ING sub-account, not SEPA-valid).',
                 // #memo - so far this only applies to ING bank
-                'domain'            => ['account_bic', '=', 'BBRUBEBB']
+                'visible'            => ['account_bic', '=', 'BBRUBEBB']
             ],
 
             'account_bic' => [
@@ -535,7 +538,7 @@ class BankStatementLine extends Model {
                 'function'      => 'doRefreshBankStatementStatus'
             ],
             'add_ownership_bank_account' => [
-                'description'   => 'Add the counterparty IBAN to the targeted ownership bank accounts if it is not already present.',
+                'description'   => 'Add the counterparty IBAN to the targeted ownership for the selected owner if it is not already present.',
                 'policies'      => ['can_add_ownership_bank_account'],
                 'function'      => 'doAddOwnershipBankAccount'
             ],
@@ -601,32 +604,77 @@ class BankStatementLine extends Model {
         return $result;
     }
 
-    protected static function doAddOwnershipBankAccount($self) {
+    protected static function doAddOwnershipBankAccount($self, $values=[]) {
+        $owner_id = $values['owner_id'] ?? null;
+        if(!$owner_id) {
+            throw new \Exception('missing_owner', EQ_ERROR_MISSING_PARAM);
+        }
+
         $self->read(['condo_id', 'ownership_id', 'account_iban']);
         foreach($self as $bankStatementLine) {
-            $iban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', (string) $bankStatementLine['account_iban']));
+            if(!$bankStatementLine['account_iban']) {
+                continue;
+            }
+
+            $owner = Owner::id($owner_id)
+                ->read(['ownership_id', 'identity_id'])
+                ->first();
+
+            if(
+                !$owner
+                || !$owner['identity_id']
+                || $owner['ownership_id'] !== $bankStatementLine['ownership_id']
+            ) {
+                throw new \Exception('invalid_owner', EQ_ERROR_INVALID_PARAM);
+            }
+
+            $iban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', $bankStatementLine['account_iban']));
             $ownershipBankAccounts = OwnershipBankAccount::search([
                     ['condo_id', '=', $bankStatementLine['condo_id']],
-                    ['ownership_id', '=', $bankStatementLine['ownership_id']]
+                    ['ownership_id', '=', $bankStatementLine['ownership_id']],
+                    ['bank_account_iban', '=', $iban]
                 ])
-                ->read(['bank_account_iban']);
+                ->read(['id']);
 
-            $ibanExists = false;
-            foreach($ownershipBankAccounts as $ownershipBankAccount) {
-                $existingIban = strtoupper(preg_replace('/[^A-Z0-9]/i', '', (string) $ownershipBankAccount['bank_account_iban']));
-                if($existingIban === $iban) {
-                    $ibanExists = true;
-                    break;
-                }
+            if($ownershipBankAccounts->count() > 0) {
+                continue;
             }
 
-            if(!$ibanExists) {
-                OwnershipBankAccount::create([
-                    'condo_id'         => $bankStatementLine['condo_id'],
-                    'ownership_id'     => $bankStatementLine['ownership_id'],
-                    'bank_account_iban' => $iban
-                ]);
+            $bankAccount = BankAccount::search([
+                    ['owner_identity_id', '=', $owner['identity_id']],
+                    ['bank_account_iban', '=', $iban]
+                ])
+                ->read(['owner_identity_id', 'ownership_id'])
+                ->first();
+
+            if(!$bankAccount) {
+                $hasPrimaryBankAccount = BankAccount::search([
+                        ['owner_identity_id', '=', $owner['identity_id']],
+                        ['is_primary', '=', true]
+                    ])
+                    ->count() > 0;
+
+                $bankAccount = BankAccount::create([
+                        'owner_identity_id' => $owner['identity_id'],
+                        'ownership_id'      => $bankStatementLine['ownership_id'],
+                        'bank_account_iban' => $iban,
+                        'is_primary'        => !$hasPrimaryBankAccount
+                    ])
+                    ->read(['owner_identity_id', 'ownership_id'])
+                    ->first();
             }
+
+            if(!$bankAccount['ownership_id']) {
+                BankAccount::id($bankAccount['id'])
+                    ->update(['ownership_id' => $bankStatementLine['ownership_id']]);
+            }
+
+            OwnershipBankAccount::create([
+                'condo_id'          => $bankStatementLine['condo_id'],
+                'ownership_id'      => $bankStatementLine['ownership_id'],
+                'owner_identity_id' => $owner['identity_id'],
+                'bank_account_id'   => $bankAccount['id']
+            ]);
         }
     }
 

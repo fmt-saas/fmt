@@ -41,7 +41,9 @@
                                                 "width": "50%",
                                                 "widget": {
                                                     "header": {
-                                                        "actions": false
+                                                        "actions": {
+                                                            "ACTION.CREATE": false
+                                                        }
                                                     }
                                                 }
                                             },

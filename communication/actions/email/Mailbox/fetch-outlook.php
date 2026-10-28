@@ -39,22 +39,24 @@ use equal\http\HttpRequest;
 ['context' => $context, 'auth' => $auth] = $providers;
 
 
-$getCleanedHtml = function($html) {
-    $cleaned_html = preg_replace(
-        [
-            '~<head\b[^>]*>.*?</head\s*>~is',
-            '~<script\b[^>]*>.*?</script\s*>~is',
-            '~<style\b[^>]*>.*?</style\s*>~is',
-            '~<(?:meta|link|base)\b[^>]*>~is',
-            '~</?(?:html|body)\b[^>]*>~i',
-            '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
-            '~\s+href\s*=\s*(?:"\s*javascript\s*:[^"]*"|\'\s*javascript\s*:[^\']*\'|javascript\s*:[^\s>]+)~i'
-        ],
-        '',
-        (string) $html
-    );
+$getSafeTextHtml = function($body) {
+    $content_type = strtolower(trim((string) ($body['contentType'] ?? '')));
+    $content = (string) ($body['content'] ?? '');
 
-    return $cleaned_html ?? '';
+    if($content_type !== 'text' || trim($content) === '') {
+        return '<pre>[no content]</pre>';
+    }
+
+    $max_body_length = 65000;
+    if(strlen($content) > $max_body_length) {
+        $suffix = '[...]';
+        $content = mb_strcut($content, 0, $max_body_length - strlen($suffix), 'UTF-8') . $suffix;
+    }
+
+    return nl2br(
+        htmlspecialchars($content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8'),
+        false
+    );
 };
 
 
@@ -125,6 +127,7 @@ do {
 
     $response = $http
         ->header("Authorization", "Bearer " . $mailbox['access_token'])
+        ->header("Prefer", 'outlook.body-content-type="text"')
         ->send();
 
     $data = $response->body();
@@ -155,16 +158,16 @@ do {
 
         if(!$email) {
             $email = Email::create([
-                'mailbox_id'               => $mailbox['id'],
-                'message_id'               => $internet_id,
-                'subject'                  => substr($msg['subject'] ?: '(no subject)', 0, 255),
-                'from'                     => $msg['from']['emailAddress']['address'] ?? '',
-                'to'                       => $msg['toRecipients'][0]['emailAddress']['address'] ?? '',
-                'direction'                => 'incoming',
-                'date'                     => $message_date,
-                'body'                     => $getCleanedHtml($msg['body']['content'] ?? ''),
-                'attachment_import_status' => 'pending'
-            ])
+                    'mailbox_id'               => $mailbox['id'],
+                    'message_id'               => $internet_id,
+                    'subject'                  => substr($msg['subject'] ?: '(no subject)', 0, 255),
+                    'from'                     => $msg['from']['emailAddress']['address'] ?? '',
+                    'to'                       => $msg['toRecipients'][0]['emailAddress']['address'] ?? '',
+                    'direction'                => 'incoming',
+                    'date'                     => $message_date,
+                    'body'                     => $getSafeTextHtml($msg['body'] ?? []),
+                    'attachment_import_status' => 'pending'
+                ])
                 ->read(['thread_hash'])
                 ->first();
         }

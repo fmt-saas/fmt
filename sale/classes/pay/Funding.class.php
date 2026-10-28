@@ -147,8 +147,7 @@ class Funding extends \equal\orm\Model {
                 'description'       => "Target accounting account that will be impacted by the movement (expected payments).",
                 'required'          => true,
                 'ondelete'          => 'null',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]],
-                'dependents'        => ['account_code']
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_control_account', '=', false]]
             ],
 
             'bank_account_id' => [

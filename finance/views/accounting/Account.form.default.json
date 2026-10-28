@@ -12,6 +12,24 @@
                 "id": "object.id"
             },
             "visible": ["validated", "=", "object.status"]
+        },
+        {
+            "id": "action.duplicate_tree",
+            "label": "Duplicate account hierarchy",
+            "icon": "content_copy",
+            "description": "Duplicate this account and all its sub-accounts.",
+            "controller": "finance_accounting_Account_duplicate",
+            "params": {
+                "id": "object.id",
+                "condo_id": "object.condo_id"
+            },
+            "visible": [
+                ["condo_id", "<>", null],
+                ["is_control_account", "=", true],
+                ["account_type", "=", "I"],
+                ["account_class", "=", 6]
+            ],
+            "confirm": true
         }
     ],
     "layout": {

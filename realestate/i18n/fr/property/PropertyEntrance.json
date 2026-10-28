@@ -8,6 +8,16 @@
             "description": "Copropriété à laquelle l'entrée est rattachée.",
             "help": ""
         },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé de répartition destinée aux comptes comptables de consommation propres à cette entrée.",
+            "help": ""
+        },
+        "duplication_accounts_ids": {
+            "label": "Comptes à dupliquer",
+            "description": "Comptes du plan comptable à dupliquer pour cette entrée ou ce bloc.",
+            "help": "Seuls les comptes collecteurs de niveau 6 de la même copropriété, sans affectation d'opération et dont le code se termine par 0, peuvent être sélectionnés."
+        },
         "name": {
             "label": "Nom",
             "description": "Nom usuel de l'entrée (ex. Bloc A, Hall 2…).",

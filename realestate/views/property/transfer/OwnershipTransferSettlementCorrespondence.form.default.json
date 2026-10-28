@@ -27,7 +27,7 @@
                                     {
                                         "width": "50%",
                                         "items": [
-                                            {"type": "field", "value": "condo_id", "width": "100%", "visible": false},
+                                            {"type": "field", "value": "condo_id", "width": "100%", "visible": false, "widget": {"header": {"actions": {"ACTION.CREATE": false}}}},
                                             {"type": "field", "value": "settlement_id", "width": "100%"},
                                             {"type": "field", "value": "recipient_role", "width": "100%"},
                                             {"type": "field", "value": "ownership_id", "width": "50%"},

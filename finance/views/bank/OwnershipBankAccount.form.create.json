@@ -1,0 +1,62 @@
+{
+    "name": "Create Ownership Bank Account",
+    "description": "Select a bank account owned by an owner or external representative.",
+    "layout": {
+        "groups": [
+            {
+                "sections": [
+                    {
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "70%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "owner_identity_id",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "bank_account_id",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "width": "30%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "condo_id",
+                                                "readonly": true,
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "ownership_id",
+                                                "readonly": true,
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_primary",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "is_validated",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

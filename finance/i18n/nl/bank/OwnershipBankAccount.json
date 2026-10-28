@@ -1,0 +1,42 @@
+{
+    "name": "Bankrekening van een eigendom",
+    "plural": "Bankrekeningen van eigendommen",
+    "description": "Koppeling tussen een eigendom en een bankrekening van een eigenaar of externe vertegenwoordiger.",
+    "model": {
+        "condo_id": { "label": "Mede-eigendom", "description": "Mede-eigendom van de eigendom.", "help": "De mede-eigendom wordt overgenomen van de eigendom." },
+        "name": { "label": "Bankrekening", "description": "Weergavenaam van de gekoppelde bankrekening.", "help": "De waarde wordt berekend vanuit de bankrekening." },
+        "ownership_id": { "label": "Eigendom", "description": "Eigendom dat de bankrekening mag gebruiken.", "help": "De rekening is beschikbaar voor terugbetalingen aan deze eigendom." },
+        "description": { "label": "Beschrijving", "description": "Berekende naam van de eigendom.", "help": "De waarde wordt berekend vanuit de eigendom." },
+        "ownership_code": { "label": "Eigendomscode", "description": "Berekende code van de eigendom.", "help": "De waarde wordt berekend vanuit de eigendom." },
+        "allowed_owner_identity_ids": { "label": "Toegestane identiteiten", "description": "Eigenaars en externe vertegenwoordiger die de rekening mogen bezitten.", "help": "Deze lijst beperkt de identiteiten die kunnen worden geselecteerd." },
+        "owner_identity_id": { "label": "Rekeninghouder", "description": "Eigenaar of externe vertegenwoordiger die de rekening bezit.", "help": "De identiteit moet tot de eigendom behoren of haar externe vertegenwoordiger zijn." },
+        "bank_account_id": { "label": "Bankrekening", "description": "Bankrekening die aan de eigendom beschikbaar wordt gesteld.", "help": "De rekening moet aan de geselecteerde houder toebehoren en actief zijn." },
+        "bank_account_type": { "label": "Rekeningtype", "description": "Type van de gekoppelde bankrekening.", "help": "De waarde wordt berekend vanuit de bankrekening." },
+        "bank_account_iban": { "label": "IBAN", "description": "IBAN van de gekoppelde bankrekening.", "help": "De waarde wordt berekend vanuit de bankrekening." },
+        "bank_account_bic": { "label": "BIC", "description": "BIC van de gekoppelde bankrekening.", "help": "De waarde wordt berekend vanuit de bankrekening." },
+        "bank_account_suffix": { "label": "Achtervoegsel", "description": "Achtervoegsel van de gekoppelde bankrekening.", "help": "De waarde wordt berekend vanuit de bankrekening." },
+        "bank_country": { "label": "Land", "description": "Land van de gekoppelde bankrekening.", "help": "De waarde wordt berekend vanuit het IBAN." },
+        "bank_name": { "label": "Bank", "description": "Naam van de bank van de gekoppelde rekening.", "help": "De waarde wordt berekend vanuit het IBAN." },
+        "bank_id": { "label": "Bank", "description": "Bank die aan de gekoppelde rekening is verbonden.", "help": "De waarde wordt berekend vanuit de bankrekening." },
+        "is_active": { "label": "Actief", "description": "Geeft aan of de gekoppelde bankrekening actief is.", "help": "Een inactieve rekening mag niet meer worden gebruikt." },
+        "is_primary": { "label": "Primaire rekening", "description": "Geeft de voorkeursrekening van de eigendom aan.", "help": "De primaire rekening krijgt voorrang bij terugbetalingen." },
+        "accounting_account_id": { "label": "Boekhoudrekening", "description": "Boekhoudrekening gekoppeld aan het bankrekeningtype.", "help": "De waarde wordt bepaald vanuit de mede-eigendom en het rekeningtype." },
+        "is_validated": { "label": "Gevalideerde rekening", "description": "Geeft aan dat de eigendom de bankrekening heeft bevestigd.", "help": "Alleen bevestigde rekeningen mogen voor terugbetalingen worden gebruikt." }
+    },
+    "view": {
+        "form.default": {
+            "name": "Bankrekening van een eigendom",
+            "description": "Details van de bankrekening die voor de eigendom beschikbaar is.",
+            "actions": {
+                "action.mark_as_primary": { "label": "Als primair markeren", "description": "Markeer deze bankrekening als primaire rekening voor de eigendom." }
+            }
+        },
+        "form.create": { "name": "Bankrekening toevoegen", "description": "Selecteer een rekening van een eigenaar of externe vertegenwoordiger." },
+        "list.default": { "name": "Bankrekeningen van eigendommen", "description": "Bankrekeningen beschikbaar voor terugbetalingen aan eigendommen." }
+    },
+    "error": {
+        "owner_identity_id": { "invalid_owner_identity_id": "De houder moet een eigenaar van de eigendom of haar externe vertegenwoordiger zijn." },
+        "bank_account_id": { "invalid_bank_account_owner": "De bankrekening behoort niet toe aan de geselecteerde houder." },
+        "id": { "non_removable": "De primaire bankrekening van de eigendom kan niet worden verwijderd." }
+    }
+}

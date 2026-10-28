@@ -267,7 +267,7 @@ class Suppliership extends \equal\orm\Model {
     }
 
     protected static function doSyncBankAccounts($self) {
-        $self->read(['condo_id', 'suppliership_bank_accounts_ids', 'supplier_id' => ['identity_id' => ['bank_accounts_ids' /*=> ['@domain' => ['is_primary', '=', true]] */]]]);
+        $self->read(['condo_id', 'supplier_id' => ['identity_id' => ['bank_accounts_ids' /*=> ['@domain' => ['is_primary', '=', true]] */]]]);
         foreach($self as $id => $suppliership) {
             if(!$suppliership['supplier_id']) {
                 continue;

@@ -113,14 +113,15 @@ class SuppliershipBankAccount extends Model {
     public static function getActions() {
         return [
             'refresh_bank_account_fields' => [
-                'description'   => 'Open the fiscal year.',
+                'description'   => 'Refresh fields copied from the linked bank account.',
+                'policies'      => [],
                 'function'      => 'doRefreshBankAccountFields'
             ],
         ];
     }
 
     protected static function onupdateBankAccountId($self) {
-        $self->do('doRefreshBankAccountFields');
+        $self->do('refresh_bank_account_fields');
     }
 
     protected static function doRefreshBankAccountFields($self) {

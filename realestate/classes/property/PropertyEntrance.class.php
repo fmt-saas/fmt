@@ -21,6 +21,31 @@ class PropertyEntrance extends \equal\orm\Model {
                 'readonly'          => true
             ],
 
+            'apportionment_id' => [
+                'type'              => 'many2one',
+                'description'       => "Default apportionment to use for consumption accounts specific to this entrance.",
+                'foreign_object'    => 'realestate\property\Apportionment',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
+            'duplication_accounts_ids' => [
+                'type'              => 'many2many',
+                'description'       => "Accounts to duplicate for this property entrance.",
+                'help'              => "Only level-six control accounts without an operation assignment and ending in zero can be selected.",
+                'foreign_object'    => 'finance\accounting\Account',
+                'foreign_field'     => 'property_entrances_ids',
+                'rel_table'         => 'realestate_propertyentrance_rel_account',
+                'rel_local_key'     => 'property_entrance_id',
+                'rel_foreign_key'   => 'account_id',
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['level', '=', 6],
+                    ['is_control_account', '=', true],
+                    ['operation_assignment', '=', ''],
+                    ['code', 'like', '%0']
+                ]
+            ],
+
             'name' => [
                 'type'              => 'string',
                 'description'       => "Name of the Entrance."

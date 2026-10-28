@@ -43,13 +43,12 @@
             "inline": true,
             "label": "Add ownership bank account",
             "icon": "add_card",
-            "description": "Add the counterparty IBAN to the targeted ownership bank accounts.",
-            "controller": "core_model_do",
+            "description": "Add the counterparty IBAN to the targeted ownership for the selected owner.",
+            "controller": "finance_bank_BankStatementLine_add-ownership-bank-account",
             "visible": [["status", "=", "pending"], ["is_owner", "=", true]],
             "params": {
-                "entity": "finance\\bank\\BankStatementLine",
-                "action": "add_ownership_bank_account",
-                "ids": []
+                "id": "object.id",
+                "ownership_id": "object.ownership_id"
             },
             "confirm": true
         }
@@ -74,6 +73,13 @@
             {
                 "type": "field",
                 "value": "is_owner",
+                "width": "10%",
+                "visible": false,
+                "readonly": true
+            },
+            {
+                "type": "field",
+                "value": "ownership_id",
                 "width": "10%",
                 "visible": false,
                 "readonly": true

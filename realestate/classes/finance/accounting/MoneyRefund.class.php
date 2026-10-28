@@ -339,16 +339,19 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 'bank_account_id',
                 'ownership_id',
                 'suppliership_id',
-                'counterpart_bank_account_id'
+                'ownership_bank_account_id' => ['bank_account_id'],
+                'suppliership_bank_account_id' => ['bank_account_id']
             ]);
 
         // request an amount from the owner, to be paid on the current account
         foreach($self as $id => $moneyRefund) {
 
             $counterpartAccount = null;
+            $counterpart_bank_account_id = null;
 
             switch($moneyRefund['refund_type']) {
                 case 'owner_refund':
+                    $counterpart_bank_account_id = $moneyRefund['ownership_bank_account_id']['bank_account_id'] ?? null;
                     $counterpartAccount = Account::search([
                             ['condo_id', '=', $moneyRefund['condo_id']],
                             ['ownership_id', '=', $moneyRefund['ownership_id']],
@@ -361,6 +364,7 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                     }
                     break;
                 case 'supplier_refund':
+                    $counterpart_bank_account_id = $moneyRefund['suppliership_bank_account_id']['bank_account_id'] ?? null;
                     $counterpartAccount = Account::search([
                             ['condo_id', '=', $moneyRefund['condo_id']],
                             ['ownership_id', '=', $moneyRefund['suppliership_id']],
@@ -378,13 +382,17 @@ class MoneyRefund extends \finance\accounting\MiscOperation {
                 throw new \Exception('missing_accounting_account', EQ_ERROR_INVALID_PARAM);
             }
 
+            if(!$counterpart_bank_account_id) {
+                throw new \Exception('missing_counterpart_bank_account', EQ_ERROR_INVALID_PARAM);
+            }
+
             Funding::create([
                     'condo_id'                          => $moneyRefund['condo_id'],
                     'money_refund_id'                   => $id,
                     'funding_type'                      => 'refund',
                     'due_amount'                        => -$moneyRefund['amount'],
                     'bank_account_id'                   => $moneyRefund['bank_account_id'],
-                    'counterpart_bank_account_id'       => $moneyRefund['counterpart_bank_account_id'],
+                    'counterpart_bank_account_id'       => $counterpart_bank_account_id,
                     'accounting_account_id'             => $counterpartAccount['id'],
                     // #todo - allow custom with setting
                     'due_date'                          => time() + 10 * 86400

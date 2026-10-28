@@ -40,22 +40,22 @@ use documents\Document;
  */
 ['context' => $context, 'orm' => $om, 'auth' => $auth] = $providers;
 
-$getCleanedHtml = function($html) {
-    $cleaned_html = preg_replace(
-        [
-            '~<head\b[^>]*>.*?</head\s*>~is',
-            '~<script\b[^>]*>.*?</script\s*>~is',
-            '~<style\b[^>]*>.*?</style\s*>~is',
-            '~<(?:meta|link|base)\b[^>]*>~is',
-            '~</?(?:html|body)\b[^>]*>~i',
-            '~\s+on[a-z][a-z0-9:_-]*\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)~i',
-            '~\s+href\s*=\s*(?:"\s*javascript\s*:[^"]*"|\'\s*javascript\s*:[^\']*\'|javascript\s*:[^\s>]+)~i'
-        ],
-        '',
-        (string) $html
-    );
+$getSafeTextHtml = function($text) {
+    $content = (string) ($text ?? '');
+    if(trim($content) === '') {
+        return '[no content]';
+    }
 
-    return $cleaned_html ?? '';
+    $max_body_length = 65000;
+    if(strlen($content) > $max_body_length) {
+        $suffix = '[...]';
+        $content = mb_strcut($content, 0, $max_body_length - strlen($suffix), 'UTF-8') . $suffix;
+    }
+
+    return nl2br(
+        htmlspecialchars($content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8'),
+        false
+    );
 };
 
 $allowed_mime_types = [
@@ -172,7 +172,7 @@ try {
                     'to'                       => $message->getTo()[0]->mail ?? '',
                     'direction'                => 'incoming',
                     'date'                     => $message_date,
-                    'body'                     => $getCleanedHtml($message->getHTMLBody() ?? ($message->getTextBody() ?? '')),
+                    'body'                     => $getSafeTextHtml($message->getTextBody()),
                     'attachment_import_status' => 'pending'
                 ])
                 ->read(['thread_hash'])
