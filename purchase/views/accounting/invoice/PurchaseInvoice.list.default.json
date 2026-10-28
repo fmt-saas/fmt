@@ -4,11 +4,7 @@
     "controller": "purchase_accounting_invoice_collect",
     "header": {
         "actions": {
-            "ACTION.CREATE": [
-                {
-                    "view_id": "form.create"
-                }
-            ]
+            "ACTION.CREATE": false
         },
         "selection": {
             "actions": [

@@ -246,6 +246,7 @@
                                                 "value": "condo_id",
                                                 "width": "33%",
                                                 "visible": true,
+                                                "readonly": true,
                                                 "widget": {
                                                     "header": {
                                                         "actions": {
