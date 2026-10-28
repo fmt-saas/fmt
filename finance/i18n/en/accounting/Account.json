@@ -3,6 +3,11 @@
     "plural": "Accounting accounts",
     "description": "A line in a chart of accounts.",
     "model": {
+        "suffix": {
+            "label": "Suffix",
+            "description": "Optional suffix appended to the account name.",
+            "help": ""
+        },
         "property_entrances_ids": {
             "label": "Property entrances",
             "description": "Property entrances for which this account must be duplicated.",

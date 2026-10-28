@@ -13,6 +13,16 @@
             "description": "Nom court de la clé (affiché aux utilisateurs).",
             "help": ""
         },
+        "suffix": {
+            "label": "Suffixe",
+            "description": "Suffixe ajouté au libellé des comptes lors de leur duplication.",
+            "help": "Ce champ peut rester vide, mais il doit être renseigné dans chaque langue avant de dupliquer un bloc de comptes."
+        },
+        "duplication_accounts_ids": {
+            "label": "Comptes à dupliquer",
+            "description": "Comptes à dupliquer pour cette clé de répartition.",
+            "help": "Seuls les comptes de contrôle de niveau six, sans affectation d'opération et dont le code se termine par zéro peuvent être sélectionnés."
+        },
         "code": {
             "label": "Code",
             "description": "Identifiant interne (utilisé pour faire correspondre la clé avec les comptes comptables).",
@@ -65,16 +75,19 @@
             "layout": {
                 "section.apportionment_shares": {
                     "label": "Quotes-parts"
+                },
+                "section.duplication_accounts": {
+                    "label": "Comptes à dupliquer"
                 }
             },
             "actions": {
                 "action.duplicate": {
-                    "label": "Dupliquer",
+                    "label": "Dupliquer la clé",
                     "description": "Tenter de dupliquer la répartition."
                 },
-                "action.duplicate_account_tree": {
-                    "label": "Dupliquer une hiérarchie de comptes",
-                    "description": "Dupliquer un compte et ses sous-comptes en utilisant cette clé de répartition."
+                "action.duplicate_accounts": {
+                    "label": "Dupliquer les comptes",
+                    "description": "Dupliquer les arborescences de comptes sélectionnées en utilisant cette clé de répartition."
                 },
                 "action.validate": {
                     "label": "Valider",
@@ -103,7 +116,7 @@
     },
     "error": {
         "errors": {
-            "missing_account_id": "Un compte comptable source doit être sélectionné."
+            "missing_suffix": "Un suffixe non vide doit être renseigné dans chaque langue sur la clé de répartition pour dupliquer les comptes."
         }
     }
 }

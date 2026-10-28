@@ -10,7 +10,12 @@
         },
         "description": {
             "label": "Libellé",
-            "description": "Libellé du compte (concaténé avec le code pour former le nom).",
+            "description": "Libellé du compte (concaténé avec le code et le suffixe pour former le nom).",
+            "help": ""
+        },
+        "suffix": {
+            "label": "Suffixe",
+            "description": "Suffixe facultatif ajouté au nom du compte.",
             "help": ""
         },
         "account_class": {

@@ -12,7 +12,8 @@
                 "params": {
                     "id": "object.id",
                     "condo_id": "object.condo_id"
-                }
+                },
+                "ids": []
             },
             "confirm": true
         }
@@ -85,6 +86,12 @@
                                     {
                                         "width": "100%",
                                         "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "suffix",
+                                                "width": "33%",
+                                                "readonly": true
+                                            },
                                             {
                                                 "type": "field",
                                                 "value": "duplication_accounts_ids",

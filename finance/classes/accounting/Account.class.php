@@ -58,6 +58,18 @@ class Account extends Model {
                 'multilang'         => true
             ],
 
+            'suffix' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcSuffix',
+                'description'       => "Suffix inherited from the account apportionment.",
+                'dependents'        => ['name'],
+                'multilang'         => true,
+                'store'             => false,
+                'readonly'          => true,
+                'visible'           => ['is_control_account', '=', true]
+            ],
+
             'level' => [
                 'type'              => 'computed',
                 'result_type'       => 'integer',
@@ -254,6 +266,7 @@ class Account extends Model {
                 'foreign_object'    => 'realestate\property\Apportionment',
                 'description'       => "Default apportionment to use when creating accounting entries on this account.",
                 'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'dependents'        => ['suffix', 'name'],
                 'visible'           => ['is_apportionable', '=', true],
                 'onupdate'          => 'onupdateApportionmentId'
             ],
@@ -614,9 +627,6 @@ class Account extends Model {
     }
 
     protected static function doDuplicateTree($self, $values, $lang) {
-        if(!isset($values['suffix']) || !is_string($values['suffix']) || trim($values['suffix']) === '') {
-            throw new \Exception('missing_suffix', EQ_ERROR_INVALID_PARAM);
-        }
         if(!isset($values['apportionment_id']) || $values['apportionment_id'] <= 0) {
             throw new \Exception('missing_apportionment_id', EQ_ERROR_INVALID_PARAM);
         }
@@ -629,7 +639,6 @@ class Account extends Model {
             throw new \Exception('invalid_apportionment', EQ_ERROR_INVALID_PARAM);
         }
 
-        $suffix = ' - ' . trim($values['suffix'], " -\n\r\t");
         $copyFields = [
             'code',
             'condo_id',
@@ -672,15 +681,15 @@ class Account extends Model {
                 )
                 ->read($copyFields, $lang);
 
-            $mapSourceTargetIds = [];
+            $map_target_accounts_ids = [];
 
-            foreach($sourceAccounts as $sourceAccountId => $sourceAccount) {
+            foreach($sourceAccounts as $source_account_id => $sourceAccount) {
                 $targetCode = $targetRootCode . substr($sourceAccount['code'], strlen($sourceCode));
                 $newAccount = self::create([
                         'condo_id'              => $sourceAccount['condo_id'],
                         'account_chart_id'      => $sourceAccount['account_chart_id'],
                         'code'                  => $targetCode,
-                        'description'           => ((string) $sourceAccount['description']) . $suffix,
+                        'description'           => $sourceAccount['description'],
                         'account_category'      => $sourceAccount['account_category'],
                         'is_visible'            => $sourceAccount['is_visible'],
                         'is_control_account'    => $sourceAccount['is_control_account'],
@@ -700,7 +709,7 @@ class Account extends Model {
                 )
                 ->first();
 
-                $mapSourceTargetIds[$sourceAccountId] = $newAccount['id'];
+                $map_target_accounts_ids[$source_account_id][] = $newAccount['id'];
             }
 
             $languages = Lang::search()->read(['code']);
@@ -710,18 +719,17 @@ class Account extends Model {
                     continue;
                 }
 
-                $translatedAccounts = self::ids(array_keys($mapSourceTargetIds))
+                $translatedAccounts = self::ids(array_keys($map_target_accounts_ids))
                     ->read(['description'], $language['code']);
 
-                foreach($translatedAccounts as $sourceAccountId => $translatedAccount) {
-                    if($translatedAccount['description'] === null) {
-                        continue;
-                    }
-
-                    self::id($mapSourceTargetIds[$sourceAccountId])
+                foreach($translatedAccounts as $source_account_id => $translatedAccount) {
+                    self::ids($map_target_accounts_ids[$source_account_id])
                         ->update([
-                            'description' => ((string) $translatedAccount['description']) . $suffix
-                        ], $language['code']);
+                                'description'   => $translatedAccount['description'],
+                                'suffix'        => null
+                            ],
+                            $language['code']
+                        );
                 }
             }
         }
@@ -931,7 +939,7 @@ class Account extends Model {
 
     protected static function calcName($self, $lang) {
         $result = [];
-        $self->read(['code', 'description'], $lang);
+        $self->read(['code', 'description', 'suffix'], $lang);
         foreach($self as $id => $line) {
             if(!isset($line['code']) || strlen($line['code']) <= 0) {
                 continue;
@@ -940,8 +948,28 @@ class Account extends Model {
             if($line['description'] && strlen($line['description']) > 0) {
                 $name .= ' - ' . $line['description'];
             }
+            if($line['suffix'] && strlen($line['suffix']) > 0) {
+                $name .= ' - ' . $line['suffix'];
+            }
             $result[$id] = $name;
         }
+        return $result;
+    }
+
+    protected static function calcSuffix($self, $lang) {
+        $result = [];
+        $self->read([
+            'apportionment_id' => ['suffix']
+        ], $lang);
+
+        foreach($self as $id => $account) {
+            if(!$account['apportionment_id']) {
+                continue;
+            }
+
+            $result[$id] = $account['apportionment_id']['suffix'];
+        }
+
         return $result;
     }
 

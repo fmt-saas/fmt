@@ -26,7 +26,8 @@ class PropertyEntrance extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "Default apportionment to use for consumption accounts specific to this entrance.",
                 'foreign_object'    => 'realestate\property\Apportionment',
-                'domain'            => ['condo_id', '=', 'object.condo_id']
+                'domain'            => ['condo_id', '=', 'object.condo_id'],
+                'dependents'        => ['suffix']
             ],
 
             'duplication_accounts_ids' => [
@@ -50,6 +51,16 @@ class PropertyEntrance extends \equal\orm\Model {
             'name' => [
                 'type'              => 'string',
                 'description'       => "Name of the Entrance.",
+                'multilang'         => true
+            ],
+
+            'suffix' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcSuffix',
+                'description'       => "Suffix inherited from the selected apportionment when duplicating account hierarchies for this property entrance.",
+                'store'             => false,
+                'readonly'          => true,
                 'multilang'         => true
             ],
 
@@ -121,7 +132,7 @@ class PropertyEntrance extends \equal\orm\Model {
     public static function getPolicies(): array {
         return array_merge(parent::getPolicies(), [
             'can_duplicate_accounts' => [
-                'description' => 'Checks that an apportionment is set before duplicating the selected account hierarchies.',
+                'description' => 'Checks that an apportionment with a suffix is set before duplicating the selected account hierarchies.',
                 'function'    => 'policyCanDuplicateAccounts'
             ]
         ]);
@@ -140,13 +151,16 @@ class PropertyEntrance extends \equal\orm\Model {
     protected static function policyCanDuplicateAccounts($self): array {
         $result = [];
 
-        $self->read(['apportionment_id']);
+        $self->read(['apportionment_id', 'suffix']);
 
         foreach($self as $id => $propertyEntrance) {
             if(!$propertyEntrance['apportionment_id']) {
                 $result[$id] = [
                     'missing_apportionment_id' => 'An apportionment must be selected.'
                 ];
+            }
+            if(!is_string($propertyEntrance['suffix']) || trim($propertyEntrance['suffix']) === '') {
+                $result[$id]['missing_suffix'] = 'A non-empty suffix must be set on the selected apportionment.';
             }
         }
 
@@ -157,16 +171,10 @@ class PropertyEntrance extends \equal\orm\Model {
         $self->read([
             'apportionment_id',
             'duplication_accounts_ids',
-            'name',
-            'code'
+            'suffix'
         ], $lang);
 
         foreach($self as $id => $propertyEntrance) {
-            $suffix = trim($propertyEntrance['name']);
-            if($suffix === '') {
-                $suffix = (string) ($propertyEntrance['code'] ?: $id);
-            }
-
             foreach($propertyEntrance['duplication_accounts_ids'] as $account_id) {
                 $accounts = Account::id($account_id);
 
@@ -202,11 +210,27 @@ class PropertyEntrance extends \equal\orm\Model {
                 }
 
                 $accounts->do('duplicate_tree', [
-                    'apportionment_id' => $propertyEntrance['apportionment_id'],
-                    'suffix'           => $suffix
+                    'apportionment_id' => $propertyEntrance['apportionment_id']
                 ]);
             }
         }
+    }
+
+    protected static function calcSuffix($self, $lang) {
+        $result = [];
+        $self->read([
+            'apportionment_id' => ['suffix']
+        ], $lang);
+
+        foreach($self as $id => $propertyEntrance) {
+            if(!$propertyEntrance['apportionment_id']) {
+                continue;
+            }
+
+            $result[$id] = $propertyEntrance['apportionment_id']['suffix'];
+        }
+
+        return $result;
     }
 
     protected static function calcPropertyEntranceCode($self) {

@@ -82,32 +82,32 @@
                                                 "id": "item.is_apportionable",
                                                 "type": "field",
                                                 "value": "is_apportionable",
-                                                "width": "33%"
+                                                "width": "20%"
                                             },
                                             {
                                                 "id": "item.apportionment_id",
                                                 "type": "field",
                                                 "label": "Apportionment",
                                                 "value": "apportionment_id",
-                                                "width": "33%"
+                                                "width": "20%"
                                             },
                                             {
                                                 "id": "item.tenant_share",
                                                 "type": "field",
                                                 "value": "tenant_share",
-                                                "width": "18%"
+                                                "width": "20%"
                                             },
                                             {
                                                 "id": "item.owner_share",
                                                 "type": "field",
                                                 "value": "owner_share",
-                                                "width": "18%"
+                                                "width": "20%"
                                             },
                                             {
                                                 "id": "item.vat_rate",
                                                 "type": "field",
                                                 "value": "vat_rate",
-                                                "width": "18%"
+                                                "width": "20%"
                                             }
                                         ]
                                     },
@@ -150,17 +150,22 @@
                                             {
                                                 "type": "field",
                                                 "value": "is_control_account",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "is_tier_balance",
-                                                "width": "33%"
+                                                "width": "25%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "is_visible",
-                                                "width": "33%"
+                                                "width": "25%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "suffix",
+                                                "width": "25%"
                                             }
                                         ]
                                     },

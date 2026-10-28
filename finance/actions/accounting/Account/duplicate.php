@@ -23,11 +23,6 @@ use finance\accounting\Account;
             'required'       => true,
             'visible'        => false
         ],
-        'suffix' => [
-            'type'        => 'string',
-            'description' => 'Suffix appended to every duplicated account name.',
-            'required'    => true
-        ],
         'apportionment_id' => [
             'type'           => 'many2one',
             'label'          => 'Apportionment',
@@ -58,7 +53,6 @@ $context = $providers['context'];
 
 Account::id($params['id'])
     ->do('duplicate_tree', [
-        'suffix'           => $params['suffix'],
         'apportionment_id' => $params['apportionment_id']
     ]);
 

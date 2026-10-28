@@ -6,6 +6,7 @@
 */
 namespace realestate\property;
 
+use core\Lang;
 use finance\accounting\Account;
 use fmt\setting\Setting;
 
@@ -38,6 +39,30 @@ class Apportionment extends \equal\orm\Model {
                 'required'          => true,
                 'multilang'         => true,
                 'dependents'        => ['name']
+            ],
+
+            'suffix' => [
+                'type'              => 'string',
+                'description'       => "Suffix appended to account names during duplication.",
+                'multilang'         => true
+            ],
+
+            'duplication_accounts_ids' => [
+                'type'              => 'many2many',
+                'description'       => "Accounts to duplicate for this apportionment.",
+                'help'              => "Only level-six control accounts without an operation assignment and ending in zero can be selected.",
+                'foreign_object'    => 'finance\accounting\Account',
+                'foreign_field'     => 'duplication_apportionments_ids',
+                'rel_table'         => 'realestate_apportionment_rel_account',
+                'rel_local_key'     => 'apportionment_id',
+                'rel_foreign_key'   => 'account_id',
+                'domain'            => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['level', '=', 6],
+                    ['is_control_account', '=', true],
+                    ['operation_assignment', '=', ''],
+                    ['code', 'like', '%0']
+                ]
             ],
 
             'code' => [
@@ -152,6 +177,10 @@ class Apportionment extends \equal\orm\Model {
             'can_validate' => [
                 'description' => 'Verifies that the Apportionment can be validated.',
                 'function'    => 'policyCanValidate'
+            ],
+            'can_duplicate_accounts' => [
+                'description' => 'Checks that a suffix is set in every language before duplicating account hierarchies.',
+                'function'    => 'policyCanDuplicateAccounts'
             ]
         ];
     }
@@ -164,12 +193,31 @@ class Apportionment extends \equal\orm\Model {
                 'policies'      => [],
                 'function'      => 'doDuplicateApportionment'
             ],
-            'duplicate_account_tree' => [
-                'description' => 'Duplicates an account hierarchy using the current apportionment.',
-                'policies'    => [],
-                'function'    => 'doDuplicateAccountTree'
+            'duplicate_accounts' => [
+                'description' => 'Duplicates the selected account hierarchies using the current apportionment.',
+                'policies'    => ['can_duplicate_accounts'],
+                'function'    => 'doDuplicateAccounts'
             ]
         ]);
+    }
+
+    protected static function policyCanDuplicateAccounts($self): array {
+        $result = [];
+        $languages = Lang::search()->read(['code']);
+
+        foreach($languages as $language) {
+            $self->read(['suffix'], $language['code']);
+
+            foreach($self as $id => $apportionment) {
+                if(!is_string($apportionment['suffix']) || trim($apportionment['suffix']) === '') {
+                    $result[$id] = [
+                        'missing_suffix' => 'A non-empty suffix must be set in every language.'
+                    ];
+                }
+            }
+        }
+
+        return $result;
     }
 
     protected static function policyCanValidate($self) {
@@ -201,7 +249,7 @@ class Apportionment extends \equal\orm\Model {
 
     public static function canupdate($self, $values) {
         $self->read(['status']);
-        $allowed_fields = ['code', 'description', 'condo_id'];
+        $allowed_fields = ['code', 'description', 'suffix', 'duplication_accounts_ids', 'condo_id'];
         foreach($self as $id => $apportionment) {
             // #todo - prevent using the same code twice for a same condominium
             if($apportionment['status'] == 'validated') {
@@ -317,17 +365,51 @@ class Apportionment extends \equal\orm\Model {
 
     }
 
-    protected static function doDuplicateAccountTree($self, $values) {
-        if(!isset($values['account_id']) || $values['account_id'] <= 0) {
-            throw new \Exception('missing_account_id', EQ_ERROR_INVALID_PARAM);
-        }
+    protected static function doDuplicateAccounts($self, $lang) {
+        $self->read([
+            'duplication_accounts_ids',
+            'suffix'
+        ], $lang);
 
         foreach($self as $id => $apportionment) {
-            Account::id($values['account_id'])
-                ->do('duplicate_tree', [
-                    'suffix'           => $values['suffix'] ?? null,
+            foreach($apportionment['duplication_accounts_ids'] as $account_id) {
+                $accounts = Account::id($account_id);
+
+                try {
+                    $accounts->assertPolicies('can_duplicate_tree');
+                }
+                catch(\Exception $e) {
+                    continue;
+                }
+
+                $sourceAccount = $accounts
+                    ->read(['condo_id', 'account_chart_id', 'code'])
+                    ->first();
+
+                if(!$sourceAccount) {
+                    continue;
+                }
+
+                $source_account_code = (string) $sourceAccount['code'];
+                $index_length = substr($source_account_code, -2) === '00' ? 2 : 1;
+                $code_prefix = substr($source_account_code, 0, -$index_length);
+                $duplicateAccounts = Account::search([
+                        ['condo_id', '=', $sourceAccount['condo_id']],
+                        ['account_chart_id', '=', $sourceAccount['account_chart_id']],
+                        ['apportionment_id', '=', $id],
+                        ['level', '=', 6],
+                        ['is_control_account', '=', true],
+                        ['code', 'like', $code_prefix . '%']
+                    ]);
+
+                if($duplicateAccounts->count() > 0) {
+                    continue;
+                }
+
+                $accounts->do('duplicate_tree', [
                     'apportionment_id' => $id
                 ]);
+            }
         }
     }
 }

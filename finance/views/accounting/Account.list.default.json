@@ -50,6 +50,12 @@
             },
             {
                 "type": "field",
+                "value": "suffix",
+                "width": "10%",
+                "sortable": true
+            },
+            {
+                "type": "field",
                 "label": "Control",
                 "value": "is_control_account",
                 "width": "10%"

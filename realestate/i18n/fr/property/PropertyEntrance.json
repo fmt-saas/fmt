@@ -23,6 +23,11 @@
             "description": "Nom usuel de l'entrée (ex. Bloc A, Hall 2…).",
             "help": ""
         },
+        "suffix": {
+            "label": "Suffixe",
+            "description": "Suffixe multilingue repris de la clé de répartition sélectionnée et ajouté au libellé des comptes lors de leur duplication pour cette entrée d'immeuble.",
+            "help": "Le suffixe doit être renseigné dans la langue correspondante sur la clé de répartition sélectionnée."
+        },
         "code": {
             "label": "Code",
             "description": "Code interne généré automatiquement.",
@@ -77,7 +82,8 @@
     },
     "error": {
         "errors": {
-            "missing_apportionment_id": "Une clé de répartition doit être sélectionnée."
+            "missing_apportionment_id": "Une clé de répartition doit être sélectionnée.",
+            "missing_suffix": "Un suffixe non vide doit être renseigné sur la clé de répartition sélectionnée pour dupliquer les comptes."
         }
     }
 }

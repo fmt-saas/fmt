@@ -23,14 +23,19 @@
             }
         },
         {
-            "id": "action.duplicate_account_tree",
-            "label": "Duplicate account hierarchy",
+            "id": "action.duplicate_accounts",
+            "label": "Duplicate accounts",
             "icon": "content_copy",
-            "description": "Duplicate an account hierarchy using this apportionment.",
-            "controller": "realestate_property_Apportionment_duplicate-account",
+            "description": "Duplicate the selected account hierarchies using this apportionment.",
+            "controller": "core_model_do",
             "params": {
-                "apportionment_id": "object.id",
-                "condo_id": "object.condo_id"
+                "entity": "realestate\\property\\Apportionment",
+                "action": "duplicate_accounts",
+                "params": {
+                    "id": "object.id",
+                    "condo_id": "object.condo_id"
+                },
+                "ids": []
             },
             "visible": [
                 ["state", "<>", "draft"],
@@ -111,6 +116,49 @@
                                                 "label": "assigned",
                                                 "value": "assigned_shares",
                                                 "width": "25%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.duplication_accounts",
+                        "label": "Duplication accounts",
+                        "visible": [
+                            ["state", "<>", "draft"],
+                            ["is_statutory", "=", false]
+                        ],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "suffix",
+                                                "width": "33%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "duplication_accounts_ids",
+                                                "width": "100%",
+                                                "widget": {
+                                                    "mode": "edit",
+                                                    "header": {
+                                                        "layout": "inline",
+                                                        "actions": {
+                                                            "ACTION.SELECT": true,
+                                                            "ACTION.CREATE": false
+                                                        }
+                                                    }
+                                                }
                                             }
                                         ]
                                     }

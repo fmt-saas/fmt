@@ -3,6 +3,11 @@
     "plural": "Boekhoudrekeningen",
     "description": "Een regel in een rekeningschema.",
     "model": {
+        "suffix": {
+            "label": "Achtervoegsel",
+            "description": "Optioneel achtervoegsel dat aan de rekeningnaam wordt toegevoegd.",
+            "help": ""
+        },
         "property_entrances_ids": {
             "label": "Gebouwingangen",
             "description": "Ingangen of blokken waarvoor deze rekening moet worden gedupliceerd.",
