@@ -112,12 +112,14 @@ class Invoice extends Model {
             'payment_status' => [
                 'type'              => 'string',
                 'selection'         => [
+                    'pending',          // payment balance has not been evaluated yet
                     'debit_balance',    // buyer still has to pay something
                     'credit_balance',   // reimbursement to buyer is required
                     'balanced'          // fully paid and balanced
                 ],
                 'visible'           => ['status', '=', 'posted'],
-                'default'           => 'pending'
+                'default'           => 'pending',
+                'description'       => 'Payment balance status of the invoice.'
             ],
 
             'payment_reference' => [

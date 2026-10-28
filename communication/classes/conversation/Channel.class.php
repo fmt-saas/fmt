@@ -28,6 +28,8 @@ class Channel extends Model {
                 'required'          => true
             ],
 
+            /*
+            # memo - foreign field does not exist so not supported at the moment
             'users_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'core\User',
@@ -37,6 +39,7 @@ class Channel extends Model {
                 'rel_local_key'     => 'channel_id',
                 'description'       => 'Users that can take part in channel\'s conversations.'
             ],
+            */
 
             'conversations_ids' => [
                 'type'              => 'one2many',

@@ -59,7 +59,7 @@ class PurchaseInvoice extends \finance\accounting\invoice\Invoice {
             'invoice_lines_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoiceLine',
-                'foreign_field'     => 'purchase_invoice_id',
+                'foreign_field'     => 'invoice_id',
                 'description'       => 'Detailed lines of the invoice.',
                 'ondetach'          => 'delete',
                 'dependencies'      => ['total', 'price']
