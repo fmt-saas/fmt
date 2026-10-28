@@ -19,7 +19,7 @@ class ConsumptionMeterReading extends \equal\orm\Model {
 
             'consumption_meter_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'sale\booking\ConsumptionMeter',
+                'foreign_object'    => 'realestate\utility\energy\ConsumptionMeter',
                 'description'       => 'The meter ID relates to the consumption meter reading in the booking.',
                 'required'          => true
             ],

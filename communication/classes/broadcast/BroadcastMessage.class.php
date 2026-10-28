@@ -315,7 +315,7 @@ class BroadcastMessage extends Model {
         }
     }
 
-    public static function calcReplyTo($self): array {
+    protected static function calcReplyTo($self): array {
         $result = [];
         $managementProcess = ManagementProcess::search(['code', '=', 'communication'])->read(['mailbox_id' => ['email']])->first();
         foreach($self as $id => $broadcast) {
@@ -324,7 +324,7 @@ class BroadcastMessage extends Model {
         return $result;
     }
 
-    public static function calcParentNodeId($self): array {
+    protected static function calcParentNodeId($self): array {
         $result = [];
         $self->read(['condo_id']);
         foreach($self as $id => $assembly) {

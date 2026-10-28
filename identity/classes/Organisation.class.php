@@ -94,7 +94,7 @@ class Organisation extends Identity {
             'employees_ids' => [
                 'type'            => 'one2many',
                 'description'     => "List of employees working for the Organization.",
-                'foreign_object'  => 'identity\Organisation',
+                'foreign_object'  => 'hr\employee\Employee',
                 'foreign_field'   => 'organization_id'
             ]
 

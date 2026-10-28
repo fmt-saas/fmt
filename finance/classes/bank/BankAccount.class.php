@@ -143,7 +143,7 @@ class BankAccount extends Model {
                 'description'       => 'The BIC code of the bank related to the organization\'s bank account.',
                 'help'              => 'Additional number for composite identification used by some banks.',
                 // #memo - so far this only applies to ING bank
-                'domain'            => ['bank_account_bic', '=', 'BBRUBEBB']
+                'visible'           => ['bank_account_bic', '=', 'BBRUBEBB']
             ],
 
             'bank_country' => [

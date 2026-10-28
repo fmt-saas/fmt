@@ -70,8 +70,7 @@ class SuppliershipContract extends \equal\orm\Model {
 
             'contract_ref' => [
                 'type'              => 'string',
-                'description'       => "Specific reference of the contract provided by the supplier.",
-                'default'           => true
+                'description'       => "Specific reference of the contract provided by the supplier."
             ]
 
         ];
