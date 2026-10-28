@@ -21,6 +21,13 @@ class PropertyEntrance extends \equal\orm\Model {
                 'readonly'          => true
             ],
 
+            'apportionment_id' => [
+                'type'              => 'many2one',
+                'description'       => "Default apportionment to use for consumption accounts specific to this entrance.",
+                'foreign_object'    => 'realestate\property\Apportionment',
+                'domain'            => ['condo_id', '=', 'object.condo_id']
+            ],
+
             'name' => [
                 'type'              => 'string',
                 'description'       => "Name of the Entrance."

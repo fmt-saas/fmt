@@ -8,6 +8,11 @@
             "description": "Copropriété à laquelle l'entrée est rattachée.",
             "help": ""
         },
+        "apportionment_id": {
+            "label": "Clé de répartition",
+            "description": "Clé de répartition destinée aux comptes comptables de consommation propres à cette entrée.",
+            "help": ""
+        },
         "name": {
             "label": "Nom",
             "description": "Nom usuel de l'entrée (ex. Bloc A, Hall 2…).",
