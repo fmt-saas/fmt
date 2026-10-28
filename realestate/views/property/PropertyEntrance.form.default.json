@@ -27,13 +27,38 @@
                                             {
                                                 "type": "field",
                                                 "value": "code",
+                                                "width": "33%",
+                                                "readonly": true
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "name",
                                                 "width": "33%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "apportionment_id",
-                                                "width": "100%"
+                                                "width": "33%"
                                             },
+                                            {
+                                                "type": "field",
+                                                "value": "address_street",
+                                                "width": "50%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "description",
+                                                "width": "50%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
                                             {
                                                 "type": "field",
                                                 "value": "duplication_accounts_ids",
@@ -48,16 +73,6 @@
                                                         }
                                                     }
                                                 }
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "address_street",
-                                                "width": "100%"
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "description",
-                                                "width": "100%"
                                             }
                                         ]
                                     }
