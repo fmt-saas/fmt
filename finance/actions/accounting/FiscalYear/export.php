@@ -591,6 +591,7 @@ try {
         ->first();
 }
 catch(\Throwable $e) {
+    // #debug
     $source_documents_count = 0;
     $source_documents_size = 0;
     $categories = [];
@@ -632,10 +633,7 @@ catch(\Throwable $e) {
         'php_upload_max_filesize'  => ini_get('upload_max_filesize'),
         'php_post_max_size'        => ini_get('post_max_size'),
         'temporary_directory'      => sys_get_temp_dir(),
-        'temporary_free_space'     => @disk_free_space(sys_get_temp_dir()),
-        'exception_class'          => get_class($e),
-        'exception_code'           => $e->getCode(),
-        'exception_message'        => $e->getMessage()
+        'temporary_free_space'     => @disk_free_space(sys_get_temp_dir())
     ];
 
     trigger_error(

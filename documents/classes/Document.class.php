@@ -228,9 +228,9 @@ class Document extends Model {
 
             'readable_size' => [
                 'type'              => 'computed',
+                'result_type'       => 'string',
                 'description'       => 'Readable size',
                 'function'          => 'calcReadableSize',
-                'result_type'       => 'string',
                 'store'             => true,
                 'instant'           => true,
                 'readonly'          => true
