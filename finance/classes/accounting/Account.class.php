@@ -360,7 +360,7 @@ class Account extends Model {
         return array_merge(parent::getActions(), [
             'duplicate_tree' => [
                 'description' => 'Duplicates an account and all its sub-accounts with the selected apportionment.',
-                'help'        => 'Only six-digit expense control accounts ending in 00 and without operation assignments in their hierarchy can be duplicated.',
+                'help'        => 'Only six-digit expense control accounts ending in 0 and without operation assignments in their hierarchy can be duplicated.',
                 'policies'    => ['can_duplicate_tree'],
                 'function'    => 'doDuplicateTree'
             ],
@@ -535,9 +535,9 @@ class Account extends Model {
             }
 
             $sourceCode = (string) $account['code'];
-            if(strlen($sourceCode) !== 6 || !ctype_digit($sourceCode) || substr($sourceCode, -2) !== '00') {
+            if(strlen($sourceCode) !== 6 || !ctype_digit($sourceCode) || substr($sourceCode, -1) !== '0') {
                 $result[$id] = [
-                    'invalid_source_code' => 'The source account code must contain exactly six digits and end in 00.'
+                    'invalid_source_code' => 'The source account code must contain exactly six digits and end in 0.'
                 ];
                 continue;
             }
@@ -717,34 +717,43 @@ class Account extends Model {
         }
     }
 
-    private static function computeNextDuplicateRootCode(int $accountChartId, string $sourceCode): ?string {
-        $codePrefix = substr($sourceCode, 0, 4);
-        $highestIndex = 0;
+    private static function computeNextDuplicateRootCode(int $account_chart_id, string $source_code): ?string {
+        $index_length = substr($source_code, -2) === '00' ? 2 : 1;
+        $code_prefix = substr($source_code, 0, -$index_length);
+        $max_index = (10 ** $index_length) - 1;
+        $existing_indexes = [];
         $accounts = self::search([
-                ['account_chart_id', '=', $accountChartId],
-                ['code', 'like', $codePrefix . '%']
+                ['account_chart_id', '=', $account_chart_id],
+                ['code', 'like', $code_prefix . '%']
             ])
             ->read(['code']);
 
         foreach($accounts as $account) {
-            $accountCode = (string) $account['code'];
-            if(strlen($accountCode) !== 6 || strncmp($accountCode, $codePrefix, strlen($codePrefix)) !== 0) {
+            $account_code = (string) $account['code'];
+            if(strlen($account_code) !== 6 || strncmp($account_code, $code_prefix, strlen($code_prefix)) !== 0) {
                 continue;
             }
 
-            $index = substr($accountCode, -2);
+            $index = substr($account_code, -$index_length);
             if(!ctype_digit($index)) {
                 continue;
             }
 
-            $highestIndex = max($highestIndex, (int) $index);
+            $existing_indexes[(int) $index] = true;
         }
 
-        if($highestIndex >= 99) {
+        $duplicate_count = count($existing_indexes) - (isset($existing_indexes[0]) ? 1 : 0);
+        if($duplicate_count >= $max_index) {
             return null;
         }
 
-        return $codePrefix . str_pad((string) ($highestIndex + 1), 2, '0', STR_PAD_LEFT);
+        for($index = 1; $index <= $max_index; ++$index) {
+            if(!isset($existing_indexes[$index])) {
+                return $code_prefix . str_pad((string) $index, $index_length, '0', STR_PAD_LEFT);
+            }
+        }
+
+        return null;
     }
 
     private static function computeAccountNature(string $code) {
