@@ -8,10 +8,15 @@
             "description": "Optioneel achtervoegsel dat aan de rekeningnaam wordt toegevoegd.",
             "help": ""
         },
-        "property_entrances_ids": {
+        "duplication_property_entrances_ids": {
             "label": "Gebouwingangen",
             "description": "Ingangen of blokken waarvoor deze rekening moet worden gedupliceerd.",
             "help": ""
+        },
+        "duplication_apportionments_ids": {
+            "label": "Verdeelsleutels voor duplicatie",
+            "description": "Verdeelsleutels waarvoor deze rekening moet worden gedupliceerd.",
+            "help": "Deze relatie wordt beheerd vanuit de verdeelsleutel."
         }
     },
     "view": {

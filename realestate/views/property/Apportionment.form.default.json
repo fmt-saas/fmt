@@ -128,6 +128,27 @@
             {
                 "sections": [
                     {
+                        "label": "Shares",
+                        "id": "section.apportionment_shares",
+                        "visible": ["state", "<>", "draft"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "apportionment_shares_ids",
+                                                "width": "100%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "id": "section.duplication_accounts",
                         "label": "Duplication accounts",
                         "visible": [
@@ -159,27 +180,6 @@
                                                         }
                                                     }
                                                 }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        "label": "Shares",
-                        "id": "section.apportionment_shares",
-                        "visible": ["state", "<>", "draft"],
-                        "rows": [
-                            {
-                                "columns": [
-                                    {
-                                        "width": "100%",
-                                        "items": [
-                                            {
-                                                "type": "field",
-                                                "value": "apportionment_shares_ids",
-                                                "width": "100%"
                                             }
                                         ]
                                     }

@@ -35,7 +35,7 @@ class PropertyEntrance extends \equal\orm\Model {
                 'description'       => "Accounts to duplicate for this property entrance.",
                 'help'              => "Only level-six control accounts without an operation assignment and ending in zero can be selected.",
                 'foreign_object'    => 'finance\accounting\Account',
-                'foreign_field'     => 'property_entrances_ids',
+                'foreign_field'     => 'duplication_property_entrances_ids',
                 'rel_table'         => 'realestate_propertyentrance_rel_account',
                 'rel_local_key'     => 'property_entrance_id',
                 'rel_foreign_key'   => 'account_id',

@@ -8,10 +8,15 @@
             "description": "Optional suffix appended to the account name.",
             "help": ""
         },
-        "property_entrances_ids": {
+        "duplication_property_entrances_ids": {
             "label": "Property entrances",
             "description": "Property entrances for which this account must be duplicated.",
             "help": ""
+        },
+        "duplication_apportionments_ids": {
+            "label": "Duplication apportionments",
+            "description": "Apportionments for which this account must be duplicated.",
+            "help": "This relation is managed from the apportionment."
         }
     },
     "view": {

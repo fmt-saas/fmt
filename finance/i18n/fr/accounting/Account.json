@@ -71,10 +71,15 @@
             "description": "Clé utilisée pour ventiler les montants entre copropriétaires.",
             "help": ""
         },
-        "property_entrances_ids": {
+        "duplication_property_entrances_ids": {
             "label": "Entrées d'immeuble",
             "description": "Entrées ou blocs pour lesquels ce compte doit être dupliqué.",
             "help": ""
+        },
+        "duplication_apportionments_ids": {
+            "label": "Clés de répartition de duplication",
+            "description": "Clés de répartition pour lesquelles ce compte doit être dupliqué.",
+            "help": "Cette relation est gérée depuis la clé de répartition."
         },
         "tenant_share": {
             "label": "Part locataire (%)",
