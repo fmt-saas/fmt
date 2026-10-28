@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ invoice.document_type == 'CreditNote' ? labels.credit_note : labels.invoice }} {{ invoice.invoice_number }}</title>
+    <style>
+        @page { margin: 35px 40px 45px; }
+        body { color: #222; font-family: DejaVu Sans, sans-serif; font-size: 10px; margin: 0; }
+        h1 { font-size: 23px; margin: 0 0 5px; }
+        h2 { border-bottom: 1px solid #bbb; font-size: 12px; margin: 0 0 8px; padding-bottom: 4px; }
+        p { margin: 2px 0; }
+        table { border-collapse: collapse; width: 100%; }
+        .header { margin-bottom: 24px; }
+        .header td { vertical-align: top; width: 50%; }
+        .document-details { text-align: right; }
+        .parties { margin-bottom: 22px; table-layout: fixed; }
+        .parties td { border: 1px solid #ccc; padding: 10px; vertical-align: top; width: 50%; }
+        .lines { margin-bottom: 16px; table-layout: fixed; }
+        .lines th { background: #eee; border: 1px solid #bbb; padding: 6px 4px; text-align: left; }
+        .lines td { border: 1px solid #ccc; padding: 6px 4px; vertical-align: top; }
+        .lines .number { text-align: right; white-space: nowrap; }
+        .line-number { width: 7%; }
+        .line-description { width: 43%; }
+        .line-quantity { width: 12%; }
+        .line-unit-price { width: 14%; }
+        .line-vat { width: 10%; }
+        .line-amount { width: 14%; }
+        .totals { margin-left: auto; width: 45%; }
+        .totals td { border-bottom: 1px solid #ddd; padding: 5px; }
+        .totals .number { text-align: right; white-space: nowrap; }
+        .totals .payable { font-size: 12px; font-weight: bold; }
+        .payment { border: 1px solid #ccc; margin-top: 24px; padding: 10px; }
+        .muted { color: #666; }
+    </style>
+</head>
+<body>
+    <table class="header">
+        <tr>
+            <td>
+                <h1>{{ invoice.document_type == 'CreditNote' ? labels.credit_note : labels.invoice }}</h1>
+                <p><strong>{{ invoice.invoice_number }}</strong></p>
+            </td>
+            <td class="document-details">
+                <p><strong>{{ labels.issue_date }}:</strong> {{ invoice.issue_date }}</p>
+                {% if invoice.due_date %}<p><strong>{{ labels.due_date }}:</strong> {{ invoice.due_date }}</p>{% endif %}
+                {% if invoice.buyer_reference %}<p><strong>{{ labels.buyer_reference }}:</strong> {{ invoice.buyer_reference }}</p>{% endif %}
+                {% if invoice.invoice_period is defined %}
+                    <p><strong>{{ labels.invoice_period }}:</strong> {{ invoice.invoice_period.start_date }} – {{ invoice.invoice_period.end_date }}</p>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <table class="parties">
+        <tr>
+            <td>
+                <h2>{{ labels.supplier }}</h2>
+                <p><strong>{{ invoice.supplier.name }}</strong></p>
+                <p>{{ invoice.supplier.address.street }}</p>
+                <p>{{ invoice.supplier.address.postal_code }} {{ invoice.supplier.address.city }}</p>
+                <p>{{ invoice.supplier.address.country }}</p>
+                {% if invoice.supplier.vat_id %}<p><span class="muted">{{ labels.vat_number }}:</span> {{ invoice.supplier.vat_id }}</p>{% endif %}
+                {% if invoice.supplier.company_id %}<p><span class="muted">{{ labels.company_number }}:</span> {{ invoice.supplier.company_id }}</p>{% endif %}
+            </td>
+            <td>
+                <h2>{{ labels.customer }}</h2>
+                <p><strong>{{ invoice.customer.name }}</strong></p>
+                <p>{{ invoice.customer.address.street }}</p>
+                <p>{{ invoice.customer.address.postal_code }} {{ invoice.customer.address.city }}</p>
+                <p>{{ invoice.customer.address.country }}</p>
+                {% if invoice.customer.vat_id %}<p><span class="muted">{{ labels.vat_number }}:</span> {{ invoice.customer.vat_id }}</p>{% endif %}
+                {% if invoice.customer.company_id %}<p><span class="muted">{{ labels.company_number }}:</span> {{ invoice.customer.company_id }}</p>{% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <table class="lines">
+        <thead>
+            <tr>
+                <th class="line-number">{{ labels.line_number }}</th>
+                <th class="line-description">{{ labels.description }}</th>
+                <th class="line-quantity">{{ labels.quantity }}</th>
+                <th class="line-unit-price">{{ labels.unit_price }}</th>
+                <th class="line-vat">{{ labels.vat }}</th>
+                <th class="line-amount">{{ labels.amount }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for line in invoice.lines %}
+                <tr>
+                    <td>{{ line.id }}</td>
+                    <td>{{ line.description }}</td>
+                    <td class="number">{{ line.quantity|number_format(2, '.', ',') }}</td>
+                    <td class="number">{{ line.unit_price|number_format(2, '.', ',') }} {{ invoice.currency }}</td>
+                    <td class="number">{{ (line.tax.percent * 100)|number_format(2, '.', ',') }}%</td>
+                    <td class="number">{{ line.amount|number_format(2, '.', ',') }} {{ invoice.currency }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="totals">
+        <tr><td>{{ labels.total_excl_tax }}</td><td class="number">{{ invoice.totals.total_excl_tax|number_format(2, '.', ',') }} {{ invoice.currency }}</td></tr>
+        <tr><td>{{ labels.total_tax }}</td><td class="number">{{ invoice.totals.total_tax|number_format(2, '.', ',') }} {{ invoice.currency }}</td></tr>
+        <tr><td>{{ labels.total_incl_tax }}</td><td class="number">{{ invoice.totals.total_incl_tax|number_format(2, '.', ',') }} {{ invoice.currency }}</td></tr>
+        <tr class="payable"><td>{{ labels.payable_amount }}</td><td class="number">{{ invoice.totals.payable_amount|number_format(2, '.', ',') }} {{ invoice.currency }}</td></tr>
+    </table>
+
+    {% if invoice.payment.iban or invoice.payment.bic or invoice.payment.payment_id %}
+        <div class="payment">
+            <h2>{{ labels.payment_details }}</h2>
+            {% if invoice.payment.iban %}<p><strong>{{ labels.iban }}:</strong> {{ invoice.payment.iban }}</p>{% endif %}
+            {% if invoice.payment.bic %}<p><strong>{{ labels.bic }}:</strong> {{ invoice.payment.bic }}</p>{% endif %}
+            {% if invoice.payment.payment_id %}<p><strong>{{ labels.payment_reference }}:</strong> {{ invoice.payment.payment_id }}</p>{% endif %}
+        </div>
+    {% endif %}
+</body>
+</html>

@@ -334,6 +334,15 @@ class Document extends Model {
                 'visible'           => ['is_source', '=', true]
             ],
 
+            'origin_relation_type' => [
+                'type'              => 'string',
+                'selection'         => ['rendering', 'attachment'],
+                'readonly'          => true,
+                'description'       => 'Role of this document relative to its origin document.',
+                'help'              => 'A rendering is generated for displaying the origin document. An attachment is extracted from the origin document.',
+                'visible'           => ['origin_document_id', '<>', null]
+            ],
+
             /* fields below serve as link between the document and the entity it originates from, independently from its type, and are mutually exclusive */
 
             'case_file_id' => [
@@ -768,10 +777,43 @@ class Document extends Model {
 
     protected static function calcLink($self) {
         $result = [];
-        $self->read(['hash']);
+        $self->read(['content_type', 'hash']);
         foreach($self as $id => $document) {
-            $result[$id] = '/document/' . $document['hash'];
+            $document_link = null;
+            if($document['content_type'] === 'application/pdf') {
+                $document_link = '/document/' . $document['hash'];
+            }
+            else {
+                $displayDocuments = Document::search([
+                        ['origin_document_id', '=', $document['id']],
+                        ['origin_relation_type', '=', 'rendering']
+                    ])
+                    ->read(['content_type', 'hash'])
+                    ->get();
+
+                // Keep legacy documents usable: records created before roles were
+                // introduced only have origin_document_id set.
+                if(empty($displayDocuments)) {
+                    $displayDocuments = Document::search(['origin_document_id', '=', $document['id']])
+                        ->read(['content_type', 'hash'])
+                        ->get();
+                }
+
+                foreach($displayDocuments as $displayDocument) {
+                    if($displayDocument['content_type'] === 'application/pdf') {
+                        $document_link = '/document/' . $displayDocument['hash'];
+                        break;
+                    }
+                }
+            }
+
+            if(!$document_link) {
+                $document_link = '/document/' . $document['hash'];
+            }
+
+            $result[$id] = $document_link;
         }
+
         return $result;
     }
 
