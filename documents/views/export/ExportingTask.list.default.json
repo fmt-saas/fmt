@@ -8,6 +8,8 @@
             "ACTION.EDIT" : false
         }
     },
+    "order": "created",
+    "sort": "desc",
     "layout": {
         "items": [
             {
@@ -15,6 +17,16 @@
                 "label": "Condominium",
                 "value": "condo_id",
                 "width": "33%"
+            },
+            {
+                "type": "field",
+                "label": "Created",
+                "value": "created",
+                "width": "15%",
+                "readonly": true,
+                "widget": {
+                    "usage": "datetime"
+                }
             },
             {
                 "type": "field",

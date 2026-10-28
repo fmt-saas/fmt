@@ -1691,23 +1691,71 @@ try {
             }
         }
 
-        CondoFund::create([
-                'description'           => 'Fonds de roulement',
+        $working_fund_description_value = '{fr:"Fonds de roulement",en:"Working capital",nl:"Werkkapitaal"}';
+        $working_fund_description_translations = $parseMultilangFieldValue($working_fund_description_value);
+        $working_fund_description_lang = $working_fund_description_translations
+            ? array_key_first($working_fund_description_translations)
+            : null;
+        $working_fund_description = $working_fund_description_lang
+            ? $working_fund_description_translations[$working_fund_description_lang]
+            : $working_fund_description_value;
+
+        $working_fund = CondoFund::create([
+                'description'           => $working_fund_description,
                 'condo_id'              => $condominium['id'],
                 'apportionment_id'      => $apportionment_id,
                 'fund_type'             => 'working_fund'
-            ])
+            ], $working_fund_description_lang)
+            ->first();
+
+        if($working_fund_description_translations) {
+            foreach($working_fund_description_translations as $lang => $translated_description) {
+                if($lang === $working_fund_description_lang) {
+                    continue;
+                }
+
+                CondoFund::id($working_fund['id'])
+                    ->update(['description' => $translated_description], $lang);
+            }
+        }
+
+        CondoFund::id($working_fund['id'])
             ->transition('validate');
 
         $result['logs'][] = "INFO- created & validated working fund";
 
-        CondoFund::create([
-                'description'           => 'Fonds de réserve',
+        $reserve_fund_description_value = '{fr:"Fonds de réserve",en:"Reserve fund",nl:"Reservefonds"}';
+        $reserve_fund_description_translations = $parseMultilangFieldValue($reserve_fund_description_value);
+        $reserve_fund_description_lang = $reserve_fund_description_translations
+            ? array_key_first($reserve_fund_description_translations)
+            : null;
+        $reserve_fund_description = $reserve_fund_description_lang
+            ? $reserve_fund_description_translations[$reserve_fund_description_lang]
+            : $reserve_fund_description_value;
+
+        $reserve_fund = CondoFund::create([
+                'description'           => $reserve_fund_description,
                 'condo_id'              => $condominium['id'],
                 'apportionment_id'      => $apportionment_id,
                 'fund_type'             => 'reserve_fund'
-            ])
+            ], $reserve_fund_description_lang)
+            ->first();
+
+        if($reserve_fund_description_translations) {
+            foreach($reserve_fund_description_translations as $lang => $translated_description) {
+                if($lang === $reserve_fund_description_lang) {
+                    continue;
+                }
+
+                CondoFund::id($reserve_fund['id'])
+                    ->update(['description' => $translated_description], $lang);
+            }
+        }
+
+        CondoFund::id($reserve_fund['id'])
             ->transition('validate');
+
+        $result['logs'][] = "INFO- created & validated reserve fund";
 
         // create ownership bank accounts from owners' primary IBANs
         $owners = Owner::search(['condo_id', '=', $condominium['id']])
