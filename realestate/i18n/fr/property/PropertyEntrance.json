@@ -68,5 +68,10 @@
             "name": "Entrées",
             "description": "Liste des entrées avec codes, adresses et descriptions."
         }
+    },
+    "error": {
+        "errors": {
+            "missing_apportionment_id": "Une clé de répartition doit être sélectionnée."
+        }
     }
 }

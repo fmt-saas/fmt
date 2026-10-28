@@ -6,6 +6,7 @@
 */
 namespace realestate\property;
 
+use finance\accounting\Account;
 use fmt\setting\Setting;
 
 class PropertyEntrance extends \equal\orm\Model {
@@ -48,7 +49,8 @@ class PropertyEntrance extends \equal\orm\Model {
 
             'name' => [
                 'type'              => 'string',
-                'description'       => "Name of the Entrance."
+                'description'       => "Name of the Entrance.",
+                'multilang'         => true
             ],
 
             'code' => [
@@ -114,6 +116,97 @@ class PropertyEntrance extends \equal\orm\Model {
         return [
             ['condo_id']
         ];
+    }
+
+    public static function getPolicies(): array {
+        return array_merge(parent::getPolicies(), [
+            'can_duplicate_accounts' => [
+                'description' => 'Checks that an apportionment is set before duplicating the selected account hierarchies.',
+                'function'    => 'policyCanDuplicateAccounts'
+            ]
+        ]);
+    }
+
+    public static function getActions() {
+        return array_merge(parent::getActions(), [
+            'duplicate_accounts' => [
+                'description' => 'Duplicates the selected account hierarchies for the property entrance.',
+                'policies'    => ['can_duplicate_accounts'],
+                'function'    => 'doDuplicateAccounts'
+            ]
+        ]);
+    }
+
+    protected static function policyCanDuplicateAccounts($self): array {
+        $result = [];
+
+        $self->read(['apportionment_id']);
+
+        foreach($self as $id => $propertyEntrance) {
+            if(!$propertyEntrance['apportionment_id']) {
+                $result[$id] = [
+                    'missing_apportionment_id' => 'An apportionment must be selected.'
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function doDuplicateAccounts($self, $lang) {
+        $self->read([
+            'apportionment_id',
+            'duplication_accounts_ids',
+            'name',
+            'code'
+        ], $lang);
+
+        foreach($self as $id => $propertyEntrance) {
+            $suffix = trim($propertyEntrance['name']);
+            if($suffix === '') {
+                $suffix = (string) ($propertyEntrance['code'] ?: $id);
+            }
+
+            foreach($propertyEntrance['duplication_accounts_ids'] as $account_id) {
+                $accounts = Account::id($account_id);
+
+                try {
+                    $accounts->assertPolicies('can_duplicate_tree');
+                }
+                catch(\Exception $e) {
+                    continue;
+                }
+
+                $sourceAccount = $accounts
+                    ->read(['condo_id', 'account_chart_id', 'code'])
+                    ->first();
+
+                if(!$sourceAccount) {
+                    continue;
+                }
+
+                $source_account_code = (string) $sourceAccount['code'];
+                $index_length = substr($source_account_code, -2) === '00' ? 2 : 1;
+                $code_prefix = substr($source_account_code, 0, -$index_length);
+                $duplicateAccounts = Account::search([
+                        ['condo_id', '=', $sourceAccount['condo_id']],
+                        ['account_chart_id', '=', $sourceAccount['account_chart_id']],
+                        ['apportionment_id', '=', $propertyEntrance['apportionment_id']],
+                        ['level', '=', 6],
+                        ['is_control_account', '=', true],
+                        ['code', 'like', $code_prefix . '%']
+                    ]);
+
+                if($duplicateAccounts->count() > 0) {
+                    continue;
+                }
+
+                $accounts->do('duplicate_tree', [
+                    'apportionment_id' => $propertyEntrance['apportionment_id'],
+                    'suffix'           => $suffix
+                ]);
+            }
+        }
     }
 
     protected static function calcPropertyEntranceCode($self) {

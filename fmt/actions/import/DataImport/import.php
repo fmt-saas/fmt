@@ -1326,15 +1326,32 @@ try {
 
         // Entrances
         foreach($data['Entrances'] as $entrance) {
+            $name_translations = $parseMultilangFieldValue($entrance['name']);
+            $name_lang = $name_translations ? array_key_first($name_translations) : null;
+            $name = $name_lang
+                ? $name_translations[$name_lang]
+                : $entrance['name'];
+
             $propertyEntrance = PropertyEntrance::create([
-                    'name'              => $entrance['name'],
+                    'name'              => $name,
                     'address_street'    => $entrance['street'],
                     'address_city'      => $entrance['city'],
                     'address_zip'       => $entrance['zip'],
                     'address_country'   => $entrance['country'],
                     'condo_id'          => $condominium['id']
-                ])
+                ], $name_lang)
                 ->first();
+
+            if($name_translations) {
+                foreach($name_translations as $lang => $translated_name) {
+                    if($lang === $name_lang) {
+                        continue;
+                    }
+
+                    PropertyEntrance::id($propertyEntrance['id'])
+                        ->update(['name' => $translated_name], $lang);
+                }
+            }
 
             $map_property_entrances[$entrance['code']] = $propertyEntrance['id'];
         }

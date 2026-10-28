@@ -758,6 +758,10 @@ class Account extends Model {
         }
 
         for($index = 1; $index <= $max_index; ++$index) {
+            if($index_length === 2 && $index % 10 === 0) {
+                continue;
+            }
+
             if(!isset($existing_indexes[$index])) {
                 return $code_prefix . str_pad((string) $index, $index_length, '0', STR_PAD_LEFT);
             }

@@ -52,7 +52,17 @@
                                         ]
                                     }
                                 ]
-                            },
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "sections": [
+                    {
+                        "id": "section.duplication_accounts",
+                        "label": "Duplication accounts",
+                        "rows": [
                             {
                                 "columns": [
                                     {
