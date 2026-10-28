@@ -20,7 +20,8 @@
             "description": "Duplicate this account and all its sub-accounts.",
             "controller": "finance_accounting_Account_duplicate",
             "params": {
-                "id": "object.id"
+                "id": "object.id",
+                "condo_id": "object.condo_id"
             },
             "visible": [
                 ["condo_id", "<>", null],

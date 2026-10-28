@@ -10,7 +10,7 @@
             "actions": {
                 "action.duplicate_tree": {
                     "label": "Duplicate account hierarchy",
-                    "description": "Duplicate this account and all its sub-accounts, appending the selected suffix to every label."
+                    "description": "Duplicate this account and all its sub-accounts, appending the selected suffix to every label and applying the selected apportionment to all of them."
                 }
             }
         }
@@ -27,7 +27,9 @@
             "duplicate_index_exhausted": "No duplicate index remains available for this account code (the limit is 99).",
             "assigned_related_account": "No parent account, source account, or sub-account may have an operation assignment.",
             "target_code_exists": "The target account hierarchy already contains at least one account.",
-            "missing_suffix": "A non-empty suffix is required to duplicate the accounts."
+            "missing_suffix": "A non-empty suffix is required to duplicate the accounts.",
+            "missing_apportionment_id": "An apportionment must be selected.",
+            "invalid_apportionment": "The apportionment must be non-statutory and belong to the account condominium."
         }
     }
 }

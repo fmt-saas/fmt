@@ -10,7 +10,7 @@
             "actions": {
                 "action.duplicate_tree": {
                     "label": "Rekeninghiërarchie dupliceren",
-                    "description": "Dupliceer deze rekening en alle subrekeningen en voeg het gekozen achtervoegsel aan elk label toe."
+                    "description": "Dupliceer deze rekening en alle subrekeningen, voeg het gekozen achtervoegsel aan elk label toe en pas de geselecteerde verdeelsleutel op alle rekeningen toe."
                 }
             }
         }
@@ -27,7 +27,9 @@
             "duplicate_index_exhausted": "Er is geen duplicatie-index meer beschikbaar voor deze rekeningcode (de limiet is 99).",
             "assigned_related_account": "Geen bovenliggende rekening, bronrekening of subrekening mag een bewerkingstoewijzing hebben.",
             "target_code_exists": "De doelhiërarchie bevat al minstens één rekening.",
-            "missing_suffix": "Een niet-leeg achtervoegsel is vereist om de rekeningen te dupliceren."
+            "missing_suffix": "Een niet-leeg achtervoegsel is vereist om de rekeningen te dupliceren.",
+            "missing_apportionment_id": "Er moet een verdeelsleutel worden geselecteerd.",
+            "invalid_apportionment": "De verdeelsleutel moet niet-statutair zijn en tot het mede-eigendom van de rekening behoren."
         }
     }
 }

@@ -7,8 +7,8 @@
 namespace finance\accounting;
 use core\Lang;
 use equal\orm\Model;
-use fmt\setting\Setting;
 use realestate\finance\accounting\AccountingEntry;
+use realestate\property\Apportionment;
 
 class Account extends Model {
 
@@ -358,7 +358,7 @@ class Account extends Model {
     public static function getActions() {
         return array_merge(parent::getActions(), [
             'duplicate_tree' => [
-                'description' => 'Duplicates an account and all its sub-accounts.',
+                'description' => 'Duplicates an account and all its sub-accounts with the selected apportionment.',
                 'help'        => 'Only six-digit expense control accounts ending in 00 and without operation assignments in their hierarchy can be duplicated.',
                 'policies'    => ['can_duplicate_tree'],
                 'function'    => 'doDuplicateTree'
@@ -551,6 +551,17 @@ class Account extends Model {
         if(!isset($values['suffix']) || !is_string($values['suffix']) || trim($values['suffix']) === '') {
             throw new \Exception('missing_suffix', EQ_ERROR_INVALID_PARAM);
         }
+        if(!isset($values['apportionment_id']) || $values['apportionment_id'] <= 0) {
+            throw new \Exception('missing_apportionment_id', EQ_ERROR_INVALID_PARAM);
+        }
+
+        $apportionment = Apportionment::id($values['apportionment_id'])
+            ->read(['condo_id', 'is_statutory'])
+            ->first();
+
+        if(!$apportionment || $apportionment['is_statutory']) {
+            throw new \Exception('invalid_apportionment', EQ_ERROR_INVALID_PARAM);
+        }
 
         $suffix = ' - ' . trim($values['suffix'], " -\n\r\t");
         $copyFields = [
@@ -563,7 +574,6 @@ class Account extends Model {
             'is_control_account',
             'is_tier_balance',
             'operation_assignment',
-            'apportionment_id',
             'vat_rate',
             'tenant_share',
             'owner_share',
@@ -574,9 +584,13 @@ class Account extends Model {
             'condo_bank_account_id'
         ];
 
-        $self->read(['account_chart_id', 'code']);
+        $self->read(['account_chart_id', 'code', 'condo_id']);
 
         foreach($self as $account) {
+            if((int) $account['condo_id'] !== (int) $apportionment['condo_id']) {
+                throw new \Exception('invalid_apportionment', EQ_ERROR_INVALID_PARAM);
+            }
+
             $sourceCode = (string) $account['code'];
             $targetRootCode = self::computeNextDuplicateRootCode($account['account_chart_id'], $sourceCode);
             if($targetRootCode === null) {
@@ -606,7 +620,7 @@ class Account extends Model {
                         'is_control_account'    => $sourceAccount['is_control_account'],
                         'is_tier_balance'       => $sourceAccount['is_tier_balance'],
                         'operation_assignment'  => $sourceAccount['operation_assignment'],
-                        'apportionment_id'       => $sourceAccount['apportionment_id'],
+                        'apportionment_id'       => (int) $values['apportionment_id'],
                         'vat_rate'               => $sourceAccount['vat_rate'],
                         'tenant_share'           => $sourceAccount['tenant_share'],
                         'owner_share'            => $sourceAccount['owner_share'],
