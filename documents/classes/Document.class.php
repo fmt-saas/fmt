@@ -84,6 +84,7 @@ class Document extends Model {
 
             'data' => [
                 'type'              => 'binary',
+                'usage'             => 'binary/plain',
                 // #memo - prevent resetting after voiding local data
                 'dependents'        => ['hash', 'content_type', 'content_size', 'extension', 'readable_size', 'preview_image']
             ],
