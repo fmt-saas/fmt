@@ -194,14 +194,11 @@ if($dataImport['import_type'] == 'condominium_import') {
             $has_complete_address = $map_owners_has_complete_address[$contact_code] ?? false;
         }
 
-        if(!$has_email) {
-            ++$result['errors'];
-            $result['logs'][] = "ERR - missing `email_1` or `email_2` for $contact_type with code '$contact_code' referenced by ownership_code '$ownership_code'";
-        }
-
-        if(!$has_complete_address) {
-            ++$result['errors'];
-            $result['logs'][] = "ERR - missing `street`, `city` or `country` for $contact_type with code '$contact_code' referenced by ownership_code '$ownership_code'";
+        if($contact_type) {
+            if(!$has_complete_address) {
+                ++$result['errors'];
+                $result['logs'][] = "ERR - missing `street`, `city` or `country` for $contact_type with code '$contact_code' referenced by ownership_code '$ownership_code'";
+            }
         }
     }
 
