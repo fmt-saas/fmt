@@ -32,6 +32,15 @@
             },
             {
                 "type": "field",
+                "value": "posting_date",
+                "width": "20%",
+                "readonly": true,
+                "widget": {
+                    "usage": "date/plain"
+                }
+            },
+            {
+                "type": "field",
                 "value": "emission_date",
                 "width": "20%",
                 "readonly": true,
