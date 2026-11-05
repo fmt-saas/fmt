@@ -165,7 +165,7 @@ class Owner extends Identity {
                 'type'              => 'computed',
                 'result_type'       => 'string',
                 'readonly'          => true,
-                'store'             => true,
+                'store'             => false,
                 'function'          => 'calcPhoneNumber'
             ]
 

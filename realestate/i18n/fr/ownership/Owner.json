@@ -108,6 +108,11 @@
             "description": "Numéro de téléphone principal du propriétaire.",
             "help": ""
         },
+        "phone_number": {
+            "label": "Numéro de téléphone",
+            "description": "Numéro de téléphone disponible en priorité pour joindre le propriétaire.",
+            "help": ""
+        },
         "mobile": {
             "label": "Mobile",
             "description": "Numéro de téléphone mobile du propriétaire.",
