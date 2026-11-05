@@ -330,8 +330,7 @@ class Document extends Model {
             'origin_document_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'documents\Document',
-                'description'       => 'Targets the final printable version of the document.',
-                'help'              => 'Optional version of the document with signatures on it, applicable for signed documents only. Has no legal value.',
+                'description'       => 'Targets the document from which the document originates.',
                 'visible'           => ['is_source', '=', true]
             ],
 

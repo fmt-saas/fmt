@@ -126,7 +126,8 @@ $document = Document::create([
         'name'          => 'Export - ' . $assembly['name'] . ' (' . $params['communication_method'] . ')',
         'content_type'  => 'application/pdf',
         'data'          => $output,
-        'condo_id'      => $assembly['condo_id']
+        'condo_id'      => $assembly['condo_id'],
+        'is_source'     => true
     ])
     ->first();
 

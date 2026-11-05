@@ -87,7 +87,8 @@ if(!$document_id) {
             'fund_request_execution_id' => $fundRequestExecutionCorrespondence['fund_request_execution_id']['id'],
             'fiscal_year_id'            => $fundRequestExecutionCorrespondence['fund_request_execution_id']['fiscal_year_id'],
             'document_type_id'          => $documentType['id'] ?? null,
-            'document_visibility'       => 'ownership'
+            'document_visibility'       => 'ownership',
+            'is_source'                 => true
         ])
         ->update([
             // place node in dedicated folder

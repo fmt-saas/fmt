@@ -97,6 +97,7 @@ if(!$document_id) {
             'fiscal_year_id'        => $expenseStatementCorrespondence['expense_statement_id']['fiscal_year_id'],
             'document_type_id'      => $documentType['id'] ?? null,
             'document_visibility'   => 'ownership',
+            'is_source'             => true
         ])
         ->update([
             // place node in dedicated folder

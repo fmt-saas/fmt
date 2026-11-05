@@ -77,7 +77,8 @@ if(!$document_id) {
             'name'                  => 'Rappel - ' . $paymentReminderCorrespondence['name'],
             'data'                  => $data,
             'condo_id'              => $paymentReminderCorrespondence['condo_id'],
-            'document_visibility'   => 'ownership'
+            'document_visibility'   => 'ownership',
+            'is_source'             => true
         ])
         ->update([
             // place node in dedicated folder

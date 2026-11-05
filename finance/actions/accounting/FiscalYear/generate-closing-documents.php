@@ -60,7 +60,7 @@ Document::create([
         'condo_id'              => $fiscalYear['condo_id'],
         'fiscal_year_id'        => $fiscalYear['id'],
         'document_visibility'   => 'agency',
-        'is_origin'             => true,
+        'is_source'             => true,
         'data'                  => $general_balance_doc
     ])
     ->update(['document_type_id' => ($dt = DocumentType::search(['code', '=', 'general_balance'])->first()) ? $dt['id'] : null]);
@@ -81,7 +81,7 @@ Document::create([
         'condo_id'              => $fiscalYear['condo_id'],
         'fiscal_year_id'        => $fiscalYear['id'],
         'document_visibility'   => 'agency',
-        'is_origin'             => true,
+        'is_source'             => true,
         'data'                  => $general_ledger_doc
     ])
     ->update(['document_type_id' => ($dt = DocumentType::search(['code', '=', 'general_ledger'])->first()) ? $dt['id'] : null]);
