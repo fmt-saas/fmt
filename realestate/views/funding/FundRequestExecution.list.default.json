@@ -50,6 +50,7 @@
                 "value": "emission_date",
                 "width": "15%",
                 "readonly": true,
+                "visible": false,
                 "widget": {
                     "usage": "date/plain"
                 }
