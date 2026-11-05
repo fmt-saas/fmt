@@ -159,6 +159,14 @@ class Owner extends Identity {
                 'rel_foreign_key'   => 'broadcast_id',
                 'rel_local_key'     => 'owner_id',
                 'description'       => 'Broadcasts to send to the owner identity email address.'
+            ],
+
+            'phone_number' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'readonly'          => true,
+                'store'             => true,
+                'function'          => 'calcPhoneNumber'
             ]
 
         ];
@@ -203,6 +211,21 @@ class Owner extends Identity {
             $self->do('assert_identity');
         }
         $self->do('refresh_roles');
+    }
+
+    protected static function calcPhoneNumber($self) {
+        $result = [];
+        $self->read(['phone', 'phone_alt', 'mobile']);
+        foreach($self as $id => $owner) {
+            foreach(['mobile', 'phone', 'phone_alt'] as $field) {
+                if(!$owner[$field]) {
+                    continue;
+                }
+                $result[$id] = $owner[$field];
+                break;
+            }
+        }
+        return $result;
     }
 
     protected static function doAssertIdentity($self) {
