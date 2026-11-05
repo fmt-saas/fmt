@@ -7,6 +7,7 @@
 
 use realestate\funding\FundRequestExecution;
 use finance\accounting\FiscalPeriod;
+use finance\accounting\FiscalYear;
 
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate an html view of given Exepense Statement ("Décompte de charge").',
@@ -65,7 +66,7 @@ use finance\accounting\FiscalPeriod;
 $context = $providers['context'];
 
 $fundRequestExecution = FundRequestExecution::id($params['id'])
-    ->read(['condo_id', 'fiscal_period_id', 'status', 'posting_date', 'with_due_balance', 'execution_lines_ids' => ['ownership_id']])
+    ->read(['condo_id', 'fiscal_year_id', 'fiscal_period_id', 'status', 'posting_date', 'emission_date', 'with_due_balance', 'execution_lines_ids' => ['ownership_id']])
     ->first();
 
 if(!$fundRequestExecution) {
@@ -77,6 +78,14 @@ $fiscalPeriod = FiscalPeriod::id($fundRequestExecution['fiscal_period_id'])
     ->first();
 
 if(!$fiscalPeriod) {
+    throw new Exception('unknown_fiscal_year', EQ_ERROR_UNKNOWN_OBJECT);
+}
+
+$fiscalYear = FiscalYear::id($fundRequestExecution['fiscal_year_id'])
+    ->read(['date_from', 'date_to'])
+    ->first();
+
+if(!$fiscalYear) {
     throw new Exception('unknown_fiscal_year', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
@@ -115,14 +124,10 @@ try {
 
         // append Owner Statement sheet
         try {
-            // #todo
-            $date_to = $fundRequestExecution['posting_date'];
-
             $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
-                    'date_from'         => $fiscalPeriod['date_from'],
-                    'date_to'           => $fiscalPeriod['date_to'],
-                    // 'date_to'           => $date_to,
-                    'ownership_id'      => $fundRequestExecutionLine['ownership_id']
+                    'ownership_id'      => $fundRequestExecutionLine['ownership_id'],
+                    'date_from'         => $fiscalYear['date_from'],
+                    'date_to'           => $fundRequestExecution['emission_date']
                 ]);
             $temp = tempnam(sys_get_temp_dir(), 'pdf_');
             file_put_contents($temp, $pdf);
