@@ -13,20 +13,20 @@
             "description": "Indique si la situation de compte des copropriétaires est prise en compte.",
             "help": "Si activé, la demande de paiement est basée sur le solde dû de la propriété plutôt que sur le montant théorique du funding."
         },
-        "with_specific_date": {
+        "with_emission_date": {
             "label": "Utiliser une date spécifique",
             "description": "Indique si une date spécifique doit être utilisée pour l'exécution de l'appel de fonds.",
             "help": "Activez cette option pour choisir une date spécifique."
         },
-        "specific_date": {
+        "emission_date": {
             "label": "Date spécifique",
             "description": "Date spécifique à utiliser pour l'exécution de l'appel de fonds.",
             "help": "Ce champ est disponible lorsque l'utilisation d'une date spécifique est activée."
         },
         "perform_sending": {
             "label": "Envoyer les correspondances",
-            "description": "Indique si la situation de compte des copropriétaires est prise en compte.",
-            "help": "Si activé, la demande de paiement est basée sur le solde dû de la propriété plutôt que sur le montant théorique du funding."
+            "description": "Indique si les correspondances générées doivent être envoyées automatiquement.",
+            "help": "Si activé, les correspondances de l'appel de fonds sont envoyées après son exécution."
         }
     },
     "error": {

@@ -92,7 +92,7 @@
             "help": ""
         },
         "issue_date": {
-            "label": "Date d'émission",
+            "label": "Date de comptabilisation",
             "description": "Date d'envoi ou de création de la demande de paiement.",
             "help": ""
         },

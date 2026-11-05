@@ -138,9 +138,9 @@ try {
         // append Owner Statement sheet
         try {
             $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
+                    'ownership_id'      => $statementOwner['ownership_id'],
                     'date_from'         => $fiscalPeriod['fiscal_year_id']['date_from'],
-                    'date_to'           => ($expenseStatement['is_cutoff_at_document_date']) ? time() : $fiscalPeriod['date_to'],
-                    'ownership_id'      => $statementOwner['ownership_id']
+                    'date_to'           => ($expenseStatement['is_cutoff_at_document_date']) ? time() : $fiscalPeriod['date_to']
                 ]);
             $temp = tempnam(sys_get_temp_dir(), 'pdf_');
             file_put_contents($temp, $pdf);

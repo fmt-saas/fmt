@@ -43,7 +43,7 @@
             "help": ""
         },
         "issue_date": {
-            "label": "Date d'émission",
+            "label": "Date de comptabilisation",
             "description": "Date à partir de laquelle la demande de paiment doit être émise.",
             "help": ""
         },

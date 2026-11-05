@@ -15,6 +15,7 @@ use Twig\Extra\Intl\IntlExtension;
 use Twig\Extension\ExtensionInterface;
 use finance\accounting\Account;
 use finance\accounting\FiscalPeriod;
+use finance\accounting\FiscalYear;
 use identity\Identity;
 use identity\Organisation;
 use realestate\funding\ExpenseStatement;
@@ -402,6 +403,7 @@ $expense_statement_fields = [
         'name',
         'posting_date',
         'due_date',
+        'fiscal_year_id',
         'fiscal_period_id',
         'invoice_number',
         'common_total',
@@ -454,6 +456,10 @@ else {
     }
 }
 
+$fiscalYear = FiscalYear::id($statement['fiscal_year_id'])
+    ->read(['date_from', 'date_to'])
+    ->first();
+
 $organisation = Organisation::id(1)
     ->read([
         'name', 'address_street', 'address_dispatch', 'address_zip',
@@ -503,7 +509,7 @@ $funding = [];
 // generate pseudo instant Funding based on current account statement
 $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
     'ownership_id'      => $params['ownership_id'],
-    'date_from'         => $fiscalPeriod['date_from'],
+    'date_from'         => $fiscalYear['date_from'],
     'date_to'           => $statement['is_cutoff_at_document_date'] ? time() : $fiscalPeriod['date_to']
 ]);
 

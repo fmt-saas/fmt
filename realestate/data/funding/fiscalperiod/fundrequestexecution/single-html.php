@@ -225,7 +225,8 @@ $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution
         'posting_date',
         'emission_date',
         'due_date',
-        'fiscal_period_id' => ['name', 'date_from', 'date_to'],
+        'fiscal_year_id'    => ['name', 'date_from', 'date_to'],
+        'fiscal_period_id'  => ['name', 'date_from', 'date_to'],
         'price',
         'status',
         'with_due_balance',
@@ -282,11 +283,6 @@ $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id'])
         'date_from',
         'date_to',
         'request_bank_account_id' => ['bank_account_iban', 'bank_account_bic'],
-        'fiscal_period_id' => [
-            'name',
-            'date_from',
-            'date_to'
-        ],
         'request_lines_ids' => [
             'name',
             'request_amount',
@@ -412,8 +408,8 @@ if($fundRequestExecution['with_due_balance']) {
     // generate pseudo instant Funding based on current account statement
     $data = \eQual::run('get', 'finance_accounting_ownerAccountStatement_collect', [
         'ownership_id'      => $params['ownership_id'],
-        'date_from'         => $fundRequestExecution['fiscal_period_id']['date_from'],
-        'date_to'           => $fundRequestExecution['fiscal_period_id']['date_to']
+        'date_from'         => $fundRequestExecution['fiscal_year_id']['date_from'],
+        'date_to'           => $fundRequestExecution['emission_date']
     ]);
 
     $closing_balance = 0.0;
