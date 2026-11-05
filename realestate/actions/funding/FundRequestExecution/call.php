@@ -30,6 +30,7 @@ use realestate\funding\FundRequestExecution;
         'emission_date' => [
             'type'              => 'date',
             'description'       => 'Specific date to use for the fund request execution.',
+            'default'           => fn () => time(),
             'visible'           => ['with_emission_date', '=', true]
         ],
         'perform_sending' => [

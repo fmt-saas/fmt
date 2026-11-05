@@ -1262,7 +1262,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'condo_id',
                 'assigned_delta',
                 'fiscal_year_id',
-                'fiscal_period_id' => ['name', 'date_to'],
+                'posting_date',
+                'fiscal_period_id' => ['name'],
                 'statement_owners_ids' => [
                     'ownership_id',
                     'statement_owner_lines_ids' => [
@@ -1301,7 +1302,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'fiscal_year_id'        => $statement['fiscal_year_id'],
                     'fiscal_period_id'      => $statement['fiscal_period_id']['id'],
                     // #memo - if necessary, entry_date will be reassigned based on selected fiscal year and matching period (so that dates remain in ascending order)
-                    'entry_date'            => $statement['fiscal_period_id']['date_to'],
+                    'entry_date'            => $statement['posting_date'],
                     'origin_object_class'   => self::getType(),
                     'origin_object_id'      => $id,
                     'sale_invoice_id'       => $id,
