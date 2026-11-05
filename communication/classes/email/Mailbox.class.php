@@ -173,11 +173,58 @@ class Mailbox extends Model {
         ];
     }
 
+    public static function getPolicies(): array {
+        return array_merge(parent::getPolicies(), [
+            'can_remove' => [
+                'description' => 'Checks that the mailbox has no pending outgoing emails.',
+                'function'    => 'policyCanRemove'
+            ]
+        ]);
+    }
+
+    public static function getActions(): array {
+        return array_merge(parent::getActions(), [
+            'remove' => [
+                'description' => 'Remove the mailbox.',
+                'policies'    => ['can_remove'],
+                'function'    => 'doRemove'
+            ]
+        ]);
+    }
+
+    protected static function policyCanRemove($self): array {
+        $result = [];
+
+        $pendingEmails = Email::search([
+                ['mailbox_id', 'in', $self->ids()],
+                ['direction', '=', 'outgoing'],
+                ['status', '=', 'pending']
+            ])
+            ->read(['mailbox_id']);
+
+        foreach($pendingEmails as $email) {
+            $result[$email['mailbox_id']] = [
+                'pending_outgoing_emails' => 'The mailbox cannot be removed while outgoing emails are pending.'
+            ];
+        }
+
+        return $result;
+    }
+
+    protected static function doRemove($self) {
+        $self->delete(true);
+    }
+
     protected static function onupdateStatus($self) {
         $self->read(['status', 'can_send']);
         foreach($self as $id => $mailbox) {
             if($mailbox['status'] === 'validated' && $mailbox['can_send']) {
-                $mailboxes = self::search([['status', '=', 'validated'], ['can_send', '=', true], ['id', '<>', $id]]);
+                $mailboxes = self::search([
+                    ['status', '=', 'validated'],
+                    ['can_send', '=', true],
+                    ['id', '<>', $id]
+                ]);
+
                 if($mailboxes->count() <= 0) {
                     ManagementProcess::search()->update(['mailbox_id' => $id]);
                 }

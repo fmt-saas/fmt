@@ -141,17 +141,17 @@
             "help": ""
         },
         "phone": {
-            "label": "Numéro de téléphone",
+            "label": "Téléphone",
             "description": "Numéro de téléphone.",
             "help": ""
         },
         "phone_alt": {
-            "label": "Numéro de téléphone secondaire",
+            "label": "Téléphone secondaire",
             "description": "Numéro de téléphone secondaire.",
             "help": ""
         },
         "mobile": {
-            "label": "Numéro de téléphone mobile",
+            "label": "Téléphone mobile",
             "description": "Numéro de téléphone mobile principale.",
             "help": ""
         },

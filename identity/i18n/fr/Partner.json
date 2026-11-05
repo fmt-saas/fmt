@@ -129,7 +129,7 @@
             "help": ""
         },
         "phone": {
-            "label": "Numéro de téléphone",
+            "label": "Téléphone",
             "description": "Numéro de téléphone.",
             "help": ""
         }

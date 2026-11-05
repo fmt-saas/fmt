@@ -125,11 +125,18 @@
                 "action.fetch_emails": {
                     "label": "Télécharger",
                     "description": "Récupérer les derniers Emails et importer les pièces jointes."
+                },
+                "action.remove": {
+                    "label": "Supprimer",
+                    "description": "Supprimer les boîtes mail sélectionnées."
                 }
             }
         }
     },
     "error": {
-        "non_sendable_mailbox": "Cette boite mail ne peut pas envoyer d e-mails."
+        "non_sendable_mailbox": "Cette boite mail ne peut pas envoyer d e-mails.",
+        "errors": {
+            "pending_outgoing_emails": "La boîte mail ne peut pas être supprimée tant que des e-mails sortants sont en attente d'envoi."
+        }
     }
 }

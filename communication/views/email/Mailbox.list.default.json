@@ -1,8 +1,27 @@
 {
     "name": "Mailboxes",
+    "description": "List of configured mailboxes.",
     "header": {
         "actions": {
-            "ACTION.CREATE":  false
+            "ACTION.CREATE": false
+        },
+        "selection": {
+            "default": false,
+            "actions": [
+                {
+                    "id": "action.remove",
+                    "label": "Remove",
+                    "icon": "delete",
+                    "description": "Remove the selected mailboxes.",
+                    "controller": "core_model_do",
+                    "confirm": true,
+                    "params": {
+                        "entity": "communication\\email\\Mailbox",
+                        "action": "remove",
+                        "ids": []
+                    }
+                }
+            ]
         }
     },
     "actions": [
