@@ -11,6 +11,18 @@
     },
     "actions": [
         {
+            "id": "action.reschedule",
+            "label": "Reschedule",
+            "icon": "edit_calendar",
+            "description": "Update the fiscal year dates.",
+            "controller": "finance_accounting_FiscalYear_reschedule",
+            "visible": ["status", "<>", "closed"],
+            "params": {
+                "id": "object.id"
+            },
+            "confirm": true
+        },
+        {
             "id": "action.generate_fiscal_periods",
             "label": "Generate fiscal periods",
             "icon": "edit_calendar",

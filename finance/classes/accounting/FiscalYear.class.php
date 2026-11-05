@@ -245,6 +245,11 @@ class FiscalYear extends Model {
                 'policies'      => ['can_generate_sequences'],
                 'function'      => 'doGenerateSequences'
             ],
+            'reschedule' => [
+                'description'   => 'Update the fiscal year dates.',
+                'policies'      => ['can_reschedule'],
+                'function'      => 'doReschedule'
+            ],
             'attempt_transition' => [
                 'description'   => 'Attempt to apply a transition on the FiscalYear.',
                 'policies'      => [],
@@ -399,6 +404,10 @@ class FiscalYear extends Model {
                 'description' => 'Verifies that a sequences can be generated.',
                 'function'    => 'policyCanGenerateSequence'
             ],
+            'can_reschedule' => [
+                'description' => 'Verifies that the fiscal year dates can be updated.',
+                'function'    => 'policyCanReschedule'
+            ],
             'can_export_documents' => [
                 'description' => 'Verifies that the documents can be exported.',
                 'function'    => 'policyCanExportDocuments'
@@ -408,6 +417,49 @@ class FiscalYear extends Model {
                 'function'    => 'policyCanGenerateClosingDocuments'
             ]
         ];
+    }
+
+    protected static function policyCanReschedule($self, $values): array {
+        $result = [];
+        $date_values = array_intersect_key($values, array_flip(['date_from', 'date_to']));
+
+        $self->read(['status', 'date_from', 'date_to']);
+        foreach($self as $id => $fiscalYear) {
+            if(!count($date_values)) {
+                $result[$id] = [
+                    'missing_dates' => 'At least one fiscal year date must be provided.'
+                ];
+                continue;
+            }
+
+            if($fiscalYear['status'] === 'closed') {
+                $result[$id] = [
+                    'fiscal_year_closed' => 'Closed fiscal year dates cannot be modified.'
+                ];
+                continue;
+            }
+
+            $date_from = $date_values['date_from'] ?? $fiscalYear['date_from'];
+            $date_to = $date_values['date_to'] ?? $fiscalYear['date_to'];
+
+            if(!$date_from || !$date_to || $date_from >= $date_to) {
+                $result[$id] = [
+                    'invalid_date_range' => 'Fiscal year start date must precede its end date.'
+                ];
+                continue;
+            }
+
+            if(
+                $fiscalYear['status'] !== 'draft'
+                && AccountingEntry::search(['fiscal_year_id', '=', $id])->count() > 0
+            ) {
+                $result[$id] = [
+                    'accounting_entries_exist' => 'Fiscal year dates cannot be modified when accounting entries exist.'
+                ];
+            }
+        }
+
+        return $result;
     }
 
     protected static function policyCanGenerateSequence($self) {
@@ -707,6 +759,10 @@ class FiscalYear extends Model {
         }
 
         return $result;
+    }
+
+    protected static function doReschedule($self, $values) {
+
     }
 
     /**

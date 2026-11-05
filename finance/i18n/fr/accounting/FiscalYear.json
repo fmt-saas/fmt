@@ -87,6 +87,10 @@
             "name": "Exercice comptable",
             "description": "Formulaire complet : paramètres généraux, actions (ouvrir/fermer) et périodes.",
             "actions": {
+                "action.reschedule": {
+                    "label": "Modifier les dates",
+                    "description": "Modifier les dates de début et de fin de l'exercice comptable."
+                },
                 "action.generate_fiscal_periods": {
                     "label": "Générer les périodes fiscales",
                     "description": "Créer les périodes fiscales selon la configuration."
