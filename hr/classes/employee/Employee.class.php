@@ -7,6 +7,7 @@
 namespace hr\employee;
 
 use hr\role\RoleAssignment;
+use identity\Group;
 use identity\Identity;
 use identity\User;
 
@@ -143,6 +144,11 @@ class Employee extends Identity {
                 'policies'      => [],
                 'function'      => 'doSyncFromTeams'
             ],
+            'create_user_account' => [
+                'description'   => 'Create a related User account.',
+                'policies'      => ['can_create_user_account'],
+                'function'      => 'doCreateUserAccount'
+            ],
             'disable_user_account' => [
                 'description'   => 'Disable the related User account.',
                 'policies'      => ['can_manage_user_account'],
@@ -158,6 +164,10 @@ class Employee extends Identity {
 
     public static function getPolicies() {
         return array_merge(parent::getPolicies(), [
+            'can_create_user_account' => [
+                'description'   => 'Checks that the current user can create the related User account.',
+                'function'      => 'policyCanCreateUserAccount'
+            ],
             'can_manage_user_account' => [
                 'description'   => 'Checks that the current user can manage the related User account.',
                 'function'      => 'policyCanManageUserAccount'
@@ -233,6 +243,21 @@ class Employee extends Identity {
         }
     }
 
+    protected static function policyCanCreateUserAccount($self, $user_id, $access): array {
+        $result = [];
+        $is_allowed = $user_id === EQ_ROOT_USER_ID
+            || $access->userHasGroup($user_id, 'admins')
+            || $access->userHasGroup($user_id, 'operators');
+
+        if(!$is_allowed) {
+            foreach($self->ids() as $id) {
+                $result[$id]['not_allowed'] = 'Only administrators and operators can create User accounts.';
+            }
+        }
+
+        return $result;
+    }
+
     protected static function policyCanManageUserAccount($self, $user_id, $access): array {
         $result = [];
         $is_allowed = $user_id === EQ_ROOT_USER_ID
@@ -250,6 +275,68 @@ class Employee extends Identity {
         }
 
         return $result;
+    }
+
+    protected static function doCreateUserAccount($self, $auth, $orm) {
+        $self->read(['identity_id', 'role_assignments_ids']);
+
+        $groups_ids = Group::search(['name', 'in', ['employees', 'users']])->ids();
+        $current_user_id = $auth->userId();
+        $auth->su();
+
+        try {
+            foreach($self as $employee_id => $employee) {
+                $identity = Identity::id($employee['identity_id'])
+                    ->read(['name', 'email', 'user_id'])
+                    ->first();
+
+                // In case the User already exists, simply ignore the request.
+                if(!$identity['user_id']) {
+                    if(!$identity['email']) {
+                        trigger_error("APP::Ignored user creation for identity {$identity['name']} of employee [{$employee_id}] without email address.", EQ_REPORT_WARNING);
+                        continue;
+                    }
+
+                    $new_user_id = $orm->create(User::getType(), [
+                            // Capabilities for EQ_R_UPDATE are based on the creator context.
+                            'creator'       => $current_user_id,
+                            'login'         => $identity['email'],
+                            'language'      => 'fr',
+                            'validated'     => true,
+                            'is_employee'   => true,
+                            'is_owner'      => false,
+                            'groups_ids'    => $groups_ids
+                        ]);
+
+                    if($new_user_id <= 0) {
+                        trigger_error("APP::Error while creating a User for identity {$identity['name']}.", EQ_REPORT_WARNING);
+                        continue;
+                    }
+
+                    User::id($new_user_id)
+                        ->update(['identity_id' => $identity['id']])
+                        ->do('sync_from_identity');
+
+                    self::id($employee_id)->update(['user_id' => $new_user_id]);
+
+                    try {
+                        \eQual::run('do', 'identity_User_send-confirmation', ['id' => $new_user_id]);
+                    }
+                    catch(\Throwable $throwable) {
+                        trigger_error(
+                            "APP::Unable to send confirmation email for user [{$new_user_id}]: {$throwable->getMessage()}.",
+                            EQ_REPORT_WARNING
+                        );
+                    }
+                }
+
+                // Force refreshing role assignments.
+                RoleAssignment::ids($employee['role_assignments_ids'])->read(['user_id']);
+            }
+        }
+        finally {
+            $auth->su($current_user_id);
+        }
     }
 
     protected static function doDisableUserAccount($self, $auth) {

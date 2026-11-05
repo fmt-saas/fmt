@@ -6,10 +6,6 @@
 */
 
 use hr\employee\Employee;
-use hr\role\RoleAssignment;
-use identity\Group;
-use identity\Identity;
-use identity\User;
 
 [$params, $providers] = eQual::announce([
     'description'   => "Create a User account for a single Employee or a group of Employees.",
@@ -27,7 +23,6 @@ use identity\User;
             'default'           => []
         ]
     ],
-    'constants'     => ['AUTH_SECRET_KEY'],
     'response'      => [
         'content-type'  => 'application/json',
         'charset'       => 'utf-8',
@@ -37,77 +32,17 @@ use identity\User;
         'visibility'        => 'protected',
         'groups'            => ['admins', 'operators']
     ],
-    'providers'     => ['context', 'dispatch', 'auth', 'orm']
+    'providers'     => ['context']
 ]);
 
 /**
- * @var \equal\php\Context                  $context
- * @var \equal\dispatch\Dispatcher          $dispatch
- * @var \equal\auth\AuthenticationManager   $auth
- * @var \equal\orm\ObjectManager            $orm
+ * @var \equal\php\Context $context
  */
-['context' => $context, 'dispatch' => $dispatch, 'auth' => $auth, 'orm' => $orm] = $providers;
-
-$user_id = $auth->userId();
-
-// we need root privilege
-$auth->su();
+['context' => $context] = $providers;
 
 $ids = array_merge((array) ($params['id'] ?? []), $params['ids'] ?? []);
 
-$employees = Employee::ids($ids)->read(['identity_id', 'role_assignments_ids']);
-
-$groups_ids = Group::search(['name', 'in', ['employees', 'users']])->ids();
-
-foreach($employees as $employee_id => $employee) {
-    $identity = Identity::id($employee['identity_id'])
-        ->read(['name', 'email', 'user_id'])
-        ->first();
-
-    // #memo in case the user already exists, simply ignore the request
-    if(!$identity['user_id']) {
-        if(!$identity['email']) {
-            trigger_error("APP::Ignored user creation for identity {$identity['name']} of employee [{$employee_id}] without email address.", EQ_REPORT_WARNING);
-            continue;
-        }
-
-        $new_user_id = $orm->create(User::getType(), [
-                // #memo - Capabilities for EQ_R_UPDATE are based on 'creator' context
-                'creator'       => $user_id,
-                'login'         => $identity['email'],
-                'language'      => 'fr',
-                'validated'     => true,
-                'is_employee'   => true,
-                'is_owner'      => false,
-                'groups_ids'    => $groups_ids
-            ]);
-
-        if($new_user_id <= 0) {
-            trigger_error("APP::error at new user creation for identity {$identity['name']}.", EQ_REPORT_WARNING);
-            continue;
-        }
-
-        User::id($new_user_id)
-            ->update(['identity_id' => $identity['id']])
-            ->do('sync_from_identity');
-
-        Employee::id($employee_id)->update(['user_id' => $new_user_id]);
-
-        try {
-            eQual::run('do', 'identity_User_send-confirmation', ['id' => $new_user_id]);
-        }
-        catch(Throwable $throwable) {
-            trigger_error(
-                "APP::Unable to send confirmation email for user [{$new_user_id}]: {$throwable->getMessage()}.",
-                EQ_REPORT_WARNING
-            );
-        }
-    }
-    // force refreshing role assignments
-    RoleAssignment::ids($employee['role_assignments_ids'])->read(['user_id']);
-}
-
-$auth->su($user_id);
+Employee::ids($ids)->do('create_user_account');
 
 $context->httpResponse()
         ->status(201)
