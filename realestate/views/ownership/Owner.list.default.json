@@ -42,6 +42,11 @@
             },
             {
                 "type": "field",
+                "value": "phone_number",
+                "width": "20%"
+            },
+            {
+                "type": "field",
                 "value": "ownership_id",
                 "width": "20%"
             },
