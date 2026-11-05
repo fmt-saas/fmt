@@ -22,6 +22,16 @@ use realestate\funding\FundRequestExecution;
             'help'              => "If set to true, the payment request will be base on Ownership due balance instead of theoretical Funding due amount.",
             'default'           => true
         ],
+        'with_emission_date' => [
+            'type'              => 'boolean',
+            'description'       => 'Use a specific date for the fund request execution.',
+            'default'           => false
+        ],
+        'emission_date' => [
+            'type'              => 'date',
+            'description'       => 'Specific date to use for the fund request execution.',
+            'visible'           => ['with_emission_date', '=', true]
+        ],
         'perform_sending' => [
             'type'              => 'boolean',
             'description'       => 'If enabled, generated fund request executions will be sent automatically.',
@@ -58,8 +68,12 @@ if($fundRequestExecution->count() <= 0) {
     throw new Exception("unknown_fund_request_execution", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-if(array_key_exists('with_due_balance', $params)) {
-    $fundRequestExecution->update(['with_due_balance' => $params['with_due_balance']]);
+if(isset($params['with_due_balance'])) {
+    $fundRequestExecution->update(['with_due_balance' => (bool) $params['with_due_balance']]);
+}
+
+if(isset($params['with_emission_date']) && $params['with_emission_date'] && isset($params['emission_date'])) {
+    $fundRequestExecution->update(['emission_date' => $params['emission_date']]);
 }
 
 $values = [

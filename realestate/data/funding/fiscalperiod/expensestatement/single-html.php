@@ -573,7 +573,7 @@ foreach($template['parts_ids'] as $part_id => $part) {
             'period'            => $getFormattedDate($fiscalPeriod['date_from']) . ' - ' . $getFormattedDate($fiscalPeriod['date_to']),
             'period_from'       => $getFormattedDate($fiscalPeriod['date_from']),
             'period_to'         => $getFormattedDate($fiscalPeriod['date_to']),
-            'document_date'     => $getFormattedDate($statement['posting_date'])
+            'document_date'     => $getFormattedDate($statement['is_cutoff_at_document_date'] ? time() : $statement['posting_date'])
         ];
 
         // Replace {var} items with corresponding values, set in $map_values
@@ -640,7 +640,7 @@ $values = array_merge($values, [
             $funding['remaining_amount'] ?? 0
         ),
 
-    'date'                => time(),
+    'date'                => time(), 
     'timezone'            => constant('L10N_TIMEZONE'),
     'locale'              => constant('L10N_LOCALE'),
     'date_format'         => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),

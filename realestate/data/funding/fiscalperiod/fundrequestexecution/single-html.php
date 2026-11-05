@@ -223,6 +223,7 @@ $fundRequestExecution = FundRequestExecution::id($params['fund_request_execution
         'date_from',
         'date_to',
         'posting_date',
+        'emission_date',
         'due_date',
         'fiscal_period_id' => ['name', 'date_from', 'date_to'],
         'price',
@@ -303,6 +304,7 @@ $fundRequest = FundRequest::id($fundRequestExecution['fund_request_id'])
         'request_executions_ids' => [
             '@domain' => ['status', '<>', 'cancelled'],
             'posting_date',
+            'emission_date',
             'due_date',
             'price',
             'execution_lines_ids' => [
@@ -618,7 +620,7 @@ $values = [
                 $funding['remaining_amount'] ?? 0
             ),
 
-    'date'                => $fundRequestExecution['posting_date'] ?? time(),
+    'date'                => $fundRequestExecution['emission_date'] ?? time(),
     'timezone'            => constant('L10N_TIMEZONE'),
     'locale'              => constant('L10N_LOCALE'),
     'date_format'         => Setting::get_value('core', 'locale', 'date_format', 'm/d/Y'),

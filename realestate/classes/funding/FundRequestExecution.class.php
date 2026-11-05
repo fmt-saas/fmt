@@ -394,12 +394,19 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 ];
                 continue;
             }
-            if($requestExecution['emission_date'] != $requestExecution['posting_date']) {
+            if($requestExecution['emission_date'] < $requestExecution['posting_date']) {
                 $result[$id] = [
-                    'dates_mismatch' => 'Posting and Emission dates must be the same.'
+                    'dates_mismatch' => 'Emission date cannot precede Posting date.'
                 ];
                 continue;
             }
+            if($requestExecution['emission_date'] > time()) {
+                $result[$id] = [
+                    'dates_mismatch' => 'Emission date cannot be in the future.'
+                ];
+                continue;
+            }
+
             if(!$requestExecution['fiscal_period_id']) {
                 $result[$id] = [
                     'missing_fiscal_period' => 'Fiscal period is mandatory (could not resolve).'
