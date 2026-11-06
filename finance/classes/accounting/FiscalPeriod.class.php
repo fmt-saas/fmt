@@ -248,7 +248,7 @@ class FiscalPeriod extends Model {
         return $result;
     }
 
-    protected static function doRenumberMiscOperations($self) {
+    protected static function doRenumberMiscOperations($self, $orm) {
         $self->read([
             'condo_id',
             'code',
@@ -305,11 +305,12 @@ class FiscalPeriod extends Model {
             }
 
             foreach($miscOperations as $miscOperation) {
+                $orm->write(MiscOperation::getType(), $miscOperation['id'], [
+                    'operation_number' => null,
+                    'name'             => null
+                ]);
+
                 MiscOperation::id($miscOperation['id'])
-                    ->update([
-                        'operation_number' => null,
-                        'name'             => null
-                    ])
                     ->do('assign_operation_number');
             }
         }
@@ -419,7 +420,7 @@ class FiscalPeriod extends Model {
         }
     }
 
-    protected static function doRenumberBankStatementLines($self) {
+    protected static function doRenumberBankStatementLines($self, $orm) {
         foreach($self as $id => $fiscalPeriod) {
             $bankStatementLines = BankStatementLine::search([
                     ['fiscal_period_id', '=', $id]
@@ -472,11 +473,12 @@ class FiscalPeriod extends Model {
                 }
 
                 ++$sequence_number;
+                $orm->write(BankStatementLine::getType(), $bankStatementLine['id'], [
+                    'sequence_number' => $sequence_number,
+                    'name'            => null
+                ]);
+
                 BankStatementLine::id($bankStatementLine['id'])
-                    ->write([
-                        'sequence_number' => $sequence_number,
-                        'name'            => null
-                    ])
                     ->read(['name']);
             }
         }

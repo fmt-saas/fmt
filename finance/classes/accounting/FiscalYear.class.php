@@ -701,16 +701,10 @@ class FiscalYear extends Model {
         ->read(['date_from', 'date_to']);
 
         foreach($futureFiscalYears as $future_id => $futureFiscalYear) {
-            $duration = self::computeFiscalYearDuration(
-                $futureFiscalYear['date_from'],
-                $futureFiscalYear['date_to']
+            $next_date_to = strtotime(
+                date('Y-m-d 00:00:00', $next_date_from) . ' +1 year -1 day'
             );
-            $next_date_to = $next_date_from;
-            if($duration > 0) {
-                $next_date_to = strtotime(
-                    date('Y-m-d 00:00:00', $next_date_from) . ' +' . ($duration - 1) . ' days'
-                );
-            }
+            $duration = self::computeFiscalYearDuration($next_date_from, $next_date_to);
 
             if(
                 $next_date_from === $futureFiscalYear['date_from']
