@@ -1109,9 +1109,7 @@ class AccountingEntry extends Model {
                 'name'         => null
             ]);
 
-            AccountingEntryLine::ids($accountingEntry['entry_lines_ids'])
-                ->write(['entry_number' => null])
-                ->read(['entry_number']);
+            $orm->write(AccountingEntryLine::getType(), $accountingEntry['entry_lines_ids'], ['entry_number' => null]);
 
             self::id($id)->read(['name']);
         }
