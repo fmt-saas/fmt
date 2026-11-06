@@ -17,7 +17,10 @@
             "icon": "edit_calendar",
             "description": "Update the fiscal year dates and fiscal period frequency.",
             "controller": "finance_accounting_FiscalYear_reschedule",
-            "visible": ["status", "not in", ["preclosed", "closed"]],
+            "visible": [
+                ["status", "not in", ["preclosed", "closed"]],
+                ["admins", "in", "user.groups"]
+            ],
             "params": {
                 "id": "object.id"
             },
