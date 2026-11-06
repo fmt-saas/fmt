@@ -541,10 +541,13 @@ class FiscalYear extends Model {
                 continue;
             }
             */
-            
+
             if(AccountingEntry::search([
-                    ['fiscal_year_id', 'in', $affected_fiscal_years_ids],
-                    ['status', 'in', ['validated', 'reversed']]
+                    [
+                        ['condo_id', '=', $fiscalYear['condo_id']],
+                        ['entry_date', '>', $values['date_to'] ],
+                        ['status', 'in', ['validated', 'reversed']]
+                    ]
                 ])
                 ->count() > 0
             ) {
