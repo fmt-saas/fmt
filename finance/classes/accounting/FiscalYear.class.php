@@ -724,14 +724,12 @@ class FiscalYear extends Model {
                 continue;
             }
 
-            /*
-            if(count($fiscalYear['fiscal_periods_ids']) !== count($periods)) {
+            if(count($fiscalYear['fiscal_periods_ids']) < count($periods)) {
                 $result[$id] = [
-                    'fiscal_period_count_mismatch' => 'Fiscal period dates cannot be rescheduled while the expected period count differs.'
+                    'fiscal_period_count_mismatch' => 'Fiscal periods cannot be rescheduled when additional periods must be created.'
                 ];
                 continue;
             }
-            */
 
             foreach($fiscalYear['fiscal_periods_ids'] as $fiscalPeriod) {
                 if(
@@ -1155,6 +1153,7 @@ class FiscalYear extends Model {
 
         self::ids($draft_fiscal_years_ids)
             ->do('generate_periods');
+
         self::ids($active_fiscal_years_ids)
             ->do('reschedule_periods');
 
@@ -1170,32 +1169,35 @@ class FiscalYear extends Model {
         ]);
 
         // 8. Renumber affected non-proforma purchase invoices in their new periods.
-        $fiscal_periods_ids = [];
+        $map_fiscal_periods_ids = [];
         PurchaseInvoice::ids($affected_objects_ids['purchase_invoices'])
             ->read(['status', 'fiscal_period_id'])
             ->each(function($id, $purchaseInvoice) use(&$fiscal_periods_ids) {
                 if($purchaseInvoice['status'] !== 'proforma' && $purchaseInvoice['fiscal_period_id']) {
-                    $fiscal_periods_ids[$purchaseInvoice['fiscal_period_id']] = true;
+                    $map_fiscal_periods_ids[$purchaseInvoice['fiscal_period_id']] = true;
                 }
             });
 
-        FiscalPeriod::ids(array_keys($fiscal_periods_ids))
+        FiscalPeriod::ids(array_keys($map_fiscal_periods_ids))
             ->do('renumber_purchase_invoices');
 
         // 9. Refresh stored relation fields on accounting entry lines and object caches.
         AccountingEntry::ids($affected_objects_ids['accounting_entries'])
-            ->read(['entry_lines_ids'])
-            ->each(function($id, $accountingEntry) {
-                AccountingEntryLine::ids($accountingEntry['entry_lines_ids'])
-                    ->update(['accounting_entry_id' => $id]);
-            });
+            ->write(['name' => null])
+            ->read(['name']);
 
         MiscOperation::ids($affected_objects_ids['misc_operations'])
-            ->read(['fiscal_year_id', 'fiscal_period_id']);
+            ->write(['name' => null])
+            ->read(['name']);
+
         PurchaseInvoice::ids($affected_objects_ids['purchase_invoices'])
-            ->read(['name', 'fiscal_year_id', 'fiscal_period_id']);
+            ->write(['name' => null])
+            ->read(['name']);
+
         SaleInvoice::ids($affected_objects_ids['sale_invoices'])
-            ->read(['name', 'fiscal_year_id', 'fiscal_period_id']);
+            ->write(['name' => null])
+            ->read(['name']);
+
     }
 
     protected static function doRefreshFiscalAssignments($self) {
@@ -1230,9 +1232,15 @@ class FiscalYear extends Model {
         foreach($self as $fiscalYear) {
             $periods = self::computeFiscalPeriodRanges($fiscalYear);
             $fiscal_periods_ids = [];
+            $excess_fiscal_periods_ids = [];
             $index = 0;
 
             foreach($fiscalYear['fiscal_periods_ids'] as $fiscal_period_id => $fiscalPeriod) {
+                if(!isset($periods[$index])) {
+                    $excess_fiscal_periods_ids[] = $fiscal_period_id;
+                    continue;
+                }
+
                 FiscalPeriod::id($fiscal_period_id)
                     ->update([
                         'date_from' => $periods[$index]['date_from'],
@@ -1242,6 +1250,9 @@ class FiscalYear extends Model {
                 $fiscal_periods_ids[] = $fiscal_period_id;
                 ++$index;
             }
+
+            FiscalPeriod::ids($excess_fiscal_periods_ids)
+                ->delete(true);
 
             FiscalPeriod::ids($fiscal_periods_ids)
                 ->read(['code', 'name']);
