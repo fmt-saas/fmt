@@ -6,6 +6,7 @@
 */
 namespace finance\accounting;
 use equal\orm\Model;
+use finance\bank\BankStatementLine;
 use fmt\setting\Setting;
 use realestate\funding\ExpenseStatement;
 use realestate\funding\FundRequestExecution;
@@ -173,11 +174,29 @@ class FiscalPeriod extends Model {
 
     public static function getActions() {
         return [
+            'renumber_misc_operations' => [
+                'description'   => 'Renumber miscellaneous operations sequentially for the fiscal period.',
+                'help'          => 'Assigns new operation numbers in posting date order and resets each related journal sequence.',
+                'policies'      => ['can_renumber_accounting_objects'],
+                'function'      => 'doRenumberMiscOperations'
+            ],
             'renumber_purchase_invoices' => [
                 'description'   => 'Renumber purchase invoices sequentially for the fiscal period.',
                 'help'          => 'Assigns new purchase invoice numbers in emission date order and resets the related sequence to the next available number.',
-                'policies'      => ['can_renumber_purchase_invoices'],
+                'policies'      => ['can_renumber_accounting_objects'],
                 'function'      => 'doRenumberPurchaseInvoices'
+            ],
+            'renumber_bank_statement_lines' => [
+                'description'   => 'Renumber bank statement lines sequentially for the fiscal period.',
+                'help'          => 'Assigns line numbers in transaction date order within each bank statement.',
+                'policies'      => ['can_renumber_accounting_objects'],
+                'function'      => 'doRenumberBankStatementLines'
+            ],
+            'renumber_accounting_entries' => [
+                'description'   => 'Renumber accounting entries sequentially for the fiscal period.',
+                'help'          => 'Assigns new entry numbers in entry date order and resets each related journal sequence.',
+                'policies'      => ['can_renumber_accounting_objects'],
+                'function'      => 'doRenumberAccountingEntries'
             ],
             'generate_accounting_entries' => [
                 'description'   => 'Generate the accounting entries for closing the fiscal period.',
@@ -189,9 +208,9 @@ class FiscalPeriod extends Model {
 
     public static function getPolicies(): array {
         return [
-            'can_renumber_purchase_invoices' => [
-                'description' => 'Checks that purchase invoices can be renumbered for the fiscal period.',
-                'function'    => 'policyCanRenumberPurchaseInvoices'
+            'can_renumber_accounting_objects' => [
+                'description' => 'Checks that accounting objects can be renumbered for the fiscal period.',
+                'function'    => 'policyCanRenumberAccountingObjects'
             ],
             'can_close' => [
                 'description' => 'Verifies that a fiscal period can be closed according its configuration.',
@@ -208,19 +227,86 @@ class FiscalPeriod extends Model {
         ];
     }
 
-    protected static function policyCanRenumberPurchaseInvoices($self): array {
+    protected static function policyCanRenumberAccountingObjects($self): array {
         $result = [];
 
         $self->read(['status']);
         foreach($self as $id => $fiscalPeriod) {
             if($fiscalPeriod['status'] !== 'open') {
                 $result[$id] = [
-                    'fiscal_period_not_open' => 'Purchase invoices can only be renumbered for an open fiscal period.'
+                    'fiscal_period_not_open' => 'Accounting objects can only be renumbered for an open fiscal period.'
                 ];
             }
         }
 
         return $result;
+    }
+
+    protected static function doRenumberMiscOperations($self) {
+        $self->read([
+            'condo_id',
+            'code',
+            'fiscal_year_id' => ['code']
+        ]);
+
+        foreach($self as $id => $fiscalPeriod) {
+            $miscOperations = MiscOperation::search([
+                    ['fiscal_period_id', '=', $id],
+                    ['status', 'in', ['posted', 'cancelled']]
+                ])
+                ->read([
+                    'id',
+                    'posting_date',
+                    'journal_id' => ['code']
+                ])
+                ->toArray();
+
+            usort($miscOperations, static function($left, $right) {
+                $left_date = $left['posting_date'] ?? null;
+                $right_date = $right['posting_date'] ?? null;
+
+                if($left_date === $right_date) {
+                    return $left['id'] <=> $right['id'];
+                }
+                if(!$left_date) {
+                    return 1;
+                }
+                if(!$right_date) {
+                    return -1;
+                }
+
+                return $left_date <=> $right_date;
+            });
+
+            $journal_codes = [];
+            foreach($miscOperations as $miscOperation) {
+                $journal_codes[$miscOperation['journal_id']['code']] = true;
+            }
+
+            foreach(array_keys($journal_codes) as $journal_code) {
+                $sequence_code = "operation.sequence.{$fiscalPeriod['fiscal_year_id']['code']}.{$fiscalPeriod['code']}.{$journal_code}";
+                $sequence_value = Setting::set_sequence(
+                    'finance',
+                    'accounting',
+                    $sequence_code,
+                    1,
+                    ['condo_id' => $fiscalPeriod['condo_id']]
+                );
+
+                if($sequence_value !== 1) {
+                    throw new \Exception('misc_operation_sequence_initialization_failed', EQ_ERROR_INVALID_CONFIG);
+                }
+            }
+
+            foreach($miscOperations as $miscOperation) {
+                MiscOperation::id($miscOperation['id'])
+                    ->update([
+                        'operation_number' => null,
+                        'name'             => null
+                    ])
+                    ->do('assign_operation_number');
+            }
+        }
     }
 
     protected static function doRenumberPurchaseInvoices($self) {
@@ -270,6 +356,138 @@ class FiscalPeriod extends Model {
 
             foreach($purchaseInvoices as $purchaseInvoice) {
                 PurchaseInvoice::id($purchaseInvoice['id'])->do('assign_invoice_number');
+            }
+        }
+    }
+
+    protected static function doRenumberBankStatementLines($self) {
+        foreach($self as $id => $fiscalPeriod) {
+            $bankStatementLines = BankStatementLine::search([
+                    ['fiscal_period_id', '=', $id]
+                ])
+                ->read(['bank_statement_id'])
+                ->toArray();
+
+            $bank_statement_ids = array_unique(array_column(
+                $bankStatementLines, 'bank_statement_id'
+            ));
+
+            if(!count($bank_statement_ids)) {
+                continue;
+            }
+
+            $bankStatementLines = BankStatementLine::search([
+                    ['bank_statement_id', 'in', $bank_statement_ids]
+                ])
+                ->read(['id', 'date', 'bank_statement_id'])
+                ->toArray();
+
+            usort($bankStatementLines, static function($left, $right) {
+                if($left['bank_statement_id'] !== $right['bank_statement_id']) {
+                    return $left['bank_statement_id'] <=> $right['bank_statement_id'];
+                }
+
+                $left_date = $left['date'] ?? null;
+                $right_date = $right['date'] ?? null;
+
+                if($left_date === $right_date) {
+                    return $left['id'] <=> $right['id'];
+                }
+                if(!$left_date) {
+                    return 1;
+                }
+                if(!$right_date) {
+                    return -1;
+                }
+
+                return $left_date <=> $right_date;
+            });
+
+            $current_bank_statement_id = null;
+            $sequence_number = 0;
+
+            foreach($bankStatementLines as $bankStatementLine) {
+                if($bankStatementLine['bank_statement_id'] !== $current_bank_statement_id) {
+                    $current_bank_statement_id = $bankStatementLine['bank_statement_id'];
+                    $sequence_number = 0;
+                }
+
+                ++$sequence_number;
+                BankStatementLine::id($bankStatementLine['id'])
+                    ->write([
+                        'sequence_number' => $sequence_number,
+                        'name'            => null
+                    ])
+                    ->read(['name']);
+            }
+        }
+    }
+
+    protected static function doRenumberAccountingEntries($self) {
+        $self->read([
+            'condo_id',
+            'code',
+            'fiscal_year_id' => ['code']
+        ]);
+
+        foreach($self as $id => $fiscalPeriod) {
+            $accountingEntries = AccountingEntry::search([
+                    ['fiscal_period_id', '=', $id],
+                    ['status', 'in', ['validated', 'reversed']],
+                    ['is_temp', '=', false]
+                ])
+                ->read([
+                    'id',
+                    'entry_date',
+                    'journal_id' => ['code'],
+                    'sub_journal_id' => ['code']
+                ])
+                ->toArray();
+
+            usort($accountingEntries, static function($left, $right) {
+                $left_date = $left['entry_date'] ?? null;
+                $right_date = $right['entry_date'] ?? null;
+
+                if($left_date === $right_date) {
+                    return $left['id'] <=> $right['id'];
+                }
+                if(!$left_date) {
+                    return 1;
+                }
+                if(!$right_date) {
+                    return -1;
+                }
+
+                return $left_date <=> $right_date;
+            });
+
+            $journal_codes = [];
+            foreach($accountingEntries as $accountingEntry) {
+                $journal_code = $accountingEntry['journal_id']['code'];
+                if($accountingEntry['sub_journal_id']) {
+                    $journal_code = $accountingEntry['sub_journal_id']['code'];
+                }
+                $journal_codes[$journal_code] = true;
+            }
+
+            foreach(array_keys($journal_codes) as $journal_code) {
+                $sequence_code = "accounting_entry.sequence.{$fiscalPeriod['fiscal_year_id']['code']}.{$fiscalPeriod['code']}.{$journal_code}";
+                $sequence_value = Setting::set_sequence(
+                    'finance',
+                    'accounting',
+                    $sequence_code,
+                    1,
+                    ['condo_id' => $fiscalPeriod['condo_id']]
+                );
+
+                if($sequence_value !== 1) {
+                    throw new \Exception('accounting_entry_sequence_initialization_failed', EQ_ERROR_INVALID_CONFIG);
+                }
+            }
+
+            foreach($accountingEntries as $accountingEntry) {
+                AccountingEntry::id($accountingEntry['id'])
+                    ->do('reassign_entry_number');
             }
         }
     }

@@ -59,9 +59,21 @@
             "name": "Période comptable",
             "description": "Formulaire pour ajuster les dates et visualiser l'exercice/copropriété.",
             "actions": {
+                "action.renumber_misc_operations": {
+                    "label": "Renuméroter les opérations diverses",
+                    "description": "Renuméroter séquentiellement les opérations diverses comptabilisées ou annulées de cette période, par date de comptabilisation et par journal."
+                },
                 "action.renumber_purchase_invoices": {
                     "label": "Renuméroter les factures d'achat",
                     "description": "Renuméroter séquentiellement les factures d'achat non proforma de cette période, par date d'émission."
+                },
+                "action.renumber_bank_statement_lines": {
+                    "label": "Renuméroter les lignes d'extrait bancaire",
+                    "description": "Renuméroter séquentiellement, par date de transaction, toutes les lignes des extraits bancaires associés à cette période."
+                },
+                "action.renumber_accounting_entries": {
+                    "label": "Renuméroter les écritures comptables",
+                    "description": "Renuméroter séquentiellement les écritures comptables validées ou contrepassées de cette période, par date et par journal."
                 },
                 "action.preclose": {
                     "label": "Pré-clôturer",
@@ -76,8 +88,10 @@
     },
     "error": {
         "errors": {
-            "fiscal_period_not_open": "Les factures d'achat ne peuvent être renumérotées que pour une période comptable ouverte.",
-            "purchase_invoice_sequence_initialization_failed": "La séquence des factures d'achat n'a pas pu être initialisée."
+            "fiscal_period_not_open": "Les éléments comptables ne peuvent être renumérotés que pour une période comptable ouverte.",
+            "purchase_invoice_sequence_initialization_failed": "La séquence des factures d'achat n'a pas pu être initialisée.",
+            "misc_operation_sequence_initialization_failed": "La séquence des opérations diverses n'a pas pu être initialisée.",
+            "accounting_entry_sequence_initialization_failed": "La séquence des écritures comptables n'a pas pu être initialisée."
         }
     }
 }

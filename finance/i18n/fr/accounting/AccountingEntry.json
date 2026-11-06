@@ -56,5 +56,12 @@
             "layout": {}
         }
     },
-    "error": {}
+    "error": {
+        "errors": {
+            "invalid_status_for_entry_renumbering": "Seules les écritures comptables validées ou contrepassées peuvent être renumérotées.",
+            "temporary_entry_cannot_be_renumbered": "Les écritures comptables temporaires ne peuvent pas être renumérotées.",
+            "missing_entry_numbering_configuration": "La configuration de numérotation de l'écriture comptable est incomplète.",
+            "fiscal_period_not_open": "Les écritures comptables ne peuvent être renumérotées que pour une période comptable ouverte."
+        }
+    }
 }

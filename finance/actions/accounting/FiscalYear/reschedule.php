@@ -49,6 +49,28 @@ use finance\accounting\FiscalYear;
                 return $fiscalYear['date_to'] ?? null;
             },
             'required'          => true
+        ],
+        'fiscal_period_frequency' => [
+            'type'              => 'string',
+            'description'       => 'Frequency used to generate fiscal periods.',
+            'selection'         => [
+                'A' => 'Annually',
+                'S' => 'Semi-Annually',
+                'T' => 'Tertially',
+                'Q' => 'Quarterly'
+            ],
+            'default'           => function ($id = null) {
+                if(!$id) {
+                    return null;
+                }
+
+                $fiscalYear = FiscalYear::id($id)
+                    ->read(['fiscal_period_frequency'])
+                    ->first();
+
+                return $fiscalYear['fiscal_period_frequency'] ?? null;
+            },
+            'required'          => true
         ]
     ],
     'access'        => [
@@ -69,8 +91,9 @@ use finance\accounting\FiscalYear;
 ['context' => $context, 'self' => $self] = $providers;
 
 $self->do('reschedule', [
-    'date_from' => $params['date_from'],
-    'date_to'   => $params['date_to']
+    'date_from'               => $params['date_from'],
+    'date_to'                 => $params['date_to'],
+    'fiscal_period_frequency' => $params['fiscal_period_frequency']
 ]);
 
 $context->httpResponse()

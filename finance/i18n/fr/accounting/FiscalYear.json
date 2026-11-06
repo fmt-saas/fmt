@@ -131,6 +131,9 @@
         }
     },
     "error": {
+        "fiscal_period_frequency": {
+            "invalid_fiscal_period_frequency": "La fréquence des périodes fiscales est invalide."
+        },
         "status": {
             "not_allowed_entries": "Les dates de l'exercice comptable ne peuvent pas être modifiées lorsque des écritures comptables lui sont associées."
         }

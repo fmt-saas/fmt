@@ -312,6 +312,11 @@ class AccountingEntry extends Model {
                 'description'   => 'Recompute the fiscal year and fiscal period from the entry date.',
                 'policies'      => [],
                 'function'      => 'doRefreshFiscalAssignment'
+            ],
+            'reassign_entry_number' => [
+                'description'   => 'Assign a new entry number using the current fiscal period sequence.',
+                'policies'      => ['can_reassign_entry_number'],
+                'function'      => 'doReassignEntryNumber'
             ]
         ];
     }
@@ -707,8 +712,61 @@ class AccountingEntry extends Model {
             'can_cancel' => [
                 'description' => 'Verifies that an accounting entry can be cancelled (validated and not already cancelled).',
                 'function'    => 'policyCanCancel'
+            ],
+            'can_reassign_entry_number' => [
+                'description' => 'Verifies that an accounting entry can receive a new entry number.',
+                'function'    => 'policyCanReassignEntryNumber'
             ]
         ];
+    }
+
+    protected static function policyCanReassignEntryNumber($self): array {
+        $result = [];
+
+        $self->read([
+            'status',
+            'is_temp',
+            'condo_id',
+            'journal_id',
+            'fiscal_year_id',
+            'fiscal_period_id' => ['status']
+        ]);
+
+        foreach($self as $id => $accountingEntry) {
+            if(!in_array($accountingEntry['status'], ['validated', 'reversed'], true)) {
+                $result[$id] = [
+                    'invalid_status_for_entry_renumbering' => 'Only validated or reversed accounting entries can be renumbered.'
+                ];
+                continue;
+            }
+
+            if($accountingEntry['is_temp']) {
+                $result[$id] = [
+                    'temporary_entry_cannot_be_renumbered' => 'Temporary accounting entries cannot be renumbered.'
+                ];
+                continue;
+            }
+
+            if(
+                !$accountingEntry['condo_id']
+                || !$accountingEntry['journal_id']
+                || !$accountingEntry['fiscal_year_id']
+                || !$accountingEntry['fiscal_period_id']
+            ) {
+                $result[$id] = [
+                    'missing_entry_numbering_configuration' => 'The accounting entry numbering configuration is incomplete.'
+                ];
+                continue;
+            }
+
+            if($accountingEntry['fiscal_period_id']['status'] !== 'open') {
+                $result[$id] = [
+                    'fiscal_period_not_open' => 'Accounting entries can only be renumbered for an open fiscal period.'
+                ];
+            }
+        }
+
+        return $result;
     }
 
     public static function policyCanValidate($self): array {
@@ -1038,6 +1096,25 @@ class AccountingEntry extends Model {
             ]);
 
         return $result;
+    }
+
+    protected static function doReassignEntryNumber($self, $orm) {
+        $self->read(['entry_lines_ids']);
+
+        foreach($self as $id => $accountingEntry) {
+            $orm->write(self::getType(), $id, ['entry_number' => null]);
+
+            $orm->write(self::getType(), $id, [
+                'entry_number' => self::computeEntryNumber($id),
+                'name'         => null
+            ]);
+
+            AccountingEntryLine::ids($accountingEntry['entry_lines_ids'])
+                ->write(['entry_number' => null])
+                ->read(['entry_number']);
+
+            self::id($id)->read(['name']);
+        }
     }
 
     protected static function doUpdateBalanceChange($self) {
