@@ -724,12 +724,14 @@ class FiscalYear extends Model {
                 continue;
             }
 
+            /*
             if(count($fiscalYear['fiscal_periods_ids']) !== count($periods)) {
                 $result[$id] = [
                     'fiscal_period_count_mismatch' => 'Fiscal period dates cannot be rescheduled while the expected period count differs.'
                 ];
                 continue;
             }
+            */
 
             foreach($fiscalYear['fiscal_periods_ids'] as $fiscalPeriod) {
                 if(
