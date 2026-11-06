@@ -218,7 +218,7 @@ class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
 
             if($sequence) {
                 $invoice_number = Setting::parse_format($format, [
-                        'year'      => $invoice['fiscal_year_id']['code'],
+                        'year'      => substr($invoice['fiscal_year_id']['code'], -2),
                         'period'    => $invoice['fiscal_period_id']['code'],
                         'condo'     => $invoice['condo_id'],
                         'sequence'  => $sequence

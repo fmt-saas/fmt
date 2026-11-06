@@ -472,7 +472,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             }
 
             $invoice_number = Setting::parse_format($format, [
-                    'year'      => $fiscal_year_code,
+                    'year'      => substr($fiscal_year_code, -2),
                     'period'    => $fiscal_period_code,
                     'org'       => $requestExecution['organisation_id'],
                     'condo'     => $requestExecution['condo_id'],

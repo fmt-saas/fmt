@@ -2214,7 +2214,7 @@ class PurchaseInvoice extends \purchase\accounting\invoice\PurchaseInvoice {
 
             if($sequence) {
                 $invoice_number = Setting::parse_format($format, [
-                        'year'      => substr($invoice['fiscal_year_id']['code'] ?? '', 0, 2),
+                        'year'      => substr($invoice['fiscal_year_id']['code'], -2),
                         'period'    => $invoice['fiscal_period_id']['code'] ?? 0,
                         'condo'     => $invoice['condo_id'],
                         'sequence'  => $sequence
