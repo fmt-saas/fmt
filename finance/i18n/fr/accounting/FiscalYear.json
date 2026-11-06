@@ -134,7 +134,7 @@
         "errors": {
             "missing_reschedule_values": "Au moins une date ou la fréquence des périodes doit être fournie.",
             "fiscal_year_not_reschedulable": "Un exercice pré-clôturé ou clôturé ne peut plus être replanifié.",
-            "date_from_not_editable": "La date de début ne peut être modifiée que pour le premier exercice comptable.",
+            "date_from_not_editable": "La date de début ne peut être modifiée que pour un premier exercice comptable sans balance d'ouverture.",
             "invalid_date_range": "La date de début de l'exercice doit précéder sa date de fin.",
             "missing_previous_fiscal_year": "L'exercice comptable précédent est introuvable.",
             "non_contiguous_previous_fiscal_year": "L'exercice doit commencer le lendemain de l'exercice précédent.",

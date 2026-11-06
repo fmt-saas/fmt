@@ -441,7 +441,7 @@ class FiscalYear extends Model {
         $date_values = array_intersect_key($values, array_flip(['date_from', 'date_to']));
         $fiscal_period_frequency = $values['fiscal_period_frequency'] ?? null;
 
-        $self->read(['status', 'condo_id', 'is_first', 'date_from', 'date_to', 'fiscal_period_frequency']);
+        $self->read(['status', 'condo_id', 'is_first', 'opening_balance_id', 'date_from', 'date_to', 'fiscal_period_frequency']);
         foreach($self as $id => $fiscalYear) {
             if(!count($date_values) && $fiscal_period_frequency === null) {
                 $result[$id] = [
@@ -470,9 +470,12 @@ class FiscalYear extends Model {
             $date_from = $date_values['date_from'] ?? $fiscalYear['date_from'];
             $date_to = $date_values['date_to'] ?? $fiscalYear['date_to'];
 
-            if(!$fiscalYear['is_first'] && $date_from !== $fiscalYear['date_from']) {
+            if(
+                (!$fiscalYear['is_first'] || $fiscalYear['opening_balance_id'])
+                && $date_from !== $fiscalYear['date_from']
+            ) {
                 $result[$id] = [
-                    'date_from_not_editable' => 'Only the first fiscal year start date can be modified.'
+                    'date_from_not_editable' => 'Only the start date of a first fiscal year without an opening balance can be modified.'
                 ];
                 continue;
             }
