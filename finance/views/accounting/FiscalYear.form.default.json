@@ -2,7 +2,11 @@
     "name": "Fiscal Year",
     "header": {
         "actions": {
-            "ACTION.EDIT": false,
+            "ACTION.EDIT": [
+                {
+                    "visible": ["status", "=", "draft"]
+                }
+            ],
             "ACTION.SAVE": [
                 {
                     "id": "SAVE_AND_CLOSE"
@@ -201,14 +205,12 @@
                                             {
                                                 "type": "field",
                                                 "value": "date_from",
-                                                "width": "50%",
-                                                "readonly": true
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "date_to",
-                                                "width": "50%",
-                                                "readonly": true
+                                                "width": "50%"
                                             }
                                         ]
                                     },
@@ -236,8 +238,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "fiscal_period_frequency",
-                                                "width": "50%",
-                                                "readonly": true
+                                                "width": "50%"
                                             },
                                             {
                                                 "type": "field",
