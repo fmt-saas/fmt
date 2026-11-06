@@ -525,6 +525,7 @@ class FiscalYear extends Model {
             );
             $affected_fiscal_years_ids = array_keys($affected_fiscal_years);
 
+            /*
             $has_invalid_fiscal_year_duration = false;
             foreach($affected_fiscal_years as $dates) {
                 if(!in_array($dates['duration'], [365, 366], true)) {
@@ -539,7 +540,8 @@ class FiscalYear extends Model {
                 ];
                 continue;
             }
-
+            */
+            
             if(AccountingEntry::search([
                     ['fiscal_year_id', 'in', $affected_fiscal_years_ids],
                     ['status', 'in', ['validated', 'reversed']]
