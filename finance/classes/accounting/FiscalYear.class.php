@@ -479,12 +479,14 @@ class FiscalYear extends Model {
                 continue;
             }
 
+            /*
             if(!in_array(self::computeFiscalYearDuration($date_from, $date_to), [365, 366], true)) {
                 $result[$id] = [
                     'invalid_fiscal_year_duration' => 'Fiscal year duration must be 365 or 366 days.'
                 ];
                 continue;
             }
+            */
 
             if(!$fiscalYear['is_first']) {
                 $previousFiscalYear = self::search([
