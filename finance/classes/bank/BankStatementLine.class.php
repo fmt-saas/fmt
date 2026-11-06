@@ -8,6 +8,7 @@ namespace finance\bank;
 
 use equal\orm\Model;
 use finance\accounting\Account;
+use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
 use realestate\sale\pay\Funding;
@@ -537,6 +538,11 @@ class BankStatementLine extends Model {
                 'description'   => 'Force a refresh of parent bank statement status.',
                 'function'      => 'doRefreshBankStatementStatus'
             ],
+            'refresh_fiscal_assignment' => [
+                'description'   => 'Recompute the fiscal year and fiscal period from the transaction date.',
+                'policies'      => [],
+                'function'      => 'doRefreshFiscalAssignment'
+            ],
             'add_ownership_bank_account' => [
                 'description'   => 'Add the counterparty IBAN to the targeted ownership for the selected owner if it is not already present.',
                 'policies'      => ['can_add_ownership_bank_account'],
@@ -555,6 +561,42 @@ class BankStatementLine extends Model {
                 'function'      => 'doUnlock'
             ]
         ];
+    }
+
+    protected static function doRefreshFiscalAssignment($self, $orm) {
+        $self->read(['condo_id', 'date']);
+
+        foreach($self as $id => $bankStatementLine) {
+            $fiscal_year_id = null;
+            $fiscal_period_id = null;
+
+            $fiscalYear = FiscalYear::search([
+                    ['condo_id', '=', $bankStatementLine['condo_id']],
+                    ['date_from', '<=', $bankStatementLine['date']],
+                    ['date_to', '>=', $bankStatementLine['date']]
+                ])
+                ->first();
+
+            if($fiscalYear) {
+                $fiscal_year_id = $fiscalYear['id'];
+
+                $fiscalPeriod = FiscalPeriod::search([
+                        ['fiscal_year_id', '=', $fiscal_year_id],
+                        ['date_from', '<=', $bankStatementLine['date']],
+                        ['date_to', '>=', $bankStatementLine['date']]
+                    ])
+                    ->first();
+
+                if($fiscalPeriod) {
+                    $fiscal_period_id = $fiscalPeriod['id'];
+                }
+            }
+
+            $orm->write($self->getClass(), $id, [
+                'fiscal_year_id'   => $fiscal_year_id,
+                'fiscal_period_id' => $fiscal_period_id
+            ]);
+        }
     }
 
     public static function getPolicies(): array {

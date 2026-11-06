@@ -8,7 +8,7 @@
 use finance\accounting\FiscalYear;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Update the dates of a fiscal year.',
+    'description'   => 'Update the dates and fiscal period frequency of a fiscal year.',
     'params'        => [
         'id' => [
             'type'              => 'many2one',

@@ -10,13 +10,13 @@ use documents\Document;
 use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
 use equal\orm\Model;
+use finance\bank\BankStatementLine;
 use fmt\setting\Setting;
 use fmt\setting\SettingSequence;
 use realestate\funding\ExpenseStatement;
 use realestate\funding\FundRequestExecution;
 use realestate\purchase\accounting\invoice\PurchaseInvoice;
 use realestate\property\Condominium;
-use realestate\sale\accounting\invoice\SaleInvoice;
 
 class FiscalYear extends Model {
 
@@ -443,16 +443,16 @@ class FiscalYear extends Model {
 
         $self->read(['status', 'condo_id', 'is_first', 'date_from', 'date_to', 'fiscal_period_frequency']);
         foreach($self as $id => $fiscalYear) {
-            if(!count($date_values)) {
+            if(!count($date_values) && $fiscal_period_frequency === null) {
                 $result[$id] = [
-                    'missing_dates' => 'At least one fiscal year date must be provided.'
+                    'missing_reschedule_values' => 'At least one fiscal year date or the fiscal period frequency must be provided.'
                 ];
                 continue;
             }
 
-            if($fiscalYear['status'] === 'closed') {
+            if(in_array($fiscalYear['status'], ['preclosed', 'closed'], true)) {
                 $result[$id] = [
-                    'fiscal_year_closed' => 'Closed fiscal year dates cannot be modified.'
+                    'fiscal_year_not_reschedulable' => 'Preclosed or closed fiscal year dates cannot be modified.'
                 ];
                 continue;
             }
@@ -560,7 +560,7 @@ class FiscalYear extends Model {
 
             if(FiscalPeriod::search([
                     ['fiscal_year_id', 'in', $affected_fiscal_years_ids],
-                    ['status', '=', 'closed']
+                    ['status', 'in', ['closed']]
                 ])
                 ->count() > 0
             ) {
@@ -596,6 +596,51 @@ class FiscalYear extends Model {
                 continue;
             }
 
+            $projected_fiscal_year_ranges = self::computeProjectedFiscalYearRanges(
+                $fiscalYear['condo_id'],
+                $affected_fiscal_years
+            );
+
+            $dated_objects = [
+                [
+                    'collection' => MiscOperation::search([
+                        'fiscal_year_id', 'in', $affected_fiscal_years_ids
+                    ]),
+                    'date_field' => 'posting_date'
+                ],
+                [
+                    'collection' => PurchaseInvoice::search([
+                        'fiscal_year_id', 'in', $affected_fiscal_years_ids
+                    ]),
+                    'date_field' => 'posting_date'
+                ],
+                [
+                    'collection' => FundRequestExecution::search([
+                        'fiscal_year_id', 'in', $affected_fiscal_years_ids
+                    ]),
+                    'date_field' => 'posting_date'
+                ],
+                [
+                    'collection' => BankStatementLine::search([
+                        'fiscal_year_id', 'in', $affected_fiscal_years_ids
+                    ]),
+                    'date_field' => 'date'
+                ]
+            ];
+
+            foreach($dated_objects as $dated_object) {
+                if(self::hasUnassignableDate(
+                    $dated_object['collection'],
+                    $dated_object['date_field'],
+                    $projected_fiscal_year_ranges
+                )) {
+                    $result[$id] = [
+                        'missing_projected_fiscal_assignment' => 'An accounting object would no longer belong to a fiscal year.'
+                    ];
+                    continue 2;
+                }
+            }
+
             if(ExpenseStatement::search([
                     ['fiscal_year_id', 'in', $affected_fiscal_years_ids],
                     ['status', '<>', 'proforma']
@@ -604,18 +649,6 @@ class FiscalYear extends Model {
             ) {
                 $result[$id] = [
                     'non_proforma_expense_statement_exists' => 'A non-proforma expense statement exists in an affected fiscal year.'
-                ];
-                continue;
-            }
-
-            if(FundRequestExecution::search([
-                    ['fiscal_year_id', 'in', $affected_fiscal_years_ids],
-                    ['status', '<>', 'proforma']
-                ])
-                ->count() > 0
-            ) {
-                $result[$id] = [
-                    'non_proforma_fund_request_execution_exists' => 'A non-proforma fund request execution exists in an affected fiscal year.'
                 ];
                 continue;
             }
@@ -699,6 +732,49 @@ class FiscalYear extends Model {
         $end = new \DateTimeImmutable(date('Y-m-d', $date_to));
 
         return (int) $start->diff($end)->format('%r%a') + 1;
+    }
+
+    private static function computeProjectedFiscalYearRanges($condo_id, array $reschedule_plan): array {
+        $ranges = [];
+
+        $fiscalYears = self::search([
+                ['condo_id', '=', $condo_id]
+            ])
+            ->read(['date_from', 'date_to']);
+
+        foreach($fiscalYears as $id => $fiscalYear) {
+            $ranges[$id] = $reschedule_plan[$id] ?? [
+                'date_from' => $fiscalYear['date_from'],
+                'date_to'   => $fiscalYear['date_to']
+            ];
+        }
+
+        return $ranges;
+    }
+
+    private static function hasUnassignableDate($objects, $date_field, array $fiscal_year_ranges): bool {
+        $objects->read([$date_field]);
+
+        foreach($objects as $object) {
+            $date = $object[$date_field] ?? null;
+            if(!$date) {
+                return true;
+            }
+
+            $has_fiscal_year = false;
+            foreach($fiscal_year_ranges as $range) {
+                if($date >= $range['date_from'] && $date <= $range['date_to']) {
+                    $has_fiscal_year = true;
+                    break;
+                }
+            }
+
+            if(!$has_fiscal_year) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected static function policyCanGenerateSequence($self) {
@@ -1026,6 +1102,7 @@ class FiscalYear extends Model {
         $date_values = array_intersect_key($values, array_flip(['date_from', 'date_to']));
         $fiscal_period_frequency = $values['fiscal_period_frequency'] ?? null;
         $reschedule_plan = [];
+        $frequency_updates = [];
 
         // 1. Update the frequency and compute the complete propagation plan.
         $self->read(['condo_id', 'date_from', 'date_to', 'fiscal_period_frequency']);
@@ -1037,9 +1114,7 @@ class FiscalYear extends Model {
                 && $fiscal_period_frequency !== $fiscalYear['fiscal_period_frequency'];
 
             if($frequency_changed) {
-                self::id($id)->update([
-                    'fiscal_period_frequency' => $fiscal_period_frequency
-                ]);
+                $frequency_updates[$id] = $fiscal_period_frequency;
             }
 
             if(
@@ -1067,7 +1142,7 @@ class FiscalYear extends Model {
             return;
         }
 
-        // 2. Capture previous codes and all objects whose fiscal assignment is affected.
+        // 2. Capture previous fiscal year codes.
         $affected_fiscal_years_ids = array_keys($reschedule_plan);
         $affectedFiscalYears = self::ids($affected_fiscal_years_ids)
             ->read(['status', 'code']);
@@ -1076,21 +1151,6 @@ class FiscalYear extends Model {
         foreach($affectedFiscalYears as $id => $fiscalYear) {
             $previous_fiscal_year_codes[$id] = $fiscalYear['code'];
         }
-
-        $affected_objects_ids = [
-            'accounting_entries' => AccountingEntry::search([
-                'fiscal_year_id', 'in', $affected_fiscal_years_ids
-            ])->ids(),
-            'misc_operations' => MiscOperation::search([
-                'fiscal_year_id', 'in', $affected_fiscal_years_ids
-            ])->ids(),
-            'purchase_invoices' => PurchaseInvoice::search([
-                'fiscal_year_id', 'in', $affected_fiscal_years_ids
-            ])->ids(),
-            'sale_invoices' => SaleInvoice::search([
-                'fiscal_year_id', 'in', $affected_fiscal_years_ids
-            ])->ids()
-        ];
 
         // 3. Remove provisional expense statements before periods are updated.
         ExpenseStatement::search([
@@ -1101,10 +1161,16 @@ class FiscalYear extends Model {
 
         // 4. Apply the new dates to every fiscal year in the propagation plan.
         foreach($reschedule_plan as $id => $dates) {
-            self::id($id)->update([
+            $updated_values = [
                 'date_from' => $dates['date_from'],
                 'date_to'   => $dates['date_to']
-            ]);
+            ];
+
+            if(isset($frequency_updates[$id])) {
+                $updated_values['fiscal_period_frequency'] = $frequency_updates[$id];
+            }
+
+            self::id($id)->update($updated_values);
         }
 
         // 5. Regenerate periods.
@@ -1128,16 +1194,51 @@ class FiscalYear extends Model {
             foreach($affectedFiscalYear['fiscal_periods_ids'] as $fiscal_period_id) {
                 FiscalPeriod::id($fiscal_period_id)
                     ->do('renumber_purchase_invoices')
+                    ->do('renumber_fund_request_executions')
                     ->do('renumber_misc_operations')
                     ->do('renumber_bank_statement_lines')
                     ->do('renumber_accounting_entries');
             }
         }
 
+        $affectedFiscalYears = self::ids($affected_fiscal_years_ids)
+            ->read(['condo_id', 'date_from', 'date_to', 'fiscal_period_frequency']);
+
+        foreach($affectedFiscalYears as $id => $affectedFiscalYear) {
+            if(!$affectedFiscalYear['condo_id']) {
+                continue;
+            }
+
+            $condominium = Condominium::id($affectedFiscalYear['condo_id'])
+                ->read(['current_fiscal_year_id'])
+                ->first();
+
+            if(
+                !$condominium
+                || $condominium['current_fiscal_year_id'] !== $id
+            ) {
+                continue;
+            }
+
+            Condominium::id($affectedFiscalYear['condo_id'])->update([
+                'fiscal_year_start'       => $affectedFiscalYear['date_from'],
+                'fiscal_year_end'         => $affectedFiscalYear['date_to'],
+                'fiscal_period_frequency' => $affectedFiscalYear['fiscal_period_frequency']
+            ]);
+        }
+
     }
 
     protected static function doRefreshFiscalAssignments($self) {
+        $self->read(['condo_id']);
         $fiscal_years_ids = $self->ids();
+        $condos_ids = [];
+
+        foreach($self as $fiscalYear) {
+            if($fiscalYear['condo_id']) {
+                $condos_ids[$fiscalYear['condo_id']] = true;
+            }
+        }
 
         AccountingEntry::search(['fiscal_year_id', 'in', $fiscal_years_ids])
             ->do('refresh_fiscal_assignment');
@@ -1148,8 +1249,13 @@ class FiscalYear extends Model {
         PurchaseInvoice::search(['fiscal_year_id', 'in', $fiscal_years_ids])
             ->do('refresh_fiscal_assignment');
 
-        SaleInvoice::search(['fiscal_year_id', 'in', $fiscal_years_ids])
+        FundRequestExecution::search(['fiscal_year_id', 'in', $fiscal_years_ids])
             ->do('refresh_fiscal_assignment');
+
+        if(count($condos_ids)) {
+            BankStatementLine::search(['condo_id', 'in', array_keys($condos_ids)])
+                ->do('refresh_fiscal_assignment');
+        }
     }
 
     /**
@@ -1639,7 +1745,7 @@ class FiscalYear extends Model {
     }
 
     protected static function doGeneratePeriods($self) {
-        $self->read(['date_from', 'date_to', 'previous_fiscal_year_id', 'fiscal_period_frequency', 'condo_id' => ['id', 'fiscal_year_start', 'fiscal_year_end']]);
+        $self->read(['date_from', 'date_to', 'fiscal_period_frequency', 'condo_id' => ['id']]);
         foreach($self as $id => $fiscalYear) {
             if(!$fiscalYear['date_from']) {
                 throw new \Exception('missing_date_from', EQ_ERROR_INVALID_PARAM);
@@ -1669,33 +1775,11 @@ class FiscalYear extends Model {
     }
 
     private static function computeFiscalPeriodRanges($fiscalYear): array {
-        $periods = self::computeFiscalPeriods(
+        return self::computeFiscalPeriods(
             $fiscalYear['date_from'],
             $fiscalYear['date_to'],
             $fiscalYear['fiscal_period_frequency']
         );
-
-        if(!count($periods) || $fiscalYear['previous_fiscal_year_id']) {
-            return $periods;
-        }
-
-        $last_index = count($periods) - 1;
-        foreach($periods as $index => $period) {
-            if($index === 0 && isset($fiscalYear['condo_id']['fiscal_year_start'])) {
-                $day = date('d', $fiscalYear['condo_id']['fiscal_year_start']);
-                $month = date('m', $fiscalYear['condo_id']['fiscal_year_start']);
-                $year = date('Y', $period['date_from']);
-                $periods[$index]['date_from'] = strtotime("$year-$month-$day");
-            }
-            elseif($index === $last_index && isset($fiscalYear['condo_id']['fiscal_year_end'])) {
-                $day = date('d', $fiscalYear['condo_id']['fiscal_year_end']);
-                $month = date('m', $fiscalYear['condo_id']['fiscal_year_end']);
-                $year = date('Y', $period['date_to']);
-                $periods[$index]['date_to'] = strtotime("$year-$month-$day");
-            }
-        }
-
-        return $periods;
     }
 
     private static function computeFiscalPeriods($fiscal_year_start, $fiscal_year_end, $fiscal_period_frequency) {

@@ -2,6 +2,7 @@
     "name": "Fiscal Year",
     "header": {
         "actions": {
+            "ACTION.EDIT": false,
             "ACTION.SAVE": [
                 {
                     "id": "SAVE_AND_CLOSE"
@@ -14,9 +15,9 @@
             "id": "action.reschedule",
             "label": "Reschedule",
             "icon": "edit_calendar",
-            "description": "Update the fiscal year dates.",
+            "description": "Update the fiscal year dates and fiscal period frequency.",
             "controller": "finance_accounting_FiscalYear_reschedule",
-            "visible": ["status", "<>", "closed"],
+            "visible": ["status", "not in", ["preclosed", "closed"]],
             "params": {
                 "id": "object.id"
             },
@@ -197,14 +198,15 @@
                                             {
                                                 "type": "field",
                                                 "value": "date_from",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "date_to",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "readonly": true
                                             }
-
                                         ]
                                     },
                                     {
@@ -216,7 +218,8 @@
                                                 "label": "Organisation",
                                                 "value": "organisation_id",
                                                 "width": "50%",
-                                                "visible": false
+                                                "visible": false,
+                                                "readonly": true
                                             },
                                             {
                                                 "id": "item.condo_id",
@@ -224,27 +227,32 @@
                                                 "label": "Condominium",
                                                 "value": "condo_id",
                                                 "width": "50%",
-                                                "visible": false
+                                                "visible": false,
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "fiscal_period_frequency",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "is_first",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "opening_balance_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "readonly": true
                                             },
                                             {
                                                 "type": "field",
                                                 "value": "closing_balance_id",
-                                                "width": "50%"
+                                                "width": "50%",
+                                                "readonly": true
                                             }
                                         ]
                                     }

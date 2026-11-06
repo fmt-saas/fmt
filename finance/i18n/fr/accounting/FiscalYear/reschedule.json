@@ -1,7 +1,7 @@
 {
-    "name": "Modifier les dates de l'exercice comptable",
-    "plural": "Modifier les dates des exercices comptables",
-    "description": "Modifie les dates de début et de fin d'un exercice comptable.",
+    "name": "Modifier le calendrier de l'exercice comptable",
+    "plural": "Modifier le calendrier des exercices comptables",
+    "description": "Modifie les dates et la fréquence des périodes d'un exercice comptable.",
     "model": {
         "id": {
             "label": "Exercice comptable",
@@ -17,6 +17,17 @@
             "label": "Fin",
             "description": "Nouvelle date de fin de l'exercice comptable.",
             "help": "La date est incluse dans l'exercice comptable."
+        },
+        "fiscal_period_frequency": {
+            "label": "Fréquence des périodes",
+            "description": "Nouvelle fréquence utilisée pour générer les périodes comptables.",
+            "help": "Les périodes existantes seront régénérées selon cette fréquence.",
+            "selection": {
+                "A": "Annuel",
+                "S": "Semestriel",
+                "T": "Quadrimestriel",
+                "Q": "Trimestriel"
+            }
         }
     },
     "error": {

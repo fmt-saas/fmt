@@ -186,6 +186,12 @@ class FiscalPeriod extends Model {
                 'policies'      => ['can_renumber_accounting_objects'],
                 'function'      => 'doRenumberPurchaseInvoices'
             ],
+            'renumber_fund_request_executions' => [
+                'description'   => 'Renumber fund request executions sequentially for the fiscal period.',
+                'help'          => 'Assigns new fund request execution numbers in posting date order and resets the related sale sequence.',
+                'policies'      => ['can_renumber_accounting_objects'],
+                'function'      => 'doRenumberFundRequestExecutions'
+            ],
             'renumber_bank_statement_lines' => [
                 'description'   => 'Renumber bank statement lines sequentially for the fiscal period.',
                 'help'          => 'Assigns line numbers in transaction date order within each bank statement.',
@@ -356,6 +362,59 @@ class FiscalPeriod extends Model {
 
             foreach($purchaseInvoices as $purchaseInvoice) {
                 PurchaseInvoice::id($purchaseInvoice['id'])->do('assign_invoice_number');
+            }
+        }
+    }
+
+    protected static function doRenumberFundRequestExecutions($self) {
+        $self->read([
+            'condo_id',
+            'code',
+            'fiscal_year_id' => ['code']
+        ]);
+
+        foreach($self as $id => $fiscalPeriod) {
+            $requestExecutions = FundRequestExecution::search([
+                    ['fiscal_period_id', '=', $id],
+                    ['status', '<>', 'proforma']
+                ])
+                ->read(['id', 'posting_date'])
+                ->toArray();
+
+            usort($requestExecutions, static function($left, $right) {
+                $left_date = $left['posting_date'] ?? null;
+                $right_date = $right['posting_date'] ?? null;
+
+                if($left_date === $right_date) {
+                    return $left['id'] <=> $right['id'];
+                }
+                if(!$left_date) {
+                    return 1;
+                }
+                if(!$right_date) {
+                    return -1;
+                }
+
+                return $left_date <=> $right_date;
+            });
+
+            $sequence_code = "operation.sequence.{$fiscalPeriod['fiscal_year_id']['code']}.{$fiscalPeriod['code']}.SAL";
+            $sequence_value = Setting::set_sequence(
+                'finance',
+                'accounting',
+                $sequence_code,
+                1,
+                ['condo_id' => $fiscalPeriod['condo_id']]
+            );
+
+            if($sequence_value !== 1) {
+                throw new \Exception('fund_request_execution_sequence_initialization_failed', EQ_ERROR_INVALID_CONFIG);
+            }
+
+            foreach($requestExecutions as $requestExecution) {
+                FundRequestExecution::doAssignInvoiceNumber(
+                    FundRequestExecution::id($requestExecution['id'])
+                );
             }
         }
     }

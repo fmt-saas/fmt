@@ -88,8 +88,8 @@
             "description": "Formulaire complet : paramètres généraux, actions (ouvrir/fermer) et périodes.",
             "actions": {
                 "action.reschedule": {
-                    "label": "Modifier les dates",
-                    "description": "Modifier les dates de début et de fin de l'exercice comptable."
+                    "label": "Modifier le calendrier",
+                    "description": "Modifier les dates et la fréquence des périodes de l'exercice comptable."
                 },
                 "action.generate_fiscal_periods": {
                     "label": "Générer les périodes fiscales",
@@ -131,6 +131,19 @@
         }
     },
     "error": {
+        "errors": {
+            "missing_reschedule_values": "Au moins une date ou la fréquence des périodes doit être fournie.",
+            "fiscal_year_not_reschedulable": "Un exercice pré-clôturé ou clôturé ne peut plus être replanifié.",
+            "date_from_not_editable": "La date de début ne peut être modifiée que pour le premier exercice comptable.",
+            "invalid_date_range": "La date de début de l'exercice doit précéder sa date de fin.",
+            "missing_previous_fiscal_year": "L'exercice comptable précédent est introuvable.",
+            "non_contiguous_previous_fiscal_year": "L'exercice doit commencer le lendemain de l'exercice précédent.",
+            "non_open_fiscal_period_exists": "Une période pré-clôturée ou clôturée existe dans un exercice affecté.",
+            "accounting_entry_changes_fiscal_year": "Une écriture comptable changerait d'exercice comptable.",
+            "missing_projected_fiscal_assignment": "Un objet comptable ne serait plus rattaché à aucun exercice après la modification.",
+            "non_proforma_expense_statement_exists": "Un décompte de charges non proforma existe dans un exercice affecté.",
+            "closing_balance_exists": "Une balance de clôture existe dans un exercice affecté."
+        },
         "fiscal_period_frequency": {
             "invalid_fiscal_period_frequency": "La fréquence des périodes fiscales est invalide."
         },
