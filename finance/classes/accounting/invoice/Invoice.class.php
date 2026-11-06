@@ -312,7 +312,7 @@ class Invoice extends Model {
         ];
     }
 
-    protected static function doRefreshFiscalAssignment($self) {
+    protected static function doRefreshFiscalAssignment($self, $orm) {
         $self->read(['condo_id', 'posting_date']);
 
         foreach($self as $id => $invoice) {
@@ -330,7 +330,7 @@ class Invoice extends Model {
                 ])
                 ->first()['id'];
 
-            self::id($id)->write([
+            $orm->write($self->getClass(), $id, [
                 'fiscal_year_id'   => $fiscal_year_id,
                 'fiscal_period_id' => $fiscal_period_id
             ]);

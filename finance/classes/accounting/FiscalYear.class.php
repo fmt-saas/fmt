@@ -1253,6 +1253,7 @@ class FiscalYear extends Model {
 
             FiscalPeriod::ids($excess_fiscal_periods_ids)
                 ->delete(true);
+                // #todo remove related sequences
 
             FiscalPeriod::ids($fiscal_periods_ids)
                 ->read(['code', 'name']);

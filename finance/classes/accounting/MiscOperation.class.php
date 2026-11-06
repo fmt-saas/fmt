@@ -427,7 +427,7 @@ class MiscOperation extends Model {
                 ])
                 ->first()['id'];
 
-            self::id($id)->write([
+            $orm->write($self->getClass(), $id, [
                 'fiscal_year_id'   => $fiscal_year_id,
                 'fiscal_period_id' => $fiscal_period_id
             ]);

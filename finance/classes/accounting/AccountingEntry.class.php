@@ -316,7 +316,7 @@ class AccountingEntry extends Model {
         ];
     }
 
-    protected static function doRefreshFiscalAssignment($self) {
+    protected static function doRefreshFiscalAssignment($self, $orm) {
         $self->read(['condo_id', 'entry_date', 'entry_lines_ids']);
 
         foreach($self as $id => $accountingEntry) {
@@ -339,8 +339,8 @@ class AccountingEntry extends Model {
                 'fiscal_period_id' => $fiscal_period_id
             ];
 
-            self::id($id)->write($values);
-            AccountingEntryLine::ids($accountingEntry['entry_lines_ids'])->write($values);
+            $orm->write($self->getClass(), $id, $values);
+            $orm->write(AccountingEntryLine::getType(), $accountingEntry['entry_lines_ids'], $values);
         }
     }
 
