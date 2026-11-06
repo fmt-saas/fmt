@@ -307,8 +307,41 @@ class AccountingEntry extends Model {
                 'description'   => 'Update the AccountBalanceChange objects according to the entry.',
                 'policies'      => [/* */],
                 'function'      => 'doUpdateBalanceChange'
+            ],
+            'refresh_fiscal_assignment' => [
+                'description'   => 'Recompute the fiscal year and fiscal period from the entry date.',
+                'policies'      => [],
+                'function'      => 'doRefreshFiscalAssignment'
             ]
         ];
+    }
+
+    protected static function doRefreshFiscalAssignment($self) {
+        $self->read(['condo_id', 'entry_date', 'entry_lines_ids']);
+
+        foreach($self as $id => $accountingEntry) {
+            $fiscal_year_id = FiscalYear::search([
+                    ['condo_id', '=', $accountingEntry['condo_id']],
+                    ['date_from', '<=', $accountingEntry['entry_date']],
+                    ['date_to', '>=', $accountingEntry['entry_date']]
+                ])
+                ->first()['id'];
+
+            $fiscal_period_id = FiscalPeriod::search([
+                    ['fiscal_year_id', '=', $fiscal_year_id],
+                    ['date_from', '<=', $accountingEntry['entry_date']],
+                    ['date_to', '>=', $accountingEntry['entry_date']]
+                ])
+                ->first()['id'];
+
+            $values = [
+                'fiscal_year_id'   => $fiscal_year_id,
+                'fiscal_period_id' => $fiscal_period_id
+            ];
+
+            self::id($id)->write($values);
+            AccountingEntryLine::ids($accountingEntry['entry_lines_ids'])->write($values);
+        }
     }
 
     public static function getWorkflow() {

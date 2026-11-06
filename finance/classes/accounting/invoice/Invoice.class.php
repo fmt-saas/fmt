@@ -9,6 +9,8 @@ namespace finance\accounting\invoice;
 use fmt\setting\Setting;
 use equal\orm\Model;
 use finance\accounting\AccountingEntry;
+use finance\accounting\FiscalPeriod;
+use finance\accounting\FiscalYear;
 
 class Invoice extends Model {
 
@@ -292,6 +294,11 @@ class Invoice extends Model {
                 'policies'      => [],
                 'function'      => 'doValidateAccountingEntries'
             ],
+            'refresh_fiscal_assignment' => [
+                'description'   => 'Recompute the fiscal year and fiscal period from the posting date.',
+                'policies'      => [],
+                'function'      => 'doRefreshFiscalAssignment'
+            ],
             'can_cancel' => [
                 'description' => 'Checks if the invoice can be cancelled.',
                 'help'        => 'Ensures the (posted) invoice can be permanently cancelled: none of its accounting entries may be cleared, the invoice must not already be cancelled, and the fiscal period must allow cancellation.',
@@ -303,6 +310,31 @@ class Invoice extends Model {
                 'function'    => 'policyCanRemove'
             ]
         ];
+    }
+
+    protected static function doRefreshFiscalAssignment($self) {
+        $self->read(['condo_id', 'posting_date']);
+
+        foreach($self as $id => $invoice) {
+            $fiscal_year_id = FiscalYear::search([
+                    ['condo_id', '=', $invoice['condo_id']],
+                    ['date_from', '<=', $invoice['posting_date']],
+                    ['date_to', '>=', $invoice['posting_date']]
+                ])
+                ->first()['id'];
+
+            $fiscal_period_id = FiscalPeriod::search([
+                    ['fiscal_year_id', '=', $fiscal_year_id],
+                    ['date_from', '<=', $invoice['posting_date']],
+                    ['date_to', '>=', $invoice['posting_date']]
+                ])
+                ->first()['id'];
+
+            self::id($id)->write([
+                'fiscal_year_id'   => $fiscal_year_id,
+                'fiscal_period_id' => $fiscal_period_id
+            ]);
+        }
     }
 
     protected static function policyCanRemove($self) {

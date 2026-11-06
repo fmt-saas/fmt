@@ -401,8 +401,37 @@ class MiscOperation extends Model {
                 'help'          => 'Self voiding accounting entries will be left as `reversed`, and operation will be set back to `proforma`.',
                 'policies'      => [ 'can_unlock' ],
                 'function'      => 'doUnlock'
+            ],
+            'refresh_fiscal_assignment' => [
+                'description'   => 'Recompute the fiscal year and fiscal period from the posting date.',
+                'policies'      => [],
+                'function'      => 'doRefreshFiscalAssignment'
             ]
         ];
+    }
+
+    protected static function doRefreshFiscalAssignment($self, $orm) {
+        $self->read(['condo_id', 'posting_date']);
+        foreach($self as $id => $miscOperation) {
+            $fiscal_year_id = FiscalYear::search([
+                    ['condo_id', '=', $miscOperation['condo_id']],
+                    ['date_from', '<=', $miscOperation['posting_date']],
+                    ['date_to', '>=', $miscOperation['posting_date']]
+                ])
+                ->first()['id'];
+
+            $fiscal_period_id = FiscalPeriod::search([
+                    ['fiscal_year_id', '=', $fiscal_year_id],
+                    ['date_from', '<=', $miscOperation['posting_date']],
+                    ['date_to', '>=', $miscOperation['posting_date']]
+                ])
+                ->first()['id'];
+
+            self::id($id)->write([
+                'fiscal_year_id'   => $fiscal_year_id,
+                'fiscal_period_id' => $fiscal_period_id
+            ]);
+        }
     }
 
     private static function computeFundingBankAccount($condo_id) {
