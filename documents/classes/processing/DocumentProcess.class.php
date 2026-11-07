@@ -1756,6 +1756,8 @@ class DocumentProcess extends Model {
 
                     Document::id($documentProcess['document_id']['id'])->update(['purchase_invoice_id' => $invoice['id']]);
 
+                    Document::search(['origin_document_id', '=', $documentProcess['document_id']['id']])->update(['purchase_invoice_id' => $invoice['id']]);
+
                     if(isset($data['invoice_period'], $data['invoice_period']['start_date'], $data['invoice_period']['end_date'])) {
                         PurchaseInvoice::id($invoice['id'])
                             ->update([
@@ -2112,12 +2114,43 @@ class DocumentProcess extends Model {
 
     protected static function calcDocumentLink($self) {
         $result = [];
-        $self->read(['document_id' => ['hash']]);
-        foreach($self as $id => $invoice) {
-            if($invoice['document_id']) {
-                $result[$id] = '/document/' . $invoice['document_id']['hash'];
+        $self->read(['document_id' => ['content_type', 'hash']]);
+        foreach($self as $id => $documentProcess) {
+            $document_link = null;
+            if($documentProcess['document_id']['content_type'] === 'application/pdf') {
+                $document_link = '/document/' . $documentProcess['document_id']['hash'];
             }
+            else {
+                $displayDocuments = Document::search([
+                        ['origin_document_id', '=', $documentProcess['document_id']['id']],
+                        ['origin_relation_type', '=', 'rendering']
+                    ])
+                    ->read(['content_type', 'hash'])
+                    ->get();
+
+                // Keep legacy documents usable: records created before roles were
+                // introduced only have origin_document_id set.
+                if(empty($displayDocuments)) {
+                    $displayDocuments = Document::search(['origin_document_id', '=', $documentProcess['document_id']['id']])
+                        ->read(['content_type', 'hash'])
+                        ->get();
+                }
+                
+                foreach($displayDocuments as $displayDocument) {
+                    if($displayDocument['content_type'] === 'application/pdf') {
+                        $document_link = '/document/' . $displayDocument['hash'];
+                        break;
+                    }
+                }
+            }
+
+            if(!$document_link) {
+                $document_link = '/document/' . $documentProcess['document_id']['hash'];
+            }
+            
+            $result[$id] = $document_link;
         }
+
         return $result;
     }
 
