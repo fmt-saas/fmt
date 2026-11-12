@@ -37,7 +37,8 @@
                                             {
                                                 "type": "field",
                                                 "value": "has_error",
-                                                "width": "100%"
+                                                "width": "100%",
+                                                "readonly": true
                                             }
                                         ]
                                     }
