@@ -1637,7 +1637,7 @@ class Identity extends Model {
             'citizen_identification'
         ];
         $orm = Container::getInstance()->get(['orm']);
-        $ids = isset($values['id']) ? [$values['id']] : [];
+        $ids = $self->ids();
         foreach($validated_fields as $field) {
             if(!isset($result[$field]) || $result[$field] === '') {
                 continue;
@@ -1645,9 +1645,19 @@ class Identity extends Model {
 
             $value = $result[$field];
             $errors = $orm->validate(static::getType(), $ids, [$field => $value], true);
+            $field_errors = [];
+            foreach($errors as $validation_errors) {
+                if(isset($validation_errors[$field])) {
+                    $field_errors = array_merge($field_errors, $validation_errors[$field]);
+                }
+            }
+            if(empty($field_errors)) {
+                continue;
+            }
+
             $result[$field] = [
                 'value'  => $value,
-                'errors' => (object) ($errors[$field] ?? [])
+                'errors' => (object) $field_errors
             ];
         }
 
