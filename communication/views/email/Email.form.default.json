@@ -16,7 +16,7 @@
             "confirm": true,
             "visible": [
                 ["direction", "=", "incoming"],
-                ["attachment_import_status", "=", "unsupported"]
+                ["attachment_import_status", "in", ["unsupported", "missing"]]
             ]
         }
     ],
