@@ -1441,7 +1441,10 @@ class BankStatementLine extends Model {
         }
 
         if(isset($event['accounting_account_id']) && $event['accounting_account_id']) {
-            $account = Account::id($event['accounting_account_id'])->read(['code'])->first();
+            $account = Account::id($event['accounting_account_id'])
+                ->read(['code', 'operation_assignment'])
+                ->first();
+
             if($account) {
                 $result['accounting_account_code'] = $account['code'];
                 $result['is_expense'] = self::computeIsExpense($event['accounting_account_id']);
@@ -1449,6 +1452,9 @@ class BankStatementLine extends Model {
                 $result['is_transfer'] = self::computeIsTransfer($event['accounting_account_id']);
                 $result['is_owner'] = self::computeIsOwner($event['accounting_account_id']);
                 $result['is_supplier'] = self::computeIsSupplier($event['accounting_account_id']);
+                if($account['operation_assignment'] === 'bank_fees') {
+                    $result['transaction_type'] = 'bank_fee';
+                }
             }
         }
 
@@ -1716,12 +1722,62 @@ class BankStatementLine extends Model {
      *
      */
     protected static function doGenerateAccountingEntry($self) {
+        // #todo #temp - use generic labeling rules for this purpose
+        static $map_fee_codes = [
+            // Bank fees
+            'transfer_fee'                          => 'fee',
+            'cheque_fee'                            => 'fee',
+            'card_fee'                              => 'fee',
+            'direct_debit_fee'                      => 'fee',
+            'bill_fee'                              => 'fee',
+            'cash_fee'                              => 'fee',
+            'securities_fee'                        => 'fee',
+            'loan_fee'                              => 'fee',
+            'misc_fee'                              => 'fee',
+            'account_settlement_fee'                => 'fee',
+            'bank_fee'                              => 'fee',
+
+            // Bank fee reimbursements
+            'transfer_fee_reimbursement'            => 'fee_reimbursement',
+            'cheque_fee_reimbursement'              => 'fee_reimbursement',
+            'card_fee_reimbursement'                => 'fee_reimbursement',
+            'direct_debit_fee_reimbursement'        => 'fee_reimbursement',
+            'bill_fee_reimbursement'                => 'fee_reimbursement',
+            'cash_fee_reimbursement'                => 'fee_reimbursement',
+            'securities_fee_reimbursement'          => 'fee_reimbursement',
+            'loan_fee_reimbursement'                => 'fee_reimbursement',
+            'misc_fee_reimbursement'                => 'fee_reimbursement',
+            'account_settlement_fee_reimbursement'  => 'fee_reimbursement',
+            'bank_fee_reimbursement'                => 'fee_reimbursement',
+
+            // Bank fee corrections
+            'bank_fee_correction'                   => 'fee_correction',
+        ];
+
+        static $map_fee_translations = [
+            'fee' => [
+                'en' => 'Bank fees',
+                'fr' => 'Frais bancaires',
+                'nl' => 'Bankkosten',
+            ],
+            'fee_reimbursement' => [
+                'en' => 'Bank fee reimbursement',
+                'fr' => 'Remboursement de frais bancaires',
+                'nl' => 'Terugbetaling van bankkosten',
+            ],
+            'fee_correction' => [
+                'en' => 'Bank fee correction',
+                'fr' => 'Correction de frais bancaires',
+                'nl' => 'Correctie van bankkosten',
+            ],
+        ];
 
         $self->read([
                 'condo_id',
                 'date',
                 'amount',
                 'communication',
+                'transaction_type',
                 'logs',
                 'matching_id' => ['id', 'accounting_entry_lines_ids' => ['debit', 'credit']],
                 'accounting_account_id' => ['is_control_account', 'ownership_id'],
@@ -1782,6 +1838,12 @@ class BankStatementLine extends Model {
             $logs[] = "INFO - Default debit account {$debit_account_id}";
             $logs[] = "INFO - Default credit account {$credit_account_id}";
 
+            $bank_statement_line_communication = $bankStatementLine['communication'];
+
+            if(isset($map_fee_codes[$bankStatementLine['transaction_type']])) {
+                $bank_statement_line_communication = $map_fee_translations[$map_fee_codes[$bankStatementLine['transaction_type']]]['fr'];
+            }
+
             $accountingEntry = AccountingEntry::create([
                     'condo_id'               => $bankStatementLine['condo_id'],
                     'entry_date'             => $bankStatementLine['date'],
@@ -1790,7 +1852,7 @@ class BankStatementLine extends Model {
                     'bank_statement_line_id' => $id,
                     'bank_statement_id'      => $bankStatementLine['bank_statement_id']['id'],
                     'journal_id'             => $journal['id'],
-                    'description'            => $bankStatementLine['communication']
+                    'description'            => $bank_statement_line_communication
                 ])
                 ->first();
             $logs[] = "INFO - Created accounting entry {$accountingEntry['id']}";
@@ -1855,7 +1917,7 @@ class BankStatementLine extends Model {
 
                         $logs[] = "INFO - Retrieved funding Payment from Funding[{$payment['funding_id']}] with due amount {$funding['due_amount']}";
 
-                        $description = $bankStatementLine['communication'];
+                        $description = $bank_statement_line_communication;
 
                         if(strlen($description) <= 0) {
                             $description = $funding['description'];

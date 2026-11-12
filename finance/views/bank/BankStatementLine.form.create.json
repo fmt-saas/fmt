@@ -41,6 +41,12 @@
                                                 "value": "status",
                                                 "width": "33%",
                                                 "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "transaction_type",
+                                                "width": "33%",
+                                                "visible": false
                                             }
                                         ]
                                     },
