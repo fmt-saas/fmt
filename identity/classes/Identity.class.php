@@ -1631,34 +1631,27 @@ class Identity extends Model {
             $result['email'] = trim($event['email']);
         }
 
-        $validated_fields = [
-            'vat_number',
-            'registration_number',
-            'citizen_identification'
-        ];
-        $orm = Container::getInstance()->get(['orm']);
-        $ids = $self->ids();
-        foreach($validated_fields as $field) {
-            if(!isset($result[$field]) || $result[$field] === '') {
-                continue;
-            }
+        $validation_values = array_filter(
+            array_intersect_key(
+                $result,
+                array_flip(['vat_number', 'registration_number', 'citizen_identification'])
+            ),
+            fn($value) => $value !== ''
+        );
 
-            $value = $result[$field];
-            $errors = $orm->validate(static::getType(), $ids, [$field => $value], true);
-            $field_errors = [];
-            foreach($errors as $validation_errors) {
+        if(!empty($validation_values)) {
+            $orm = Container::getInstance()->get(['orm']);
+            $errors = $orm->validate(static::getType(), $self->ids(), $validation_values, true);
+            $validation_errors = reset($errors) ?: [];
+
+            foreach($validation_values as $field => $value) {
                 if(isset($validation_errors[$field])) {
-                    $field_errors = array_merge($field_errors, $validation_errors[$field]);
+                    $result[$field] = [
+                        'value'  => $value,
+                        'errors' => (object) $validation_errors[$field]
+                    ];
                 }
             }
-            if(empty($field_errors)) {
-                continue;
-            }
-
-            $result[$field] = [
-                'value'  => $value,
-                'errors' => (object) $field_errors
-            ];
         }
 
         return $result;
