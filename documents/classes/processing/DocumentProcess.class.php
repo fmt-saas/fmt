@@ -1927,7 +1927,7 @@ class DocumentProcess extends Model {
                         }
                         elseif(!empty($txn['transaction_message'])) {
                             // #memo - some banks provide structured communication in transaction message
-                            $communication_candidate = null;
+                            $communication_candidate = '';
                             if(preg_match('/\+{3}(\d{3})\/(\d{4})\/(\d{5})\+{3}/', $txn['transaction_message'], $m)) {
                                 $communication_candidate = str_replace(['/', '+'], '', $m[0]);
                             }
@@ -1937,19 +1937,20 @@ class DocumentProcess extends Model {
                             elseif(preg_match('/(\d{3})\/(\d{4})\/(\d{5})/', $txn['transaction_message'], $m)) {
                                 $communication_candidate = str_replace('/', '', $m[0]);
                             }
-                            elseif(preg_match('/(\d{12})/', $txn['transaction_message'], $m)) {
-                                $communication_candidate = $m[0];
+                            elseif(preg_match('/^\s*(\d{12})\s*$/', $txn['transaction_message'], $m)) {
+                                $communication_candidate = $m[1];
                             }
 
-                            if($communication_candidate && strlen($communication_candidate) === 12) {
-                                $mod = intval(substr($communication_candidate, 0, 10)) % 97 ?: 97;
-                                if(intval(substr($communication_candidate, -2)) === $mod) {
-                                    $communication = $communication_candidate;
-                                    $communication_type = 'VCS';
-                                }
+                            $mod = intval(substr($communication_candidate, 0, 10)) % 97 ?: 97;
+                            if($communication_candidate
+                                && strlen($communication_candidate) === 12
+                                && intval(substr($communication_candidate, -2)) === $mod
+                            ) {
+                                $communication = $communication_candidate;
+                                $communication_type = 'VCS';
                             }
                             else {
-                                $communication = substr($txn['transaction_message'], 0, 255);
+                                $communication = self::computeCleanedCommunication($data, $txn);
                                 $communication_type = 'free';
                             }
                         }
@@ -2015,6 +2016,82 @@ class DocumentProcess extends Model {
 
             self::id($id)->update($values);
         }
+    }
+
+    private static function computeCleanedCommunication(array $statement, array $transaction): string {
+        $transaction_message = preg_replace(
+            '/\s+/u',
+            ' ',
+            trim((string) ($transaction['transaction_message'] ?? ''))
+        );
+
+        if($transaction_message === '') {
+            return '';
+        }
+
+        $cleaned_communication = $transaction_message;
+        $known_values = [
+            $statement['account_holder'] ?? null,
+            $statement['bank_bic'] ?? null,
+            $transaction['client_reference'] ?? null,
+            $transaction['bank_reference'] ?? null,
+            $transaction['counterparty_name'] ?? null,
+            $transaction['counterparty_bic'] ?? null,
+            $transaction['counterparty_details'] ?? null
+        ];
+
+        foreach($known_values as $known_value) {
+            $known_value = preg_replace(
+                '/\s+/u',
+                ' ',
+                trim((string) $known_value)
+            );
+
+            if(strlen($known_value) < 4) {
+                continue;
+            }
+
+            $cleaned_communication = preg_replace(
+                '/' . preg_quote($known_value, '/') . '/iu',
+                ' ',
+                $cleaned_communication
+            );
+        }
+
+        $known_ibans = [
+            $statement['account_iban'] ?? null,
+            $transaction['counterparty_iban'] ?? null
+        ];
+
+        foreach($known_ibans as $known_iban) {
+            $known_iban = preg_replace('/[^A-Z0-9]/i', '', (string) $known_iban);
+            if($known_iban === '') {
+                continue;
+            }
+
+            $iban_pattern = implode(
+                '\s*',
+                array_map(
+                    static fn($char) => preg_quote($char, '/'),
+                    str_split($known_iban)
+                )
+            );
+
+            $cleaned_communication = preg_replace(
+                '/' . $iban_pattern . '/iu',
+                ' ',
+                $cleaned_communication
+            );
+        }
+
+        $cleaned_communication = preg_replace('/\s+/u', ' ', $cleaned_communication);
+        $cleaned_communication = trim($cleaned_communication, " \t\n\r\0\x0B-:;,|");
+
+        if($cleaned_communication === '') {
+            $cleaned_communication = $transaction_message;
+        }
+
+        return substr($cleaned_communication, 0, 255);
     }
 
     private static function computeLogsFromSchema(array $schema, array $data, string $prefix = '') {
