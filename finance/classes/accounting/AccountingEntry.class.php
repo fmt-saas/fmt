@@ -1088,7 +1088,7 @@ class AccountingEntry extends Model {
         }
 
         $result = Setting::parse_format($format, [
-                'year'      => $fiscal_year_code,
+                'year'      => substr($fiscal_year_code, -2),
                 'period'    => $fiscal_period_code,
                 'journal'   => $journal_code,
                 'condo'     => $condo_code,
