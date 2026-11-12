@@ -1562,7 +1562,7 @@ class Identity extends Model {
      * @param  Array    $values    Copy of the current (partial) state of the object (fields depend on the view).
      * @return Array    Associative array mapping fields with their resulting values.
      */
-    public static function onchange($self, $event, $values, $lang) {
+    public static function onchange($self, $event, $values, $lang, $orm) {
         $result = [];
         if(isset($event['type_id'])) {
             $type = IdentityType::id($event['type_id'])->read(['code'])->first();
@@ -1629,6 +1629,25 @@ class Identity extends Model {
 
         if(isset($event['email'])) {
             $result['email'] = trim($event['email']);
+        }
+
+        $validated_fields = [
+            'vat_number',
+            'registration_number',
+            'citizen_identification'
+        ];
+        $ids = isset($values['id']) ? [$values['id']] : [];
+        foreach($validated_fields as $field) {
+            if(!isset($result[$field]) || $result[$field] === '') {
+                continue;
+            }
+
+            $value = $result[$field];
+            $errors = $orm->validate(static::getType(), $ids, [$field => $value], true);
+            $result[$field] = [
+                'value'  => $value,
+                'errors' => (object) ($errors[$field] ?? [])
+            ];
         }
 
         return $result;
