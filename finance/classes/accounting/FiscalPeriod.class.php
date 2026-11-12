@@ -238,7 +238,7 @@ class FiscalPeriod extends Model {
 
         $self->read(['status']);
         foreach($self as $id => $fiscalPeriod) {
-            if($fiscalPeriod['status'] !== 'open') {
+            if(!in_array($fiscalPeriod['status'], ['open', 'preclosed'], true)) {
                 $result[$id] = [
                     'fiscal_period_not_open' => 'Accounting objects can only be renumbered for an open fiscal period.'
                 ];

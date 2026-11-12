@@ -1,6 +1,5 @@
 <?php
 
-use finance\accounting\AccountingEntry;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
 
@@ -31,12 +30,7 @@ if(count($cross_calendar_fiscal_years_ids)) {
         ->ids();
 
     if(count($open_fiscal_periods_ids)) {
-        AccountingEntry::search([
-                ['fiscal_year_id', 'in', $cross_calendar_fiscal_years_ids],
-                ['fiscal_period_id', 'in', $open_fiscal_periods_ids],
-                ['status', 'in', ['validated', 'reversed']],
-                ['is_temp', '=', false]
-            ])
-            ->do('reassign_entry_number');
+        FiscalPeriod::ids($open_fiscal_periods_ids)
+            ->do('renumber_accounting_entries');
     }
 }
