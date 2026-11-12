@@ -759,7 +759,7 @@ class AccountingEntry extends Model {
                 continue;
             }
 
-            if($accountingEntry['fiscal_period_id']['status'] !== 'open') {
+            if(!in_array($accountingEntry['fiscal_period_id']['status'], ['open', 'preclosed'], true)) {
                 $result[$id] = [
                     'fiscal_period_not_open' => 'Accounting entries can only be renumbered for an open fiscal period.'
                 ];
