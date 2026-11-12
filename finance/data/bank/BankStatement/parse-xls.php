@@ -348,7 +348,7 @@ $adapters = [
         return strtoupper(preg_replace('/[^a-z0-9]/i', '', (string) $reference));
     },
     // converts transaction type to a standardized code (string)
-    'transaction_type_normalize' => function($transaction_type) {
+    'transaction_type_normalize' => function($transaction_type, $amount = null) {
         $result = 'transfer';
         // CODA syntax is : %02{family} %02{operation} %03{section}
         // CAMT.053 uses domain, family, subfamily
@@ -611,6 +611,11 @@ $adapters = [
             '8099' => 'bank_fee_correction',
         ];
 
+        $normalized_transaction_type = trim((string) $transaction_type);
+        if(in_array($normalized_transaction_type, $map_transaction_codes, true)) {
+            return $normalized_transaction_type;
+        }
+
         // ISABEL prefixes the label with a CODA family and, optionally, an operation code.
         if(preg_match('/^\s*(\d{2})(?:\s*(\d{2}))?(?=\s|$)/u', (string) $transaction_type, $matches)) {
             if(isset($matches[2])) {
@@ -621,7 +626,19 @@ $adapters = [
             }
 
             if(isset($map_transaction_codes[$matches[1]])) {
-                return $map_transaction_codes[$matches[1]];
+                $transaction_type = $map_transaction_codes[$matches[1]];
+
+                // Family-only transfer codes do not indicate the direction.
+                if($transaction_type === 'transfer' && is_numeric($amount)) {
+                    if((float) $amount < 0) {
+                        return 'transfer_out';
+                    }
+                    if((float) $amount > 0) {
+                        return 'transfer_in';
+                    }
+                }
+
+                return $transaction_type;
             }
         }
 
@@ -809,6 +826,7 @@ $statement_fields = ['account_iban','statement_number','opening_balance','openin
 $statements = [];
 
 $headers = $lines[0];
+$transaction_amount_index = array_search('Transaction amount', $headers, true);
 
 // remember info for grouping lines by statement
 $statement = [];
@@ -852,7 +870,13 @@ for($i = 1, $n = count($lines); $i < $n; ++$i) {
         }
 
         if($adapter && is_callable($adapters[$adapter])) {
-            $value = $adapters[$adapter]($value);
+            if($adapter === 'transaction_type_normalize') {
+                $amount = $transaction_amount_index !== false ? ($line[$transaction_amount_index] ?? null) : null;
+                $value = $adapters[$adapter]($value, $amount);
+            }
+            else {
+                $value = $adapters[$adapter]($value);
+            }
         }
 
         if(in_array($target, $statement_fields)) {
