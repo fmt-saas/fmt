@@ -20,6 +20,7 @@ use identity\User;
 class BankStatementImport extends Model {
 
     protected const ALLOWED_EXTENSIONS = ['cod', 'coda', 'txt', 'csv', 'xls', 'xlsx'];
+    private const BANK_STATEMENT_SCHEMA = 'urn:fmt:json-schema:finance:bank-statement';
 
     public static function getName() {
         return 'Bank statement import';
@@ -127,16 +128,53 @@ class BankStatementImport extends Model {
             "Warnings: {$summary['warnings']}",
             "Errors: {$summary['errors']}",
             "Statements imported: {$summary['imported']}",
+            "Statements rejected (invalid): {$summary['invalid_statements']}",
             "Statements skipped (already imported): {$summary['already_imported']}",
             "Statements skipped (unknown accounts): {$summary['unknown_accounts']}"
         ]);
     }
 
     /**
+     * Remove document processes created during a failed atomic import.
+     */
+    private static function rollbackDocumentProcesses(array $document_processes_ids, $orm): bool {
+        $result = true;
+
+        foreach(array_reverse($document_processes_ids) as $document_process_id) {
+            try {
+                $documentProcess = DocumentProcess::id($document_process_id)
+                    ->read(['document_id', 'document_bank_statement_id'])
+                    ->first();
+
+                if(!$documentProcess) {
+                    continue;
+                }
+
+                if($documentProcess['document_bank_statement_id']) {
+                    $orm->delete(BankStatement::getType(), $documentProcess['document_bank_statement_id'], true);
+                }
+                if($documentProcess['document_id']) {
+                    $orm->delete(Document::getType(), $documentProcess['document_id'], true);
+                }
+                $orm->delete(DocumentProcess::getType(), $document_process_id, true);
+            }
+            catch(\Throwable $e) {
+                $result = false;
+                trigger_error(
+                    "APP::unable to rollback document process {$document_process_id} after failed bank statement import: {$e->getMessage()}",
+                    EQ_REPORT_ERROR
+                );
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Handle data update (i.e. file upload).
      * This method is used to create the document based on received data, and start the processing.
      */
-    protected static function onupdateData($self, $auth) {
+    protected static function onupdateData($self, $auth, $orm) {
         $self->read(['name', 'data', 'logs', 'has_error']);
 
         $documentType = DocumentType::search(['code', '=', 'bank_statement'])->first();
@@ -153,11 +191,12 @@ class BankStatementImport extends Model {
                 'imported'          => 0,
                 'already_imported'  => 0,
                 'unknown_accounts'  => 0,
+                'invalid_statements' => 0,
                 'warnings'          => 0,
                 'errors'            => 0
             ];
 
-            $has_error = (bool) ($bankStatementImport['has_error'] ?? false);
+            $has_error = false;
             $logs = [];
             if(isset($bankStatementImport['logs']) && strlen($bankStatementImport['logs']) > 0) {
                 $logs = explode("\n", $bankStatementImport['logs']);
@@ -174,28 +213,40 @@ class BankStatementImport extends Model {
             catch(\Exception $e) {
                 $has_error = true;
                 ++$summary['errors'];
-                $logs[] = "ERR  - Unable to read {$bankStatementImport['name']}: {$e->getMessage()}";
+                trigger_error(
+                    "APP::unable to read bank statement import {$id}: {$e->getMessage()}",
+                    EQ_REPORT_WARNING
+                );
+                $logs[] = "ERR  - Unable to read import {$bankStatementImport['name']}";
                 self::id($id)->write([
                     'summary'   => self::computeSummary($summary),
                     'logs'      => implode("\n", $logs),
                     'has_error' => $has_error
                 ]);
-                throw $e;
+                continue;
             }
 
             $summary['files'] = count($files);
             $logs[] = 'INFO - Found ' . count($files) . ' file(s) to process';
+            $prepared_statements = [];
+            $prepared_statement_keys = [];
+
+            if(count($files) === 0) {
+                $has_error = true;
+                ++$summary['errors'];
+                $logs[] = "ERR  - Invalid import {$bankStatementImport['name']}: no file was found";
+            }
 
             foreach($files as $file) {
-                $logs[] = "INFO - Start processing file {$file['name']}";
+                $logs[] = "INFO - Start validating file {$file['name']}";
 
                 try {
                     $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
                     if(!in_array($ext, static::ALLOWED_EXTENSIONS)) {
                         $has_error = true;
-                        ++$summary['warnings'];
-                        $logs[] = "WARN - Skipped file {$file['name']}: unsupported extension '{$ext}'";
+                        ++$summary['errors'];
+                        $logs[] = "ERR  - Invalid file {$file['name']}: unsupported extension '{$ext}'";
                         continue;
                     }
 
@@ -218,18 +269,59 @@ class BankStatementImport extends Model {
 
                     if(!is_array($data)) {
                         $has_error = true;
-                        ++$summary['warnings'];
-                        $logs[] = "WARN - Skipped file {$file['name']}: extraction returned no statement list";
+                        ++$summary['errors'];
+                        $logs[] = "ERR  - Invalid file {$file['name']}: extraction returned an invalid response";
                         continue;
                     }
 
                     $logs[] = 'INFO - Extracted ' . count($data) . " statement(s) from {$file['name']}";
+                    if(count($data) === 0) {
+                        $has_error = true;
+                        ++$summary['errors'];
+                        $logs[] = "ERR  - Invalid file {$file['name']}: no bank statement was found";
+                        continue;
+                    }
+
                     $file_name = pathinfo($file['name'], PATHINFO_FILENAME);
 
                     foreach($data as $i => $statement) {
-                        $statement_number = $statement['statement_number'] ?? 'unknown';
+                        if(!is_array($statement)) {
+                            $has_error = true;
+                            ++$summary['errors'];
+                            ++$summary['invalid_statements'];
+                            $logs[] = "ERR  - Invalid statement " . ($i + 1) . " in {$file['name']}: unexpected data structure";
+                            continue;
+                        }
 
-                        // ignore statement if relating to an irrelevant IBAN
+                        $statement_number = $statement['statement_number'] ?? 'unknown';
+                        $validation = \eQual::run('get', 'json-validate', [
+                            'json'      => json_encode($statement),
+                            'schema_id' => static::BANK_STATEMENT_SCHEMA
+                        ]);
+
+                        if(!is_array($validation) || !($validation['result'] ?? false)) {
+                            $has_error = true;
+                            ++$summary['errors'];
+                            ++$summary['invalid_statements'];
+                            $logs[] = "ERR  - Invalid statement {$statement_number} (item " . ($i + 1) . ") in {$file['name']}";
+
+                            $validation_errors = is_array($validation) ? ($validation['errors'] ?? []) : [];
+                            if(count($validation_errors) === 0) {
+                                $logs[] = "ERR  - Validation details are unavailable";
+                            }
+                            else {
+                                foreach($validation_errors as $path => $messages) {
+                                    $field = ltrim((string) $path, '/');
+                                    $field = $field !== '' ? str_replace('/', '.', $field) : 'statement';
+                                    foreach((array) $messages as $message) {
+                                        $logs[] = "ERR  - {$field}: {$message}";
+                                    }
+                                }
+                            }
+                            continue;
+                        }
+
+                        // Validate the related bank account before creating any document process.
                         $iban = strtoupper(preg_replace('/\s+/', '', $statement['account_iban'] ?? ''));
                         $bankAccount = CondominiumBankAccount::search([
                                 ['bank_account_iban', '=', $iban],
@@ -242,11 +334,27 @@ class BankStatementImport extends Model {
                             ++$summary['unknown_accounts'];
                             ++$summary['warnings'];
                             $has_error = true;
-                            $logs[] = "WARN - Skipped statement {$statement_number}: no active condominium bank account for IBAN {$iban}";
+                            $logs[] = "WARN - Statement {$statement_number} cannot be imported: no active condominium bank account for IBAN {$iban}";
                             continue;
                         }
 
-                        // ignore statement if already imported
+                        // Validate duplicates before creating any document process.
+                        $statement_key = implode('|', [
+                            $iban,
+                            $statement['statement_number'],
+                            $statement['opening_date'],
+                            round($statement['opening_balance'], 2),
+                            $statement['closing_date'],
+                            round($statement['closing_balance'], 2)
+                        ]);
+                        if(isset($prepared_statement_keys[$statement_key])) {
+                            ++$summary['already_imported'];
+                            $has_error = true;
+                            ++$summary['warnings'];
+                            $logs[] = "WARN - Statement {$statement_number} cannot be imported: duplicate statement in the same import";
+                            continue;
+                        }
+
                         $existingBankStatement = BankStatement::search([
                                 ['bank_account_iban', '=', $iban],
                                 ['statement_number', '=', $statement['statement_number']],
@@ -261,55 +369,98 @@ class BankStatementImport extends Model {
                             ++$summary['already_imported'];
                             $has_error = true;
                             ++$summary['warnings'];
-                            $logs[] = "WARN - Skipped statement {$statement_number}: already imported as bank statement {$existingBankStatement['id']}";
+                            $logs[] = "WARN - Statement {$statement_number} cannot be imported: already imported as bank statement {$existingBankStatement['id']}";
                             continue;
                         }
 
-                        $binary = self::computeXlsxBinaryFromStatement($statement);
-                        // this will trigger the creation of the Document and the Document Processing, which should not interrupt the import even if it fails
-                        try {
-                            $documentProcess = DocumentProcess::create([
-                                    'name'                  => $file_name . '(' . ($i+1) . ').' . 'xlsx',
-                                    'document_type_id'      => $documentType['id'],
-                                    'assigned_employee_id'  => $user['employee_id']
-                                ])
-                                ->first();
-
-                            DocumentProcess::id($documentProcess['id'])->update(['data' => $binary]);
-                            ++$summary['imported'];
-                            $logs[] = "INFO - Processed statement {$statement_number} from {$file['name']} as document process {$documentProcess['id']}";
-                        }
-                        catch(\Exception $e) {
-                            $has_error = true;
-                            ++$summary['errors'];
-                            $logs[] = "ERR  - Unable to process statement {$statement_number}: {$e->getMessage()}";
-                        }
+                        $prepared_statement_keys[$statement_key] = true;
+                        $prepared_statements[] = [
+                            'name'             => $file_name . '(' . ($i + 1) . ').xlsx',
+                            'file_name'        => $file['name'],
+                            'statement_number' => $statement_number,
+                            'binary'           => self::computeXlsxBinaryFromStatement($statement)
+                        ];
                     }
 
-                    $logs[] = "INFO - Finished processing file {$file['name']}";
+                    $logs[] = "INFO - Finished validating file {$file['name']}";
                 }
                 catch(\Exception $e) {
                     $has_error = true;
                     ++$summary['errors'];
-                    $logs[] = "ERR  - Error while processing file - Invalid CODA file {$file['name']}";
-                    // keep on processing other files
+                    trigger_error(
+                        "APP::error while validating bank statement file {$file['name']}: {$e->getMessage()}",
+                        EQ_REPORT_WARNING
+                    );
+                    $logs[] = "ERR  - Invalid bank statement file {$file['name']}";
                 }
             }
 
-            $logs[] = "INFO - Finished bank statement import {$id}";
-
-            if(!$has_error) {
-                // Remove current import object after successful import.
-                self::id($id)->delete(true);
+            if($has_error) {
+                $logs[] = "ERR  - Import aborted during validation: no document process was created";
+                $logs[] = "INFO - Finished bank statement import {$id} with errors";
+                self::id($id)->write([
+                    'summary'   => self::computeSummary($summary),
+                    'logs'      => implode("\n", $logs),
+                    'has_error' => true
+                ]);
                 continue;
             }
 
-            self::id($id)->write([
-                'data'      => null,
-                'summary'   => self::computeSummary($summary),
-                'logs'      => implode("\n", $logs),
-                'has_error' => $has_error
-            ]);
+            $created_document_processes_ids = [];
+            foreach($prepared_statements as $prepared_statement) {
+                try {
+                    $documentProcess = DocumentProcess::create([
+                            'name'                  => $prepared_statement['name'],
+                            'document_type_id'      => $documentType['id'],
+                            'assigned_employee_id'  => $user['employee_id']
+                        ])
+                        ->first();
+
+                    if(!$documentProcess) {
+                        throw new \Exception('document_process_creation_failed', EQ_ERROR_UNKNOWN);
+                    }
+
+                    $created_document_processes_ids[] = $documentProcess['id'];
+                    DocumentProcess::id($documentProcess['id'])->update(['data' => $prepared_statement['binary']]);
+
+                    ++$summary['imported'];
+                    $logs[] = "INFO - Processed statement {$prepared_statement['statement_number']} from {$prepared_statement['file_name']} as document process {$documentProcess['id']}";
+                }
+                catch(\Exception $e) {
+                    $has_error = true;
+                    ++$summary['errors'];
+                    trigger_error(
+                        "APP::unable to create document process for bank statement import {$id}: {$e->getMessage()}",
+                        EQ_REPORT_ERROR
+                    );
+                    $logs[] = "ERR  - Unable to create all bank statement document processes";
+                    break;
+                }
+            }
+
+            if($has_error) {
+                $rollback_success = self::rollbackDocumentProcesses($created_document_processes_ids, $orm);
+                if($rollback_success) {
+                    $summary['imported'] = 0;
+                    $logs[] = "INFO - Rolled back all document processes created by this import";
+                }
+                else {
+                    ++$summary['errors'];
+                    $logs[] = "ERR  - Automatic rollback failed; manual cleanup is required";
+                }
+
+                $logs[] = "INFO - Finished bank statement import {$id} with errors";
+                self::id($id)->write([
+                    'summary'   => self::computeSummary($summary),
+                    'logs'      => implode("\n", $logs),
+                    'has_error' => true
+                ]);
+                continue;
+            }
+
+            $logs[] = "INFO - Finished bank statement import {$id}";
+            // Remove current import object after successful import.
+            self::id($id)->delete(true);
         }
     }
 

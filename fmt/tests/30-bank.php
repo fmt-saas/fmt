@@ -11,6 +11,8 @@ use documents\processing\DocumentProcess;
 use finance\bank\BankStatement;
 use finance\bank\BankStatementImport;
 use finance\bank\CondominiumBankAccount;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use realestate\property\Condominium;
 
 $providers = eQual::inject(['context', 'orm', 'auth', 'access']);
@@ -72,13 +74,11 @@ $prepareBankStatementImport = function ($import_name, $ibans) use ($providers) {
     ];
 };
 
-$runBankStatementImport = function ($data, $fixture_file) {
-    $binary = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.$fixture_file);
-
+$runBankStatementImportBinary = function ($data, $binary) {
     BankStatementImport::id($data['bank_statement_import_id'])->update(['data' => $binary]);
 
     $bankStatementImport = BankStatementImport::id($data['bank_statement_import_id'])
-        ->read(['summary', 'logs'])
+        ->read(['summary', 'logs', 'has_error'])
         ->first(true);
     $data = array_merge(['bank_statement_import' => $bankStatementImport], $data);
 
@@ -101,6 +101,11 @@ $runBankStatementImport = function ($data, $fixture_file) {
     }
 
     return $data;
+};
+
+$runBankStatementImport = function ($data, $fixture_file) use ($runBankStatementImportBinary) {
+    $binary = file_get_contents(EQ_BASEDIR.'/packages/fmt/tests/'.$fixture_file);
+    return $runBankStatementImportBinary($data, $binary);
 };
 
 $cleanupBankStatementImport = function ($data) use ($providers) {
@@ -400,6 +405,71 @@ $tests = [
             }
 
             return $data['bank_statement_import'] === null;
+        },
+        'rollback'    => function ($data) use ($cleanupBankStatementImport) {
+            $cleanupBankStatementImport($data);
+        }
+    ],
+
+    '3008' => [
+        'description' => "Reject an entire XLSX bank statement import when one statement is invalid.",
+        'help'        => "Ensure validation is atomic and no DocumentProcess is created when one transaction has a missing mandatory value.",
+        'arrange'     => function () use ($prepareBankStatementImport) {
+            $data = $prepareBankStatementImport(
+                'test_3008_atomic_invalid_xlsx.xlsx',
+                [
+                    'BE02068937205640',
+                    'BE20001919800556',
+                    'BE71363174156769',
+                    'BE53735029795253'
+                ]
+            );
+
+            for($i = 1; $i <= 8; ++$i) {
+                $data['expected_process_names'][] = "test_3008_atomic_invalid_xlsx({$i}).xlsx";
+            }
+
+            return $data;
+        },
+        'act'         => function ($data) use ($runBankStatementImportBinary) {
+            $spreadsheet = IOFactory::load(EQ_BASEDIR.'/packages/fmt/tests/bank_isabel.xlsx');
+            $sheet = $spreadsheet->getActiveSheet();
+
+            $transaction_amount_column = null;
+            foreach($sheet->getRowIterator(1, 1) as $header_row) {
+                foreach($header_row->getCellIterator() as $cell) {
+                    if($cell->getValue() === 'Transaction amount') {
+                        $transaction_amount_column = $cell->getColumn();
+                        break 2;
+                    }
+                }
+            }
+
+            if($transaction_amount_column === null) {
+                throw new \Exception('Missing Transaction amount column in bank_isabel.xlsx fixture.');
+            }
+
+            $sheet->setCellValue($transaction_amount_column . '2', null);
+
+            $stream = fopen('php://memory', 'w+');
+            (new Xlsx($spreadsheet))->save($stream);
+            rewind($stream);
+            $binary = stream_get_contents($stream);
+            fclose($stream);
+
+            return $runBankStatementImportBinary($data, $binary);
+        },
+        'assert'      => function ($data) {
+            if(count($data['document_processes']) !== 0 || !$data['bank_statement_import']) {
+                return false;
+            }
+
+            $import = $data['bank_statement_import'];
+            return $import['has_error']
+                && str_contains($import['summary'], 'Statements imported: 0')
+                && str_contains($import['summary'], 'Statements rejected (invalid): 1')
+                && str_contains($import['logs'], 'transactions.0.amount')
+                && str_contains($import['logs'], 'Import aborted during validation: no document process was created');
         },
         'rollback'    => function ($data) use ($cleanupBankStatementImport) {
             $cleanupBankStatementImport($data);

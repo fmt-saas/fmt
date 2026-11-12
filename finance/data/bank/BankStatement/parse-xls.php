@@ -279,7 +279,7 @@ $adapters = [
             ]
         ];
 
-        $type = strtolower(TextTransformer::toAscii($type));
+        $type = strtolower(TextTransformer::toAscii((string) $type));
 
         foreach($map_account_types['current'] as $needle) {
             if(strpos($type, $needle) !== false) {
@@ -333,11 +333,19 @@ $adapters = [
         return substr($account_number, 0, $iban_length);
     },
     'bic_normalize' => function($bic) {
+        if($bic === null || $bic === '') {
+            return null;
+        }
+
         // BIC8 as of ISO 9362
-        return substr(strtoupper(str_replace(' ', '', $bic)), 0, 8);
+        return substr(strtoupper(str_replace(' ', '', (string) $bic)), 0, 8);
     },
     'payment_reference_normalize' => function($reference) {
-        return strtoupper(preg_replace('/[^a-z0-9]/i', '', $reference));
+        if($reference === null || $reference === '') {
+            return '';
+        }
+
+        return strtoupper(preg_replace('/[^a-z0-9]/i', '', (string) $reference));
     },
     // converts transaction type to a standardized code (string)
     'transaction_type_normalize' => function($transaction_type) {
@@ -623,10 +631,21 @@ $adapters = [
         return trim((string) $str);
     },
     'string_upper' => function($str) {
-        return strtoupper($str);
+        return strtoupper((string) $str);
     },
     'date_parse' => function($timestamp) {
-        return date('c', $timestamp);
+        if($timestamp === null || $timestamp === '') {
+            return null;
+        }
+
+        if(!is_numeric($timestamp)) {
+            $timestamp = strtotime((string) $timestamp);
+            if($timestamp === false) {
+                return null;
+            }
+        }
+
+        return date('c', (int) $timestamp);
     }
 ];
 
@@ -826,8 +845,8 @@ for($i = 1, $n = count($lines); $i < $n; ++$i) {
 
         // handle special case for account IBAN used as an account identifier, potentially holding non-SEPA standard data
         if($target === 'account_iban') {
-            if(preg_match('/-/', $value)) {
-                $parts = explode('-', str_replace(' ', '', $value), 2);
+            if(preg_match('/-/', (string) $value)) {
+                $parts = explode('-', str_replace(' ', '', (string) $value), 2);
                 $statement['account_suffix'] = $parts[1];
             }
         }
