@@ -1199,13 +1199,20 @@ try {
             $result['logs'][] = "INFO- assigned identity id {$identity['id']} to owner with code {$owner['code']}";
         }
 
+        $ownerships_with_active_lots = [];
+        foreach($data['Ownerships_history'] as $ownership_history) {
+            if(!strtotime($ownership_history['date_to'])) {
+                $ownerships_with_active_lots[$ownership_history['ownership_code']] = true;
+            }
+        }
+
         // ownerships pass 1 - create ownerships
         foreach($data['Ownerships_history'] as $ownership_history) {
             // prevent creating same ownership multiple times
             $ownership_id = $map_ownerships[$ownership_history['ownership_code']] ?? null;
 
             $date_to = strtotime($ownership_history['date_to']);
-            if(!$date_to) {
+            if(!$date_to || isset($ownerships_with_active_lots[$ownership_history['ownership_code']])) {
                 $date_to = null;
             }
 
