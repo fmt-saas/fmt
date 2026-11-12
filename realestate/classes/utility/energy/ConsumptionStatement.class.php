@@ -776,7 +776,7 @@ class ConsumptionStatement extends \equal\orm\Model {
         $self->do('integrate');
     }
 
-    protected static function oninstantitate($self) {
+    protected static function oninstantiate($self) {
         $self->do('sync_submission_lines');
     }
 

@@ -78,12 +78,12 @@ class ConsumptionFileSection extends \equal\orm\Model {
     public static function getActions() {
         return array_merge(parent::getActions(), [
             'sync_draft_allocations' => [
-                'description' => 'Synchronize draft statement allocations with this section.',
+                'description' => 'Synchronize draft statement submission lines with this section.',
                 'policies'    => [],
                 'function'    => 'doSyncDraftAllocations'
             ],
             'remove_draft_allocations' => [
-                'description' => 'Remove draft statement allocations originating from this section.',
+                'description' => 'Remove draft statement submission lines originating from this section.',
                 'policies'    => [],
                 'function'    => 'doRemoveDraftAllocations'
             ]
@@ -136,7 +136,7 @@ class ConsumptionFileSection extends \equal\orm\Model {
                 ->read(['id']);
 
             foreach($statements as $statement_id => $statement) {
-                $allocation = ConsumptionStatementAllocationLine::search([
+                $submissionLine = ConsumptionStatementSubmissionLine::search([
                         ['consumption_statement_id', '=', $statement_id],
                         ['consumption_file_section_id', '=', $section_id]
                     ])
@@ -148,8 +148,8 @@ class ConsumptionFileSection extends \equal\orm\Model {
                     'apportionment_id' => $apportionment_id
                 ];
 
-                if($allocation) {
-                    ConsumptionStatementSubmissionLine::id($allocation['id'])->update($values);
+                if($submissionLine) {
+                    ConsumptionStatementSubmissionLine::id($submissionLine['id'])->update($values);
                     continue;
                 }
 
@@ -175,7 +175,7 @@ class ConsumptionFileSection extends \equal\orm\Model {
                 continue;
             }
 
-            ConsumptionStatementAllocationLine::search([
+            ConsumptionStatementSubmissionLine::search([
                     ['consumption_statement_id', 'in', $statement_ids],
                     ['consumption_file_section_id', '=', $section_id]
                 ])
