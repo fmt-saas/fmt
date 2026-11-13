@@ -1604,6 +1604,12 @@ class Identity extends Model {
         if(isset($event['registration_number'])) {
             // remove spacing chars
             $result['registration_number'] = preg_replace('/[^0-9]/i', '', $event['registration_number']);
+
+            if(($values['has_vat'] ?? false) && ($values['address_country'] ?? null) === 'BE') {
+                $result['vat_number'] = $result['registration_number'] === ''
+                    ? ''
+                    : 'BE' . $result['registration_number'];
+            }
         }
 
         if(isset($event['bank_account_iban'])) {
