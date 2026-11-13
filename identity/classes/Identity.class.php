@@ -1631,6 +1631,7 @@ class Identity extends Model {
             $result['email'] = trim($event['email']);
         }
 
+        /*
         $validation_values = array_filter(
             array_intersect_key(
                 $result,
@@ -1653,6 +1654,7 @@ class Identity extends Model {
                 }
             }
         }
+        */
 
         return $result;
     }
