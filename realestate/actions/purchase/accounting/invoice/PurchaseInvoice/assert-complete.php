@@ -275,20 +275,15 @@ $dispatch->cancel('purchase.accounting.invoice.missing_private_expense_data', $c
     Additional test: check uniqueness of the invoice
 */
 
-// a) document_id targets a document already linked to another imported document -> blocking error (cancel processing)
+// a) document_id targets a document with the same binary content -> blocking error (cancel processing)
 if($purchaseInvoice['document_id']) {
     $existingDocument = Document::search([
             ['id', '<>', $purchaseInvoice['document_id']['id']],
-            ['condo_id', '=', $purchaseInvoice['condo_id']],
             ['hash_sha256', '=', $purchaseInvoice['document_id']['hash_sha256']]
         ])
-        ->read(['document_process_id' => ['status']])
         ->first();
 
-    if($existingDocument
-        && isset($existingDocument['document_process_id']['status'])
-        && !in_array($existingDocument['document_process_id']['status'], ['cancelled', 'removed'])
-    ) {
+    if($existingDocument) {
         $dispatch->dispatch('documents.import.duplicate_document', $class, $id, 'important', $script, ['id' => $id]);
         $dispatch->dispatch('documents.import.duplicate_document', 'documents\processing\DocumentProcess', $purchaseInvoice['document_process_id'], 'important');
         PurchaseInvoice::id($id)->do('remove');

@@ -62,6 +62,14 @@ class ConsumptionFile extends \equal\orm\Model {
                 'ondetach'       => 'delete'
             ],
 
+            'consumption_statements_ids' => [
+                'type'           => 'one2many',
+                'foreign_object' => 'realestate\utility\energy\ConsumptionStatement',
+                'foreign_field'  => 'consumption_file_id',
+                'description'    => 'Property lot references configured for the consumption file.',
+                'domain'         => ['condo_id', '=', 'object.condo_id']
+            ],
+
             'status' => [
                 'type'        => 'string',
                 'description' => 'Current configuration status of the consumption file.',
