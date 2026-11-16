@@ -1732,8 +1732,10 @@ class BankStatementLine extends Model {
             'bill_fee'                              => 'fee',
             'cash_fee'                              => 'fee',
             'securities_fee'                        => 'fee',
+            'loan'                                  => 'fee',
             'loan_fee'                              => 'fee',
             'misc_fee'                              => 'fee',
+            'account_settlement'                    => 'fee',
             'account_settlement_fee'                => 'fee',
             'bank_fee'                              => 'fee',
 
@@ -1752,6 +1754,10 @@ class BankStatementLine extends Model {
 
             // Bank fee corrections
             'bank_fee_correction'                   => 'fee_correction',
+            'account_settlement_out'                => 'fee_correction',
+            'account_settlement_in'                 => 'fee_correction',
+            'loan_repayment'                        => 'fee_correction',
+            'loan_disbursement'                     => 'fee_correction'
         ];
 
         static $map_fee_translations = [

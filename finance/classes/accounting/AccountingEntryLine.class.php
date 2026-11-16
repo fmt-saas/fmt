@@ -38,6 +38,7 @@ class AccountingEntryLine extends Model {
 
             'description' => [
                 'type'              => 'string',
+                'multilang'         => true,
                 'description'       => 'Explanation or internal notes about the operation.'
             ],
 
