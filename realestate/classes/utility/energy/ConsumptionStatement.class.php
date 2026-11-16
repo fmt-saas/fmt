@@ -439,7 +439,8 @@ class ConsumptionStatement extends \equal\orm\Model {
 
             $accountingEntry = AccountingEntry::search([
                     ['origin_object_class', '=', self::getType()],
-                    ['origin_object_id', '=', $id]
+                    ['origin_object_id', '=', $id],
+                    ['status', '<>', 'pending']
                 ])
                 ->first();
             if($accountingEntry) {
@@ -894,10 +895,21 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'ownership_id',
                 'property_lot_id',
                 'amount'
+            ],
+            'consumption_statement_allocation_lines_ids' => [
+                'account_id',
+                'amount'
             ]
         ]);
 
         foreach($self as $id => $consumptionStatement) {
+            AccountingEntry::search([
+                    ['status', '=', 'pending'],
+                    ['origin_object_class', '=', self::getType()],
+                    ['origin_object_id', '=', $id]
+                ])
+                ->delete(true);
+
             $journal = Journal::search([
                     ['condo_id', '=', $consumptionStatement['condo_id']],
                     ['journal_type', '=', 'MISC']
@@ -929,6 +941,20 @@ class ConsumptionStatement extends \equal\orm\Model {
                     'description'          => $description,
                     'debit'                => $amount > 0.0 ? abs($amount) : 0.0,
                     'credit'               => $amount < 0.0 ? abs($amount) : 0.0
+                ]);
+            }
+
+            foreach($consumptionStatement['consumption_statement_allocation_lines_ids'] as $allocationLine) {
+                $amount = round((float) $allocationLine['amount'], 2);
+                AccountingEntryLine::create([
+                    'condo_id'             => $consumptionStatement['condo_id'],
+                    'accounting_entry_id'  => $accountingEntry['id'],
+                    'account_id'           => $allocationLine['account_id'],
+                    'allocation_date_from' => $consumptionStatement['date_from'],
+                    'allocation_date_to'   => $consumptionStatement['date_to'],
+                    'description'          => $description,
+                    'debit'                => $amount < 0.0 ? abs($amount) : 0.0,
+                    'credit'               => $amount > 0.0 ? abs($amount) : 0.0
                 ]);
             }
         }
