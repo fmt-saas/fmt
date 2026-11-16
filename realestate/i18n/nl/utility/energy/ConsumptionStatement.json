@@ -16,7 +16,7 @@
         "has_deduct_advances": {"label": "Voorschotten aftrekken", "description": "Geeft aan of voorschotten worden afgetrokken zonder verdelingsregels aan te maken.", "help": "Schakel deze optie in om voorschotten af te trekken zonder verdelingsregels aan te maken."},
         "consumption_statement_calculation_lines_ids": {"label": "Berekeningsregels", "description": "Bedragen berekend voor kavels en eigendomsperioden.", "help": "Berekeningsregels zijn alleen bewerkbaar in de status Te coderen."},
         "consumption_statement_allocation_lines_ids": {"label": "Verdelingsregels", "description": "Bedragen verdeeld over rekeningen en verdeelsleutels.", "help": "Verdelingsregels zijn bewerkbaar in concept en pro forma."},
-        "allocation_provider_information": {"label": "Te communiceren informatie", "description": "Samenvatting van de aangifteregels voor de verdeler.", "help": "Kopieer deze automatisch gegenereerde tekst bij het verzenden van de instructies voor de afrekening."},
+        "allocation_provider_information": {"label": "Te communiceren informatie", "description": "Samenvatting van de aangifteregels voor de verdeler.", "help": "Deze tekst wordt met de aangifteregels gesynchroniseerd en blijft bewerkbaar tot en met de pro-formafase."},
         "statement_total": {"label": "Totaal van de afrekening", "description": "Totaalbedrag op de afrekening.", "help": "De totalen van verdelingen en regels worden met dit bedrag vergeleken."},
         "status": {"label": "Status", "description": "Huidige verwerkingsstatus.", "help": "De workflow staat alleen voorwaartse overgangen toe.", "selection": {"draft": "Concept", "proforma": "Pro forma", "sent": "Verzonden", "to_encode": "Te coderen", "encoded": "Gecodeerd", "integrated": "Geïntegreerd"}}
     },
@@ -45,6 +45,7 @@
     "error": {
         "errors": {
             "statement_not_draft": "Het verbruiksdossier kan alleen worden gewijzigd wanneer de afrekening in concept staat.",
+            "allocation_provider_information_locked": "De informatie voor de verdeler kan alleen in concept of pro forma worden bewerkt.",
             "invalid_status": "Regels kunnen alleen in de status Te coderen worden gegenereerd.",
             "missing_allocation_apportionment": "Elke verdeling moet vóór het coderen een verdeelsleutel hebben.",
             "allocations_total_mismatch": "Het totaal van de verdelingen moet overeenkomen met het totaal van de afrekening.",

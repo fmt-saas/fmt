@@ -149,7 +149,12 @@
                                     {
                                         "width": "100%",
                                         "items": [
-                                            {"type": "field", "value": "consumption_statement_submission_lines_ids", "width": "100%", "widget": {"view": "list.default"}}
+                                            {
+                                                "type": "field",
+                                                "value": "consumption_statement_submission_lines_ids",
+                                                "width": "100%",
+                                                "widget": {"view": "list.default"}
+                                            }
                                         ]
                                     }
                                 ]
@@ -159,7 +164,6 @@
                     {
                         "id": "section.allocation_provider",
                         "label": "Allocation provider",
-                        "visible": ["status", "=", "proforma"],
                         "rows": [
                             {
                                 "columns": [
@@ -170,6 +174,13 @@
                                                 "type": "field",
                                                 "value": "allocation_provider_information",
                                                 "width": "100%",
+                                                "visible": ["status", "in", ["draft", "proforma"]]
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "allocation_provider_information",
+                                                "width": "100%",
+                                                "visible": ["status", "not in", ["draft", "proforma"]],
                                                 "widget": {"readonly": true}
                                             }
                                         ]

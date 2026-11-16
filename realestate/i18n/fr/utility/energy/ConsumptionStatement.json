@@ -16,7 +16,7 @@
         "has_deduct_advances": {"label": "Déduire les provisions", "description": "Indique si les provisions sont déduites sans créer de lignes de ventilation.", "help": "Activez cette option pour déduire les provisions sans créer de lignes de ventilation."},
         "consumption_statement_calculation_lines_ids": {"label": "Lignes de calcul", "description": "Montants calculés pour les lots et périodes de propriété.", "help": "Les lignes de calcul sont modifiables uniquement au statut À encoder."},
         "consumption_statement_allocation_lines_ids": {"label": "Lignes de ventilation", "description": "Montants ventilés par compte et clé de répartition.", "help": "Les lignes de ventilation sont modifiables en brouillon et pro forma."},
-        "allocation_provider_information": {"label": "Informations à communiquer", "description": "Résumé des lignes de déclaration à communiquer au répartiteur.", "help": "Copiez ce texte généré automatiquement lors de l'envoi des instructions du relevé."},
+        "allocation_provider_information": {"label": "Informations à communiquer", "description": "Résumé des lignes de déclaration à communiquer au répartiteur.", "help": "Ce texte est synchronisé avec les lignes de déclaration et reste modifiable jusqu'au stade pro forma inclus."},
         "statement_total": {"label": "Total du relevé", "description": "Montant total indiqué sur le relevé.", "help": "Les totaux des ventilations et des lignes sont comparés à ce montant."},
         "status": {"label": "Statut", "description": "Statut actuel du traitement.", "help": "Le workflow autorise uniquement les transitions vers l'avant.", "selection": {"draft": "Brouillon", "proforma": "Pro forma", "sent": "Envoyé", "to_encode": "À encoder", "encoded": "Encodé", "integrated": "Intégré"}}
     },
@@ -46,6 +46,7 @@
     "error": {
         "errors": {
             "statement_not_draft": "Le dossier de consommation ne peut être modifié que lorsque le relevé est en brouillon.",
+            "allocation_provider_information_locked": "Les informations destinées au répartiteur ne sont modifiables qu'en brouillon ou en pro forma.",
             "invalid_status": "Les lignes ne peuvent être générées qu'au statut À encoder.",
             "missing_allocation_apportionment": "Chaque ventilation doit avoir une clé de répartition avant l'encodage.",
             "allocations_total_mismatch": "Le total des ventilations doit correspondre au total du relevé.",

@@ -131,14 +131,9 @@ class ConsumptionStatement extends \equal\orm\Model {
             ],
 
             'allocation_provider_information' => [
-                'type'        => 'computed',
-                'result_type' => 'string',
+                'type'        => 'string',
                 'usage'       => 'text/plain',
-                'description' => 'Submission-line summary for the allocation provider.',
-                'function'    => 'calcAllocationProviderInformation',
-                'store'       => false,
-                'readonly'    => true,
-                'visible'     => ['status', '=', 'proforma']
+                'description' => 'Submission-line summary for the allocation provider.'
             ],
 
             'statement_total' => [
@@ -243,6 +238,11 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'policies'    => [],
                 'function'    => 'doSyncSubmissionLines'
             ],
+            'sync_allocation_provider_information' => [
+                'description' => 'Synchronize the allocation-provider information with the statement submission lines.',
+                'policies'    => ['allocation_provider_information_is_editable'],
+                'function'    => 'doSyncAllocationProviderInformation'
+            ],
             'apply_rounding_allocation' => [
                 'description' => 'Balance a statement allocation difference below two euros with the rounding account.',
                 'policies'    => ['allocations_can_be_balanced'],
@@ -266,6 +266,10 @@ class ConsumptionStatement extends \equal\orm\Model {
             'statement_is_draft' => [
                 'description' => 'Checks that the consumption statement is still in draft.',
                 'function'    => 'policyStatementIsDraft'
+            ],
+            'allocation_provider_information_is_editable' => [
+                'description' => 'Checks that the allocation-provider information is still editable.',
+                'function'    => 'policyAllocationProviderInformationIsEditable'
             ],
             'can_generate_statement_lines' => [
                 'description' => 'Checks that statement lines can be generated.',
@@ -293,8 +297,9 @@ class ConsumptionStatement extends \equal\orm\Model {
     public static function getOperationPolicies(): array {
         return [
             EQ_R_UPDATE => [
-                '*'                   => true,
-                'consumption_file_id' => ['statement_is_draft']
+                '*'                               => true,
+                'consumption_file_id'             => ['statement_is_draft'],
+                'allocation_provider_information' => ['allocation_provider_information_is_editable']
             ]
         ];
     }
@@ -312,6 +317,17 @@ class ConsumptionStatement extends \equal\orm\Model {
         foreach($self as $id => $consumptionStatement) {
             if($consumptionStatement['status'] !== 'draft') {
                 $result[$id]['statement_not_draft'] = 'The consumption file can only be changed while the statement is in draft.';
+            }
+        }
+        return $result;
+    }
+
+    protected static function policyAllocationProviderInformationIsEditable($self): array {
+        $result = [];
+        $self->read(['status']);
+        foreach($self as $id => $consumptionStatement) {
+            if(!in_array($consumptionStatement['status'], ['draft', 'proforma'], true)) {
+                $result[$id]['allocation_provider_information_locked'] = 'Allocation-provider information can only be edited while the statement is in draft or proforma.';
             }
         }
         return $result;
@@ -642,8 +658,7 @@ class ConsumptionStatement extends \equal\orm\Model {
         }
     }
 
-    protected static function calcAllocationProviderInformation($self): array {
-        $result = [];
+    protected static function doSyncAllocationProviderInformation($self) {
         $self->read([
             'consumption_statement_submission_lines_ids' => [
                 'description',
@@ -705,10 +720,10 @@ class ConsumptionStatement extends \equal\orm\Model {
 
                 $lines[] = $label . ($details === '' ? '' : ' : ' . $details);
             }
-            $result[$id] = implode("\n", $lines);
+            self::id($id)->update([
+                'allocation_provider_information' => implode("\n", $lines)
+            ]);
         }
-
-        return $result;
     }
 
     protected static function doApplyRoundingAllocation($self) {
@@ -815,10 +830,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                     'condo_id'       => $consumptionStatement['condo_id'],
                     'description'    => $description,
                     'journal_id'     => $journal['id'],
-                    'posting_date'   => $consumptionStatement['posting_date'],
-                    'has_date_range' => true,
-                    'date_from'      => $consumptionStatement['date_from'],
-                    'date_to'        => $consumptionStatement['date_to']
+                    'posting_date'   => $consumptionStatement['posting_date']
                 ])
                 ->first();
 

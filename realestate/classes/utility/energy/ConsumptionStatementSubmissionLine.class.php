@@ -118,8 +118,22 @@ class ConsumptionStatementSubmissionLine extends \equal\orm\Model {
         ];
     }
 
+    public static function getActions() {
+        return array_merge(parent::getActions(), [
+            'sync_allocation_provider_information' => [
+                'description' => 'Synchronize the allocation-provider information of the related consumption statement.',
+                'policies'    => ['can_edit'],
+                'function'    => 'doSyncAllocationProviderInformation'
+            ]
+        ]);
+    }
+
     public static function getPolicies(): array {
         return array_merge(parent::getPolicies(), [
+            'can_create' => [
+                'description' => 'Checks that a submission line can be added to the statement.',
+                'function'    => 'policyCanCreate'
+            ],
             'can_edit' => [
                 'description' => 'Checks that the statement submissions are still editable.',
                 'function'    => 'policyCanEdit'
@@ -129,9 +143,32 @@ class ConsumptionStatementSubmissionLine extends \equal\orm\Model {
 
     public static function getOperationPolicies(): array {
         return [
+            EQ_R_CREATE => ['can_create'],
             EQ_R_UPDATE => ['can_edit'],
             EQ_R_DELETE => ['can_edit']
         ];
+    }
+
+    protected static function onafterinstantiate($self) {
+        $self->do('sync_allocation_provider_information');
+    }
+
+    protected static function onafterupdate($self) {
+        $self->do('sync_allocation_provider_information');
+    }
+
+    protected static function doSyncAllocationProviderInformation($self) {
+        $self->read(['consumption_statement_id']);
+        $statement_ids = [];
+        foreach($self as $submissionLine) {
+            if($submissionLine['consumption_statement_id']) {
+                $statement_ids[$submissionLine['consumption_statement_id']] = true;
+            }
+        }
+        if(count($statement_ids)) {
+            ConsumptionStatement::ids(array_keys($statement_ids))
+                ->do('sync_allocation_provider_information');
+        }
     }
 
     public static function onchange($event, $values): array {
@@ -151,6 +188,22 @@ class ConsumptionStatementSubmissionLine extends \equal\orm\Model {
         }
 
         return $result;
+    }
+
+    protected static function policyCanCreate($values): array {
+        $statement_id = $values['consumption_statement_id'] ?? null;
+        if(is_array($statement_id)) {
+            $statement_id = $statement_id['id'] ?? null;
+        }
+
+        $statement = $statement_id
+            ? ConsumptionStatement::id($statement_id)->read(['status'])->first()
+            : null;
+
+        if(!$statement || !in_array($statement['status'], ['draft', 'proforma'], true)) {
+            return ['statement_submissions_locked'];
+        }
+        return [];
     }
 
     protected static function policyCanEdit($self): array {
