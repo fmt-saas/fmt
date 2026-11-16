@@ -4,6 +4,7 @@
     "description": "Configuration fournisseur regroupant les relevés de consommation d'une copropriété.",
     "model": {
         "condo_id": {"label": "Copropriété", "description": "Copropriété concernée par le dossier de consommation.", "help": "Sélectionnez la copropriété propriétaire de cette configuration."},
+        "accounting_account_id": {"label": "Compte comptable", "description": "Compte comptable utilisé pour le décompte de consommation.", "help": "Sélectionnez le compte de décompte de consommation appartenant à la copropriété choisie."},
         "suppliership_id": {"label": "Contrat fournisseur", "description": "Contrat fournisseur associé au dossier.", "help": "Le contrat doit appartenir à la copropriété sélectionnée."},
         "code": {"label": "Code", "description": "Code identifiant le dossier de consommation.", "help": "Saisissez l'identifiant utilisé pour cette configuration fournisseur."},
         "name": {"label": "Nom", "description": "Nom composé du fournisseur et du code du dossier.", "help": "Cette valeur est calculée automatiquement."},

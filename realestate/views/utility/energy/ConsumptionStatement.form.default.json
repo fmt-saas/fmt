@@ -157,6 +157,28 @@
                         ]
                     },
                     {
+                        "id": "section.allocation_provider",
+                        "label": "Allocation provider",
+                        "visible": ["status", "=", "proforma"],
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "allocation_provider_information",
+                                                "width": "100%",
+                                                "widget": {"readonly": true}
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "id": "section.allocations",
                         "label": "Allocations",
                         "rows": [

@@ -50,11 +50,21 @@
                             {
                                 "columns": [
                                     {
-                                        "width": "100%",
+                                        "width": "33%",
                                         "items": [
                                             {"type": "field", "value": "condo_id", "width": "25%", "widget": {"header": {"actions": {"ACTION.CREATE": false}}}},
+                                            {"type": "field", "value": "code", "width": "25%"}
+                                        ]
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": []
+                                    },
+                                    {
+                                        "width": "33%",
+                                        "items": [
                                             {"type": "field", "value": "suppliership_id", "width": "25%"},
-                                            {"type": "field", "value": "code", "width": "25%"},
+                                            {"type": "field", "value": "accounting_account_id", "width": "25%"},
                                             {"type": "field", "value": "status", "width": "25%", "visible": false}
                                         ]
                                     }

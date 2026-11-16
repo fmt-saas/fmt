@@ -19,6 +19,17 @@ class ConsumptionFile extends \equal\orm\Model {
                 'required'       => true
             ],
 
+            'accounting_account_id' => [
+                'type'           => 'many2one',
+                'description'    => 'Accounting account used for the consumption statement.',
+                'foreign_object' => 'finance\accounting\Account',
+                'domain'         => [
+                    ['condo_id', '=', 'object.condo_id'],
+                    ['condo_id', '<>', null],
+                    ['operation_assignment', '=', 'consumption_statement']
+                ]
+            ],
+
             'suppliership_id' => [
                 'type'           => 'many2one',
                 'description'    => 'The suppliership the consumption file relates to.',

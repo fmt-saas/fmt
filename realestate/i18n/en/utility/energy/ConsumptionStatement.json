@@ -17,6 +17,7 @@
         "has_deduct_advances": {"label": "Deduct advances", "description": "Indicates whether advances are deducted without creating allocation lines.", "help": "Enable this option to deduct advances without creating allocation lines."},
         "consumption_statement_calculation_lines_ids": {"label": "Calculation lines", "description": "Amounts calculated for property lots and ownership periods.", "help": "Calculation lines are editable only in the to-encode status."},
         "consumption_statement_allocation_lines_ids": {"label": "Allocation lines", "description": "Amounts allocated to accounting accounts and apportionments.", "help": "Allocation lines are editable in draft and proforma."},
+        "allocation_provider_information": {"label": "Information to communicate", "description": "Summary of the submission lines to communicate to the allocation provider.", "help": "Copy this automatically generated text when sending the statement instructions."},
         "statement_total": {"label": "Statement total", "description": "Total amount shown on the statement.", "help": "Allocation and line totals are checked against this amount."},
         "status": {"label": "Status", "description": "Current processing status.", "help": "The workflow only allows forward transitions.", "selection": {"draft": "Draft", "proforma": "Proforma", "sent": "Sent", "to_encode": "To encode", "encoded": "Encoded", "integrated": "Integrated"}}
     },
@@ -35,6 +36,7 @@
             },
             "layout": {
                 "section.statement": {"label": "Statement"},
+                "section.allocation_provider": {"label": "Allocation provider"},
                 "section.allocations": {"label": "Allocations"},
                 "section.calculation_lines": {"label": "Calculation lines"}
             }

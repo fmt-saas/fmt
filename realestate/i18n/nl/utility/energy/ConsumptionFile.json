@@ -4,6 +4,7 @@
     "description": "Leveranciersconfiguratie die verbruiksafrekeningen voor een mede-eigendom groepeert.",
     "model": {
         "condo_id": {"label": "Mede-eigendom", "description": "Mede-eigendom waarop het verbruiksdossier betrekking heeft.", "help": "Selecteer de mede-eigendom die eigenaar is van deze configuratie."},
+        "accounting_account_id": {"label": "Boekhoudrekening", "description": "Boekhoudrekening die voor de verbruiksafrekening wordt gebruikt.", "help": "Selecteer de verbruiksafrekeningrekening die bij de gekozen mede-eigendom hoort."},
         "suppliership_id": {"label": "Leverancierscontract", "description": "Leverancierscontract dat aan het dossier is gekoppeld.", "help": "Het contract moet tot de geselecteerde mede-eigendom behoren."},
         "code": {"label": "Code", "description": "Code die het verbruiksdossier identificeert.", "help": "Voer de identificatie voor deze leveranciersconfiguratie in."},
         "name": {"label": "Naam", "description": "Weergavenaam samengesteld uit leverancier en dossiercode.", "help": "Deze waarde wordt automatisch berekend."},

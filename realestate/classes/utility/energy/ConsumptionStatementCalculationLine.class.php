@@ -14,7 +14,7 @@ class ConsumptionStatementCalculationLine extends \equal\orm\Model {
     }
 
     public static function getDescription() {
-        return 'Calculation line assigning an amount from a consumption statement to a property lot and an ownership.';
+        return 'Calculation liness assign an amount from a consumption statement to a property lot and an ownership.';
     }
 
     public static function getColumns() {

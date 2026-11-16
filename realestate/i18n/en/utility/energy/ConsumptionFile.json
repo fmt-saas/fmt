@@ -4,6 +4,7 @@
     "description": "Supplier configuration grouping consumption statements for a condominium.",
     "model": {
         "condo_id": {"label": "Condominium", "description": "Condominium concerned by the consumption file.", "help": "Select the condominium that owns this configuration."},
+        "accounting_account_id": {"label": "Accounting account", "description": "Accounting account used for the consumption statement.", "help": "Select the consumption-statement account belonging to the selected condominium."},
         "suppliership_id": {"label": "Suppliership", "description": "Supplier contract associated with the consumption file.", "help": "The contract must belong to the selected condominium."},
         "code": {"label": "Code", "description": "Code identifying the consumption file.", "help": "Enter the identifier used for this supplier configuration."},
         "name": {"label": "Name", "description": "Display name composed of the supplier name and file code.", "help": "This value is calculated automatically."},

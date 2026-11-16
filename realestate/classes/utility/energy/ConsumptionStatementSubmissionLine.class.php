@@ -15,7 +15,7 @@ class ConsumptionStatementSubmissionLine extends \equal\orm\Model {
     }
 
     public static function getDescription() {
-        return 'Submitted consumption statement amount assigned to an accounting account and an apportionment.';
+        return 'Optional submission lines are based on consumption file sections and are sent to the allocation provider to indicate how the statement must be apportioned under specific constraints. They define the allocation basis for a given accounting account, which is linked to an apportionment, by specifying the amount paid by the condominium and/or a quantity and unit price.';
     }
 
     public static function getColumns() {
@@ -68,7 +68,7 @@ class ConsumptionStatementSubmissionLine extends \equal\orm\Model {
             'amount' => [
                 'type'        => 'float',
                 'usage'       => 'amount/money:2',
-                'description' => 'Submitted amount assigned to the accounting account and apportionment.',
+                'description' => 'Paid amount assigned to the the consumption expense.',
                 'default'     => 0.0,
                 'required'    => true
             ],

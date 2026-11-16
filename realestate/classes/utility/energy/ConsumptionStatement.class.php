@@ -128,6 +128,17 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'domain'         => ['condo_id', '=', 'object.condo_id']
             ],
 
+            'allocation_provider_information' => [
+                'type'        => 'computed',
+                'result_type' => 'string',
+                'usage'       => 'text/plain',
+                'description' => 'Submission-line summary for the allocation provider.',
+                'function'    => 'calcAllocationProviderInformation',
+                'store'       => false,
+                'readonly'    => true,
+                'visible'     => ['status', '=', 'proforma']
+            ],
+
             'statement_total' => [
                 'type'           => 'float',
                 'usage'          => 'amount/money:2',
@@ -139,7 +150,14 @@ class ConsumptionStatement extends \equal\orm\Model {
             'status' => [
                 'type'           => 'string',
                 'description'    => 'Current processing status of the consumption statement.',
-                'selection'      => ['draft', 'proforma', 'sent', 'to_encode', 'encoded', 'integrated'],
+                'selection'      => [
+                    'draft',
+                    'proforma',
+                    'sent',
+                    'to_encode',
+                    'encoded',
+                    'integrated'
+                ],
                 'default'        => 'draft'
             ]
         ];
@@ -688,6 +706,75 @@ class ConsumptionStatement extends \equal\orm\Model {
                 ]));
             }
         }
+    }
+
+    protected static function calcAllocationProviderInformation($self): array {
+        $result = [];
+        $self->read([
+            'consumption_statement_submission_lines_ids' => [
+                'description',
+                'account_id' => ['name', 'description'],
+                'calculation_method',
+                'amount',
+                'quantity',
+                'units',
+                'unit_price'
+            ]
+        ]);
+
+        $format_number = static function(float $value, int $precision): string {
+            $formatted_value = number_format($value, $precision, ',', '.');
+            if($precision > 0) {
+                $formatted_value = rtrim(rtrim($formatted_value, '0'), ',');
+            }
+            return $formatted_value;
+        };
+
+        foreach($self as $id => $consumptionStatement) {
+            $lines = [];
+            foreach($consumptionStatement['consumption_statement_submission_lines_ids'] as $submissionLine) {
+                $account = $submissionLine['account_id'];
+                $label = $account
+                    ? trim((string) ($account['description'] ?: $account['name']))
+                    : '';
+                if($label === '') {
+                    continue;
+                }
+
+                $details = '';
+                if(
+                    $submissionLine['calculation_method'] === 'unit_price'
+                    && (float) $submissionLine['unit_price'] !== 0.0
+                ) {
+                    $unit_price = $format_number((float) $submissionLine['unit_price'], 5) . ' €';
+                    if($submissionLine['units']) {
+                        $unit_price .= '/' . $submissionLine['units'];
+                    }
+                    $details = $unit_price;
+                }
+                elseif((float) $submissionLine['amount'] !== 0.0) {
+                    $details = $format_number((float) $submissionLine['amount'], 2) . ' €';
+                }
+
+                if((float) $submissionLine['quantity'] !== 0.0) {
+                    $quantity = $format_number((float) $submissionLine['quantity'], 2);
+                    if($submissionLine['units']) {
+                        $quantity .= ' ' . $submissionLine['units'];
+                    }
+                    $details .= ($details === '' ? '' : ' ') . '(' . $quantity . ')';
+                }
+
+                $description = trim((string) $submissionLine['description']);
+                if($description !== '') {
+                    $details .= ($details === '' ? '' : ' - ') . $description;
+                }
+
+                $lines[] = $label . ($details === '' ? '' : ' : ' . $details);
+            }
+            $result[$id] = implode("\n", $lines);
+        }
+
+        return $result;
     }
 
     protected static function doApplyRoundingAllocation($self) {

@@ -13,7 +13,8 @@ class ConsumptionStatementAllocationLine extends \equal\orm\Model {
     }
 
     public static function getDescription() {
-        return 'Allocation of a consumption statement amount to an accounting account and an apportionment.';
+        return "Allocation of a consumption statement amount to an accounting account and an apportionment.
+            The sum of the amounts of all allocation lines for a consumption statement always equals the statement's total amount.";
     }
 
     public static function getColumns() {
