@@ -35,7 +35,6 @@ use realestate\property\PropertyLotOwnership;
 use realestate\property\PropertyLotStatutoryQuota;
 use realestate\property\PropertyLotSuppliershipReference;
 use realestate\property\Tenancy;
-use realestate\property\TenancyTransfer;
 use realestate\property\Tenant;
 
 $providers = eQual::inject(['context', 'orm', 'auth', 'access']);
@@ -598,7 +597,6 @@ $tests = [
                             PropertyLotStatutoryQuota::getType(),
                             PropertyLotSuppliershipReference::getType(),
                             Tenancy::getType(),
-                            TenancyTransfer::getType(),
                             Tenant::getType()
                         ]
                     ]
@@ -2252,7 +2250,6 @@ $tests = [
                             PropertyLotStatutoryQuota::getType(),
                             PropertyLotSuppliershipReference::getType(),
                             Tenancy::getType(),
-                            TenancyTransfer::getType(),
                             Tenant::getType()
                         ]
                     ]

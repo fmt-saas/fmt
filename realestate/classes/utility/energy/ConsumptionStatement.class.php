@@ -11,6 +11,8 @@ use DateTimeZone;
 use finance\accounting\Account;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
+use realestate\finance\accounting\AccountingEntry;
+use realestate\finance\accounting\AccountingEntryLine;
 use realestate\property\PropertyLotOwnership;
 
 class ConsumptionStatement extends \equal\orm\Model {
@@ -413,8 +415,39 @@ class ConsumptionStatement extends \equal\orm\Model {
             self::policyLinesAreBalanced($self)
         );
 
-        $self->read(['condo_id']);
+        $self->read([
+            'status',
+            'condo_id',
+            'posting_date',
+            'consumption_file_id' => ['accounting_account_id'],
+            'consumption_statement_calculation_lines_ids' => ['ownership_id', 'property_lot_id']
+        ]);
         foreach($self as $id => $consumptionStatement) {
+            if($consumptionStatement['status'] !== 'encoded') {
+                $result[$id]['invalid_integration_status'] = 'Only encoded consumption statements can be integrated into accounting.';
+            }
+            if(!$consumptionStatement['posting_date']) {
+                $result[$id]['missing_posting_date'] = 'A posting date is required for accounting integration.';
+            }
+
+            $accountingEntry = AccountingEntry::search([
+                    ['origin_object_class', '=', self::getType()],
+                    ['origin_object_id', '=', $id]
+                ])
+                ->first();
+            if($accountingEntry) {
+                $result[$id]['accounting_operation_already_exists'] = 'An accounting operation already exists for this statement.';
+            }
+
+            foreach($consumptionStatement['consumption_statement_calculation_lines_ids'] as $calculationLine) {
+                if(!$calculationLine['ownership_id']) {
+                    $result[$id]['missing_calculation_line_ownership'] = 'Every calculation line must have an ownership before integration.';
+                }
+                if(!$calculationLine['property_lot_id']) {
+                    $result[$id]['missing_calculation_line_property_lot'] = 'Every calculation line must have a property lot before integration.';
+                }
+            }
+
             $journal = Journal::search([
                     ['condo_id', '=', $consumptionStatement['condo_id']],
                     ['journal_type', '=', 'MISC']
@@ -424,13 +457,9 @@ class ConsumptionStatement extends \equal\orm\Model {
                 $result[$id]['missing_misc_journal'] = 'A miscellaneous operations journal is required for integration.';
             }
 
-            $privateExpenseAccount = Account::search([
-                    ['condo_id', '=', $consumptionStatement['condo_id']],
-                    ['operation_assignment', '=', 'private_expenses']
-                ])
-                ->first();
-            if(!$privateExpenseAccount) {
-                $result[$id]['missing_private_expense_account'] = 'A private expense account is required for integration.';
+            $consumptionFile = $consumptionStatement['consumption_file_id'];
+            if(!$consumptionFile || !$consumptionFile['accounting_account_id']) {
+                $result[$id]['missing_consumption_statement_account'] = 'The consumption file must define an accounting account for integration.';
             }
         }
 
@@ -848,7 +877,54 @@ class ConsumptionStatement extends \equal\orm\Model {
     }
 
     protected static function doIntegrate($self) {
-        // Accounting integration is intentionally left for a later implementation.
+        $self->read([
+            'condo_id',
+            'date_from',
+            'date_to',
+            'posting_date',
+            'consumption_file_id' => ['accounting_account_id'],
+            'consumption_statement_calculation_lines_ids' => [
+                'ownership_id',
+                'property_lot_id',
+                'amount'
+            ]
+        ]);
+
+        foreach($self as $id => $consumptionStatement) {
+            $journal = Journal::search([
+                    ['condo_id', '=', $consumptionStatement['condo_id']],
+                    ['journal_type', '=', 'MISC']
+                ])
+                ->first();
+            $consumption_statement_account_id = $consumptionStatement['consumption_file_id']['accounting_account_id'];
+
+            $description = 'Consumption statement';
+            $accountingEntry = AccountingEntry::create([
+                    'condo_id'            => $consumptionStatement['condo_id'],
+                    'journal_id'          => $journal['id'],
+                    'entry_date'          => $consumptionStatement['posting_date'],
+                    'description'         => $description,
+                    'origin_object_class' => self::getType(),
+                    'origin_object_id'    => $id
+                ])
+                ->first();
+
+            foreach($consumptionStatement['consumption_statement_calculation_lines_ids'] as $calculationLine) {
+                $amount = round((float) $calculationLine['amount'], 2);
+                AccountingEntryLine::create([
+                    'condo_id'             => $consumptionStatement['condo_id'],
+                    'accounting_entry_id'  => $accountingEntry['id'],
+                    'account_id'           => $consumption_statement_account_id,
+                    'ownership_id'         => $calculationLine['ownership_id'],
+                    'property_lot_id'      => $calculationLine['property_lot_id'],
+                    'allocation_date_from' => $consumptionStatement['date_from'],
+                    'allocation_date_to'   => $consumptionStatement['date_to'],
+                    'description'          => $description,
+                    'debit'                => $amount > 0.0 ? abs($amount) : 0.0,
+                    'credit'               => $amount < 0.0 ? abs($amount) : 0.0
+                ]);
+            }
+        }
     }
 
     protected static function onafterSend($self) {

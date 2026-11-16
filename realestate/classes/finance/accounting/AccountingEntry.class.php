@@ -172,6 +172,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                 'bank_statement_line_id',
                 'fund_usage_line_id',
                 'ownership_id',
+                'property_lot_id',
                 'suppliership_id'
             ],
         ]);
@@ -213,6 +214,7 @@ class AccountingEntry extends \finance\accounting\AccountingEntry {
                     'bank_statement_line_id'    => $line['bank_statement_line_id'],
                     'fund_usage_line_id'        => $line['fund_usage_line_id'],
                     'ownership_id'              => $line['ownership_id'],
+                    'property_lot_id'           => $line['property_lot_id'],
                     'suppliership_id'           => $line['suppliership_id'],
                     // prevent transient matching of the technical reversal line
                     'matching_id'               => null

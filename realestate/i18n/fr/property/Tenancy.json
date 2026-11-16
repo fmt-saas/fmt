@@ -33,14 +33,14 @@
             "description": "Date de sortie (si connue).",
             "help": ""
         },
-        "transfer_from_id": {
-            "label": "Transfert d'entrée",
-            "description": "Référence du dossier d'entrée (état des lieux, transfert, etc.).",
+        "prev_tenancy_id": {
+            "label": "Contrat précédent",
+            "description": "Contrat de location précédant celui-ci.",
             "help": ""
         },
-        "transfer_to_id": {
-            "label": "Transfert de sortie",
-            "description": "Référence du dossier de sortie.",
+        "next_tenancy_id": {
+            "label": "Contrat suivant",
+            "description": "Contrat de location suivant celui-ci.",
             "help": ""
         }
     },

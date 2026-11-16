@@ -78,6 +78,11 @@
             "description": "Contrat d'occupation actif (le cas échéant).",
             "help": ""
         },
+        "property_lot_tenancies_ids": {
+            "label": "Historique de location",
+            "description": "Historique des locations associées à ce lot.",
+            "help": ""
+        },
         "active_ownership_id": {
             "label": "Dossier de copropriété actif",
             "description": "Dossier de propriété actuellement associé à ce lot.",
@@ -131,7 +136,7 @@
                     "label": "Historique de propriété"
                 },
                 "section.tenancies": {
-                    "label": "Historique des locations"
+                    "label": "Historique de location"
                 },
                 "section.comments": {
                     "label": "Commentaires"

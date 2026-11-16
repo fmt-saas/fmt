@@ -97,18 +97,27 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
                 'dependents'        => ['account_code', 'account_operation_assignment', 'account_class', 'ownership_id', 'suppliership_id']
             ],
 
-            // #memo - ownership and suppliership are information derived from accounting account but cannot be used in expense statements
-            // #memo - expense statements must only rely on accounting documents (invoice, misc op, bank statement, ...)
+            // #memo - ownership usually comes from the accounting account. Consumption statement lines are the exception:
+            // their generic account carries no ownership, so the source calculation line provides it explicitly.
             'ownership_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
-                'relation'          => ['account_id' => 'ownership_id'],
+                'function'          => 'calcOwnershipId',
                 'foreign_object'    => 'realestate\ownership\Ownership',
                 'ondelete'          => 'null',
                 'description'       => "The ownership that the account refers to, if any.",
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'store'             => true,
                 'instant'           => true,
+                'readonly'          => true
+            ],
+
+            'property_lot_id' => [
+                'type'              => 'many2one',
+                'foreign_object'    => 'realestate\property\PropertyLot',
+                'ondelete'          => 'null',
+                'description'       => 'Property lot assigned to a consumption statement line.',
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'readonly'          => true
             ],
 
@@ -126,6 +135,22 @@ class AccountingEntryLine extends \finance\accounting\AccountingEntryLine {
             ]
 
         ];
+    }
+
+    protected static function calcOwnershipId($self) {
+        $result = [];
+        $self->read(['account_id' => ['operation_assignment', 'ownership_id']]);
+
+        foreach($self as $id => $accountingEntryLine) {
+            $account = $accountingEntryLine['account_id'];
+            if($account && $account['operation_assignment'] === 'consumption_statement') {
+                // Preserve the ownership explicitly supplied when the consumption line is created.
+                continue;
+            }
+            $result[$id] = $account['ownership_id'] ?? null;
+        }
+
+        return $result;
     }
 
     public static function canupdate($self, $values) {

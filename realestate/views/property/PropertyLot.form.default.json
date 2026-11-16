@@ -185,7 +185,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "tenancies_ids",
+                                                "value": "property_lot_tenancies_ids",
                                                 "width": "100%",
                                                 "widget": {
                                                     "header": {

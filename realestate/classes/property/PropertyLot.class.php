@@ -137,11 +137,11 @@ class PropertyLot extends \equal\orm\Model {
                 'visible'           => ['has_tenancy', '=', true]
             ],
 
-            'tenancies_ids' => [
+            'property_lot_tenancies_ids' => [
                 'type'              => 'one2many',
                 'foreign_object'    => 'realestate\property\Tenancy',
                 'foreign_field'     => 'property_lot_id',
-                'description'       => 'Ownerships to which this property lot is assigned.'
+                'description'       => 'Tenancies associated with this property lot.'
             ],
 
             // #todo

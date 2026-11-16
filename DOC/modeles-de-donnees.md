@@ -451,10 +451,6 @@ Services additionnels proposés dans le cadre de la gestion de la copropriété.
 
 Contrat de location d’un lot.
 
-### TenancyTransfer
-
-Transfert d’un contrat de location.
-
 ### Property
 
 Bien immobilier, en général un lot privatif ou une partie commune.

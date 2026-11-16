@@ -8,7 +8,6 @@
         "fiscal_period_id": {"label": "Période comptable", "description": "Période comptable associée au relevé.", "help": "La période doit appartenir à l'exercice et à la copropriété sélectionnés."},
         "date_from": {"label": "Date de début", "description": "Premier jour inclus dans le relevé.", "help": "Elle suit le dernier relevé avancé ou reprend le début de l'exercice."},
         "date_to": {"label": "Date de fin", "description": "Dernier jour inclus dans le relevé.", "help": "Elle est proposée à un an calendaire moins un jour de la date de début."},
-        "misc_operation_id": {"label": "Opération comptable", "description": "Opération comptable générée lors de l'intégration.", "help": "Cette valeur est attribuée par l'intégration comptable."},
         "posting_date": {"label": "Date de comptabilisation", "description": "Date de comptabilisation du relevé.", "help": "Sélectionnez la date de comptabilisation."},
         "document_id": {"label": "Document", "description": "Document original du relevé.", "help": "Sélectionnez le document source reçu du fournisseur."},
         "consumption_meter_id": {"label": "Ancien compteur", "description": "Ancien compteur principal lié au relevé.", "help": "Ce champ facultatif et masqué est conservé pour les données existantes."},
@@ -54,8 +53,12 @@
             "missing_rounding_account": "Un compte d'arrondi est requis pour équilibrer les ventilations du relevé.",
             "missing_rounding_account_apportionment": "Le compte d'arrondi doit avoir une clé de répartition.",
             "accounting_operation_already_exists": "Une opération comptable existe déjà pour ce relevé.",
+            "invalid_integration_status": "Seuls les relevés encodés peuvent être intégrés en comptabilité.",
+            "missing_posting_date": "Une date de comptabilisation est requise pour l'intégration comptable.",
+            "missing_calculation_line_ownership": "Chaque ligne de calcul doit avoir une propriété avant l'intégration.",
+            "missing_calculation_line_property_lot": "Chaque ligne de calcul doit avoir un lot avant l'intégration.",
             "missing_misc_journal": "Un journal d'opérations diverses est requis pour l'intégration.",
-            "missing_private_expense_account": "Un compte de charges privatives est requis pour l'intégration."
+            "missing_consumption_statement_account": "Le dossier de consommation doit définir un compte comptable pour l'intégration."
         }
     }
 }

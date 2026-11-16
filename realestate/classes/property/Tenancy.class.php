@@ -52,16 +52,16 @@ class Tenancy extends \equal\orm\Model {
                 'description'       => "The date from which the tenancy is valid.",
             ],
 
-            'transfer_from_id' => [
+            'prev_tenancy_id' => [
                 'type'              => 'many2one',
-                'description'       => "The property purchase transfer file.",
-                'foreign_object'    => 'realestate\property\TenancyTransfer'
+                'description'       => "The previous tenancy.",
+                'foreign_object'    => 'realestate\property\Tenancy'
             ],
 
-            'transfer_to_id' => [
+            'next_tenancy_id' => [
                 'type'              => 'many2one',
-                'description'       => "The property sale transfer file.",
-                'foreign_object'    => 'realestate\property\TenancyTransfer'
+                'description'       => "The next tenancy.",
+                'foreign_object'    => 'realestate\property\Tenancy'
             ]
 
         ];

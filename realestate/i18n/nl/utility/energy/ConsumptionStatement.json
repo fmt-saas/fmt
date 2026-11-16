@@ -8,7 +8,6 @@
         "fiscal_period_id": {"label": "Boekhoudperiode", "description": "Boekhoudperiode die aan de afrekening is gekoppeld.", "help": "De periode moet tot het geselecteerde boekjaar en de mede-eigendom behoren."},
         "date_from": {"label": "Begindatum", "description": "Eerste dag van de afrekeningsperiode.", "help": "Deze volgt op de laatste gevorderde afrekening of begint bij het boekjaar."},
         "date_to": {"label": "Einddatum", "description": "Laatste dag van de afrekeningsperiode.", "help": "Deze wordt voorgesteld als één kalenderjaar min één dag na de begindatum."},
-        "misc_operation_id": {"label": "Boekhoudkundige verrichting", "description": "Verrichting die bij integratie wordt aangemaakt.", "help": "Deze waarde wordt door de boekhoudkundige integratie toegewezen."},
         "posting_date": {"label": "Boekingsdatum", "description": "Datum waarop de afrekening wordt geboekt.", "help": "Selecteer de boekhoudkundige boekingsdatum."},
         "document_id": {"label": "Document", "description": "Origineel document van de verbruiksafrekening.", "help": "Selecteer het brondocument van de leverancier."},
         "consumption_meter_id": {"label": "Oude meter", "description": "Voormalige hoofdmeter van de afrekening.", "help": "Dit optionele verborgen veld blijft behouden voor bestaande gegevens."},
@@ -53,8 +52,12 @@
             "missing_rounding_account": "Een afrondingsrekening is vereist om de verdelingen van de afrekening in evenwicht te brengen.",
             "missing_rounding_account_apportionment": "De afrondingsrekening moet een verdeelsleutel hebben.",
             "accounting_operation_already_exists": "Er bestaat al een boekhoudkundige verrichting voor deze afrekening.",
+            "invalid_integration_status": "Alleen gecodeerde verbruiksafrekeningen kunnen in de boekhouding worden geïntegreerd.",
+            "missing_posting_date": "Voor de boekhoudkundige integratie is een boekingsdatum vereist.",
+            "missing_calculation_line_ownership": "Elke berekeningsregel moet vóór de integratie een eigendom hebben.",
+            "missing_calculation_line_property_lot": "Elke berekeningsregel moet vóór de integratie een kavel hebben.",
             "missing_misc_journal": "Een dagboek voor diverse verrichtingen is vereist voor integratie.",
-            "missing_private_expense_account": "Een rekening voor privatieve kosten is vereist voor integratie."
+            "missing_consumption_statement_account": "Het verbruiksdossier moet voor de integratie een boekhoudrekening definiëren."
         }
     }
 }
