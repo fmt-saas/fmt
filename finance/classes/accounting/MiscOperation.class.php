@@ -955,7 +955,9 @@ class MiscOperation extends Model {
                         'credit'                    => $line['credit'],
                         'accounting_entry_id'       => $accountingEntry['id'],
                         'misc_operation_line_id'    => $line_id,
-                        'description'               => $line['description']
+                        'description'               => $line['description'],
+                        'ownership_id'              => $line['ownership_id'],
+                        'property_lot_id'           => $line['property_lot_id']
                     ];
 
                     if(
@@ -1050,7 +1052,9 @@ class MiscOperation extends Model {
                         'credit'                    => $line['credit'],
                         'accounting_entry_id'       => $accountingEntry['id'],
                         'misc_operation_line_id'    => $line_id,
-                        'description'               => $line['description']
+                        'description'               => $line['description'],
+                        'ownership_id'              => $line['ownership_id'],
+                        'property_lot_id'           => $line['property_lot_id']
                     ]);
                     continue;
                 }
@@ -1080,7 +1084,9 @@ class MiscOperation extends Model {
                             'misc_operation_line_id'    => $line_id,
                             'description'               => $description,
                             'allocation_date_from'      => $allocation_date_from,
-                            'allocation_date_to'        => $allocation_date_to
+                            'allocation_date_to'        => $allocation_date_to,
+                            'ownership_id'              => $line['ownership_id'],
+                            'property_lot_id'           => $line['property_lot_id']
                         ]);
                     }
 
@@ -1133,7 +1139,9 @@ class MiscOperation extends Model {
                         'allocation_date_from'      => $allocation_date_from,
                         'allocation_date_to'        => $allocation_date_to,
                         'debit'                     => ($amount < 0.0) ? abs($amount) : 0.0,
-                        'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0
+                        'credit'                    => ($amount > 0.0) ? abs($amount) : 0.0,
+                        'ownership_id'              => $line['ownership_id'],
+                        'property_lot_id'           => $line['property_lot_id']
                     ]);
 
                     $plannedFiscalYear = FiscalYear::search([
@@ -1188,7 +1196,9 @@ class MiscOperation extends Model {
                         'allocation_date_from'      => $planned_allocation_date_from,
                         'allocation_date_to'        => $planned_allocation_date_to,
                         'debit'                     => ($amount > 0.0) ? abs($amount) : 0.0,
-                        'credit'                    => ($amount < 0.0) ? abs($amount) : 0.0
+                        'credit'                    => ($amount < 0.0) ? abs($amount) : 0.0,
+                        'ownership_id'              => $line['ownership_id'],
+                        'property_lot_id'           => $line['property_lot_id']
                     ]);
                 }
             }

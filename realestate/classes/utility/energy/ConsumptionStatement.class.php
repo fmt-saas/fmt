@@ -11,8 +11,8 @@ use DateTimeZone;
 use finance\accounting\Account;
 use finance\accounting\FiscalYear;
 use finance\accounting\Journal;
-use realestate\finance\accounting\AccountingEntry;
-use realestate\finance\accounting\AccountingEntryLine;
+use finance\accounting\MiscOperation;
+use finance\accounting\MiscOperationLine;
 use realestate\property\PropertyLotOwnership;
 
 class ConsumptionStatement extends \equal\orm\Model {
@@ -903,13 +903,6 @@ class ConsumptionStatement extends \equal\orm\Model {
         ]);
 
         foreach($self as $id => $consumptionStatement) {
-            AccountingEntry::search([
-                    ['status', '=', 'pending'],
-                    ['origin_object_class', '=', self::getType()],
-                    ['origin_object_id', '=', $id]
-                ])
-                ->delete(true);
-
             $journal = Journal::search([
                     ['condo_id', '=', $consumptionStatement['condo_id']],
                     ['journal_type', '=', 'MISC']
@@ -918,45 +911,46 @@ class ConsumptionStatement extends \equal\orm\Model {
             $consumption_statement_account_id = $consumptionStatement['consumption_file_id']['accounting_account_id'];
 
             $description = 'Consumption statement';
-            $accountingEntry = AccountingEntry::create([
-                    'condo_id'            => $consumptionStatement['condo_id'],
-                    'journal_id'          => $journal['id'],
-                    'entry_date'          => $consumptionStatement['posting_date'],
-                    'description'         => $description,
-                    'origin_object_class' => self::getType(),
-                    'origin_object_id'    => $id
+            $miscOperation = MiscOperation::create([
+                    'condo_id'       => $consumptionStatement['condo_id'],
+                    'description'    => $description,
+                    'journal_id'     => $journal['id'],
+                    'posting_date'   => $consumptionStatement['posting_date'],
+                    'has_date_range' => true,
+                    'date_from'      => $consumptionStatement['date_from'],
+                    'date_to'        => $consumptionStatement['date_to']
                 ])
                 ->first();
 
             foreach($consumptionStatement['consumption_statement_calculation_lines_ids'] as $calculationLine) {
                 $amount = round((float) $calculationLine['amount'], 2);
-                AccountingEntryLine::create([
-                    'condo_id'             => $consumptionStatement['condo_id'],
-                    'accounting_entry_id'  => $accountingEntry['id'],
-                    'account_id'           => $consumption_statement_account_id,
-                    'ownership_id'         => $calculationLine['ownership_id'],
-                    'property_lot_id'      => $calculationLine['property_lot_id'],
-                    'allocation_date_from' => $consumptionStatement['date_from'],
-                    'allocation_date_to'   => $consumptionStatement['date_to'],
-                    'description'          => $description,
-                    'debit'                => $amount > 0.0 ? abs($amount) : 0.0,
-                    'credit'               => $amount < 0.0 ? abs($amount) : 0.0
+                MiscOperationLine::create([
+                    'condo_id'          => $consumptionStatement['condo_id'],
+                    'misc_operation_id' => $miscOperation['id'],
+                    'account_id'        => $consumption_statement_account_id,
+                    'ownership_id'      => $calculationLine['ownership_id'],
+                    'property_lot_id'   => $calculationLine['property_lot_id'],
+                    'description'       => $description,
+                    'debit'             => $amount > 0.0 ? abs($amount) : 0.0,
+                    'credit'            => $amount < 0.0 ? abs($amount) : 0.0
                 ]);
             }
 
             foreach($consumptionStatement['consumption_statement_allocation_lines_ids'] as $allocationLine) {
                 $amount = round((float) $allocationLine['amount'], 2);
-                AccountingEntryLine::create([
-                    'condo_id'             => $consumptionStatement['condo_id'],
-                    'accounting_entry_id'  => $accountingEntry['id'],
-                    'account_id'           => $allocationLine['account_id'],
-                    'allocation_date_from' => $consumptionStatement['date_from'],
-                    'allocation_date_to'   => $consumptionStatement['date_to'],
-                    'description'          => $description,
-                    'debit'                => $amount < 0.0 ? abs($amount) : 0.0,
-                    'credit'               => $amount > 0.0 ? abs($amount) : 0.0
+                MiscOperationLine::create([
+                    'condo_id'          => $consumptionStatement['condo_id'],
+                    'misc_operation_id' => $miscOperation['id'],
+                    'account_id'        => $allocationLine['account_id'],
+                    'description'       => $description,
+                    'debit'             => $amount < 0.0 ? abs($amount) : 0.0,
+                    'credit'            => $amount > 0.0 ? abs($amount) : 0.0
                 ]);
             }
+
+            MiscOperation::id($miscOperation['id'])
+                ->transition('publish')
+                ->transition('post');
         }
     }
 
