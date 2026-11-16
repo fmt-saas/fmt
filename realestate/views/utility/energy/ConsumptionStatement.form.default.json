@@ -84,9 +84,9 @@
             "label": "Integrate",
             "icon": "done_all",
             "description": "Integrate the statement into accounting.",
-            "controller": "core_model_transition",
+            "controller": "realestate_utility_energy_ConsumptionStatement_integrate",
             "visible": ["status", "=", "encoded"],
-            "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "transition": "integrate", "ids": []},
+            "params": {"id": "object.id"},
             "confirm": true
         }
     ],

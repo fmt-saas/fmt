@@ -56,13 +56,13 @@ class ConsumptionStatement extends \equal\orm\Model {
             'date_to' => [
                 'type'           => 'date',
                 'description'    => 'Last day included in the consumption statement period.',
-                'required'       => true
+                'required'       => true,
+                'onupdate'       => 'onupdateDateTo'
             ],
 
             'posting_date' => [
                 'type'           => 'date',
-                'description'    => 'Date on which the statement must be posted in accounting.',
-                'default'        => function () { return time(); }
+                'description'    => 'Date on which the statement must be posted in accounting.'
             ],
 
             'document_id' => [
@@ -297,6 +297,13 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'consumption_file_id' => ['statement_is_draft']
             ]
         ];
+    }
+
+    protected static function onupdateDateTo($self) {
+        $self->read(['date_to']);
+        foreach($self as $id => $consumptionStatement) {
+            self::id($id)->update(['posting_date' => $consumptionStatement['date_to']]);
+        }
     }
 
     protected static function policyStatementIsDraft($self): array {
