@@ -107,6 +107,27 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "id": "section.statements",
+                        "label": "Consumption file statements",
+                        "rows": [
+                            {
+                                "columns": [
+                                    {
+                                        "width": "100%",
+                                        "items": [
+                                            {
+                                                "type": "field",
+                                                "value": "consumption_file_lots_ids",
+                                                "width": "100%",
+                                                "widget": {"view": "list.default"}
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }
