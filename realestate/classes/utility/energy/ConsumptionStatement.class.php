@@ -240,7 +240,7 @@ class ConsumptionStatement extends \equal\orm\Model {
             ],
             'sync_allocation_provider_information' => [
                 'description' => 'Synchronize the allocation-provider information with the statement submission lines.',
-                'policies'    => ['allocation_provider_information_is_editable'],
+                'policies'    => ['is_editable'],
                 'function'    => 'doSyncAllocationProviderInformation'
             ],
             'apply_rounding_allocation' => [
@@ -263,13 +263,13 @@ class ConsumptionStatement extends \equal\orm\Model {
 
     public static function getPolicies(): array {
         return array_merge(parent::getPolicies(), [
-            'statement_is_draft' => [
+            'is_draft' => [
                 'description' => 'Checks that the consumption statement is still in draft.',
-                'function'    => 'policyStatementIsDraft'
+                'function'    => 'policyIsDraft'
             ],
-            'allocation_provider_information_is_editable' => [
-                'description' => 'Checks that the allocation-provider information is still editable.',
-                'function'    => 'policyAllocationProviderInformationIsEditable'
+            'is_editable' => [
+                'description' => 'Checks that the consumption statement is still editable.',
+                'function'    => 'policyIsEditable'
             ],
             'can_generate_statement_lines' => [
                 'description' => 'Checks that statement lines can be generated.',
@@ -298,8 +298,8 @@ class ConsumptionStatement extends \equal\orm\Model {
         return [
             EQ_R_UPDATE => [
                 '*'                               => true,
-                'consumption_file_id'             => ['statement_is_draft'],
-                'allocation_provider_information' => ['allocation_provider_information_is_editable']
+                'consumption_file_id'             => ['is_draft'],
+                'allocation_provider_information' => ['is_editable']
             ]
         ];
     }
@@ -311,7 +311,7 @@ class ConsumptionStatement extends \equal\orm\Model {
         }
     }
 
-    protected static function policyStatementIsDraft($self): array {
+    protected static function policyIsDraft($self): array {
         $result = [];
         $self->read(['status']);
         foreach($self as $id => $consumptionStatement) {
@@ -322,7 +322,7 @@ class ConsumptionStatement extends \equal\orm\Model {
         return $result;
     }
 
-    protected static function policyAllocationProviderInformationIsEditable($self): array {
+    protected static function policyIsEditable($self): array {
         $result = [];
         $self->read(['status']);
         foreach($self as $id => $consumptionStatement) {

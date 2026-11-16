@@ -173,15 +173,7 @@
                                             {
                                                 "type": "field",
                                                 "value": "allocation_provider_information",
-                                                "width": "100%",
-                                                "visible": ["status", "in", ["draft", "proforma"]]
-                                            },
-                                            {
-                                                "type": "field",
-                                                "value": "allocation_provider_information",
-                                                "width": "100%",
-                                                "visible": ["status", "not in", ["draft", "proforma"]],
-                                                "widget": {"readonly": true}
+                                                "width": "100%"
                                             }
                                         ]
                                     }
