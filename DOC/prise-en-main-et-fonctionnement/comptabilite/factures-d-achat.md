@@ -59,3 +59,11 @@ Champs importants :
 5. Marquer la facture comme complétée.
 6. Marquer la facture comme valide.
 7. Intégrer la facture à la comptabilité.
+
+## Contrôle des documents en double
+
+Lorsque la facture est marquée comme complétée, son fichier source est comparé à tous les documents déjà importés à l'aide de son hash SHA-256.
+
+Si le même fichier existe déjà, la facture est bloquée comme doublon, même si le document existant appartient à une autre copropriété ou si son traitement a été annulé ou supprimé. La facture pro forma et son traitement sont retirés, tandis que le document importé reste conservé pour la traçabilité.
+
+Ce contrôle identifie les fichiers dont le contenu binaire est strictement identique. Un PDF régénéré ou modifié peut avoir un hash différent, même si son contenu visible paraît identique.

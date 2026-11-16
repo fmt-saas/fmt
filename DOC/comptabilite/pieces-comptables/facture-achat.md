@@ -11,6 +11,20 @@ A la validation (passage de 'proforma' à 'invoice')
 * On génère les écritures écritures immédiates
 * On planifie les écritures pour chaque début de période à venir
 
+## Détection des documents en double
+
+Lorsqu'une facture importée est marquée comme complétée, le système compare le hash SHA-256 de son fichier source avec celui de tous les `Document` déjà enregistrés.
+
+Si un autre `Document` possède le même hash SHA-256, la nouvelle facture est systématiquement considérée comme un doublon. Ce contrôle s'applique :
+
+* indépendamment de la copropriété associée aux documents ;
+* même si le `DocumentProcess` existant est annulé ou supprimé ;
+* même si le document existant n'est plus lié à un processus actif.
+
+La facture pro forma nouvellement créée est alors supprimée et son `DocumentProcess` passe à l'état `removed`. Le `Document` importé reste conservé pour assurer la traçabilité.
+
+Le hash SHA-256 porte sur le contenu binaire exact du fichier. Deux fichiers visuellement identiques mais dont les octets diffèrent, par exemple à cause de métadonnées PDF différentes, ne possèdent pas nécessairement le même hash.
+
 ## Informations à renseigner
 
 Lors de l'encodage, les informations suivantes doivent être complétées :
