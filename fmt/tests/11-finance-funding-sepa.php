@@ -58,7 +58,7 @@ $tests = [
                     <PmtInf>
                     <PmtInfId>BATCH-1766054754</PmtInfId>
                     <PmtMtd>TRF</PmtMtd>
-                    <BtchBookg>true</BtchBookg>
+                    <BtchBookg>false</BtchBookg>
                     <NbOfTxs>1</NbOfTxs>
                     <CtrlSum>113.38</CtrlSum>
                     <PmtTpInf>
@@ -202,7 +202,8 @@ $tests = [
                             'package'   => 'finance'
                         ]);
 
-                    return $result['result'];
+                    return $result['result']
+                        && strpos($xml, '<BtchBookg>false</BtchBookg>') !== false;
                 },
             'rollback'          => function() {
                     Funding::search(['description', '=', 'Test Funding'])->delete(true);

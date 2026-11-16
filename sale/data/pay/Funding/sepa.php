@@ -139,7 +139,8 @@ $grpHdr = [
 $pmtInf = [
     $n('PmtInfId')  => $group_id,
     $n('PmtMtd')    => 'TRF',
-    $n('BtchBookg') => 'true',
+    // #memo - we need one operation per transaction/invoice
+    $n('BtchBookg') => 'false',
     $n('NbOfTxs')   => strval(count($fundings)),
     $n('CtrlSum')   => $total_formatted,
 
