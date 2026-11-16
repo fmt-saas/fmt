@@ -166,8 +166,8 @@ class MiscOperationLine extends Model {
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null], ['is_statutory', '=', false], ['is_active', '=', true], ['status', '=', 'validated']],
                 'help'              => "This value is used for splitting the amount amongst owners. One set, it can no longer be changed.",
                 'visible'           => [
-                    [['account_id', '<>', null], ['is_expense', '=', true]],
-                    [['account_id', '<>', null], ['is_income', '=', true]]
+                    [['account_id', '<>', null], ['is_expense', '=', true], ['is_private_consumption', '=', false]],
+                    [['account_id', '<>', null], ['is_income', '=', true], ['is_private_consumption', '=', false]]
                 ]
             ],
 
@@ -211,12 +211,22 @@ class MiscOperationLine extends Model {
                 'onupdate'          => 'onupdateIsPrivateExpense'
             ],
 
+            'is_private_consumption' => [
+                'type'              => 'boolean',
+                'description'       => 'Enable application of the charge to a single owner.',
+                'default'           => false,
+                'readonly'          => true
+            ],
+
             'ownership_id' => [
                 'type'              => 'computed',
                 'result_type'       => 'many2one',
                 'description'       => "The ownership that the line refers to (based on accounting account).",
                 'foreign_object'    => 'realestate\ownership\Ownership',
-                'visible'           => ['is_private_expense', '=', true],
+                'visible'           => [
+                    [ ['is_private_expense', '=', true] ],
+                    [ ['is_private_consumption', '=', true] ]
+                ],
                 'ondelete'          => 'cascade',
                 'domain'            => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
                 'function'          => 'calcOwnershipId',
@@ -238,7 +248,10 @@ class MiscOperationLine extends Model {
                 'type'              => 'many2one',
                 'description'       => "Property Lot to apply the charge to.",
                 'foreign_object'    => 'realestate\property\PropertyLot',
-                'visible'           => ['is_private_expense', '=', true],
+                'visible'           => [
+                    [ ['is_private_expense', '=', true] ],
+                    [ ['is_private_consumption', '=', true] ]
+                ],
                 'domain'            => ['condo_id', '=', 'object.condo_id']
             ],
 

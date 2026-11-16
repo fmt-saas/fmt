@@ -463,99 +463,6 @@ class ConsumptionStatement extends \equal\orm\Model {
 
         return $result;
     }
-/*
-    protected static function doGenerateAccountingEntry($self) {
-
-        $self->read([
-                'condo_id',
-                'name',
-                'fiscal_year_id',
-                'accounting_entry_id',
-                'emission_date',
-                'called_amount',
-                'description',
-                'fund_request_id' => ['request_type', 'request_account_id'],
-                'execution_lines_ids' => ['ownership_id', 'called_amount']
-            ]);
-
-        foreach($self as $id => $requestExecution) {
-            $logs = [];
-
-            if($requestExecution['accounting_entry_id'] !== null) {
-                AccountingEntry::id($requestExecution['accounting_entry_id'])->delete(true);
-            }
-
-            $journal = Journal::search([['condo_id', '=', $requestExecution['condo_id']], ['journal_type', '=', 'SALE']])->first();
-
-            $logs[] = "Retrieved SALE journal id {$journal['id']}";
-
-            // create an accounting entry
-            $accountingEntry = AccountingEntry::create([
-                    'condo_id'                  => $requestExecution['condo_id'],
-                    'journal_id'                => $journal['id'],
-                    'invoice_id'                => $id,
-                    'fiscal_year_id'            => $requestExecution['fiscal_year_id'],
-                    'entry_date'                => $requestExecution['emission_date'],
-                    'origin_object_class'       => self::getType(),
-                    'origin_object_id'          => $id,
-                    'sale_invoice_id'           => $id,
-                    'fund_request_execution_id' => $id
-                ])
-                ->first();
-
-            $logs[] = "Created accounting entry id {$accountingEntry['id']}";
-
-            // create the credit line
-            AccountingEntryLine::create([
-                    'condo_id'              => $requestExecution['condo_id'],
-                    'accounting_entry_id'   => $accountingEntry['id'],
-                    'description'           => $requestExecution['description'],
-                    'account_id'            => $requestExecution['fund_request_id']['request_account_id'],
-                    'debit'                 => 0.0,
-                    'credit'                => $requestExecution['called_amount']
-                ]);
-
-            //create the debit lines
-            $debit_operation_assignment = static::getDebitOperationAssignment($requestExecution['fund_request_id']['request_type']);
-            $logs[] = "Retrieved debit operation assignment {$debit_operation_assignment}";
-
-            foreach($requestExecution['execution_lines_ids'] as $execution_line_id => $executionLine) {
-
-                $ownership_id = $executionLine['ownership_id'];
-                // find the account based on operation_assignment
-                $logs[] = "Fetching account for ownership {$ownership_id}";
-                $ownershipAccount = Account::search([
-                        ['condo_id', '=', $requestExecution['condo_id']],
-                        ['ownership_id', '=', $ownership_id],
-                        ['operation_assignment', '=', $debit_operation_assignment]
-                    ])
-                    ->first();
-
-                if(!$ownershipAccount) {
-                    throw new \Exception('missing_ownership_accounting_account', EQ_ERROR_INVALID_PARAM);
-                }
-
-                $logs[] = "Retrieved owner account {$ownershipAccount['id']}";
-
-                AccountingEntryLine::create([
-                        'condo_id'              => $requestExecution['condo_id'],
-                        'accounting_entry_id'   => $accountingEntry['id'],
-                        // #memo - in realestate package, 'sale_invoice_line_id' targets `ExpenseStatementOwnerLine` and `FundRequestExecutionLine`
-                        'sale_invoice_line_id'  => $execution_line_id,
-                        'description'           => $requestExecution['description'],
-                        'account_id'            => $ownershipAccount['id'],
-                        'debit'                 => $executionLine['called_amount'],
-                        'credit'                => 0.0
-                    ]);
-            }
-            self::id($id)->update([
-                    'accounting_entry_id' => $accountingEntry['id'],
-                    'logs'  => implode("\n", $logs)
-                ]);
-        }
-
-    }
-*/
 
     protected static function doGenerateStatementLines($self) {
         $self->read([
@@ -898,7 +805,10 @@ class ConsumptionStatement extends \equal\orm\Model {
                     ['journal_type', '=', 'MISC']
                 ])
                 ->first();
-            $consumption_statement_account_id = $consumptionStatement['consumption_file_id']['accounting_account_id'];
+
+            $account = Account::id($consumptionStatement['consumption_file_id']['accounting_account_id'])
+                ->read(['tenant_share', 'owner_share'])
+                ->first();
 
             $description = 'Consumption statement';
             $miscOperation = MiscOperation::create([
@@ -915,14 +825,17 @@ class ConsumptionStatement extends \equal\orm\Model {
             foreach($consumptionStatement['consumption_statement_calculation_lines_ids'] as $calculationLine) {
                 $amount = round((float) $calculationLine['amount'], 2);
                 MiscOperationLine::create([
-                    'condo_id'          => $consumptionStatement['condo_id'],
-                    'misc_operation_id' => $miscOperation['id'],
-                    'account_id'        => $consumption_statement_account_id,
-                    'ownership_id'      => $calculationLine['ownership_id'],
-                    'property_lot_id'   => $calculationLine['property_lot_id'],
-                    'description'       => $description,
-                    'debit'             => $amount > 0.0 ? abs($amount) : 0.0,
-                    'credit'            => $amount < 0.0 ? abs($amount) : 0.0
+                    'condo_id'                  => $consumptionStatement['condo_id'],
+                    'misc_operation_id'         => $miscOperation['id'],
+                    'account_id'                => $account['id'],
+                    'is_private_consumption'    => true,
+                    'ownership_id'              => $calculationLine['ownership_id'],
+                    'property_lot_id'           => $calculationLine['property_lot_id'],
+                    'description'               => $description,
+                    'owner_share'               => $account['owner_share'],
+                    'tenant_share'              => $account['tenant_share'],
+                    'debit'                     => $amount > 0.0 ? abs($amount) : 0.0,
+                    'credit'                    => $amount < 0.0 ? abs($amount) : 0.0
                 ]);
             }
 

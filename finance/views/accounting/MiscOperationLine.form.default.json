@@ -101,6 +101,12 @@
                                                 "width": "50%"
                                             },
                                             {
+                                                "type": "field",
+                                                "value": "is_private_consumption",
+                                                "width": "50%",
+                                                "visible": false
+                                            },
+                                            {
                                                 "type": "label",
                                                 "value": "",
                                                 "width": "50%"
