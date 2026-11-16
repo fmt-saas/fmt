@@ -437,16 +437,6 @@ class ConsumptionStatement extends \equal\orm\Model {
                 $result[$id]['missing_posting_date'] = 'A posting date is required for accounting integration.';
             }
 
-            $accountingEntry = AccountingEntry::search([
-                    ['origin_object_class', '=', self::getType()],
-                    ['origin_object_id', '=', $id],
-                    ['status', '<>', 'pending']
-                ])
-                ->first();
-            if($accountingEntry) {
-                $result[$id]['accounting_operation_already_exists'] = 'An accounting operation already exists for this statement.';
-            }
-
             foreach($consumptionStatement['consumption_statement_calculation_lines_ids'] as $calculationLine) {
                 if(!$calculationLine['ownership_id']) {
                     $result[$id]['missing_calculation_line_ownership'] = 'Every calculation line must have an ownership before integration.';
