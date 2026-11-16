@@ -119,7 +119,7 @@
                                         "items": [
                                             {
                                                 "type": "field",
-                                                "value": "consumption_file_lots_ids",
+                                                "value": "consumption_statements_ids",
                                                 "width": "100%",
                                                 "widget": {"view": "list.default"}
                                             }
