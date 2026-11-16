@@ -1415,14 +1415,16 @@ class BankStatementLine extends Model {
     }
 
     protected static function onafterPost($self) {
-        $self->read(['bank_statement_id', 'accounting_entry_id', 'payments_ids']);
+        $self->read(['bank_statement_id' => ['id', 'status'], 'accounting_entry_id', 'payments_ids']);
         foreach($self as $id => $bankStatementLine) {
             if(!$bankStatementLine['bank_statement_id']) {
                 continue;
             }
             AccountingEntry::id($bankStatementLine['accounting_entry_id'])->transition('validate');
             Payment::ids($bankStatementLine['payments_ids'])->transition('post');
-            BankStatement::id($bankStatementLine['bank_statement_id'])->do('refresh_status');
+            if($bankStatementLine['bank_statement_id']['status'] !== 'posted') {
+                BankStatement::id($bankStatementLine['bank_statement_id']['id'])->do('refresh_status');
+            }
         }
     }
 
@@ -2053,7 +2055,26 @@ class BankStatementLine extends Model {
 
     }
 
-    public static function onafterupdate($self) {
+    public static function onafterupdate($self, $values) {
+        static $document_fields = [
+            'sequence_number',
+            'date',
+            'communication',
+            'communication_type',
+            'amount',
+            'amount_currency',
+            'account_iban',
+            'account_holder',
+            'account_bic',
+            'transaction_type',
+            'mandate_identifier',
+            'bank_statement_id'
+        ];
+
+        if(!array_intersect_key($values, array_flip($document_fields))) {
+            return;
+        }
+
         $self->read(['bank_statement_id']);
         $map_statements_ids = [];
         foreach($self as $id => $bankStatementLine) {

@@ -501,7 +501,7 @@ class BankStatement extends Model {
                     break;
                 }
             }
-            self::id($id)->update([
+            self::id($id)->write([
                     'status' => $status,
                     'expected_opening_balance' => null
                 ]);
@@ -585,6 +585,9 @@ class BankStatement extends Model {
             catch(\Exception $e) {
                 // ignore already posted lines
                 trigger_error("APP::BankStatement::onafterPost - Failed to post BankStatementLine: {$e->getMessage()}", EQ_REPORT_WARNING);
+            }
+            finally {
+                self::id($id)->do('refresh_status');
             }
 
             if($bankStatement['document_process_id'] && $bankStatement['document_process_id']['status'] !== 'integrated') {
