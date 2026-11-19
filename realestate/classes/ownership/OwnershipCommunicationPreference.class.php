@@ -82,7 +82,8 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
             'is_owner' => [
                 'type'              => 'boolean',
                 'description'       => "Mark the recipient as an owner (from ownership).",
-                'default'           => false
+                'default'           => false,
+                'onupdate'          => 'onupdateIsOwner'
             ],
 
             'owner_id' => [
@@ -92,7 +93,8 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                 'required'          => false,
                 'visible'           => ['is_owner', '=', true],
                 'domain'            => [ ['condo_id', '=', 'object.condo_id'], ['ownership_id', '=', 'object.ownership_id'] ],
-                'help'              => 'This field is empty when the ownership is represented by an external person.'
+                'help'              => 'This field is empty when the ownership is represented by an external person.',
+                'onupdate'          => 'onupdateOwnerId'
             ]
 
         ];
@@ -117,6 +119,56 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
         ]);
     }
 
+    protected static function onupdateIsOwner($self) {
+        $self->read(['is_owner']);
+
+        foreach($self as $id => $ownershipCommunicationPreference) {
+            if(!$ownershipCommunicationPreference['is_owner']) {
+                self::id($id)->write(['owner_id' => null]);
+            }
+        }
+    }
+
+    protected static function onupdateOwnerId($self) {
+        $self->read(['owner_id']);
+
+        foreach($self as $id => $ownershipCommunicationPreference) {
+            self::id($id)->write(['is_owner' => (bool) $ownershipCommunicationPreference['owner_id']]);
+        }
+    }
+
+    protected static function cancreate($self, $values): array {
+        $owner_id = $values['owner_id'] ?? null;
+        if(is_array($owner_id)) {
+            $owner_id = $owner_id['id'] ?? null;
+        }
+
+        $ownership_id = $values['ownership_id'] ?? null;
+        if(is_array($ownership_id)) {
+            $ownership_id = $ownership_id['id'] ?? null;
+        }
+
+        if(!$owner_id && $ownership_id) {
+            $ownership = Ownership::id($ownership_id)
+                ->read(['has_external_representative', 'representative_identity_id'])
+                ->first();
+
+            if(
+                !$ownership
+                || !$ownership['has_external_representative']
+                || !$ownership['representative_identity_id']
+            ) {
+                return [
+                    'owner_id' => [
+                        'external_representative_required' => 'An external representative is required when no owner is selected.'
+                    ]
+                ];
+            }
+        }
+
+        return parent::cancreate($self, $values);
+    }
+
     /**
      * #memo - only one postal channel is allowed per recipient and communication reason.
      */
@@ -133,6 +185,7 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
                 'has_channel_postal_registered_receipt',
                 'ownership_id' => [
                     'id',
+                    'has_external_representative',
                     'representative_identity_id' => ['email', 'email_alt']
                 ]
             ]);
@@ -142,6 +195,23 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
             $owner_id = array_key_exists('owner_id', $values)
                 ? $values['owner_id']
                 : ($ownershipCommunicationPreference['owner_id']['id'] ?? null);
+            if(is_array($owner_id)) {
+                $owner_id = $owner_id['id'] ?? null;
+            }
+
+            if(
+                !$owner_id
+                && (
+                    !$ownershipCommunicationPreference['ownership_id']['has_external_representative']
+                    || !$ownershipCommunicationPreference['ownership_id']['representative_identity_id']
+                )
+            ) {
+                return [
+                    'owner_id' => [
+                        'external_representative_required' => 'An external representative is required when no owner is selected.'
+                    ]
+                ];
+            }
 
             $identity = $ownershipCommunicationPreference['ownership_id']['representative_identity_id'] ?? null;
             if($owner_id) {
@@ -245,6 +315,18 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
 
     public static function onchange($event, $values) {
         $result = [];
+
+        if(array_key_exists('owner_id', $event)) {
+            $owner_id = $event['owner_id'];
+            if(is_array($owner_id)) {
+                $owner_id = $owner_id['id'] ?? null;
+            }
+
+            $result['is_owner'] = (bool) $owner_id;
+        }
+        elseif(array_key_exists('is_owner', $event) && !$event['is_owner']) {
+            $result['owner_id'] = null;
+        }
 
         if(isset($event['has_channel_postal']) && $event['has_channel_postal']) {
             $result['has_channel_postal_registered'] = false;
