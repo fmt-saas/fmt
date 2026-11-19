@@ -4,9 +4,14 @@
     'description'   => 'Run every model discriminator migration in a deterministic order.',
     'params'        => [
         'confirm' => [
-            'description'   => 'Explicit confirmation required to execute all model migrations.',
+            'description'   => 'Explicit confirmation required to apply all model migrations.',
             'type'          => 'boolean',
-            'required'      => true,
+            'default'       => false,
+        ],
+        'dry_run' => [
+            'description'   => 'Report required changes without modifying the database.',
+            'type'          => 'boolean',
+            'default'       => false,
         ],
     ],
     'access'        => [
@@ -24,7 +29,8 @@
 
 ['context' => $context] = $providers;
 
-if(($params['confirm'] ?? false) !== true) {
+$dry_run = $params['dry_run'] ?? false;
+if(!$dry_run && ($params['confirm'] ?? false) !== true) {
     throw new Exception('missing_confirmation', EQ_ERROR_MISSING_PARAM);
 }
 
@@ -47,9 +53,41 @@ foreach($migration_files as $migration_file) {
 
     $controller = 'fmt_model_' . $action_name;
     try {
-        $result = eQual::run('do', $controller, ['confirm' => true]);
+        $result = eQual::run('do', $controller, [
+            'confirm' => !$dry_run,
+            'dry_run' => $dry_run
+        ]);
     }
     catch(Throwable $e) {
+        if($dry_run) {
+            trigger_error(
+                "APP::Model migration audit failed for {$controller}: {$e->getMessage()}",
+                EQ_REPORT_WARNING
+            );
+            $error = 'model_migration_audit_failed';
+            $message = $e->getMessage();
+            if(str_starts_with($message, 'missing_table:')) {
+                $error = 'missing_table';
+            }
+            elseif(str_starts_with($message, 'missing_columns:')) {
+                $error = 'missing_columns';
+            }
+            elseif(str_starts_with($message, 'unexpected_existing_rows:')) {
+                $error = 'unexpected_existing_rows';
+            }
+            elseif(str_contains($message, '_unclassifiable_row:')) {
+                $error = 'unclassifiable_rows';
+            }
+            $results[] = [
+                'action' => $controller,
+                'result' => [
+                    'status' => 'error',
+                    'error'  => $error
+                ]
+            ];
+            continue;
+        }
+
         $completed_actions = array_column($results, 'action');
         $message = 'model_migration_failed:' . $controller;
         if(count($completed_actions)) {
@@ -67,11 +105,34 @@ foreach($migration_files as $migration_file) {
     ];
 }
 
+$summary = [
+    'schema_changes'    => 0,
+    'pending_rows'      => 0,
+    'blocked_rows'      => 0,
+    'failed_migrations' => 0
+];
+foreach($results as $migration) {
+    $result = $migration['result'] ?? null;
+    if(!is_array($result)) {
+        continue;
+    }
+    if(($result['model_column_missing'] ?? false) === true) {
+        ++$summary['schema_changes'];
+    }
+    $summary['pending_rows'] += (int) ($result['pending_rows'] ?? 0);
+    $summary['blocked_rows'] += (int) ($result['blocked_rows'] ?? 0);
+    if(($result['status'] ?? null) === 'error') {
+        ++$summary['failed_migrations'];
+    }
+}
+
 $context
     ->httpResponse()
     ->status(200)
     ->body([
         'migration_count' => count($results),
+        'dry_run'         => $dry_run,
+        'summary'         => $summary,
         'migrations'      => $results
     ])
     ->send();

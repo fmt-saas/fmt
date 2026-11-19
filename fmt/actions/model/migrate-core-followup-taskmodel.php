@@ -6,9 +6,14 @@ use equal\data\adapt\DataAdapterProviderSql;
     'description'   => 'Migrate the model discriminator for core_followup_taskmodel.',
     'params'        => [
         'confirm' => [
-            'description'   => 'Explicit confirmation required to execute the migration.',
+            'description'   => 'Explicit confirmation required to apply the migration.',
             'type'          => 'boolean',
-            'required'      => true,
+            'default'       => false,
+        ],
+        'dry_run' => [
+            'description'   => 'Report required changes without modifying the database.',
+            'type'          => 'boolean',
+            'default'       => false,
         ],
     ],
     'access'        => [
@@ -26,7 +31,8 @@ use equal\data\adapt\DataAdapterProviderSql;
 
 ['context' => $context, 'db' => $dbConnector] = $providers;
 
-if(($params['confirm'] ?? false) !== true) {
+$dry_run = $params['dry_run'] ?? false;
+if(!$dry_run && ($params['confirm'] ?? false) !== true) {
     throw new Exception('missing_confirmation', EQ_ERROR_MISSING_PARAM);
 }
 
@@ -44,25 +50,33 @@ if(!isset($tables[$table])) {
 }
 
 $columns = $db->getTableColumns($table);
-if(!in_array('model', $columns, true)) {
+$model_column_missing = !in_array('model', $columns, true);
+if($model_column_missing && !$dry_run) {
     $sql_adapter_provider = new DataAdapterProviderSql();
     $sql_type = $sql_adapter_provider->get('text/plain')->castOutType('text/plain:200');
     $db->sendQuery($db->getQueryAddColumn($table, 'model', ['type' => $sql_type, 'null' => true]));
     $columns = $db->getTableColumns($table);
+    $model_column_missing = false;
 }
 
 $required_columns = ['id', 'model'];
-$missing_columns = array_values(array_diff($required_columns, $columns));
+$available_required_columns = $model_column_missing && $dry_run
+    ? array_values(array_diff($required_columns, ['model']))
+    : $required_columns;
+$missing_columns = array_values(array_diff($available_required_columns, $columns));
 if(count($missing_columns)) {
     throw new Exception('missing_columns:' . implode(',', $missing_columns), EQ_ERROR_INVALID_CONFIG);
 }
+$read_columns = $model_column_missing
+    ? array_values(array_diff($required_columns, ['model']))
+    : $required_columns;
 
 $row_count = 0;
 $result = $db->getRecords($table, ['id']);
 while($db->fetchArray($result)) {
     ++$row_count;
 }
-if($row_count !== 0) {
+if($row_count !== 0 && !$dry_run) {
     throw new Exception('unexpected_existing_rows:' . $row_count, EQ_ERROR_INVALID_CONFIG);
 }
 
@@ -70,10 +84,15 @@ $context
     ->httpResponse()
     ->status(200)
     ->body([
-        'table'         => $table,
-        'reported_rows' => $reported_rows,
-        'current_rows'  => $row_count,
-        'migrated_rows' => 0
+        'table'                => $table,
+        'dry_run'              => $dry_run,
+        'model_column_missing' => $model_column_missing,
+        'reported_rows'        => $reported_rows,
+        'current_rows'         => $row_count,
+        'pending_rows'         => 0,
+        'blocked_rows'         => $row_count,
+        'can_apply'            => $row_count === 0,
+        'migrated_rows'        => 0
     ])
     ->send();
 

@@ -6,9 +6,14 @@ use equal\data\adapt\DataAdapterProviderSql;
     'description'   => 'Migrate the model discriminator for finance_accounting_miscoperation.',
     'params'        => [
         'confirm' => [
-            'description'   => 'Explicit confirmation required to execute the migration.',
+            'description'   => 'Explicit confirmation required to apply the migration.',
             'type'          => 'boolean',
-            'required'      => true,
+            'default'       => false,
+        ],
+        'dry_run' => [
+            'description'   => 'Report required changes without modifying the database.',
+            'type'          => 'boolean',
+            'default'       => false,
         ],
     ],
     'access'        => [
@@ -26,7 +31,8 @@ use equal\data\adapt\DataAdapterProviderSql;
 
 ['context' => $context, 'db' => $dbConnector] = $providers;
 
-if(($params['confirm'] ?? false) !== true) {
+$dry_run = $params['dry_run'] ?? false;
+if(!$dry_run && ($params['confirm'] ?? false) !== true) {
     throw new Exception('missing_confirmation', EQ_ERROR_MISSING_PARAM);
 }
 
@@ -44,18 +50,26 @@ if(!isset($tables[$table])) {
 }
 
 $columns = $db->getTableColumns($table);
-if(!in_array('model', $columns, true)) {
+$model_column_missing = !in_array('model', $columns, true);
+if($model_column_missing && !$dry_run) {
     $sql_adapter_provider = new DataAdapterProviderSql();
     $sql_type = $sql_adapter_provider->get('text/plain')->castOutType('text/plain:200');
     $db->sendQuery($db->getQueryAddColumn($table, 'model', ['type' => $sql_type, 'null' => true]));
     $columns = $db->getTableColumns($table);
+    $model_column_missing = false;
 }
 
 $required_columns = ['id', 'model', 'operation_type'];
-$missing_columns = array_values(array_diff($required_columns, $columns));
+$available_required_columns = $model_column_missing && $dry_run
+    ? array_values(array_diff($required_columns, ['model']))
+    : $required_columns;
+$missing_columns = array_values(array_diff($available_required_columns, $columns));
 if(count($missing_columns)) {
     throw new Exception('missing_columns:' . implode(',', $missing_columns), EQ_ERROR_INVALID_CONFIG);
 }
+$read_columns = $model_column_missing
+    ? array_values(array_diff($required_columns, ['model']))
+    : $required_columns;
 
 $classify = static function(array $row): string {
     $models = [
@@ -72,7 +86,7 @@ $classify = static function(array $row): string {
 
 $model_ids = [];
 $row_count = 0;
-$result = $db->getRecords($table, $required_columns);
+$result = $db->getRecords($table, $read_columns);
 while($row = $db->fetchArray($result)) {
     ++$row_count;
     $model = $classify($row);
@@ -81,8 +95,14 @@ while($row = $db->fetchArray($result)) {
     }
 }
 
+$pending_by_model = [];
+foreach($model_ids as $model => $ids) {
+    $pending_by_model[$model] = count($ids);
+}
+$pending_rows = array_sum($pending_by_model);
+
 $migrated_rows = 0;
-if(count($model_ids)) {
+if(!$dry_run && count($model_ids)) {
     $db->sendQuery('START TRANSACTION');
     try {
         foreach($model_ids as $model => $ids) {
@@ -99,10 +119,12 @@ if(count($model_ids)) {
     }
 }
 
-$result = $db->getRecords($table, $required_columns);
-while($row = $db->fetchArray($result)) {
-    if(($row['model'] ?? null) !== $classify($row)) {
-        throw new Exception('model_migration_verification_failed:' . (int) $row['id'], EQ_ERROR_UNKNOWN);
+if(!$dry_run) {
+    $result = $db->getRecords($table, $required_columns);
+    while($row = $db->fetchArray($result)) {
+        if(($row['model'] ?? null) !== $classify($row)) {
+            throw new Exception('model_migration_verification_failed:' . (int) $row['id'], EQ_ERROR_UNKNOWN);
+        }
     }
 }
 
@@ -110,10 +132,14 @@ $context
     ->httpResponse()
     ->status(200)
     ->body([
-        'table'         => $table,
-        'reported_rows' => $reported_rows,
-        'current_rows'  => $row_count,
-        'migrated_rows' => $migrated_rows
+        'table'                => $table,
+        'dry_run'              => $dry_run,
+        'model_column_missing' => $model_column_missing,
+        'reported_rows'        => $reported_rows,
+        'current_rows'         => $row_count,
+        'pending_rows'         => $pending_rows,
+        'pending_by_model'     => $pending_by_model,
+        'migrated_rows'        => $migrated_rows
     ])
     ->send();
 
