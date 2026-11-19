@@ -211,7 +211,8 @@ class Ownership extends \equal\orm\Model {
                 // #memo - legal person is allowed
                 // 'domain'            => ['type_id', '=', 1],
                 'visible'           => ['has_external_representative', '=', true],
-                'dependents'        => ['name']
+                'dependents'        => ['name'],
+                'onupdate'          => 'onupdateExternalRepresentativeId'
             ],
 
             'has_representative' => [
@@ -1111,6 +1112,17 @@ class Ownership extends \equal\orm\Model {
                 ->update([
                     'identity_id'   => $ownership['creation_identity_id']
                 ]);
+        }
+    }
+
+    protected static function onupdateExternalRepresentativeId($self) {
+        $self->read(['has_external_representative']);
+
+        foreach($self as $id => $ownership) {
+            if(!$ownership['has_external_representative']) {
+                continue;
+            }
+            self::id($id)->do('generate_communication_prefs');
         }
     }
 
