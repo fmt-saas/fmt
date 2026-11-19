@@ -137,38 +137,6 @@ class OwnershipCommunicationPreference extends \equal\orm\Model {
         }
     }
 
-    protected static function cancreate($self, $values): array {
-        $owner_id = $values['owner_id'] ?? null;
-        if(is_array($owner_id)) {
-            $owner_id = $owner_id['id'] ?? null;
-        }
-
-        $ownership_id = $values['ownership_id'] ?? null;
-        if(is_array($ownership_id)) {
-            $ownership_id = $ownership_id['id'] ?? null;
-        }
-
-        if(!$owner_id && $ownership_id) {
-            $ownership = Ownership::id($ownership_id)
-                ->read(['has_external_representative', 'representative_identity_id'])
-                ->first();
-
-            if(
-                !$ownership
-                || !$ownership['has_external_representative']
-                || !$ownership['representative_identity_id']
-            ) {
-                return [
-                    'owner_id' => [
-                        'external_representative_required' => 'An external representative is required when no owner is selected.'
-                    ]
-                ];
-            }
-        }
-
-        return parent::cancreate($self, $values);
-    }
-
     /**
      * #memo - only one postal channel is allowed per recipient and communication reason.
      */
