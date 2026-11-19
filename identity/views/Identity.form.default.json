@@ -150,6 +150,11 @@
                                             },
                                             {
                                                 "type": "field",
+                                                "value": "email_alt",
+                                                "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
                                                 "value": "phone",
                                                 "width": "100%"
                                             },

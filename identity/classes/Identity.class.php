@@ -1637,6 +1637,10 @@ class Identity extends Model {
             $result['email'] = trim($event['email']);
         }
 
+        if(isset($event['email_alt'])) {
+            $result['email_alt'] = trim($event['email_alt']);
+        }
+
         /*
         $validation_values = array_filter(
             array_intersect_key(
@@ -1786,7 +1790,7 @@ class Identity extends Model {
                     'source',
                     'type_id','legal_name','firstname','lastname','lang_id',
                     'has_vat','vat_number','citizen_identification', 'registration_number',
-                    'email','phone','mobile',
+                    'email','email_alt', 'phone', 'phone_alt', 'mobile',
                     'bank_account_iban', 'bank_account_bic', 'bank_name', 'bank_country',
                     'address_street','address_dispatch','address_zip', 'address_city','address_state','address_country'
                 ];

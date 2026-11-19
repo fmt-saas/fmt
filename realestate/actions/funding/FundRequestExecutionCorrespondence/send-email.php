@@ -141,18 +141,27 @@ foreach($template['parts_ids'] as $part) {
 }
 
 $recipientIdentity = $fundRequestExecutionCorrespondence['recipient_identity_id'];
-$recipient_email = ($recipientIdentity['email'] ?? null)
-    ?: ($recipientIdentity['email_alt'] ?? null);
+$primary_email = $recipientIdentity['email'] ?? null;
+$secondary_email = $recipientIdentity['email_alt'] ?? null;
 
-if(!$recipient_email || $recipient_email === '') {
+if(is_null($primary_email)) {
+    $primary_email = $secondary_email;
+    $secondary_email = null;
+}
+
+if(is_null($primary_email)) {
     throw new \Exception('missing_mandatory_email', EQ_ERROR_INVALID_CONFIG);
 }
 
 $message = new EmailMessage();
-$message->setTo($recipient_email)
+$message->setTo($primary_email)
         ->setSubject($subject)
         ->setContentType('text/html')
         ->setBody($body);
+
+if(!is_null($secondary_email) && strcasecmp($secondary_email, $primary_email) !== 0) {
+    $message->addCc($secondary_email);
+}
 
 $managementProcess = ManagementProcess::search(['code', '=', 'finance'])->read(['mailbox_id'])->first();
 if(!$managementProcess || !$managementProcess['mailbox_id']) {
