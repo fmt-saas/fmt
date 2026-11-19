@@ -305,16 +305,6 @@ class Ownership extends \equal\orm\Model {
                 'function'          => 'calcPaymentReference'
             ],
 
-            'status' => [
-                'type'              => 'string',
-                'description'       => 'Current status of the Ownership.',
-                'selection'         => [
-                    'pending',
-                    'validated'
-                ],
-                'default'           => 'pending'
-            ],
-
             'broadcasts_ids' => [
                 'type'              => 'many2many',
                 'foreign_object'    => 'communication\broadcast\BroadcastMessage',
@@ -324,6 +314,16 @@ class Ownership extends \equal\orm\Model {
                 'rel_local_key'     => 'ownership_id',
                 'description'       => 'Broadcasts to send to the ownership identity email address.'
             ],
+
+            'status' => [
+                'type'              => 'string',
+                'description'       => 'Current status of the Ownership.',
+                'selection'         => [
+                    'pending',
+                    'validated'
+                ],
+                'default'           => 'pending'
+            ]
 
         ];
     }
