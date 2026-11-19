@@ -37,7 +37,7 @@
             },
             {
                 "type": "field",
-                "value": "email",
+                "value": "display_email",
                 "width": "20%"
             },
             {
@@ -53,17 +53,17 @@
             {
                 "type": "field",
                 "value": "shares_full_property",
-                "width": "20%"
+                "width": "10%"
             },
             {
                 "type": "field",
                 "value": "shares_bare_property",
-                "width": "20%"
+                "width": "10%"
             },
             {
                 "type": "field",
                 "value": "shares_usufruct",
-                "width": "20%"
+                "width": "10%"
             }
         ]
     }
