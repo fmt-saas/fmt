@@ -71,13 +71,22 @@ $read_columns = $model_column_missing
     ? array_values(array_diff($required_columns, ['model']))
     : $required_columns;
 
+$valid_models = [
+    'fmt\\core\\followup\\Task',
+    'purchase\\accounting\\invoice\\followup\\Task'
+];
+
 $row_count = 0;
-$result = $db->getRecords($table, ['id']);
-while($db->fetchArray($result)) {
+$blocked_rows = 0;
+$result = $db->getRecords($table, $read_columns);
+while($row = $db->fetchArray($result)) {
     ++$row_count;
+    if(!in_array($row['model'] ?? null, $valid_models, true)) {
+        ++$blocked_rows;
+    }
 }
-if($row_count !== 0 && !$dry_run) {
-    throw new Exception('unexpected_existing_rows:' . $row_count, EQ_ERROR_INVALID_CONFIG);
+if($blocked_rows !== 0 && !$dry_run) {
+    throw new Exception('unexpected_existing_rows:' . $blocked_rows, EQ_ERROR_INVALID_CONFIG);
 }
 
 $context
@@ -90,8 +99,8 @@ $context
         'reported_rows'        => $reported_rows,
         'current_rows'         => $row_count,
         'pending_rows'         => 0,
-        'blocked_rows'         => $row_count,
-        'can_apply'            => $row_count === 0,
+        'blocked_rows'         => $blocked_rows,
+        'can_apply'            => $blocked_rows === 0,
         'migrated_rows'        => 0
     ])
     ->send();
