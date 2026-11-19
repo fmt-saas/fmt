@@ -141,7 +141,7 @@
                             <div>
                                 {{ recipient.name }}
                                 {% if recipient.owner_vat_number is defined and recipient.owner_vat_number | length > 0 %}
-                                    — {{ labels['header.vat_number'] }}: {{ recipient.owner_vat_number }}
+                                    &nbsp;({{ labels['header.vat_number'] }} {{ recipient.owner_vat_number }})
                                 {% endif %}
                             </div>
                             {% if recipient.care_of is defined and recipient.care_of | length > 0 %}

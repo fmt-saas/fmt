@@ -544,7 +544,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
             $ownerships_ids = array_column($fundRequestExecution['execution_lines_ids']->toArray(), 'ownership_id');
 
-            $now = time();
+            $now = time() + 60;
 
             foreach($ownerships_ids as $ownership_id) {
                 // fetch Ownership communication preferences
