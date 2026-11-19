@@ -122,10 +122,13 @@ try {
             throw new Exception('email_not_queued', EQ_ERROR_INVALID_CONFIG);
         }
 
-        Email::id($email_id)->update([
-            'mailbox_id'                => $mailbox['id'],
-            'attachment_documents_ids'  => $broadcast['documents_ids']
-        ]);
+        Email::id($email_id)
+            ->update([
+                'mailbox_id'                => $mailbox['id'],
+            ])
+            ->update([
+                'attachment_documents_ids'  => $broadcast['documents_ids']
+            ]);
 
         $queued_recipients[$recipient_key] = true;
     }
