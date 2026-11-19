@@ -140,6 +140,11 @@
             "description": "Adresse e-mail secondaire.",
             "help": ""
         },
+        "display_email": {
+            "label": "Adresses e-mail",
+            "description": "Adresses e-mail disponibles, séparées pour être copiées dans un logiciel de messagerie.",
+            "help": ""
+        },
         "phone": {
             "label": "Téléphone",
             "description": "Numéro de téléphone.",

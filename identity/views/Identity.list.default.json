@@ -61,7 +61,7 @@
             },
             {
                 "type": "field",
-                "value": "email",
+                "value": "display_email",
                 "width": "20%"
             }
         ]

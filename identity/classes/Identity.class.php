@@ -560,7 +560,8 @@ class Identity extends Model {
                 'type'              => 'string',
                 'usage'             => 'email',
                 'onupdate'          => 'onupdateEmail',
-                'description'       => "Identity main email address."
+                'description'       => "Identity main email address.",
+                'dependents'        => ['display_email']
             ],
 
             'email_alt' => [
@@ -568,6 +569,16 @@ class Identity extends Model {
                 'usage'             => 'email',
                 'description'       => "Identity secondary email address.",
                 'onupdate'          => 'onupdateEmailAlt',
+                'dependents'        => ['display_email']
+            ],
+
+            'display_email' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'function'          => 'calcDisplayEmail',
+                'store'             => true,
+                'instant'           => true,
+                'description'       => "Available identity email addresses, separated for direct use in email clients."
             ],
 
             'phone' => [
@@ -1130,6 +1141,21 @@ class Identity extends Model {
                 continue;
             }
             $result[$id] = hash('sha256', $id_number . constant('AUTH_SECRET_KEY'));
+        }
+        return $result;
+    }
+
+    protected static function calcDisplayEmail($self) {
+        $result = [];
+        $self->read(['email', 'email_alt']);
+        foreach($self as $id => $identity) {
+            $emails = [];
+            foreach(['email', 'email_alt'] as $field) {
+                if(isset($identity[$field]) && strlen(trim($identity[$field])) > 0) {
+                    $emails[] = trim($identity[$field]);
+                }
+            }
+            $result[$id] = implode('; ', $emails);
         }
         return $result;
     }
