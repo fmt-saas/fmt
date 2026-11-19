@@ -10,7 +10,10 @@
             "icon": "play_arrow",
             "description": "Initiate the processing of the document.",
             "controller": "core_model_do",
-            "visible": ["document_process_id", "=", null],
+            "visible": [
+                ["document_process_id", "=", null],
+                ["origin_document_id", "=", null]
+            ],
             "params": {
                 "entity": "documents\\Document",
                 "action": "start_processing",
