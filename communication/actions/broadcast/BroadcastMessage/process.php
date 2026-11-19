@@ -124,7 +124,7 @@ try {
 
         Email::id($email_id)->update([
             'mailbox_id'                => $mailbox['id'],
-            'attachment_documents_ids'  => $broadcast['documents_ids']->ids()
+            'attachment_documents_ids'  => $broadcast['documents_ids']
         ]);
 
         $queued_recipients[$recipient_key] = true;
