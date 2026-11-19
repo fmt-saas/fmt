@@ -395,15 +395,10 @@ class BankStatementImport extends Model {
                 }
             }
 
-            if($has_error) {
-                $logs[] = "ERR  - Import aborted during validation: no document process was created";
-                $logs[] = "INFO - Finished bank statement import {$id} with errors";
-                self::id($id)->write([
-                    'summary'   => self::computeSummary($summary),
-                    'logs'      => implode("\n", $logs),
-                    'has_error' => true
-                ]);
-                continue;
+            $has_validation_error = $has_error;
+            if($has_validation_error) {
+                $logs[] = "ERR  - Import validation completed with errors; valid statements will still be processed";
+                $has_error = false;
             }
 
             $created_document_processes_ids = [];
@@ -449,6 +444,16 @@ class BankStatementImport extends Model {
                     $logs[] = "ERR  - Automatic rollback failed; manual cleanup is required";
                 }
 
+                $logs[] = "INFO - Finished bank statement import {$id} with errors";
+                self::id($id)->write([
+                    'summary'   => self::computeSummary($summary),
+                    'logs'      => implode("\n", $logs),
+                    'has_error' => true
+                ]);
+                continue;
+            }
+
+            if($has_validation_error) {
                 $logs[] = "INFO - Finished bank statement import {$id} with errors";
                 self::id($id)->write([
                     'summary'   => self::computeSummary($summary),

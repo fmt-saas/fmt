@@ -412,8 +412,8 @@ $tests = [
     ],
 
     '3008' => [
-        'description' => "Reject an entire XLSX bank statement import when one statement is invalid.",
-        'help'        => "Ensure validation is atomic and no DocumentProcess is created when one transaction has a missing mandatory value.",
+        'description' => "Process valid XLSX bank statements when one statement is invalid.",
+        'help'        => "Ensure valid statements are processed and the import logs remain available when one transaction has a missing mandatory value.",
         'arrange'     => function () use ($prepareBankStatementImport) {
             $data = $prepareBankStatementImport(
                 'test_3008_atomic_invalid_xlsx.xlsx',
@@ -460,16 +460,26 @@ $tests = [
             return $runBankStatementImportBinary($data, $binary);
         },
         'assert'      => function ($data) {
-            if(count($data['document_processes']) !== 0 || !$data['bank_statement_import']) {
+            if(count($data['document_processes']) !== 7 || !$data['bank_statement_import']) {
                 return false;
+            }
+
+            $process_names = array_column($data['document_processes'], 'name');
+            if(in_array('test_3008_atomic_invalid_xlsx(1).xlsx', $process_names, true)) {
+                return false;
+            }
+            for($i = 2; $i <= 8; ++$i) {
+                if(!in_array("test_3008_atomic_invalid_xlsx({$i}).xlsx", $process_names, true)) {
+                    return false;
+                }
             }
 
             $import = $data['bank_statement_import'];
             return $import['has_error']
-                && str_contains($import['summary'], 'Statements imported: 0')
+                && str_contains($import['summary'], 'Statements imported: 7')
                 && str_contains($import['summary'], 'Statements rejected (invalid): 1')
                 && str_contains($import['logs'], 'transactions.0.amount')
-                && str_contains($import['logs'], 'Import aborted during validation: no document process was created');
+                && str_contains($import['logs'], 'Import validation completed with errors; valid statements will still be processed');
         },
         'rollback'    => function ($data) use ($cleanupBankStatementImport) {
             $cleanupBankStatementImport($data);
