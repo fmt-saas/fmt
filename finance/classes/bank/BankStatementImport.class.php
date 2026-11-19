@@ -357,7 +357,7 @@ class BankStatementImport extends Model {
 
                         $existingBankStatement = BankStatement::search([
                                 ['bank_account_iban', '=', $iban],
-                                ['statement_number', '=', $statement['statement_number']],
+                                ['statement_number', '=', sprintf("%03d", intval($statement['statement_number']))],
                                 ['opening_date', '=', strtotime($statement['opening_date'])],
                                 ['opening_balance', '=', round($statement['opening_balance'], 2)],
                                 ['closing_date', '=', strtotime($statement['closing_date'])],
