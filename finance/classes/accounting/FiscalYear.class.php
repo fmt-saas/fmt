@@ -440,6 +440,7 @@ class FiscalYear extends Model {
         $result = [];
         $date_values = array_intersect_key($values, array_flip(['date_from', 'date_to']));
         $fiscal_period_frequency = $values['fiscal_period_frequency'] ?? null;
+        $force_single_period = (bool) ($values['force_single_period'] ?? false);
 
         $self->read(['status', 'condo_id', 'is_first', 'opening_balance_id', 'date_from', 'date_to', 'fiscal_period_frequency']);
         foreach($self as $id => $fiscalYear) {
@@ -463,6 +464,16 @@ class FiscalYear extends Model {
             ) {
                 $result[$id] = [
                     'invalid_fiscal_period_frequency' => 'Invalid fiscal period frequency.'
+                ];
+                continue;
+            }
+
+            if(
+                $force_single_period
+                && ($fiscal_period_frequency ?? $fiscalYear['fiscal_period_frequency']) !== 'A'
+            ) {
+                $result[$id] = [
+                    'force_single_period_requires_annual_frequency' => 'A single fiscal period can only be forced for an annual frequency.'
                 ];
                 continue;
             }
@@ -494,6 +505,7 @@ class FiscalYear extends Model {
                 $date_from === $fiscalYear['date_from']
                 && $date_to === $fiscalYear['date_to']
                 && !$frequency_changed
+                && !$force_single_period
             ) {
                 continue;
             }
@@ -1098,6 +1110,7 @@ class FiscalYear extends Model {
     protected static function doReschedule($self, $values) {
         $date_values = array_intersect_key($values, array_flip(['date_from', 'date_to']));
         $fiscal_period_frequency = $values['fiscal_period_frequency'] ?? null;
+        $force_single_period = (bool) ($values['force_single_period'] ?? false);
         $reschedule_plan = [];
         $frequency_updates = [];
 
@@ -1118,6 +1131,7 @@ class FiscalYear extends Model {
                 $date_from === $fiscalYear['date_from']
                 && $date_to === $fiscalYear['date_to']
                 && !$frequency_changed
+                && !$force_single_period
             ) {
                 continue;
             }
@@ -1171,8 +1185,9 @@ class FiscalYear extends Model {
         }
 
         // 5. Regenerate periods.
-        self::ids($affected_fiscal_years_ids)
-            ->do('generate_periods');
+        self::ids($affected_fiscal_years_ids)->do('generate_periods', [
+            'force_single_period_ids' => $force_single_period ? $self->ids() : []
+        ]);
 
         $affectedFiscalYears = self::ids($affected_fiscal_years_ids);
 
@@ -1741,7 +1756,9 @@ class FiscalYear extends Model {
         }
     }
 
-    protected static function doGeneratePeriods($self) {
+    protected static function doGeneratePeriods($self, $values = []) {
+        $force_single_period_ids = array_flip($values['force_single_period_ids'] ?? []);
+
         $self->read(['date_from', 'date_to', 'fiscal_period_frequency', 'condo_id' => ['id']]);
         foreach($self as $id => $fiscalYear) {
             if(!$fiscalYear['date_from']) {
@@ -1752,6 +1769,15 @@ class FiscalYear extends Model {
             }
             FiscalPeriod::search(['fiscal_year_id', '=', $id])->delete(true);
             $periods = self::computeFiscalPeriodRanges($fiscalYear);
+
+            if(
+                isset($force_single_period_ids[$id])
+                && $fiscalYear['fiscal_period_frequency'] === 'A'
+                && count($periods) > 1
+            ) {
+                $periods = [$periods[0]];
+                $periods[0]['date_to'] = $fiscalYear['date_to'];
+            }
 
             $i = 0;
 

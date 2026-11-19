@@ -71,6 +71,13 @@ use finance\accounting\FiscalYear;
                 return $fiscalYear['fiscal_period_frequency'] ?? null;
             },
             'required'          => true
+        ],
+        'force_single_period' => [
+            'type'              => 'boolean',
+            'label'             => 'Force single period',
+            'description'       => 'Generate a single fiscal period covering the complete fiscal year.',
+            'default'           => false,
+            'visible'           => ['fiscal_period_frequency', '=', 'A']
         ]
     ],
     'access'        => [
@@ -93,7 +100,8 @@ use finance\accounting\FiscalYear;
 $self->do('reschedule', [
     'date_from'               => $params['date_from'],
     'date_to'                 => $params['date_to'],
-    'fiscal_period_frequency' => $params['fiscal_period_frequency']
+    'fiscal_period_frequency' => $params['fiscal_period_frequency'],
+    'force_single_period'     => $params['force_single_period']
 ]);
 
 $context->httpResponse()

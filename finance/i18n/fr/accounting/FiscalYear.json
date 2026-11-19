@@ -133,6 +133,7 @@
     "error": {
         "errors": {
             "missing_reschedule_values": "Au moins une date ou la fréquence des périodes doit être fournie.",
+            "force_single_period_requires_annual_frequency": "Une période fiscale unique ne peut être forcée qu'avec une fréquence annuelle.",
             "fiscal_year_not_reschedulable": "Un exercice pré-clôturé ou clôturé ne peut plus être replanifié.",
             "date_from_not_editable": "La date de début ne peut être modifiée que pour un premier exercice comptable sans balance d'ouverture.",
             "invalid_date_range": "La date de début de l'exercice doit précéder sa date de fin.",
