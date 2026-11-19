@@ -35,7 +35,7 @@ $context = $providers['context'];
 
 $expenseStatementCorrespondence = ExpenseStatementCorrespondence::id($params['id'])
     ->read([
-        'status', 'condo_id', 'ownership_id', 'recipient_identity_id', 'name',
+        'status', 'condo_id', 'ownership_id', 'recipient_identity_id', 'address_block', 'name',
         'expense_statement_id' => ['id', 'fiscal_period_id', 'posting_date', 'is_cutoff_at_document_date']
     ])
     ->first();
@@ -101,6 +101,7 @@ try {
 
     try {
         $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-pdf', [
+                'address_block'         => $expenseStatementCorrespondence['address_block'],
                 'expense_statement_id'  => $expenseStatement['id'],
                 'ownership_id'          => $expenseStatementCorrespondence['ownership_id'],
                 'recipient_identity_id' => $expenseStatementCorrespondence['recipient_identity_id']

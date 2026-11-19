@@ -6,7 +6,6 @@
 */
 
 use fmt\setting\Setting;
-use identity\Identity;
 use identity\Organisation;
 use realestate\property\transfer\OwnershipTransferSettlementCorrespondence;
 use Twig\Environment as TwigEnvironment;
@@ -42,8 +41,9 @@ use Twig\Loader\FilesystemLoader as TwigFilesystemLoader;
 $correspondence = OwnershipTransferSettlementCorrespondence::id($params['id'])
     ->read([
         'recipient_role',
+        'address_block',
         'recipient_identity_id' => ['lang_id' => ['code']],
-        'ownership_id' => ['name', 'code', 'address_recipient'],
+        'ownership_id' => ['name', 'code'],
         'settlement_id' => [
             'name',
             'transfer_date',
@@ -87,53 +87,7 @@ if(!$recipientIdentity) {
 }
 
 $lang = $recipientIdentity['lang_id']['code'] ?? 'fr';
-$identity = Identity::id($recipientIdentity['id'])
-    ->read([
-        'firstname',
-        'lastname',
-        'title',
-        'email',
-        'address_street',
-        'address_dispatch',
-        'address_zip',
-        'address_city',
-        'address_country',
-        'has_vat',
-        'vat_number'
-    ], $lang)
-    ->first();
-
-if(!$identity) {
-    throw new Exception('unknown_correspondence_recipient', EQ_ERROR_INVALID_CONFIG);
-}
-
-$title = $identity['title'] ?? '';
-try {
-    $identityI18n = eQual::run('get', 'core_config_i18n', [
-        'entity' => 'identity\Identity',
-        'lang'   => $lang
-    ]);
-    $title = $identityI18n['model']['title']['selection'][$title] ?? $title;
-}
-catch(Throwable $e) {
-    // Keep the stored title when translations are unavailable.
-}
-
-$recipient = [
-    'name'             => trim($title . ' ' . ucfirst($identity['firstname']) . ' ' . strtoupper($identity['lastname'])),
-    'email'            => $identity['email'],
-    'address_street'   => $identity['address_street'],
-    'address_dispatch' => $identity['address_dispatch'],
-    'address_zip'      => $identity['address_zip'],
-    'address_city'     => $identity['address_city'],
-    'address_country'  => $identity['address_country'],
-    'has_vat'          => $identity['has_vat'],
-    'vat_number'       => $identity['vat_number']
-];
-
-if(strlen($correspondence['ownership_id']['address_recipient'] ?? '') > 0) {
-    $recipient['name'] = $correspondence['ownership_id']['address_recipient'];
-}
+$recipient = (array) json_decode($correspondence['address_block'] ?? '{}', true);
 
 $organisation = Organisation::id(1)
     ->read([

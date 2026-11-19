@@ -11,6 +11,12 @@ use Dompdf\Options as DompdfOptions;
     'description'   => 'Generate a PDF file of given payment reminder.',
     'params'        => [
 
+        'address_block' => [
+            'description'       => 'Resolved correspondence address block as a JSON object.',
+            'type'              => 'string',
+            'usage'             => 'text/json'
+        ],
+
         'payment_reminder_id' => [
             'description'       => 'Identifier of the specific PaymentReminder to consider.',
             'type'              => 'many2one',
@@ -67,6 +73,7 @@ $context = $providers['context'];
 try {
 
     $html = (string) eQual::run('get', 'realestate_funding_fiscalperiod_paymentreminder_single-html', [
+            'address_block'         => $params['address_block'] ?? null,
             'payment_reminder_id'   => $params['payment_reminder_id'],
             'ownership_id'          => $params['ownership_id'],
             'recipient_identity_id' => $params['recipient_identity_id'] ?? null

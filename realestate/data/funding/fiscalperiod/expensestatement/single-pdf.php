@@ -11,6 +11,12 @@ use Dompdf\Options as DompdfOptions;
     'description'   => 'Generate a PDF file of given expense statement.',
     'params'        => [
 
+        'address_block' => [
+            'description'       => 'Resolved correspondence address block as a JSON object.',
+            'type'              => 'string',
+            'usage'             => 'text/json'
+        ],
+
         'expense_statement_id' => [
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\funding\ExpenseStatement',
@@ -75,6 +81,7 @@ $context = $providers['context'];
 try {
 
     $html = (string) eQual::run('get', 'realestate_funding_fiscalperiod_expensestatement_single-html', [
+            'address_block'         => $params['address_block'] ?? null,
             'expense_statement_id'  => $params['expense_statement_id'],
             'ownership_id'          => $params['ownership_id'],
             'recipient_identity_id' => $params['recipient_identity_id'] ?? null

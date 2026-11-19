@@ -7,7 +7,6 @@
 
 use communication\template\Template;
 use fmt\setting\Setting;
-use identity\Identity;
 use identity\Organisation;
 use realestate\governance\Assembly;
 use realestate\governance\AssemblyInvitationCorrespondence;
@@ -140,37 +139,12 @@ $getLabels = function ($lang, $view_i18n_file_path) {
     );
 };
 
-$getRecipient = function($identity_id, $lang) {
-    $identity = Identity::id($identity_id)
-        ->read([
-                'firstname', 'lastname', 'title', 'address_street', 'address_dispatch', 'address_zip',
-                'address_city', 'address_country', 'has_vat', 'vat_number',
-            ], $lang)
-        ->first();
-
-    $data = eQual::run('get', 'core_config_i18n', ['entity' => 'identity\Identity', 'lang' => $lang]);
-
-    $title = $data['model']['title']['selection'][$identity['title']] ?? $identity['title'];
-
-    return [
-            'name'              => $title . ' ' . ucfirst($identity['firstname']) . ' ' . strtoupper($identity['lastname']),
-            'firstname'         => $identity['firstname'],
-            'lastname'          => $identity['lastname'],
-            'address_street'    => $identity['address_street'],
-            'address_dispatch'  => $identity['address_dispatch'],
-            'address_zip'       => $identity['address_zip'],
-            'address_city'      => $identity['address_city'],
-            'address_country'   => $identity['address_country'],
-            'has_vat'           => $identity['has_vat'],
-            'vat_number'        => $identity['vat_number'],
-    ];
-};
-
 $assemblyInvitationCorrespondence = AssemblyInvitationCorrespondence::id($params['id'])
     ->read([
         'assembly_id',
+        'address_block',
         'recipient_identity_id' => ['lang_id' => ['code']],
-        'ownership_id' => ['code', 'address_recipient']
+        'ownership_id' => ['code']
     ])
     ->first(true);
 
@@ -185,11 +159,7 @@ if(!$recipientIdentity) {
 
 $recipient_lang = $recipientIdentity['lang_id']['code'] ?? $params['lang'];
 
-$recipient = $getRecipient($recipientIdentity['id'], $recipient_lang);
-
-if(strlen($assemblyInvitationCorrespondence['ownership_id']['address_recipient'] ?? '') > 0) {
-    $recipient['name'] = $assemblyInvitationCorrespondence['ownership_id']['address_recipient'];
-}
+$recipient = (array) json_decode($assemblyInvitationCorrespondence['address_block'] ?? '{}', true);
 
 $assembly = Assembly::id($assemblyInvitationCorrespondence['assembly_id'])
     ->read([

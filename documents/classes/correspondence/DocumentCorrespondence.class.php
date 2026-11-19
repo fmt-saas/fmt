@@ -44,6 +44,16 @@ class DocumentCorrespondence extends \equal\orm\Model {
                 'readonly'          => true
             ],
 
+            'address_block' => [
+                'type'              => 'computed',
+                'result_type'       => 'string',
+                'usage'             => 'text/json',
+                'description'       => 'JSON object containing the resolved correspondence address block.',
+                'function'          => 'calcAddressBlock',
+                'store'             => false,
+                'readonly'          => true
+            ],
+
             'document_id' => [
                 'type'              => 'many2one',
                 'description'       => 'The document (PDF) of the invitation, if any.',
@@ -132,6 +142,82 @@ class DocumentCorrespondence extends \equal\orm\Model {
             if($ownership['representative_owner_id']['identity_id'] ?? null) {
                 $result[$id] = $ownership['representative_owner_id']['identity_id'];
             }
+        }
+
+        return $result;
+    }
+
+    protected static function calcAddressBlock($self) {
+        $result = [];
+
+        $self->read([
+            'owner_id' => ['identity_id'],
+            'recipient_identity_id' => [
+                'name',
+                'firstname',
+                'lastname',
+                'title',
+                'email',
+                'address_street',
+                'address_dispatch',
+                'address_zip',
+                'address_city',
+                'address_country'
+            ],
+            'ownership_id' => [
+                'address_recipient',
+                'has_external_representative',
+                'representative_identity_id',
+                'representative_owner_id' => [
+                    'identity_id' => ['vat_number']
+                ]
+            ]
+        ]);
+
+        foreach($self as $id => $documentCorrespondence) {
+            $result[$id] = '{}';
+
+            $recipientIdentity = $documentCorrespondence['recipient_identity_id'] ?? null;
+            $ownership = $documentCorrespondence['ownership_id'] ?? null;
+            if(!$recipientIdentity || !$ownership) {
+                continue;
+            }
+
+            $owner_identity_id = $documentCorrespondence['owner_id']['identity_id'] ?? null;
+            $recipient_identity_id = $recipientIdentity['id'];
+            $representative_identity_id = $ownership['representative_identity_id'] ?? null;
+
+            $care_of = '';
+            $is_direct_owner = $owner_identity_id
+                && (int) $recipient_identity_id === (int) $owner_identity_id;
+
+            if(
+                !$is_direct_owner
+                && $ownership['has_external_representative']
+                && (int) $recipient_identity_id === (int) $representative_identity_id
+            ) {
+                $care_of = $recipientIdentity['name'] ?? '';
+            }
+
+            $ownerIdentity = $ownership['representative_owner_id']['identity_id'] ?? null;
+            $vat_number = $ownerIdentity['vat_number'] ?? '';
+
+            $result[$id] = json_encode([
+                'name'                => $ownership['address_recipient'] ?: ($recipientIdentity['name'] ?? ''),
+                'firstname'           => $recipientIdentity['firstname'] ?? '',
+                'lastname'            => $recipientIdentity['lastname'] ?? '',
+                'title'               => $recipientIdentity['title'] ?? '',
+                'email'               => $recipientIdentity['email'] ?? '',
+                'care_of'             => $care_of,
+                'address_street'      => $recipientIdentity['address_street'] ?? '',
+                'address_dispatch'    => $recipientIdentity['address_dispatch'] ?? '',
+                'address_zip'         => $recipientIdentity['address_zip'] ?? '',
+                'address_city'        => $recipientIdentity['address_city'] ?? '',
+                'address_country'     => $recipientIdentity['address_country'] ?? '',
+                'has_vat'             => $vat_number !== '',
+                'vat_number'          => $vat_number,
+                'owner_vat_number'    => $vat_number
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}';
         }
 
         return $result;

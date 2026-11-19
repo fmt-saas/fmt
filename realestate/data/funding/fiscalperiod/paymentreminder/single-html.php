@@ -21,6 +21,12 @@ use Twig\TwigFilter;
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate an html view of a payment reminder for a single ownership.',
     'params'        => [
+        'address_block' => [
+            'description'       => 'Resolved correspondence address block as a JSON object.',
+            'type'              => 'string',
+            'usage'             => 'text/json'
+        ],
+
         'payment_reminder_id' => [
             'description'       => 'Identifier of the specific PaymentReminder to consider.',
             'type'              => 'many2one',
@@ -299,6 +305,13 @@ $recipient = $getRecipient($recipientIdentity['id'], $lang);
 
 if(strlen($ownership['address_recipient'] ?? '') > 0) {
     $recipient['name'] = $ownership['address_recipient'];
+}
+
+if($params['address_block'] ?? null) {
+    $recipient = array_merge(
+        $recipient,
+        (array) json_decode($params['address_block'], true)
+    );
 }
 
 

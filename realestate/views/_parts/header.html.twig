@@ -29,6 +29,8 @@
             "firstname": "string",
             "lastname": "string",
             "title": "string",
+            "care_of": "string (optional)",
+            "owner_vat_number": "string (optional)",
             "address_street": "string (optional)",
             "address_dispatch": "string (optional)",
             "address_zip": "string",
@@ -136,7 +138,15 @@
                     {% if recipient is defined %}
                         <!-- recipient-info start -->
                         <div style="padding-top: 25px; padding-bottom: 30px;" class="recipient-info {{ debug ? 'debug' : '' }}">
-                            <div>{{ recipient.name }} </div>
+                            <div>
+                                {{ recipient.name }}
+                                {% if recipient.owner_vat_number is defined and recipient.owner_vat_number | length > 0 %}
+                                    — {{ labels['header.vat_number'] }}: {{ recipient.owner_vat_number }}
+                                {% endif %}
+                            </div>
+                            {% if recipient.care_of is defined and recipient.care_of | length > 0 %}
+                                <div>c/o {{ recipient.care_of }}</div>
+                            {% endif %}
                             {% if recipient.address_street | length > 0 %}
                                 <div>{{ recipient.address_street }}</div>
                             {% endif %}
@@ -153,7 +163,7 @@
                                     {{ recipient.address_country }}
                                 </div>
                             {% endif %}
-                            {% if recipient.has_vat and recipient.vat_number | length > 0 %}
+                            {% if recipient.owner_vat_number is not defined and recipient.has_vat and recipient.vat_number | length > 0 %}
                                 <div>
                                     {{ labels['header.vat_number'] }}: {{ recipient.vat_number }}
                                 </div>

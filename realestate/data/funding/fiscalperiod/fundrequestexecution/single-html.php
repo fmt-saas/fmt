@@ -23,6 +23,12 @@ use Twig\Extension\ExtensionInterface;
 [$params, $providers] = eQual::announce([
     'description'   => 'Generate an html view of given fund request for a single ownership.',
     'params'        => [
+        'address_block' => [
+            'description'       => 'Resolved correspondence address block as a JSON object.',
+            'type'              => 'string',
+            'usage'             => 'text/json'
+        ],
+
         'fund_request_execution_id' => [
             'description'       => 'Identifier of the specific ExpenseStatementCorrespondence to consider.',
             'type'              => 'many2one',
@@ -399,6 +405,13 @@ $recipient = $getRecipient($recipientIdentity['id'], $lang);
 
 if(strlen($ownership['address_recipient'] ?? '') > 0) {
     $recipient['name'] = $ownership['address_recipient'];
+}
+
+if($params['address_block'] ?? null) {
+    $recipient = array_merge(
+        $recipient,
+        (array) json_decode($params['address_block'], true)
+    );
 }
 
 // either theoretical funding, or due_balance funding

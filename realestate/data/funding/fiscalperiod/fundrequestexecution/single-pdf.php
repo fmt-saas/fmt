@@ -11,6 +11,12 @@ use Dompdf\Options as DompdfOptions;
     'description'   => 'Generate a PDF file of given fund request execution.',
     'params'        => [
 
+        'address_block' => [
+            'description'       => 'Resolved correspondence address block as a JSON object.',
+            'type'              => 'string',
+            'usage'             => 'text/json'
+        ],
+
         'fund_request_execution_id' => [
             'description'       => 'Identifier of the specific ExpenseStatementCorrespondence to consider.',
             'type'              => 'many2one',
@@ -67,6 +73,7 @@ $context = $providers['context'];
 try {
 
     $html = (string) eQual::run('get', 'realestate_funding_fiscalperiod_fundrequestexecution_single-html', [
+            'address_block'             => $params['address_block'] ?? null,
             'fund_request_execution_id' => $params['fund_request_execution_id'],
             'ownership_id'              => $params['ownership_id'],
             'recipient_identity_id'     => $params['recipient_identity_id'] ?? null

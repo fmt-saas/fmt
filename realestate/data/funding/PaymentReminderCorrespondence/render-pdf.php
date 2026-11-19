@@ -34,7 +34,7 @@ use realestate\funding\PaymentReminderCorrespondence;
 $context = $providers['context'];
 
 $paymentReminderCorrespondence = PaymentReminderCorrespondence::id($params['id'])
-    ->read(['ownership_id', 'recipient_identity_id', 'payment_reminder_id'])
+    ->read(['ownership_id', 'recipient_identity_id', 'address_block', 'payment_reminder_id'])
     ->first();
 
 if(!$paymentReminderCorrespondence) {
@@ -50,6 +50,7 @@ try {
 
     try {
         $pdf = eQual::run('get', 'realestate_funding_fiscalperiod_paymentreminder_single-pdf', [
+                'address_block'         => $paymentReminderCorrespondence['address_block'],
                 'payment_reminder_id'   => $paymentReminderCorrespondence['payment_reminder_id'],
                 'ownership_id'          => $paymentReminderCorrespondence['ownership_id'],
                 'recipient_identity_id' => $paymentReminderCorrespondence['recipient_identity_id']

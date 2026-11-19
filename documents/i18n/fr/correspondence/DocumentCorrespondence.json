@@ -23,6 +23,11 @@
             "description": "Identité qui est la destinataire effective de la correspondance.",
             "help": "Déterminée à partir du propriétaire, du représentant externe ou, à défaut, du propriétaire représentant."
         },
+        "address_block": {
+            "label": "Bloc adresse",
+            "description": "Objet JSON contenant le bloc adresse résolu de la correspondance.",
+            "help": "Le nom et la TVA proviennent du dossier de propriété, tandis que le c/o et l'adresse dépendent du destinataire effectif."
+        },
         "document_id": {
             "label": "Document",
             "description": "Document PDF généré pour cette correspondance, le cas échéant.",

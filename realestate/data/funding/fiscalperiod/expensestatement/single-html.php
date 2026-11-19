@@ -26,6 +26,12 @@ use realestate\ownership\Ownership;
     'help' => 'This action is a variation of the expense statement generation, producing a preview PDF for a single ownership within a specified fiscal period.',
     'params'        => [
 
+        'address_block' => [
+            'description'       => 'Resolved correspondence address block as a JSON object.',
+            'type'              => 'string',
+            'usage'             => 'text/json'
+        ],
+
         'expense_statement_id' => [
             'type'              => 'many2one',
             'foreign_object'    => 'realestate\funding\ExpenseStatement',
@@ -502,6 +508,13 @@ $recipient = $getRecipient($recipientIdentity['id'], $lang);
 
 if(strlen($ownership['address_recipient'] ?? '') > 0) {
     $recipient['name'] = $ownership['address_recipient'];
+}
+
+if($params['address_block'] ?? null) {
+    $recipient = array_merge(
+        $recipient,
+        (array) json_decode($params['address_block'], true)
+    );
 }
 
 $funding = [];
