@@ -313,6 +313,14 @@ class FiscalPeriod extends Model {
                 MiscOperation::id($miscOperation['id'])
                     ->do('assign_operation_number');
             }
+
+            if(count($miscOperations) > 0) {
+                AccountingEntry::search([
+                        ['status', '=', 'validated'],
+                        ['misc_operation_id', 'in', array_column($miscOperations, 'id')]
+                    ])
+                    ->do('refresh_entry_reference');
+            }
         }
     }
 
@@ -363,6 +371,14 @@ class FiscalPeriod extends Model {
 
             foreach($purchaseInvoices as $purchaseInvoice) {
                 PurchaseInvoice::id($purchaseInvoice['id'])->do('assign_invoice_number');
+            }
+
+            if(count($purchaseInvoices) > 0) {
+                AccountingEntry::search([
+                        ['status', '=', 'validated'],
+                        ['purchase_invoice_id', 'in', array_column($purchaseInvoices, 'id')]
+                    ])
+                    ->do('refresh_entry_reference');
             }
         }
     }
@@ -416,6 +432,14 @@ class FiscalPeriod extends Model {
                 FundRequestExecution::doAssignInvoiceNumber(
                     FundRequestExecution::id($requestExecution['id'])
                 );
+            }
+
+            if(count($requestExecutions) > 0) {
+                AccountingEntry::search([
+                        ['status', '=', 'validated'],
+                        ['sale_invoice_id', 'in', array_column($requestExecutions, 'id')]
+                    ])
+                    ->do('refresh_entry_reference');
             }
         }
     }
@@ -481,6 +505,12 @@ class FiscalPeriod extends Model {
                 BankStatementLine::id($bankStatementLine['id'])
                     ->read(['name']);
             }
+
+            AccountingEntry::search([
+                    ['status', '=', 'validated'],
+                    ['bank_statement_line_id', 'in', array_column($bankStatementLines, 'id')]
+                ])
+                ->do('refresh_entry_reference');
         }
     }
 

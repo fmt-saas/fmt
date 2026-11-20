@@ -313,6 +313,11 @@ class AccountingEntry extends Model {
                 'policies'      => [],
                 'function'      => 'doRefreshFiscalAssignment'
             ],
+            'refresh_entry_reference' => [
+                'description'   => 'Invalidate the stored entry reference on the entry and its lines.',
+                'policies'      => ['can_refresh_entry_reference'],
+                'function'      => 'doRefreshEntryReference'
+            ],
             'reassign_entry_number' => [
                 'description'   => 'Assign a new entry number using the current fiscal period sequence.',
                 'policies'      => ['can_reassign_entry_number'],
@@ -346,6 +351,15 @@ class AccountingEntry extends Model {
 
             $orm->write($self->getClass(), $id, $values);
             $orm->write(AccountingEntryLine::getType(), $accountingEntry['entry_lines_ids'], $values);
+        }
+    }
+
+    protected static function doRefreshEntryReference($self, $orm) {
+        $self->read(['entry_lines_ids']);
+
+        foreach($self as $id => $accountingEntry) {
+            $orm->write(self::getType(), $id, ['entry_reference' => null]);
+            $orm->write(AccountingEntryLine::getType(), $accountingEntry['entry_lines_ids'], ['entry_reference' => null]);
         }
     }
 
@@ -713,11 +727,30 @@ class AccountingEntry extends Model {
                 'description' => 'Verifies that an accounting entry can be cancelled (validated and not already cancelled).',
                 'function'    => 'policyCanCancel'
             ],
+            'can_refresh_entry_reference' => [
+                'description' => 'Verifies that an accounting entry reference can be refreshed.',
+                'function'    => 'policyCanRefreshEntryReference'
+            ],
             'can_reassign_entry_number' => [
                 'description' => 'Verifies that an accounting entry can receive a new entry number.',
                 'function'    => 'policyCanReassignEntryNumber'
             ]
         ];
+    }
+
+    protected static function policyCanRefreshEntryReference($self): array {
+        $result = [];
+
+        $self->read(['status']);
+        foreach($self as $id => $accountingEntry) {
+            if($accountingEntry['status'] !== 'validated') {
+                $result[$id] = [
+                    'invalid_status' => 'Only validated accounting entries can refresh their entry reference.'
+                ];
+            }
+        }
+
+        return $result;
     }
 
     protected static function policyCanReassignEntryNumber($self): array {
