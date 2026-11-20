@@ -193,7 +193,7 @@ class Ownership extends \equal\orm\Model {
 
             'address_recipient' => [
                 'type'              => 'string',
-                'usage'             => 'text/plain:50',
+                'usage'             => 'text/plain:80',
                 'description'       => "Line to be used for sending courier to the Ownership representative(s)."
             ],
 
