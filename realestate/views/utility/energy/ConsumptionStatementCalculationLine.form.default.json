@@ -53,6 +53,11 @@
                                                 "type": "field",
                                                 "value": "page_to",
                                                 "width": "100%"
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "document_id",
+                                                "width": "100%"
                                             }
                                         ]
                                     }

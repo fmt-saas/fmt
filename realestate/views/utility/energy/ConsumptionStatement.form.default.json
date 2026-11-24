@@ -144,7 +144,8 @@
                 "domain": [
                     ["condo_id", "=", "object.condo_id"],
                     ["consumption_statement_id", "=", "object.id"]
-                ]
+                ],
+                "visible": ["status", "in", ["draft", "proforma", "sent"]]
             }
         }
     ],
