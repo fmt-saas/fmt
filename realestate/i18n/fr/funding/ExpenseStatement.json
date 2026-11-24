@@ -104,6 +104,11 @@
             "description": "Montant global imputé aux charges privatives.",
             "help": ""
         },
+        "consumptions_total": {
+            "label": "Total consommations",
+            "description": "Montant global imputé aux décomptes de consommation.",
+            "help": ""
+        },
         "assigned_delta": {
             "label": "Delta d'affectation",
             "description": "Écart éventuel lié aux arrondis entre charges et répartition.",

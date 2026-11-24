@@ -10,6 +10,7 @@
         "date_to": {"label": "Date de fin", "description": "Dernier jour inclus dans le relevé.", "help": "Elle est proposée à un an calendaire moins un jour de la date de début."},
         "posting_date": {"label": "Date de comptabilisation", "description": "Date de comptabilisation du relevé.", "help": "Sélectionnez la date de comptabilisation."},
         "document_id": {"label": "Document", "description": "Document original du relevé.", "help": "Sélectionnez le document source reçu du fournisseur."},
+        "has_shared_document": {"label": "Document partagé", "description": "Indique si le document du relevé de consommation est partagé.", "help": "Activez cette option lorsque le document a été partagé."},
         "consumption_meter_id": {"label": "Ancien compteur", "description": "Ancien compteur principal lié au relevé.", "help": "Ce champ facultatif et masqué est conservé pour les données existantes."},
         "consumption_file_id": {"label": "Dossier de consommation", "description": "Dossier de configuration utilisé par le relevé.", "help": "En brouillon, un changement conserve les allocations et ajoute celles du nouveau dossier."},
         "fixed_share_heating": {"label": "Part fixe chauffage", "description": "Pourcentage des frais de chauffage attribué à la part fixe.", "help": "La part fixe et la part variable totalisent 100 %."},

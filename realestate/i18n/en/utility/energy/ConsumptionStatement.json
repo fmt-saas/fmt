@@ -10,6 +10,7 @@
         "date_to": {"label": "End date", "description": "Last day included in the statement period.", "help": "It is proposed as one calendar year minus one day after the start date."},
         "posting_date": {"label": "Posting date", "description": "Date on which the statement must be posted.", "help": "Select the accounting posting date."},
         "document_id": {"label": "Document", "description": "Original consumption statement document.", "help": "Select the source document received from the supplier."},
+        "has_shared_document": {"label": "Shared document", "description": "Indicates whether the consumption statement document is shared.", "help": "Enable this option when the document has been shared."},
         "consumption_meter_id": {"label": "Legacy meter", "description": "Former master meter linked to the statement.", "help": "This optional hidden field is retained for existing data."},
         "consumption_file_id": {"label": "Consumption file", "description": "Configuration file used by the statement.", "help": "Changing it in draft preserves existing allocations and adds those of the new file."},
         "fixed_share_heating": {"label": "Fixed heating share", "description": "Percentage of heating costs allocated as fixed costs.", "help": "The fixed and variable shares together equal 100%."},

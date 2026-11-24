@@ -414,6 +414,7 @@ $expense_statement_fields = [
         'invoice_number',
         'common_total',
         'private_total',
+        'consumptions_total',
         'provisions_total',
         'is_cutoff_at_document_date',
         'statement_bank_account_id' => ['bank_account_iban', 'bank_account_bic'],
@@ -485,6 +486,7 @@ $values = [
         'nb_days'           => round(($fiscalPeriod['date_to'] - $fiscalPeriod['date_from']) / 86400, 0) + 1,
         'common_total'      => $statement['common_total'],
         'private_total'     => $statement['private_total'],
+        'consumptions_total' => $statement['consumptions_total'],
         'provisions_total'  => $statement['provisions_total'],
         'owners'            => []
     ];

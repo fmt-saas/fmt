@@ -171,6 +171,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'dependents'        => ['price', 'total']
             ],
 
+            'consumptions_total' => [
+                'type'              => 'float',
+                'usage'             => 'amount/money:2',
+                'description'       => 'Total amount assigned from consumption statements.',
+                'dependents'        => ['price', 'total']
+            ],
+
             'provisions_total' => [
                 'type'              => 'float',
                 'usage'             => 'amount/money:2',
@@ -523,17 +530,17 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
     }
 
     /**
-     * Check that the statement is balanced: common_total + assigned_delta = sum(expense_statement_owners.expense_amount)
+     * Check that the statement is balanced: common_total + private_total + consumptions_total + provisions_total - assigned_delta = sum(expense_statement_owners.expense_amount)
      */
     protected static function policyIsBalanced($self): array {
         $result = [];
-        $self->read(['common_total', 'private_total', 'provisions_total', 'assigned_delta', 'statement_owners_ids' => ['expense_amount']]);
+        $self->read(['common_total', 'private_total', 'consumptions_total', 'provisions_total', 'assigned_delta', 'statement_owners_ids' => ['expense_amount']]);
         foreach($self as $id => $expenseStatement) {
             $total_assigned = 0.0;
             foreach($expenseStatement['statement_owners_ids'] as $expense_statement_owner_id => $expenseStatementOwner) {
                 $total_assigned += round($expenseStatementOwner['expense_amount'] ?? 0.0, 2);
             }
-            $expected_total = round(($expenseStatement['common_total'] ?? 0.0) + ($expenseStatement['private_total'] ?? 0.0) + ($expenseStatement['provisions_total'] ?? 0.0) - ($expenseStatement['assigned_delta'] ?? 0.0), 2);
+            $expected_total = round(($expenseStatement['common_total'] ?? 0.0) + ($expenseStatement['private_total'] ?? 0.0) + ($expenseStatement['consumptions_total'] ?? 0.0) + ($expenseStatement['provisions_total'] ?? 0.0) - ($expenseStatement['assigned_delta'] ?? 0.0), 2);
             if(round($total_assigned - $expected_total, 2) != 0.0) {
                 $result[$id] = [
                     'unbalanced_allocation' => "The total assigned amount ({$total_assigned}) does not match the common total ({$expected_total})."
@@ -1200,6 +1207,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 ->update([
                     'provisions_total'  => self::normalizeMoneyAmount($data['provisions_total']),
                     'private_total'     => self::normalizeMoneyAmount($data['private_total']),
+                    'consumptions_total' => self::normalizeMoneyAmount($data['consumptions_total']),
                     'common_total'      => self::normalizeMoneyAmount($data['common_total']),
                     'assigned_delta'    => self::normalizeMoneyAmount($data['assigned_delta'])
                 ]);
@@ -1725,9 +1733,9 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
      * Build a resulting map with the following hierarchy:
      *  ownership > property_lot > {expense type} > apportionment > account > {share}
      *
-     *  - {expense type} : is based on on the code of the account associated to each accounting entry line, and can be amongst these: 'provisions', 'private_expense', 'common_expense' ('reserve_fund' is merged with 'common_expense')
+     *  - {expense type} : is based on on the code of the account associated to each accounting entry line, and can be amongst these: 'provisions', 'private_expense', 'consumptions', 'common_expense' ('reserve_fund' is merged with 'common_expense')
      *  - {share} : there are always two keys: 'owner' and 'tenant'. For reserve_fund, owner is always 100.
-     *  - apportionment : for private expense, we usa a fake apportionment ('0'), so that the structure remains the same in all situations.
+     *  - apportionment : for private expenses and consumption statements, we use a fake apportionment ('0'), so that the structure remains the same in all situations.
      *
      */
     private static function computeExpenseStatementData($fiscal_period_id, array $options = []) {
@@ -1884,6 +1892,11 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
          */
         $private_total = 0.0;
         /**
+         * @var float $consumptions_total
+         * Total amount of consumption statements in the current statement (all owners included).
+         */
+        $consumptions_total = 0.0;
+        /**
          * @var float $provisions_total
          * Total amount of provisions in the current statement (all owners included).
          */
@@ -1991,7 +2004,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
             }
 
-            // 2) private expense (643) (relates to a purchase invoice line or a bank statement line)
+            // 2) private expense or consumption statement
             /*
             Encodage des factures sur le compte correspondant à l'énergie consommée 61200
               + utilisation d'un compte dédié au décomptes de consommation (compteur) 61240
@@ -2082,16 +2095,24 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 else {
                     throw new \Exception('missing_mandatory_source_line', EQ_ERROR_INVALID_CONFIG);
                 }
+                $expense_type = ($accountingEntryLine['account_operation_assignment'] === 'consumption_statement')
+                    ? 'consumptions'
+                    : 'private_expense';
 
                 $ownership_id = $sourceLine['ownership_id'];
                 $property_lot_id = $sourceLine['property_lot_id'];
 
                 $amount = ($accountingEntryLine['debit'] > 0) ? $accountingEntryLine['debit'] : -$accountingEntryLine['credit'];
 
-                $private_total += $amount;
+                if($expense_type === 'consumptions') {
+                    $consumptions_total += $amount;
+                }
+                else {
+                    $private_total += $amount;
+                }
 
-                if(!isset($map_result[$ownership_id][$property_lot_id]['private_expense'][0][$accountingEntryLine['account_id']])) {
-                    $map_result[$ownership_id][$property_lot_id]['private_expense'][0][$accountingEntryLine['account_id']] = [];
+                if(!isset($map_result[$ownership_id][$property_lot_id][$expense_type][0][$accountingEntryLine['account_id']])) {
+                    $map_result[$ownership_id][$property_lot_id][$expense_type][0][$accountingEntryLine['account_id']] = [];
                 }
 
                 $amount_vat = round($amount * $sourceLine['vat_rate'], 2);
@@ -2102,12 +2123,12 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
 
                 $amount_tenant = round($amount - $amount_owner, 2);
 
-                $map_result[$ownership_id][$property_lot_id]['private_expense'][0][$accountingEntryLine['account_id']][] = [
+                $map_result[$ownership_id][$property_lot_id][$expense_type][0][$accountingEntryLine['account_id']][] = [
                         'owner'         => $amount_owner,
                         'tenant'        => $amount_tenant,
                         'vat'           => $amount_vat,
                         'description'   => $sourceLine['description'],
-                        // type : "private_expense" / "consumption"
+                        // type : "private_expense" / "consumptions"
                         'date'          => $posting_date
                     ];
 
@@ -2299,6 +2320,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         $result = [
                 'provisions_total'           => self::normalizeMoneyAmount($provisions_total),
                 'private_total'              => self::normalizeMoneyAmount($private_total),
+                'consumptions_total'         => self::normalizeMoneyAmount($consumptions_total),
                 'common_total'               => self::normalizeMoneyAmount($common_total),
                 // #memo - a positive amount means that a part of the purchase invoice was not allocated to owners
                 'assigned_delta'             => self::normalizeMoneyAmount($delta_total),
@@ -2450,6 +2472,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                 'id',
                 'common_total',
                 'private_total',
+                'consumptions_total',
                 'provisions_total',
                 'fiscal_period_id' => ['date_from', 'date_to'],
                 'statement_owners_ids' => ['schema']
@@ -2462,6 +2485,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'date_to'           => $statement['fiscal_period_id']['date_to'],
                     'common_total'      => $statement['common_total'],
                     'private_total'     => $statement['private_total'],
+                    'consumptions_total' => $statement['consumptions_total'],
                     'provisions_total'  => $statement['provisions_total'],
                     'nb_days'           => self::computeInclusiveDaysCount(
                         $statement['fiscal_period_id']['date_from'],

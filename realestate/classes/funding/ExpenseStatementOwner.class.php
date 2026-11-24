@@ -230,6 +230,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                     'date_to'               => $statementOwner['date_to'],
                     'has_reserve_fund'      => false,
                     'has_private_expense'   => false,
+                    'has_consumptions'      => false,
                     'has_common_expense'    => false,
                     'has_provisions'        => false,
                     'property_lots'         => []
@@ -253,6 +254,7 @@ class ExpenseStatementOwner extends \equal\orm\Model {
                         'primary_lot_id'        => $property_lots[$property_lot_id]['primary_lot_id'],
                         'has_reserve_fund'      => false,
                         'has_private_expense'   => false,
+                        'has_consumptions'      => false,
                         'has_common_expense'    => false,
                         'has_provisions'        => false,
                         'date_from'             => null,
@@ -276,11 +278,11 @@ class ExpenseStatementOwner extends \equal\orm\Model {
 
                 $expense_ref = &$owner['property_lots'][$property_lot_id]['expenses'][$expense_type];
 
-                if($expense_type === 'private_expense') {
+                if(in_array($expense_type, ['private_expense', 'consumptions'], true)) {
                     $expense_ref['lines'][] = [
                         'id'            => $line_id,
                         'date'          => $line['date'],
-                        'name'          => $line['name'] ?? 'private',
+                        'name'          => $line['name'] ?? $expense_type,
                         'total_amount'  => $line['total_amount'],
                         'owner'         => $line['owner_amount'],
                         'tenant'        => $line['tenant_amount'],

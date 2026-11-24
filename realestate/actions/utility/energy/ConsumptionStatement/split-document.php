@@ -37,6 +37,7 @@ $consumptionStatement = ConsumptionStatement::id($params['id'])
         'status',
         'condo_id',
         'document_id' => ['name'],
+        'has_shared_document',
         'consumption_statement_calculation_lines_ids' => [
             'page_from',
             'page_to',
@@ -49,7 +50,7 @@ if(!$consumptionStatement) {
     throw new Exception('unknown_consumption_statement', EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-if(!$consumptionStatement['document_id']) {
+if(!$consumptionStatement['document_id'] || $consumptionStatement['has_shared_document']) {
     throw new Exception('no_document_to_split', 0);
 }
 

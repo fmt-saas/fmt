@@ -10,6 +10,7 @@
         "date_to": {"label": "Einddatum", "description": "Laatste dag van de afrekeningsperiode.", "help": "Deze wordt voorgesteld als één kalenderjaar min één dag na de begindatum."},
         "posting_date": {"label": "Boekingsdatum", "description": "Datum waarop de afrekening wordt geboekt.", "help": "Selecteer de boekhoudkundige boekingsdatum."},
         "document_id": {"label": "Document", "description": "Origineel document van de verbruiksafrekening.", "help": "Selecteer het brondocument van de leverancier."},
+        "has_shared_document": {"label": "Gedeeld document", "description": "Geeft aan of het document van de verbruiksafrekening is gedeeld.", "help": "Schakel deze optie in wanneer het document is gedeeld."},
         "consumption_meter_id": {"label": "Oude meter", "description": "Voormalige hoofdmeter van de afrekening.", "help": "Dit optionele verborgen veld blijft behouden voor bestaande gegevens."},
         "consumption_file_id": {"label": "Verbruiksdossier", "description": "Configuratiedossier dat door de afrekening wordt gebruikt.", "help": "Een wijziging in concept behoudt bestaande verdelingen en voegt die van het nieuwe dossier toe."},
         "fixed_share_heating": {"label": "Vast aandeel verwarming", "description": "Percentage van de verwarmingskosten dat als vaste kosten wordt toegewezen.", "help": "Het vaste en variabele aandeel vormen samen 100%."},

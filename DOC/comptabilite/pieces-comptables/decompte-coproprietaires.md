@@ -237,6 +237,7 @@ Le contrôle principal est :
 Σ montant de tous les ExpenseStatementOwner
     = common_total
     + private_total
+    + consumptions_total
     + provisions_total
     - assigned_delta
 ```

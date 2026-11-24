@@ -73,6 +73,13 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'visible'        => ['status', 'not in', ['draft', 'proforma']]
             ],
 
+            'has_shared_document' => [
+                'type'        => 'boolean',
+                'description' => 'Indicates whether the consumption statement document is shared.',
+                'default'     => false,
+                'visible'     => ['document_id', '<>', null]
+            ],
+
             // #memo - kept optional for compatibility with statements with meter-based workflow.
             'consumption_meter_id' => [
                 'type'           => 'many2one',
@@ -496,11 +503,12 @@ class ConsumptionStatement extends \equal\orm\Model {
         $result = [];
         $self->read([
             'document_id',
+            'has_shared_document',
             'consumption_statement_calculation_lines_ids' => ['page_from', 'page_to']
         ]);
 
         foreach($self as $id => $consumptionStatement) {
-            if($consumptionStatement['document_id'] === null) {
+            if(!$consumptionStatement['document_id'] || $consumptionStatement['has_shared_document']) {
                 continue;
             }
 

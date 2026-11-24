@@ -147,7 +147,7 @@ try {
             $temp_files[] = $temp;
         }
         catch(Exception $e) {
-            // ignore (unexpected error while generation account statement)
+            // ignore (unexpected error during generation)
         }
         // append Balance Sheet & Expense Summary
         try {
@@ -162,7 +162,20 @@ try {
         catch(Exception $e) {
             // merging error
         }
-
+        // append Owner Consumption Statement details
+        try {
+            $pdf = eQual::run('get', 'realestate_utility_energy_ownerConsumptionStatement_render-pdf', [
+                    'ownership_id'      => $statementOwner['ownership_id'],
+                    'date_from'         => $fiscalPeriod['date_from'],
+                    'date_to'           => $fiscalPeriod['date_to']
+                ]);
+            $temp = tempnam(sys_get_temp_dir(), 'pdf_');
+            file_put_contents($temp, $pdf);
+            $temp_files[] = $temp;
+        }
+        catch(Exception $e) {
+            // ignore (unexpected error during generation)
+        }
     }
 
     $escaped_files = array_map('escapeshellarg', $temp_files);

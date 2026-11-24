@@ -152,6 +152,10 @@
         {% set private_total_owner = 0 %}
         {% set private_total_vat = 0 %}
 
+        {% set consumptions_total_tenant = 0 %}
+        {% set consumptions_total_owner = 0 %}
+        {% set consumptions_total_vat = 0 %}
+
         {% set common_total_tenant = 0 %}
         {% set common_total_owner = 0 %}
         {% set common_total_vat = 0 %}
@@ -265,7 +269,7 @@
 
         <h2>{{ title }}</h2>
 
-        {% if owner.has_common_expense or owner.has_reserve_fund or owner.has_private_expense or owner.has_provisions %}
+        {% if owner.has_common_expense or owner.has_reserve_fund or owner.has_private_expense or owner.has_consumptions or owner.has_provisions %}
         <div style="page-break-inside: avoid;">
             <table>
                 <thead>
@@ -449,7 +453,60 @@
             {% endif %}
 
             <!-- consumptions -->
-            <!-- #TODO -->
+            {% if owner.has_consumptions %}
+            <table style="border-top: 0px;">
+                <thead>
+                    <tr>
+                        <th style="width: 33%;">{{ labels['global_summary.table.th.consumptions'] }}</th>
+                        <th style="width: 12%;"></th>
+                        <th style="width: 11%;"></th>
+                        <th style="width: 11%;"></th>
+                        <th style="width: 11%;"></th>
+                        <th style="width: 11%;"></th>
+                        <th style="width: 11%;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% set total_tenant = 0 %}
+                {% set total_owner = 0 %}
+                {% set total_vat = 0 %}
+
+                {% for expense in owner.expenses %}
+                    {% if expense.name == 'consumptions' %}
+                        {% for line in expense.lines %}
+                            <tr {% if loop.last %} class="before-total"{% endif %}>
+                                <td><div style="padding-left: 20px;">{{ line.name }}</div></td>
+                                <td>/</td>
+                                <td></td>
+                                <td>{{ (line.owner + line.tenant) | format_money(false) }}</td>
+                                <td>{{ line.vat | format_money(false) }}</td>
+                                <td>{{ line.owner | format_money(false) }}</td>
+                                <td>{{ line.tenant | format_money(false) }}</td>
+                            </tr>
+
+                            {% set total_owner = total_owner + line.owner %}
+                            {% set total_tenant = total_tenant + line.tenant %}
+                            {% set total_vat = total_vat + line.vat %}
+                        {% endfor %}
+
+                        {% set consumptions_total_owner = consumptions_total_owner + total_owner %}
+                        {% set consumptions_total_tenant = consumptions_total_tenant + total_tenant %}
+                        {% set consumptions_total_vat = consumptions_total_vat + total_vat %}
+                    {% endif %}
+                {% endfor %}
+
+                    <tr class="total-footer">
+                        <td style="text-align: right;">{{ labels['global_summary.table.footer.td.total'] }} {{ labels['global_summary.table.th.consumptions'] }}</td>
+                        <td></td>
+                        <td>{{ consumptions_total | format_money(false) }}</td>
+                        <td><strong>{{ (consumptions_total_owner + consumptions_total_tenant) | format_money(false) }}</strong></td>
+                        <td>{{ consumptions_total_vat | format_money(false) }}</td>
+                        <td>{{ consumptions_total_owner | format_money(false) }}</td>
+                        <td>{{ consumptions_total_tenant | format_money(false) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            {% endif %}
 
 
             <!-- TOTAL expense statement -->
@@ -458,11 +515,11 @@
                     <tr class="total-footer">
                         <td style="width: 33%; background-color: #eaeaea; text-transform: uppercase;">{{ labels['global_summary.table.footer.td.grand_totals'] }}</td>
                         <td style="width: 12%; background-color: #eaeaea;"></td>
-                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total + private_total + provisions_total) | format_money(false) }}</td>
-                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + provisions_total_owner + common_total_tenant + private_total_tenant) | format_money(false) }}</td>
-                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_vat + private_total_vat) | format_money(false) }}</td>
-                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + provisions_total_owner) | format_money(false) }}</td>
-                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_tenant + private_total_tenant) | format_money(false) }}</td>
+                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total + private_total + consumptions_total + provisions_total) | format_money(false) }}</td>
+                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + consumptions_total_owner + provisions_total_owner + common_total_tenant + private_total_tenant + consumptions_total_tenant) | format_money(false) }}</td>
+                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_vat + private_total_vat + consumptions_total_vat) | format_money(false) }}</td>
+                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + consumptions_total_owner + provisions_total_owner) | format_money(false) }}</td>
+                        <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_tenant + private_total_tenant + consumptions_total_tenant) | format_money(false) }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -565,6 +622,7 @@
                     {% set has_lot_common_expense = false %}
                     {% set has_lot_provisions = false %}
                     {% set has_lot_private_expense = false %}
+                    {% set has_lot_consumptions = false %}
 
                     {% set common_apport_totals = {} %}
 
@@ -580,6 +638,12 @@
                     {% set private_total_owner = 0 %}
                     {% set private_total_tenant = 0 %}
                     {% set private_total_vat = 0 %}
+
+                    {% set consumptions_lines = [] %}
+
+                    {% set consumptions_total_owner = 0 %}
+                    {% set consumptions_total_tenant = 0 %}
+                    {% set consumptions_total_vat = 0 %}
 
                     <!-- pass-2 - a) computed values -->
                     <!-- inner loop -->
@@ -600,6 +664,9 @@
                                 {% endif %}
                                 {% if expense.name == 'private_expense' %}
                                     {% set has_lot_private_expense = true %}
+                                {% endif %}
+                                {% if expense.name == 'consumptions' %}
+                                    {% set has_lot_consumptions = true %}
                                 {% endif %}
                             {% endfor %}
 
@@ -700,6 +767,21 @@
                                         {% set private_total_owner = private_total_owner + line.owner %}
                                         {% set private_total_tenant = private_total_tenant + line.tenant %}
                                         {% set private_total_vat = private_total_vat + line.vat %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+
+
+                            <!-- consumptions -->
+
+                            {% for expense in lot.expenses %}
+                                {% if expense.name == 'consumptions' %}
+                                    {% for line in expense.lines %}
+                                        {% set consumptions_lines = consumptions_lines|merge([line]) %}
+
+                                        {% set consumptions_total_owner = consumptions_total_owner + line.owner %}
+                                        {% set consumptions_total_tenant = consumptions_total_tenant + line.tenant %}
+                                        {% set consumptions_total_vat = consumptions_total_vat + line.vat %}
                                     {% endfor %}
                                 {% endif %}
                             {% endfor %}
@@ -878,17 +960,56 @@
                             </tbody>
                         </table>
                         {% endif %}
+                        <!-- consumptions -->
+                        {% if owner.has_consumptions and has_lot_consumptions %}
+                        <table style="border-top: 0px;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 33%;">{{ labels['detailed_statements.table.th.consumptions'] }}</th>
+                                    <th style="width: 12%;"></th>
+                                    <th style="width: 11%;"></th>
+                                    <th style="width: 11%;"></th>
+                                    <th style="width: 11%;"></th>
+                                    <th style="width: 11%;"></th>
+                                    <th style="width: 11%;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for line in consumptions_lines %}
+                                    <tr {% if loop.last %} class="before-total"{% endif %}>
+                                        <td><div style="padding-left: 20px;">{{ line.name }}</div></td>
+                                        <td>/</td>
+                                        <td></td>
+                                        <td>{{ (line.owner + line.tenant) | format_money(false) }}</td>
+                                        <td>{{ line.vat | format_money(false) }}</td>
+                                        <td>{{ line.owner | format_money(false) }}</td>
+                                        <td>{{ line.tenant | format_money(false) }}</td>
+                                    </tr>
+                                {% endfor %}
+
+                                <tr class="total-footer">
+                                    <td style="text-align: right;">{{ labels['detailed_statements.table.footer.td.total'] }} {{ labels['detailed_statements.table.th.consumptions'] }}</td>
+                                    <td>/</td>
+                                    <td>{{ consumptions_total | format_money(false) }}</td>
+                                    <td>{{ (consumptions_total_owner + consumptions_total_tenant) | format_money(false) }}</td>
+                                    <td>{{ consumptions_total_vat | format_money(false) }}</td>
+                                    <td>{{ consumptions_total_owner | format_money(false) }}</td>
+                                    <td>{{ consumptions_total_tenant | format_money(false) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        {% endif %}
                         <!-- TOTAL lot expenses  -->
                         <table style="border-top: 0px;">
                             <tbody>
                                 <tr class="total-footer">
                                     <td style="width: 33%; background-color: #eaeaea; text-transform: uppercase;">{{ labels['detailed_statements.table.footer.td.grand_totals'] }}</td>
                                     <td style="width: 12%; background-color: #eaeaea; "></td>
-                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total + private_total + provisions_total) | format_money(false) }}</td>
-                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + provisions_total_owner + common_total_tenant + private_total_tenant) | format_money(false) }}</td>
-                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_vat + private_total_vat) | format_money(false) }}</td>
-                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + provisions_total_owner) | format_money(false) }}</td>
-                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_tenant + private_total_tenant) | format_money(false) }}</td>
+                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total + private_total + consumptions_total + provisions_total) | format_money(false) }}</td>
+                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + consumptions_total_owner + provisions_total_owner + common_total_tenant + private_total_tenant + consumptions_total_tenant) | format_money(false) }}</td>
+                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_vat + private_total_vat + consumptions_total_vat) | format_money(false) }}</td>
+                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_owner + private_total_owner + consumptions_total_owner + provisions_total_owner) | format_money(false) }}</td>
+                                    <td style="width: 11%; background-color: #eaeaea;">{{ (common_total_tenant + private_total_tenant + consumptions_total_tenant) | format_money(false) }}</td>
                                 </tr>
                             </tbody>
                         </table>

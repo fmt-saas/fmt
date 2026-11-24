@@ -188,6 +188,7 @@
                                             {"type": "field", "value": "posting_date", "width": "100%"},
                                             {"type": "field", "value": "statement_total", "width": "100%"},
                                             {"type": "field", "value": "document_id", "width": "100%", "widget": {"readonly": true}},
+                                            {"type": "field", "value": "has_shared_document", "width": "100%", "visible": ["document_id", "<>", null]},
                                             {"type": "field", "value": "status", "width": "50%", "visible": false}
                                         ]
                                     }
