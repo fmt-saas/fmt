@@ -62,7 +62,7 @@ $domain->merge(new Domain([
         ],
         [
             ['condo_id', '=', $assembly['condo_id']],
-            ['date_to', '<=', $assembly['assembly_date']]
+            ['date_to', '>=', $assembly['assembly_date']]
         ]
     ]));
 
