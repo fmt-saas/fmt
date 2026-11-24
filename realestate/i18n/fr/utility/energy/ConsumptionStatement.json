@@ -57,6 +57,7 @@
             "accounting_operation_already_exists": "Une opération comptable existe déjà pour ce relevé.",
             "invalid_integration_status": "Seuls les relevés encodés peuvent être intégrés en comptabilité.",
             "missing_posting_date": "Une date de comptabilisation est requise pour l'intégration comptable.",
+            "invalid_posting_date": "La date de comptabilisation ne peut pas être dans le futur.",
             "missing_calculation_line_ownership": "Chaque ligne de calcul doit avoir une propriété avant l'intégration.",
             "missing_calculation_line_property_lot": "Chaque ligne de calcul doit avoir un lot avant l'intégration.",
             "missing_misc_journal": "Un journal d'opérations diverses est requis pour l'intégration.",

@@ -56,6 +56,7 @@
             "accounting_operation_already_exists": "Er bestaat al een boekhoudkundige verrichting voor deze afrekening.",
             "invalid_integration_status": "Alleen gecodeerde verbruiksafrekeningen kunnen in de boekhouding worden geïntegreerd.",
             "missing_posting_date": "Voor de boekhoudkundige integratie is een boekingsdatum vereist.",
+            "invalid_posting_date": "De boekingsdatum mag niet in de toekomst liggen.",
             "missing_calculation_line_ownership": "Elke berekeningsregel moet vóór de integratie een eigendom hebben.",
             "missing_calculation_line_property_lot": "Elke berekeningsregel moet vóór de integratie een kavel hebben.",
             "missing_misc_journal": "Een dagboek voor diverse verrichtingen is vereist voor integratie.",

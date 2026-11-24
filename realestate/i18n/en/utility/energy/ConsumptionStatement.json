@@ -56,6 +56,7 @@
             "accounting_operation_already_exists": "An accounting operation already exists for this statement.",
             "invalid_integration_status": "Only encoded consumption statements can be integrated into accounting.",
             "missing_posting_date": "A posting date is required for accounting integration.",
+            "invalid_posting_date": "Posting date cannot be in the future.",
             "missing_calculation_line_ownership": "Every calculation line must have an ownership before integration.",
             "missing_calculation_line_property_lot": "Every calculation line must have a property lot before integration.",
             "missing_misc_journal": "A miscellaneous operations journal is required for integration.",

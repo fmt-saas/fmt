@@ -475,6 +475,9 @@ class ConsumptionStatement extends \equal\orm\Model {
             if(!$consumptionStatement['posting_date']) {
                 $result[$id]['missing_posting_date'] = 'A posting date is required for accounting integration.';
             }
+            elseif($consumptionStatement['posting_date'] >= strtotime('tomorrow midnight')) {
+                $result[$id]['invalid_posting_date'] = 'Posting date cannot be in the future.';
+            }
 
             foreach($consumptionStatement['consumption_statement_calculation_lines_ids'] as $calculationLine) {
                 if(!$calculationLine['ownership_id']) {
@@ -830,6 +833,7 @@ class ConsumptionStatement extends \equal\orm\Model {
             ],
             'consumption_statement_allocation_lines_ids' => [
                 'account_id',
+                'apportionment_id',
                 'amount'
             ]
         ]);
@@ -873,15 +877,16 @@ class ConsumptionStatement extends \equal\orm\Model {
 
             foreach($consumptionStatement['consumption_statement_allocation_lines_ids'] as $allocationLine) {
                 $amount = round((float) $allocationLine['amount'], 2);
-                $allocationAccount = Account::id($consumptionStatement['consumption_file_id']['accounting_account_id'])
-                    ->read(['apportionment_id', 'tenant_share', 'owner_share'])
+
+                $allocationAccount = Account::id($allocationLine['account_id'])
+                    ->read(['tenant_share', 'owner_share'])
                     ->first();
 
                 MiscOperationLine::create([
                     'condo_id'          => $consumptionStatement['condo_id'],
                     'misc_operation_id' => $miscOperation['id'],
                     'account_id'        => $allocationLine['account_id'],
-                    'apportionment_id'  => $allocationAccount['apportionment_id'],
+                    'apportionment_id'  => $allocationLine['apportionment_id'],
                     'owner_share'       => $allocationAccount['owner_share'],
                     'tenant_share'      => $allocationAccount['tenant_share'],
                     'description'       => $description,
