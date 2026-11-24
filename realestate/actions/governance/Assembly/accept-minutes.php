@@ -26,11 +26,17 @@ use realestate\governance\AssemblyAttendee;
             'foreign_field'  => 'assembly_id',
             'domain'         => [
                 ['assembly_id', '=', 'object.id'],
-                ['attendee_role', 'in', ['attendee', 'president']],
+                ['attendee_role', 'in', ['attendee', 'president', 'president_secretary']],
                 ['is_valid', '=', true],
                 ['is_owner', '=', true],
                 ['has_early_departure', '=', false]
             ],
+            'default'        => fn($id = null) => $id
+                ? (AssemblyAttendee::search([
+                        ['assembly_id', '=', $id],
+                        ['attendee_role', '=', 'president']
+                    ])->ids()[0] ?? null)
+                : null,
             'required'       => true
         ],
         'secretary_attendee_id' => [
@@ -41,10 +47,16 @@ use realestate\governance\AssemblyAttendee;
             'foreign_field'  => 'assembly_id',
             'domain'         => [
                 ['assembly_id', '=', 'object.id'],
-                ['attendee_role', 'in', ['attendee', 'secretary']],
+                ['attendee_role', 'in', ['attendee', 'secretary', 'president_secretary']],
                 ['is_valid', '=', true],
                 ['has_early_departure', '=', false]
             ],
+            'default'        => fn($id = null) => $id
+                ? (AssemblyAttendee::search([
+                        ['assembly_id', '=', $id],
+                        ['attendee_role', '=', 'secretary']
+                    ])->ids()[0] ?? null)
+                : null,
             'required'       => true
         ]
     ],

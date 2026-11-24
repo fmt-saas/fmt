@@ -63,6 +63,7 @@
             "description": "Close the assembly resolution. No more vote will be allowed. This cannot be undone.",
             "controller": "realestate_governance_AssemblyItem_close",
             "confirm": true,
+            "refresh": false,
             "params": {
                 "id": "object.id"
             },
@@ -76,6 +77,7 @@
             "description": "Close the assembly resolution. No more vote will be allowed. This cannot be undone.",
             "controller": "core_model_transition",
             "confirm": false,
+            "refresh": false,
             "params": {
                 "entity": "realestate\\governance\\AssemblyItem",
                 "transition": "close",
@@ -91,6 +93,7 @@
             "description": "Adjourn the assembly resolution. No vote will be allowed. This cannot be undone.",
             "controller": "core_model_transition",
             "confirm": true,
+            "refresh": false,
             "params": {
                 "entity": "realestate\\governance\\AssemblyItem",
                 "transition": "adjourn",
