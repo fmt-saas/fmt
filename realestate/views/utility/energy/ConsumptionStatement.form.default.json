@@ -130,6 +130,24 @@
             "confirm": true
         }
     ],
+    "routes": [
+        {
+            "id": "route.add_attachment",
+            "label": "Add attachment",
+            "description": "Upload the original consumption statement document.",
+            "icon": "file_upload",
+            "context": {
+                "entity": "documents\\Document",
+                "view": "form.upload",
+                "purpose": "create",
+                "mode": "edit",
+                "domain": [
+                    ["condo_id", "=", "object.condo_id"],
+                    ["consumption_statement_id", "=", "object.id"]
+                ]
+            }
+        }
+    ],
     "layout": {
         "groups": [
             {

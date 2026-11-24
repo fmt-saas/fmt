@@ -398,6 +398,14 @@ class Document extends Model {
                 'visible'           => ['document_type_code', '=', 'misc_operation'],
             ],
 
+            'consumption_statement_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'realestate\utility\energy\ConsumptionStatement',
+                'description'    => 'Consumption statement the allocation relates to.',
+                'visible'        => ['consumption_statement_id', '<>', null],
+                'readonly'       => true
+            ],
+
             'fiscal_year_id' => [
                 'type'              => 'many2one',
                 'foreign_object'    => 'finance\accounting\FiscalYear',

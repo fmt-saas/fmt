@@ -209,8 +209,13 @@ class ConsumptionStatement extends \equal\orm\Model {
                     ],
                     'encode' => [
                         'description' => 'Mark the consumption statement as encoded.',
-                        'policies'    => ['lines_are_balanced', 'allocations_can_be_balanced'],
+                        'policies'    => [
+                            'lines_are_balanced',
+                            'allocations_can_be_balanced',
+                            'calculation_line_page_ranges_are_valid'
+                        ],
                         'onbefore'    => 'onbeforeEncode',
+                        'onafter'     => 'onafterEncode',
                         'status'      => 'encoded'
                     ]
                 ]
@@ -315,6 +320,10 @@ class ConsumptionStatement extends \equal\orm\Model {
             'lines_are_balanced' => [
                 'description' => 'Checks that statement lines match the statement total.',
                 'function'    => 'policyLinesAreBalanced'
+            ],
+            'calculation_line_page_ranges_are_valid' => [
+                'description' => 'Checks that calculation-line page ranges are complete, valid and do not overlap when a source document is set.',
+                'function'    => 'policyCalculationLinePageRangesAreValid'
             ],
             'can_integrate' => [
                 'description' => 'Checks all accounting integration prerequisites.',
@@ -477,6 +486,55 @@ class ConsumptionStatement extends \equal\orm\Model {
             $statement_total_cents = (int) round((float) $consumptionStatement['statement_total'] * 100);
             if($lines_total_cents !== $statement_total_cents) {
                 $result[$id]['lines_total_mismatch'] = 'The total of the statement lines must match the statement total.';
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCalculationLinePageRangesAreValid($self): array {
+        $result = [];
+        $self->read([
+            'document_id',
+            'consumption_statement_calculation_lines_ids' => ['page_from', 'page_to']
+        ]);
+
+        foreach($self as $id => $consumptionStatement) {
+            if($consumptionStatement['document_id'] === null) {
+                continue;
+            }
+
+            $page_ranges = [];
+            foreach($consumptionStatement['consumption_statement_calculation_lines_ids'] as $calculationLine) {
+                if($calculationLine['page_from'] === null || $calculationLine['page_to'] === null) {
+                    $result[$id]['missing_calculation_line_page_range'] = 'Every calculation line must have a page range before the statement can be encoded.';
+                    continue;
+                }
+
+                $page_from = filter_var($calculationLine['page_from'], FILTER_VALIDATE_INT);
+                $page_to = filter_var($calculationLine['page_to'], FILTER_VALIDATE_INT);
+                if($page_from === false || $page_to === false || $page_from < 1 || $page_to < $page_from) {
+                    $result[$id]['invalid_calculation_line_page_range'] = 'Every calculation-line page range must start on a positive page and end on or after its first page.';
+                    continue;
+                }
+
+                $page_ranges[] = [
+                    'page_from' => $page_from,
+                    'page_to'   => $page_to
+                ];
+            }
+
+            usort($page_ranges, function($range_a, $range_b) {
+                return $range_a['page_from'] <=> $range_b['page_from'];
+            });
+
+            $last_page_to = null;
+            foreach($page_ranges as $page_range) {
+                if($last_page_to !== null && $page_range['page_from'] <= $last_page_to) {
+                    $result[$id]['overlapping_calculation_line_page_ranges'] = 'A page cannot belong to more than one calculation line.';
+                    break;
+                }
+                $last_page_to = $page_range['page_to'];
             }
         }
 
@@ -985,6 +1043,25 @@ class ConsumptionStatement extends \equal\orm\Model {
 
     protected static function onbeforeEncode($self) {
         $self->do('apply_rounding_allocation');
+    }
+
+    protected static function onafterEncode($self, $cron) {
+        $self->read(['document_id']);
+
+        foreach($self as $id => $consumptionStatement) {
+            if(!$consumptionStatement['document_id']) {
+                continue;
+            }
+
+            $task_name = "realestate_utility_energy_ConsumptionStatement_split-document.{$id}";
+            $cron->cancel($task_name);
+            $cron->schedule(
+                $task_name,
+                time() + 1,
+                'realestate_utility_energy_ConsumptionStatement_split-document',
+                ['id' => $id]
+            );
+        }
     }
 
     protected static function onbeforeIntegrate($self) {

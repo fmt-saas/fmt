@@ -246,8 +246,7 @@ class MiscOperation extends Model {
                 'foreign_object' => 'realestate\utility\energy\ConsumptionStatement',
                 'description'    => 'Consumption statement the misc operation relates to.',
                 'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
-                'ondelete'       => 'cascade',
-                'required'       => true
+                'ondelete'       => 'cascade'
             ],
 
             'is_balanced' => [

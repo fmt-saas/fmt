@@ -79,6 +79,12 @@
                                                 "value": "ownership_transfer_id",
                                                 "width": "0%",
                                                 "visible": false
+                                            },
+                                            {
+                                                "type": "field",
+                                                "value": "consumption_statement_id",
+                                                "width": "0%",
+                                                "visible": false
                                             }
                                         ]
                                     }

@@ -24,6 +24,9 @@
         "form.default": {
             "name": "Relevé de consommation",
             "description": "Gérer un relevé selon son workflow de traitement.",
+            "routes": {
+                "route.add_attachment": {"label": "Ajouter le document", "description": "Importer le document original du relevé de consommation."}
+            },
             "actions": {
                 "action.sync_submission_lines": {"label": "Importer les sections", "description": "Importer les sections du dossier de consommation comme lignes de déclaration."},
                 "action.mark_proforma": {"label": "Passer en pro forma", "description": "Marquer le relevé comme pro forma."},
@@ -56,6 +59,9 @@
             "missing_allocation_apportionment": "Chaque ventilation doit avoir une clé de répartition avant l'encodage.",
             "allocations_total_mismatch": "Le total des ventilations doit correspondre au total du relevé.",
             "lines_total_mismatch": "Le total des lignes doit correspondre au total du relevé.",
+            "missing_calculation_line_page_range": "Chaque ligne de calcul doit avoir un intervalle de pages avant l'encodage du relevé.",
+            "invalid_calculation_line_page_range": "Chaque intervalle de pages d'une ligne de calcul doit commencer par une page positive et se terminer à la même page ou après celle-ci.",
+            "overlapping_calculation_line_page_ranges": "Une page ne peut pas appartenir à plusieurs lignes de calcul.",
             "missing_rounding_account": "Un compte d'arrondi est requis pour équilibrer les ventilations du relevé.",
             "missing_rounding_account_apportionment": "Le compte d'arrondi doit avoir une clé de répartition.",
             "accounting_operation_already_exists": "Une opération comptable existe déjà pour ce relevé.",

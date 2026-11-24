@@ -24,6 +24,9 @@
         "form.default": {
             "name": "Consumption statement",
             "description": "Maintain a consumption statement through its processing workflow.",
+            "routes": {
+                "route.add_attachment": {"label": "Add document", "description": "Upload the original consumption statement document."}
+            },
             "actions": {
                 "action.sync_submission_lines": {"label": "Import sections", "description": "Import consumption file sections as submission lines."},
                 "action.mark_proforma": {"label": "Mark proforma", "description": "Mark the statement as proforma."},
@@ -55,6 +58,9 @@
             "missing_allocation_apportionment": "Every allocation must have an apportionment before the statement can be encoded.",
             "allocations_total_mismatch": "The allocation total must match the statement total.",
             "lines_total_mismatch": "The line total must match the statement total.",
+            "missing_calculation_line_page_range": "Every calculation line must have a page range before the statement can be encoded.",
+            "invalid_calculation_line_page_range": "Every calculation-line page range must start on a positive page and end on or after its first page.",
+            "overlapping_calculation_line_page_ranges": "A page cannot belong to more than one calculation line.",
             "missing_rounding_account": "A rounding account is required to balance the statement allocations.",
             "missing_rounding_account_apportionment": "The rounding account must have an apportionment.",
             "accounting_operation_already_exists": "An accounting operation already exists for this statement.",
