@@ -15,6 +15,7 @@ use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
 use documents\navigation\Node;
 use equal\html\HtmlTemplate;
+use fmt\setting\Setting;
 use hr\role\RoleAssignment;
 use identity\User;
 use realestate\ownership\Owner;
@@ -1012,6 +1013,15 @@ class Assembly extends \equal\orm\Model {
         return array_keys($map_ownerships_ids);
     }
 
+    private static function computeCurrentLocalTime(): int {
+        $timezone_name = Setting::get_value('core', 'locale', 'time.zone', constant('L10N_TIMEZONE'));
+        $local_now = new \DateTimeImmutable('now', new \DateTimeZone($timezone_name));
+
+        return ((int) $local_now->format('H') * 3600)
+            + ((int) $local_now->format('i') * 60)
+            + (int) $local_now->format('s');
+    }
+
     protected static function doRefreshIsComplete($self) {
         $self->read(['status', 'step', 'assembly_items_ids' => ['status']]);
 
@@ -1027,8 +1037,7 @@ class Assembly extends \equal\orm\Model {
                 'is_complete' => $is_complete
             ];
             if($is_complete) {
-                // #memo - time is always stored UTC and PHP timezone is enforced to UTC by eQual
-                $values['session_time_end'] = (fn($now) => $now - strtotime('today', $now))(time());
+                $values['session_time_end'] = self::computeCurrentLocalTime();
             }
             self::id($id)->update($values);
         }
@@ -2525,7 +2534,7 @@ class Assembly extends \equal\orm\Model {
             self::id($id)->update([
                     'has_second_session' => true,
                     'second_session_assembly_id' => $secondSessionAssembly['id'],
-                    'session_time_end' => (fn($now) => $now - strtotime('today', $now))(time())
+                    'session_time_end' => self::computeCurrentLocalTime()
                 ]);
 
             // we must perform creation in 2-pass in order to map group ids, if any
