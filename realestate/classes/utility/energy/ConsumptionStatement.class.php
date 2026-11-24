@@ -189,6 +189,10 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'description' => 'The consumption statement has been sent.',
                 'icon'        => 'send',
                 'transitions' => [
+                    'revert_send' => [
+                        'description' => 'Return the consumption statement to proforma.',
+                        'status'      => 'proforma'
+                    ],
                     'mark_to_encode' => [
                         'description' => 'Open the statement lines for encoding.',
                         'status'      => 'to_encode'
@@ -199,6 +203,10 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'description' => 'The consumption statement lines must be encoded.',
                 'icon'        => 'edit_note',
                 'transitions' => [
+                    'revert_mark_to_encode' => [
+                        'description' => 'Return the consumption statement to sent.',
+                        'status'      => 'sent'
+                    ],
                     'encode' => [
                         'description' => 'Mark the consumption statement as encoded.',
                         'policies'    => ['lines_are_balanced', 'allocations_can_be_balanced'],
@@ -211,6 +219,10 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'description' => 'The consumption statement is ready for accounting integration.',
                 'icon'        => 'check',
                 'transitions' => [
+                    'revert_encode' => [
+                        'description' => 'Reopen the consumption statement lines for encoding.',
+                        'status'      => 'to_encode'
+                    ],
                     'integrate' => [
                         'description' => 'Integrate the consumption statement into accounting.',
                         'policies'    => ['can_integrate'],

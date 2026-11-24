@@ -46,6 +46,16 @@
             "confirm": false
         },
         {
+            "id": "action.revert_send",
+            "label": "Return to proforma",
+            "icon": "undo",
+            "description": "Return the sent statement to proforma.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "sent"],
+            "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "transition": "revert_send", "ids": []},
+            "confirm": false
+        },
+        {
             "id": "action.mark_to_encode",
             "label": "Encode lines",
             "icon": "edit_note",
@@ -53,6 +63,16 @@
             "controller": "core_model_transition",
             "visible": ["status", "=", "sent"],
             "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "transition": "mark_to_encode", "ids": []},
+            "confirm": false
+        },
+        {
+            "id": "action.revert_mark_to_encode",
+            "label": "Return to sent",
+            "icon": "undo",
+            "description": "Return the statement to sent status.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "to_encode"],
+            "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "transition": "revert_mark_to_encode", "ids": []},
             "confirm": false
         },
         {
@@ -77,6 +97,16 @@
             "controller": "core_model_transition",
             "visible": ["status", "=", "to_encode"],
             "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "transition": "encode", "ids": []},
+            "confirm": false
+        },
+        {
+            "id": "action.revert_encode",
+            "label": "Return to encoding",
+            "icon": "undo",
+            "description": "Reopen the statement lines for encoding.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "encoded"],
+            "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "transition": "revert_encode", "ids": []},
             "confirm": false
         },
         {

@@ -18,7 +18,7 @@
         "consumption_statement_allocation_lines_ids": {"label": "Allocation lines", "description": "Amounts allocated to accounting accounts and apportionments.", "help": "Allocation lines are editable in draft and proforma."},
         "allocation_provider_information": {"label": "Information to communicate", "description": "Summary of the submission lines to communicate to the allocation provider.", "help": "This text is synchronized with the submission lines and remains editable through the proforma stage."},
         "statement_total": {"label": "Statement total", "description": "Total amount shown on the statement.", "help": "Allocation and line totals are checked against this amount."},
-        "status": {"label": "Status", "description": "Current processing status.", "help": "The workflow only allows forward transitions.", "selection": {"draft": "Draft", "proforma": "Proforma", "sent": "Sent", "to_encode": "To encode", "encoded": "Encoded", "integrated": "Integrated"}}
+        "status": {"label": "Status", "description": "Current processing status.", "help": "The workflow allows returning to previous stages before integration.", "selection": {"draft": "Draft", "proforma": "Proforma", "sent": "Sent", "to_encode": "To encode", "encoded": "Encoded", "integrated": "Integrated"}}
     },
     "view": {
         "form.default": {
@@ -28,9 +28,12 @@
                 "action.sync_submission_lines": {"label": "Import sections", "description": "Import consumption file sections as submission lines."},
                 "action.mark_proforma": {"label": "Mark proforma", "description": "Mark the statement as proforma."},
                 "action.send": {"label": "Send", "description": "Mark the statement as sent after checking allocations."},
+                "action.revert_send": {"label": "Return to proforma", "description": "Return the sent statement to proforma."},
                 "action.mark_to_encode": {"label": "Encode lines", "description": "Open statement lines for encoding."},
+                "action.revert_mark_to_encode": {"label": "Return to sent", "description": "Return the statement to sent status."},
                 "action.generate_lines": {"label": "Generate lines", "description": "Generate missing lines from configured property lots."},
                 "action.encode": {"label": "Mark encoded", "description": "Mark the statement as encoded after checking all totals."},
+                "action.revert_encode": {"label": "Return to encoding", "description": "Reopen the statement lines for encoding."},
                 "action.integrate": {"label": "Integrate", "description": "Integrate the statement into accounting."},
                 "action.unlock": {"label": "Unlock", "description": "Cancel the related miscellaneous operations and return the statement to proforma."}
             },

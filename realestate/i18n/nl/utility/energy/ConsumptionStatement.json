@@ -18,7 +18,7 @@
         "consumption_statement_allocation_lines_ids": {"label": "Verdelingsregels", "description": "Bedragen verdeeld over rekeningen en verdeelsleutels.", "help": "Verdelingsregels zijn bewerkbaar in concept en pro forma."},
         "allocation_provider_information": {"label": "Te communiceren informatie", "description": "Samenvatting van de aangifteregels voor de verdeler.", "help": "Deze tekst wordt met de aangifteregels gesynchroniseerd en blijft bewerkbaar tot en met de pro-formafase."},
         "statement_total": {"label": "Totaal van de afrekening", "description": "Totaalbedrag op de afrekening.", "help": "De totalen van verdelingen en regels worden met dit bedrag vergeleken."},
-        "status": {"label": "Status", "description": "Huidige verwerkingsstatus.", "help": "De workflow staat alleen voorwaartse overgangen toe.", "selection": {"draft": "Concept", "proforma": "Pro forma", "sent": "Verzonden", "to_encode": "Te coderen", "encoded": "Gecodeerd", "integrated": "Geïntegreerd"}}
+        "status": {"label": "Status", "description": "Huidige verwerkingsstatus.", "help": "De workflow maakt het mogelijk om vóór de integratie naar eerdere stappen terug te keren.", "selection": {"draft": "Concept", "proforma": "Pro forma", "sent": "Verzonden", "to_encode": "Te coderen", "encoded": "Gecodeerd", "integrated": "Geïntegreerd"}}
     },
     "view": {
         "form.default": {
@@ -28,9 +28,12 @@
                 "action.sync_submission_lines": {"label": "Secties importeren", "description": "Importeer de secties van het verbruiksdossier als indieningsregels."},
                 "action.mark_proforma": {"label": "Pro forma maken", "description": "Markeer de afrekening als pro forma."},
                 "action.send": {"label": "Verzenden", "description": "Markeer de afrekening als verzonden na controle van de verdelingen."},
+                "action.revert_send": {"label": "Terug naar pro forma", "description": "Zet de verzonden afrekening terug naar pro forma."},
                 "action.mark_to_encode": {"label": "Regels coderen", "description": "Open de regels voor codering."},
+                "action.revert_mark_to_encode": {"label": "Terug naar verzonden", "description": "Zet de afrekening terug naar de status Verzonden."},
                 "action.generate_lines": {"label": "Regels genereren", "description": "Genereer ontbrekende regels uit de geconfigureerde kavels."},
                 "action.encode": {"label": "Als gecodeerd markeren", "description": "Markeer de afrekening als gecodeerd na controle van alle totalen."},
+                "action.revert_encode": {"label": "Terug naar codering", "description": "Heropen de regels van de afrekening voor codering."},
                 "action.integrate": {"label": "Integreren", "description": "Integreer de afrekening in de boekhouding."},
                 "action.unlock": {"label": "Ontgrendelen", "description": "Annuleer de gekoppelde diverse verrichtingen en zet de afrekening terug naar pro forma."}
             },

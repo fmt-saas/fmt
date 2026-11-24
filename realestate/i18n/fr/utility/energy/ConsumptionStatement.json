@@ -18,7 +18,7 @@
         "consumption_statement_allocation_lines_ids": {"label": "Lignes de ventilation", "description": "Montants ventilés par compte et clé de répartition.", "help": "Les lignes de ventilation sont modifiables en brouillon et pro forma."},
         "allocation_provider_information": {"label": "Informations à communiquer", "description": "Résumé des lignes de déclaration à communiquer au répartiteur.", "help": "Ce texte est synchronisé avec les lignes de déclaration et reste modifiable jusqu'au stade pro forma inclus."},
         "statement_total": {"label": "Total du relevé", "description": "Montant total indiqué sur le relevé.", "help": "Les totaux des ventilations et des lignes sont comparés à ce montant."},
-        "status": {"label": "Statut", "description": "Statut actuel du traitement.", "help": "Le workflow autorise uniquement les transitions vers l'avant.", "selection": {"draft": "Brouillon", "proforma": "Pro forma", "sent": "Envoyé", "to_encode": "À encoder", "encoded": "Encodé", "integrated": "Intégré"}}
+        "status": {"label": "Statut", "description": "Statut actuel du traitement.", "help": "Le workflow permet de revenir aux étapes précédentes avant l'intégration.", "selection": {"draft": "Brouillon", "proforma": "Pro forma", "sent": "Envoyé", "to_encode": "À encoder", "encoded": "Encodé", "integrated": "Intégré"}}
     },
     "view": {
         "form.default": {
@@ -28,9 +28,12 @@
                 "action.sync_submission_lines": {"label": "Importer les sections", "description": "Importer les sections du dossier de consommation comme lignes de déclaration."},
                 "action.mark_proforma": {"label": "Passer en pro forma", "description": "Marquer le relevé comme pro forma."},
                 "action.send": {"label": "Envoyer", "description": "Marquer le relevé comme envoyé après contrôle des ventilations."},
+                "action.revert_send": {"label": "Revenir en pro forma", "description": "Remettre le relevé envoyé au statut pro forma."},
                 "action.mark_to_encode": {"label": "Marquer comme reçu", "description": "Ouvrir les lignes du relevé à l'encodage."},
+                "action.revert_mark_to_encode": {"label": "Revenir à envoyé", "description": "Remettre le relevé au statut envoyé."},
                 "action.generate_lines": {"label": "Générer les lignes", "description": "Générer les lignes manquantes à partir des lots configurés."},
                 "action.encode": {"label": "Marquer comme encodé", "description": "Marquer le relevé comme encodé après contrôle des totaux."},
+                "action.revert_encode": {"label": "Revenir à l'encodage", "description": "Rouvrir les lignes du relevé pour l'encodage."},
                 "action.integrate": {"label": "Intégrer", "description": "Intégrer le relevé en comptabilité."},
                 "action.unlock": {"label": "Déverrouiller", "description": "Annuler les opérations diverses liées et remettre le relevé en pro forma."}
             },
