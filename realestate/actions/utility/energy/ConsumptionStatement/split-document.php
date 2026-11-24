@@ -39,7 +39,8 @@ $consumptionStatement = ConsumptionStatement::id($params['id'])
         'document_id' => ['name'],
         'consumption_statement_calculation_lines_ids' => [
             'page_from',
-            'page_to'
+            'page_to',
+            'document_id'
         ]
     ])
     ->first();
@@ -66,8 +67,9 @@ foreach($consumptionStatement['consumption_statement_calculation_lines_ids'] as 
     }
 
     $map_page_ranges[$line_id] = [
-        'page_from' => $page_from,
-        'page_to'   => $page_to
+        'page_from'   => $page_from,
+        'page_to'     => $page_to,
+        'document_id' => $calculationLine['document_id']
     ];
 }
 
@@ -81,6 +83,11 @@ foreach($map_page_ranges as $line_id => $pageRange) {
 }
 
 foreach($splitDocumentsData as $line_id => $data) {
+    $current_document_id = $map_page_ranges[$line_id]['document_id'];
+    if($current_document_id) {
+        Document::id($current_document_id)->delete();
+    }
+
     $document = Document::create([
             'name'     => $consumptionStatement['document_id']['name'],
             'data'     => $data,

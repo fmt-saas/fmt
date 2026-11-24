@@ -131,7 +131,10 @@ class ConsumptionStatementCalculationLine extends \equal\orm\Model {
 
     public static function getOperationPolicies(): array {
         return [
-            EQ_R_UPDATE => ['can_edit'],
+            EQ_R_UPDATE => [
+                '*'             => 'can_edit',
+                'document_id'   => true
+            ],
             EQ_R_DELETE => ['can_edit']
         ];
     }
