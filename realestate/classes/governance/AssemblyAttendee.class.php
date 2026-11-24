@@ -266,6 +266,14 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'description' => 'Verifies that the attendee can be promoted/marked as president of the Assembly.',
                 'help'        => "In order to be valid, the assembly must meet the representation criteria depending on its type.",
                 'function'    => 'policyCanPromotePresident'
+            ],
+            'can_promote_secretary' => [
+                'description' => 'Verifies that the attendee can be promoted/marked as secretary of the Assembly.',
+                'function'    => 'policyCanPromoteSecretary'
+            ],
+            'can_demote_secretary' => [
+                'description' => 'Verifies that the attendee can be demoted from secretary of the Assembly.',
+                'function'    => 'policyCanDemoteSecretary'
             ]
         ];
     }
@@ -282,6 +290,16 @@ class AssemblyAttendee extends \equal\orm\Model {
                 'policies'      => [],
                 'function'      => 'doDemotePresident'
             ],
+            'promote_secretary' => [
+                'description'   => 'Mark the attendee as secretary of the Assembly.',
+                'policies'      => ['can_promote_secretary'],
+                'function'      => 'doPromoteSecretary'
+            ],
+            'demote_secretary' => [
+                'description'   => 'Remove the secretary role from the attendee.',
+                'policies'      => ['can_demote_secretary'],
+                'function'      => 'doDemoteSecretary'
+            ],
             'leave_assembly' => [
                 'description'   => 'Mark the attendee as having left the Assembly.',
                 'policies'      => [],
@@ -296,6 +314,14 @@ class AssemblyAttendee extends \equal\orm\Model {
     }
 
     protected static function doDemotePresident($self) {
+        $self->update(['attendee_role' => 'attendee']);
+    }
+
+    protected static function doPromoteSecretary($self) {
+        $self->update(['attendee_role' => 'secretary']);
+    }
+
+    protected static function doDemoteSecretary($self) {
         $self->update(['attendee_role' => 'attendee']);
     }
 
@@ -328,6 +354,61 @@ class AssemblyAttendee extends \equal\orm\Model {
                 continue;
             }
 
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanPromoteSecretary($self) {
+        $result = [];
+        $self->read(['attendee_role', 'assembly_id']);
+
+        $promotion_counts = [];
+        foreach($self as $assemblyAttendee) {
+            if($assemblyAttendee['attendee_role'] !== 'secretary') {
+                $assembly_id = $assemblyAttendee['assembly_id'];
+                $promotion_counts[$assembly_id] = ($promotion_counts[$assembly_id] ?? 0) + 1;
+            }
+        }
+
+        foreach($self as $id => $assemblyAttendee) {
+            if($assemblyAttendee['attendee_role'] === 'secretary') {
+                continue;
+            }
+
+            if($promotion_counts[$assemblyAttendee['assembly_id']] > 1) {
+                $result[$id] = [
+                    'multiple_secretary_candidates' => 'Only one Attendee per Assembly can be promoted as secretary at a time.'
+                ];
+                continue;
+            }
+
+            $secretaryAttendee = self::search([
+                    ['assembly_id', '=', $assemblyAttendee['assembly_id']],
+                    ['attendee_role', '=', 'secretary']
+                ])
+                ->first();
+
+            if($secretaryAttendee) {
+                $result[$id] = [
+                    'secretary_already_assigned' => 'An Attendee is already marked as secretary.'
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanDemoteSecretary($self) {
+        $result = [];
+        $self->read(['attendee_role']);
+
+        foreach($self as $id => $assemblyAttendee) {
+            if($assemblyAttendee['attendee_role'] !== 'secretary') {
+                $result[$id] = [
+                    'attendee_is_not_secretary' => 'The Attendee is not marked as secretary.'
+                ];
+            }
         }
 
         return $result;

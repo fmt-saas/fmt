@@ -2462,10 +2462,13 @@ class Assembly extends \equal\orm\Model {
             }
 
             if($count_secretary < 1) {
+                // #memo - president might not be known yet at validation (an election might be required)
+                /*
                 $result[$id] = [
                     'missing_secretary' => 'A secretary must be selected amongst attendees.'
                 ];
                 continue;
+                */
             }
             elseif($count_secretary > 1) {
                 $result[$id] = [

@@ -30,6 +30,28 @@
             "visible": ["attendee_role", "=", "president"]
         },
         {
+            "id": "action.promote_secretary",
+            "label": "Promote as Secretary",
+            "description": "Promote the attendee as secretary of the Assembly.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\AssemblyAttendee",
+                "action": "promote_secretary"
+            },
+            "visible": ["attendee_role", "<>", "secretary"]
+        },
+        {
+            "id": "action.demote_secretary",
+            "label": "Demote secretary",
+            "description": "Remove the secretary role from the attendee.",
+            "controller": "core_model_do",
+            "params": {
+                "entity": "realestate\\governance\\AssemblyAttendee",
+                "action": "demote_secretary"
+            },
+            "visible": ["attendee_role", "=", "secretary"]
+        },
+        {
             "id": "action.validate",
             "label": "Validate",
             "description": "Validate the attendee.",

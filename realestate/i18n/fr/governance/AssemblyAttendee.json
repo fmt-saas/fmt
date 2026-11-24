@@ -155,6 +155,14 @@
                     "label": "Retirer la présidence",
                     "description": "Retirer le rôle de président à ce participant."
                 },
+                "action.promote_secretary": {
+                    "label": "Promouvoir comme secrétaire",
+                    "description": "Promouvoir ce participant comme secrétaire de séance."
+                },
+                "action.demote_secretary": {
+                    "label": "Retirer le secrétariat",
+                    "description": "Retirer le rôle de secrétaire à ce participant."
+                },
                 "action.validate": {
                     "label": "Valider",
                     "description": "Valider le participant."
@@ -169,7 +177,10 @@
     "error": {
         "errors": {
             "not_an_owner": "Le participant n'est ni propriétaire ni porteur d'un mandat.",
-            "presidency_already_assigned": "Un participant est déjà marqué comme président."
+            "presidency_already_assigned": "Un participant est déjà marqué comme président.",
+            "secretary_already_assigned": "Un participant est déjà marqué comme secrétaire.",
+            "multiple_secretary_candidates": "Un seul participant par assemblée peut être promu secrétaire à la fois.",
+            "attendee_is_not_secretary": "Le participant n'est pas marqué comme secrétaire."
         }
     }
 }
