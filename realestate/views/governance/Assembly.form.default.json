@@ -406,6 +406,7 @@
                 "entity": "realestate\\governance\\Assembly",
                 "action": "generate_signable_minutes"
             },
+            "visible_help": "There is no check on is_complete on purpose - does not require re-compute after each AssemblyItem action",
             "visible": [
                 [
                     [
@@ -420,11 +421,6 @@
                             "agenda_processing",
                             "minutes_confirmation"
                         ]
-                    ],
-                    [
-                        "is_complete",
-                        "=",
-                        true
                     ]
                 ]
             ]
