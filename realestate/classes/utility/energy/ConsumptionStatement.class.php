@@ -227,7 +227,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                         'description' => 'Cancel the related miscellaneous operations and return the statement to proforma.',
                         'policies'    => ['can_unlock'],
                         'onbefore'    => 'onbeforeUnlock',
-                        'status'      => 'proforma'
+                        'status'      => 'encoded'
                     ]
                 ]
             ]
