@@ -88,6 +88,16 @@
             "visible": ["status", "=", "encoded"],
             "params": {"id": "object.id"},
             "confirm": true
+        },
+        {
+            "id": "action.unlock",
+            "label": "Unlock",
+            "icon": "lock_open",
+            "description": "Cancel the related miscellaneous operations and return the statement to proforma.",
+            "controller": "core_model_transition",
+            "visible": ["status", "=", "integrated"],
+            "params": {"entity": "realestate\\utility\\energy\\ConsumptionStatement", "transition": "unlock", "ids": []},
+            "confirm": true
         }
     ],
     "layout": {

@@ -31,7 +31,8 @@
                 "action.mark_to_encode": {"label": "Encode lines", "description": "Open statement lines for encoding."},
                 "action.generate_lines": {"label": "Generate lines", "description": "Generate missing lines from configured property lots."},
                 "action.encode": {"label": "Mark encoded", "description": "Mark the statement as encoded after checking all totals."},
-                "action.integrate": {"label": "Integrate", "description": "Integrate the statement into accounting."}
+                "action.integrate": {"label": "Integrate", "description": "Integrate the statement into accounting."},
+                "action.unlock": {"label": "Unlock", "description": "Cancel the related miscellaneous operations and return the statement to proforma."}
             },
             "layout": {
                 "section.statement": {"label": "Statement"},
@@ -60,7 +61,12 @@
             "missing_calculation_line_ownership": "Every calculation line must have an ownership before integration.",
             "missing_calculation_line_property_lot": "Every calculation line must have a property lot before integration.",
             "missing_misc_journal": "A miscellaneous operations journal is required for integration.",
-            "missing_consumption_statement_account": "The consumption file must define an accounting account for integration."
+            "missing_consumption_statement_account": "The consumption file must define an accounting account for integration.",
+            "invalid_unlock_status": "Only integrated consumption statements can be unlocked.",
+            "missing_posted_misc_operation": "No posted miscellaneous operation was found for this consumption statement.",
+            "missing_fiscal_period": "The miscellaneous operation must have a fiscal period.",
+            "closed_fiscal_period": "A consumption statement cannot be unlocked when its accounting period is closed.",
+            "invalid_fiscal_year": "A consumption statement cannot be unlocked when its fiscal year is closed."
         }
     }
 }

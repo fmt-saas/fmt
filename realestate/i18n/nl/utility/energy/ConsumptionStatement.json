@@ -31,7 +31,8 @@
                 "action.mark_to_encode": {"label": "Regels coderen", "description": "Open de regels voor codering."},
                 "action.generate_lines": {"label": "Regels genereren", "description": "Genereer ontbrekende regels uit de geconfigureerde kavels."},
                 "action.encode": {"label": "Als gecodeerd markeren", "description": "Markeer de afrekening als gecodeerd na controle van alle totalen."},
-                "action.integrate": {"label": "Integreren", "description": "Integreer de afrekening in de boekhouding."}
+                "action.integrate": {"label": "Integreren", "description": "Integreer de afrekening in de boekhouding."},
+                "action.unlock": {"label": "Ontgrendelen", "description": "Annuleer de gekoppelde diverse verrichtingen en zet de afrekening terug naar pro forma."}
             },
             "layout": {
                 "section.statement": {"label": "Afrekening"},
@@ -60,7 +61,12 @@
             "missing_calculation_line_ownership": "Elke berekeningsregel moet vóór de integratie een eigendom hebben.",
             "missing_calculation_line_property_lot": "Elke berekeningsregel moet vóór de integratie een kavel hebben.",
             "missing_misc_journal": "Een dagboek voor diverse verrichtingen is vereist voor integratie.",
-            "missing_consumption_statement_account": "Het verbruiksdossier moet voor de integratie een boekhoudrekening definiëren."
+            "missing_consumption_statement_account": "Het verbruiksdossier moet voor de integratie een boekhoudrekening definiëren.",
+            "invalid_unlock_status": "Alleen geïntegreerde verbruiksafrekeningen kunnen worden ontgrendeld.",
+            "missing_posted_misc_operation": "Er is geen geboekte diverse verrichting gevonden voor deze verbruiksafrekening.",
+            "missing_fiscal_period": "De diverse verrichting moet een boekhoudperiode hebben.",
+            "closed_fiscal_period": "Een verbruiksafrekening kan niet worden ontgrendeld wanneer de boekhoudperiode is afgesloten.",
+            "invalid_fiscal_year": "Een verbruiksafrekening kan niet worden ontgrendeld wanneer het boekjaar is afgesloten."
         }
     }
 }

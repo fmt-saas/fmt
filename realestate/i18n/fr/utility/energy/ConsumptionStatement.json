@@ -31,7 +31,8 @@
                 "action.mark_to_encode": {"label": "Marquer comme reçu", "description": "Ouvrir les lignes du relevé à l'encodage."},
                 "action.generate_lines": {"label": "Générer les lignes", "description": "Générer les lignes manquantes à partir des lots configurés."},
                 "action.encode": {"label": "Marquer comme encodé", "description": "Marquer le relevé comme encodé après contrôle des totaux."},
-                "action.integrate": {"label": "Intégrer", "description": "Intégrer le relevé en comptabilité."}
+                "action.integrate": {"label": "Intégrer", "description": "Intégrer le relevé en comptabilité."},
+                "action.unlock": {"label": "Déverrouiller", "description": "Annuler les opérations diverses liées et remettre le relevé en pro forma."}
             },
             "layout": {
                 "section.statement": {"label": "Relevé"},
@@ -61,7 +62,12 @@
             "missing_calculation_line_ownership": "Chaque ligne de calcul doit avoir une propriété avant l'intégration.",
             "missing_calculation_line_property_lot": "Chaque ligne de calcul doit avoir un lot avant l'intégration.",
             "missing_misc_journal": "Un journal d'opérations diverses est requis pour l'intégration.",
-            "missing_consumption_statement_account": "Le dossier de consommation doit définir un compte comptable pour l'intégration."
+            "missing_consumption_statement_account": "Le dossier de consommation doit définir un compte comptable pour l'intégration.",
+            "invalid_unlock_status": "Seuls les relevés de consommation intégrés peuvent être déverrouillés.",
+            "missing_posted_misc_operation": "Aucune opération diverse comptabilisée n'a été trouvée pour ce relevé de consommation.",
+            "missing_fiscal_period": "L'opération diverse doit avoir une période comptable.",
+            "closed_fiscal_period": "Un relevé de consommation ne peut pas être déverrouillé lorsque sa période comptable est clôturée.",
+            "invalid_fiscal_year": "Un relevé de consommation ne peut pas être déverrouillé lorsque son exercice comptable est clôturé."
         }
     }
 }

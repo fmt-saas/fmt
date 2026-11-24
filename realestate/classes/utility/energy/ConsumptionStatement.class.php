@@ -222,7 +222,14 @@ class ConsumptionStatement extends \equal\orm\Model {
             'integrated' => [
                 'description' => 'The consumption statement has been integrated into accounting.',
                 'icon'        => 'done_all',
-                'transitions' => []
+                'transitions' => [
+                    'unlock' => [
+                        'description' => 'Cancel the related miscellaneous operations and return the statement to proforma.',
+                        'policies'    => ['can_unlock'],
+                        'onbefore'    => 'onbeforeUnlock',
+                        'status'      => 'proforma'
+                    ]
+                ]
             ]
         ];
     }
@@ -258,6 +265,11 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'description' => 'Integrate the consumption statement into accounting.',
                 'policies'    => ['can_integrate'],
                 'function'    => 'doIntegrate'
+            ],
+            'unlock' => [
+                'description' => 'Cancel the related miscellaneous operations before returning the statement to proforma.',
+                'policies'    => ['can_unlock'],
+                'function'    => 'doUnlock'
             ]
         ]);
     }
@@ -295,6 +307,10 @@ class ConsumptionStatement extends \equal\orm\Model {
             'can_integrate' => [
                 'description' => 'Checks all accounting integration prerequisites.',
                 'function'    => 'policyCanIntegrate'
+            ],
+            'can_unlock' => [
+                'description' => 'Checks that the related miscellaneous operations can be cancelled.',
+                'function'    => 'policyCanUnlock'
             ]
         ]);
     }
@@ -500,6 +516,45 @@ class ConsumptionStatement extends \equal\orm\Model {
             $consumptionFile = $consumptionStatement['consumption_file_id'];
             if(!$consumptionFile || !$consumptionFile['accounting_account_id']) {
                 $result[$id]['missing_consumption_statement_account'] = 'The consumption file must define an accounting account for integration.';
+            }
+        }
+
+        return $result;
+    }
+
+    protected static function policyCanUnlock($self): array {
+        $result = [];
+        $self->read(['status']);
+
+        foreach($self as $id => $consumptionStatement) {
+            if($consumptionStatement['status'] !== 'integrated') {
+                $result[$id]['invalid_unlock_status'] = 'Only integrated consumption statements can be unlocked.';
+                continue;
+            }
+
+            $miscOperations = MiscOperation::search([
+                    ['consumption_statement_id', '=', $id],
+                    ['status', '=', 'posted']
+                ])
+                ->read([
+                    'fiscal_period_id' => ['status']
+                ]);
+
+            if($miscOperations->count() === 0) {
+                $result[$id]['missing_posted_misc_operation'] = 'No posted miscellaneous operation was found for this consumption statement.';
+                continue;
+            }
+
+            foreach($miscOperations as $miscOperation) {
+                if(!$miscOperation['fiscal_period_id']) {
+                    $result[$id]['missing_fiscal_period'] = 'The miscellaneous operation must have a fiscal period.';
+                    break;
+                }
+
+                if($miscOperation['fiscal_period_id']['status'] === 'closed') {
+                    $result[$id]['closed_fiscal_period'] = 'A consumption statement cannot be unlocked when its accounting period is closed.';
+                    break;
+                }
             }
         }
 
@@ -902,6 +957,16 @@ class ConsumptionStatement extends \equal\orm\Model {
         }
     }
 
+    protected static function doUnlock($self) {
+        foreach($self as $id => $consumptionStatement) {
+            MiscOperation::search([
+                    ['consumption_statement_id', '=', $id],
+                    ['status', '=', 'posted']
+                ])
+                ->do('cancel');
+        }
+    }
+
     protected static function onafterSend($self) {
         $self->do('generate_statement_lines');
     }
@@ -912,6 +977,10 @@ class ConsumptionStatement extends \equal\orm\Model {
 
     protected static function onbeforeIntegrate($self) {
         $self->do('integrate');
+    }
+
+    protected static function onbeforeUnlock($self) {
+        $self->do('unlock');
     }
 
     protected static function oninstantiate($self) {
