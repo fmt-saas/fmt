@@ -46,14 +46,6 @@ class ConsumptionFileSection extends \equal\orm\Model {
                 ]
             ],
 
-            'accounting_account_id' => [
-                'type'           => 'many2one',
-                'foreign_object' => 'finance\accounting\Account',
-                'description'    => 'Accounting account associated with the section.',
-                'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
-                'required'       => true
-            ],
-
             'consumption_file_id' => [
                 'type'           => 'many2one',
                 'foreign_object' => 'realestate\utility\energy\ConsumptionFile',
@@ -64,7 +56,25 @@ class ConsumptionFileSection extends \equal\orm\Model {
                 ],
                 'ondelete'       => 'cascade',
                 'required'       => true
+            ],
+
+            'accounting_account_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'finance\accounting\Account',
+                'description'    => 'Accounting account associated with the section.',
+                'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'onupdate'       => 'onupdateAccountingAccountId',
+                'required'       => true
+            ],
+
+            'apportionment_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'realestate\property\Apportionment',
+                'description'    => 'Apportionment used to distribute the allocated amount.',
+                'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'required'       => true
             ]
+
         ];
     }
 
@@ -90,8 +100,49 @@ class ConsumptionFileSection extends \equal\orm\Model {
         ]);
     }
 
+    public static function onchange($event, $values): array {
+        $result = [];
+
+        if(array_key_exists('accounting_account_id', $values)) {
+            $account_id = is_array($values['accounting_account_id'])
+                ? ($values['accounting_account_id']['id'] ?? null)
+                : $values['accounting_account_id'];
+
+            if(!$account_id) {
+                return $result;
+            }
+
+            $account = Account::id($account_id)
+                ->read(['apportionment_id' => ['id', 'name']])
+                ->first();
+
+            if($account && $account['apportionment_id']) {
+                $result['apportionment_id'] = [
+                    'id'   => $account['apportionment_id']['id'],
+                    'name' => $account['apportionment_id']['name']
+                ];
+            }
+        }
+
+        return $result;
+    }
+
     protected static function oninstantiate($self) {
         $self->do('sync_draft_allocations');
+    }
+
+    protected static function onupdateAccountingAccountId($self) {
+        $self->read(['accounting_account_id' => ['apportionment_id']]);
+
+        foreach($self as $id => $section) {
+            if(!$section['accounting_account_id'] || !$section['accounting_account_id']['apportionment_id']) {
+                continue;
+            }
+
+            self::id($id)->update([
+                'apportionment_id' => $section['accounting_account_id']['apportionment_id']
+            ]);
+        }
     }
 
     protected static function onbeforeupdate($self, $values) {
@@ -100,7 +151,7 @@ class ConsumptionFileSection extends \equal\orm\Model {
             return;
         }
 
-        $new_consumption_file_id = self::relationId($values['consumption_file_id']);
+        $new_consumption_file_id = $values['consumption_file_id'] ?? null;
         $self->read(['consumption_file_id']);
         foreach($self as $id => $section) {
             if($section['consumption_file_id'] !== $new_consumption_file_id) {
@@ -183,33 +234,4 @@ class ConsumptionFileSection extends \equal\orm\Model {
         }
     }
 
-    private static function assertSameCondo($self, array $values = []) {
-        $self->read(['condo_id', 'consumption_file_id', 'accounting_account_id']);
-        foreach($self as $section) {
-            $condo_id = self::relationId($values['condo_id'] ?? $section['condo_id']);
-            $consumption_file_id = self::relationId($values['consumption_file_id'] ?? $section['consumption_file_id']);
-            $account_id = self::relationId($values['accounting_account_id'] ?? $section['accounting_account_id']);
-
-            if(!$condo_id || !$consumption_file_id || !$account_id) {
-                continue;
-            }
-
-            $file = ConsumptionFile::id($consumption_file_id)->read(['condo_id'])->first();
-            if(!$file || $file['condo_id'] !== $condo_id) {
-                throw new \Exception('file_condo_mismatch', EQ_ERROR_INVALID_PARAM);
-            }
-
-            $account = Account::id($account_id)->read(['condo_id'])->first();
-            if(!$account || $account['condo_id'] !== $condo_id) {
-                throw new \Exception('account_condo_mismatch', EQ_ERROR_INVALID_PARAM);
-            }
-        }
-    }
-
-    private static function relationId($value) {
-        if(is_array($value)) {
-            return $value['id'] ?? null;
-        }
-        return $value;
-    }
 }

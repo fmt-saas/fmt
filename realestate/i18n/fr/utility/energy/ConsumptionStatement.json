@@ -47,6 +47,7 @@
         "errors": {
             "statement_not_draft": "Le dossier de consommation ne peut être modifié que lorsque le relevé est en brouillon.",
             "allocation_provider_information_locked": "Les informations destinées au répartiteur ne sont modifiables qu'en brouillon ou en pro forma.",
+            "missing_submission_line_apportionment": "Chaque ligne de déclaration doit avoir une clé de répartition avant le passage en pro forma.",
             "invalid_status": "Les lignes ne peuvent être générées qu'au statut À encoder.",
             "missing_allocation_apportionment": "Chaque ventilation doit avoir une clé de répartition avant l'encodage.",
             "allocations_total_mismatch": "Le total des ventilations doit correspondre au total du relevé.",

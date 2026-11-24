@@ -13,8 +13,9 @@
         "items": [
             {"type": "field", "value": "condo_id", "width": "10%", "visible": false},
             {"type": "field", "value": "consumption_file_id", "width": "20%", "visible": false},
-            {"type": "field", "value": "name", "width": "40%"},
-            {"type": "field", "value": "accounting_account_id", "width": "50%"},
+            {"type": "field", "value": "name", "width": "25%"},
+            {"type": "field", "value": "accounting_account_id", "width": "40%"},
+            {"type": "field", "value": "apportionment_id", "width": "25%"},
             {"type": "field", "value": "units", "width": "10%"}
         ]
     }

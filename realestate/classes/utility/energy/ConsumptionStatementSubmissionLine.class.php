@@ -61,8 +61,7 @@ class ConsumptionStatementSubmissionLine extends \equal\orm\Model {
                 'type'           => 'many2one',
                 'foreign_object' => 'realestate\property\Apportionment',
                 'description'    => 'Apportionment used to distribute the submitted amount.',
-                'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
-                'required'       => true
+                'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]]
             ],
 
             'amount' => [

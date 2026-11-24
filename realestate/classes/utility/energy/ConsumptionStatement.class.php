@@ -168,6 +168,7 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'transitions' => [
                     'mark_proforma' => [
                         'description' => 'Mark the statement as proforma.',
+                        'policies'    => ['submission_lines_have_apportionment'],
                         'status'      => 'proforma'
                     ]
                 ]
@@ -271,6 +272,10 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'description' => 'Checks that the consumption statement is still editable.',
                 'function'    => 'policyIsEditable'
             ],
+            'submission_lines_have_apportionment' => [
+                'description' => 'Checks that every submission line has an apportionment.',
+                'function'    => 'policySubmissionLinesHaveApportionment'
+            ],
             'can_generate_statement_lines' => [
                 'description' => 'Checks that statement lines can be generated.',
                 'function'    => 'policyCanGenerateStatementLines'
@@ -330,6 +335,24 @@ class ConsumptionStatement extends \equal\orm\Model {
                 $result[$id]['allocation_provider_information_locked'] = 'Allocation-provider information can only be edited while the statement is in draft or proforma.';
             }
         }
+        return $result;
+    }
+
+    protected static function policySubmissionLinesHaveApportionment($self): array {
+        $result = [];
+        $self->read([
+            'consumption_statement_submission_lines_ids' => ['apportionment_id']
+        ]);
+
+        foreach($self as $id => $consumptionStatement) {
+            foreach($consumptionStatement['consumption_statement_submission_lines_ids'] as $submissionLine) {
+                if(!$submissionLine['apportionment_id']) {
+                    $result[$id]['missing_submission_line_apportionment'] = 'Every submission line must have an apportionment before the statement can be marked as proforma.';
+                    break;
+                }
+            }
+        }
+
         return $result;
     }
 
@@ -614,7 +637,8 @@ class ConsumptionStatement extends \equal\orm\Model {
                 'consumption_file_sections_ids' => [
                     'condo_id',
                     'units',
-                    'accounting_account_id' => ['apportionment_id']
+                    'accounting_account_id',
+                    'apportionment_id'
                 ]
             ],
             'consumption_statement_submission_lines_ids' => ['consumption_file_section_id']
@@ -633,14 +657,10 @@ class ConsumptionStatement extends \equal\orm\Model {
             }
 
             foreach($consumptionStatement['consumption_file_id']['consumption_file_sections_ids'] as $section_id => $section) {
-                $account = $section['accounting_account_id'];
-                if(!$account) {
-                    continue;
-                }
                 $values = [
                     'condo_id'         => $section['condo_id'],
-                    'account_id'       => $account['id'],
-                    'apportionment_id' => $account['apportionment_id'],
+                    'account_id'       => $section['accounting_account_id'],
+                    'apportionment_id' => $section['apportionment_id'],
                     'units'            => $section['units']
                 ];
 
