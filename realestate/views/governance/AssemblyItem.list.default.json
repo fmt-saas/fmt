@@ -45,6 +45,7 @@
             "icon": "play_arrow",
             "description": "Open the point.",
             "controller": "core_model_transition",
+            "refresh": false,
             "params": {
                 "entity": "realestate\\governance\\AssemblyItem",
                 "transition": "open"

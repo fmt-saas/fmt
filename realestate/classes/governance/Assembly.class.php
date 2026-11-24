@@ -59,9 +59,8 @@ class Assembly extends \equal\orm\Model {
                 'foreign_object'    => 'identity\Identity',
                 'function'          => 'calcAssemblyOrganizerIdentityId',
                 'description'       => 'Managing agent representative in charge of the organization of the Assembly.',
-                'help'              => 'This identity relates directly or indirectly to the managing agent (owner or professional), and is in charge of the organization of the Assembly.',
+                'help'              => 'This identity relates directly or indirectly to the managing agent (owner or professional, as employee), and is in charge of the organization of the Assembly.',
                 'store'             => true,
-                // limiter aux identités des employés
                 'domain'            => [['employee_id', '<>', null]]
             ],
 
@@ -1230,7 +1229,7 @@ class Assembly extends \equal\orm\Model {
             ->do('generate_signable_attendance_register')
             // #todo - confirm need for distinction between assembly_time & session_time_start
             // ->update(['session_time_start' => time()])
-            ->read(['condo_id', 'assembly_organizer_identity_id', 'assembly_items_ids']);
+            ->read(['condo_id', 'assembly_organizer_identity_id', 'ownerships_ids']);
 
         foreach($self as $id => $assembly) {
             // create a special attendee as 'secretary' relating to the organizer (can be manually modified afterwards)
@@ -1239,6 +1238,20 @@ class Assembly extends \equal\orm\Model {
                     ['attendee_role', '=', 'secretary']
                 ])
                 ->delete(true);
+
+            $foundOrganizerOwner = null;
+            if(count($assembly['ownerships_ids']) > 0) {
+                $foundOrganizerOwner = Owner::search([
+                        ['condo_id', '=', $assembly['condo_id']],
+                        ['ownership_id', 'in', $assembly['ownerships_ids']],
+                        ['identity_id', '=', $assembly['assembly_organizer_identity_id']]
+                    ])
+                    ->first();
+            }
+
+            if($foundOrganizerOwner) {
+                continue;
+            }
 
             AssemblyAttendee::create([
                     'assembly_id'   => $id,
