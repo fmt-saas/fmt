@@ -15,6 +15,7 @@ use identity\User;
 use infra\quota\Quota;
 use purchase\supplier\Suppliership;
 use realestate\governance\Assembly;
+use realestate\utility\energy\ConsumptionStatement;
 
 class Document extends Model {
 
@@ -403,7 +404,8 @@ class Document extends Model {
                 'foreign_object' => 'realestate\utility\energy\ConsumptionStatement',
                 'description'    => 'Consumption statement the allocation relates to.',
                 'visible'        => ['consumption_statement_id', '<>', null],
-                'readonly'       => true
+                'readonly'       => true,
+                'onupdate'       => 'onupdateConsumptionStatementId'
             ],
 
             'fiscal_year_id' => [
@@ -564,6 +566,11 @@ class Document extends Model {
                 'description'   => 'Synchronize the associated node name with the document name.',
                 'policies'      => [],
                 'function'      => 'doSyncNodeName'
+            ],
+            'sync_consumption_statement_document' => [
+                'description'   => 'Synchronize the consumption statement document with this document.',
+                'policies'      => [],
+                'function'      => 'doSyncConsumptionStatementDocument'
             ]
         ];
     }
@@ -612,6 +619,18 @@ class Document extends Model {
         }
     }
 
+    protected static function doSyncConsumptionStatementDocument($self) {
+        $self->read(['consumption_statement_id']);
+
+        foreach($self as $id => $document) {
+            if(!$document['consumption_statement_id']) {
+                continue;
+            }
+
+            ConsumptionStatement::id($document['consumption_statement_id'])
+                ->update(['document_id' => $id]);
+        }
+    }
 
     protected static function calcNodeId($self) {
         $result = [];
@@ -648,6 +667,10 @@ class Document extends Model {
 
     protected static function onupdateName($self) {
         $self->do('sync_node_name');
+    }
+
+    protected static function onupdateConsumptionStatementId($self) {
+        $self->do('sync_consumption_statement_document');
     }
 
     protected static function onupdateDocumentTypeId($self) {
