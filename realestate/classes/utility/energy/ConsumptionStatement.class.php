@@ -853,10 +853,17 @@ class ConsumptionStatement extends \equal\orm\Model {
 
             foreach($consumptionStatement['consumption_statement_allocation_lines_ids'] as $allocationLine) {
                 $amount = round((float) $allocationLine['amount'], 2);
+                $allocationAccount = Account::id($consumptionStatement['consumption_file_id']['accounting_account_id'])
+                    ->read(['apportionment_id', 'tenant_share', 'owner_share'])
+                    ->first();
+
                 MiscOperationLine::create([
                     'condo_id'          => $consumptionStatement['condo_id'],
                     'misc_operation_id' => $miscOperation['id'],
                     'account_id'        => $allocationLine['account_id'],
+                    'apportionment_id'  => $allocationAccount['apportionment_id'],
+                    'owner_share'       => $allocationAccount['owner_share'],
+                    'tenant_share'      => $allocationAccount['tenant_share'],
                     'description'       => $description,
                     'debit'             => $amount < 0.0 ? abs($amount) : 0.0,
                     'credit'            => $amount > 0.0 ? abs($amount) : 0.0
