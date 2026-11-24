@@ -235,10 +235,19 @@ class MiscOperation extends Model {
 
             'purchase_invoice_id' => [
                 'type'              => 'many2one',
-                'foreign_object'    => 'purchase\accounting\invoice\PurchaseInvoice',
-                'description'       => 'Invoice the accounting entry is related to.',
+                'foreign_object'    => 'realestate\purchase\accounting\invoice\PurchaseInvoice',
+                'description'       => 'Purchase invoice the misc operation relates to.',
                 'ondelete'          => 'null',
                 'help'              => 'In case the Misc Operation relates to a purchaseInvoiceLine marked with instant re-invoicing.'
+            ],
+
+            'consumption_statement_id' => [
+                'type'           => 'many2one',
+                'foreign_object' => 'realestate\utility\energy\ConsumptionStatement',
+                'description'    => 'Consumption statement the misc operation relates to.',
+                'domain'         => [['condo_id', '=', 'object.condo_id'], ['condo_id', '<>', null]],
+                'ondelete'       => 'cascade',
+                'required'       => true
             ],
 
             'is_balanced' => [

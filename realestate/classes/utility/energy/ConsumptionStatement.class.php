@@ -851,10 +851,11 @@ class ConsumptionStatement extends \equal\orm\Model {
 
             $description = 'Consumption statement';
             $miscOperation = MiscOperation::create([
-                    'condo_id'       => $consumptionStatement['condo_id'],
-                    'description'    => $description,
-                    'journal_id'     => $journal['id'],
-                    'posting_date'   => $consumptionStatement['posting_date']
+                    'condo_id'                  => $consumptionStatement['condo_id'],
+                    'description'               => $description,
+                    'journal_id'                => $journal['id'],
+                    'posting_date'              => $consumptionStatement['posting_date'],
+                    'consumption_statement_id'  => $id
                 ])
                 ->first();
 

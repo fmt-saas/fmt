@@ -37,7 +37,7 @@
                 "ids": []
             },
             "confirm": false,
-            "visible": ["status", "=", "proforma"]
+            "visible": [["status", "=", "posted"], ["purchase_invoice_id", "=", null], ["consumption_statement_id", "=", null]]
         },
         {
             "id": "action.post",
@@ -72,12 +72,12 @@
             "description": "Unlock misc operation.",
             "controller": "core_model_do",
             "confirm": true,
-            "visible": ["status", "=", "posted"],
             "params": {
                 "entity": "finance\\accounting\\MiscOperation",
                 "action": "unlock",
                 "ids": []
-            }
+            },
+            "visible": [["status", "=", "posted"], ["purchase_invoice_id", "=", null], ["consumption_statement_id", "=", null]]
         }
     ],
     "layout": {
