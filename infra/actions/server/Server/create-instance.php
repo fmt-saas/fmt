@@ -227,7 +227,7 @@ $status = $response->getStatusCode();
 
 if($status < 200 || $status > 299) {
     trigger_error(
-        "APP::infra_server_Server_create-instance : b2 instance creation failed with HTTP status {$status}.",
+        "APP::infra_server_Server_create-instance : b2 instance creation failed with HTTP status {$status}. Response: {$response->getBody(true)}",
         EQ_REPORT_ERROR
     );
     $cleanup_provisioning_user();
