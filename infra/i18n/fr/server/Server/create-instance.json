@@ -1,0 +1,56 @@
+{
+    "name": "Créer une instance",
+    "plural": "Créer des instances",
+    "description": "Crée une instance d'agence sur un serveur à l'aide de l'API b2.",
+    "model": {
+        "id": {
+            "label": "Serveur",
+            "description": "Serveur sur lequel l'instance est créée.",
+            "help": ""
+        },
+        "instance_name": {
+            "label": "Nom de l'instance",
+            "description": "Nom de domaine de l'instance d'agence à créer.",
+            "help": ""
+        },
+        "create_dns_record": {
+            "label": "Créer l'enregistrement DNS",
+            "description": "Crée l'enregistrement DNS géré après le provisioning de l'instance.",
+            "help": ""
+        },
+        "sync": {
+            "label": "Synchroniser",
+            "description": "Active la synchronisation avec la plateforme globale.",
+            "help": ""
+        },
+        "sync_level": {
+            "label": "Niveau de synchronisation",
+            "description": "Niveau de données inclus dans la synchronisation.",
+            "help": "",
+            "selection": {
+                "required": "Requis",
+                "recommended": "Recommandé",
+                "optional": "Optionnel",
+                "demo": "Démo"
+            }
+        },
+        "init": {
+            "label": "Initialiser",
+            "description": "Initialise l'instance après sa création.",
+            "help": "L'initialisation peut prendre plusieurs minutes."
+        }
+    },
+    "error": {
+        "errors": {
+            "invalid_instance_type": "Les instances ne peuvent être créées que depuis la plateforme globale.",
+            "invalid_name": "Le nom de l'instance est invalide.",
+            "unknown_server": "Le serveur sélectionné n'existe pas.",
+            "invalid_b2_conf": "La configuration de l'API b2 du serveur sélectionné est invalide.",
+            "instance_already_exists": "Une instance portant ce nom existe déjà.",
+            "unable_to_prepare_instance_sync": "Les identifiants de synchronisation n'ont pas pu être préparés.",
+            "unable_to_create_b2_instance": "L'instance n'a pas pu être créée sur le serveur.",
+            "unable_to_persist_instance": "La création de l'instance n'a pas pu être enregistrée localement.",
+            "unable_to_create_dns_record": "L'instance a été créée, mais son enregistrement DNS n'a pas pu être créé."
+        }
+    }
+}

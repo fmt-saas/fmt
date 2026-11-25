@@ -1,0 +1,56 @@
+{
+    "name": "Create an instance",
+    "plural": "Create instances",
+    "description": "Create an agency instance on a server using the b2 API.",
+    "model": {
+        "id": {
+            "label": "Server",
+            "description": "Server on which the instance is created.",
+            "help": ""
+        },
+        "instance_name": {
+            "label": "Instance name",
+            "description": "Domain name of the agency instance to create.",
+            "help": ""
+        },
+        "create_dns_record": {
+            "label": "Create DNS record",
+            "description": "Create the managed DNS record after the instance has been provisioned.",
+            "help": ""
+        },
+        "sync": {
+            "label": "Synchronize",
+            "description": "Enable synchronization with the global platform.",
+            "help": ""
+        },
+        "sync_level": {
+            "label": "Synchronization level",
+            "description": "Data level included in synchronization.",
+            "help": "",
+            "selection": {
+                "required": "Required",
+                "recommended": "Recommended",
+                "optional": "Optional",
+                "demo": "Demo"
+            }
+        },
+        "init": {
+            "label": "Initialize",
+            "description": "Initialize the instance after creation.",
+            "help": "Initialization may take several minutes."
+        }
+    },
+    "error": {
+        "errors": {
+            "invalid_instance_type": "Instances can only be created from the global platform.",
+            "invalid_name": "The instance name is invalid.",
+            "unknown_server": "The selected server does not exist.",
+            "invalid_b2_conf": "The selected server has an invalid b2 API configuration.",
+            "instance_already_exists": "An instance with this name already exists.",
+            "unable_to_prepare_instance_sync": "The synchronization credentials could not be prepared.",
+            "unable_to_create_b2_instance": "The instance could not be created on the server.",
+            "unable_to_persist_instance": "The instance creation could not be saved locally.",
+            "unable_to_create_dns_record": "The instance was created, but its DNS record could not be created."
+        }
+    }
+}
