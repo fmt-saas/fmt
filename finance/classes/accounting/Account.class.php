@@ -921,11 +921,43 @@ class Account extends Model {
         $result = [];
         $self->read(['condo_id', 'code']);
 
+        $map_accounts_codes = [];
+        foreach($self as $account) {
+            if(!$account['condo_id'] || isset($map_accounts_codes[$account['condo_id']])) {
+                continue;
+            }
+
+            $condo_id = $account['condo_id'];
+            $map_accounts_codes[$condo_id] = [];
+            $control_accounts = self::search([
+                    ['condo_id', '=', $condo_id],
+                    ['is_control_account', '=', true]
+                ])
+                ->read(['code']);
+
+            foreach($control_accounts as $control_account_id => $control_account) {
+                $map_accounts_codes[$condo_id][$control_account['code']] = $control_account_id;
+            }
+        }
+
         foreach($self as $id => $account) {
             if(!$account['code']) {
                 continue;
             }
-            $result[$id] = self::computeParentAccountId($account['code'], $account['condo_id']);
+
+            $result[$id] = null;
+            if(!$account['condo_id']) {
+                continue;
+            }
+
+            $parent_code = $account['code'];
+            while(strlen($parent_code) > 1) {
+                $parent_code = substr($parent_code, 0, -1);
+                if(isset($map_accounts_codes[$account['condo_id']][$parent_code])) {
+                    $result[$id] = $map_accounts_codes[$account['condo_id']][$parent_code];
+                    break;
+                }
+            }
         }
 
         return $result;

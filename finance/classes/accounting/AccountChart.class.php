@@ -211,6 +211,7 @@ class AccountChart extends Model {
                     ->read(['accounts_ids' => ['description']], $language['code'])
                     ->first();
 
+                $translated_account_ids = [];
                 foreach($template['accounts_ids'] as $account_template_id => $accountTemplate) {
                     if(!isset($map_account_template_account[$account_template_id])) {
                         continue;
@@ -219,7 +220,15 @@ class AccountChart extends Model {
                         continue;
                     }
                     Account::id($map_account_template_account[$account_template_id])
-                        ->update(['description' => $accountTemplate['description']], $language['code']);
+                        ->write([
+                            'description' => $accountTemplate['description'],
+                            'name'        => null
+                        ], $language['code']);
+                    $translated_account_ids[] = $map_account_template_account[$account_template_id];
+                }
+
+                if(count($translated_account_ids)) {
+                    Account::ids($translated_account_ids)->read(['name'], $language['code']);
                 }
 
             }
