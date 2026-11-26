@@ -6,7 +6,7 @@
             "label": "Renumber miscellaneous operations",
             "description": "Renumber miscellaneous operations sequentially for this fiscal period.",
             "controller": "core_model_do",
-            "visible": ["status", "=", "open"],
+            "visible": ["status", "in", ["open", "preclosed"]],
             "params": {
                 "entity": "finance\\accounting\\FiscalPeriod",
                 "action": "renumber_misc_operations",
@@ -19,7 +19,7 @@
             "label": "Renumber purchase invoices",
             "description": "Renumber purchase invoices sequentially for this fiscal period.",
             "controller": "core_model_do",
-            "visible": ["status", "=", "open"],
+            "visible": ["status", "in", ["open", "preclosed"]],
             "params": {
                 "entity": "finance\\accounting\\FiscalPeriod",
                 "action": "renumber_purchase_invoices",
@@ -32,7 +32,7 @@
             "label": "Renumber bank statement lines",
             "description": "Renumber bank statement lines sequentially for this fiscal period.",
             "controller": "core_model_do",
-            "visible": ["status", "=", "open"],
+            "visible": ["status", "in", ["open", "preclosed"]],
             "params": {
                 "entity": "finance\\accounting\\FiscalPeriod",
                 "action": "renumber_bank_statement_lines",
@@ -45,7 +45,7 @@
             "label": "Renumber accounting entries",
             "description": "Renumber accounting entries sequentially for this fiscal period.",
             "controller": "core_model_do",
-            "visible": ["status", "=", "open"],
+            "visible": ["status", "in", ["open", "preclosed"]],
             "params": {
                 "entity": "finance\\accounting\\FiscalPeriod",
                 "action": "renumber_accounting_entries",
