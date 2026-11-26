@@ -2031,7 +2031,7 @@ class Identity extends Model {
      */
     public static function canupdate($om, $ids, $values, $lang='en') {
         if(isset($values['type_id'])) {
-            $identities = $om->read(Identity::getType(), $ids, [ 'type', 'firstname', 'lastname', 'legal_name', 'registration_number' ], $lang);
+            $identities = $om->read(static::getType(), $ids, [ 'type', 'firstname', 'lastname', 'legal_name', 'registration_number' ], $lang);
             foreach($identities as $id => $identity) {
                 // si type == 'CO', le registration_number est obligatoire
                 $type = $values['type'] ?? $identity['type'];
