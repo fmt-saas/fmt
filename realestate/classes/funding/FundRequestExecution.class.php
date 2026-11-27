@@ -626,7 +626,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             $cron->cancel($task_name);
             $cron->schedule(
                 $task_name,
-                time() + 60,
+                time() + 1,
                 'realestate_funding_FundRequestExecution_generate-documents',
                 ['id' => $id]
             );

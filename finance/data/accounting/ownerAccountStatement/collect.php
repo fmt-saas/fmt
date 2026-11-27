@@ -202,6 +202,8 @@ $domain->addCondition(new DomainCondition('entry_date', '>=', $date_from));
 $domain->addCondition(new DomainCondition('entry_date', '<=', $date_to));
 // consider only validated entries
 $domain->addCondition(new DomainCondition('status', '=', 'validated'));
+// consider only accounting entries targeting the ownership account
+$domain->addCondition(new DomainCondition('account_operation_assignment', 'like', "co_owners_owner%"));
 
 $accounting_entry_lines = AccountingEntryLine::search(
         $domain->toArray(),

@@ -936,7 +936,7 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             $cron->cancel($task_name);
             $cron->schedule(
                 $task_name,
-                time() + 60,
+                time() + 1,
                 'realestate_funding_ExpenseStatement_generate-documents',
                 ['id' => $id]
             );
