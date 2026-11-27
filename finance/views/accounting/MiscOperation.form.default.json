@@ -37,7 +37,7 @@
                 "ids": []
             },
             "confirm": false,
-            "visible": [["status", "=", "posted"], ["purchase_invoice_id", "=", null], ["consumption_statement_id", "=", null]]
+            "visible": [["status", "=", "proforma"], ["purchase_invoice_id", "=", null], ["consumption_statement_id", "=", null]]
         },
         {
             "id": "action.post",
