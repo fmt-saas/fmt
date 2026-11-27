@@ -7,8 +7,11 @@
 
 namespace realestate\funding;
 
+use communication\email\Email;
+use documents\Document;
 use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
+use documents\export\ExportingTaskLog;
 use finance\accounting\Journal;
 use finance\accounting\Account;
 use finance\accounting\FiscalYear;
@@ -701,16 +704,85 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
     }
 
-    protected static function doUnlock($self) {
-        $self->read(['status', 'accounting_entry_id']);
+    protected static function doUnlock($self, $cron) {
+        $self->read(['status', 'condo_id', 'accounting_entry_id']);
 
         foreach($self as $id => $fundRequestExecution) {
             if($fundRequestExecution['status'] !== 'posted') {
                 continue;
             }
 
+            $cron->cancel("realestate.fundrequest.send-fundings.{$id}");
+
             if($fundRequestExecution['accounting_entry_id']) {
                 AccountingEntry::id($fundRequestExecution['accounting_entry_id'])->do('cancel');
+            }
+
+            $map_document_ids = [];
+
+            // remove emails and correspondences, if any
+            $fundRequestExecutionCorrespondences = FundRequestExecutionCorrespondence::search([
+                    ['condo_id', '=', $fundRequestExecution['condo_id']],
+                    ['fund_request_execution_id', '=', $id]
+                ])
+                ->read(['document_id']);
+
+            $correspondence_ids = $fundRequestExecutionCorrespondences->ids();
+            foreach($fundRequestExecutionCorrespondences as $correspondence_id => $fundRequestExecutionCorrespondence) {
+                $cron->cancel("realestate_funding_FundRequestExecutionCorrespondence_generate-document.{$correspondence_id}");
+                if($fundRequestExecutionCorrespondence['document_id']) {
+                    $map_document_ids[$fundRequestExecutionCorrespondence['document_id']] = true;
+                }
+            }
+
+            if(count($correspondence_ids) > 0) {
+                $emails = Email::search([
+                        ['object_class', '=', FundRequestExecutionCorrespondence::class],
+                        ['object_id', 'in', $correspondence_ids]
+                    ]);
+
+                foreach($emails->ids() as $email_id) {
+                    $cron->cancel("monitoring.check_email.{$email_id}");
+                }
+
+                $emails->delete(true);
+                FundRequestExecutionCorrespondence::ids($correspondence_ids)->delete(true);
+            }
+
+            // remove exporting tasks and generated export documents, if any
+            $exportingTasks = ExportingTask::search([
+                    ['object_class', '=', static::class],
+                    ['object_id', '=', $id]
+                ])
+                ->read(['exporting_task_lines_ids' => ['document_id']]);
+
+            foreach($exportingTasks as $exportingTask) {
+                foreach($exportingTask['exporting_task_lines_ids'] as $exportingTaskLine) {
+                    if($exportingTaskLine['document_id']) {
+                        $map_document_ids[$exportingTaskLine['document_id']] = true;
+                    }
+                }
+            }
+
+            $exporting_task_ids = $exportingTasks->ids();
+            if(count($exporting_task_ids) > 0) {
+                ExportingTaskLog::search(['task_id', 'in', $exporting_task_ids])->delete(true);
+                ExportingTask::ids($exporting_task_ids)->delete(true);
+            }
+
+            // remove correspondence documents, if any
+            $document_ids = Document::search([
+                    ['condo_id', '=', $fundRequestExecution['condo_id']],
+                    ['fund_request_execution_id', '=', $id]
+                ])
+                ->ids();
+
+            foreach($document_ids as $document_id) {
+                $map_document_ids[$document_id] = true;
+            }
+
+            if(count($map_document_ids) > 0) {
+                Document::ids(array_keys($map_document_ids))->delete(true);
             }
 
             $funding_ids = Funding::search([
@@ -790,8 +862,9 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             }
 
             self::id($id)->update([
-                'status'              => 'proforma',
-                'accounting_entry_id' => null
+                'status'                      => 'proforma',
+                'accounting_entry_id'         => null,
+                'fundings_exporting_task_id'  => null
             ]);
         }
     }

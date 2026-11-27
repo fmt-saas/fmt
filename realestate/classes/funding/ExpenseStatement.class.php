@@ -6,10 +6,12 @@
 */
 namespace realestate\funding;
 
+use communication\email\Email;
 use documents\Document;
 use documents\DocumentType;
 use documents\export\ExportingTask;
 use documents\export\ExportingTaskLine;
+use documents\export\ExportingTaskLog;
 use finance\accounting\Account;
 use finance\accounting\FiscalPeriod;
 use finance\accounting\FiscalYear;
@@ -408,10 +410,13 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             ]);
     }
 
-    protected static function doUnlock($self) {
+    protected static function doUnlock($self, $cron) {
         $self->read(['condo_id', 'accounting_entry_id']);
 
         foreach($self as $id => $expenseStatement) {
+            $cron->cancel("realestate_funding_ExpenseStatement_generate-documents.{$id}");
+            $cron->cancel("realestate.expensestatement.send-statements.{$id}");
+
             // retrieve accounting entry and cancel it
             if($expenseStatement['accounting_entry_id']) {
                 AccountingEntry::id($expenseStatement['accounting_entry_id'])->do('cancel');
@@ -424,18 +429,72 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
                     'clearing_expense_statement_id' => null
                 ]);
 
-            // remove annex documents and correspondences, if any
-            Document::search([
-                    ['condo_id', '=', $expenseStatement['condo_id']],
-                    ['expense_statement_id', '=', $id]
-                ])
-                ->delete(true);
+            $map_document_ids = [];
 
-            ExpenseStatementCorrespondence::search([
+            // remove mails and correspondences, if any
+            $expenseStatementCorrespondences = ExpenseStatementCorrespondence::search([
                     ['condo_id', '=', $expenseStatement['condo_id']],
                     ['expense_statement_id', '=', $id]
                 ])
-                ->delete(true);
+                ->read(['document_id']);
+
+            $correspondence_ids = $expenseStatementCorrespondences->ids();
+            foreach($expenseStatementCorrespondences as $correspondence_id => $expenseStatementCorrespondence) {
+                $cron->cancel("realestate_funding_ExpenseStatementCorrespondence_generate-document.{$correspondence_id}");
+                if($expenseStatementCorrespondence['document_id']) {
+                    $map_document_ids[$expenseStatementCorrespondence['document_id']] = true;
+                }
+            }
+
+            if(count($correspondence_ids) > 0) {
+                $emails = Email::search([
+                        ['object_class', '=', ExpenseStatementCorrespondence::class],
+                        ['object_id', 'in', $correspondence_ids]
+                    ]);
+
+                foreach($emails->ids() as $email_id) {
+                    $cron->cancel("monitoring.check_email.{$email_id}");
+                }
+
+                $emails->delete(true);
+                ExpenseStatementCorrespondence::ids($correspondence_ids)->delete(true);
+            }
+
+            // remove exporting tasks and generated export documents, if any
+            $exportingTasks = ExportingTask::search([
+                    ['object_class', '=', static::class],
+                    ['object_id', '=', $id]
+                ])
+                ->read(['exporting_task_lines_ids' => ['document_id']]);
+
+            foreach($exportingTasks as $exportingTask) {
+                foreach($exportingTask['exporting_task_lines_ids'] as $exportingTaskLine) {
+                    if($exportingTaskLine['document_id']) {
+                        $map_document_ids[$exportingTaskLine['document_id']] = true;
+                    }
+                }
+            }
+
+            $exporting_task_ids = $exportingTasks->ids();
+            if(count($exporting_task_ids) > 0) {
+                ExportingTaskLog::search(['task_id', 'in', $exporting_task_ids])->delete(true);
+                ExportingTask::ids($exporting_task_ids)->delete(true);
+            }
+
+            // remove annex and correspondence documents, if any
+            $document_ids = Document::search([
+                    ['condo_id', '=', $expenseStatement['condo_id']],
+                    ['expense_statement_id', '=', $id]
+                ])
+                ->ids();
+
+            foreach($document_ids as $document_id) {
+                $map_document_ids[$document_id] = true;
+            }
+
+            if(count($map_document_ids) > 0) {
+                Document::ids(array_keys($map_document_ids))->delete(true);
+            }
 
             // remove related fundings (move payments to BankStatementLine Funding if any)
             $funding_ids = Funding::search([
@@ -514,14 +573,15 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
             if(count($map_funding_ids) > 0) {
                 Funding::ids(array_keys($map_funding_ids))->do('refresh_status');
             }
-        }
 
-        $self
-            ->update(['status' => 'proforma'])
-            ->update([
-                'emission_date'         => null,
-                'accounting_entry_id'   => null
-            ]);
+            self::id($id)
+                ->update(['status' => 'proforma'])
+                ->update([
+                    'emission_date'                => null,
+                    'accounting_entry_id'          => null,
+                    'statements_exporting_task_id' => null
+                ]);
+        }
     }
 
     private static function normalizeMoneyAmount($amount): float {

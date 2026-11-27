@@ -146,7 +146,7 @@ class SaleInvoice extends \sale\accounting\invoice\SaleInvoice {
         }
     }
 
-    protected static function doUnlock($self) {
+    protected static function doUnlock($self, $cron) {
         $self->read(['status', 'accounting_entry_id']);
         foreach($self as $id => $saleInvoice) {
             if($saleInvoice['status'] !== 'posted') {
