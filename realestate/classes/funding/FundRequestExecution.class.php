@@ -270,6 +270,11 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 'policies'      => [],
                 'function'      => 'doGenerateFundRequestExecutionCorrespondences'
             ],
+            'schedule_fund_request_execution_documents_generation' => [
+                'description'   => 'Schedule generation of the fund request execution correspondence documents.',
+                'policies'      => [],
+                'function'      => 'doScheduleFundRequestExecutionDocumentsGeneration'
+            ],
             'send_fund_request_execution_correspondences' => [
                 'description'   => 'Generate individual correspondences for requesting the fundings.',
                 'policies'      => [],
@@ -441,6 +446,13 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
 
     protected static function onafterCall($self) {
         $self->update(['name' => null]);
+        try {
+            $self->do('schedule_fund_request_execution_documents_generation');
+        }
+        catch(\Exception $e) {
+            trigger_error("APP::Error while scheduling fund request execution documents generation: {$e->getMessage()}", EQ_REPORT_ERROR);
+            // #memo - do not relay exception here (non critical)
+        }
     }
 
     public static function doAssignInvoiceNumber($self) {
@@ -539,15 +551,13 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
     /**
      * Generate fund request correspondences for each ownership.
      */
-    protected static function doGenerateFundRequestExecutionCorrespondences($self, $cron) {
+    protected static function doGenerateFundRequestExecutionCorrespondences($self) {
         $self->read(['condo_id', 'execution_lines_ids' => ['ownership_id']]);
         foreach($self as $id => $fundRequestExecution) {
             // remove any previously created correspondence
             FundRequestExecutionCorrespondence::search(['fund_request_execution_id', '=', $id])->delete(true);
 
             $ownerships_ids = array_column($fundRequestExecution['execution_lines_ids']->toArray(), 'ownership_id');
-
-            $now = time() + 60;
 
             foreach($ownerships_ids as $ownership_id) {
                 // fetch Ownership communication preferences
@@ -593,28 +603,33 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                             continue;
                         }
 
-                        $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::create([
+                        FundRequestExecutionCorrespondence::create([
                             'condo_id'                  => $fundRequestExecution['condo_id'],
                             'fund_request_execution_id' => $id,
                             'ownership_id'              => $ownership_id,
                             'owner_id'                  => $owner_id,
                             'communication_method'      => $communication_method
-                        ])
-                        ->first();
-
-                        // schedule generate of document
-                        $cron->schedule(
-                            "realestate_funding_FundRequestExecutionCorrespondence_generate-document.{$fundRequestExecutionCorrespondence['id']}",
-                            ++$now,
-                            'realestate_funding_FundRequestExecutionCorrespondence_generate-document',
-                            [
-                                'id'  => $fundRequestExecutionCorrespondence['id']
-                            ]
-                        );
-
+                        ]);
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Schedule the asynchronous generation of correspondence documents.
+     */
+    protected static function doScheduleFundRequestExecutionDocumentsGeneration($self, $cron) {
+        foreach($self->ids() as $id) {
+            $task_name = "realestate_funding_FundRequestExecution_generate-documents.{$id}";
+
+            $cron->cancel($task_name);
+            $cron->schedule(
+                $task_name,
+                time() + 60,
+                'realestate_funding_FundRequestExecution_generate-documents',
+                ['id' => $id]
+            );
         }
     }
 
@@ -656,8 +671,10 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
             if(!$is_sending_disabled) {
                 if(isset($map_communication_methods['email'])) {
                     // schedule queuing of fund request emails
+                    $task_name = "realestate.fundrequest.send-fundings.{$id}";
+                    $cron->cancel($task_name);
                     $cron->schedule(
-                        "realestate.fundrequest.send-fundings.{$id}",
+                        $task_name,
                         time() + (5 * 60),
                         'realestate_funding_FundRequestExecution_send-fundings-emails',
                         [
@@ -712,6 +729,7 @@ class FundRequestExecution extends \realestate\sale\accounting\invoice\SaleInvoi
                 continue;
             }
 
+            $cron->cancel("realestate_funding_FundRequestExecution_generate-documents.{$id}");
             $cron->cancel("realestate.fundrequest.send-fundings.{$id}");
 
             if($fundRequestExecution['accounting_entry_id']) {

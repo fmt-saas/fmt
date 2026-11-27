@@ -9,7 +9,7 @@ use realestate\funding\ExpenseStatement;
 use realestate\funding\ExpenseStatementCorrespondence;
 
 [$params, $providers] = eQual::announce([
-    'description'   => 'Generate the static documents of an expense statement, then schedule each existing correspondence document.',
+    'description'   => 'Generate the static documents of an expense statement, schedule each correspondence document, then initialize sending and export.',
     'params'        => [
         'id' => [
             'type'              => 'many2one',
@@ -71,6 +71,9 @@ foreach($expenseStatementCorrespondences as $id => $expenseStatementCorresponden
         ['id' => $id]
     );
 }
+
+ExpenseStatement::id($expenseStatement['id'])
+    ->do('send_expense_statements');
 
 $context->httpResponse()
     ->status(201)

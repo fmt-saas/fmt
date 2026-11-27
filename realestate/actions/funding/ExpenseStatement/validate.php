@@ -52,10 +52,6 @@ if($expenseStatements->count() <= 0) {
     throw new Exception("unknown_expense_statement", EQ_ERROR_UNKNOWN_OBJECT);
 }
 
-$values = [
-    'perform_sending' => $params['perform_sending']
-];
-
 /*
  * The `validate` transition:
  * - generates the statement lines and accounting entries;
@@ -68,8 +64,8 @@ $values = [
  * - resets its computed name and schedules asynchronous document generation.
  */
 $expenseStatements
-    ->transition('validate')
-    ->do('send_expense_statements', $values);
+    ->update(['is_sending_disabled' => !$params['perform_sending']])
+    ->transition('validate');
 
 $context->httpResponse()
         ->status(204)

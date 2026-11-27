@@ -77,13 +77,9 @@ if(isset($params['with_emission_date']) && $params['with_emission_date'] && isse
     $fundRequestExecution->update(['emission_date' => $params['emission_date']]);
 }
 
-$values = [
-    'perform_sending' => $params['perform_sending']
-];
-
 $fundRequestExecution
-    ->transition('call')
-    ->do('send_fund_request_execution_correspondences', $values);
+    ->update(['is_sending_disabled' => !$params['perform_sending']])
+    ->transition('call');
 
 $context->httpResponse()
         ->status(204)
