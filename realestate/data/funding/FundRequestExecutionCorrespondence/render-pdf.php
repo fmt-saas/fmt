@@ -40,7 +40,7 @@ use realestate\funding\FundRequestExecutionCorrespondence;
 ['context' => $context] = $providers;
 
 $fundRequestExecutionCorrespondence = FundRequestExecutionCorrespondence::id($params['id'])
-    ->read(['ownership_id', 'recipient_identity_id', 'address_block', 'fund_request_execution_id' => ['id', 'fiscal_period_id', 'posting_date', 'with_due_balance']])
+    ->read(['ownership_id', 'recipient_identity_id', 'address_block', 'fund_request_execution_id' => ['id', 'fiscal_period_id', 'posting_date', 'emission_date', 'with_due_balance']])
     ->first();
 
 if(!$fundRequestExecutionCorrespondence) {
@@ -85,8 +85,7 @@ try {
 
             $pdf = eQual::run('get', 'finance_accounting_ownerAccountStatement_render-pdf', [
                     'date_from'         => $fiscalPeriod['date_from'],
-                    'date_to'           => $fiscalPeriod['date_to'],
-                    // 'date_to'           => $date_to,
+                    'date_to'           => $fundRequestExecution['emission_date'],
                     'ownership_id'      => $fundRequestExecutionCorrespondence['ownership_id']
                 ]);
             $temp = tempnam(sys_get_temp_dir(), 'pdf_');

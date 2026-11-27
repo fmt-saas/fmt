@@ -519,8 +519,8 @@ class ExpenseStatement extends \realestate\sale\accounting\invoice\SaleInvoice {
         $self
             ->update(['status' => 'proforma'])
             ->update([
-                'emission_date' => null,
-                'accounting_entry_id' => null
+                'emission_date'         => null,
+                'accounting_entry_id'   => null
             ]);
     }
 
