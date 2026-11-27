@@ -483,6 +483,7 @@
             "identical_ownerships": "Les propriétés vendeuse et acquéreuse doivent être différentes.",
             "invalid_property_lots_count": "La mutation doit contenir au moins un lot.",
             "missing_transfer_date": "La date de mutation doit être renseignée.",
+            "invalid_new_ownership_date_from": "La date de début de la propriété acquéreuse doit être antérieure ou égale à la date de mutation.",
             "missing_ownership_transfer_settlement": "La mutation ne possède aucune régularisation comptable à annuler.",
             "settlement_not_unlockable": "La régularisation comptable ne peut pas être annulée dans son état actuel."
         }

@@ -104,7 +104,8 @@ class OwnershipTransfer extends \equal\orm\Model {
             'transfer_date' => [
                 'type'              => 'date',
                 'description'       => "Date at which the ownership transfer took place.",
-                'help'              => "This date must match the notary deed date and is therefore known only at the end of the process."
+                'help'              => "This date must match the notary deed date and is therefore known only at the end of the process.",
+                'onupdate'          => 'onupdateTransferDate'
             ],
 
             'seller_documents_sent_date' => [
@@ -189,7 +190,8 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'type'              => 'many2one',
                 'description'       => "The Ownership the property is being transferred to.",
                 'foreign_object'    => 'realestate\ownership\Ownership',
-                'domain'            => [['condo_id', '=', 'object.condo_id'], ['id', '<>', 'object.old_ownership_id']]
+                'domain'            => [['condo_id', '=', 'object.condo_id'], ['id', '<>', 'object.old_ownership_id']],
+                'onupdate'          => 'onupdateNewOwnershipId'
             ],
 
             'ownership_transfer_settlement_id' => [
@@ -711,6 +713,14 @@ class OwnershipTransfer extends \equal\orm\Model {
         }
     }
 
+    protected static function onupdateTransferDate($self) {
+        $self->do('sync_new_ownership_date_from');
+    }
+
+    protected static function onupdateNewOwnershipId($self) {
+        $self->do('sync_new_ownership_date_from');
+    }
+
     protected static function onafterOpen($self) {
         // 3.94.1
         $fund_balances_description = '';
@@ -828,12 +838,17 @@ class OwnershipTransfer extends \equal\orm\Model {
         $self->read([
             'condo_id',
             'old_ownership_id',
-            'new_ownership_id',
+            'new_ownership_id' => ['status'],
             'transfer_date',
             'ownership_transfer_settlement_id'
         ]);
 
         foreach($self as $id => $ownershipTransfer) {
+            if($ownershipTransfer['new_ownership_id']['status'] !== 'validated') {
+                Ownership::id($ownershipTransfer['new_ownership_id']['id'])
+                    ->transition('validate');
+            }
+
             if($ownershipTransfer['ownership_transfer_settlement_id']) {
                 continue;
             }
@@ -842,7 +857,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'ownership_transfer_id'  => $id,
                 'condo_id'               => $ownershipTransfer['condo_id'],
                 'seller_ownership_id'    => $ownershipTransfer['old_ownership_id'],
-                'buyer_ownership_id'     => $ownershipTransfer['new_ownership_id'],
+                'buyer_ownership_id'     => $ownershipTransfer['new_ownership_id']['id'],
                 'transfer_date'          => $ownershipTransfer['transfer_date'],
                 'snapshot_at'            => time()
             ])
@@ -879,6 +894,10 @@ class OwnershipTransfer extends \equal\orm\Model {
             'can_unlock' => [
                 'description' => 'Checks that the ownership transfer has an accounting settlement that can be cancelled.',
                 'function'    => 'policyCanUnlock'
+            ],
+            'new_ownership_date_from_syncable' => [
+                'description' => 'Checks that the new ownership start date can be synchronized.',
+                'function'    => 'policyNewOwnershipDateFromSyncable'
             ]
         ];
     }
@@ -909,8 +928,30 @@ class OwnershipTransfer extends \equal\orm\Model {
                 'description'   => 'Refresh all values related to arrears and shares.',
                 'policies'      => [],
                 'function'      => 'doCheckTransferInProgress'
+            ],
+            'sync_new_ownership_date_from' => [
+                'description'   => 'Synchronize the new ownership start date with the transfer date.',
+                'policies'      => ['new_ownership_date_from_syncable'],
+                'function'      => 'doSyncNewOwnershipDateFrom'
             ]
         ]);
+    }
+
+    protected static function policyNewOwnershipDateFromSyncable($self): array {
+        return [];
+    }
+
+    protected static function doSyncNewOwnershipDateFrom($self) {
+        $self->read(['new_ownership_id', 'transfer_date']);
+
+        foreach($self as $ownershipTransfer) {
+            if(!$ownershipTransfer['new_ownership_id'] || !$ownershipTransfer['transfer_date']) {
+                continue;
+            }
+
+            Ownership::id($ownershipTransfer['new_ownership_id'])
+                ->update(['date_from' => $ownershipTransfer['transfer_date']]);
+        }
     }
 
     protected static function policyIsValid($self) {
@@ -978,7 +1019,7 @@ class OwnershipTransfer extends \equal\orm\Model {
         $self->read([
             'condo_id',
             'old_ownership_id',
-            'new_ownership_id',
+            'new_ownership_id' => ['date_from'],
             'property_lots_ids',
             'transfer_date'
         ]);
@@ -999,7 +1040,7 @@ class OwnershipTransfer extends \equal\orm\Model {
                 continue;
             }
 
-            if((int) $ownershipTransfer['old_ownership_id'] === (int) $ownershipTransfer['new_ownership_id']) {
+            if((int) $ownershipTransfer['old_ownership_id'] === (int) $ownershipTransfer['new_ownership_id']['id']) {
                 $result[$id] = ['identical_ownerships' => 'Seller and buyer ownerships must be different.'];
                 continue;
             }
@@ -1011,6 +1052,14 @@ class OwnershipTransfer extends \equal\orm\Model {
 
             if(!$ownershipTransfer['transfer_date']) {
                 $result[$id] = ['missing_transfer_date' => 'The ownership transfer date is mandatory.'];
+                continue;
+            }
+
+            if(
+                !$ownershipTransfer['new_ownership_id']['date_from']
+                || $ownershipTransfer['new_ownership_id']['date_from'] > $ownershipTransfer['transfer_date']
+            ) {
+                $result[$id] = ['invalid_new_ownership_date_from' => 'The buyer ownership start date must be before or equal to the transfer date.'];
             }
         }
 
